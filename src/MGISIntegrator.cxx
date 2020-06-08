@@ -241,4 +241,6 @@ namespace mfem_mgis {
     return energy;
   }
 
+  MGISIntegrator::~MGISIntegrator() = default;
+
 }  // end of namespace mfem_mgis
