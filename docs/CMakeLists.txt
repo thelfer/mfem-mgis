@@ -1,0 +1,3 @@
+if(MFEMMGIS_GENERATE_WEBSITE)
+  add_subdirectory(web)
+endif(MFEMMGIS_GENERATE_WEBSITE)
