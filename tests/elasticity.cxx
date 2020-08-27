@@ -154,17 +154,10 @@ int main(int argc, char *argv[]) {
   // 9. Set up the bilinear form a(.,.) on the finite element space
   //    corresponding to the linear elasticity integrator with piece-wise
   //    constants coefficient lambda and mu.
-  Vector lambda(mesh->attributes.Max());
-  lambda = 1.0;
-  lambda(0) = lambda(1) * 50;
-  PWConstCoefficient lambda_func(lambda);
-  Vector mu(mesh->attributes.Max());
-  mu = 1.0;
-  mu(0) = mu(1) * 50;
-  PWConstCoefficient mu_func(mu);
 
   BilinearForm *a = new BilinearForm(fespace);
-  a->AddDomainIntegrator(new mfem_mgis::MGISIntegrator(lambda_func, mu_func));
+  a->AddDomainIntegrator(new mfem_mgis::MGISIntegrator(*fespace, mesh->attributes[0], 50, 50));
+  a->AddDomainIntegrator(new mfem_mgis::MGISIntegrator(*fespace, mesh->attributes[1], 1, 1));
 
   // 10. Assemble the bilinear form and the corresponding linear system,
   //     applying any necessary transformations such as: eliminating boundary
@@ -184,68 +177,65 @@ int main(int argc, char *argv[]) {
   cout << "Size of linear system: " << A.Height() << endl;
 
 #ifndef MFEM_USE_SUITESPARSE
-   // 11. Define a simple symmetric Gauss-Seidel preconditioner and use it to
-   //     solve the system Ax=b with PCG.
-   GSSmoother M(A);
-   PCG(A, M, B, X, 1, 500, 1e-8, 0.0);
+  // 11. Define a simple symmetric Gauss-Seidel preconditioner and use it to
+  //     solve the system Ax=b with PCG.
+  GSSmoother M(A);
+  PCG(A, M, B, X, 1, 500, 1e-8, 0.0);
 #else
-   // 11. If MFEM was compiled with SuiteSparse, use UMFPACK to solve the system.
-   UMFPackSolver umf_solver;
-   umf_solver.Control[UMFPACK_ORDERING] = UMFPACK_ORDERING_METIS;
-   umf_solver.SetOperator(A);
-   umf_solver.Mult(B, X);
+  // 11. If MFEM was compiled with SuiteSparse, use UMFPACK to solve the system.
+  UMFPackSolver umf_solver;
+  umf_solver.Control[UMFPACK_ORDERING] = UMFPACK_ORDERING_METIS;
+  umf_solver.SetOperator(A);
+  umf_solver.Mult(B, X);
 #endif
 
-   // 12. Recover the solution as a finite element grid function.
-   a->RecoverFEMSolution(X, *b, x);
+  // 12. Recover the solution as a finite element grid function.
+  a->RecoverFEMSolution(X, *b, x);
 
-   // 13. For non-NURBS meshes, make the mesh curved based on the finite element
-   //     space. This means that we define the mesh elements through a fespace
-   //     based transformation of the reference element. This allows us to save
-   //     the displaced mesh as a curved mesh when using high-order finite
-   //     element displacement field. We assume that the initial mesh (read from
-   //     the file) is not higher order curved mesh compared to the chosen FE
-   //     space.
-   if (!mesh->NURBSext)
-   {
-      mesh->SetNodalFESpace(fespace);
-   }
+  // 13. For non-NURBS meshes, make the mesh curved based on the finite element
+  //     space. This means that we define the mesh elements through a fespace
+  //     based transformation of the reference element. This allows us to save
+  //     the displaced mesh as a curved mesh when using high-order finite
+  //     element displacement field. We assume that the initial mesh (read from
+  //     the file) is not higher order curved mesh compared to the chosen FE
+  //     space.
+  if (!mesh->NURBSext) {
+    mesh->SetNodalFESpace(fespace);
+  }
 
-   // 14. Save the displaced mesh and the inverted solution (which gives the
-   //     backward displacements to the original grid). This output can be
-   //     viewed later using GLVis: "glvis -m displaced.mesh -g sol.gf".
-   {
-      GridFunction *nodes = mesh->GetNodes();
-      *nodes += x;
-      x *= -1;
-      ofstream mesh_ofs("displaced.mesh");
-      mesh_ofs.precision(8);
-      mesh->Print(mesh_ofs);
-      ofstream sol_ofs("sol.gf");
-      sol_ofs.precision(8);
-      x.Save(sol_ofs);
-   }
+  // 14. Save the displaced mesh and the inverted solution (which gives the
+  //     backward displacements to the original grid). This output can be
+  //     viewed later using GLVis: "glvis -m displaced.mesh -g sol.gf".
+  {
+    GridFunction *nodes = mesh->GetNodes();
+    *nodes += x;
+    x *= -1;
+    ofstream mesh_ofs("displaced.mesh");
+    mesh_ofs.precision(8);
+    mesh->Print(mesh_ofs);
+    ofstream sol_ofs("sol.gf");
+    sol_ofs.precision(8);
+    x.Save(sol_ofs);
+  }
 
-   // 15. Send the above data by socket to a GLVis server. Use the "n" and "b"
-   //     keys in GLVis to visualize the displacements.
-   if (visualization)
-   {
-      char vishost[] = "localhost";
-      int  visport   = 19916;
-      socketstream sol_sock(vishost, visport);
-      sol_sock.precision(8);
-      sol_sock << "solution\n" << *mesh << x << flush;
-   }
+  // 15. Send the above data by socket to a GLVis server. Use the "n" and "b"
+  //     keys in GLVis to visualize the displacements.
+  if (visualization) {
+    char vishost[] = "localhost";
+    int visport = 19916;
+    socketstream sol_sock(vishost, visport);
+    sol_sock.precision(8);
+    sol_sock << "solution\n" << *mesh << x << flush;
+  }
 
-   // 16. Free the used memory.
-   delete a;
-   delete b;
-   if (fec)
-   {
-      delete fespace;
-      delete fec;
-   }
-   delete mesh;
+  // 16. Free the used memory.
+  delete a;
+  delete b;
+  if (fec) {
+    delete fespace;
+    delete fec;
+  }
+  delete mesh;
 
-   return 0;
+  return 0;
 }
