@@ -1,4 +1,4 @@
-#add_executable(elasticity
-#  elasticity)
-#target_link_libraries(elasticity
-#  PRIVATE MFEMMGIS)
+add_executable(BehaviourIntegratorTest
+	BehaviourIntegratorTest.cxx)
+target_link_libraries(BehaviourIntegratorTest
+  PRIVATE MFEMMGIS)

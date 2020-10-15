@@ -35,8 +35,10 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] fs: finite element space
+     * \param[in] h: modelling hypothesis
      */
-    MGISIntegrator(std::shared_ptr<const mfem::FiniteElementSpace>);
+    MGISIntegrator(std::shared_ptr<const mfem::FiniteElementSpace>,
+                   const Hypothesis);
 
     void AssembleElementVector(const mfem::FiniteElement &,
                                mfem::ElementTransformation &,
@@ -73,6 +75,8 @@ namespace mfem_mgis {
     std::unordered_map<size_type,  // material id
                        std::shared_ptr<BehaviourIntegrator>>
         behaviour_integrators;
+    //! \brief modelling hypothesis
+    Hypothesis hypothesis;
   };  // end of MGISIntegratorBase
 
 }  // end of namespace mfem_mgis

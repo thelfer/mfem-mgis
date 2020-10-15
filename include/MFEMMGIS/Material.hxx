@@ -11,6 +11,7 @@
 #include <memory>
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/Behaviour.hxx"
 
 namespace mfem_mgis {
 
@@ -23,9 +24,6 @@ namespace mfem_mgis {
    * \brief a simple structure describing a material an the associated data.
    */
   struct MFEM_MGIS_EXPORT Material : mgis::behaviour::MaterialDataManager {
-    //! \brief a simple alias
-    using Behaviour = mgis::behaviour::Behaviour;
-
     /*!
      * \brief constructor
      * \param[in] s: quadrature space

@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/BehaviourIntegrator.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   27/08/2020
  */
@@ -13,42 +13,36 @@
 #include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 
-namespace mfem_mgis{
+namespace mfem_mgis {
 
   /*!
-   * \brief 
+   * \brief abstract class for all behaviour integrators
+   *
+   * This class provides methods to:
+   *
+   * - compute the nodal forces du to the material reaction (see the
+   *   `computeInnerForces` method).
+   * - compute the stiffness matrix (see the `computeStiffnessMatrix` method).
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegrator {
+    /*!
+     * \brief compute the inner forces for the given element
+     */
     virtual void computeInnerForces(const mfem::FiniteElement &,
                                     mfem::ElementTransformation &,
                                     const mfem::Vector &,
                                     mfem::Vector &) = 0;
-
+    /*!
+     * \brief compute the stiffness matrix for the given element
+     */
     virtual void computeStiffnessMatrix(const mfem::FiniteElement &,
-                                     mfem::ElementTransformation &,
-                                     const mfem::Vector &,
-                                     mfem::DenseMatrix &) = 0;
-
+                                        mfem::ElementTransformation &,
+                                        const mfem::Vector &,
+                                        mfem::DenseMatrix &) = 0;
+    //! \brief destructor
     virtual ~BehaviourIntegrator();
+  };  // end of struct BehaviourIntegrator
 
-   protected:
-    /*!
-     * \brief return a suitable integration rule for the given finite
-     * element
-     * and the finite element transformation.
-     */
-    virtual const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &,
-        const mfem::ElementTransformation &) const = 0;
-    /*!
-     * \brief load a behaivour
-     * \param[in] l: library name
-     * \param[in] b: behaviour name
-     */
-    static std::unique_ptr<mgis::behaviour::Behaviour> load(
-        const std::string &, const std::string &);
-  }; // end of struct BehaviourIntegrator
-
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_BEHAVIOURINTEGRATOR_HXX */

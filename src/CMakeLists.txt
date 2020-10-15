@@ -1,7 +1,11 @@
 mfem_mgis_library(MFEMMGIS
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
+  Behaviour.cxx
   Material.cxx
   BehaviourIntegrator.cxx
+  BehaviourIntegratorBase.cxx
+  SmallStrainMechanicalBehaviourIntegrator.cxx
+  BehaviourIntegratorFactory.cxx
   MGISIntegrator.cxx
 )
