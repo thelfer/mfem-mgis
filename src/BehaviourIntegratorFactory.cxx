@@ -20,15 +20,7 @@ namespace mfem_mgis {
    */
   template <Hypothesis H>
   static void fillWithDefaultBehaviourIntegrators(
-      BehaviourIntegratorFactory& f) {
-    f.addGenerator(
-        "SmallStrainMechanicalBehaviourIntegrator",
-        [](const mfem::FiniteElementSpace& fs, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
-          return std::unique_ptr<SmallStrainMechanicalBehaviourIntegrator<H>>(
-              new SmallStrainMechanicalBehaviourIntegrator<H>(fs, m,
-                                                              std::move(b)));
-        });
+      BehaviourIntegratorFactory&) {
   }  // end of fillWithDefaultBehaviourIntegrators
 
   /*!
@@ -42,9 +34,24 @@ namespace mfem_mgis {
    * `fillWithDefaultBehaviourIntegrators`.
    */
   template <Hypothesis H>
-  static BehaviourIntegratorFactory buildFactory() {
+  static BehaviourIntegratorFactory buildFactory();
+
+  /*!
+   * \brief partial specialisation for the tridimensional case
+   */
+  template <>
+  BehaviourIntegratorFactory buildFactory<Hypothesis::TRIDIMENSIONAL>() {
+    constexpr const auto h = Hypothesis::TRIDIMENSIONAL;
     BehaviourIntegratorFactory f;
-    fillWithDefaultBehaviourIntegrators<H>(f);
+    fillWithDefaultBehaviourIntegrators<Hypothesis::TRIDIMENSIONAL>(f);
+    f.addGenerator(
+        "SmallStrainMechanicalBehaviourIntegrator",
+        [](const mfem::FiniteElementSpace& fs, const size_type m,
+           std::unique_ptr<const Behaviour> b) {
+          return std::unique_ptr<SmallStrainMechanicalBehaviourIntegrator<h>>(
+              new SmallStrainMechanicalBehaviourIntegrator<h>(fs, m,
+                                                              std::move(b)));
+        });
     return f;
   }  // end of buildFactory
 
@@ -63,12 +70,12 @@ namespace mfem_mgis {
   std::map<Hypothesis, BehaviourIntegratorFactory>
   BehaviourIntegratorFactory::buildFactories() {
     auto factories = std::map<Hypothesis, BehaviourIntegratorFactory>{};
-    addFactory<Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRAIN>(factories);
-    addFactory<Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRESS>(factories);
-    addFactory<Hypothesis::AXISYMMETRICAL>(factories);
-    addFactory<Hypothesis::PLANESTRESS>(factories);
-    addFactory<Hypothesis::PLANESTRAIN>(factories);
-    addFactory<Hypothesis::GENERALISEDPLANESTRAIN>(factories);
+    //     addFactory<Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRAIN>(factories);
+    //     addFactory<Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRESS>(factories);
+    //     addFactory<Hypothesis::AXISYMMETRICAL>(factories);
+    //     addFactory<Hypothesis::PLANESTRESS>(factories);
+    //     addFactory<Hypothesis::PLANESTRAIN>(factories);
+    //     addFactory<Hypothesis::GENERALISEDPLANESTRAIN>(factories);
     addFactory<Hypothesis::TRIDIMENSIONAL>(factories);
     return factories;
   }  // end of BehaviourIntegratorFactory::buildFactories()

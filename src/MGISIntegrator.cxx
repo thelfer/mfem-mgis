@@ -30,7 +30,7 @@ namespace mfem_mgis {
           "no behaviour integrator associated with material '" +
           std::to_string(m) + "'");
     }
-    pbi->second->computeInnerForces(e, tr, U, F);
+    pbi->second->computeInnerForces(F, e, tr, U);
   }  // end of MGISIntegrator::AssembleElementVector
 
   void MGISIntegrator::AssembleElementGrad(const mfem::FiniteElement& e,
@@ -45,7 +45,7 @@ namespace mfem_mgis {
           "no behaviour integrator associated with material '" +
           std::to_string(m) + "'");
     }
-    pbi->second->computeStiffnessMatrix(e, tr, U, K);
+    pbi->second->computeStiffnessMatrix(K, e, tr, U);
   }  // end of MGISIntegrator::AssembleElementGrad
 
   void MGISIntegrator::addBehaviourIntegrator(const std::string& n,
@@ -62,6 +62,10 @@ namespace mfem_mgis {
     this->behaviour_integrators[m] = f.generate(
         n, *(this->fe_space), m, mfem_mgis::load(l, b, this->hypothesis));
   }  // end of MGISIntegrator::addBehaviourIntegrator
+
+  void MGISIntegrator::setTimeIncrement(const real dt) {
+    this->time_increment = dt;
+  } // end of MGISIntegrator::setTimeIncrement
 
   MGISIntegrator::~MGISIntegrator() = default;
 

@@ -7,7 +7,6 @@
 
 #include <utility>
 #include "mfem/fem/eltrans.hpp"
-#include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/SmallStrainMechanicalBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
@@ -31,7 +30,7 @@ namespace mfem_mgis {
       const Behaviour &b) {
     auto selector = [&b](const mfem::FiniteElement &el,
                          const mfem::ElementTransformation &Trans) {
-      return getIntegrationRule(el, Trans, b);
+      return mfem_mgis::getIntegrationRule(el, Trans, b);
     };  // end of selector
     return std::make_shared<PartialQuadratureSpace>(fs, m, selector);
   }  // end of buildQuadratureSpace
@@ -43,7 +42,32 @@ namespace mfem_mgis {
           std::unique_ptr<const Behaviour> b_ptr)
       : BehaviourIntegratorBase(buildQuadratureSpace(fs, m, *b_ptr),
                                 std::move(b_ptr)) {
-  }  // end of SmallStrainMechanicalBehaviourIntegrator
+  }  // end of SmallStrainMechanicalBehaviourIntegratorBase
+
+  template <>
+  void SmallStrainMechanicalBehaviourIntegrator<Hypothesis::TRIDIMENSIONAL>::
+      computeInnerForces(mfem::Vector &Fe,
+                         const mfem::FiniteElement &e,
+                         mfem::ElementTransformation &tr,
+                         const mfem::Vector &u) {
+    this->implementComputeInnerForces(Fe, e, tr, u);
+  }  // end of computeInnerForces
+
+  template <>
+  void SmallStrainMechanicalBehaviourIntegrator<Hypothesis::TRIDIMENSIONAL>::
+      computeStiffnessMatrix(mfem::DenseMatrix &Ke,
+                             const mfem::FiniteElement &e,
+                             mfem::ElementTransformation &tr,
+                             const mfem::Vector &) {
+    this->implementComputeStiffnessMatrix(Ke, e, tr);
+  }  // end of computeStiffnessMatrix
+
+  const mfem::IntegrationRule &
+  SmallStrainMechanicalBehaviourIntegratorBase::getIntegrationRule(
+      const mfem::FiniteElement &e,
+      const mfem::ElementTransformation &t) const {
+    return mfem_mgis::getIntegrationRule(e, t, this->b);
+  } // end of getIntegrationRule
 
   SmallStrainMechanicalBehaviourIntegratorBase::
       ~SmallStrainMechanicalBehaviourIntegratorBase() = default;

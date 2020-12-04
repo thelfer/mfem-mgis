@@ -22,6 +22,7 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : BehaviourIntegrator,
                                                     Material {
+    void setTimeIncrement(const real) override;
     //! \brief destructor
     ~BehaviourIntegratorBase() override;
 
@@ -42,11 +43,16 @@ namespace mfem_mgis {
      */
     void checkHypotheses(const Hypothesis) const;
     /*!
-     * \brief integrate the behaviour for the given element
-     * \param[in] e: local element identifier
+     * \brief integrate the mechanical behaviour over the time step
+     * If successful, the value of the stress, consistent tangent 
+     * operator and internal state variables are updated.
+     *
+     * \param[in] ip: local integration point index
+     * \note this method shall be called after having set the gradients.
      */
-    void integrate(const size_type);
-
+    virtual void integrate(const size_type);
+    //! \brief time increment for the given time step
+    real time_increment;
   };  // end of struct BehaviourIntegratorBase
 
 }  // end of namespace mfem_mgis

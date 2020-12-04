@@ -1,8 +1,6 @@
 # Description of the `mfem-mgis`
 
-This project shows how to buid and [`MFEM`](https://mfem.org/) bilinear
-integrators on top of the
+This project shows how to build an [`MFEM`](https://mfem.org/)
+`NonlinearFormIntegrator` on top of the
 [`MGIS`](https://github.com/thelfer/MFrontGenericInterfaceSupport)
 library.
-
-

@@ -115,9 +115,9 @@ if(enable-cxx-17)
   set(COMPILER_FLAGS "-std=c++17 ${COMPILER_FLAGS}")
 else(enable-cxx-17)
   if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 4.7)
-    message(FATAL_ERROR "C++11 support is only available for gcc version >= 4.7")
+    message(FATAL_ERROR "C++17 support is only available for gcc version >= 4.7")
   endif(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 4.7)
-  set(COMPILER_CXXFLAGS "${COMPILER_CXXFLAGS} -std=c++11")  
+  set(COMPILER_CXXFLAGS "${COMPILER_CXXFLAGS} -std=c++17")  
 endif(enable-cxx-17)
 
 # basic C support

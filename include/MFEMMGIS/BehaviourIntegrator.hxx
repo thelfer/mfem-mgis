@@ -20,25 +20,39 @@ namespace mfem_mgis {
    *
    * This class provides methods to:
    *
+   * - integrate the behaviour over the time step
    * - compute the nodal forces du to the material reaction (see the
    *   `computeInnerForces` method).
    * - compute the stiffness matrix (see the `computeStiffnessMatrix` method).
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegrator {
     /*!
-     * \brief compute the inner forces for the given element
+     * \brief set the time increment
+     * \param[in] dt: time increment
      */
-    virtual void computeInnerForces(const mfem::FiniteElement &,
+    virtual void setTimeIncrement(const real) = 0;
+    /*!
+     * \brief compute the inner forces for the given element
+     * \param[out] Fe: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     * \param[in] u: current estimation of the displacement field
+     */
+    virtual void computeInnerForces(mfem::Vector &,
+                                    const mfem::FiniteElement &,
                                     mfem::ElementTransformation &,
-                                    const mfem::Vector &,
-                                    mfem::Vector &) = 0;
+                                    const mfem::Vector &) = 0;
     /*!
      * \brief compute the stiffness matrix for the given element
+     * \param[out] Ke: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     * \param[in] u: current estimation of the displacement field
      */
-    virtual void computeStiffnessMatrix(const mfem::FiniteElement &,
+    virtual void computeStiffnessMatrix(mfem::DenseMatrix &,
+                                        const mfem::FiniteElement &,
                                         mfem::ElementTransformation &,
-                                        const mfem::Vector &,
-                                        mfem::DenseMatrix &) = 0;
+                                        const mfem::Vector &) = 0;
     //! \brief destructor
     virtual ~BehaviourIntegrator();
   };  // end of struct BehaviourIntegrator

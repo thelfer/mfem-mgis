@@ -40,6 +40,12 @@ namespace mfem_mgis {
     MGISIntegrator(std::shared_ptr<const mfem::FiniteElementSpace>,
                    const Hypothesis);
 
+    /*!
+     * \brief set the value of the time increment
+     * \param[in] dt: time increment
+     */
+    void setTimeIncrement(const real);
+
     void AssembleElementVector(const mfem::FiniteElement &,
                                mfem::ElementTransformation &,
                                const mfem::Vector &,
@@ -77,6 +83,8 @@ namespace mfem_mgis {
         behaviour_integrators;
     //! \brief modelling hypothesis
     Hypothesis hypothesis;
+    //! \brief time increment
+    real time_increment;
   };  // end of MGISIntegratorBase
 
 }  // end of namespace mfem_mgis

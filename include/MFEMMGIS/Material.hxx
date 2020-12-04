@@ -35,6 +35,13 @@ namespace mfem_mgis {
     //! \brief destructor
     ~Material();
 
+   protected:
+
+    /*!
+     * \brief underlying quadrature space
+     */
+    const std::shared_ptr<const PartialQuadratureSpace> quadrature_space;
+
    private:
     //! \brief copy constructor (disabled)
     Material(const Material &) = delete;
@@ -44,11 +51,6 @@ namespace mfem_mgis {
     Material &operator=(const Material &) = delete;
     //! \brief move assignement (disabled)
     Material &operator=(Material &&) = delete;
-
-    /*!
-     * \brief underlying quadrature space
-     */
-    const std::shared_ptr<const PartialQuadratureSpace> quadrature_space;
     /*!
      * \brief underlying behaviour. Only stored for memory management.
      * \note The behaviour can be accessed through the `b` member which is
