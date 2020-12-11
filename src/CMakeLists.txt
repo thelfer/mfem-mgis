@@ -8,4 +8,6 @@ mfem_mgis_library(MFEMMGIS
   SmallStrainMechanicalBehaviourIntegrator.cxx
   BehaviourIntegratorFactory.cxx
   MGISIntegrator.cxx
+  ResidualOperator.cxx
+  NonLinearEvolutionProblem.cxx
 )

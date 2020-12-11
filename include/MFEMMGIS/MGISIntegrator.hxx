@@ -10,9 +10,7 @@
 
 #include <memory>
 #include <unordered_map>
-
 #include "mfem/fem/nonlininteg.hpp"
-
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/MGISForward.hxx"
@@ -74,6 +72,8 @@ namespace mfem_mgis {
    private:
     //! \brief underlying finit element space
     const std::shared_ptr<const mfem::FiniteElementSpace> fe_space;
+    //! \brief modelling hypothesis
+    const Hypothesis hypothesis;
     /*!
      * \brief mapping between the material integrator and the behaviour
      * integrator.
@@ -81,8 +81,6 @@ namespace mfem_mgis {
     std::unordered_map<size_type,  // material id
                        std::shared_ptr<BehaviourIntegrator>>
         behaviour_integrators;
-    //! \brief modelling hypothesis
-    Hypothesis hypothesis;
     //! \brief time increment
     real time_increment;
   };  // end of MGISIntegratorBase
