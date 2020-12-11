@@ -29,7 +29,7 @@ namespace mfem_mgis {
     SmallStrainMechanicalBehaviourIntegratorBase(
         const mfem::FiniteElementSpace &,
         const size_type,
-        std::unique_ptr<const Behaviour>);
+        std::shared_ptr<const Behaviour>);
     /*!
      * \return the integration rule for the given element and element
      * transformation.
@@ -120,7 +120,7 @@ namespace mfem_mgis {
      */
     SmallStrainMechanicalBehaviourIntegrator(const mfem::FiniteElementSpace &,
                                              const size_type,
-                                             std::unique_ptr<const Behaviour>);
+                                             std::shared_ptr<const Behaviour>);
 
     void computeInnerForces(mfem::Vector &,
                             const mfem::FiniteElement &,

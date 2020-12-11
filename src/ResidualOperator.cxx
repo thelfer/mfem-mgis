@@ -12,7 +12,8 @@
 namespace mfem_mgis {
 
   ResidualOperator::ResidualOperator(NonLinearEvolutionProblem &p)
-      : problem(p){};  // end of ResidualOperator
+      : Operator(p.getFiniteElementSpace().GetTrueVSize()),
+        problem(p) {}  // end of ResidualOperator
 
   void ResidualOperator::Mult(const mfem::Vector &k, mfem::Vector &y) const {
     this->problem.Mult(k, y);

@@ -5,6 +5,8 @@
  * \date   8/06/2020
  */
 
+#include <iostream>
+
 #include <utility>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/BehaviourIntegrator.hxx"
@@ -15,14 +17,14 @@ namespace mfem_mgis {
 
   MGISIntegrator::MGISIntegrator(
       std::shared_ptr<const mfem::FiniteElementSpace> fs, const Hypothesis h)
-      : fe_space(std::move(fs)),
+      : fe_space(fs),
         hypothesis(h) {}  // end of MGISIntegrator::MGISIntegrator
 
   void MGISIntegrator::AssembleElementVector(const mfem::FiniteElement & e,
                                              mfem::ElementTransformation & tr,
                                              const mfem::Vector & U,
                                              mfem::Vector & F) {
-    const auto m = tr.Attribute;
+    const auto m = tr.Attribute + 1;
     const auto pbi = this->behaviour_integrators.find(m);
     if (pbi == this->behaviour_integrators.end()) {
       mgis::raise(
@@ -37,7 +39,7 @@ namespace mfem_mgis {
                                            mfem::ElementTransformation& tr,
                                            const mfem::Vector& U,
                                            mfem::DenseMatrix& K) {
-    const auto m = tr.Attribute;
+    const auto m = tr.Attribute + 1;
     const auto pbi = this->behaviour_integrators.find(m);
     if (pbi == this->behaviour_integrators.end()) {
       mgis::raise(
@@ -63,9 +65,43 @@ namespace mfem_mgis {
         n, *(this->fe_space), m, mfem_mgis::load(l, b, this->hypothesis));
   }  // end of MGISIntegrator::addBehaviourIntegrator
 
+  const Material& MGISIntegrator::getMaterial(const size_type m) const {
+    const auto pbi = this->behaviour_integrators.find(m);
+    if (pbi == this->behaviour_integrators.end()) {
+      mgis::raise(
+          "MGISIntegrator::AssembleElementGrad: "
+          "no behaviour integrator associated with material '" +
+          std::to_string(m) + "'");
+    }
+    return pbi->second->getMaterial();
+  }  // end of getMaterial
+
+  Material& MGISIntegrator::getMaterial(const size_type m) {
+    const auto pbi = this->behaviour_integrators.find(m);
+    if (pbi == this->behaviour_integrators.end()) {
+      mgis::raise(
+          "MGISIntegrator::AssembleElementGrad: "
+          "no behaviour integrator associated with material '" +
+          std::to_string(m) + "'");
+    }
+    return pbi->second->getMaterial();
+  }  // end of getMaterial
+
   void MGISIntegrator::setTimeIncrement(const real dt) {
     this->time_increment = dt;
   } // end of MGISIntegrator::setTimeIncrement
+
+  void MGISIntegrator::revert() {
+    for (auto& bi : this->behaviour_integrators) {
+      bi.second->revert();
+    }
+  }  // end of MGISIntegrator::revert
+
+  void MGISIntegrator::update() {
+    for (auto& bi : this->behaviour_integrators) {
+      bi.second->update();
+    }
+  }  // end of MGISIntegrator::update
 
   MGISIntegrator::~MGISIntegrator() = default;
 

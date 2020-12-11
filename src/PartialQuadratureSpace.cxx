@@ -5,6 +5,8 @@
  * \date   8/06/2020
  */
 
+#include <iostream>
+#include <iterator>
 #include <cmath>
 #include <algorithm>
 #include "mfem/fem/fespace.hpp"
@@ -26,8 +28,8 @@ namespace mfem_mgis {
       }
       const auto& fe = *(this->fespace.GetFE(i));
       const auto& tr = *(this->fespace.GetElementTransformation(i));
-      const auto& ir = integration_rule_selector(fe, tr);
       this->offsets[i] = this->ng;
+      const auto& ir = integration_rule_selector(fe, tr);
       this->ng += ir.GetNPoints();
     }
   }  // end of PartialQuadratureSpace::PartialQuadratureSpace

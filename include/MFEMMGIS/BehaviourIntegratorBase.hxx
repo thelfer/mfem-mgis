@@ -23,6 +23,10 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : BehaviourIntegrator,
                                                     Material {
     void setTimeIncrement(const real) override;
+    void revert() override;
+    void update() override;
+    Material& getMaterial() override;
+    const Material& getMaterial() const override;
     //! \brief destructor
     ~BehaviourIntegratorBase() override;
 
@@ -33,7 +37,7 @@ namespace mfem_mgis {
      * \param[in] b_ptr: behaviour
      */
     BehaviourIntegratorBase(std::shared_ptr<const PartialQuadratureSpace>,
-                            std::unique_ptr<const Behaviour>);
+                            std::shared_ptr<const Behaviour>);
     /*!
      * \brief check that the integrator hypothesis is the same than the
      * behaviour hypothesis.

@@ -15,6 +15,9 @@
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct Material;
+
   /*!
    * \brief abstract class for all behaviour integrators
    *
@@ -53,6 +56,26 @@ namespace mfem_mgis {
                                         const mfem::FiniteElement &,
                                         mfem::ElementTransformation &,
                                         const mfem::Vector &) = 0;
+    /*!
+     * \brief revert the internal state variables.
+     *
+     * The values of the internal state variables at the beginning of the time
+     * step are copied on the values of the internal state variables at
+     * end of the time step.
+     */
+    virtual void revert() = 0;
+    /*!
+     * \brief update the internal state variables.
+     *
+     * The values of the internal state variables at the end of the time step
+     * are copied on the values of the internal state variables at beginning of
+     * the time step.
+     */
+    virtual void update() = 0;
+    //! \return the underlying material
+    virtual Material &getMaterial() = 0;
+    //! \return the underlying material
+    virtual const Material &getMaterial() const = 0;
     //! \brief destructor
     virtual ~BehaviourIntegrator();
   };  // end of struct BehaviourIntegrator

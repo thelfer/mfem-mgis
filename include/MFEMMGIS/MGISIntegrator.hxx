@@ -65,6 +65,32 @@ namespace mfem_mgis {
                                         const size_type,
                                         const std::string &,
                                         const std::string &);
+    /*!
+     * \return the material with the given id
+     * \param[in] m: material id
+     */
+    const Material& getMaterial(const size_type) const;
+    /*!
+     * \return the material with the given id
+     * \param[in] m: material id
+     */
+    Material& getMaterial(const size_type);
+    /*!
+     * \brief revert the internal state variables.
+     *
+     * The values of the internal state variables at the beginning of the time
+     * step are copied on the values of the internal state variables at
+     * end of the time step.
+     */
+    virtual void revert();
+    /*!
+     * \brief update the internal state variables.
+     *
+     * The values of the internal state variables at the end of the time step
+     * are copied on the values of the internal state variables at beginning of
+     * the time step.
+     */
+    virtual void update();
 
     //! \brief destructor
     ~MGISIntegrator() override;

@@ -103,7 +103,7 @@ namespace mfem_mgis {
       SmallStrainMechanicalBehaviourIntegrator(
           const mfem::FiniteElementSpace &fs,
           const size_type m,
-          std::unique_ptr<const Behaviour> b_ptr)
+          std::shared_ptr<const Behaviour> b_ptr)
       : SmallStrainMechanicalBehaviourIntegratorCRTPBase<
             SmallStrainMechanicalBehaviourIntegrator>(fs, m, std::move(b_ptr)) {
     this->checkHypotheses(H);

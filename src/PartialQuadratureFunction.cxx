@@ -15,7 +15,7 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s, const size_type nv)
-      : qspace(std::move(s)), data_size(nv) {
+      : qspace(s), data_size(nv) {
     this->values.resize(this->qspace->getNumberOfElements() * this->data_size);
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 

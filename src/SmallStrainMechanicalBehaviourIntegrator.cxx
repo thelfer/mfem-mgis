@@ -5,6 +5,7 @@
  * \date   13/10/2020
  */
 
+#include <iostream>
 #include <utility>
 #include "mfem/fem/eltrans.hpp"
 #include "MFEMMGIS/SmallStrainMechanicalBehaviourIntegrator.hxx"
@@ -19,9 +20,11 @@ namespace mfem_mgis {
     if ((b.hypothesis == Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRAIN) ||
         (b.hypothesis == Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRESS) ||
         (b.hypothesis == Hypothesis::AXISYMMETRICAL)) {
-      return mfem::IntRules.Get(el.GetGeomType(), order + 1);
+      const auto& ir = mfem::IntRules.Get(el.GetGeomType(), order + 1);
+      return ir;
     }
-    return mfem::IntRules.Get(el.GetGeomType(), order);
+    const auto& ir = mfem::IntRules.Get(el.GetGeomType(), order);
+    return ir;
   } // end of getIntegrationRule
 
   static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
@@ -29,8 +32,10 @@ namespace mfem_mgis {
       const size_type m,
       const Behaviour &b) {
     auto selector = [&b](const mfem::FiniteElement &el,
-                         const mfem::ElementTransformation &Trans) {
-      return mfem_mgis::getIntegrationRule(el, Trans, b);
+                         const mfem::ElementTransformation &Trans)
+        -> const mfem::IntegrationRule & {
+      const auto &ir = mfem_mgis::getIntegrationRule(el, Trans, b);
+      return ir;
     };  // end of selector
     return std::make_shared<PartialQuadratureSpace>(fs, m, selector);
   }  // end of buildQuadratureSpace
@@ -39,9 +44,8 @@ namespace mfem_mgis {
       SmallStrainMechanicalBehaviourIntegratorBase(
           const mfem::FiniteElementSpace &fs,
           const size_type m,
-          std::unique_ptr<const Behaviour> b_ptr)
-      : BehaviourIntegratorBase(buildQuadratureSpace(fs, m, *b_ptr),
-                                std::move(b_ptr)) {
+          std::shared_ptr<const Behaviour> b_ptr)
+      : BehaviourIntegratorBase(buildQuadratureSpace(fs, m, *b_ptr), b_ptr) {
   }  // end of SmallStrainMechanicalBehaviourIntegratorBase
 
   template <>

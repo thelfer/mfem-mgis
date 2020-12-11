@@ -19,6 +19,8 @@
 namespace mfem_mgis {
 
   // forward declaration
+  struct Material;
+  // forward declaration
   struct MGISIntegrator;
 
   /*!
@@ -35,13 +37,54 @@ namespace mfem_mgis {
      */
     NonLinearEvolutionProblem(std::shared_ptr<mfem::FiniteElementSpace>,
                               const Hypothesis);
+    //! \return the finite element space
+    const mfem::FiniteElementSpace& getFiniteElementSpace() const;
     //! \return the Newton solver
     mfem::NewtonSolver& getSolver();
-    /*! 
+    //! \return the unknowns at the beginning of the time step
+    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep();
+    //! \return the unknowns at the beginning of the time step
+    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const;
+    //! \return the unknowns at the end of the time step
+    mfem::Vector& getUnknownsAtEndOfTheTimeStep();
+    //! \return the unknowns at the end of the time step
+    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const;
+    /*!
+     * \return the material with the given id
+     * \param[in] m: material id
+     */
+    const Material& getMaterial(const size_type) const;
+    /*!
+     * \return the material with the given id
+     * \param[in] m: material id
+     */
+    Material& getMaterial(const size_type);
+    /*!
+     * \brief add a new material
+     * \param[in] n: name of the behaviour integrator
+     * \param[in] m: material id
+     * \param[in] l: library name
+     * \param[in] b: behaviour name
+     */
+    virtual void addBehaviourIntegrator(const std::string&,
+                                        const size_type,
+                                        const std::string&,
+                                        const std::string&);
+    /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] dt: time increment
      */
     void solve(const real);
+    /*!
+     * \brief revert the internal state variables to the beginning of the time
+     * step.
+     */
+    void revert();
+    /*!
+     * \brief updat the internal state variables to the end of the time step.
+     */
+    void update();
+
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 
