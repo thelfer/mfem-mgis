@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "mfem.hpp"
+#include "mfem/fem/nonlinearform.hpp"
 #include "MFEMMGIS/MGISIntegrator.hxx"
 
 int main(const int argc, char** const argv) {
@@ -35,8 +36,13 @@ int main(const int argc, char** const argv) {
   auto fespace =
       std::make_shared<mfem::FiniteElementSpace>(mesh.get(), fec.get(), dim);
   //
-  mfem_mgis::MGISIntegrator i(fespace, mfem_mgis::Hypothesis::TRIDIMENSIONAL);
-  i.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 0,
-                           "src/libBehaviour.so", "Plasticity");
+  auto i = new mfem_mgis::MGISIntegrator(fespace,
+                                         mfem_mgis::Hypothesis::TRIDIMENSIONAL);
+  i->addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 0,
+                            "src/libBehaviour.so", "Plasticity");
+  //
+  mfem::NonlinearForm nl(fespace.get());
+  nl.AddDomainIntegrator(i);
+//
   return EXIT_SUCCESS;
 }

@@ -1,6 +1,6 @@
 /*!
  * \file   SmallStrainMechanicalBehaviourIntegrator.ixx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   13/10/2020
  */
@@ -36,10 +36,10 @@ namespace mfem_mgis {
     const auto &ir = this->getIntegrationRule(e, tr);
     for (size_type i = 0; i < ir.GetNPoints(); i++) {
       // get the gradients of the shape functions
-      const auto&ip = ir.IntPoint(i);
+      const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
       e.CalcPhysDShape(tr, dshape);
-	// get the weights associated to point ip
+      // get the weights associated to point ip
       const auto w = ip.weight * tr.Weight();
       // offset of the integration point
       const auto o = eoffset + i;
@@ -52,8 +52,8 @@ namespace mfem_mgis {
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
       // assembly of the inner forces
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        static_cast<const Child *>(this)->updateInnerForces(Fe, s.data(),
-                                                            dshape, w, ni);
+        static_cast<const Child *>(this)->updateInnerForces(Fe, s, dshape, w,
+                                                            ni);
       }
     }
   }  // end of implementComputeInnerForces
@@ -77,7 +77,7 @@ namespace mfem_mgis {
     const auto &ir = this->getIntegrationRule(e, tr);
     for (size_type i = 0; i < ir.GetNPoints(); i++) {
       // get the gradients of the shape functions
-      const auto&ip = ir.IntPoint(i);
+      const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
       e.CalcPhysDShape(tr, dshape);
       // get the weights associated to point ip
@@ -88,9 +88,8 @@ namespace mfem_mgis {
       std::fill(Kip.begin(), Kip.end(), real(0));
       // assembly of the stiffness matrix
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        for (size_type nj = 0; nj != nnodes; ++nj) {
-
-        }
+        static_cast<const Child *>(this)->updateStiffnessMatrix(Ke, Kip, dshape,
+                                                                w, ni);
       }
     }
   }  // end of implementComputeStiffnessMatrix
@@ -114,7 +113,8 @@ namespace mfem_mgis {
   SmallStrainMechanicalBehaviourIntegrator<
       H>::~SmallStrainMechanicalBehaviourIntegrator() = default;
 
-  /* Specalisations of the methods of the  SmallStrainMechanicalBehaviourIntegrator class */
+  /* Specalisations of the methods of the
+   * SmallStrainMechanicalBehaviourIntegrator class */
 
   template <>
   void SmallStrainMechanicalBehaviourIntegrator<Hypothesis::TRIDIMENSIONAL>::
@@ -172,15 +172,12 @@ namespace mfem_mgis {
   template <Hypothesis H>
   void SmallStrainMechanicalBehaviourIntegrator<H>::updateInnerForces(
       mfem::Vector &Fe,
-      const real *const s,
+      const mgis::span<const real> &s,
       const mfem::DenseMatrix &dN,
       const real w,
       const size_type ni) const {
     constexpr const auto icste = 0.70710678118654752440;
-    static_assert((H == Hypothesis::TRIDIMENSIONAL) ||
-                      (H == Hypothesis::PLANESTRAIN) ||
-                      (H == Hypothesis::PLANESTRESS),
-                  "unsupported hypothesis");
+    static_assert(H == Hypothesis::TRIDIMENSIONAL, "unsupported hypothesis");
     if constexpr (H == Hypothesis::TRIDIMENSIONAL) {
       const auto nnodes = dN.NumRows() / 3;
       const auto nx = ni;
@@ -201,83 +198,57 @@ namespace mfem_mgis {
     }
   }  // end of updateInnerForces
 
-  //     const auto dim = el.GetDim();
-  //     const auto dof = el.GetDof();
-  //     // size of the gradients
-  //     const auto gs = mgis::getStensorSize(H);
-  //
-  // #ifdef MFEM_MGIS_DEBUG
-  //     this->checkDimension();
-  //     MFEM_VERIFY(dim == Trans.GetSpaceDim(), "");
-  // #endif
-  //
-  // #ifdef MFEM_THREAD_SAFE
-  //     DenseMatrix gshape(dof, dim);
-  // #else
-  //     Emat.SetSize(gs);
-  //     dshape.SetSize(dof, dim);
-  //     tBEBmat.SetSize(dim, dim);
-  //     tBmatL.SetSize(dim, gs);
-  //     tBmatR.SetSize(dim, gs);
-  //     BmatR.SetSize(gs, dim);
-  //     EBmat.SetSize(gs, dim);
-  //     gtBmat.SetSize(dim, dof * gs);
-  // #endif
-  //
-  //     Ke.SetSize(dof * dim);
-  //     Ke = 0.0;
-  //     //
-  //     const auto &ir = this->getIntegrationRule();
-  //     for (int i = 0; i < ir -> GetNPoints(); i++){
-  //       const auto&ip = ir->IntPoint(i);
-  //       tr.SetIntPoint(&ip);
-  //       // Each row of the result dshape contains
-  //       // the derivatives of one shape function at the point ip.
-  //       e.CalcPhysDShape(tr, dshape);
-  //       // Get the transformation Trans for point ip
-  //       // Get the weights associated to point ip
-  //       w = ip.weight * tr.Weight();
-  //       // compute the strain at the end of the time step
-  //       this->computeStrain(u, dshape);
-  //       this->integrate();
-  //
-  //       // Fill gtBmat
-  //       gtBmat = 0.;
-  //       for (int s = 0; s < dof; s++) {
-  //         int offset = gs * s;
-  //         // Fill gtBmat that depends on dof 's'
-  //         // gtBmat(:,offset:offset+gs) contains tBmat for dof 's'
-  //         for (int k = 0; k < dim; k++) {
-  //           gtBmat(k, offset + k) = dshape(s, k);
-  //         }
-  //         gtBmat(0, offset + dim) = dshape(s, 1);  // N_y
-  //         gtBmat(1, offset + dim) = dshape(s, 0);  // N_x
-  //         if (dim == 3) {
-  //           gtBmat(1, offset + 4) = dshape(s, 2);  // N_z
-  //           gtBmat(2, offset + 4) = dshape(s, 1);  // N_y
-  //           gtBmat(0, offset + 5) = dshape(s, 2);  // N_z
-  //           gtBmat(2, offset + 5) = dshape(s, 0);  // N_x
-  //         }
-  //       }
-  //       // Perform the main matrix multiplications
-  //       for (int s = 0; s < dof; s++) {
-  //         tBmatL.CopyCols(gtBmat, gs * s, gs * s + gs - 1);
-  //         for (int t = 0; t < dof; t++) {
-  //           tBmatR.CopyCols(gtBmat, gs * t, gs * t + gs - 1);
-  //           BmatR.Transpose(tBmatR);
-  //           Mult(Emat, BmatR, EBmat);
-  //           Mult(tBmatL, EBmat, tBEBmat);
-  //           // Multiply by the weight
-  //           tBEBmat *= w;
-  //           // Add the contribution to the RHS
-  //           for (int k = 0; k < dim; k++){
-  //             for (int l = 0; l < dim; l++){
-  //               Ke(dof * k + s, dof * l + t) += tBEBmat(k, l);
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
+  template <Hypothesis H>
+  void SmallStrainMechanicalBehaviourIntegrator<H>::updateStiffnessMatrix(
+      mfem::DenseMatrix &Ke,
+      const mgis::span<const real>& Kip,
+      const mfem::DenseMatrix &dN,
+      const real w,
+      const size_type ni) const {
+    constexpr const auto icste = 0.70710678118654752440;
+    static_assert(H == Hypothesis::TRIDIMENSIONAL, "unsupported hypothesis");
+    if constexpr (H == Hypothesis::TRIDIMENSIONAL) {
+      const auto nnodes = dN.NumRows() / 3;
+      const auto nix = ni;
+      const auto niy = ni + nnodes;
+      const auto niz = ni + 2 * nnodes;
+      real Bi[6][3] = {{dN(nix, 0), 0, 0},                           //
+                       {0, dN(niy, 0), 0},                           //
+                       {0, 0, dN(niz, 0)},                           //
+                       {dN(nix, 1) * icste, dN(niy, 0) * icste, 0},  //
+                       {dN(nix, 2) * icste, 0, dN(niz, 0) * icste},  //
+                       {0, dN(niy, 2) * icste, dN(niz, 0) * icste}};
+      for (size_type nj = 0; nj != nnodes; ++nj) {
+        const auto njx = nj;
+        const auto njy = nj + nnodes;
+        const auto njz = nj + 2 * nnodes;
+        real Bj[6][3] = {{dN(njx, 0), 0, 0},                           //
+                         {0, dN(njy, 0), 0},                           //
+                         {0, 0, dN(njz, 0)},                           //
+                         {dN(njx, 1) * icste, dN(njy, 0) * icste, 0},  //
+                         {dN(njx, 2) * icste, 0, dN(njz, 0) * icste},  //
+                         {0, dN(njy, 2) * icste, dN(njz, 0) * icste}};
+        real KB[6][3];
+        for (size_type i = 0; i != 3; ++i) {
+          for (size_type j = 0; j != 3; ++j) {
+            KB[i][j] = 0;
+            for (size_type k = 0; k != 3; ++k) {
+              KB[i][j] += Kip[i * 6 + k] * Bj[k][j];
+            }
+          }
+        }
+        for (size_type i = 0; i != 3; ++i) {
+          for (size_type j = 0; j != 3; ++j) {
+            auto tBKB = real{};
+            for (size_type k = 0; k != 3; ++k) {
+              tBKB += Bi[k][i] * KB[k][j];
+            }
+            Ke(ni + i * nnodes, nj + j * nnodes) += w * tBKB;
+          }
+        }
+      } // end of for (size_type nj = 0; nj != nnodes; ++nj)
+    } // end of if constexpr (H == Hypothesis::TRIDIMENSIONAL)
+  }   // end of updateStiffnessMatrix
 
 }  // end of namespace mfem_mgis
 

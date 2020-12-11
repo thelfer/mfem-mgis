@@ -42,32 +42,6 @@ namespace mfem_mgis {
     //! \brief destructor
     ~SmallStrainMechanicalBehaviourIntegratorBase() override;
 
-   protected:
-    /*!
-     * \brief update the strain with the contribution of the given node
-     * \param[in] g: strain
-     * \param[in] u: nodal displacements
-     * \param[in] dshape: derivatives of the shape function
-     * \param[in] n: node index
-     */
-    virtual void updateStrain(real *const,
-                              const mfem::Vector &,
-                              const mfem::DenseMatrix &,
-                              const size_type) = 0;
-    /*!
-     * \brief update the inner forces the given node
-     * \param[out] Fe: inner forces
-     * \param[in] s: stress
-     * \param[in] dshape: derivatives of the shape function
-     * \param[in] w: weight of the integration point
-     * \param[in] n: node index
-     */
-    virtual void updateInnerForces(mfem::Vector &,
-                                   const real *const,
-                                   const mfem::DenseMatrix &,
-                                   const real,
-                                   const size_type) const = 0;
-
   };  // end of struct SmallStrainMechanicalBehaviourIntegratorBase
 
   /*!
@@ -86,17 +60,35 @@ namespace mfem_mgis {
     ~SmallStrainMechanicalBehaviourIntegratorCRTPBase() override;
 
    protected:
-
     /*!
-     * \brief This method is meant to implement the `computeInnerForces` method.
+     * \brief compute the inner forces for the given element
+     * \param[out] Fe: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     * \param[in] u: current estimation of the displacement field
+     *
+     * \note Thanks to the CRTP idiom, this implementation can call
+     * the `updateStrain` and the `updateInnerForces` methods defined
+     * in the derived class without a virtual call. Those call may
+     * even be inlined.
+     * \note The implementation of the `computeInnerForces` in the
+     * `SmallStrainMechanicalBehaviourIntegrator` class trivially
+     * calls this method. This indirection is made to control where
+     * the code associated to the `implementComputeInnerForces`
+     * is generated.
      */
     void implementComputeInnerForces(mfem::Vector &,
                                      const mfem::FiniteElement &,
                                      mfem::ElementTransformation &,
                                      const mfem::Vector &);
     /*!
-     * \brief This method is meant to implement the `computeStiffnessMatrix`
-     * method.
+     * \brief compute the stiffness matrix for the given element
+     * \param[out] Ke: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     *
+     * \note This method is meant to implement the `computeStiffnessMatrix`
+     * method. It is doned in
      */
     void implementComputeStiffnessMatrix(mfem::DenseMatrix &,
                                          const mfem::FiniteElement &,
@@ -148,15 +140,48 @@ namespace mfem_mgis {
     friend struct SmallStrainMechanicalBehaviourIntegratorCRTPBase<
         SmallStrainMechanicalBehaviourIntegrator<H>>;
 
+    /*!
+     * \brief update the strain with the contribution of the given node
+     * \param[in] g: strain
+     * \param[in] u: nodal displacements
+     * \param[in] dshape: derivatives of the shape function
+     * \param[in] n: node index
+     */
     void updateStrain(real *const,
                       const mfem::Vector &,
                       const mfem::DenseMatrix &,
-                      const size_type) override;
+                      const size_type);
+    /*!
+     * \brief update the inner forces of the given node  with the
+     * contribution of the stress of an integration point.
+     *
+     * \param[out] Fe: inner forces
+     * \param[in] s: stress
+     * \param[in] dshape: derivatives of the shape function
+     * \param[in] w: weight of the integration point
+     * \param[in] n: node index
+     */
     void updateInnerForces(mfem::Vector &,
-                           const real *const,
+                           const mgis::span<const real>&,
                            const mfem::DenseMatrix &,
                            const real,
-                           const size_type) const override;
+                           const size_type) const;
+    /*!
+     * \brief update the stiffness matrix of the given node with the
+     * contribution of the consistent tangent operator of an
+     * integration point.
+     *
+     * \param[out] Ke: inner forces
+     * \param[in] Kip: stress
+     * \param[in] dshape: derivatives of the shape function
+     * \param[in] w: weight of the integration point
+     * \param[in] n: node index
+     */
+    void updateStiffnessMatrix(mfem::DenseMatrix &,
+                               const mgis::span<const real>&,
+                               const mfem::DenseMatrix &,
+                               const real,
+                               const size_type) const;
 
   };  // end of struct SmallStrainMechanicalBehaviourIntegrator
 
