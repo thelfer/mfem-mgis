@@ -9,6 +9,8 @@
 #define LIB_MFEM_MGIS_MATERIAL_HXX
 
 #include <memory>
+#include <vector>
+#include "MGIS/Span.hxx"
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
@@ -31,7 +33,11 @@ namespace mfem_mgis {
      */
     Material(std::shared_ptr<const PartialQuadratureSpace>,
              std::shared_ptr<const Behaviour>);
-
+    /*!
+     * \brief set the macroscropic gradients
+     * \param[in] g: macroscopic gradients
+     */
+    void setMacroscopicGradients(mgis::span<const real>);
     //! \brief destructor
     ~Material();
 
@@ -41,6 +47,10 @@ namespace mfem_mgis {
      * \brief underlying quadrature space
      */
     const std::shared_ptr<const PartialQuadratureSpace> quadrature_space;
+    /*!
+     * \brief macroscopic gradients
+     */
+    std::vector<real> macroscopic_gradients;
 
    private:
     //! \brief copy constructor (disabled)

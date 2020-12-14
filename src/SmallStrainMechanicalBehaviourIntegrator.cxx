@@ -5,7 +5,6 @@
  * \date   13/10/2020
  */
 
-#include <iostream>
 #include <utility>
 #include "mfem/fem/eltrans.hpp"
 #include "MFEMMGIS/SmallStrainMechanicalBehaviourIntegrator.hxx"

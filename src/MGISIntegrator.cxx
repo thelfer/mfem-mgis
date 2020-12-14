@@ -5,8 +5,6 @@
  * \date   8/06/2020
  */
 
-#include <iostream>
-
 #include <utility>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/BehaviourIntegrator.hxx"
@@ -24,7 +22,7 @@ namespace mfem_mgis {
                                              mfem::ElementTransformation & tr,
                                              const mfem::Vector & U,
                                              mfem::Vector & F) {
-    const auto m = tr.Attribute + 1;
+    const auto m = tr.Attribute;
     const auto pbi = this->behaviour_integrators.find(m);
     if (pbi == this->behaviour_integrators.end()) {
       mgis::raise(
@@ -39,7 +37,7 @@ namespace mfem_mgis {
                                            mfem::ElementTransformation& tr,
                                            const mfem::Vector& U,
                                            mfem::DenseMatrix& K) {
-    const auto m = tr.Attribute + 1;
+    const auto m = tr.Attribute;
     const auto pbi = this->behaviour_integrators.find(m);
     if (pbi == this->behaviour_integrators.end()) {
       mgis::raise(

@@ -9,7 +9,7 @@ target_link_libraries(PeriodicTest
 
 add_test(NAME PeriodicTest
  COMMAND PeriodicTest 
- "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/square_2mat_per.mesh"
+ "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
  "--library" "$<TARGET_FILE:BehaviourTest>")
 add_dependencies(check PeriodicTest)
 if((CMAKE_HOST_WIN32) AND (NOT MSYS))

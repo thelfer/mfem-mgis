@@ -55,10 +55,11 @@ namespace mfem_mgis {
         INTEGRATION_CONSISTENT_TANGENT_OPERATOR;
     const auto r =
         mgis::behaviour::integrate(*this, it, this->time_increment, ip, ip + 1);
-    if (r != 0) {
+    if ((r != 0) && (r != 1)) {
       mgis::raise(
           "BehaviourIntegratorBase::integrate: "
-          "behaviour integration failed");
+          "behaviour integration failed (" +
+          std::to_string(r) + ")");
     }
   }  // end of BehaviourIntegratorBase::integrate
 

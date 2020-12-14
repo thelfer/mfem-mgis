@@ -25,7 +25,7 @@ namespace mfem_mgis {
    * \brief Base class for non linear integrators based on an MGIS' behaviours.
    * This class manages an mapping associating a material and its identifier
    */
-  struct MFEM_MGIS_EXPORT MGISIntegrator
+  struct MFEM_MGIS_EXPORT MGISIntegrator final
       : public mfem::NonlinearFormIntegrator {
     //! \brief a simple alias
     using Behaviour = mgis::behaviour::Behaviour;
@@ -38,12 +38,6 @@ namespace mfem_mgis {
     MGISIntegrator(std::shared_ptr<const mfem::FiniteElementSpace>,
                    const Hypothesis);
 
-    /*!
-     * \brief set the value of the time increment
-     * \param[in] dt: time increment
-     */
-    void setTimeIncrement(const real);
-
     void AssembleElementVector(const mfem::FiniteElement &,
                                mfem::ElementTransformation &,
                                const mfem::Vector &,
@@ -55,13 +49,18 @@ namespace mfem_mgis {
                              mfem::DenseMatrix &) override;
 
     /*!
+     * \brief set the value of the time increment
+     * \param[in] dt: time increment
+     */
+    void setTimeIncrement(const real);
+    /*!
      * \brief add a new material
      * \param[in] n: name of the behaviour integrator
      * \param[in] m: material id
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
-    virtual void addBehaviourIntegrator(const std::string &,
+    void addBehaviourIntegrator(const std::string &,
                                         const size_type,
                                         const std::string &,
                                         const std::string &);
@@ -69,12 +68,12 @@ namespace mfem_mgis {
      * \return the material with the given id
      * \param[in] m: material id
      */
-    const Material& getMaterial(const size_type) const;
+    const Material &getMaterial(const size_type) const;
     /*!
      * \return the material with the given id
      * \param[in] m: material id
      */
-    Material& getMaterial(const size_type);
+    Material &getMaterial(const size_type);
     /*!
      * \brief revert the internal state variables.
      *
@@ -82,7 +81,7 @@ namespace mfem_mgis {
      * step are copied on the values of the internal state variables at
      * end of the time step.
      */
-    virtual void revert();
+    void revert();
     /*!
      * \brief update the internal state variables.
      *
@@ -90,7 +89,7 @@ namespace mfem_mgis {
      * are copied on the values of the internal state variables at beginning of
      * the time step.
      */
-    virtual void update();
+    void update();
 
     //! \brief destructor
     ~MGISIntegrator() override;

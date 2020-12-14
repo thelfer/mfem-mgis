@@ -68,7 +68,7 @@ namespace mfem_mgis {
      * \param[in] u: current estimation of the displacement field
      *
      * \note Thanks to the CRTP idiom, this implementation can call
-     * the `updateStrain` and the `updateInnerForces` methods defined
+     * the `updateGradients` and the `updateInnerForces` methods defined
      * in the derived class without a virtual call. Those call may
      * even be inlined.
      * \note The implementation of the `computeInnerForces` in the
@@ -147,10 +147,10 @@ namespace mfem_mgis {
      * \param[in] dshape: derivatives of the shape function
      * \param[in] n: node index
      */
-    void updateStrain(real *const,
-                      const mfem::Vector &,
-                      const mfem::DenseMatrix &,
-                      const size_type);
+    void updateGradients(mgis::span<real> &,
+                         const mfem::Vector &,
+                         const mfem::DenseMatrix &,
+                         const size_type);
     /*!
      * \brief update the inner forces of the given node  with the
      * contribution of the stress of an integration point.

@@ -5,11 +5,11 @@
  * \date   8/06/2020
  */
 
-#include <iostream>
 #include <iterator>
 #include <cmath>
 #include <algorithm>
 #include "mfem/fem/fespace.hpp"
+#include "MGIS/Raise.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
 namespace mfem_mgis {
@@ -45,9 +45,10 @@ namespace mfem_mgis {
   size_type PartialQuadratureSpace::getOffset(const size_type i) const {
     const auto p = this->offsets.find(i);
     if (p == this->offsets.end()) {
-      mfem::mfem_error(
+      mgis::raise(
           "PartialQuadratureSpace::getOffset: "
-          "invalid number of elements");
+          "invalid element number '" +
+          std::to_string(i) + "' for material '" + std::to_string(id) + "'");
     }
     return p->second;
   }  // end of PartialQuadratureSpace::getOffset
