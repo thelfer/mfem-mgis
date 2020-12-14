@@ -37,7 +37,7 @@ namespace mfem_mgis {
      * \param[in] b_ptr: behaviour
      */
     BehaviourIntegratorBase(std::shared_ptr<const PartialQuadratureSpace>,
-                            std::shared_ptr<const Behaviour>);
+                            std::unique_ptr<const Behaviour>);
     /*!
      * \brief check that the integrator hypothesis is the same than the
      * behaviour hypothesis.

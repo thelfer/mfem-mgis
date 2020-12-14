@@ -29,7 +29,7 @@ namespace mfem_mgis {
    * \param[in] b: behaviour name
    * \param[in] h: modelling hypothesis
    */
-  MFEM_MGIS_EXPORT std::shared_ptr<Behaviour> load(const std::string &,
+  MFEM_MGIS_EXPORT std::unique_ptr<Behaviour> load(const std::string &,
                                                    const std::string &,
                                                    const Hypothesis);
 

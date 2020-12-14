@@ -14,8 +14,8 @@ namespace mfem_mgis {
 
   BehaviourIntegratorBase::BehaviourIntegratorBase(
       std::shared_ptr<const PartialQuadratureSpace> s,
-      std::shared_ptr<const Behaviour> b_ptr)
-      : Material(s, b_ptr) {
+      std::unique_ptr<const Behaviour> b_ptr)
+      : Material(s, std::move(b_ptr)) {
   }  // end of BehaviourIntegratorBase::BehaviourIntegratorBase
 
   void BehaviourIntegratorBase::setTimeIncrement(const real dt){

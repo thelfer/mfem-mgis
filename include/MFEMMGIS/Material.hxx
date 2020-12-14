@@ -32,7 +32,7 @@ namespace mfem_mgis {
      * \param[in] b_ptr: behaviour
      */
     Material(std::shared_ptr<const PartialQuadratureSpace>,
-             std::shared_ptr<const Behaviour>);
+             std::unique_ptr<const Behaviour>);
     /*!
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
@@ -66,7 +66,7 @@ namespace mfem_mgis {
      * \note The behaviour can be accessed through the `b` member which is
      * inherited from the `mgis::behaviour::MaterialDataManager` class.
      */
-    const std::shared_ptr<const Behaviour> behaviour_ptr;
+    const std::unique_ptr<const Behaviour> behaviour_ptr;
 
   };  // end of struct Material
 

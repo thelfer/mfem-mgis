@@ -1,0 +1,84 @@
+/*!
+ * \file   include/MFEMMGIS/StandardBehaviourIntegratorCRTPBase.hxx
+ * \brief
+ * \author Thomas Helfer
+ * \date   14/12/2020
+ */
+
+#ifndef LIB_MFEM_MGIS_STANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX
+#define LIB_MFEM_MGIS_STANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX
+
+#include <mfem/linalg/densemat.hpp>
+#include "MFEMMGIS/BehaviourIntegratorBase.hxx"
+
+namespace mfem_mgis {
+
+  /*!
+   * \brief a base class of the `StandardBehaviourIntegratorCRTPBase` class
+   * to factorize code by static using the CRTP idiom.
+   *
+   * This class provides a way to optimise dynamic memory allocations.
+   *
+   * The `Child` class must provide:
+   *
+   * - a static method called `getIntegrationRule`
+   * - a method called `updateGradients`
+   * - a method called `updateInnerForces`
+   * - a method called `updateStiffnessMatrix`
+   */
+  template <typename Child>
+  struct StandardBehaviourIntegratorCRTPBase : BehaviourIntegratorBase {
+   protected:
+    // inheriting `BehaviourIntegratorBase`' constructor
+    using BehaviourIntegratorBase::BehaviourIntegratorBase;
+    /*!
+     * \brief compute the inner forces for the given element
+     * \param[out] Fe: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     * \param[in] u: current estimation of the displacement field
+     *
+     * \note Thanks to the CRTP idiom, this implementation can call
+     * the `updateGradients` and the `updateInnerForces` methods defined
+     * in the derived class without a virtual call. Those call may
+     * even be inlined.
+     * \note The implementation of the `computeInnerForces` in the
+     * `Child` class trivially calls this method. This indirection is made to
+     * control where the code associated to the `implementComputeInnerForces` is
+     * generated.
+     */
+    void implementComputeInnerForces(mfem::Vector &,
+                                     const mfem::FiniteElement &,
+                                     mfem::ElementTransformation &,
+                                     const mfem::Vector &);
+    /*!
+     * \brief compute the stiffness matrix for the given element
+     * \param[out] Ke: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     *
+     * \note The implementation of the `computeStiffnessMatrix` in the
+     * `Child` class trivially calls this method. This indirection is made to
+     * control where the code associated to the
+     * `implementComputeStiffnessMatrix` is generated.
+     */
+    void implementComputeStiffnessMatrix(mfem::DenseMatrix &,
+                                         const mfem::FiniteElement &,
+                                         mfem::ElementTransformation &);
+    //! \brief destructor
+    ~StandardBehaviourIntegratorCRTPBase() override;
+
+   private:
+#ifndef MFEM_THREAD_SAFE
+   private:
+    //! \brief matrix used to store the derivatives of the shape functions
+    mfem::DenseMatrix dshape;
+#endif
+
+  };  // end of StandardBehaviourIntegratorCRTPBase
+
+}  // end of namespace mfem_mgis
+
+#include "MFEMMGIS/StandardBehaviourIntegratorCRTPBase.ixx"
+
+#endif /* LIB_MFEM_MGIS_STANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX */

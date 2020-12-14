@@ -25,7 +25,7 @@ namespace mfem_mgis {
     using Generator = std::function<std::unique_ptr<BehaviourIntegrator>(
         const mfem::FiniteElementSpace&,
         const size_type,
-        std::shared_ptr<const Behaviour>)>;
+        std::unique_ptr<const Behaviour>)>;
     /*!
      * \return the unique instance of this class for the given hypothesis
      * \param[in] h: modelling hypothesis
@@ -58,7 +58,7 @@ namespace mfem_mgis {
         const std::string&,
         const mfem::FiniteElementSpace&,
         const size_type,
-        std::shared_ptr<const Behaviour>) const;
+        std::unique_ptr<const Behaviour>) const;
     //! \brief destructor
     ~BehaviourIntegratorFactory() noexcept;
 

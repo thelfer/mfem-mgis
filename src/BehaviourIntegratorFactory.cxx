@@ -47,9 +47,10 @@ namespace mfem_mgis {
     f.addGenerator(
         "SmallStrainMechanicalBehaviour",
         [](const mfem::FiniteElementSpace& fs, const size_type m,
-           std::shared_ptr<const Behaviour> b) {
+           std::unique_ptr<const Behaviour> b) {
           return std::unique_ptr<SmallStrainMechanicalBehaviourIntegrator<h>>(
-              new SmallStrainMechanicalBehaviourIntegrator<h>(fs, m, b));
+              new SmallStrainMechanicalBehaviourIntegrator<h>(fs, m,
+                                                              std::move(b)));
         });
     return f;
   }  // end of buildFactory
@@ -105,7 +106,7 @@ namespace mfem_mgis {
       const std::string& n,
       const mfem::FiniteElementSpace& fs,
       const size_type m,
-      std::shared_ptr<const Behaviour> b) const {
+      std::unique_ptr<const Behaviour> b) const {
     const auto p = this->generators.find(n);
     if (p == this->generators.end()) {
       mgis::raise(
@@ -114,7 +115,7 @@ namespace mfem_mgis {
           n + "' declared");
     }
     const auto& g = p->second;
-    return g(fs, m, b);
+    return g(fs, m, std::move(b));
   }  // end of BehaviourIntegratorFactory::generate
 
   BehaviourIntegratorFactory::BehaviourIntegratorFactory() = default;

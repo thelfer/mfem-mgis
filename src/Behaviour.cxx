@@ -10,7 +10,7 @@
 
 namespace mfem_mgis{
 
-  std::shared_ptr<Behaviour> load(const std::string& l,
+  std::unique_ptr<Behaviour> load(const std::string& l,
                                   const std::string& b,
                                   const Hypothesis h) {
     using namespace mgis::behaviour;
@@ -18,9 +18,9 @@ namespace mfem_mgis{
       auto opts = FiniteStrainBehaviourOptions{};
       opts.stress_measure = FiniteStrainBehaviourOptions::PK1;
       opts.tangent_operator = FiniteStrainBehaviourOptions::DSIG_DF;
-      return std::make_shared<Behaviour>(mgis::behaviour::load(opts, l, b, h));
+      return std::make_unique<Behaviour>(mgis::behaviour::load(opts, l, b, h));
     }
-    return std::make_shared<Behaviour>(mgis::behaviour::load(l, b, h));
+    return std::make_unique<Behaviour>(mgis::behaviour::load(l, b, h));
   }  // end of load
 
 } // end of namespace mfem_mgis

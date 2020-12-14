@@ -14,11 +14,11 @@
 namespace mfem_mgis {
 
   Material::Material(std::shared_ptr<const PartialQuadratureSpace> s,
-                     std::shared_ptr<const Behaviour> b_ptr)
+                     std::unique_ptr<const Behaviour> b_ptr)
       : MaterialDataManager(*b_ptr, s->getNumberOfIntegrationPoints()),
         quadrature_space(s),
         macroscopic_gradients(this->s1.gradients_stride, real(0)),
-        behaviour_ptr(b_ptr) {}  // end of Material::Material
+        behaviour_ptr(std::move(b_ptr)) {}  // end of Material::Material
 
   void Material::setMacroscopicGradients(mgis::span<const real> g) {
     if (g.size() != this->s1.gradients_stride) {

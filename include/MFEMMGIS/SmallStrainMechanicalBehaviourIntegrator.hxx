@@ -10,97 +10,9 @@
 
 #include <mfem/linalg/densemat.hpp>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/BehaviourIntegratorBase.hxx"
+#include "MFEMMGIS/StandardBehaviourIntegratorCRTPBase.hxx"
 
 namespace mfem_mgis {
-
-  /*!
-   * \brief base class for behaviour integrators based on small strain
-   * mechanical behaviours.
-   */
-  struct SmallStrainMechanicalBehaviourIntegratorBase
-      : BehaviourIntegratorBase {
-    /*!
-     * \brief constructor
-     * \param[in] fs: finite element space.
-     * \param[in] m: material attribute.
-     * \param[in] b_ptr: behaviour
-     */
-    SmallStrainMechanicalBehaviourIntegratorBase(
-        const mfem::FiniteElementSpace &,
-        const size_type,
-        std::shared_ptr<const Behaviour>);
-    /*!
-     * \return the integration rule for the given element and element
-     * transformation.
-     * \param[in] e: element
-     * \param[in] tr: element transformation
-     */
-    virtual const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &, const mfem::ElementTransformation &) const;
-
-    //! \brief destructor
-    ~SmallStrainMechanicalBehaviourIntegratorBase() override;
-
-  };  // end of struct SmallStrainMechanicalBehaviourIntegratorBase
-
-  /*!
-   * \brief a base class of the `SmallStrainMechanicalBehaviourIntegrator` class
-   * to factorize code by static using the CRTP idiom.
-   *
-   * This class provides a way to optimise memory allocations
-   */
-  template <typename Child>
-  struct SmallStrainMechanicalBehaviourIntegratorCRTPBase
-      : public SmallStrainMechanicalBehaviourIntegratorBase {
-    // inheriting constructors
-    using SmallStrainMechanicalBehaviourIntegratorBase::
-        SmallStrainMechanicalBehaviourIntegratorBase;
-    //! \brief destructor
-    ~SmallStrainMechanicalBehaviourIntegratorCRTPBase() override;
-
-   protected:
-    /*!
-     * \brief compute the inner forces for the given element
-     * \param[out] Fe: element stiffness matrix
-     * \param[in] e: finite element
-     * \param[in] tr: finite element transformation
-     * \param[in] u: current estimation of the displacement field
-     *
-     * \note Thanks to the CRTP idiom, this implementation can call
-     * the `updateGradients` and the `updateInnerForces` methods defined
-     * in the derived class without a virtual call. Those call may
-     * even be inlined.
-     * \note The implementation of the `computeInnerForces` in the
-     * `SmallStrainMechanicalBehaviourIntegrator` class trivially
-     * calls this method. This indirection is made to control where
-     * the code associated to the `implementComputeInnerForces`
-     * is generated.
-     */
-    void implementComputeInnerForces(mfem::Vector &,
-                                     const mfem::FiniteElement &,
-                                     mfem::ElementTransformation &,
-                                     const mfem::Vector &);
-    /*!
-     * \brief compute the stiffness matrix for the given element
-     * \param[out] Ke: element stiffness matrix
-     * \param[in] e: finite element
-     * \param[in] tr: finite element transformation
-     *
-     * \note This method is meant to implement the `computeStiffnessMatrix`
-     * method. It is doned in
-     */
-    void implementComputeStiffnessMatrix(mfem::DenseMatrix &,
-                                         const mfem::FiniteElement &,
-                                         mfem::ElementTransformation &);
-
-#ifndef MFEM_THREAD_SAFE
-   private:
-    //! \brief matrix used to store the derivatives of the shape functions
-    mfem::DenseMatrix dshape;
-#endif
-
-  };  // end of SmallStrainMechanicalBehaviourIntegratorCRTPBase
 
   /*!
    * \brief behaviour integrators based on small strain
@@ -110,7 +22,7 @@ namespace mfem_mgis {
    */
   template <Hypothesis H>
   struct MFEM_MGIS_EXPORT SmallStrainMechanicalBehaviourIntegrator
-      : SmallStrainMechanicalBehaviourIntegratorCRTPBase<
+      : StandardBehaviourIntegratorCRTPBase<
             SmallStrainMechanicalBehaviourIntegrator<H>> {
     /*!
      * \brief constructor
@@ -120,7 +32,7 @@ namespace mfem_mgis {
      */
     SmallStrainMechanicalBehaviourIntegrator(const mfem::FiniteElementSpace &,
                                              const size_type,
-                                             std::shared_ptr<const Behaviour>);
+                                             std::unique_ptr<const Behaviour>);
 
     void computeInnerForces(mfem::Vector &,
                             const mfem::FiniteElement &,
@@ -137,9 +49,23 @@ namespace mfem_mgis {
 
    protected:
     //! \brief allow the CRTP base class the protected members
-    friend struct SmallStrainMechanicalBehaviourIntegratorCRTPBase<
+    friend struct StandardBehaviourIntegratorCRTPBase<
         SmallStrainMechanicalBehaviourIntegrator<H>>;
-
+    /*!
+     * \return the integration rule for the given element and element
+     * transformation.
+     * \param[in] e: element
+     * \param[in] tr: element transformation
+     */
+    static const mfem::IntegrationRule &getIntegrationRule(
+        const mfem::FiniteElement &, const mfem::ElementTransformation &);
+    /*!
+     * \brief build the quadrature space for the given material
+     * \param[in] fs: finite element space.
+     * \param[in] m: material attribute.
+     */
+    static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
+        const mfem::FiniteElementSpace &, const size_type);
     /*!
      * \brief update the strain with the contribution of the given node
      * \param[in] g: strain
@@ -162,7 +88,7 @@ namespace mfem_mgis {
      * \param[in] n: node index
      */
     void updateInnerForces(mfem::Vector &,
-                           const mgis::span<const real>&,
+                           const mgis::span<const real> &,
                            const mfem::DenseMatrix &,
                            const real,
                            const size_type) const;
@@ -178,12 +104,12 @@ namespace mfem_mgis {
      * \param[in] n: node index
      */
     void updateStiffnessMatrix(mfem::DenseMatrix &,
-                               const mgis::span<const real>&,
+                               const mgis::span<const real> &,
                                const mfem::DenseMatrix &,
                                const real,
                                const size_type) const;
 
-  };  // end of struct SmallStrainMechanicalBehaviourIntegrator
+    };  // end of struct SmallStrainMechanicalBehaviourIntegrator
 
 }  // end of namespace mfem_mgis
 
