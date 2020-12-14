@@ -15,31 +15,81 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 int main(const int argc, char** const argv) {
+  constexpr const auto eps = mfem_mgis::real{1e-10};
+  constexpr const auto xthr = mfem_mgis::real(1) / 2;
+  std::array<void (*)(const mfem::Vector&, mfem::Vector&), 6u> solutions = {
+      +[](const mfem::Vector& x, mfem::Vector& u) {
+        constexpr const auto gradx = mfem_mgis::real(1) / 3;
+        u = mfem_mgis::real{};
+        if (x(0) < xthr) {
+          u(0) = gradx * x(0);
+        } else {
+          u(0) = gradx * xthr - gradx * (x(0) - xthr);
+        }
+      },
+      +[](const mfem::Vector& x, mfem::Vector& u) {
+        constexpr const auto gradx = mfem_mgis::real(4) / 30;
+        u = mfem_mgis::real{};
+        if (x(0) < xthr) {
+          u(0) = gradx * x(0);
+        } else {
+          u(0) = gradx * xthr - gradx * (x(0) - xthr);
+        }
+      },
+      +[](const mfem::Vector& x, mfem::Vector& u) {
+        constexpr const auto gradx = mfem_mgis::real(4) / 30;
+        u = mfem_mgis::real{};
+        if (x(0) < xthr) {
+          u(0) = gradx * x(0);
+        } else {
+          u(0) = gradx * xthr - gradx * (x(0) - xthr);
+        }
+      },
+      +[](const mfem::Vector& x, mfem::Vector& u) {
+        constexpr const auto gradx = mfem_mgis::real(1) / 3;
+        u = mfem_mgis::real{};
+        if (x(0) < xthr) {
+          u(1) = gradx * x(0);
+        } else {
+          u(1) = gradx * xthr - gradx * (x(0) - xthr);
+        }
+      },
+      +[](const mfem::Vector& x, mfem::Vector& u) {
+        constexpr const auto gradx = mfem_mgis::real(1) / 3;
+        u = mfem_mgis::real{};
+        if (x(0) < xthr) {
+          u(2) = gradx * x(0);
+        } else {
+          u(2) = gradx * xthr - gradx * (x(0) - xthr);
+        }
+      },
+      +[](const mfem::Vector&, mfem::Vector& u) { u = mfem_mgis::real{}; }};
   const char* mesh_file = nullptr;
   const char* library = nullptr;
   auto order = 1;
-  auto tcase = 1;
-  auto static_cond = false;
-  auto visualization = 1;
+  auto tcase = 0;
   // options treatment
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
   args.AddOption(&library, "-l", "--library", "Material library.");
   args.AddOption(&order, "-o", "--order",
                  "Finite element order (polynomial degree).");
-  args.AddOption(&tcase, "-t", "--tcase",
-                 "identifier of the case : Exx->1, Eyy->2, Ezz->3, Exy->4, "
-                 "Eyz->5, Exz->6");
+  args.AddOption(&tcase, "-t", "--test-case",
+                 "identifier of the case : Exx->0, Eyy->1, Ezz->2, Exy->3, "
+                 "Exz->4, Eyz->5");
   args.Parse();
   if (!args.Good()) {
     args.PrintUsage(std::cout);
-    return 1;
+    return EXIT_FAILURE;
   }
   args.PrintOptions(std::cout);
+  if ((tcase < 0) || (tcase > 5)) {
+    std::cerr << "Invalid test case\n";
+    return EXIT_FAILURE;
+  }
   // parsing the mesh
   auto mesh = std::make_shared<mfem::Mesh>(mesh_file, 1, 1);
   const auto dim = mesh->Dimension();
-  std::cout << "dim: " << dim << std::endl;
   // creating the finite element space
   auto const fec = std::make_shared<mfem::H1_FECollection>(order, dim);
   auto fespace =
@@ -71,7 +121,12 @@ int main(const int argc, char** const argv) {
   set_temperature(m1);
   set_temperature(m2);
   // macroscopic strain
-  std::vector<double> e = {1, 0, 0, 0, 0, 0};
+  std::vector<mfem_mgis::real> e(6, mfem_mgis::real{});
+  if (tcase < 3) {
+    e[tcase] = 1;
+  } else {
+    e[tcase] = 1.41421356237309504880 / 2;
+  }
   m1.setMacroscopicGradients(e);
   m2.setMacroscopicGradients(e);
   // Impose no displacement on the first node
@@ -91,17 +146,28 @@ int main(const int argc, char** const argv) {
   solver.iterative_mode = false;
   solver.SetSolver(lsolver);
   solver.SetPrintLevel(1);  // print Newton iterations
-  solver.SetRelTol(1e-4);
-  solver.SetAbsTol(1e-10);
+  solver.SetRelTol(1e-12);
+  solver.SetAbsTol(1e-12);
   solver.SetMaxIter(10);
   p.solve(1);
-  //
+  // recover the solution as a grid function
   auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
-  mfem::GridFunction u1_gf(fespace.get());
-  u1_gf.MakeTRef(fespace.get(), u1, 0);
-  u1_gf.SetFromTrueVector();
-  mfem::ParaViewDataCollection paraview_dc("per", mesh.get());
-  paraview_dc.RegisterField("u", &u1_gf);
+  mfem::GridFunction x(fespace.get());
+  x.MakeTRef(fespace.get(), u1, 0);
+  x.SetFromTrueVector();
+  // comparison to analytical solution
+  mfem::VectorFunctionCoefficient sol_coef(dim, solutions[tcase]);
+  const auto error = x.ComputeL2Error(sol_coef);
+  if (error > eps) {
+    std::cerr << "Error is greater than threshold (" << error << " > " << eps << ")\n";
+    return EXIT_FAILURE;
+  } else {
+    std::cerr << "Error is lower than threshold (" << error << " < " << eps << ")\n";
+  }
+  // exporting the results
+  mfem::ParaViewDataCollection paraview_dc(
+      "PeriodicTest-" + std::to_string(tcase), mesh.get());
+  paraview_dc.RegisterField("u", &x);
   paraview_dc.SetCycle(0);
   paraview_dc.SetTime(0.0);
   paraview_dc.Save();

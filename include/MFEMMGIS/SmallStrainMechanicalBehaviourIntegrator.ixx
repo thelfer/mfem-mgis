@@ -184,9 +184,9 @@ namespace mfem_mgis {
       real B[6][3] = {{dN(ni, 0), 0, 0},                          //
                       {0, dN(ni, 1), 0},                          //
                       {0, 0, dN(ni, 2)},                          //
-                      {dN(ni, 1) * icste, dN(ni, 0) * icste, 0},  //
-                      {dN(ni, 2) * icste, 0, dN(ni, 0) * icste},  //
-                      {0, dN(ni, 2) * icste, dN(ni, 0) * icste}};
+                      {dN(ni, 1) * icste, dN(ni, 0) * icste, 0},  // xy
+                      {dN(ni, 2) * icste, 0, dN(ni, 0) * icste},  // xz
+                      {0, dN(ni, 2) * icste, dN(ni, 1) * icste}}; // yz
       Fe[nx] += w * (B[0][0] * s[0] + B[1][0] * s[1] + B[2][0] * s[2] +
                      B[3][0] * s[3] + B[4][0] * s[4] + B[5][0] * s[5]);
       Fe[ny] += w * (B[0][1] * s[0] + B[1][1] * s[1] + B[2][1] * s[2] +
@@ -211,15 +211,15 @@ namespace mfem_mgis {
                        {0, dN(ni, 1), 0},                          //
                        {0, 0, dN(ni, 2)},                          //
                        {dN(ni, 1) * icste, dN(ni, 0) * icste, 0},  //
-                       {dN(ni, 2) * icste, 0, dN(ni, 0) * icste},  //
-                       {0, dN(ni, 2) * icste, dN(ni, 0) * icste}};
+                       {dN(ni, 2) * icste, 0, dN(ni, 0) * icste},  // xz
+                       {0, dN(ni, 2) * icste, dN(ni, 1) * icste}};
       for (size_type nj = 0; nj != nnodes; ++nj) {
         real Bj[6][3] = {{dN(nj, 0), 0, 0},                          //
                          {0, dN(nj, 1), 0},                          //
                          {0, 0, dN(nj, 2)},                          //
                          {dN(nj, 1) * icste, dN(nj, 0) * icste, 0},  //
                          {dN(nj, 2) * icste, 0, dN(nj, 0) * icste},  //
-                         {0, dN(nj, 2) * icste, dN(nj, 0) * icste}};
+                         {0, dN(nj, 2) * icste, dN(nj, 1) * icste}};
         real KB[6][3];
         for (size_type i = 0; i != 6; ++i) {
           for (size_type j = 0; j != 3; ++j) {
