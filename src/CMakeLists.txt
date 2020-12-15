@@ -11,3 +11,8 @@ mfem_mgis_library(MFEMMGIS
   ResidualOperator.cxx
   NonLinearEvolutionProblem.cxx
 )
+
+if(enable-openmp)
+  target_link_libraries(MFEMMGIS
+    PUBLIC OpenMP::OpenMP_CXX)
+endif(enable-openmp)
