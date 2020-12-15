@@ -1,7 +1,41 @@
 /*!
  * \file   tests/PeriodicTest.cxx
- * \brief    
- * \author Thomas Helfer
+ * \brief
+ * This example code solves a simple linear elasticity problem
+ * describing a multi-material square.
+ * This problem has a 1D analytic solution along x1 dimension,
+ * the solution is constant along x2 dimension which is also periodic.
+ * 
+ * The geometry of the domain is assumed to be as
+ * follows:
+ * 
+ *             x2=1  +----------+----------+
+ *                   | material | material |
+ *                   |    1     |    2     |
+ *             x2=0  +----------+----------+
+ *                 x1=0                   x1=1
+ * 
+ * 
+ * Specifically, we approximate the weak form of -div(sigma(u))=0
+ * where sigma(u)=lambda*div(u)*I+mu*(grad*u+u*grad) is the stress
+ * tensor corresponding to displacement field u, and lambda and mu
+ * are the material Lame constants. The boundary conditions are
+ * periodic.
+ * 
+ * Mechanical strain:
+ *                 eps = E + grad_s v
+ * 
+ *           with  E the given macrocoscopic strain
+ *                 v the periodic displacement fluctuation
+ * Displacement:
+ *                   u = U + v
+ * 
+ *           with  U the given displacement associated to E
+ *                   E = grad_s U
+ * 
+ * The local microscopic strain is equal, on average, to the macroscopic strain:
+ *           <eps> = <E>
+ * \author Thomas Helfer, Guillaume Latu
  * \date   14/10/2020
  */
 
@@ -166,7 +200,7 @@ int main(const int argc, char** const argv) {
   }
   // exporting the results
   mfem::ParaViewDataCollection paraview_dc(
-      "PeriodicTest-" + std::to_string(tcase), mesh.get());
+      "PeriodicTestOutput-" + std::to_string(tcase), mesh.get());
   paraview_dc.RegisterField("u", &x);
   paraview_dc.SetCycle(0);
   paraview_dc.SetTime(0.0);

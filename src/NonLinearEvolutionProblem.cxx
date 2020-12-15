@@ -79,7 +79,6 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblem::solve(const real dt) {
     mfem::Vector zero;
-    this->u1 = this->u0;
     this->mgis_integrator->setTimeIncrement(dt);
     ResidualOperator r(*this);
     this->solver.SetOperator(r);

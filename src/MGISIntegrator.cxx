@@ -15,8 +15,7 @@ namespace mfem_mgis {
 
   MGISIntegrator::MGISIntegrator(
       std::shared_ptr<const mfem::FiniteElementSpace> fs, const Hypothesis h)
-      : fe_space(fs),
-        hypothesis(h) {}  // end of MGISIntegrator::MGISIntegrator
+      : fe_space(fs), hypothesis(h) {}  // end of MGISIntegrator::MGISIntegrator
 
   void MGISIntegrator::AssembleElementVector(const mfem::FiniteElement & e,
                                              mfem::ElementTransformation & tr,
