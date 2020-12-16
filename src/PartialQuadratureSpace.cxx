@@ -5,29 +5,31 @@
  * \date   8/06/2020
  */
 
-#include <iterator>
 #include <cmath>
+#include <iterator>
 #include <algorithm>
 #include "mfem/fem/fespace.hpp"
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
 namespace mfem_mgis {
 
   PartialQuadratureSpace::PartialQuadratureSpace(
-      const mfem::FiniteElementSpace& fs,
+      const FiniteElementDiscretization& fed,
       const size_type m,
       const std::function<const mfem::IntegrationRule&(
           const mfem::FiniteElement&, const mfem::ElementTransformation&)>&
           integration_rule_selector)
-      : fespace(fs), id(m) {
+      : fe_discretization(fed), id(m) {
+    const auto& fespace = this->fe_discretization.getFiniteElementSpace();
     this->ng = size_type{};
-    for (size_type i = 0; i != this->fespace.GetNE(); ++i) {
-      if (this->fespace.GetAttribute(i) != m) {
+    for (size_type i = 0; i != fespace.GetNE(); ++i) {
+      if (fespace.GetAttribute(i) != m) {
         continue;
       }
-      const auto& fe = *(this->fespace.GetFE(i));
-      const auto& tr = *(this->fespace.GetElementTransformation(i));
+      const auto& fe = *(fespace.GetFE(i));
+      const auto& tr = *(fespace.GetElementTransformation(i));
       this->offsets[i] = this->ng;
       const auto& ir = integration_rule_selector(fe, tr);
       this->ng += ir.GetNPoints();

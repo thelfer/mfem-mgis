@@ -12,7 +12,9 @@ namespace mfem {
 
   class Vector;
   class DenseMatrix;
+  class Mesh;
   class FiniteElementSpace;
+  class FiniteElementCollection;
   class FiniteElement;
   class ElementTransformation;
   class IntegrationRule;

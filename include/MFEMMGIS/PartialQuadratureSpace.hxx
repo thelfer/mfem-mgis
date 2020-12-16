@@ -15,18 +15,21 @@
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct FiniteElementDiscretization;
+
   /*!
    * \brief a space on quadrature points defined on a material
    */
   struct MFEM_MGIS_EXPORT PartialQuadratureSpace {
     /*!
      * \brief constructor
-     * \param[in] fs: finite element space.
+     * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      * \param[in] integration_rule_selector: function returning the order of quadrature for the
      *   considered finite element.
      */
-    PartialQuadratureSpace(const mfem::FiniteElementSpace &,
+    PartialQuadratureSpace(const FiniteElementDiscretization &,
                            const size_type,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
@@ -42,7 +45,7 @@ namespace mfem_mgis {
 
    private:
     //! \brief underlying finite element space
-    const mfem::FiniteElementSpace &fespace;
+    const FiniteElementDiscretization &fe_discretization;
     //! \brief offsets associated with elements
     std::unordered_map<size_type,  // element number
                        size_type>  // offset

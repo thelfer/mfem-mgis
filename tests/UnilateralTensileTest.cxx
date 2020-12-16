@@ -15,6 +15,7 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 int main(const int argc, char** const argv) {
+  constexpr const auto dim = mfem_mgis::size_type{3};
   const char* mesh_file = nullptr;
   const char* behaviour = nullptr;
   const char* library = nullptr;
@@ -38,16 +39,17 @@ int main(const int argc, char** const argv) {
     return EXIT_FAILURE;
   }
   args.PrintOptions(std::cout);
-  // parsing the mesh
+  // loading the mesh
   auto mesh = std::make_shared<mfem::Mesh>(mesh_file, 1, 1);
-  const auto dim = mesh->Dimension();
-  // creating the finite element space
-  auto const fec = std::make_shared<mfem::H1_FECollection>(order, dim);
-  auto fespace =
-      std::make_shared<mfem::FiniteElementSpace>(mesh.get(), fec.get(), dim);
+  if (mesh->Dimension() != dim) {
+    std::cerr << "Invalid mesh dimension\n";
+    return EXIT_FAILURE;
+  }
   // building the non linear problem
   mfem_mgis::NonLinearEvolutionProblem problem(
-      fespace, mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
+      std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+          mesh, std::make_shared<mfem::H1_FECollection>(order, dim), 3),
+      mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
   problem.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 1, library,
                                  behaviour);
   // materials
@@ -85,7 +87,8 @@ int main(const int argc, char** const argv) {
         mfem::Array<mfem_mgis::size_type>(mesh->bdr_attributes.Max());
     boundaries_markers = 0;
     boundaries_markers[boundary] = 1;
-    fespace->GetEssentialTrueDofs(boundaries_markers, tmp, normal);
+    problem.getFiniteElementSpace().GetEssentialTrueDofs(boundaries_markers,
+                                                         tmp, normal);
     fixed_dirichlet_dofs.Append(tmp);
     return tmp;
   };
@@ -99,7 +102,7 @@ int main(const int argc, char** const argv) {
   auto& solver = problem.getSolver();
   solver.iterative_mode = true;
   solver.SetSolver(lsolver);
-  solver.SetPrintLevel(1);  // print Newton iterations
+  solver.SetPrintLevel(0);
   solver.SetRelTol(1e-12);
   solver.SetAbsTol(0);
   solver.SetMaxIter(10);
@@ -131,10 +134,12 @@ int main(const int argc, char** const argv) {
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
     // setting the boundary values
     auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
+    u1.Print();
     const auto u = u_t(t + dt);
     for (mfem_mgis::size_type idx = 0; idx != yz1_ux_dofs.Size(); ++idx) {
       u1[yz1_ux_dofs[idx]] = u;
     }
+    u1.Print();
     // resolution
     problem.solve(dt);
     problem.update();
@@ -145,8 +150,8 @@ int main(const int argc, char** const argv) {
     sxx.push_back(m1.s1.thermodynamic_forces[0]);
     v.push_back(m1.s1.internal_state_variables[vo]);
     // recover the solution as a grid function
-    mfem::GridFunction x(fespace.get());
-    x.MakeTRef(fespace.get(), u1, 0);
+    mfem::GridFunction x(&problem.getFiniteElementSpace());
+    x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
     x.SetFromTrueVector();
     paraview_dc.RegisterField("u", &x);
     paraview_dc.SetCycle(i);

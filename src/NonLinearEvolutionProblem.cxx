@@ -7,19 +7,28 @@
 
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/ResidualOperator.hxx"
-#include "MFEMMGIS/MGISIntegrator.hxx"
+#include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
-      std::shared_ptr<mfem::FiniteElementSpace> fs, const Hypothesis h)
-      : mfem::NonlinearForm(fs.get()),
-        mgis_integrator(new MGISIntegrator(fs, h)),
-        fe_space(fs),
+      std::shared_ptr<FiniteElementDiscretization> fed, const Hypothesis h)
+      : mfem::NonlinearForm(&(fed->getFiniteElementSpace())),
+        mgis_integrator(new MultiMaterialNonLinearIntegrator(fed, h)),
+        fe_discretization(fed),
         hypothesis(h),
-        u0(fs->GetTrueVSize()),
-        u1(fs->GetTrueVSize()) {
+        u0(fed->getFiniteElementSpace().GetTrueVSize()),
+        u1(fed->getFiniteElementSpace().GetTrueVSize()) {
+    this->u0 = real{0};
+    this->u1 = real{0};
+    if (this->fe_discretization->getMesh().Dimension() !=
+        mgis::behaviour::getSpaceDimension(h)) {
+      mgis::raise(
+          "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
+          "modelling hypothesis is not consistent with the spatial dimension "
+          "of the mesh");
+    }
     this->AddDomainIntegrator(this->mgis_integrator);
   }  // end of NonLinearEvolutionProblem
 
@@ -44,7 +53,11 @@ namespace mfem_mgis {
 
   const mfem::FiniteElementSpace&
   NonLinearEvolutionProblem::getFiniteElementSpace() const {
-    return *(this->fe_space);
+    return this->fe_discretization->getFiniteElementSpace();
+  }  // end of NonLinearEvolutionProblem::getFiniteElementSpace
+
+  mfem::FiniteElementSpace& NonLinearEvolutionProblem::getFiniteElementSpace() {
+    return this->fe_discretization->getFiniteElementSpace();
   }  // end of NonLinearEvolutionProblem::getFiniteElementSpace
 
   mfem::NewtonSolver& NonLinearEvolutionProblem::getSolver() {

@@ -10,6 +10,8 @@
 
 #include "MGIS/Config.hxx"
 
+#define MFEM_MGIS_VISIBILITY_LOCAL MGIS_VISIBILITY_LOCAL
+
 #if defined _WIN32 || defined _WIN64 || defined __CYGWIN__
 #if defined MFEMMGIS_EXPORTS
 #define MFEM_MGIS_EXPORT MGIS_VISIBILITY_EXPORT

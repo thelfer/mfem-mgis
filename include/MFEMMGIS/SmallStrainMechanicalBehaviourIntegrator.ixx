@@ -15,6 +15,8 @@
 
 namespace mfem_mgis {
 
+  namespace internals {}
+
   template <Hypothesis H>
   const mfem::IntegrationRule &
   SmallStrainMechanicalBehaviourIntegrator<H>::getIntegrationRule(
@@ -34,25 +36,35 @@ namespace mfem_mgis {
   template <Hypothesis H>
   std::shared_ptr<const PartialQuadratureSpace>
   SmallStrainMechanicalBehaviourIntegrator<H>::buildQuadratureSpace(
-      const mfem::FiniteElementSpace &fs, const size_type m) {
+      const FiniteElementDiscretization &fed, const size_type m) {
     auto selector = [](const mfem::FiniteElement &e,
                        const mfem::ElementTransformation &tr)
         -> const mfem::IntegrationRule & {
       return getIntegrationRule(e, tr);
     };  // end of selector
-    return std::make_shared<PartialQuadratureSpace>(fs, m, selector);
+    return std::make_shared<PartialQuadratureSpace>(fed, m, selector);
   }  // end of buildQuadratureSpace
 
   template <Hypothesis H>
   SmallStrainMechanicalBehaviourIntegrator<H>::
       SmallStrainMechanicalBehaviourIntegrator(
-          const mfem::FiniteElementSpace &fs,
+          const FiniteElementDiscretization &fed,
           const size_type m,
           std::unique_ptr<const Behaviour> b_ptr)
       : StandardBehaviourIntegratorCRTPBase<
             SmallStrainMechanicalBehaviourIntegrator>(
-            buildQuadratureSpace(fs, m), std::move(b_ptr)) {
+            buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkHypotheses(H);
+    if (this->b.btype != Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
+      this->throwInvalidBehaviourType(
+          "SmallStrainMechanicalBehaviourIntegrator",
+          "expected a strain based behaviour");
+    }
+    if (this->b.kinematic != Behaviour::SMALLSTRAINKINEMATIC) {
+      this->throwInvalidBehaviourKinematic(
+          "SmallStrainMechanicalBehaviourIntegrator",
+          "expected a small strain based behaviour");
+    }
   }  // end of SmallStrainMechanicalBehaviourIntegrator
 
   template <Hypothesis H>

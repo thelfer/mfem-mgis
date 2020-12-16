@@ -17,13 +17,16 @@
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct FiniteElementDiscretization;
+
   /*!
    * \brief an abstract factory for behaviour integrators
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegratorFactory {
     //! a simple alias
     using Generator = std::function<std::unique_ptr<BehaviourIntegrator>(
-        const mfem::FiniteElementSpace&,
+        const FiniteElementDiscretization&,
         const size_type,
         std::unique_ptr<const Behaviour>)>;
     /*!
@@ -50,13 +53,13 @@ namespace mfem_mgis {
     /*!
      * \return a newly created behaviour integrator
      * \param[in] n: name
-     * \param[in] fs: finite element space.
+     * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      * \param[in] b: behaviour
      */
     std::unique_ptr<BehaviourIntegrator> generate(
         const std::string&,
-        const mfem::FiniteElementSpace&,
+        const FiniteElementDiscretization&,
         const size_type,
         std::unique_ptr<const Behaviour>) const;
     //! \brief destructor

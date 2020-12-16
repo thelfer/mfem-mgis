@@ -14,6 +14,9 @@
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct FiniteElementDiscretization;
+
   /*!
    * \brief behaviour integrators based on small strain
    * mechanical behaviours.
@@ -26,11 +29,11 @@ namespace mfem_mgis {
             SmallStrainMechanicalBehaviourIntegrator<H>> {
     /*!
      * \brief constructor
-     * \param[in] fs: finite element space.
+     * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      * \param[in] b_ptr: behaviour
      */
-    SmallStrainMechanicalBehaviourIntegrator(const mfem::FiniteElementSpace &,
+    SmallStrainMechanicalBehaviourIntegrator(const FiniteElementDiscretization &,
                                              const size_type,
                                              std::unique_ptr<const Behaviour>);
 
@@ -61,11 +64,11 @@ namespace mfem_mgis {
         const mfem::FiniteElement &, const mfem::ElementTransformation &);
     /*!
      * \brief build the quadrature space for the given material
-     * \param[in] fs: finite element space.
+     * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
-        const mfem::FiniteElementSpace &, const size_type);
+        const FiniteElementDiscretization &, const size_type);
     /*!
      * \brief update the strain with the contribution of the given node
      * \param[in] g: strain

@@ -47,8 +47,24 @@ namespace mfem_mgis {
      */
     void checkHypotheses(const Hypothesis) const;
     /*!
+     * \brief throw an exception stating that the behaviour type is not the
+     * expected one.
+     * \param[in] mn: calling method name
+     * \param[in] m: error message
+     */
+    [[noreturn]] void throwInvalidBehaviourType(const char* const,
+                                                const char* const) const;
+    /*!
+     * \brief throw an exception stating that the behaviour kinematic is not the
+     * expected one.
+     * \param[in] mn: calling method name
+     * \param[in] m: error message
+     */
+    [[noreturn]] void throwInvalidBehaviourKinematic(const char* const,
+                                                     const char* const) const;
+    /*!
      * \brief integrate the mechanical behaviour over the time step
-     * If successful, the value of the stress, consistent tangent 
+     * If successful, the value of the stress, consistent tangent
      * operator and internal state variables are updated.
      *
      * \param[in] ip: local integration point index

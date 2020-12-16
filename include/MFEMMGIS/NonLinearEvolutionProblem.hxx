@@ -15,13 +15,14 @@
 #include "MGIS/Behaviour/Hypothesis.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 
 namespace mfem_mgis {
 
   // forward declaration
   struct Material;
   // forward declaration
-  struct MGISIntegrator;
+  struct MultiMaterialNonLinearIntegrator;
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -32,11 +33,13 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
-     * \param[in] fs: finite element space
+     * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      */
-    NonLinearEvolutionProblem(std::shared_ptr<mfem::FiniteElementSpace>,
+    NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis);
+    //! \return the finite element space
+    mfem::FiniteElementSpace& getFiniteElementSpace();
     //! \return the finite element space
     const mfem::FiniteElementSpace& getFiniteElementSpace() const;
     //! \return the Newton solver
@@ -90,9 +93,9 @@ namespace mfem_mgis {
 
    private:
     //! \brief pointer to the underlying domain integrator
-    MGISIntegrator* const mgis_integrator;
-    //! \brief underlying finit element space
-    const std::shared_ptr<const mfem::FiniteElementSpace> fe_space;
+    MultiMaterialNonLinearIntegrator* const mgis_integrator;
+    //! \brief underlying finite element discretization
+    const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
     //! \brief newton solver

@@ -49,6 +49,7 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 int main(const int argc, char** const argv) {
+  constexpr const auto dim = mfem_mgis::size_type{3};
   constexpr const auto eps = mfem_mgis::real{1e-10};
   constexpr const auto xthr = mfem_mgis::real(1) / 2;
   std::array<void (*)(const mfem::Vector&, mfem::Vector&), 6u> solutions = {
@@ -121,23 +122,24 @@ int main(const int argc, char** const argv) {
     std::cerr << "Invalid test case\n";
     return EXIT_FAILURE;
   }
-  // parsing the mesh
+  // creating the finite element workspace
   auto mesh = std::make_shared<mfem::Mesh>(mesh_file, 1, 1);
-  const auto dim = mesh->Dimension();
-  // creating the finite element space
-  auto const fec = std::make_shared<mfem::H1_FECollection>(order, dim);
-  auto fespace =
-      std::make_shared<mfem::FiniteElementSpace>(mesh.get(), fec.get(), dim);
+  if (dim != mesh->Dimension()) {
+    std::cerr << "Invalid mesh dimension \n";
+    return EXIT_FAILURE;
+  }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem p(
-      fespace, mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
-  p.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 1, library,
+  mfem_mgis::NonLinearEvolutionProblem problem(
+      std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+          mesh, std::make_shared<mfem::H1_FECollection>(order, dim), 3),
+      mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
+  problem.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 1, library,
                            "Elasticity");
-  p.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 2, library,
+  problem.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 2, library,
                            "Elasticity");
   // materials
-  auto& m1 = p.getMaterial(1);
-  auto& m2 = p.getMaterial(2);
+  auto& m1 = problem.getMaterial(1);
+  auto& m2 = problem.getMaterial(2);
   // setting the material properties
   auto set_properties = [](auto& m, const double l, const double mu) {
     mgis::behaviour::setMaterialProperty(m.s0, "FirstLameCoefficient", l);
@@ -166,28 +168,28 @@ int main(const int argc, char** const argv) {
   // Impose no displacement on the first node
   // which needs to be on x=xmin or x=xmax axis.
   // ux=0, uy=0, uz=0 on this point.
-  int ndof = fespace->GetTrueVSize() / dim;
+  const auto nnodes = problem.getFiniteElementSpace().GetTrueVSize() / dim;
   mfem::Array<int> ess_tdof_list;
   ess_tdof_list.SetSize(dim);
   for (int k = 0; k < dim; k++) {
-    int tgdof = 0 + k * ndof;
+    int tgdof = 0 + k * nnodes;
     ess_tdof_list[k] = tgdof;
   }
-  p.SetEssentialTrueDofs(ess_tdof_list);
+  problem.SetEssentialTrueDofs(ess_tdof_list);
   // solving the problem
   mfem::UMFPackSolver lsolver;
-  auto& solver = p.getSolver();
+  auto& solver = problem.getSolver();
   solver.iterative_mode = true;
   solver.SetSolver(lsolver);
-  solver.SetPrintLevel(1);  // print Newton iterations
+  solver.SetPrintLevel(0);
   solver.SetRelTol(1e-12);
   solver.SetAbsTol(1e-12);
   solver.SetMaxIter(10);
-  p.solve(1);
+  problem.solve(1);
   // recover the solution as a grid function
-  auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
-  mfem::GridFunction x(fespace.get());
-  x.MakeTRef(fespace.get(), u1, 0);
+  auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
+  mfem::GridFunction x(&problem.getFiniteElementSpace());
+  x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
   x.SetFromTrueVector();
   // comparison to analytical solution
   mfem::VectorFunctionCoefficient sol_coef(dim, solutions[tcase]);

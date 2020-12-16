@@ -46,10 +46,10 @@ namespace mfem_mgis {
     fillWithDefaultBehaviourIntegrators<Hypothesis::TRIDIMENSIONAL>(f);
     f.addGenerator(
         "SmallStrainMechanicalBehaviour",
-        [](const mfem::FiniteElementSpace& fs, const size_type m,
+        [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b) {
           return std::unique_ptr<SmallStrainMechanicalBehaviourIntegrator<h>>(
-              new SmallStrainMechanicalBehaviourIntegrator<h>(fs, m,
+              new SmallStrainMechanicalBehaviourIntegrator<h>(fed, m,
                                                               std::move(b)));
         });
     return f;
@@ -104,7 +104,7 @@ namespace mfem_mgis {
 
   std::unique_ptr<BehaviourIntegrator> BehaviourIntegratorFactory::generate(
       const std::string& n,
-      const mfem::FiniteElementSpace& fs,
+      const FiniteElementDiscretization& fed,
       const size_type m,
       std::unique_ptr<const Behaviour> b) const {
     const auto p = this->generators.find(n);
@@ -115,7 +115,7 @@ namespace mfem_mgis {
           n + "' declared");
     }
     const auto& g = p->second;
-    return g(fs, m, std::move(b));
+    return g(fed, m, std::move(b));
   }  // end of BehaviourIntegratorFactory::generate
 
   BehaviourIntegratorFactory::BehaviourIntegratorFactory() = default;

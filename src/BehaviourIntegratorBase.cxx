@@ -16,7 +16,25 @@ namespace mfem_mgis {
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::unique_ptr<const Behaviour> b_ptr)
       : Material(s, std::move(b_ptr)) {
-  }  // end of BehaviourIntegratorBase::BehaviourIntegratorBase
+  }  // end of BehaviourIntegratorBase
+
+  void BehaviourIntegratorBase::throwInvalidBehaviourType(
+      const char* const mn, const char* const m) const {
+    auto msg = std::string(mn) + ": invalid behaviour type";
+    if (m != nullptr) {
+      msg += "(" + std::string(m) + ')';
+    }
+    mgis::raise(msg);
+  }  // end of throwInvalidBehaviourType
+
+  void BehaviourIntegratorBase::throwInvalidBehaviourKinematic(
+      const char* const mn, const char* const m) const {
+    auto msg = std::string(mn) + ": invalid behaviour type";
+    if (m != nullptr) {
+      msg += "(" + std::string(m) + ')';
+    }
+    mgis::raise(msg);
+  }  // end of throwInvalidBehaviourType
 
   void BehaviourIntegratorBase::setTimeIncrement(const real dt){
     this->time_increment = dt;

@@ -1,15 +1,15 @@
 /*!
- * \file   include/MFEMMGIS/MGISIntegrator.hxx
+ * \file   include/MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx
  * \brief
  * \author Thomas Helfer
  * \date   8/06/2020
  */
 
-#ifndef LIB_MFEM_MGIS_MGISINTEGRATOR_HXX
-#define LIB_MFEM_MGIS_MGISINTEGRATOR_HXX
+#ifndef LIB_MFEM_MGIS_MULTIMATERIALNONLINEARINTEGRATOR_HXX
+#define LIB_MFEM_MGIS_MULTIMATERIALNONLINEARINTEGRATOR_HXX
 
 #include <memory>
-#include <unordered_map>
+#include <vector>
 #include "mfem/fem/nonlininteg.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
@@ -19,24 +19,26 @@
 namespace mfem_mgis {
 
   // forward declaration
+  struct FiniteElementDiscretization;
+  // forward declaration
   struct BehaviourIntegrator;
 
   /*!
    * \brief Base class for non linear integrators based on an MGIS' behaviours.
    * This class manages an mapping associating a material and its identifier
    */
-  struct MFEM_MGIS_EXPORT MGISIntegrator final
+  struct MFEM_MGIS_EXPORT MultiMaterialNonLinearIntegrator final
       : public mfem::NonlinearFormIntegrator {
     //! \brief a simple alias
     using Behaviour = mgis::behaviour::Behaviour;
 
     /*!
      * \brief constructor
-     * \param[in] fs: finite element space
+     * \param[in] fed: finite element discretisation
      * \param[in] h: modelling hypothesis
      */
-    MGISIntegrator(std::shared_ptr<const mfem::FiniteElementSpace>,
-                   const Hypothesis);
+    MultiMaterialNonLinearIntegrator(
+        std::shared_ptr<const FiniteElementDiscretization>, const Hypothesis);
 
     void AssembleElementVector(const mfem::FiniteElement &,
                                mfem::ElementTransformation &,
@@ -92,24 +94,22 @@ namespace mfem_mgis {
     void update();
 
     //! \brief destructor
-    ~MGISIntegrator() override;
+    ~MultiMaterialNonLinearIntegrator() override;
 
    private:
     //! \brief underlying finit element space
-    const std::shared_ptr<const mfem::FiniteElementSpace> fe_space;
+    const std::shared_ptr<const FiniteElementDiscretization> fe_discretization;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
     /*!
      * \brief mapping between the material integrator and the behaviour
      * integrator.
      */
-    std::unordered_map<size_type,  // material id
-                       std::shared_ptr<BehaviourIntegrator>>
-        behaviour_integrators;
+    std::vector<std::unique_ptr<BehaviourIntegrator>> behaviour_integrators;
     //! \brief time increment
     real time_increment;
-  };  // end of MGISIntegratorBase
+  };  // end of MultiMaterialNonLinearIntegrator
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_MGISINTEGRATOR_HXX */
+#endif /* LIB_MFEM_MGIS_MULTIMATERIALNONLINEARINTEGRATOR_HXX */
