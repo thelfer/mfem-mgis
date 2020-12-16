@@ -16,16 +16,24 @@
 
 int main(const int argc, char** const argv) {
   const char* mesh_file = nullptr;
+  const char* behaviour = nullptr;
   const char* library = nullptr;
+  const char* reference_file = nullptr;
+  const char* isv_name = nullptr;
   auto order = 1;
   // options treatment
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
+  args.AddOption(&reference_file, "-r", "--reference-file", "Reference file.");
+  args.AddOption(&behaviour, "-b", "--behaviour", "Name of the behaviour.");
+  args.AddOption(&isv_name, "-v", "--internal-state-variable",
+                 "Internal variable name to be post-processed.");
   args.AddOption(&library, "-l", "--library", "Material library.");
   args.AddOption(&order, "-o", "--order",
                  "Finite element order (polynomial degree).");
   args.Parse();
-  if (!args.Good()) {
+  if ((!args.Good()) || (mesh_file == nullptr) || (reference_file == nullptr) ||
+      (isv_name == nullptr) || (behaviour == nullptr)) {
     args.PrintUsage(std::cout);
     return EXIT_FAILURE;
   }
@@ -38,12 +46,12 @@ int main(const int argc, char** const argv) {
   auto fespace =
       std::make_shared<mfem::FiniteElementSpace>(mesh.get(), fec.get(), dim);
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem p(
+  mfem_mgis::NonLinearEvolutionProblem problem(
       fespace, mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
-  p.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 1, library,
-                           "Plasticity");
+  problem.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 1, library,
+                                 behaviour);
   // materials
-  auto& m1 = p.getMaterial(1);
+  auto& m1 = problem.getMaterial(1);
   mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
   mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
   // boundary conditions
@@ -72,23 +80,24 @@ int main(const int argc, char** const argv) {
   // and "yz0".
   auto fixed_dirichlet_dofs = mfem::Array<mfem_mgis::size_type>{};
   auto append_dof = [&](const auto boundary, const auto normal) {
-    auto tmp = mfem::Array<int>{};
-    auto boundaries_markers = mfem::Array<int>(mesh->bdr_attributes.Max());
+    auto tmp = mfem::Array<mfem_mgis::size_type>{};
+    auto boundaries_markers =
+        mfem::Array<mfem_mgis::size_type>(mesh->bdr_attributes.Max());
     boundaries_markers = 0;
     boundaries_markers[boundary] = 1;
     fespace->GetEssentialTrueDofs(boundaries_markers, tmp, normal);
     fixed_dirichlet_dofs.Append(tmp);
     return tmp;
   };
-  append_dof(0, 1);  // xz0
-  append_dof(1, 2);  // xy0
-  append_dof(4, 0);  // yz0
+  append_dof(0, 1);                     // xz0
+  append_dof(1, 2);                     // xy0
+  append_dof(4, 0);                     // yz0
   auto yz1_ux_dofs = append_dof(2, 0);  // yz1
-  p.SetEssentialTrueDofs(fixed_dirichlet_dofs);
+  problem.SetEssentialTrueDofs(fixed_dirichlet_dofs);
   // solving the problem
   mfem::UMFPackSolver lsolver;
-  auto& solver = p.getSolver();
-  solver.iterative_mode = false;
+  auto& solver = problem.getSolver();
+  solver.iterative_mode = true;
   solver.SetSolver(lsolver);
   solver.SetPrintLevel(1);  // print Newton iterations
   solver.SetRelTol(1e-12);
@@ -97,20 +106,44 @@ int main(const int argc, char** const argv) {
   // vtk export
   mfem::ParaViewDataCollection paraview_dc("UnilateralTensileTestOutput",
                                            mesh.get());
+  const auto vo =
+      mgis::behaviour::getVariableOffset(m1.b.isvs, isv_name, m1.b.hypothesis);
+  auto exx = std::vector<mfem_mgis::real>{};
+  auto eyy = std::vector<mfem_mgis::real>{};
+  auto sxx = std::vector<mfem_mgis::real>{};
+  auto v = std::vector<mfem_mgis::real>{};
   // loop over time step
+  exx.push_back(m1.s0.gradients[0]);
+  eyy.push_back(m1.s0.gradients[1]);
+  sxx.push_back(m1.s0.thermodynamic_forces[0]);
+  v.push_back(m1.s0.internal_state_variables[vo]);
+  const auto nsteps = mfem_mgis::size_type{100};
+  const auto dt = mfem_mgis::real{1} / nsteps;
+  const auto u_t = [](const auto t) {
+    if (t < 0.3) {
+      return 3e-2 * t;
+    } else if (t < 0.6) {
+      return 0.009 - 0.1 * (t - 0.3);
+    }
+    return -0.021 + 0.1 * (t - 0.6);
+  };
   auto t = mfem_mgis::real{0};
-  auto dt = mfem_mgis::real{1};
-  for (mfem_mgis::size_type i = 0; i != 10; ++i) {
+  for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
     // setting the boundary values
-    auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
-    const auto u = 1e-2 * (t + dt) / 10;
+    auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
+    const auto u = u_t(t + dt);
     for (mfem_mgis::size_type idx = 0; idx != yz1_ux_dofs.Size(); ++idx) {
       u1[yz1_ux_dofs[idx]] = u;
     }
     // resolution
-    p.solve(dt);
-    p.update();
+    problem.solve(dt);
+    problem.update();
     t += dt;
+    //
+    exx.push_back(m1.s1.gradients[0]);
+    eyy.push_back(m1.s1.gradients[1]);
+    sxx.push_back(m1.s1.thermodynamic_forces[0]);
+    v.push_back(m1.s1.internal_state_variables[vo]);
     // recover the solution as a grid function
     mfem::GridFunction x(fespace.get());
     x.MakeTRef(fespace.get(), u1, 0);
@@ -120,5 +153,36 @@ int main(const int argc, char** const argv) {
     paraview_dc.SetTime(t);
     paraview_dc.Save();
   }
-  return EXIT_SUCCESS;
+  // save the traction curve
+  std::ofstream out("UnilateralTensileTest-" + std::string(behaviour) + ".txt");
+  out.precision(14);
+  for (std::vector<mfem_mgis::real>::size_type i = 0; i != exx.size(); ++i) {
+    out << exx[i] << " " << eyy[i] << " " << sxx[i] << " " << v[i] << '\n';
+  }
+  // comparison to reference results
+  constexpr const auto eps = mfem_mgis::real(1.e-10);
+  constexpr const auto E = mfem_mgis::real(70.e9);
+  auto success = true;
+  auto check = [&success](const auto cv,  // computed value
+                          const auto rv,  // reference value,
+                          const auto ev, const auto msg) {
+    const auto e = std::abs(cv - rv);
+    if (e > ev) {
+      std::cerr << "test failed (" << msg << ", " << cv << " vs " << rv
+                << ", error " << e << ")\n";
+      success = false;
+    }
+  };
+  std::ifstream in(reference_file);
+  for (std::vector<mfem_mgis::real>::size_type i = 0; i != exx.size(); ++i) {
+    auto exx_ref = mfem_mgis::real{};
+    auto eyy_ref = mfem_mgis::real{};
+    auto sxx_ref = mfem_mgis::real{};
+    auto v_ref = mfem_mgis::real{};
+    in >> exx_ref >> eyy_ref >> sxx_ref >> v_ref;
+    check(sxx[i], sxx_ref, E * eps, "invalid stress value");
+    check(eyy[i], eyy_ref, eps, "invalid transverse strain");
+    check(v[i], v_ref, eps, "invalid internal state variable");
+  }
+  return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

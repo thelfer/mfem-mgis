@@ -112,7 +112,7 @@ int main(const int argc, char** const argv) {
                  "identifier of the case : Exx->0, Eyy->1, Ezz->2, Exy->3, "
                  "Exz->4, Eyz->5");
   args.Parse();
-  if (!args.Good()) {
+  if ((!args.Good()) || (mesh_file == nullptr)) {
     args.PrintUsage(std::cout);
     return EXIT_FAILURE;
   }
@@ -177,7 +177,7 @@ int main(const int argc, char** const argv) {
   // solving the problem
   mfem::UMFPackSolver lsolver;
   auto& solver = p.getSolver();
-  solver.iterative_mode = false;
+  solver.iterative_mode = true;
   solver.SetSolver(lsolver);
   solver.SetPrintLevel(1);  // print Newton iterations
   solver.SetRelTol(1e-12);
