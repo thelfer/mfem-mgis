@@ -15,8 +15,6 @@
 
 namespace mfem_mgis {
 
-  namespace internals {}
-
   template <Hypothesis H>
   const mfem::IntegrationRule &
   SmallStrainMechanicalBehaviourIntegrator<H>::getIntegrationRule(
@@ -25,7 +23,7 @@ namespace mfem_mgis {
     if constexpr ((H == Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRAIN) ||
                   (H == Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRESS) ||
                   (H == Hypothesis::AXISYMMETRICAL)) {
-      const auto& ir = mfem::IntRules.Get(el.GetGeomType(), order + 1);
+      const auto &ir = mfem::IntRules.Get(el.GetGeomType(), order + 1);
       return ir;
     } else {
       const auto &ir = mfem::IntRules.Get(el.GetGeomType(), order);
@@ -75,7 +73,7 @@ namespace mfem_mgis {
 
   template <Hypothesis H>
   void SmallStrainMechanicalBehaviourIntegrator<H>::updateGradients(
-      mgis::span<real>& g,
+      mgis::span<real> &g,
       const mfem::Vector &u,
       const mfem::DenseMatrix &dN,
       const size_type ni) {
@@ -97,15 +95,24 @@ namespace mfem_mgis {
       g[3] += (ux * dN(nx, 1) + uy * dN(ny, 0)) * icste;  // xy
     } else if constexpr (H == Hypothesis::TRIDIMENSIONAL) {
       const auto nnodes = dN.NumRows();
-      const auto ux = u[ni];
-      const auto uy = u[ni + nnodes];
-      const auto uz = u[ni + 2 * nnodes];
-      g[0] += ux * dN(ni, 0);                             // xx
-      g[1] += uy * dN(ni, 1);                             // yy
-      g[2] += uz * dN(ni, 2);                             // zz
-      g[3] += (ux * dN(ni, 1) + uy * dN(ni, 0)) * icste;  // xy
-      g[4] += (ux * dN(ni, 2) + uz * dN(ni, 0)) * icste;  // xz
-      g[5] += (uy * dN(ni, 2) + uz * dN(ni, 1)) * icste;  // yz
+      const auto Bi_0_0 = dN(ni, 0);
+      const auto Bi_1_1 = dN(ni, 1);
+      const auto Bi_2_2 = dN(ni, 2);
+      const auto Bi_3_0 = dN(ni, 1) * icste;
+      const auto Bi_3_1 = dN(ni, 0) * icste;
+      const auto Bi_4_0 = dN(ni, 2) * icste;
+      const auto Bi_4_2 = dN(ni, 0) * icste;
+      const auto Bi_5_1 = dN(ni, 2) * icste;
+      const auto Bi_5_2 = dN(ni, 1) * icste;
+      const auto u_0 = u[ni];
+      const auto u_1 = u[ni + nnodes];
+      const auto u_2 = u[ni + 2 * nnodes];
+      g[0] += u_0 * Bi_0_0;
+      g[1] += u_1 * Bi_1_1;
+      g[2] += u_2 * Bi_2_2;
+      g[3] += u_0 * Bi_3_0 + u_1 * Bi_3_1;
+      g[4] += u_2 * Bi_4_2 + Bi_4_0 * u_0;
+      g[5] += u_2 * Bi_5_2 + u_1 * Bi_5_1;
     }
   }  // end of updateGradients
 
@@ -120,28 +127,28 @@ namespace mfem_mgis {
     static_assert(H == Hypothesis::TRIDIMENSIONAL, "unsupported hypothesis");
     if constexpr (H == Hypothesis::TRIDIMENSIONAL) {
       const auto nnodes = dN.NumRows();
-      const auto nx = ni;
-      const auto ny = ni + nnodes;
-      const auto nz = ni + 2 * nnodes;
-      real B[6][3] = {{dN(ni, 0), 0, 0},                          //
-                      {0, dN(ni, 1), 0},                          //
-                      {0, 0, dN(ni, 2)},                          //
-                      {dN(ni, 1) * icste, dN(ni, 0) * icste, 0},  // xy
-                      {dN(ni, 2) * icste, 0, dN(ni, 0) * icste},  // xz
-                      {0, dN(ni, 2) * icste, dN(ni, 1) * icste}}; // yz
-      Fe[nx] += w * (B[0][0] * s[0] + B[1][0] * s[1] + B[2][0] * s[2] +
-                     B[3][0] * s[3] + B[4][0] * s[4] + B[5][0] * s[5]);
-      Fe[ny] += w * (B[0][1] * s[0] + B[1][1] * s[1] + B[2][1] * s[2] +
-                     B[3][1] * s[3] + B[4][1] * s[4] + B[5][1] * s[5]);
-      Fe[nz] += w * (B[0][2] * s[0] + B[1][2] * s[1] + B[2][2] * s[2] +
-                     B[3][2] * s[3] + B[4][2] * s[4] + B[5][2] * s[5]);
+      const auto Bi_0_0 = dN(ni, 0);
+      const auto Bi_1_1 = dN(ni, 1);
+      const auto Bi_2_2 = dN(ni, 2);
+      const auto Bi_3_0 = dN(ni, 1) * icste;
+      const auto Bi_3_1 = dN(ni, 0) * icste;
+      const auto Bi_4_0 = dN(ni, 2) * icste;
+      const auto Bi_4_2 = dN(ni, 0) * icste;
+      const auto Bi_5_1 = dN(ni, 2) * icste;
+      const auto Bi_5_2 = dN(ni, 1) * icste;
+      const auto ni_0 = ni;
+      const auto ni_1 = ni + nnodes;
+      const auto ni_2 = ni + 2 * nnodes;
+      Fe[ni_0] += w * s[4] * Bi_4_0 + Bi_3_0 * w * s[3] + w * Bi_0_0 * s[0];
+      Fe[ni_1] += w * Bi_5_1 * s[5] + w * Bi_3_1 * s[3] + w * s[1] * Bi_1_1;
+      Fe[ni_2] += w * s[5] * Bi_5_2 + w * s[2] * Bi_2_2 + w * s[4] * Bi_4_2;
     }
   }  // end of updateInnerForces
 
   template <Hypothesis H>
   void SmallStrainMechanicalBehaviourIntegrator<H>::updateStiffnessMatrix(
       mfem::DenseMatrix &Ke,
-      const mgis::span<const real>& Kip,
+      const mgis::span<const real> &Kip,
       const mfem::DenseMatrix &dN,
       const real w,
       const size_type ni) const {
@@ -149,40 +156,88 @@ namespace mfem_mgis {
     static_assert(H == Hypothesis::TRIDIMENSIONAL, "unsupported hypothesis");
     if constexpr (H == Hypothesis::TRIDIMENSIONAL) {
       const auto nnodes = dN.NumRows();
-      real Bi[6][3] = {{dN(ni, 0), 0, 0},                          //
-                       {0, dN(ni, 1), 0},                          //
-                       {0, 0, dN(ni, 2)},                          //
-                       {dN(ni, 1) * icste, dN(ni, 0) * icste, 0},  //
-                       {dN(ni, 2) * icste, 0, dN(ni, 0) * icste},  // xz
-                       {0, dN(ni, 2) * icste, dN(ni, 1) * icste}};
+      const auto Bi_0_0 = dN(ni, 0);
+      const auto Bi_1_1 = dN(ni, 1);
+      const auto Bi_2_2 = dN(ni, 2);
+      const auto Bi_3_0 = dN(ni, 1) * icste;
+      const auto Bi_3_1 = dN(ni, 0) * icste;
+      const auto Bi_4_0 = dN(ni, 2) * icste;
+      const auto Bi_4_2 = dN(ni, 0) * icste;
+      const auto Bi_5_1 = dN(ni, 2) * icste;
+      const auto Bi_5_2 = dN(ni, 1) * icste;
+      const auto ni_0 = ni;
+      const auto ni_1 = ni + nnodes;
+      const auto ni_2 = ni + 2 * nnodes;
       for (size_type nj = 0; nj != nnodes; ++nj) {
-        real Bj[6][3] = {{dN(nj, 0), 0, 0},                          //
-                         {0, dN(nj, 1), 0},                          //
-                         {0, 0, dN(nj, 2)},                          //
-                         {dN(nj, 1) * icste, dN(nj, 0) * icste, 0},  //
-                         {dN(nj, 2) * icste, 0, dN(nj, 0) * icste},  //
-                         {0, dN(nj, 2) * icste, dN(nj, 1) * icste}};
-        real KB[6][3];
-        for (size_type i = 0; i != 6; ++i) {
-          for (size_type j = 0; j != 3; ++j) {
-            KB[i][j] = real{};
-            for (size_type k = 0; k != 6; ++k) {
-              KB[i][j] += Kip[i * 6 + k] * Bj[k][j];
-            }
-          }
-        }
-        for (size_type i = 0; i != 3; ++i) {
-          for (size_type j = 0; j != 3; ++j) {
-            auto tBKB = real{};
-            for (size_type k = 0; k != 6; ++k) {
-              tBKB += Bi[k][i] * KB[k][j];
-            }
-            Ke(ni + i * nnodes, nj + j * nnodes) += w * tBKB;
-          }
-        }
-      } // end of for (size_type nj = 0; nj != nnodes; ++nj)
-    } // end of if constexpr (H == Hypothesis::TRIDIMENSIONAL)
-  }   // end of updateStiffnessMatrix
+        const auto Bj_0_0 = dN(nj, 0);
+        const auto Bj_1_1 = dN(nj, 1);
+        const auto Bj_2_2 = dN(nj, 2);
+        const auto Bj_3_0 = dN(nj, 1) * icste;
+        const auto Bj_3_1 = dN(nj, 0) * icste;
+        const auto Bj_4_0 = dN(nj, 2) * icste;
+        const auto Bj_4_2 = dN(nj, 0) * icste;
+        const auto Bj_5_1 = dN(nj, 2) * icste;
+        const auto Bj_5_2 = dN(nj, 1) * icste;
+        const auto nj_0 = nj;
+        const auto nj_1 = nj + nnodes;
+        const auto nj_2 = nj + 2 * nnodes;
+        Ke(ni_0, nj_0) +=
+            Kip[27] * Bi_4_0 * Bj_3_0 * w + Kip[21] * Bi_3_0 * Bj_3_0 * w +
+            Kip[18] * Bi_3_0 * w * Bj_0_0 + Kip[3] * Bi_0_0 * Bj_3_0 * w +
+            Kip[24] * Bi_4_0 * w * Bj_0_0 + Bi_0_0 * Kip[0] * w * Bj_0_0 +
+            Bi_4_0 * Kip[28] * Bj_4_0 * w + Kip[22] * Bj_4_0 * Bi_3_0 * w +
+            Bj_4_0 * Bi_0_0 * Kip[4] * w;
+        Ke(ni_0, nj_1) +=
+            Bj_3_1 * Kip[3] * Bi_0_0 * w + Bj_5_1 * Kip[5] * Bi_0_0 * w +
+            Bj_5_1 * Bi_4_0 * Kip[29] * w + Bj_1_1 * Bi_0_0 * Kip[1] * w +
+            Kip[21] * Bj_3_1 * Bi_3_0 * w + Bj_1_1 * Bi_4_0 * Kip[25] * w +
+            Bj_5_1 * Kip[23] * Bi_3_0 * w + Kip[27] * Bj_3_1 * Bi_4_0 * w +
+            Bj_1_1 * Kip[19] * Bi_3_0 * w;
+        Ke(ni_0, nj_2) +=
+            Bi_4_0 * Bj_5_2 * Kip[29] * w + Bj_2_2 * Bi_3_0 * Kip[20] * w +
+            Kip[2] * Bj_2_2 * Bi_0_0 * w + Bi_0_0 * Bj_4_2 * Kip[4] * w +
+            Bj_5_2 * Kip[23] * Bi_3_0 * w + Bi_4_0 * Bj_2_2 * Kip[26] * w +
+            Kip[22] * Bi_3_0 * Bj_4_2 * w + Kip[5] * Bj_5_2 * Bi_0_0 * w +
+            Bi_4_0 * Kip[28] * Bj_4_2 * w;
+        Ke(ni_1, nj_0) +=
+            Kip[34] * Bj_4_0 * w * Bi_5_1 + Bi_1_1 * Kip[6] * w * Bj_0_0 +
+            Kip[33] * Bj_3_0 * w * Bi_5_1 + Bi_3_1 * Kip[22] * Bj_4_0 * w +
+            Bi_3_1 * Kip[21] * Bj_3_0 * w + Bi_1_1 * Kip[9] * Bj_3_0 * w +
+            Bi_1_1 * Bj_4_0 * Kip[10] * w + Bi_3_1 * Kip[18] * w * Bj_0_0 +
+            Kip[30] * w * Bj_0_0 * Bi_5_1;
+        Ke(ni_1, nj_1) +=
+            Bi_1_1 * Bj_3_1 * Kip[9] * w + Bi_1_1 * Bj_1_1 * Kip[7] * w +
+            Bi_3_1 * Kip[21] * Bj_3_1 * w + Kip[11] * Bj_5_1 * Bi_1_1 * w +
+            Kip[33] * Bj_3_1 * w * Bi_5_1 + Bi_3_1 * Bj_5_1 * Kip[23] * w +
+            Bj_1_1 * Kip[31] * w * Bi_5_1 + Bj_5_1 * Kip[35] * w * Bi_5_1 +
+            Bi_3_1 * Bj_1_1 * Kip[19] * w;
+        Ke(ni_1, nj_2) +=
+            Bj_2_2 * Kip[32] * w * Bi_5_1 + Kip[8] * Bi_1_1 * Bj_2_2 * w +
+            Bj_5_2 * Kip[35] * w * Bi_5_1 + Bi_3_1 * Kip[22] * Bj_4_2 * w +
+            Kip[11] * Bi_1_1 * Bj_5_2 * w + Kip[34] * Bj_4_2 * w * Bi_5_1 +
+            Bi_3_1 * Bj_2_2 * Kip[20] * w + Bi_3_1 * Bj_5_2 * Kip[23] * w +
+            Bi_1_1 * Kip[10] * Bj_4_2 * w;
+        Ke(ni_2, nj_0) +=
+            Kip[24] * Bi_4_2 * w * Bj_0_0 + Kip[12] * Bi_2_2 * w * Bj_0_0 +
+            Kip[33] * Bi_5_2 * Bj_3_0 * w + Bi_2_2 * Bj_4_0 * Kip[16] * w +
+            Kip[30] * Bi_5_2 * w * Bj_0_0 + Kip[28] * Bj_4_0 * Bi_4_2 * w +
+            Kip[15] * Bi_2_2 * Bj_3_0 * w + Bi_5_2 * Kip[34] * Bj_4_0 * w +
+            Kip[27] * Bi_4_2 * Bj_3_0 * w;
+        Ke(ni_2, nj_1) +=
+            Bj_1_1 * Bi_2_2 * Kip[13] * w + Kip[33] * Bj_3_1 * Bi_5_2 * w +
+            Bj_1_1 * Kip[25] * Bi_4_2 * w + Bj_5_1 * Bi_2_2 * Kip[17] * w +
+            Bj_5_1 * Bi_5_2 * Kip[35] * w + Bj_3_1 * Kip[15] * Bi_2_2 * w +
+            Bj_5_1 * Bi_4_2 * Kip[29] * w + Bj_1_1 * Bi_5_2 * Kip[31] * w +
+            Kip[27] * Bj_3_1 * Bi_4_2 * w;
+        Ke(ni_2, nj_2) +=
+            Bj_5_2 * Bi_4_2 * Kip[29] * w + Bi_2_2 * Kip[16] * Bj_4_2 * w +
+            Bi_5_2 * Kip[34] * Bj_4_2 * w + Bi_5_2 * Bj_5_2 * Kip[35] * w +
+            Bj_5_2 * Bi_2_2 * Kip[17] * w + Kip[28] * Bi_4_2 * Bj_4_2 * w +
+            Bi_2_2 * Bj_2_2 * Kip[14] * w + Bi_5_2 * Bj_2_2 * Kip[32] * w +
+            Bj_2_2 * Bi_4_2 * Kip[26] * w;
+        }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
+      }  // end of if constexpr (H == Hypothesis::TRIDIMENSIONAL)
+    }    // end of updateStiffnessMatrix
 
   /* Methods that must be explicitely instanciated in a source file */
 

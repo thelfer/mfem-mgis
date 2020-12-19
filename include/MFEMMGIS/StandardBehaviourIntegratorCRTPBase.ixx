@@ -25,18 +25,18 @@ namespace mfem_mgis {
 #else
     dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
-    // element offset
     const auto nnodes = e.GetDof();
     const auto gsize = this->s1.gradients_stride;
     const auto thsize = this->s1.thermodynamic_forces_stride;
+    // element offset
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
     Fe.SetSize(e.GetDof() * e.GetDim());
     Fe = 0.;
     const auto &ir = Child::getIntegrationRule(e, tr);
     for (size_type i = 0; i < ir.GetNPoints(); ++i) {
-      // get the gradients of the shape functions
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
+      // get the gradients of the shape functions
       e.CalcPhysDShape(tr, dshape);
       // get the weights associated to point ip
       const auto w = ip.weight * tr.Weight();

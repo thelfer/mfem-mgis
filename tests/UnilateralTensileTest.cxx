@@ -139,7 +139,6 @@ int main(const int argc, char** const argv) {
     for (mfem_mgis::size_type idx = 0; idx != yz1_ux_dofs.Size(); ++idx) {
       u1[yz1_ux_dofs[idx]] = u;
     }
-    u1.Print();
     // resolution
     problem.solve(dt);
     problem.update();
