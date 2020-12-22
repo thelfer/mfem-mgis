@@ -5,8 +5,8 @@
  * \date   14/12/2020
  */
 
-#ifndef LIB_MFEM_MGIS_STANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX
-#define LIB_MFEM_MGIS_STANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX
+#ifndef LIB_MFEM_MGIS_ISOTROPICSTANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX
+#define LIB_MFEM_MGIS_ISOTROPICSTANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX
 
 #include <mfem/linalg/densemat.hpp>
 #include "MFEMMGIS/BehaviourIntegratorBase.hxx"
@@ -14,8 +14,8 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief a base class of the `StandardBehaviourIntegratorCRTPBase` class
-   * to factorize code by static using the CRTP idiom.
+   * \brief a base class of the `StandardBehaviourIntegratorCRTPBase`
+   * class to factorize code by static using the CRTP idiom.
    *
    * This class provides a way to optimise dynamic memory allocations.
    *
@@ -25,9 +25,15 @@ namespace mfem_mgis {
    * - a method called `updateGradients`
    * - a method called `updateInnerForces`
    * - a method called `updateStiffnessMatrix`
+   * - a method called `getRotationMatrix`
+   * - a method called `rotateGradients`
+   * - a method called `rotateThermodynamicForces`
+   * - a method called `rotateTangentOperatorBlocks`
    */
   template <typename Child>
-  struct StandardBehaviourIntegratorCRTPBase : BehaviourIntegratorBase {
+  struct StandardBehaviourIntegratorCRTPBase
+      : BehaviourIntegratorBase {
+
    protected:
     // inheriting `BehaviourIntegratorBase`' constructor
     using BehaviourIntegratorBase::BehaviourIntegratorBase;
@@ -68,7 +74,6 @@ namespace mfem_mgis {
     //! \brief destructor
     ~StandardBehaviourIntegratorCRTPBase() override;
 
-   private:
 #ifndef MFEM_THREAD_SAFE
    private:
     //! \brief matrix used to store the derivatives of the shape functions
@@ -81,4 +86,4 @@ namespace mfem_mgis {
 
 #include "MFEMMGIS/StandardBehaviourIntegratorCRTPBase.ixx"
 
-#endif /* LIB_MFEM_MGIS_STANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX */
+#endif /* LIB_MFEM_MGIS_ISOTROPICSTANDARDBEHAVIOURINTEGRATORCRTPBASE_HXX */

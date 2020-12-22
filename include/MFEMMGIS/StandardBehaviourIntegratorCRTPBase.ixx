@@ -10,6 +10,7 @@
 
 #include "mfem/fem/fe.hpp"
 #include "mfem/fem/eltrans.hpp"
+#include "MGIS/Raise.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
 namespace mfem_mgis {
@@ -23,7 +24,7 @@ namespace mfem_mgis {
 #ifdef MFEM_THREAD_SAFE
     DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
-    dshape.SetSize(e.GetDof(), e.GetDim());
+    this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
     const auto nnodes = e.GetDof();
     const auto gsize = this->s1.gradients_stride;
@@ -48,31 +49,34 @@ namespace mfem_mgis {
       for (size_type ni = 0; ni != nnodes; ++ni) {
         static_cast<Child *>(this)->updateGradients(g, u, dshape, ni);
       }
+      const auto r = static_cast<Child *>(this)->getRotationMatrix();
+      static_cast<Child *>(this)->rotateGradients(g, r);
       this->integrate(eoffset + i);
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
+      const auto &rs =
+          static_cast<Child *>(this)->rotateThermodynamicForces(s, r);
       // assembly of the inner forces
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        static_cast<const Child *>(this)->updateInnerForces(Fe, s, dshape, w,
+        static_cast<const Child *>(this)->updateInnerForces(Fe, rs, dshape, w,
                                                             ni);
       }
+      auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
+      static_cast<Child *>(this)->rotateTangentOperatorBlocks(Kip, r);
     }
   }  // end of implementComputeInnerForces
 
   template <typename Child>
-  void
-  StandardBehaviourIntegratorCRTPBase<Child>::implementComputeStiffnessMatrix(
-      mfem::DenseMatrix &Ke,
-      const mfem::FiniteElement &e,
-      mfem::ElementTransformation &tr) {
+  void StandardBehaviourIntegratorCRTPBase<
+      Child>::implementComputeStiffnessMatrix(mfem::DenseMatrix &Ke,
+                                              const mfem::FiniteElement &e,
+                                              mfem::ElementTransformation &tr) {
 #ifdef MFEM_THREAD_SAFE
     DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
-    dshape.SetSize(e.GetDof(), e.GetDim());
+    this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
     // element offset
     const auto nnodes = e.GetDof();
-    const auto gsize = this->s1.gradients_stride;
-    const auto thsize = this->s1.thermodynamic_forces_stride;
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
     Ke.SetSize(e.GetDof() * e.GetDim(), e.GetDof() * e.GetDim());
     Ke = 0.;
@@ -86,7 +90,7 @@ namespace mfem_mgis {
       const auto w = ip.weight * tr.Weight();
       // offset of the integration point
       const auto o = eoffset + i;
-      const auto Kip = this->K.subspan(o * gsize * thsize, gsize * thsize);
+      const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
       // assembly of the stiffness matrix
       for (size_type ni = 0; ni != nnodes; ++ni) {
         static_cast<const Child *>(this)->updateStiffnessMatrix(Ke, Kip, dshape,

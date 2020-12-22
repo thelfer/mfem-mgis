@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <limits>
 #include "MGIS/Span.hxx"
 #include "MFEMMGIS/Config.hxx"
 
@@ -30,30 +31,68 @@ namespace mfem_mgis {
     PartialQuadratureFunction(std::shared_ptr<const PartialQuadratureSpace>,
                               const size_type = 1);
     /*!
-     * \brief return the data associated with integration point
-     * \param[in] e: element number
-     * \param[in] i: integration point number in the element
+     * \brief constructor
+     * \param[in] s: quadrature space.
+     * \param[in] v: values
+     * \param[in] db: start of the view inside the given data
+     * \param[in] ds: size of the view
      */
-    mgis::span<real> getIntegrationPointValues(const size_type, const size_type) ;
+    PartialQuadratureFunction(
+        std::shared_ptr<const PartialQuadratureSpace>,
+        mgis::span<real>,
+        const size_type = 0,
+        const size_type = std::numeric_limits<size_type>::max());
+
     /*!
-     * \brief return the data associated with integration point
-     * \param[in] e: element number
+     * \brief return the value associated with an integration point
+     * \param[in] e: global element number
+     * \param[in] i: integration point number in the element
+     * \note this method is only meaningful when the quadrature function is
+     * scalar
+     */
+    real& getIntegrationPointValue(const size_type, const size_type);
+    /*!
+     * \brief return the data associated with an integration point
+     * \param[in] e: global element number
+     * \param[in] i: integration point number in the element
+     * \note this method is only meaningful when the quadrature function is
+     * scalar
+     */
+    const real& getIntegrationPointValue(const size_type,
+                                         const size_type) const;
+    /*!
+     * \brief return the data associated with an integration point
+     * \param[in] e: global element number
      * \param[in] i: integration point number in the element
      */
-    mgis::span<const real> getIntegrationPointValues(const size_type, const size_type) const;
+    mgis::span<real> getIntegrationPointValues(const size_type,
+                                               const size_type);
+    /*!
+     * \brief return the data associated with an integration point
+     * \param[in] e: global element number
+     * \param[in] i: integration point number in the element
+     */
+    mgis::span<const real> getIntegrationPointValues(const size_type,
+                                                     const size_type) const;
 
     //! \brief destructor
     ~PartialQuadratureFunction();
 
    private:
-    //! underlying values
-    std::vector<double> values;
     //! \brief underlying finite element space
     std::shared_ptr<const PartialQuadratureSpace> qspace;
+    //! \brief underlying values
+    mgis::span<real> values;
+    //! \brief storage for the values when the partial function holds the values
+    std::vector<real> values_storage;
+    //! \brief data stride
+    size_type data_stride;
+    //! \brief begin of the data
+    size_type data_begin;
     //! \brief data size
     size_type data_size;
   };  // end of struct QuadratureFunction
 
-}  // end of mfem_mgis
+}  // namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_HXX */

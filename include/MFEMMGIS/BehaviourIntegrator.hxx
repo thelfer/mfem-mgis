@@ -12,6 +12,7 @@
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
+#include "MFEMMGIS/RotationMatrix.hxx"
 
 namespace mfem_mgis {
 
@@ -34,6 +35,16 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     virtual void setTimeIncrement(const real) = 0;
+    /*!
+     * \brief set the rotation matrix
+     * \param[in] r: rotation matrix
+     */
+    virtual void setRotationMatrix(const RotationMatrix2D &) = 0;
+    /*!
+     * \brief set the rotation matrix
+     * \param[in] r: rotation matrix
+     */
+    virtual void setRotationMatrix(const RotationMatrix3D &) = 0;
     /*!
      * \brief compute the inner forces for the given element
      * \param[out] Fe: element stiffness matrix

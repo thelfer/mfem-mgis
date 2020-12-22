@@ -6,11 +6,12 @@ mfem_mgis_library(MFEMMGIS
   Material.cxx
   BehaviourIntegrator.cxx
   BehaviourIntegratorBase.cxx
-  SmallStrainMechanicalBehaviourIntegrator.cxx
   BehaviourIntegratorFactory.cxx
   MultiMaterialNonLinearIntegrator.cxx
   ResidualOperator.cxx
   NonLinearEvolutionProblem.cxx
+  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
+  IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.cxx
 )
 
 if(enable-openmp)

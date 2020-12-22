@@ -8,7 +8,8 @@
 #include <utility>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/BehaviourIntegratorFactory.hxx"
-#include "MFEMMGIS/SmallStrainMechanicalBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
@@ -41,16 +42,23 @@ namespace mfem_mgis {
    */
   template <>
   BehaviourIntegratorFactory buildFactory<Hypothesis::TRIDIMENSIONAL>() {
-    constexpr const auto h = Hypothesis::TRIDIMENSIONAL;
     BehaviourIntegratorFactory f;
     fillWithDefaultBehaviourIntegrators<Hypothesis::TRIDIMENSIONAL>(f);
     f.addGenerator(
         "SmallStrainMechanicalBehaviour",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b) {
-          return std::unique_ptr<SmallStrainMechanicalBehaviourIntegrator<h>>(
-              new SmallStrainMechanicalBehaviourIntegrator<h>(fed, m,
-                                                              std::move(b)));
+          return std::make_unique<
+              IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
+    f.addGenerator(
+        "StandardFiniteStrainMechanics",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b) {
+          return std::make_unique<
+              IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+              fed, m, std::move(b));
         });
     return f;
   }  // end of buildFactory
