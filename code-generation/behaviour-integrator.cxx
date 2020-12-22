@@ -270,6 +270,12 @@ GiNaC::matrix makeSmallStrainMechanicsBMatrixPlaneStrain(std::ostream& os,
   return B;
 }
 
+GiNaC::matrix makeSmallStrainMechanicsBMatrixPlaneStress(std::ostream& os,
+                                                         const std::string& nid,
+                                                         const bool b) {
+  return makeSmallStrainMechanicsBMatrixPlaneStrain(os, nid, b);
+}
+
 GiNaC::matrix makeSmallStrainMechanicsBMatrix3D(std::ostream& os,
                                                 const std::string& nid,
                                                 const bool b) {
@@ -297,18 +303,21 @@ GiNaC::matrix makeSmallStrainMechanicsBMatrix3D(std::ostream& os,
   return B;
 }
 
-GiNaC::matrix makeFiniteStrainMechanicsBMatrix2D(std::ostream& os,
-                                                 const std::string& idx,
-                                                 const bool b) {
+GiNaC::matrix makeFiniteStrainMechanicsBMatrixPlaneStrain(
+    std::ostream& os, const std::string& idx, const bool b) {
   const auto d = size_type{2};
   const auto dN = makeShapeFunctionDerivatives(os, idx, d, b);
   auto B = GiNaC::matrix(5, d);
   B(0, 0) = dN[0];
   B(1, 1) = dN[1];
-  B(2, 2) = 0;
   B(3, 0) = dN[1];  // dux_dy
   B(4, 1) = dN[0];  // duy_dx
   return B;
+}
+
+GiNaC::matrix makeFiniteStrainMechanicsBMatrixPlaneStress(
+    std::ostream& os, const std::string& idx, const bool b) {
+  return makeFiniteStrainMechanicsBMatrixPlaneStrain(os, idx, b);
 }
 
 GiNaC::matrix makeFiniteStrainMechanicsBMatrix3D(std::ostream& os,
@@ -371,14 +380,16 @@ void generateHeaderFile(std::ostream& os,
      << "             std::unique_ptr<const Behaviour>);\n"
      << "\n";
   if (d.isotropic) {
-    os << "[[noreturn]] void setRotationMatrix(const RotationMatrix2D&) override\n;"
+    os << "[[noreturn]] void setRotationMatrix(const RotationMatrix2D&) "
+          "override\n;"
        << "\n"
-       << "[[noreturn]] void setRotationMatrix(const RotationMatrix3D&) override\n;" 
+       << "[[noreturn]] void setRotationMatrix(const RotationMatrix3D&) "
+          "override\n;"
        << "\n";
   } else {
     os << "void setRotationMatrix(const RotationMatrix2D&) override\n;"
        << "\n"
-       << "void setRotationMatrix(const RotationMatrix3D&) override\n;" 
+       << "void setRotationMatrix(const RotationMatrix3D&) override\n;"
        << "\n";
   }
   os << "inline RotationMatrix getRotationMatrix() const;\n"
@@ -583,7 +594,8 @@ void generateSourceFile(std::ostream& os,
      << "\n"
      << "const mfem::IntegrationRule &\n"
      << "" << d.name << "::getIntegrationRule(\n"
-     << "    const mfem::FiniteElement &el, const mfem::ElementTransformation "
+     << "    const mfem::FiniteElement &el, const "
+        "mfem::ElementTransformation "
         "&Trans) {\n"
      << "  const auto order = 2 * Trans.OrderGrad(&el);\n";
   if (isAxisymmetricalHypothesis(d.hypothesis)) {
@@ -601,7 +613,8 @@ void generateSourceFile(std::ostream& os,
      << "      -> const mfem::IntegrationRule & {\n"
      << "    return getIntegrationRule(e, tr);\n"
      << "  };  // end of selector\n"
-     << "  return std::make_shared<PartialQuadratureSpace>(fed, m, selector);\n"
+     << "  return std::make_shared<PartialQuadratureSpace>(fed, m, "
+        "selector);\n"
      << "}  // end of buildQuadratureSpace\n"
      << "\n"
      << d.name << "::~" << d.name << "() = default;\n"
@@ -841,6 +854,14 @@ int main(const int argc, const char* const* const argv) {
          &makeFiniteStrainMechanicsBMatrix3D);
   insert("Tridimensional", "StandardSmallStrainMechanics",
          &makeSmallStrainMechanicsBMatrix3D);
+  insert("PlaneStrain", "StandardFiniteStrainMechanics",
+         &makeFiniteStrainMechanicsBMatrixPlaneStrain);
+  insert("PlaneStrain", "StandardSmallStrainMechanics",
+         &makeSmallStrainMechanicsBMatrixPlaneStrain);
+  insert("PlaneStress", "StandardFiniteStrainMechanics",
+         &makeFiniteStrainMechanicsBMatrixPlaneStress);
+  insert("PlaneStress", "StandardSmallStrainMechanics",
+         &makeSmallStrainMechanicsBMatrixPlaneStress);
   //
   auto d = BehaviourIntegratorDescription{};
   //
@@ -899,8 +920,7 @@ int main(const int argc, const char* const* const argv) {
   }
   d.generator = pg->second;
   // source code generation
-  if ((!generate_header_file) &&
-      (!generate_source_file)) {
+  if ((!generate_header_file) && (!generate_source_file)) {
     raise("no file to be generated");
   }
   d.name =

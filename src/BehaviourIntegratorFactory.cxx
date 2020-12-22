@@ -10,6 +10,10 @@
 #include "MFEMMGIS/BehaviourIntegratorFactory.hxx"
 #include "MFEMMGIS/IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
 #include "MFEMMGIS/IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
@@ -64,6 +68,58 @@ namespace mfem_mgis {
   }  // end of buildFactory
 
   /*!
+   * \brief partial specialisation for the tridimensional case
+   */
+  template <>
+  BehaviourIntegratorFactory buildFactory<Hypothesis::PLANESTRAIN>() {
+    BehaviourIntegratorFactory f;
+    fillWithDefaultBehaviourIntegrators<Hypothesis::PLANESTRAIN>(f);
+    f.addGenerator(
+        "SmallStrainMechanicalBehaviour",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b) {
+          return std::make_unique<
+              IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
+    f.addGenerator(
+        "StandardFiniteStrainMechanics",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b) {
+          return std::make_unique<
+              IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
+    return f;
+  }  // end of buildFactory
+
+  /*!
+   * \brief partial specialisation for the tridimensional case
+   */
+  template <>
+  BehaviourIntegratorFactory buildFactory<Hypothesis::PLANESTRESS>() {
+    BehaviourIntegratorFactory f;
+    fillWithDefaultBehaviourIntegrators<Hypothesis::PLANESTRESS>(f);
+    f.addGenerator(
+        "SmallStressMechanicalBehaviour",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b) {
+          return std::make_unique<
+              IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
+    f.addGenerator(
+        "StandardFiniteStressMechanics",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b) {
+          return std::make_unique<
+              IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
+    return f;
+  }  // end of buildFactory
+
+  /*!
    * \brief an helper function which add the behaviour integrators for the given
    * hypothesis
    * \tparam H: modelling hypothesis
@@ -81,8 +137,8 @@ namespace mfem_mgis {
     //     addFactory<Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRAIN>(factories);
     //     addFactory<Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRESS>(factories);
     //     addFactory<Hypothesis::AXISYMMETRICAL>(factories);
-    //     addFactory<Hypothesis::PLANESTRESS>(factories);
-    //     addFactory<Hypothesis::PLANESTRAIN>(factories);
+    addFactory<Hypothesis::PLANESTRESS>(factories);
+    addFactory<Hypothesis::PLANESTRAIN>(factories);
     //     addFactory<Hypothesis::GENERALISEDPLANESTRAIN>(factories);
     addFactory<Hypothesis::TRIDIMENSIONAL>(factories);
     return factories;

@@ -12,6 +12,10 @@ mfem_mgis_library(MFEMMGIS
   NonLinearEvolutionProblem.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
   IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.cxx
+  IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
+  IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.cxx
+  IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
+  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.cxx
 )
 
 if(enable-openmp)
