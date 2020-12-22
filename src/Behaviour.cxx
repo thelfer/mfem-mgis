@@ -17,7 +17,7 @@ namespace mfem_mgis{
     if (isStandardFiniteStrainBehaviour(l, b)) {
       auto opts = FiniteStrainBehaviourOptions{};
       opts.stress_measure = FiniteStrainBehaviourOptions::PK1;
-      opts.tangent_operator = FiniteStrainBehaviourOptions::DSIG_DF;
+      opts.tangent_operator = FiniteStrainBehaviourOptions::DPK1_DF;
       return std::make_unique<Behaviour>(mgis::behaviour::load(opts, l, b, h));
     }
     return std::make_unique<Behaviour>(mgis::behaviour::load(l, b, h));

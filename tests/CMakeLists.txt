@@ -1,7 +1,8 @@
 mfront_behaviours_check_library(BehaviourTest
   Elasticity
   Plasticity
-  Mazars)
+  Mazars
+  SaintVenantKirchhoffElasticity)
 
 add_executable(PeriodicTest
   EXCLUDE_FROM_ALL
@@ -62,3 +63,4 @@ endfunction(add_unilateral_test)
 
 add_unilateral_test(Plasticity EquivalentPlasticStrain)
 add_unilateral_test(Mazars Damage)
+add_unilateral_test(SaintVenantKirchhoffElasticity EquivalentStrain)

@@ -50,8 +50,7 @@ int main(const int argc, char** const argv) {
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(order, dim), 3),
       mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
-  problem.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 1, library,
-                                 behaviour);
+  problem.addBehaviourIntegrator("Mechanics", 1, library, behaviour);
   // materials
   auto& m1 = problem.getMaterial(1);
   mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
@@ -111,14 +110,14 @@ int main(const int argc, char** const argv) {
                                            mesh.get());
   const auto vo =
       mgis::behaviour::getVariableOffset(m1.b.isvs, isv_name, m1.b.hypothesis);
-  auto exx = std::vector<mfem_mgis::real>{};
-  auto eyy = std::vector<mfem_mgis::real>{};
-  auto sxx = std::vector<mfem_mgis::real>{};
+  auto g0 = std::vector<mfem_mgis::real>{};
+  auto g1 = std::vector<mfem_mgis::real>{};
+  auto tf0 = std::vector<mfem_mgis::real>{};
   auto v = std::vector<mfem_mgis::real>{};
   // loop over time step
-  exx.push_back(m1.s0.gradients[0]);
-  eyy.push_back(m1.s0.gradients[1]);
-  sxx.push_back(m1.s0.thermodynamic_forces[0]);
+  g0.push_back(m1.s0.gradients[0]);
+  g1.push_back(m1.s0.gradients[1]);
+  tf0.push_back(m1.s0.thermodynamic_forces[0]);
   v.push_back(m1.s0.internal_state_variables[vo]);
   const auto nsteps = mfem_mgis::size_type{100};
   const auto dt = mfem_mgis::real{1} / nsteps;
@@ -134,7 +133,6 @@ int main(const int argc, char** const argv) {
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
     // setting the boundary values
     auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-    u1.Print();
     const auto u = u_t(t + dt);
     for (mfem_mgis::size_type idx = 0; idx != yz1_ux_dofs.Size(); ++idx) {
       u1[yz1_ux_dofs[idx]] = u;
@@ -144,9 +142,9 @@ int main(const int argc, char** const argv) {
     problem.update();
     t += dt;
     //
-    exx.push_back(m1.s1.gradients[0]);
-    eyy.push_back(m1.s1.gradients[1]);
-    sxx.push_back(m1.s1.thermodynamic_forces[0]);
+    g0.push_back(m1.s1.gradients[0]);
+    g1.push_back(m1.s1.gradients[1]);
+    tf0.push_back(m1.s1.thermodynamic_forces[0]);
     v.push_back(m1.s1.internal_state_variables[vo]);
     // recover the solution as a grid function
     mfem::GridFunction x(&problem.getFiniteElementSpace());
@@ -160,8 +158,8 @@ int main(const int argc, char** const argv) {
   // save the traction curve
   std::ofstream out("UnilateralTensileTest-" + std::string(behaviour) + ".txt");
   out.precision(14);
-  for (std::vector<mfem_mgis::real>::size_type i = 0; i != exx.size(); ++i) {
-    out << exx[i] << " " << eyy[i] << " " << sxx[i] << " " << v[i] << '\n';
+  for (std::vector<mfem_mgis::real>::size_type i = 0; i != g0.size(); ++i) {
+    out << g0[i] << " " << g1[i] << " " << tf0[i] << " " << v[i] << '\n';
   }
   // comparison to reference results
   constexpr const auto eps = mfem_mgis::real(1.e-10);
@@ -178,14 +176,14 @@ int main(const int argc, char** const argv) {
     }
   };
   std::ifstream in(reference_file);
-  for (std::vector<mfem_mgis::real>::size_type i = 0; i != exx.size(); ++i) {
-    auto exx_ref = mfem_mgis::real{};
-    auto eyy_ref = mfem_mgis::real{};
-    auto sxx_ref = mfem_mgis::real{};
+  for (std::vector<mfem_mgis::real>::size_type i = 0; i != g0.size(); ++i) {
+    auto g0_ref = mfem_mgis::real{};
+    auto g1_ref = mfem_mgis::real{};
+    auto tf0_ref = mfem_mgis::real{};
     auto v_ref = mfem_mgis::real{};
-    in >> exx_ref >> eyy_ref >> sxx_ref >> v_ref;
-    check(sxx[i], sxx_ref, E * eps, "invalid stress value");
-    check(eyy[i], eyy_ref, eps, "invalid transverse strain");
+    in >> g0_ref >> g1_ref >> tf0_ref >> v_ref;
+    check(tf0[i], tf0_ref, E * eps, "invalid stress value");
+    check(g1[i], g1_ref, eps, "invalid transverse strain");
     check(v[i], v_ref, eps, "invalid internal state variable");
   }
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

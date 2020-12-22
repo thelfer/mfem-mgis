@@ -133,10 +133,8 @@ int main(const int argc, char** const argv) {
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(order, dim), 3),
       mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
-  problem.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 1, library,
-                           "Elasticity");
-  problem.addBehaviourIntegrator("SmallStrainMechanicalBehaviour", 2, library,
-                           "Elasticity");
+  problem.addBehaviourIntegrator("Mechanics", 1, library, "Elasticity");
+  problem.addBehaviourIntegrator("Mechanics", 2, library, "Elasticity");
   // materials
   auto& m1 = problem.getMaterial(1);
   auto& m2 = problem.getMaterial(2);
