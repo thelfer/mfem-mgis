@@ -11,7 +11,6 @@
 using size_type = size_t;
 
 auto icste = GiNaC::symbol("icste");
-auto w = GiNaC::symbol("w");
 // sqrt(GiNaC::numeric(2)) / 2;
 
 GiNaC::ex simplify(const GiNaC::ex e) { return expand(e); }
@@ -212,11 +211,12 @@ void generateUpdateInnerForces(std::ostream& os,
      << "const auto nnodes = dN.NumRows();\n";
   const auto Bi = d.generator(os, "i", true);
   const auto S = makeVectorOfSymbols("s", Bi.rows());
-  const auto Fe = transpose(Bi).mul(S).mul_scalar(w);
+  const auto Fe = transpose(Bi).mul(S);
   generateUnknownOffsets(os, "ni", Bi.cols());
   for (size_type i = 0; i != Bi.cols(); ++i) {
     const auto ni = getUnknownOffset("ni", i, Bi.cols());
-    os << "Fe[" << ni << "] += " << simplify(Fe(i, 0)) << ";\n";
+    os << "Fe[" << ni << "] += "
+       << "w * (" << simplify(Fe(i, 0)) << ");\n";
   }
   os << "} // end of updateInnerForces\n\n";
 }  // end of generateUpdateInnerForces
@@ -235,13 +235,14 @@ void generateUpdateStiffnessMatrix(std::ostream& os,
   const auto K = makeMatrixOfSymbols("Kip", Bi.rows(), Bi.rows());
   os << "for (size_type nj = 0; nj != nnodes; ++nj) {\n";
   const auto Bj = d.generator(os, "j", true);
-  const auto Ke = transpose(Bi).mul(K).mul(Bj).mul_scalar(w);
+  const auto Ke = transpose(Bi).mul(K).mul(Bj);
   generateUnknownOffsets(os, "nj", Bj.cols());
   for (size_type i = 0; i != Bi.cols(); ++i) {
     const auto ni = getUnknownOffset("ni", i, Bi.cols());
     for (size_type j = 0; j != Bi.cols(); ++j) {
       const auto nj = getUnknownOffset("nj", j, Bj.cols());
-      os << "Ke(" << ni << ", " << nj << ") += " << simplify(Ke(i, j)) << ";\n";
+      os << "Ke(" << ni << ", " << nj << ") += "
+         << "w * (" << simplify(Ke(i, j)) << ");\n";
     }
   }
   os << "} // end of for (size_type nj = 0; nj != nnodes; ++nj)\n"
@@ -491,10 +492,10 @@ void generateHeaderFile(std::ostream& os,
   if (!d.isotropic) {
     if (isTwoDimensionalHypothesis(d.hypothesis)) {
       os << "//! \brief the rotation matrix\n"
-         << "RotationMatrix2D r;\n";
+         << "RotationMatrix2D rotation_matrix;\n";
     } else if (d.hypothesis == "Tridimensional") {
       os << "//! \brief the rotation matrix\n"
-         << "RotationMatrix3D r;\n";
+         << "RotationMatrix3D rotation_matrix;\n";
     }
   }
   os << "    };  // end of struct " << d.name << "\n"
@@ -507,7 +508,9 @@ void generateHeaderFile(std::ostream& os,
 void generateSourceFile(std::ostream& os,
                         const BehaviourIntegratorDescription& d) {
   const auto B = d.generator(os, "", false);
-  os << "#include \"MFEMMGIS/" << d.name << ".hxx\"\n\n"
+  os << "#include <algorithm>\n"
+     << "#include \"MGIS/Behaviour/Behaviour.hxx\"\n"
+     << "#include \"MFEMMGIS/" << d.name << ".hxx\"\n\n"
      << "namespace mfem_mgis {\n\n";
   generateUpdateGradient(os, d);
   generateUpdateInnerForces(os, d);
@@ -555,11 +558,18 @@ void generateSourceFile(std::ostream& os,
      << d.name << "::getRotationMatrix() const{\n"
      << "return RotationMatrix{};\n"
      << "} // end of getRotationMatrix\n"
-     << "\n"
-     << "void " << d.name
-     << "::rotateGradients(mgis::span<real>, const RotationMatrix&){\n"
-     << "} // end of rotateGradients\n"
      << "\n";
+  if (d.isotropic) {
+    os << "void " << d.name
+       << "::rotateGradients(mgis::span<real>, const RotationMatrix&){\n"
+       << "} // end of rotateGradients\n";
+  } else {
+    os << "void " << d.name
+       << "::rotateGradients(mgis::span<real> g, const RotationMatrix& r){\n"
+       << "mgis::behaviour::rotateGradients(g, this->b, r);\n"
+       << "} // end of rotateGradients\n";
+  }
+  os << "\n";
   if (d.isotropic) {
     os << "mgis::span<const real>\n"
        << d.name << "::rotateThermodynamicForces(mgis::span<const real> s, "
@@ -569,14 +579,26 @@ void generateSourceFile(std::ostream& os,
   } else {
     os << "std::array<real," << B.rows() << ">\n"
        << d.name << "::rotateThermodynamicForces(mgis::span<const real> s, "
-       << "const RotationMatrix&){\n"
-       << "return s;\n"
+       << "const RotationMatrix& r){\n"
+       << "std::array<real," << B.rows() << "> rs;\n"
+       << "std::copy(s.begin(), s.end(), rs.begin());\n"
+       << "mgis::behaviour::rotateThermodynamicForces(rs, this->b, r);\n"
+       << "return rs;\n"
        << "}\n\n";
   }
-  os << "void " << d.name << "::rotateTangentOperatorBlocks(mgis::span<real>,\n"
-     << "const RotationMatrix&){\n"
-     << "}\n"
-     << "\n"
+  if (d.isotropic) {
+    os << "void " << d.name
+       << "::rotateTangentOperatorBlocks(mgis::span<real>,\n"
+       << "const RotationMatrix&){\n"
+       << "}\n";
+  } else {
+    os << "void " << d.name
+       << "::rotateTangentOperatorBlocks(mgis::span<real> Kip,\n"
+       << "const RotationMatrix& r){\n"
+       << "mgis::behaviour::rotateTangentOperatorBlocks(Kip, this->b, r);\n"
+       << "}\n";
+  }
+  os << "\n"
      << "void " << d.name << "::computeInnerForces(mfem::Vector &Fe,\n"
      << "                         const mfem::FiniteElement &e,\n"
      << "                         mfem::ElementTransformation &tr,\n"

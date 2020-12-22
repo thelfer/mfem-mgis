@@ -14,6 +14,12 @@
 #include "MFEMMGIS/IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
 #include "MFEMMGIS/IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
 #include "MFEMMGIS/IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
@@ -51,17 +57,29 @@ namespace mfem_mgis {
     f.addGenerator(
         "SmallStrainMechanicalBehaviour",
         [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->symmetry == mgis::behaviour::Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
           return std::make_unique<
-              IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+              OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     f.addGenerator(
         "StandardFiniteStrainMechanics",
         [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->symmetry == mgis::behaviour::Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
           return std::make_unique<
-              IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+              OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     return f;
@@ -77,17 +95,29 @@ namespace mfem_mgis {
     f.addGenerator(
         "SmallStrainMechanicalBehaviour",
         [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->symmetry == mgis::behaviour::Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
           return std::make_unique<
-              IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
+              OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     f.addGenerator(
         "StandardFiniteStrainMechanics",
         [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->symmetry == mgis::behaviour::Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
           return std::make_unique<
-              IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
+              OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     return f;
@@ -103,17 +133,29 @@ namespace mfem_mgis {
     f.addGenerator(
         "SmallStressMechanicalBehaviour",
         [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->symmetry == mgis::behaviour::Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
           return std::make_unique<
-              IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
+              OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     f.addGenerator(
         "StandardFiniteStressMechanics",
         [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->symmetry == mgis::behaviour::Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
           return std::make_unique<
-              IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
+              OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     return f;
