@@ -99,7 +99,6 @@ int main(const int argc, char** const argv) {
   // solving the problem
   mfem::UMFPackSolver lsolver;
   auto& solver = problem.getSolver();
-  solver.iterative_mode = true;
   solver.SetSolver(lsolver);
   solver.SetPrintLevel(0);
   solver.SetRelTol(1e-12);

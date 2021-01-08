@@ -20,8 +20,11 @@ namespace mfem_mgis {
         hypothesis(h),
         u0(fed->getFiniteElementSpace().GetTrueVSize()),
         u1(fed->getFiniteElementSpace().GetTrueVSize()) {
+    this->residual = std::make_unique<ResidualOperator>(*this);
     this->u0 = real{0};
     this->u1 = real{0};
+    this->solver.SetOperator(*(this->residual));
+    this->solver.iterative_mode = true;
     if (this->fe_discretization->getMesh().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       mgis::raise(
@@ -93,8 +96,6 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::solve(const real dt) {
     mfem::Vector zero;
     this->mgis_integrator->setTimeIncrement(dt);
-    ResidualOperator r(*this);
-    this->solver.SetOperator(r);
     this->solver.Mult(zero, this->u1);
     if (!this->solver.GetConverged()) {
       mgis::raise("Newton solver did not converge");
