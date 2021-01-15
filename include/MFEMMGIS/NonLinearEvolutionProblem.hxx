@@ -23,6 +23,8 @@ namespace mfem_mgis {
   struct Material;
   // forward declaration
   struct MultiMaterialNonLinearIntegrator;
+  // forward declaration
+  struct ResidualOperator;
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -98,6 +100,8 @@ namespace mfem_mgis {
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
+    //! \brief residual
+    std::unique_ptr<ResidualOperator> residual;
     //! \brief newton solver
     mfem::NewtonSolver solver;
     //! \brief unknowns at the beginning of the time step
