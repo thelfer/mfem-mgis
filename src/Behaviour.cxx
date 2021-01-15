@@ -5,6 +5,7 @@
  * \date   13/10/2020
  */
 
+#include "MGIS/Behaviour/FiniteStrainBehaviourOptions.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
 
 namespace mfem_mgis{
