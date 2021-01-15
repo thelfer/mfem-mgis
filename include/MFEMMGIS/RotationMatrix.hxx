@@ -37,8 +37,6 @@ namespace mfem_mgis {
       std::variant<std::monostate,
                    std::array<real, 9u>,
                    std::variant<std::array<real, 3u>,
-                                std::shared_ptr<PartialQuadratureFunction>>,
-                   std::variant<std::array<real, 3u>,
                                 std::shared_ptr<PartialQuadratureFunction>>>;
 
 };  // end of namespace mfem_mgis
