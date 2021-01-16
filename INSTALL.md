@@ -16,12 +16,14 @@ The `TFEL` project can be used for testing purposes.
 - `CMAKE_BUILD_TYPE`: type of build
 - `CMAKE_INSTALL_PREFIX`: installation prefix
 - `MFEM_DIR` must be set to the location where `MFEMConfig.cmake` has
-  been installed.
+  been installed. To get this file, one needs to compile MFEM with CMake
+  compilation process and launch a `make install` finally.
 - `MFrontGenericInterface_DIR` must be set to the location where
   `MFrontGenericInterfaceConfig.cmake` has been installed.
 
 # Example of usage
 
+- Suppose that you install `mgis` using spack. For example with the command `spack install mgis@master`.
 ~~~~{.bash}
-cmake ../mfem-mgis/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/th202608/codes/mfem-mgis/master/install -DMFEM_DIR=/home/th202608/codes/mfem/master/install/lib/cmake/mfem/ -DMFrontGenericInterface_DIR=/home/th202608/codes/mgis/master/install-python-3.5/share/mgis/cmake/
+cmake .. -Denable-openmp=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/../install -DMFEM_DIR=<MFEM_DIR> -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
 ~~~~
