@@ -7,6 +7,27 @@ This project uses [`cmake`](https://cmake.org/) as build system.
 - [`MFEM`](https://mfem.org/)
 - [`MGIS`](https://github.com/thelfer/MFrontGenericInterfaceSupport)
 
+A simple way to install dependencies is to rely on `Spack` system. 
+Spack is an open source package manager that simplifies building, installing, customizing, and sharing HPC software.
+It will allow you to install recent versions of compilers (that handle c++17, for example gnu compiler suite version 8),
+and to get python, cmake and other tools that are required for this project to be installed.
+
+~~~~{.bash}
+    git clone https://github.com/spack/spack.git
+    export SPACK_ROOT=$PWD/spack
+    source ${SPACK_ROOT}/share/spack/setup-env.sh
+    spack install hypre metis suite-sparse mgis@master cmake
+    spack load hypre metis suite-sparse mgis@master cmake
+
+    git clone https://github.com/mfem/mfem.git
+    # or download a tarball here : https://mfem.org/download/
+    cd mfem
+    mkdir build; cd build
+    cmake ../ -DMFEM_USE_SUITESPARSE=ON -DCMAKE_INSTALL_PREFIX=$PWD/mfem
+    make -j 4 install
+    export MFEM_DIR=$PWD/mfem
+~~~~
+
 ## Optional dependencies
 
 The `TFEL` project can be used for testing purposes.
@@ -26,4 +47,6 @@ The `TFEL` project can be used for testing purposes.
 - Suppose that you install `mgis` using spack. For example with the command `spack install mgis@master`.
 ~~~~{.bash}
 cmake .. -Denable-openmp=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/../install -DMFEM_DIR=<MFEM_DIR> -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
+make -j 4
+make check
 ~~~~
