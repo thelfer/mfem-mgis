@@ -55,6 +55,7 @@ int main(const int argc, char** const argv) {
   auto& m1 = problem.getMaterial(1);
   mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
   mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
+
   // boundary conditions
   // Determine the list of true (i.e. parallel conforming) essential
   // boundary dofs. In this example, the boundary conditions are defined by

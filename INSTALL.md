@@ -46,9 +46,9 @@ The `TFEL` project can be used for testing purposes.
 
 - Suppose that you install `mgis` using spack. For example with the command `spack install mgis@master`.
 ~~~~{.bash}
-cmake .. -Denable-openmp=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc \
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc \
   -DCMAKE_CXX_COMPILER=g++ -DCMAKE_INSTALL_PREFIX=$PWD/../install -DMFEM_DIR=<MFEM_DIR> \
-  -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
+  -Denable-openmp=OFF  -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
 make -j 4
 make check
 ~~~~
