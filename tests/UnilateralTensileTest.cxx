@@ -97,7 +97,14 @@ int main(const int argc, char** const argv) {
   auto yz1_ux_dofs = append_dof(2, 0);  // yz1
   problem.SetEssentialTrueDofs(fixed_dirichlet_dofs);
   // solving the problem
+#ifdef MFEM_USE_SUITESPARSE
   mfem::UMFPackSolver lsolver;
+#else
+  mfem::CGSolver lsolver;
+  lsolver.SetRelTol(1e-12);
+  lsolver.SetMaxIter(300);
+  lsolver.SetPrintLevel(1);
+#endif
   auto& solver = problem.getSolver();
   solver.SetSolver(lsolver);
   solver.SetPrintLevel(0);
