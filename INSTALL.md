@@ -16,14 +16,14 @@ and to get python, cmake and other tools that are required for this project to b
     git clone https://github.com/spack/spack.git
     export SPACK_ROOT=$PWD/spack
     source ${SPACK_ROOT}/share/spack/setup-env.sh
-    spack install hypre metis suite-sparse mgis@master cmake
-    spack load hypre metis suite-sparse mgis@master cmake
+    spack install hypre metis mgis@master cmake
+    spack load hypre metis mgis@master cmake
 
     git clone https://github.com/mfem/mfem.git
     # or download a tarball here : https://mfem.org/download/
     cd mfem
     mkdir build; cd build
-    cmake ../ -DMFEM_USE_SUITESPARSE=ON -DCMAKE_INSTALL_PREFIX=$PWD/mfem
+    cmake ../ -DCMAKE_INSTALL_PREFIX=$PWD/mfem
     make -j 4; make install
     export MFEM_DIR=$PWD/mfem
 ~~~~

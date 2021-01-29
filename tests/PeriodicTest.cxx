@@ -101,16 +101,16 @@ int main(const int argc, char** const argv) {
       +[](const mfem::Vector&, mfem::Vector& u) { u = mfem_mgis::real{}; }};
   std::shared_ptr<mfem::Solver> (*const solver_list[])() {
     []() ->  std::shared_ptr<mfem::Solver> {
-      std::shared_ptr<mfem::GMRESSolver> pgmres(new mfem::GMRESSolver);
-	pgmres->iterative_mode = false;
-	pgmres->SetRelTol(1e-12);
-	pgmres->SetAbsTol(1e-12);
-	pgmres->SetMaxIter(300);
-	pgmres->SetPrintLevel(1);
-	return pgmres;
+        std::shared_ptr<mfem::GMRESSolver> pgmres(new mfem::GMRESSolver);
+        pgmres->iterative_mode = false;
+        pgmres->SetRelTol(1e-12);
+        pgmres->SetAbsTol(1e-12);
+        pgmres->SetMaxIter(300);
+        pgmres->SetPrintLevel(1);
+        return pgmres;
     }
     , []() ->  std::shared_ptr<mfem::Solver> {
-      std::shared_ptr<mfem::CGSolver> pcg(new mfem::CGSolver);
+        std::shared_ptr<mfem::CGSolver> pcg(new mfem::CGSolver);
         pcg->SetRelTol(1e-12);
         pcg->SetMaxIter(300);
         pcg->SetPrintLevel(1);
