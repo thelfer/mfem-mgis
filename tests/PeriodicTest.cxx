@@ -127,6 +127,7 @@ int main(const int argc, char** const argv) {
   const char* library = nullptr;
   auto order = 1;
   auto tcase = 0;
+  auto linearsolver = 0;
   // options treatment
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
@@ -136,6 +137,8 @@ int main(const int argc, char** const argv) {
   args.AddOption(&tcase, "-t", "--test-case",
                  "identifier of the case : Exx->0, Eyy->1, Ezz->2, Exy->3, "
                  "Exz->4, Eyz->5");
+  args.AddOption(&linearsolver, "-ls", "--linearsolver",
+                 "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
   args.Parse();
   if ((!args.Good()) || (mesh_file == nullptr)) {
     args.PrintUsage(std::cout);
@@ -199,7 +202,7 @@ int main(const int argc, char** const argv) {
   }
   problem.SetEssentialTrueDofs(ess_tdof_list);
   // solving the problem
-  std::shared_ptr<mfem::Solver> lsolver = solver_list[1]();
+  std::shared_ptr<mfem::Solver> lsolver = solver_list[linearsolver]();
 
   auto& solver = problem.getSolver();
   solver.iterative_mode = true;

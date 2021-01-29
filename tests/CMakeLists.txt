@@ -11,13 +11,14 @@ target_link_libraries(PeriodicTest
   PRIVATE MFEMMGIS)
   add_dependencies(check PeriodicTest)
 
-function(add_periodic_test ncase)
-  set(test "PeriodicTest-${ncase}")
+function(add_periodic_test ncase nsolver)
+  set(test "PeriodicTest-${ncase}-${nsolver}")
   add_test(NAME ${test}
    COMMAND PeriodicTest 
    "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
    "--library" "$<TARGET_FILE:BehaviourTest>"
-   "--test-case" "${ncase}")
+   "--test-case" "${ncase}"
+   "--linearsolver" "${nsolver}")
   if((CMAKE_HOST_WIN32) AND (NOT MSYS))
     set_property(TEST ${test}
       PROPERTY DEPENDS BehaviourTest
@@ -28,12 +29,11 @@ function(add_periodic_test ncase)
   endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
 endfunction(add_periodic_test)
 
-add_periodic_test(0)
-add_periodic_test(1)
-add_periodic_test(2)
-add_periodic_test(3)
-add_periodic_test(4)
-add_periodic_test(5)
+foreach(ncase RANGE 0 5)
+  foreach(nsolver RANGE 0 1)
+    add_periodic_test(${ncase} ${nsolver})
+  endforeach(nsolver)
+endforeach(ncase)
 
 add_executable(UnilateralTensileTest
   EXCLUDE_FROM_ALL
