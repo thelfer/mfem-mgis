@@ -99,10 +99,35 @@ int main(const int argc, char** const argv) {
         }
       },
       +[](const mfem::Vector&, mfem::Vector& u) { u = mfem_mgis::real{}; }};
+  std::shared_ptr<mfem::Solver> (*const solver_list[])() {
+    []() ->  std::shared_ptr<mfem::Solver> {
+      std::shared_ptr<mfem::GMRESSolver> pgmres(new mfem::GMRESSolver);
+	pgmres->iterative_mode = false;
+	pgmres->SetRelTol(1e-12);
+	pgmres->SetAbsTol(1e-12);
+	pgmres->SetMaxIter(300);
+	pgmres->SetPrintLevel(1);
+	return pgmres;
+    }
+    , []() ->  std::shared_ptr<mfem::Solver> {
+      std::shared_ptr<mfem::CGSolver> pcg(new mfem::CGSolver);
+        pcg->SetRelTol(1e-12);
+        pcg->SetMaxIter(300);
+        pcg->SetPrintLevel(1);
+        return pcg;
+    }
+#ifdef MFEM_USE_SUITESPARSE
+    , []() ->  std::shared_ptr<mfem::Solver> {
+        std::shared_ptr<mfem::UMFPackSolver> pumf(new mfem::UMFPackSolver);
+        return(pumf);
+    }
+#endif
+  };
   const char* mesh_file = nullptr;
   const char* library = nullptr;
   auto order = 1;
   auto tcase = 0;
+  auto linearsolver = 0;
   // options treatment
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
@@ -112,6 +137,8 @@ int main(const int argc, char** const argv) {
   args.AddOption(&tcase, "-t", "--test-case",
                  "identifier of the case : Exx->0, Eyy->1, Ezz->2, Exy->3, "
                  "Exz->4, Eyz->5");
+  args.AddOption(&linearsolver, "-ls", "--linearsolver",
+                 "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
   args.Parse();
   if ((!args.Good()) || (mesh_file == nullptr)) {
     args.PrintUsage(std::cout);
@@ -175,10 +202,11 @@ int main(const int argc, char** const argv) {
   }
   problem.SetEssentialTrueDofs(ess_tdof_list);
   // solving the problem
-  mfem::UMFPackSolver lsolver;
+  std::shared_ptr<mfem::Solver> lsolver = solver_list[linearsolver]();
+
   auto& solver = problem.getSolver();
   solver.iterative_mode = true;
-  solver.SetSolver(lsolver);
+  solver.SetSolver(*lsolver);
   solver.SetPrintLevel(0);
   solver.SetRelTol(1e-12);
   solver.SetAbsTol(1e-12);
