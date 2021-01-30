@@ -24,7 +24,7 @@ mfem_mgis_library(MFEMMGIS
   OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.cxx
 )
 
-if(enable-openmp)
+if(OpenMP_FOUND)
   target_link_libraries(MFEMMGIS
     PUBLIC OpenMP::OpenMP_CXX)
-endif(enable-openmp)
+endif(OpenMP_FOUND)

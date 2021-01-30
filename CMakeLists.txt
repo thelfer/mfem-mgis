@@ -22,7 +22,6 @@ find_package (MFrontGenericInterface REQUIRED)
 # Support for OpenMP
 if(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP) 
   find_package(OpenMP REQUIRED)
-  option(enable-openmp "enable openmp support" ON)
 endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
  
 # find mfront for testing purposes
