@@ -20,10 +20,10 @@ find_package(MFEM REQUIRED)
 find_package (MFrontGenericInterface REQUIRED)
 
 # Support for OpenMP
-option(enable-openmp "enable openmp support" ON)
-if(enable-openmp)
+if(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP) 
   find_package(OpenMP REQUIRED)
-endif(enable-openmp)
+  option(enable-openmp "enable openmp support" ON)
+endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
  
 # find mfront for testing purposes
 include(cmake/modules/tfel.cmake)  
