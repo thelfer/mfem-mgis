@@ -13,10 +13,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   SETUP_TARGET_FOR_COVERAGE(coverage ctest coverage)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-  string(APPEND CMAKE_CXX_FLAGS " -Wno-return-type -Wno-ctor-dtor-privacy -Wno-float-equal")
-endif(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-
 # MFEM
 find_package(MFEM REQUIRED)
 
