@@ -60,7 +60,10 @@ function(mfront_behaviours_check_library name)
   if(nb_sources GREATER 0)
     message(STATUS "Adding library : ${name} (${${name}_SOURCES})")
     add_library(${name} SHARED EXCLUDE_FROM_ALL ${${name}_SOURCES})
-    target_compile_options (${name} PRIVATE "${HHO_CXX_FLAGS}")
+    if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+      target_compile_options (${name}
+	PRIVATE "-Wno-return-type" "-Wno-ctor-dtor-privacy" "-Wno-float-equal")
+    endif(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     add_dependencies(check ${name})
     target_include_directories(${name}
       PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/${interface}/include"
