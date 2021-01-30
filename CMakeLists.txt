@@ -13,6 +13,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   SETUP_TARGET_FOR_COVERAGE(coverage ctest coverage)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+  string(APPEND CMAKE_CXX_FLAGS " -Wno-return-type -Wno-ctor-dtor-privacy -Wno-float-equal")
+endif(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+
 # MFEM
 find_package(MFEM REQUIRED)
 
@@ -20,10 +24,10 @@ find_package(MFEM REQUIRED)
 find_package (MFrontGenericInterface REQUIRED)
 
 # Support for OpenMP
-option(enable-openmp "enable openmp support" ON)
-if(enable-openmp)
+if(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP) 
   find_package(OpenMP REQUIRED)
-endif(enable-openmp)
+  option(enable-openmp "enable openmp support" ON)
+endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
  
 # find mfront for testing purposes
 include(cmake/modules/tfel.cmake)  
