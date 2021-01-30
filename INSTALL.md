@@ -23,8 +23,9 @@ and to get python, cmake and other tools that are required for this project to b
     # or download a tarball here : https://mfem.org/download/
     cd mfem
     mkdir build; cd build
-    cmake ../ -DCMAKE_INSTALL_PREFIX=$PWD/mfem
-    make -j 4; make install
+    cmake ../ -DCMAKE_INSTALL_PREFIX=$PWD/mfem -DCMAKE_CXX_COMPILER=g++ 
+    make -j 4
+    make install
     export MFEM_DIR=$PWD/mfem
 ~~~~
 
@@ -46,9 +47,10 @@ The `TFEL` project can be used for testing purposes.
 
 - Suppose that you install `mgis` using spack. For example with the command `spack install mgis@master`.
 ~~~~{.bash}
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc \
-  -DCMAKE_CXX_COMPILER=g++ -DCMAKE_INSTALL_PREFIX=$PWD/../install -DMFEM_DIR=<MFEM_DIR> \
-  -Denable-openmp=OFF  -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
+cmake .. -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+   -DCMAKE_INSTALL_PREFIX=$PWD/../install -DMFEM_DIR=<MFEM_DIR> \
+   -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
+
 make -j 4
 make check
 ~~~~
