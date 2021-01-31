@@ -54,7 +54,8 @@ d.setGlossaryName("Damage");
     r = (pps1 + pps2 + pps3) / (abs(s1) + abs(s2) + abs(s3));
   }
   real gam = 1.;
-  if ((min(s1, min(s2, s3)) < 0.) && (r == 0.)) {
+  if ((min(s1, min(s2, s3)) < 0.) &&
+      (tfel::math::ieee754::fpclassify(r) == FP_ZERO)) {
     const stress pns1 = min(stress(0), s1);
     const stress pns2 = min(stress(0), s2);
     const stress pns3 = min(stress(0), s3);
