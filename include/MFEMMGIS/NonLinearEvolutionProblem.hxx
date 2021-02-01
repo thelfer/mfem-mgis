@@ -9,13 +9,9 @@
 #define LIB_MFEM_MGIS_EVOLUTIONPROBLEM_HXX
 
 #include <memory>
-#include "mfem/linalg/vector.hpp"
-#include "mfem/linalg/solvers.hpp"
-#include "mfem/fem/nonlinearform.hpp"
 #include "MGIS/Behaviour/Hypothesis.hxx"
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/MFEMForward.hxx"
-#include "MFEMMGIS/FiniteElementDiscretization.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemBase.hxx"
 
 namespace mfem_mgis {
 
@@ -23,14 +19,12 @@ namespace mfem_mgis {
   struct Material;
   // forward declaration
   struct MultiMaterialNonLinearIntegrator;
-  // forward declaration
-  struct ResidualOperator;
 
   /*!
    * \brief class for solving non linear evolution problems
    */
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblem
-      : public mfem::NonlinearForm {
+      : public NonLinearEvolutionProblemBase {
     //! \brief a simple alias
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
@@ -40,20 +34,6 @@ namespace mfem_mgis {
      */
     NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis);
-    //! \return the finite element space
-    mfem::FiniteElementSpace& getFiniteElementSpace();
-    //! \return the finite element space
-    const mfem::FiniteElementSpace& getFiniteElementSpace() const;
-    //! \return the Newton solver
-    mfem::NewtonSolver& getSolver();
-    //! \return the unknowns at the beginning of the time step
-    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep();
-    //! \return the unknowns at the beginning of the time step
-    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const;
-    //! \return the unknowns at the end of the time step
-    mfem::Vector& getUnknownsAtEndOfTheTimeStep();
-    //! \return the unknowns at the end of the time step
-    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const;
     /*!
      * \return the material with the given id
      * \param[in] m: material id
@@ -75,39 +55,18 @@ namespace mfem_mgis {
                                         const size_type,
                                         const std::string&,
                                         const std::string&);
-    /*!
-     * \brief solve the non linear problem over the given time step
-     * \param[in] dt: time increment
-     */
-    void solve(const real);
-    /*!
-     * \brief revert the internal state variables to the beginning of the time
-     * step.
-     */
-    void revert();
-    /*!
-     * \brief updat the internal state variables to the end of the time step.
-     */
-    void update();
-
+    //
+    void revert() override;
+    void update() override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 
    private:
+    void setTimeIncrement(const real) override;
     //! \brief pointer to the underlying domain integrator
     MultiMaterialNonLinearIntegrator* const mgis_integrator;
-    //! \brief underlying finite element discretization
-    const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
-    //! \brief residual
-    std::unique_ptr<ResidualOperator> residual;
-    //! \brief newton solver
-    mfem::NewtonSolver solver;
-    //! \brief unknowns at the beginning of the time step
-    mfem::Vector u0;
-    //! \brief unknowns at the end of the time step
-    mfem::Vector u1;
   };  // end of struct NonLinearEvolutionProblem
 
 }  // end of namespace mfem_mgis

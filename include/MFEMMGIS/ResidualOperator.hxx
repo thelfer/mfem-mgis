@@ -16,7 +16,7 @@
 namespace mfem_mgis {
 
   //! \brief
-  struct NonLinearEvolutionProblem;
+  struct NonLinearEvolutionProblemBase;
 
   /*!
    * \brief class representing the residual of a non linear problem.
@@ -28,7 +28,7 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] p: underlying non linear problem
      */
-    ResidualOperator(NonLinearEvolutionProblem&);
+    ResidualOperator(NonLinearEvolutionProblemBase&);
     //! \brief compute the stiffness matrix
     mfem::Operator &GetGradient(const mfem::Vector &xp) const override;
     //! \brief compute the residual
@@ -38,7 +38,7 @@ namespace mfem_mgis {
 
    private:
     //! \brief non linear problem to be solved over one time step
-    NonLinearEvolutionProblem &problem;
+    NonLinearEvolutionProblemBase &problem;
   };  // end of struct ResidualOperator
 
 }  // end of namespace mfem_mgis

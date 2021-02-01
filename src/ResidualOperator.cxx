@@ -11,7 +11,7 @@
 
 namespace mfem_mgis {
 
-  ResidualOperator::ResidualOperator(NonLinearEvolutionProblem &p)
+  ResidualOperator::ResidualOperator(NonLinearEvolutionProblemBase &p)
       : Operator(p.getFiniteElementSpace().GetTrueVSize()),
         problem(p) {}  // end of ResidualOperator
 
