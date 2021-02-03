@@ -6,7 +6,6 @@
  */
 
 #include "MGIS/Raise.hxx"
-#include "MFEMMGIS/ResidualOperator.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemBase.hxx"
 
 namespace mfem_mgis {
@@ -17,10 +16,9 @@ namespace mfem_mgis {
         fe_discretization(fed),
         u0(fed->getFiniteElementSpace().GetTrueVSize()),
         u1(fed->getFiniteElementSpace().GetTrueVSize()) {
-    this->residual = std::make_unique<ResidualOperator>(*this);
     this->u0 = real{0};
     this->u1 = real{0};
-    this->solver.SetOperator(*(this->residual));
+    this->solver.SetOperator(*(this));
     this->solver.iterative_mode = true;
   }  // end of NonLinearEvolutionProblemBase
 
