@@ -18,6 +18,10 @@ namespace mfem {
   class FiniteElement;
   class ElementTransformation;
   class IntegrationRule;
+#ifdef MFEM_USE_MPI
+  class ParMesh;
+  class ParFiniteElementSpace;
+#endif
 
 }  // end of namespace mfem
 

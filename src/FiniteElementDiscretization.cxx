@@ -52,6 +52,11 @@ namespace mfem_mgis {
     return *(this->fe_space);
   }  // end of getFiniteElementSpace
 
+  const mfem::FiniteElementCollection&
+  FiniteElementDiscretization::getFiniteElementCollection() const {
+    return *(this->fec);
+  }  // end of getFiniteElementCollection
+
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;
 
 } // end of namespace mfem_mgis
