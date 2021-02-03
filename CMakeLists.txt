@@ -21,6 +21,7 @@ find_package(MFEM REQUIRED)
 if (MFEM_USE_MPI)
   message(STATUS "MFEM: using MPI, so mfem_mgis will use MPI")
   find_package(MPI REQUIRED)
+  set(MPI_CXX_INCLUDE_DIRS ${MPI_CXX_INCLUDE_PATH})
 endif()
 
 # MFontGenericInterface
