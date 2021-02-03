@@ -42,14 +42,16 @@ namespace mfem_mgis {
         std::shared_ptr<mfem::Mesh>,
         std::shared_ptr<const mfem::FiniteElementCollection>,
         std::unique_ptr<mfem::FiniteElementSpace>);
-    //! \return the finite element space
+    //! \return the mesh
     mfem::Mesh& getMesh();
-    //! \return the finite element space
+    //! \return the mesh
     const mfem::Mesh& getMesh() const;
     //! \return the finite element space
     mfem::FiniteElementSpace& getFiniteElementSpace();
     //! \return the finite element space
     const mfem::FiniteElementSpace& getFiniteElementSpace() const;
+    //! \return the finite element collection
+    const mfem::FiniteElementCollection& getFiniteElementCollection() const;
     //! \brief destructor
     ~FiniteElementDiscretization();
 

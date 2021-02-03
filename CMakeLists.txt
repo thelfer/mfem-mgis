@@ -1,7 +1,10 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.8)
 project(mfem-mgis)
 
 include(cmake/modules/mfem-mgis.cmake)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # portable-build
 option(enable-portable-build "produce binary that can be shared between various machine (same architecture, same gcc version, different processors" OFF)
@@ -15,6 +18,10 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # MFEM
 find_package(MFEM REQUIRED)
+if (MFEM_USE_MPI)
+  message(STATUS "MFEM: using MPI, so mfem_mgis will use MPI")
+  find_package(MPI REQUIRED)
+endif()
 
 # MFontGenericInterface
 find_package (MFrontGenericInterface REQUIRED)
