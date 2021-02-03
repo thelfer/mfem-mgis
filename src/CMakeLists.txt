@@ -8,7 +8,6 @@ mfem_mgis_library(MFEMMGIS
   BehaviourIntegratorBase.cxx
   BehaviourIntegratorFactory.cxx
   MultiMaterialNonLinearIntegrator.cxx
-  ResidualOperator.cxx
   NonLinearEvolutionProblemBase.cxx
   NonLinearEvolutionProblem.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx

@@ -6,7 +6,6 @@
  */
 
 #include "MGIS/Raise.hxx"
-#include "MFEMMGIS/ResidualOperator.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
