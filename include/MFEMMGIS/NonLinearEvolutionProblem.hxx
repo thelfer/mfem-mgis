@@ -63,6 +63,7 @@ namespace mfem_mgis {
 
    private:
     void setTimeIncrement(const real) override;
+    void setup() override;
     //! \brief pointer to the underlying domain integrator
     MultiMaterialNonLinearIntegrator* const mgis_integrator;
     //! \brief modelling hypothesis

@@ -8,6 +8,7 @@
 #include <utility>
 #include "MGIS/Raise.hxx"
 #include "MGIS/Behaviour/Integrate.hxx"
+#include "MGIS/Behaviour/BehaviourDataView.hxx"
 #include "MFEMMGIS/BehaviourIntegratorBase.hxx"
 
 namespace mfem_mgis {
@@ -16,6 +17,9 @@ namespace mfem_mgis {
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::unique_ptr<const Behaviour> b_ptr)
       : Material(s, std::move(b_ptr)) {
+    this->wks.mps.resize(getArraySize(this->b.mps, this->b.hypothesis));
+    this->wks.esvs0.resize(getArraySize(this->b.esvs, this->b.hypothesis));
+    this->wks.esvs1.resize(getArraySize(this->b.esvs, this->b.hypothesis));
   }  // end of BehaviourIntegratorBase
 
   void BehaviourIntegratorBase::throwInvalidBehaviourType(
@@ -48,13 +52,61 @@ namespace mfem_mgis {
     return *this;
   }  // end of getMaterial
 
-  void BehaviourIntegratorBase::revert(){
-    mgis::behaviour::revert(*this);
+  void BehaviourIntegratorBase::setup() {
+    /*
+     * \brief uniform values are treated immediatly. For spatially variable
+     * fields, we return the information needed to evaluate them
+     */
+    auto dispatch =
+        [](std::vector<real>& v,
+           std::map<std::string,
+                    mgis::variant<real, mgis::span<real>, std::vector<real>>>&
+               values,
+           const std::vector<mgis::behaviour::Variable>& ds) {
+          mgis::raise_if(ds.size() != v.size(),
+                         "integrate: ill allocated memory");
+          // evaluators
+          std::vector<std::tuple<size_type, real*>> evs;
+          auto i = mgis::size_type{};
+          for (const auto& d : ds) {
+            if (d.type != mgis::behaviour::Variable::SCALAR) {
+              mgis::raise("integrate: invalid type for variable '" + d.name +
+                          "'");
+            }
+            auto p = values.find(d.name);
+            if (p == values.end()) {
+              auto msg = std::string{"integrate: no variable named '" + d.name +
+                                     "' declared"};
+              if (!values.empty()) {
+                msg += "\nThe following variables were declared: ";
+                for (const auto& vs : values) {
+                  msg += "\n- " + vs.first;
+                }
+              } else {
+                msg += "\nNo variable declared.";
+              }
+              mgis::raise(msg);
+            }
+            if (mgis::holds_alternative<real>(p->second)) {
+              v[i] = mgis::get<real>(p->second);
+            } else if (mgis::holds_alternative<mgis::span<real>>(p->second)) {
+              evs.push_back(std::make_tuple(
+                  i, mgis::get<mgis::span<real>>(p->second).data()));
+            } else {
+              evs.push_back(std::make_tuple(
+                  i, mgis::get<std::vector<real>>(p->second).data()));
+            }
+            ++i;
+          }
+          return evs;
+        };  // end of dispatch
+    this->wks.mps_evaluators =
+        dispatch(this->wks.mps, this->s1.material_properties, this->b.mps);
+    this->wks.esvs0_evaluators = dispatch(
+        this->wks.esvs0, this->s0.external_state_variables, this->b.esvs);
+    this->wks.esvs1_evaluators = dispatch(
+        this->wks.esvs1, this->s1.external_state_variables, this->b.esvs);
   }  // end of revert
-
-  void BehaviourIntegratorBase::update(){
-    mgis::behaviour::update(*this);
-  }  // end of update
 
   void BehaviourIntegratorBase::checkHypotheses(const Hypothesis h) const {
     using namespace mgis::behaviour;
@@ -71,8 +123,55 @@ namespace mfem_mgis {
   void BehaviourIntegratorBase::integrate(const size_type ip) {
     constexpr const auto it = mgis::behaviour::IntegrationType::
         INTEGRATION_CONSISTENT_TANGENT_OPERATOR;
-    const auto r =
-        mgis::behaviour::integrate(*this, it, this->time_increment, ip, ip + 1);
+    const auto g_offset = this->s0.gradients_stride * ip;
+    const auto t_offset = this->s0.thermodynamic_forces_stride * ip;
+    const auto isvs_offset = this->s0.internal_state_variables_stride * ip;
+    // eval spatially variable material properties and external state variables
+    auto eval = [](std::vector<real>& v,
+                   const std::vector<std::tuple<size_type, real*>>& evs,
+                   const size_type i) {
+      for (const auto& ev : evs) {
+        v[std::get<0>(ev)] = std::get<1>(ev)[i];
+      }
+    };  // end of eval
+    eval(this->wks.mps, this->wks.mps_evaluators, ip);
+    eval(this->wks.esvs0, this->wks.esvs0_evaluators, ip);
+    eval(this->wks.esvs1, this->wks.esvs1_evaluators, ip);
+    //
+    mgis::behaviour::BehaviourDataView v;
+    v.rdt = real(1);
+    v.dt = this->time_increment;
+    v.K = this->K.data() + this->K_stride * ip;
+    v.s0.gradients = this->s0.gradients.data() + g_offset;
+    v.s1.gradients = this->s1.gradients.data() + g_offset;
+    v.s0.thermodynamic_forces =
+        this->s0.thermodynamic_forces.data() + t_offset;
+    v.s1.thermodynamic_forces =
+        this->s1.thermodynamic_forces.data() + t_offset;
+    v.s0.material_properties = this->wks.mps.data();
+    v.s1.material_properties = this->wks.mps.data();
+    v.s0.internal_state_variables =
+        this->s0.internal_state_variables.data() + isvs_offset;
+    v.s1.internal_state_variables =
+        this->s1.internal_state_variables.data() + isvs_offset;
+    if (this->b.computesStoredEnergy) {
+      v.s0.stored_energy = this->s0.stored_energies.data() + ip;
+      v.s1.stored_energy = this->s1.stored_energies.data() + ip;
+    } else {
+      v.s0.stored_energy = nullptr;
+      v.s1.stored_energy = nullptr;
+    }
+    if (this->b.computesDissipatedEnergy) {
+      v.s0.dissipated_energy = this->s0.dissipated_energies.data() + ip;
+      v.s1.dissipated_energy = this->s1.dissipated_energies.data() + ip;
+    } else {
+      v.s0.dissipated_energy = nullptr;
+      v.s1.dissipated_energy = nullptr;
+    }
+    v.s0.external_state_variables = this->wks.esvs0.data();
+    v.s1.external_state_variables = this->wks.esvs1.data();
+    v.K[0] = static_cast<int>(it);
+    const auto r = mgis::behaviour::integrate(v, this->b);
     if ((r != 0) && (r != 1)) {
       mgis::raise(
           "BehaviourIntegratorBase::integrate: "
@@ -80,6 +179,14 @@ namespace mfem_mgis {
           std::to_string(r) + ")");
     }
   }  // end of BehaviourIntegratorBase::integrate
+
+  void BehaviourIntegratorBase::revert(){
+    mgis::behaviour::revert(*this);
+  }  // end of revert
+
+  void BehaviourIntegratorBase::update(){
+    mgis::behaviour::update(*this);
+  }  // end of update
 
   BehaviourIntegratorBase::~BehaviourIntegratorBase() = default;
 

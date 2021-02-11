@@ -52,7 +52,6 @@ namespace mfem_mgis {
      * \brief update the state to the end of the time step.
      */
     virtual void update();
-
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] dt: time increment
@@ -68,6 +67,10 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     virtual void setTimeIncrement(const real);
+    /*!
+     * \brief method called before each resolution
+     */
+    virtual void setup();
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief newton solver

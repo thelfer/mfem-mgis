@@ -95,7 +95,19 @@ namespace mfem_mgis {
   }  // end of getMaterial
 
   void MultiMaterialNonLinearIntegrator::setTimeIncrement(const real dt) {
-    this->time_increment = dt;
+    for (auto& bi : this->behaviour_integrators) {
+      if (bi != nullptr) {
+        bi->setTimeIncrement(dt);
+      }
+    }
+  }  // end of setTimeIncrement
+
+  void MultiMaterialNonLinearIntegrator::setup() {
+    for (auto& bi : this->behaviour_integrators) {
+      if (bi != nullptr) {
+        bi->setup();
+      }
+    }
   }  // end of setTimeIncrement
 
   void MultiMaterialNonLinearIntegrator::revert() {

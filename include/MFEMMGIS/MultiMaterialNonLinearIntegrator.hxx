@@ -56,6 +56,10 @@ namespace mfem_mgis {
      */
     void setTimeIncrement(const real);
     /*!
+     * \brief method called before each resolution
+     */
+    virtual void setup();
+    /*!
      * \brief add a new material
      * \param[in] n: name of the behaviour integrator
      * \param[in] m: material id
@@ -106,8 +110,6 @@ namespace mfem_mgis {
      * integrator.
      */
     std::vector<std::unique_ptr<BehaviourIntegrator>> behaviour_integrators;
-    //! \brief time increment
-    real time_increment;
   };  // end of MultiMaterialNonLinearIntegrator
 
 }  // end of namespace mfem_mgis

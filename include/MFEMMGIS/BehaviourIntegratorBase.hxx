@@ -23,6 +23,7 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : BehaviourIntegrator,
                                                     Material {
     void setTimeIncrement(const real) override;
+    void setup() override;
     void revert() override;
     void update() override;
     Material& getMaterial() override;
@@ -71,6 +72,31 @@ namespace mfem_mgis {
      * \note this method shall be called after having set the gradients.
      */
     virtual void integrate(const size_type);
+    //! \brief workspace
+    struct {
+      //! \brief array for material properties at the end of the time step
+      std::vector<real> mps;
+      //! \brief array for external state variables at the beginning of the time
+      //! step
+      std::vector<real> esvs0;
+      //! \brief array for external state variables at the end of the time step
+      std::vector<real> esvs1;
+      /*!
+       * \brief evaluators for the material properties at the end of the time
+       * step
+       */
+      std::vector<std::tuple<size_type, real*>> mps_evaluators;
+      /*!
+       * \brief evaluators for the external state variables at the beginning of
+       * the time step
+       */
+      std::vector<std::tuple<size_type, real*>> esvs0_evaluators;
+      /*!
+       * \brief evaluators for the external state variables at the end of
+       * the time step
+       */
+      std::vector<std::tuple<size_type, real*>> esvs1_evaluators;
+    } wks;
     //! \brief time increment for the given time step
     real time_increment;
   };  // end of struct BehaviourIntegratorBase

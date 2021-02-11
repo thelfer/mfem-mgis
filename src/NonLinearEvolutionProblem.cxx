@@ -26,6 +26,10 @@ namespace mfem_mgis {
     this->AddDomainIntegrator(this->mgis_integrator);
   }  // end of NonLinearEvolutionProblem
 
+  void NonLinearEvolutionProblem::setup() {
+    this->mgis_integrator->setup();
+  }  // end of setup
+
   void NonLinearEvolutionProblem::revert() {
     NonLinearEvolutionProblemBase::revert();
     this->mgis_integrator->revert();

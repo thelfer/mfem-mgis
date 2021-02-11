@@ -36,6 +36,10 @@ namespace mfem_mgis {
      */
     virtual void setTimeIncrement(const real) = 0;
     /*!
+     * \brief method call at the beginning of each resolution
+     */
+    virtual void setup() = 0;
+    /*!
      * \brief set the rotation matrix
      * \param[in] r: rotation matrix
      */
