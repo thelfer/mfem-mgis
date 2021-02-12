@@ -17,6 +17,8 @@ namespace mfem_mgis {
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::unique_ptr<const Behaviour> b_ptr)
       : Material(s, std::move(b_ptr)) {
+    // The following arrays are storing material properties and external
+    // state variables. They can be allocated a single time
     this->wks.mps.resize(getArraySize(this->b.mps, this->b.hypothesis));
     this->wks.esvs0.resize(getArraySize(this->b.esvs, this->b.hypothesis));
     this->wks.esvs1.resize(getArraySize(this->b.esvs, this->b.hypothesis));
@@ -57,6 +59,8 @@ namespace mfem_mgis {
      * \brief uniform values are treated immediatly. For spatially variable
      * fields, we return the information needed to evaluate them
      */
+    // This lambda function builds an *evaluator*. Its role is to fill up
+    // the `v` vector
     auto dispatch =
         [](std::vector<real>& v,
            std::map<std::string,
@@ -87,12 +91,18 @@ namespace mfem_mgis {
               }
               mgis::raise(msg);
             }
+	    // depending on the type of p->second, we are branching
+	    // on one of the following procedure:
             if (mgis::holds_alternative<real>(p->second)) {
+	      // if uniform field, copy p->second into v[i]
+	      // `evs` will be empty.
               v[i] = mgis::get<real>(p->second);
             } else if (mgis::holds_alternative<mgis::span<real>>(p->second)) {
+	      // if we have a span, we store in evs this span for future use
               evs.push_back(std::make_tuple(
                   i, mgis::get<mgis::span<real>>(p->second).data()));
             } else {
+	      // if we have a vector, we store in evs this vector for future use
               evs.push_back(std::make_tuple(
                   i, mgis::get<std::vector<real>>(p->second).data()));
             }
@@ -100,6 +110,9 @@ namespace mfem_mgis {
           }
           return evs;
         };  // end of dispatch
+
+    // The `b` field refers to MGIS MaterialDataManager class, which
+    // is an ancestor class of the current BehaviourIntegratorBase class.
     this->wks.mps_evaluators =
         dispatch(this->wks.mps, this->s1.material_properties, this->b.mps);
     this->wks.esvs0_evaluators = dispatch(
@@ -126,7 +139,9 @@ namespace mfem_mgis {
     const auto g_offset = this->s0.gradients_stride * ip;
     const auto t_offset = this->s0.thermodynamic_forces_stride * ip;
     const auto isvs_offset = this->s0.internal_state_variables_stride * ip;
-    // eval spatially variable material properties and external state variables
+    // Fill vector `v` with material properties or external state variables.
+    // Evaluators are used to deal with both uniform or spatially
+    // variable quantities.
     auto eval = [](std::vector<real>& v,
                    const std::vector<std::tuple<size_type, real*>>& evs,
                    const size_type i) {
