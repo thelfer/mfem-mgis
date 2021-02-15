@@ -11,6 +11,7 @@
 #include "MFEMMGIS/BehaviourIntegratorFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
+#include "mfem/mesh/pmesh.hpp"
 
 namespace mfem_mgis {
 
@@ -34,10 +35,10 @@ namespace mfem_mgis {
   MultiMaterialNonLinearIntegratorBase::MultiMaterialNonLinearIntegratorBase(
       std::shared_ptr<const FiniteElementDiscretization> fed,
       const Hypothesis h)
-      : fe_discretization(fed), hypothesis(h) {
+    : fe_discretization(fed), hypothesis(h) {
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      const auto& mesh = this->fe_discretization->getMesh();
+      const auto& mesh = this->fe_discretization->getMesh<true>();
       // shifting by one allows to directly use the material id to get
       // the behaviour integrators in all the other methods.
       // However, behaviour_integrators[0] will always be null.
@@ -125,7 +126,7 @@ namespace mfem_mgis {
   MultiMaterialNonLinearIntegrator<true>::MultiMaterialNonLinearIntegrator(
       std::shared_ptr<const FiniteElementDiscretization> fed,
       const Hypothesis h)
-      : MultiMaterialNonLinearIntegratorBase(fed, h) {
+    : MultiMaterialNonLinearIntegratorBase(fed, h) {
     if (!fed->describesAParallelComputation()) {
       mgis::raise(
           "MultiMaterialNonLinearIntegrator<true> "

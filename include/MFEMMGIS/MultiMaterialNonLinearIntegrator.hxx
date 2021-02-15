@@ -115,7 +115,7 @@ namespace mfem_mgis {
    */
   template <>
   struct MFEM_MGIS_EXPORT MultiMaterialNonLinearIntegrator<true> final
-      : public NonlinearFormIntegrator<true>,
+      : public NonlinearFormIntegrator,
         public MultiMaterialNonLinearIntegratorBase {
     /*!
      * \brief constructor
@@ -147,7 +147,7 @@ namespace mfem_mgis {
    */
   template <>
   struct MFEM_MGIS_EXPORT MultiMaterialNonLinearIntegrator<false> final
-      : public NonlinearFormIntegrator<false>,
+      : public NonlinearFormIntegrator,
         public MultiMaterialNonLinearIntegratorBase {
     /*!
      * \brief constructor

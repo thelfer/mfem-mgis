@@ -33,7 +33,7 @@ namespace mfem_mgis {
    */
   template <>
   struct NonLinearEvolutionProblemBase<true>
-      : : public NonLinearEvolutionProblemCommon, public NonlinearForm<true> {
+      : public NonLinearEvolutionProblemCommon, public NonlinearForm<true> {
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
