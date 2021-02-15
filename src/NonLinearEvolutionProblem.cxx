@@ -37,7 +37,7 @@ namespace mfem_mgis {
   }  // end of revert
 
   void NonLinearEvolutionProblem<true>::update() {
-    NonLinearEvolutionProblemBase<false>::update();
+    NonLinearEvolutionProblemBase<true>::update();
     MultiMaterialEvolutionProblemBase::update();
   }  // end of update
 
