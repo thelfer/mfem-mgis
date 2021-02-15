@@ -277,18 +277,18 @@ void executeMFEMMGISTest(const TestParameters& p) {
   m1.setMacroscopicGradients(e);
   m2.setMacroscopicGradients(e);
   //
-  setBoundaryConditions(problem);
+  setBoundaryConditions<false>(problem);
   //
   auto lsolver = getLinearSolver(p.linearsolver);
-  setSolverParameters(problem, *(lsolver.get()));
+  setSolverParameters<false>(problem, *(lsolver.get()));
   // solving the problem
   problem.solve(1);
   //
-  if (!checkSolution(problem, p.tcase)) {
+  if (!checkSolution<false>(problem, p.tcase)) {
     std::exit(EXIT_FAILURE);
   }
   //
-  exportResults(problem, p.tcase);
+  exportResults<false>(problem, p.tcase);
 }
 
 struct ElasticityNonLinearIntegrator final
