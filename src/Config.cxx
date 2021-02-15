@@ -16,10 +16,4 @@ namespace mfem_mgis {
         "unsupported parallel computations");
   }
 
-  [[noreturn]] void reportUnsupportedSerialComputations(){
-    mgis::raise(
-        "FiniteElementDiscretization::reportUnsupportedSerialComputations: "
-        "unsupported serial computations");
-  }
-
 }  // end of namespace mfront_mgis

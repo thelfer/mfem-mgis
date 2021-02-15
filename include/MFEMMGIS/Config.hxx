@@ -40,12 +40,6 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[noreturn]] void reportUnsupportedParallelComputations();
 
-  /*!
-   * \brief this function can be called to report that the sequential computation
-   * are not supported.
-   */
-  MFEM_MGIS_EXPORT [[noreturn]] void reportUnsupportedSerialComputations();
-
 }  // end of namespace mfront_mgis
 
 #endif /* LIB_MFEM_MGIS_CONFIG_HXX */

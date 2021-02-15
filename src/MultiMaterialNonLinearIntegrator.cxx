@@ -35,7 +35,7 @@ namespace mfem_mgis {
   MultiMaterialNonLinearIntegratorBase::MultiMaterialNonLinearIntegratorBase(
       std::shared_ptr<const FiniteElementDiscretization> fed,
       const Hypothesis h)
-    : fe_discretization(fed), hypothesis(h) {
+      : fe_discretization(fed), hypothesis(h) {
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       const auto& mesh = this->fe_discretization->getMesh<true>();
@@ -126,7 +126,7 @@ namespace mfem_mgis {
   MultiMaterialNonLinearIntegrator<true>::MultiMaterialNonLinearIntegrator(
       std::shared_ptr<const FiniteElementDiscretization> fed,
       const Hypothesis h)
-    : MultiMaterialNonLinearIntegratorBase(fed, h) {
+      : MultiMaterialNonLinearIntegratorBase(fed, h) {
     if (!fed->describesAParallelComputation()) {
       mgis::raise(
           "MultiMaterialNonLinearIntegrator<true> "
