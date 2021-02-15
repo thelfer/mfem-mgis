@@ -64,3 +64,39 @@ endfunction(add_unilateral_test)
 add_unilateral_test(Plasticity EquivalentPlasticStrain)
 add_unilateral_test(Mazars Damage)
 add_unilateral_test(SaintVenantKirchhoffElasticity EquivalentStrain)
+
+if (MFEM_USE_MPI)
+  add_executable(PeriodicTestP
+    EXCLUDE_FROM_ALL
+    PeriodicTestP.cxx)
+  target_link_libraries(PeriodicTestP
+    PRIVATE MFEMMGIS)
+    add_dependencies(check PeriodicTestP)
+  
+  function(add_periodic_testp ncase nsolver nbprocs)
+    set(test "PeriodicTestP-${ncase}-${nsolver}-${nbprocs}")
+    add_test(NAME ${test}
+     COMMAND mpirun -n ${nbprocs} PeriodicTestP 
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--test-case" "${ncase}"
+     "--linearsolver" "${nsolver}")
+    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest)
+    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+  endfunction(add_periodic_testp)
+  
+  foreach(ncase RANGE 0 0)
+    foreach(nsolver RANGE 0 0)
+      foreach(nbprocs RANGE 1 4 3)
+	add_periodic_testp(${ncase} ${nsolver} ${nbprocs})
+      endforeach(nbprocs)
+    endforeach(nsolver)
+  endforeach(ncase)
+
+endif()
