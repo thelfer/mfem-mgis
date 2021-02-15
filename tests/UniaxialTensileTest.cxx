@@ -1,5 +1,5 @@
 /*!
- * \file   tests/UnilateralTensileTest.cxx
+ * \file   tests/UniaxialTensileTest.cxx
  * \brief
  * \author Thomas Helfer
  * \date   14/12/2020
@@ -46,7 +46,7 @@ int main(const int argc, char** const argv) {
     return EXIT_FAILURE;
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(
+  mfem_mgis::NonLinearEvolutionProblem<false> problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(order, dim), 3),
       mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
@@ -112,7 +112,7 @@ int main(const int argc, char** const argv) {
   solver.SetAbsTol(0);
   solver.SetMaxIter(10);
   // vtk export
-  mfem::ParaViewDataCollection paraview_dc("UnilateralTensileTestOutput",
+  mfem::ParaViewDataCollection paraview_dc("UniaxialTensileTestOutput",
                                            mesh.get());
   const auto vo =
       mgis::behaviour::getVariableOffset(m1.b.isvs, isv_name, m1.b.hypothesis);
@@ -162,7 +162,7 @@ int main(const int argc, char** const argv) {
     paraview_dc.Save();
   }
   // save the traction curve
-  std::ofstream out("UnilateralTensileTest-" + std::string(behaviour) + ".txt");
+  std::ofstream out("UniaxialTensileTest-" + std::string(behaviour) + ".txt");
   out.precision(14);
   for (std::vector<mfem_mgis::real>::size_type i = 0; i != g0.size(); ++i) {
     out << g0[i] << " " << g1[i] << " " << tf0[i] << " " << v[i] << '\n';

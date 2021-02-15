@@ -1,4 +1,5 @@
 mfem_mgis_library(MFEMMGIS
+  Config.cxx
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
@@ -8,7 +9,9 @@ mfem_mgis_library(MFEMMGIS
   BehaviourIntegratorBase.cxx
   BehaviourIntegratorFactory.cxx
   MultiMaterialNonLinearIntegrator.cxx
+  NonLinearEvolutionProblemCommon.cxx
   NonLinearEvolutionProblemBase.cxx
+  MultiMaterialEvolutionProblemBase.cxx
   NonLinearEvolutionProblem.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
   IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.cxx

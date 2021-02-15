@@ -9,77 +9,86 @@
 #define LIB_MFEM_MGIS_EVOLUTIONPROBLEMBASE_HXX
 
 #include <memory>
-#include "mfem/linalg/vector.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/nonlinearform.hpp"
-#include "MGIS/Behaviour/Hypothesis.hxx"
+#ifdef MFEM_USE_MPI
+#include "mfem/fem/pnonlinearform.hpp"
+#endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
-#include "MFEMMGIS/FiniteElementDiscretization.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemCommon.hxx"
 
 namespace mfem_mgis {
 
   /*!
    * \brief class for solving non linear evolution problems
    */
-  struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemBase
-      : public mfem::NonlinearForm {
+  template <bool parallel>
+  struct NonLinearEvolutionProblemBase;
+
+#ifdef MFEM_USE_MPI
+
+  /*!
+   * \brief partial specialisation for parallel computations
+   */
+  template <>
+  struct NonLinearEvolutionProblemBase<true>
+      : : public NonLinearEvolutionProblemCommon, public NonlinearForm<true> {
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
-     * \param[in] h: modelling hypothesis
      */
     NonLinearEvolutionProblemBase(std::shared_ptr<FiniteElementDiscretization>);
     //! \return the finite element space
-    mfem::FiniteElementSpace& getFiniteElementSpace();
+    FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
-    const mfem::FiniteElementSpace& getFiniteElementSpace() const;
+    const FiniteElementSpace<true>& getFiniteElementSpace() const;
     //! \return the Newton solver
-    mfem::NewtonSolver& getSolver();
-    //! \return the unknowns at the beginning of the time step
-    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep();
-    //! \return the unknowns at the beginning of the time step
-    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const;
-    //! \return the unknowns at the end of the time step
-    mfem::Vector& getUnknownsAtEndOfTheTimeStep();
-    //! \return the unknowns at the end of the time step
-    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const;
-    /*!
-     * \brief revert the state to the beginning of the time step.
-     */
-    virtual void revert();
-    /*!
-     * \brief update the state to the end of the time step.
-     */
-    virtual void update();
+    NewtonSolver& getSolver();
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] dt: time increment
      */
     virtual void solve(const real);
-
     //! \brief destructor
-    ~NonLinearEvolutionProblemBase() override;
+    ~NonLinearEvolutionProblemBase();
 
    protected:
+    //! \brief newton solver
+    NewtonSolver solver;
+  };  // end of struct NonLinearEvolutionProblemBase<true>
+
+#endif /* MFEM_USE_MPI */
+
+  /*!
+   * \brief partial specialisation for sequential computations
+   */
+  template <>
+  struct NonLinearEvolutionProblemBase<false>
+      : public NonLinearEvolutionProblemCommon, public NonlinearForm<false> {
     /*!
-     * \brief set the time time increment
+     * \brief constructor
+     * \param[in] fed: finite element discretization
+     */
+    NonLinearEvolutionProblemBase(std::shared_ptr<FiniteElementDiscretization>);
+    //! \return the finite element space
+    FiniteElementSpace<false>& getFiniteElementSpace();
+    //! \return the finite element space
+    const FiniteElementSpace<false>& getFiniteElementSpace() const;
+    //! \return the Newton solver
+    NewtonSolver& getSolver();
+    /*!
+     * \brief solve the non linear problem over the given time step
      * \param[in] dt: time increment
      */
-    virtual void setTimeIncrement(const real);
-    /*!
-     * \brief method called before each resolution
-     */
-    virtual void setup();
-    //! \brief underlying finite element discretization
-    const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
+    virtual void solve(const real);
+    //! \brief destructor
+    ~NonLinearEvolutionProblemBase();
+
+   protected:
     //! \brief newton solver
-    mfem::NewtonSolver solver;
-    //! \brief unknowns at the beginning of the time step
-    mfem::Vector u0;
-    //! \brief unknowns at the end of the time step
-    mfem::Vector u1;
-  };  // end of struct NonLinearEvolutionProblemBase
+    NewtonSolver solver;
+  };  // end of struct NonLinearEvolutionProblemBase<false>
 
 }  // end of namespace mfem_mgis
 

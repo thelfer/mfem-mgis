@@ -34,6 +34,12 @@ namespace mfem_mgis {
   //! alias to the numeric type used
   using real = mgis::real;
 
+  /*!
+   * \brief this function can be called to report that the parallel computation
+   * are not supported.
+   */
+  MFEM_MGIS_EXPORT [[noreturn]] void reportUnsupportedParallelComputations();
+
 }  // end of namespace mfront_mgis
 
 #endif /* LIB_MFEM_MGIS_CONFIG_HXX */

@@ -35,17 +35,17 @@ foreach(ncase RANGE 0 5)
   endforeach(nsolver)
 endforeach(ncase)
 
-add_executable(UnilateralTensileTest
+add_executable(UniaxialTensileTest
   EXCLUDE_FROM_ALL
-  UnilateralTensileTest.cxx)
-target_link_libraries(UnilateralTensileTest
+  UniaxialTensileTest.cxx)
+target_link_libraries(UniaxialTensileTest
   PRIVATE MFEMMGIS)
-add_dependencies(check UnilateralTensileTest)
+add_dependencies(check UniaxialTensileTest)
 
 function(add_unilateral_test behaviour internal_state_variable)
-  set(test "UnilateralTensileTest-${behaviour}")
+  set(test "UniaxialTensileTest-${behaviour}")
   add_test(NAME ${test}
-   COMMAND UnilateralTensileTest
+   COMMAND UniaxialTensileTest
    "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
    "--library" "$<TARGET_FILE:BehaviourTest>"
    "--behaviour" "${behaviour}"

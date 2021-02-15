@@ -8,9 +8,12 @@
 #ifndef LIB_MFEM_MGIS_MFEM_FORWARD_HXX
 #define LIB_MFEM_MGIS_MFEM_FORWARD_HXX
 
+#include <type_traits>
+
 namespace mfem {
 
   class Vector;
+  class GridFunction;
   class DenseMatrix;
   class Mesh;
   class FiniteElementSpace;
@@ -18,11 +21,71 @@ namespace mfem {
   class FiniteElement;
   class ElementTransformation;
   class IntegrationRule;
-#ifdef MFEM_USE_MPI
+  class NonlinearForm;
+  class NonlinearFormIntegrator;
+  class ParGridFunction;
   class ParMesh;
   class ParFiniteElementSpace;
-#endif
+  class ParNonlinearForm;
+  class ParNonlinearFormIntegrator;
+  class NewtonSolver;
 
 }  // end of namespace mfem
+
+namespace mfem_mgis {
+
+  //! brief a simple alias
+  using FiniteElementCollection = mfem::FiniteElementCollection;
+
+  /*!
+   * \brief a simple alias used to select the `MFEM` class handling the mesh
+   * depending if a parallel computation is considered or not.
+   * \tparam parallel: flag stating if a parallel computation is considered.
+   */
+  template <bool parallel>
+  using Mesh = std::conditional_t<parallel, mfem::ParMesh, mfem::Mesh>;
+  /*!
+   * \brief a simple alias used to select the `MFEM` class handling the
+   * finite element space depending if a parallel computation is considered or
+   * not.
+   * \tparam parallel: flag stating if a parallel computation is considered.
+   */
+  template <bool parallel>
+  using FiniteElementSpace = std::conditional_t<parallel,
+                                                mfem::ParFiniteElementSpace,
+                                                mfem::FiniteElementSpace>;
+  /*!
+   * \brief a simple alias used to select the `MFEM` class representing a
+   * non linear form depending if a parallel computation is considered or
+   * not.
+   * \tparam parallel: flag stating if a parallel computation is considered.
+   */
+  template <bool parallel>
+  using NonlinearForm =
+      std::conditional_t<parallel, mfem::ParNonlinearForm, mfem::NonlinearForm>;
+  /*!
+   * \brief a simple alias used to select the `MFEM` class representing a
+   * non linear form integrator depending if a parallel computation is
+   * considered or not.
+   * \tparam parallel: flag stating if a parallel computation is considered.
+   */
+  template <bool parallel>
+  using NonlinearFormIntegrator =
+      std::conditional_t<parallel,
+                         mfem::ParNonlinearFormIntegrator,
+                         mfem::NonlinearFormIntegrator>;
+  /*!
+   * \brief a simple alias used to select the `MFEM` class representing a
+   * grid function depending if a parallel computation is considered or not.
+   * \tparam parallel: flag stating if a parallel computation is considered.
+   */
+  template <bool parallel>
+  using GridFunction =
+      std::conditional_t<parallel, mfem::ParGridFunction, mfem::GridFunction>;
+
+  //! a simple alias
+  using NewtonSolver = mfem::NewtonSolver;
+
+}  // namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_MFEM_FORWARD_HXX */

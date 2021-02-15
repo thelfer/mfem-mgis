@@ -130,7 +130,9 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
   return (generators[i])();
 }
 
-void setBoundaryConditions(mfem_mgis::NonLinearEvolutionProblemBase& problem){
+template <bool parallel>
+void setBoundaryConditions(
+    mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem) {
   // Impose no displacement on the first node
   // which needs to be on x=xmin or x=xmax axis.
   // ux=0, uy=0, uz=0 on this point.
@@ -145,8 +147,10 @@ void setBoundaryConditions(mfem_mgis::NonLinearEvolutionProblemBase& problem){
   problem.SetEssentialTrueDofs(ess_tdof_list);
 }
 
-void setSolverParameters(mfem_mgis::NonLinearEvolutionProblemBase& problem,
-                         mfem::Solver& lsolver) {
+template <bool parallel>
+void setSolverParameters(
+    mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
+    mfem::Solver& lsolver) {
   auto& solver = problem.getSolver();
   solver.iterative_mode = true;
   solver.SetSolver(lsolver);
@@ -156,7 +160,8 @@ void setSolverParameters(mfem_mgis::NonLinearEvolutionProblemBase& problem,
   solver.SetMaxIter(10);
 }  // end of setSolverParmeters
 
-bool checkSolution(mfem_mgis::NonLinearEvolutionProblemBase& problem,
+template <bool parallel>
+bool checkSolution(mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
                    const std::size_t i) {
   constexpr const auto eps = mfem_mgis::real{1e-10};
   const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
@@ -177,7 +182,8 @@ bool checkSolution(mfem_mgis::NonLinearEvolutionProblemBase& problem,
   return true;
 }
 
-void exportResults(mfem_mgis::NonLinearEvolutionProblemBase& problem,
+template <bool parallel>
+void exportResults(mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
                    const std::size_t tcase) {
   auto* const mesh = problem.getFiniteElementSpace().GetMesh();
   auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
@@ -236,7 +242,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
     std::exit(EXIT_FAILURE);
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(
+  mfem_mgis::NonLinearEvolutionProblem<false> problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3),
       mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
@@ -316,7 +322,7 @@ void executeMFEMMTest(const TestParameters& p) {
     std::exit(EXIT_FAILURE);
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblemBase problem(
+  mfem_mgis::NonLinearEvolutionProblemBase<false> problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3));
   std::vector<mfem_mgis::real> e(6, mfem_mgis::real{});

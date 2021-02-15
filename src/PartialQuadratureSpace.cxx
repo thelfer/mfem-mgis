@@ -9,11 +9,44 @@
 #include <iterator>
 #include <algorithm>
 #include "mfem/fem/fespace.hpp"
+#ifdef MFEM_USE_MPI
+#include "mfem/fem/pfespace.hpp"
+#endif MFEM_USE_MPI
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
 namespace mfem_mgis {
+
+  template <bool parallel>
+  static size_type buildPartialQuadratureSpaceOffsets(
+      std::unordered_map<size_type, size_type>& offsets,
+      const FiniteElementSpace<parallel>& fespace,
+      const size_type m,
+      const std::function<const mfem::IntegrationRule&(
+          const mfem::FiniteElement&, const mfem::ElementTransformation&)>&
+          integration_rule_selector) {
+    auto ng = size_type{};
+    for (size_type i = 0; i != fespace.GetNE(); ++i) {
+      if (fespace.GetAttribute(i) != m) {
+        continue;
+      }
+      const auto& fe = *(fespace.GetFE(i));
+      const auto& tr = *(fespace.GetElementTransformation(i));
+      offsets[i] = ng;
+      const auto& ir = integration_rule_selector(fe, tr);
+      ng += ir.GetNPoints();
+    }
+    return ng;
+  }  // end of buildPartialQuadratureSpaceOffsets
+
+  void PartialQuadratureSpace::treatInvalidOffset(const size_type id,
+                                                  const size_type i) {
+    mgis::raise(
+        "PartialQuadratureSpace::getOffset: "
+        "invalid element number '" +
+        std::to_string(i) + "' for material '" + std::to_string(id) + "'");
+  }  // end of treatInvalidOffset
 
   PartialQuadratureSpace::PartialQuadratureSpace(
       const FiniteElementDiscretization& fed,
@@ -22,38 +55,22 @@ namespace mfem_mgis {
           const mfem::FiniteElement&, const mfem::ElementTransformation&)>&
           integration_rule_selector)
       : fe_discretization(fed), id(m) {
-    const auto& fespace = this->fe_discretization.getFiniteElementSpace();
-    this->ng = size_type{};
-    for (size_type i = 0; i != fespace.GetNE(); ++i) {
-      if (fespace.GetAttribute(i) != m) {
-        continue;
-      }
-      const auto& fe = *(fespace.GetFE(i));
-      const auto& tr = *(fespace.GetElementTransformation(i));
-      this->offsets[i] = this->ng;
-      const auto& ir = integration_rule_selector(fe, tr);
-      this->ng += ir.GetNPoints();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto& fespace =
+          this->fe_discretization.getFiniteElementSpace<true>();
+      this->ng = buildPartialQuadratureSpaceOffsets<true>(
+          this->offsets, fespace, this->id, integration_rule_selector);
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      const auto& fespace =
+          this->fe_discretization.getFiniteElementSpace<false>();
+      this->ng = buildPartialQuadratureSpaceOffsets<false>(
+          this->offsets, fespace, this->id, integration_rule_selector);
     }
-  }  // end of PartialQuadratureSpace::PartialQuadratureSpace
-
-  size_type PartialQuadratureSpace::getNumberOfElements() const {
-    return this->offsets.size();
-  }  // end of PartialQuadratureSpace::getNumberOfElements
-
-  size_type PartialQuadratureSpace::getNumberOfIntegrationPoints() const {
-    return this->ng;
-  }  // end of PartialQuadratureSpace::getNumberOfIntegrationPoints
-
-  size_type PartialQuadratureSpace::getOffset(const size_type i) const {
-    const auto p = this->offsets.find(i);
-    if (p == this->offsets.end()) {
-      mgis::raise(
-          "PartialQuadratureSpace::getOffset: "
-          "invalid element number '" +
-          std::to_string(i) + "' for material '" + std::to_string(id) + "'");
-    }
-    return p->second;
-  }  // end of PartialQuadratureSpace::getOffset
+  }  // end of PartialQuadratureSpace
 
   PartialQuadratureSpace::~PartialQuadratureSpace() = default;
 
