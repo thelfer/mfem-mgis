@@ -95,7 +95,7 @@ namespace mfem_mgis {
 	    // on one of the following procedure:
             if (mgis::holds_alternative<real>(p->second)) {
 	      // if uniform field, copy p->second into v[i]
-	      // `evs` will be empty.
+	      // `evs` will be untouched.
               v[i] = mgis::get<real>(p->second);
             } else if (mgis::holds_alternative<mgis::span<real>>(p->second)) {
 	      // if we have a span, we store in evs this span for future use
