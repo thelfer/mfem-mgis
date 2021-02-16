@@ -107,9 +107,9 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
   const generator generators[] = {
       []() -> std::shared_ptr<mfem::Solver> {
         std::shared_ptr<mfem::GMRESSolver> pgmres(nullptr);
-	if constexpr (parallel) 
-  	  pgmres = std::make_shared<mfem::GMRESSolver>(MPI_COMM_WORLD);
-	else
+        if constexpr (parallel) 
+          pgmres = std::make_shared<mfem::GMRESSolver>(MPI_COMM_WORLD);
+        else
           pgmres = std::make_shared<mfem::GMRESSolver>();
         pgmres->iterative_mode = false;
         pgmres->SetRelTol(1e-12);
@@ -119,11 +119,11 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
         return pgmres;
       },
       []() -> std::shared_ptr<mfem::Solver> {
-	std::shared_ptr<mfem::CGSolver> pcg(nullptr);				     
+        std::shared_ptr<mfem::CGSolver> pcg(nullptr);                                
         if constexpr (parallel) 
-  	  pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
-	else
-	  pcg = std::make_shared<mfem::CGSolver>();
+          pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
+        else
+          pcg = std::make_shared<mfem::CGSolver>();
         pcg->SetRelTol(1e-12);
         pcg->SetMaxIter(300);
         pcg->SetPrintLevel(1);
@@ -163,35 +163,35 @@ void setBoundaryConditions(
        double coord[dim]; // coordinates of a node
        double dist = 0.;
        for (int j = 0; j < dim; ++j) {
-	 if (reorder_space)
-	   coord[j] = (nodes)[j * size + i];
-	 else
-	   coord[j] = (nodes)[i * dim + j];
-	 // because of periodic BC, 0. is also 1.
-	 if (abs(coord[j] - 1.) < 1e-7)
-	   coord[j] = 0.;
-	 dist += coord[j] * coord[j];
+         if (reorder_space)
+           coord[j] = (nodes)[j * size + i];
+         else
+           coord[j] = (nodes)[i * dim + j];
+         // because of periodic BC, 0. is also 1.
+         if (abs(coord[j] - 1.) < 1e-7)
+           coord[j] = 0.;
+         dist += coord[j] * coord[j];
        }
        // If distance is close to zero, we have our reference point
        if (dist < 1.e-16) {
-	 for (int j = 0; j < dim; ++j) {
-	   int id_unk;
-	   if (reorder_space)
-	     {
-	     //id_unk = (j * size + i);
-	     id_unk = problem.getFiniteElementSpace().GetLocalTDofNumber(j * size + i);
-	     }
-	   else
-	     {
-	       //id_unk = (i * dim + j);
-	       id_unk = problem.getFiniteElementSpace().GetLocalTDofNumber(i * dim + j);
-	     }
-	   if (id_unk >= 0)
-	     {
-	       found = 1;
-	       ess_tdof_list.Append(id_unk);
-	     }
-	 }
+         for (int j = 0; j < dim; ++j) {
+           int id_unk;
+           if (reorder_space)
+             {
+             //id_unk = (j * size + i);
+             id_unk = problem.getFiniteElementSpace().GetLocalTDofNumber(j * size + i);
+             }
+           else
+             {
+               //id_unk = (i * dim + j);
+               id_unk = problem.getFiniteElementSpace().GetLocalTDofNumber(i * dim + j);
+             }
+           if (id_unk >= 0)
+             {
+               found = 1;
+               ess_tdof_list.Append(id_unk);
+             }
+         }
        }
      }
      MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
@@ -310,17 +310,17 @@ void executeMFEMMGISTest(const TestParameters& p) {
   if constexpr (parallel) {
       auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
       if (dim != smesh->Dimension()) {
-	std::cerr << "Invalid mesh dimension \n";
-	exit_on_failure<parallel>();
+        std::cerr << "Invalid mesh dimension \n";
+        exit_on_failure<parallel>();
       }
       for (int i = 0 ; i < 2 ; i++)
-	smesh->UniformRefinement();
+        smesh->UniformRefinement();
       mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
     } else {
       mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
       if (dim != mesh->Dimension()) {
-	std::cerr << "Invalid mesh dimension \n";
-	exit_on_failure<parallel>();
+        std::cerr << "Invalid mesh dimension \n";
+        exit_on_failure<parallel>();
       }
   }
   // building the non linear problem
