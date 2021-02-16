@@ -68,10 +68,11 @@ add_unilateral_test(SaintVenantKirchhoffElasticity EquivalentStrain)
 if (MFEM_USE_MPI)
   add_executable(PeriodicTestP
     EXCLUDE_FROM_ALL
-    PeriodicTestP.cxx)
+    PeriodicTest.cxx)
+  set_target_properties(PeriodicTestP PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
   target_link_libraries(PeriodicTestP
     PRIVATE MFEMMGIS)
-    add_dependencies(check PeriodicTestP)
+  add_dependencies(check PeriodicTestP)
   
   function(add_periodic_testp ncase nsolver nbprocs)
     set(test "PeriodicTestP-${ncase}-${nsolver}-${nbprocs}")
@@ -92,7 +93,7 @@ if (MFEM_USE_MPI)
   endfunction(add_periodic_testp)
   
   foreach(ncase RANGE 0 0)
-    foreach(nsolver RANGE 0 0)
+    foreach(nsolver RANGE 1 1)
       foreach(nbprocs RANGE 1 4 3)
 	add_periodic_testp(${ncase} ${nsolver} ${nbprocs})
       endforeach(nbprocs)
