@@ -45,6 +45,7 @@
 #include "mfem/general/optparser.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
+#include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
@@ -100,11 +101,16 @@ void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
   return solutions[i];
 }
 
+template <bool parallel>
 std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
   using generator = std::shared_ptr<mfem::Solver> (*)();
   const generator generators[] = {
       []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::GMRESSolver> pgmres(new mfem::GMRESSolver);
+        std::shared_ptr<mfem::GMRESSolver> pgmres(nullptr);
+	if constexpr (parallel) 
+  	  pgmres = std::make_shared<mfem::GMRESSolver>(MPI_COMM_WORLD);
+	else
+          pgmres = std::make_shared<mfem::GMRESSolver>();
         pgmres->iterative_mode = false;
         pgmres->SetRelTol(1e-12);
         pgmres->SetAbsTol(1e-12);
@@ -113,7 +119,11 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
         return pgmres;
       },
       []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::CGSolver> pcg(new mfem::CGSolver);
+	std::shared_ptr<mfem::CGSolver> pcg(nullptr);				     
+        if constexpr (parallel) 
+  	  pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
+	else
+	  pcg = std::make_shared<mfem::CGSolver>();
         pcg->SetRelTol(1e-12);
         pcg->SetMaxIter(300);
         pcg->SetPrintLevel(1);
@@ -136,13 +146,63 @@ void setBoundaryConditions(
   // Impose no displacement on the first node
   // which needs to be on x=xmin or x=xmax axis.
   // ux=0, uy=0, uz=0 on this point.
-  const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
-  const auto nnodes = problem.getFiniteElementSpace().GetTrueVSize() / dim;
+  const auto mesh = problem.getFiniteElementSpace().GetMesh();
+  const auto dim = mesh->Dimension();
   mfem::Array<int> ess_tdof_list;
-  ess_tdof_list.SetSize(dim);
-  for (int k = 0; k < dim; k++) {
-    int tgdof = 0 + k * nnodes;
-    ess_tdof_list[k] = tgdof;
+  if constexpr (parallel) {
+    ess_tdof_list.SetSize(0);
+    mfem::GridFunction nodes(&problem.getFiniteElementSpace());
+    int found = 0;
+    bool reorder_space = true;
+    mesh->GetNodes(nodes);
+    const auto size = nodes.Size()/dim;
+    std::cerr << "Number of nodes: " << size << std::endl;
+
+     // Traversal of all dofs to detect which one is (0,0,0)
+     for (int i = 0; i < size; ++i) {
+       double coord[dim]; // coordinates of a node
+       double dist = 0.;
+       for (int j = 0; j < dim; ++j) {
+	 if (reorder_space)
+	   coord[j] = (nodes)[j * size + i];
+	 else
+	   coord[j] = (nodes)[i * dim + j];
+	 // because of periodic BC, 0. is also 1.
+	 if (abs(coord[j] - 1.) < 1e-7)
+	   coord[j] = 0.;
+	 dist += coord[j] * coord[j];
+       }
+       // If distance is close to zero, we have our reference point
+       if (dist < 1.e-16) {
+	 for (int j = 0; j < dim; ++j) {
+	   int id_unk;
+	   if (reorder_space)
+	     {
+	     //id_unk = (j * size + i);
+	     id_unk = problem.getFiniteElementSpace().GetLocalTDofNumber(j * size + i);
+	     }
+	   else
+	     {
+	       //id_unk = (i * dim + j);
+	       id_unk = problem.getFiniteElementSpace().GetLocalTDofNumber(i * dim + j);
+	     }
+	   if (id_unk >= 0)
+	     {
+	       found = 1;
+	       ess_tdof_list.Append(id_unk);
+	     }
+	 }
+       }
+     }
+     MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+     MFEM_VERIFY(found, "Reference point at (0,0) was not found");
+  } else {
+    const auto nnodes = problem.getFiniteElementSpace().GetTrueVSize() / dim;
+    ess_tdof_list.SetSize(dim);
+    for (int k = 0; k < dim; k++) {
+      int tgdof = 0 + k * nnodes;
+      ess_tdof_list[k] = tgdof;
+    }
   }
   problem.SetEssentialTrueDofs(ess_tdof_list);
 }
@@ -167,7 +227,7 @@ bool checkSolution(mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
   const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
   // recover the solution as a grid function
   auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-  mfem::GridFunction x(&problem.getFiniteElementSpace());
+  mfem_mgis::GridFunction<parallel> x(&problem.getFiniteElementSpace());
   x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
   x.SetFromTrueVector();
   // comparison to analytical solution
@@ -187,7 +247,7 @@ void exportResults(mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
                    const std::size_t tcase) {
   auto* const mesh = problem.getFiniteElementSpace().GetMesh();
   auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-  mfem::GridFunction x(&problem.getFiniteElementSpace());
+  mfem_mgis::GridFunction<parallel> x(&problem.getFiniteElementSpace());
   x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
   x.SetFromTrueVector();
 
@@ -207,9 +267,11 @@ struct TestParameters {
   int linearsolver = 0;
 };
 
-TestParameters parseCommandLineOptions(const int argc, char** const argv){
+template <bool parallel>
+TestParameters parseCommandLineOptions(int &argc, char* argv[]){
   TestParameters p;
   // options treatment
+  if constexpr (parallel) MPI_Init(&argc, &argv);
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&p.mesh_file, "-m", "--mesh", "Mesh file to use.");
   args.AddOption(&p.library, "-l", "--library", "Material library.");
@@ -233,16 +295,36 @@ TestParameters parseCommandLineOptions(const int argc, char** const argv){
   return p;
 }
 
+template <bool parallel>
+void exit_on_failure () {
+  if constexpr (parallel) MPI_Finalize();
+  std::exit(EXIT_FAILURE);
+}
+
+template <bool parallel>
 void executeMFEMMGISTest(const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
-  auto mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-  if (dim != mesh->Dimension()) {
-    std::cerr << "Invalid mesh dimension \n";
-    std::exit(EXIT_FAILURE);
+
+  std::shared_ptr<mfem_mgis::Mesh<parallel>> mesh;
+  if constexpr (parallel) {
+      auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
+      if (dim != smesh->Dimension()) {
+	std::cerr << "Invalid mesh dimension \n";
+	exit_on_failure<parallel>();
+      }
+      for (int i = 0 ; i < 2 ; i++)
+	smesh->UniformRefinement();
+      mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
+    } else {
+      mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
+      if (dim != mesh->Dimension()) {
+	std::cerr << "Invalid mesh dimension \n";
+	exit_on_failure<parallel>();
+      }
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem<false> problem(
+  mfem_mgis::NonLinearEvolutionProblem<parallel> problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3),
       mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
@@ -277,18 +359,19 @@ void executeMFEMMGISTest(const TestParameters& p) {
   m1.setMacroscopicGradients(e);
   m2.setMacroscopicGradients(e);
   //
-  setBoundaryConditions(problem);
+  setBoundaryConditions<parallel>(problem);
   //
-  auto lsolver = getLinearSolver(p.linearsolver);
+  auto lsolver = getLinearSolver<parallel>(p.linearsolver);
   setSolverParameters(problem, *(lsolver.get()));
   // solving the problem
   problem.solve(1);
   //
   if (!checkSolution(problem, p.tcase)) {
-    std::exit(EXIT_FAILURE);
+    exit_on_failure<parallel>();
   }
   //
   exportResults(problem, p.tcase);
+  if constexpr(parallel) MPI_Finalize();
 }
 
 struct ElasticityNonLinearIntegrator final
@@ -336,7 +419,7 @@ void executeMFEMMTest(const TestParameters& p) {
   //
   setBoundaryConditions(problem);
   //
-  auto lsolver = getLinearSolver(p.linearsolver);
+  auto lsolver = getLinearSolver<false>(p.linearsolver);
   setSolverParameters(problem, *(lsolver.get()));
   // solving the problem
   problem.solve(1);
@@ -348,8 +431,13 @@ void executeMFEMMTest(const TestParameters& p) {
   exportResults(problem, p.tcase);
 }
 
-int main(const int argc, char** const argv) {
-  const auto p = parseCommandLineOptions(argc, argv);
-  executeMFEMMGISTest(p);
+int main(int argc, char* argv[]) {
+#ifdef DO_USE_MPI  
+  const auto p = parseCommandLineOptions<true>(argc, argv);
+  executeMFEMMGISTest<true>(p);
+#else
+  const auto p = parseCommandLineOptions<false>(argc, argv);
+  executeMFEMMGISTest<false>(p);
+#endif
   return EXIT_SUCCESS;
 }
