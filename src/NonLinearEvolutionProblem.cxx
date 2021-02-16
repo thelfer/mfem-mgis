@@ -24,7 +24,7 @@ namespace mfem_mgis {
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
-    this->AddDomainIntegrator(this->parallel_mgis_integrator);
+    this->AddDomainIntegrator(this->mgis_integrator);
   }  // end of NonLinearEvolutionProblem
 
   void NonLinearEvolutionProblem<true>::setup() {
@@ -60,7 +60,7 @@ namespace mfem_mgis {
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
-    this->AddDomainIntegrator(this->sequential_mgis_integrator);
+    this->AddDomainIntegrator(this->mgis_integrator);
   }  // end of NonLinearEvolutionProblem
 
   void NonLinearEvolutionProblem<false>::setup() {

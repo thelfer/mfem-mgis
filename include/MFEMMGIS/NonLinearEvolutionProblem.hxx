@@ -13,7 +13,6 @@
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MultiMaterialEvolutionProblemBase.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemBase.hxx"
-#include "mfem/config/config.hpp"
 
 namespace mfem_mgis {
 

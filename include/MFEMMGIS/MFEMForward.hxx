@@ -9,6 +9,7 @@
 #define LIB_MFEM_MGIS_MFEM_FORWARD_HXX
 
 #include <type_traits>
+#include "mfem/config/config.hpp"
 
 namespace mfem {
 

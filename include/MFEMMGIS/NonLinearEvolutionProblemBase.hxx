@@ -9,7 +9,6 @@
 #define LIB_MFEM_MGIS_EVOLUTIONPROBLEMBASE_HXX
 
 #include <memory>
-#include "mfem/config/config.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/nonlinearform.hpp"
 #ifdef MFEM_USE_MPI

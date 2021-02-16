@@ -32,7 +32,7 @@ namespace mfem_mgis {
     }
   }  // end if checkIfBehaviourIntegratorIsDefined
 
-  MultiMaterialNonLinearIntegratorBase::MultiMaterialNonLinearIntegratorBase(
+  MultiMaterialNonLinearIntegrator::MultiMaterialNonLinearIntegrator(
       std::shared_ptr<const FiniteElementDiscretization> fed,
       const Hypothesis h)
       : fe_discretization(fed), hypothesis(h) {
@@ -53,16 +53,38 @@ namespace mfem_mgis {
       // However, behaviour_integrators[0] will always be null.
       this->behaviour_integrators.resize(mesh.attributes.Max() + 1);
     }
-  }  // end of MultiMaterialNonLinearIntegratorBase
+  }  // end of MultiMaterialNonLinearIntegrator
 
-  void MultiMaterialNonLinearIntegratorBase::addBehaviourIntegrator(
+  void MultiMaterialNonLinearIntegrator::AssembleElementVector(
+      const mfem::FiniteElement& e,
+      mfem::ElementTransformation& tr,
+      const mfem::Vector& U,
+      mfem::Vector& F) {
+    const auto m = tr.Attribute;
+    const auto& bi = this->behaviour_integrators[m];
+    checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementVector", m);
+    bi->computeInnerForces(F, e, tr, U);
+  }  // end of AssembleElementVector
+
+  void MultiMaterialNonLinearIntegrator::AssembleElementGrad(
+      const mfem::FiniteElement& e,
+      mfem::ElementTransformation& tr,
+      const mfem::Vector& U,
+      mfem::DenseMatrix& K) {
+    const auto m = tr.Attribute;
+    const auto& bi = this->behaviour_integrators[m];
+    checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementGrad", m);
+    bi->computeStiffnessMatrix(K, e, tr, U);
+  }  // end of AssembleElementGrad
+
+  void MultiMaterialNonLinearIntegrator::addBehaviourIntegrator(
       const std::string& n,
       const size_type m,
       const std::string& l,
       const std::string& b) {
     if (this->behaviour_integrators[m] != nullptr) {
       mgis::raise(
-          "MultiMaterialNonLinearIntegratorBase::addBehaviourIntegrator: "
+          "MultiMaterialNonLinearIntegrator::addBehaviourIntegrator: "
           "integrator already defined for material '" +
           std::to_string(m) + "'");
     }
@@ -72,21 +94,20 @@ namespace mfem_mgis {
                    mfem_mgis::load(l, b, this->hypothesis));
   }  // end of addBehaviourIntegrator
 
-  const Material& MultiMaterialNonLinearIntegratorBase::getMaterial(
+  const Material& MultiMaterialNonLinearIntegrator::getMaterial(
       const size_type m) const {
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "getMaterial", m);
     return bi->getMaterial();
   }  // end of getMaterial
 
-  Material& MultiMaterialNonLinearIntegratorBase::getMaterial(
-      const size_type m) {
+  Material& MultiMaterialNonLinearIntegrator::getMaterial(const size_type m) {
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "getMaterial", m);
     return bi->getMaterial();
   }  // end of getMaterial
 
-  void MultiMaterialNonLinearIntegratorBase::setTimeIncrement(const real dt) {
+  void MultiMaterialNonLinearIntegrator::setTimeIncrement(const real dt) {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {
         bi->setTimeIncrement(dt);
@@ -94,7 +115,7 @@ namespace mfem_mgis {
     }
   }  // end of setTimeIncrement
 
-  void MultiMaterialNonLinearIntegratorBase::setup() {
+  void MultiMaterialNonLinearIntegrator::setup() {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {
         bi->setup();
@@ -102,7 +123,7 @@ namespace mfem_mgis {
     }
   }  // end of setTimeIncrement
 
-  void MultiMaterialNonLinearIntegratorBase::revert() {
+  void MultiMaterialNonLinearIntegrator::revert() {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {
         bi->revert();
@@ -110,7 +131,7 @@ namespace mfem_mgis {
     }
   }  // end of revert
 
-  void MultiMaterialNonLinearIntegratorBase::update() {
+  void MultiMaterialNonLinearIntegrator::update() {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {
         bi->update();
@@ -118,83 +139,7 @@ namespace mfem_mgis {
     }
   }  // end of update
 
-  MultiMaterialNonLinearIntegratorBase::
-      ~MultiMaterialNonLinearIntegratorBase() = default;
-
-#ifdef MFEM_USE_MPI
-
-  MultiMaterialNonLinearIntegrator<true>::MultiMaterialNonLinearIntegrator(
-      std::shared_ptr<const FiniteElementDiscretization> fed,
-      const Hypothesis h)
-      : MultiMaterialNonLinearIntegratorBase(fed, h) {
-    if (!fed->describesAParallelComputation()) {
-      mgis::raise(
-          "MultiMaterialNonLinearIntegrator<true> "
-          "can't be used in sequential computations");
-    }
-  }  // end of MultiMaterialNonLinearIntegrator
-
-  void MultiMaterialNonLinearIntegrator<true>::AssembleElementVector(
-      const mfem::FiniteElement& e,
-      mfem::ElementTransformation& tr,
-      const mfem::Vector& U,
-      mfem::Vector& F) {
-    const auto m = tr.Attribute;
-    const auto& bi = this->behaviour_integrators[m];
-    checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementVector", m);
-    bi->computeInnerForces(F, e, tr, U);
-  }  // end of AssembleElementVector
-
-  void MultiMaterialNonLinearIntegrator<true>::AssembleElementGrad(
-      const mfem::FiniteElement& e,
-      mfem::ElementTransformation& tr,
-      const mfem::Vector& U,
-      mfem::DenseMatrix& K) {
-    const auto m = tr.Attribute;
-    const auto& bi = this->behaviour_integrators[m];
-    checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementGrad", m);
-    bi->computeStiffnessMatrix(K, e, tr, U);
-  }  // end of AssembleElementGrad
-
-  MultiMaterialNonLinearIntegrator<true>::~MultiMaterialNonLinearIntegrator() =
-      default;
-
-#endif /* MFEM_USE_MPI */
-
-  MultiMaterialNonLinearIntegrator<false>::MultiMaterialNonLinearIntegrator(
-      std::shared_ptr<const FiniteElementDiscretization> fed,
-      const Hypothesis h)
-      : MultiMaterialNonLinearIntegratorBase(fed, h) {
-    if (fed->describesAParallelComputation()) {
-      mgis::raise(
-          "MultiMaterialNonLinearIntegrator<true> "
-          "can't be used in parallel computations");
-    }
-  }  // end of MultiMaterialNonLinearIntegrator
-
-  void MultiMaterialNonLinearIntegrator<false>::AssembleElementVector(
-      const mfem::FiniteElement& e,
-      mfem::ElementTransformation& tr,
-      const mfem::Vector& U,
-      mfem::Vector& F) {
-    const auto m = tr.Attribute;
-    const auto& bi = this->behaviour_integrators[m];
-    checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementVector", m);
-    bi->computeInnerForces(F, e, tr, U);
-  }  // end of AssembleElementVector
-
-  void MultiMaterialNonLinearIntegrator<false>::AssembleElementGrad(
-      const mfem::FiniteElement& e,
-      mfem::ElementTransformation& tr,
-      const mfem::Vector& U,
-      mfem::DenseMatrix& K) {
-    const auto m = tr.Attribute;
-    const auto& bi = this->behaviour_integrators[m];
-    checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementGrad", m);
-    bi->computeStiffnessMatrix(K, e, tr, U);
-  }  // end of AssembleElementGrad
-
-  MultiMaterialNonLinearIntegrator<false>::~MultiMaterialNonLinearIntegrator() =
+  MultiMaterialNonLinearIntegrator::~MultiMaterialNonLinearIntegrator() =
       default;
 
 }  // end of namespace mfem_mgis

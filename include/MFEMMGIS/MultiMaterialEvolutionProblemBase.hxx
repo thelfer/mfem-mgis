@@ -9,7 +9,6 @@
 #define LIB_MFEM_MGIS_MULTIMATERIALEVOLUTIONPROBLEMBASE_HXX
 
 #include <memory>
-#include "mfem/config/config.hpp"
 #include "MGIS/Behaviour/Hypothesis.hxx"
 #include "MFEMMGIS/Config.hxx"
 
@@ -20,9 +19,6 @@ namespace mfem_mgis {
   // forward declaration
   struct Material;
   // forward declaration
-  struct MultiMaterialNonLinearIntegratorBase;
-  // forward declaration
-  template <bool parallel>
   struct MultiMaterialNonLinearIntegrator;
 
   /*!
@@ -64,30 +60,27 @@ namespace mfem_mgis {
 
    protected:
     /*!
-     * \brief return the underlying base class for the active multi-material
-     * integrator.
+     * \brief revert the state of the materials at the beginning of the time
+     * step, i.e. the state at the end of the time step is reset using the
+     * state at the beginning of the time step.
      */
-    MultiMaterialNonLinearIntegratorBase&
-    getMultiMaterialNonLinearIntegratorBase();
-
-    /*!
-     * \brief return the underlying base class for the active multi-material
-     * integrator.
-     */
-    const MultiMaterialNonLinearIntegratorBase&
-    getMultiMaterialNonLinearIntegratorBase() const;
-    //
     void revert();
+    /*!
+     * \brief update the state of the materials, i.e. the state at the end of
+     * the time step becomes the state at the beginning of the next time step.
+     */
     void update();
+    /*!
+     * \brief set the time increment for the current time step
+     * \param[in] dt: time increment
+     */
     void setTimeIncrement(const real);
+    /*!
+     * \brief method called at the beginning of each resolution.
+     */
     void setup();
-
-#ifdef MFEM_USE_MPI
     //! \brief pointer to the underlying domain integrator
-    MultiMaterialNonLinearIntegrator<true>* const parallel_mgis_integrator;
-#endif /* MFEM_USE_MPI */
-    //! \brief pointer to the underlying domain integrator
-    MultiMaterialNonLinearIntegrator<false>* const sequential_mgis_integrator;
+    MultiMaterialNonLinearIntegrator* const mgis_integrator;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
   };  // namespace mfem_mgis
