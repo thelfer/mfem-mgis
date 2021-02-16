@@ -49,6 +49,13 @@
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
+#ifndef MFEM_USE_MPI
+#define MPI_COMM_WORLD 0
+#define MPI_Finalize(args...) {}
+#define MPI_Allreduce(args...) {}
+#define MPI_Init(args...) {}
+#endif
+
 void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
   constexpr const auto xthr = mfem_mgis::real(1) / 2;
   std::array<void (*)(const mfem::Vector&, mfem::Vector&), 6u> solutions = {
