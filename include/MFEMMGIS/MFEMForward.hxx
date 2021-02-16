@@ -27,7 +27,6 @@ namespace mfem {
   class ParMesh;
   class ParFiniteElementSpace;
   class ParNonlinearForm;
-  class ParNonlinearFormIntegrator;
   class NewtonSolver;
 
 }  // end of namespace mfem
@@ -69,11 +68,7 @@ namespace mfem_mgis {
    * considered or not.
    * \tparam parallel: flag stating if a parallel computation is considered.
    */
-  template <bool parallel>
-  using NonlinearFormIntegrator =
-      std::conditional_t<parallel,
-                         mfem::ParNonlinearFormIntegrator,
-                         mfem::NonlinearFormIntegrator>;
+  using NonlinearFormIntegrator = mfem::NonlinearFormIntegrator;
   /*!
    * \brief a simple alias used to select the `MFEM` class representing a
    * grid function depending if a parallel computation is considered or not.

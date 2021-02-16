@@ -13,7 +13,7 @@
 namespace mfem_mgis {
 
   template <bool parallel>
-  static MultiMaterialNonLinearIntegrator<false>*
+  static MultiMaterialNonLinearIntegrator<parallel>*
   buildMultiMaterialNonLinearIntegrator(
       const std::shared_ptr<FiniteElementDiscretization>& fed,
       const Hypothesis h) {
@@ -51,7 +51,7 @@ namespace mfem_mgis {
   MultiMaterialNonLinearIntegratorBase&
   MultiMaterialEvolutionProblemBase::getMultiMaterialNonLinearIntegratorBase() {
 #ifdef MFEM_USE_MPI
-    if (this->sequential_mgis_integrator.get() != nullptr) {
+    if (this->sequential_mgis_integrator != nullptr) {
       return *(this->sequential_mgis_integrator);
     }
     return *(this->parallel_mgis_integrator);
@@ -64,7 +64,7 @@ namespace mfem_mgis {
   MultiMaterialEvolutionProblemBase::getMultiMaterialNonLinearIntegratorBase()
       const {
 #ifdef MFEM_USE_MPI
-    if (this->sequential_mgis_integrator.get() != nullptr) {
+    if (this->sequential_mgis_integrator != nullptr) {
       return *(this->sequential_mgis_integrator);
     }
     return *(this->parallel_mgis_integrator);
