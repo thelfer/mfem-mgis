@@ -11,6 +11,7 @@
 #include <memory>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
+#include "mfem/config/config.hpp"
 
 namespace mfem_mgis {
 

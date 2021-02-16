@@ -9,6 +9,7 @@
 #define LIB_MFEM_MGIS_MULTIMATERIALEVOLUTIONPROBLEMBASE_HXX
 
 #include <memory>
+#include "mfem/config/config.hpp"
 #include "MGIS/Behaviour/Hypothesis.hxx"
 #include "MFEMMGIS/Config.hxx"
 
