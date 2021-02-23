@@ -7,8 +7,10 @@ mfront_behaviours_check_library(BehaviourTest
 add_executable(PeriodicTest
   EXCLUDE_FROM_ALL
   PeriodicTest.cxx)
+target_link_libraries(PeriodicTest PRIVATE mfem)
 target_link_libraries(PeriodicTest
   PRIVATE MFEMMGIS)
+target_include_directories(PeriodicTest PRIVATE "${MFEM_INCLUDE_DIRS}")
   add_dependencies(check PeriodicTest)
 
 function(add_periodic_test ncase nsolver)
@@ -38,8 +40,10 @@ endforeach(ncase)
 add_executable(UniaxialTensileTest
   EXCLUDE_FROM_ALL
   UniaxialTensileTest.cxx)
+target_link_libraries(UniaxialTensileTest PRIVATE mfem)
 target_link_libraries(UniaxialTensileTest
   PRIVATE MFEMMGIS)
+target_include_directories(UniaxialTensileTest PRIVATE "${MFEM_INCLUDE_DIRS}")
 add_dependencies(check UniaxialTensileTest)
 
 function(add_unilateral_test behaviour internal_state_variable)
@@ -69,9 +73,11 @@ if (MFEM_USE_MPI)
   add_executable(PeriodicTestP
     EXCLUDE_FROM_ALL
     PeriodicTest.cxx)
+  target_link_libraries(PeriodicTestP PRIVATE mfem)
   set_target_properties(PeriodicTestP PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
   target_link_libraries(PeriodicTestP
     PRIVATE MFEMMGIS)
+  target_include_directories(PeriodicTestP PRIVATE "${MFEM_INCLUDE_DIRS}")
   add_dependencies(check PeriodicTestP)
   
   function(add_periodic_testp ncase nsolver nbprocs)
