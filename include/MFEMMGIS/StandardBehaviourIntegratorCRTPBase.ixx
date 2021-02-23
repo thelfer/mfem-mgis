@@ -22,7 +22,7 @@ namespace mfem_mgis {
       mfem::ElementTransformation &tr,
       const mfem::Vector &u) {
 #ifdef MFEM_THREAD_SAFE
-    DenseMatrix dshape(e.GetDof(), e.GetDim());
+    mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
     this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
@@ -71,7 +71,7 @@ namespace mfem_mgis {
                                               const mfem::FiniteElement &e,
                                               mfem::ElementTransformation &tr) {
 #ifdef MFEM_THREAD_SAFE
-    DenseMatrix dshape(e.GetDof(), e.GetDim());
+    mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
     this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
