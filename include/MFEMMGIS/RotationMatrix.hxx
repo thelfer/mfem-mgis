@@ -37,8 +37,9 @@ namespace mfem_mgis {
    * - the two directions of orthotropy which can be given either as a
    * partial function or as a fixed direction.
    */
-  using RotationMatrix3D =
-      std::variant<std::monostate, std::array<MaterialAxis3D, 2u>>;
+  using RotationMatrix3D = std::variant<std::monostate,
+                                        std::array<real, 9u>,
+                                        std::array<MaterialAxis3D, 2u>>;
 
 };  // end of namespace mfem_mgis
 

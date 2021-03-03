@@ -8,12 +8,14 @@
 #ifndef LIB_MFEM_MGIS_MATERIAL_HXX
 #define LIB_MFEM_MGIS_MATERIAL_HXX
 
-#include <memory>
+#include <array>
 #include <vector>
+#include <memory>
 #include "MGIS/Span.hxx"
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
+#include "MFEMMGIS/RotationMatrix.hxx"
 
 namespace mfem_mgis {
 
@@ -38,11 +40,29 @@ namespace mfem_mgis {
      * \param[in] g: macroscopic gradients
      */
     void setMacroscopicGradients(mgis::span<const real>);
+    /*!
+     * \brief set the rotation matrix
+     * \param[in] r: rotation matrix
+     * \note this call is only meaningfull in 2D hypotheses for orthotropic
+     * behaviours.
+     */
+    void setRotationMatrix(const RotationMatrix2D &);
+    /*!
+     * \brief set the rotation matrix
+     * \param[in] r: rotation matrix
+     * \note this call is only meaningfull in 3D for orthotropic behaviours
+     */
+    void setRotationMatrix(const RotationMatrix3D &);
+    /*!
+     * \return the rotation matrix for the given integration point
+     * \param[in] integration point
+     * \note this call is only valid if the rotation matrix has been set
+     */
+    std::array<real, 9u> getRotationMatrix(const size_type) const;
     //! \brief destructor
     ~Material();
 
    protected:
-
     /*!
      * \brief underlying quadrature space
      */
@@ -67,9 +87,19 @@ namespace mfem_mgis {
      * inherited from the `mgis::behaviour::MaterialDataManager` class.
      */
     const std::unique_ptr<const Behaviour> behaviour_ptr;
+    //! \brief the rotation matrix in 3D
+    RotationMatrix2D r2D;
+    //! \brief the rotation matrix in 3D
+    RotationMatrix3D r3D;
+    //! \brief pointer to a function returning the rotation matrix
+    std::array<real, 9u> (*get_rotation_fct_ptr)(const RotationMatrix2D &,
+                                                 const RotationMatrix3D &,
+                                                 const size_type);
 
   };  // end of struct Material
 
-};  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
+
+#include "MFEMMGIS/Material.ixx"
 
 #endif /* LIB_MFEM_MGIS_MATERIAL_HXX */
