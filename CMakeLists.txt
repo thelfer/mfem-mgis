@@ -17,11 +17,17 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # MFEM
-find_package(MFEM REQUIRED)
+if (NOT TARGET mfem)
+  message(STATUS "Searching for MFEM")
+  find_package(MFEM REQUIRED)
+else(NOT TARGET mfem)
+   message(STATUS "MFEM target already set")
+endif(NOT TARGET mfem)
+
 if (MFEM_USE_MPI)
   message(STATUS "MFEM: using MPI, so mfem_mgis will use MPI")
   find_package(MPI REQUIRED)
-endif()
+endif(MFEM_USE_MPI)
 
 # MFontGenericInterface
 find_package (MFrontGenericInterface REQUIRED)
@@ -60,11 +66,21 @@ set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
 # (must be placed *before* any add_subdirectory, cmake bug ?)
 enable_testing()
 if(CMAKE_CONFIGURATION_TYPES)
-  add_custom_target(check COMMAND 
-    ${CMAKE_CTEST_COMMAND} -T test -C $<CONFIGURATION>)
+   if (NOT TARGET check)
+      add_custom_target(check COMMAND 
+         ${CMAKE_CTEST_COMMAND} -T test -C $<CONFIGURATION>)
+   else(NOT TARGET check)
+      add_custom_target(mgis_check COMMAND 
+         ${CMAKE_CTEST_COMMAND} -T test -C $<CONFIGURATION>)
+   endif(NOT TARGET check)
 else(CMAKE_CONFIGURATION_TYPES)
-  add_custom_target(check COMMAND 
-    ${CMAKE_CTEST_COMMAND} -T test )
+   if (NOT TARGET check)
+      add_custom_target(check COMMAND 
+      ${CMAKE_CTEST_COMMAND} -T test )
+   else(NOT TARGET check)
+      add_custom_target(mgis_check COMMAND 
+      ${CMAKE_CTEST_COMMAND} -T test )
+   endif(NOT TARGET check)
 endif(CMAKE_CONFIGURATION_TYPES)
 
 add_subdirectory(docs)

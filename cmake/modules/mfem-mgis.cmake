@@ -14,7 +14,7 @@ function(mfem_mgis_library name)
   )
   target_include_directories(${name}
     SYSTEM
-	PUBLIC "${MFEM_INCLUDE_DIRS}")
+	PUBLIC "$<BUILD_INTERFACE:${MFEM_INCLUDE_DIRS}>")
   target_link_libraries(${name} 
     PUBLIC mgis::MFrontGenericInterface
     PUBLIC mfem)
