@@ -355,19 +355,19 @@ void generateHeaderFile(std::ostream& os,
      << "\n"
      << "  /*!\n"
      << "   */\n"
-     << "  struct MFEM_MGIS_EXPORT " << d.name << "\n"
+     << "  struct MFEM_MGIS_EXPORT " << d.name << " final\n"
      << "  : StandardBehaviourIntegratorCRTPBase<" << d.name << "> {\n\n"
      << "/*!\n"
-     << " * \brief a constant value used for the computation of\n"
+     << " * \\brief a constant value used for the computation of\n"
      << " * symmetric tensors\n"
      << " */"
      << "static constexpr const auto icste = real{0.70710678118654752440};\n"
      << "\n";
   if (d.isotropic) {
-    os << " //! \brief a dummy structure\n"
+    os << "//! \\brief a dummy structure\n"
        << " struct RotationMatrix {};\n\n";
   } else {
-    os << "//! \brief a simple alias\n"
+    os << "//! \\brief a simple alias\n"
        << "using RotationMatrix = std::array<real, 9u>;";
   }
   os << "/*!\n"
@@ -379,29 +379,22 @@ void generateHeaderFile(std::ostream& os,
      << "" << d.name << "(const FiniteElementDiscretization &,\n"
      << "             const size_type,\n"
      << "             std::unique_ptr<const Behaviour>);\n"
-     << "\n";
-  if (d.isotropic) {
-    os << "[[noreturn]] void setRotationMatrix(const RotationMatrix2D&) "
-          "override\n;"
-       << "\n"
-       << "[[noreturn]] void setRotationMatrix(const RotationMatrix3D&) "
-          "override\n;"
-       << "\n";
-  } else {
-    os << "void setRotationMatrix(const RotationMatrix2D&) override\n;"
-       << "\n"
-       << "void setRotationMatrix(const RotationMatrix3D&) override\n;"
-       << "\n";
-  }
-  os << "inline RotationMatrix getRotationMatrix() const;\n"
+     << "\n"
+     << "/*!\n"
+     << " * \\return the rotation matrix associated with the given "
+        "integration\n"
+     << " * point\n"
+     << " * \\param[in] i: integration points\n"
+     << " */\n"
+     << "inline RotationMatrix getRotationMatrix(const size_type) const;\n"
      << "\n"
      << "inline void rotateGradients(mgis::span<real>, const "
-        "RotationMatrix&);\n"
+     << "RotationMatrix&);\n"
      << "\n";
   if (d.isotropic) {
     os << "inline mgis::span<const real>\n"
        << "rotateThermodynamicForces(mgis::span<const real>, "
-          "const RotationMatrix&);\n\n";
+       << "const RotationMatrix&);\n\n";
   } else {
     os << "inline std::array<real," << B.rows() << ">\n"
        << "rotateThermodynamicForces(mgis::span<const real>, "
@@ -531,34 +524,19 @@ void generateSourceFile(std::ostream& os,
      << "}\n"
      << "}  // end of " << d.name << "\n"
      << "\n";
-  if ((!d.isotropic) && (isTwoDimensionalHypothesis(d.hypothesis))) {
-    os << "void " << d.name
-       << "::setRotationMatrix(const RotationMatrix2D& r){\n"
-       << "this->rotation_matrix = r;\n"
-       << "}\n\n";
+  if (d.isotropic) {
+    os << d.name << "::RotationMatrix\n"
+       << d.name << "::getRotationMatrix(const size_type) const{\n"
+       << "return RotationMatrix{};\n"
+       << "} // end of getRotationMatrix\n"
+       << "\n";
   } else {
-    os << "void " << d.name
-       << "::setRotationMatrix(const RotationMatrix2D& ){\n"
-       << "mgis::raise(\"" << d.name
-       << "::setRotationMatrix: invalid call\");\n"
-       << "}\n\n";
+    os << d.name << "::RotationMatrix\n"
+       << d.name << "::getRotationMatrix(const size_type i) const{\n"
+       << "return this->get_rotation_fct_ptr(this->r2D, this->r3D, i);\n"
+       << "} // end of getRotationMatrix\n"
+       << "\n";
   }
-  if ((!d.isotropic) && (d.hypothesis == "Tridimensional")) {
-    os << "void " << d.name
-       << "::setRotationMatrix(const RotationMatrix3D& r){\n"
-       << "this->rotation_matrix = r;\n"
-       << "}\n\n";
-  } else {
-    os << "void " << d.name << "::setRotationMatrix(const RotationMatrix3D&){\n"
-       << "mgis::raise(\"" << d.name
-       << "::setRotationMatrix: invalid call\");\n"
-       << "}\n\n";
-  }
-  os << d.name << "::RotationMatrix\n"
-     << d.name << "::getRotationMatrix() const{\n"
-     << "return RotationMatrix{};\n"
-     << "} // end of getRotationMatrix\n"
-     << "\n";
   if (d.isotropic) {
     os << "void " << d.name
        << "::rotateGradients(mgis::span<real>, const RotationMatrix&){\n"
@@ -566,7 +544,7 @@ void generateSourceFile(std::ostream& os,
   } else {
     os << "void " << d.name
        << "::rotateGradients(mgis::span<real> g, const RotationMatrix& r){\n"
-       << "mgis::behaviour::rotateGradients(g, this->b, r);\n"
+       << "this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());\n"
        << "} // end of rotateGradients\n";
   }
   os << "\n";
@@ -582,7 +560,8 @@ void generateSourceFile(std::ostream& os,
        << "const RotationMatrix& r){\n"
        << "std::array<real," << B.rows() << "> rs;\n"
        << "std::copy(s.begin(), s.end(), rs.begin());\n"
-       << "mgis::behaviour::rotateThermodynamicForces(rs, this->b, r);\n"
+       << "this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), "
+          "r.data());\n"
        << "return rs;\n"
        << "}\n\n";
   }
@@ -595,7 +574,8 @@ void generateSourceFile(std::ostream& os,
     os << "void " << d.name
        << "::rotateTangentOperatorBlocks(mgis::span<real> Kip,\n"
        << "const RotationMatrix& r){\n"
-       << "mgis::behaviour::rotateTangentOperatorBlocks(Kip, this->b, r);\n"
+       << "this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(), "
+          "r.data());\n"
        << "}\n";
   }
   os << "\n"

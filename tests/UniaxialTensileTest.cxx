@@ -55,6 +55,12 @@ int main(const int argc, char** const argv) {
   auto& m1 = problem.getMaterial(1);
   mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
   mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
+  if (m1.b.symmetry == mgis::behaviour::Behaviour::ORTHOTROPIC) {
+    std::array<mfem_mgis::real, 9u> r = {0, 1, 0,  //
+                                         1, 0, 0,  //
+                                         0, 0, 1};
+    m1.setRotationMatrix(mfem_mgis::RotationMatrix3D{r});
+  }
   // boundary conditions
   // Determine the list of true (i.e. parallel conforming) essential
   // boundary dofs. In this example, the boundary conditions are defined by
@@ -168,29 +174,31 @@ int main(const int argc, char** const argv) {
     out << g0[i] << " " << g1[i] << " " << tf0[i] << " " << v[i] << '\n';
   }
   // comparison to reference results
-  constexpr const auto eps = mfem_mgis::real(1.e-10);
-  constexpr const auto E = mfem_mgis::real(70.e9);
   auto success = true;
-  auto check = [&success](const auto cv,  // computed value
-                          const auto rv,  // reference value,
-                          const auto ev, const auto msg) {
-    const auto e = std::abs(cv - rv);
-    if (e > ev) {
-      std::cerr << "test failed (" << msg << ", " << cv << " vs " << rv
-                << ", error " << e << ")\n";
-      success = false;
-    }
-  };
   std::ifstream in(reference_file);
-  for (std::vector<mfem_mgis::real>::size_type i = 0; i != g0.size(); ++i) {
-    auto g0_ref = mfem_mgis::real{};
-    auto g1_ref = mfem_mgis::real{};
-    auto tf0_ref = mfem_mgis::real{};
-    auto v_ref = mfem_mgis::real{};
-    in >> g0_ref >> g1_ref >> tf0_ref >> v_ref;
-    check(tf0[i], tf0_ref, E * eps, "invalid stress value");
-    check(g1[i], g1_ref, eps, "invalid transverse strain");
-    check(v[i], v_ref, eps, "invalid internal state variable");
+  if (in) {
+    constexpr const auto eps = mfem_mgis::real(1.e-10);
+    constexpr const auto E = mfem_mgis::real(70.e9);
+    auto check = [&success](const auto cv,  // computed value
+                            const auto rv,  // reference value,
+                            const auto ev, const auto msg) {
+      const auto e = std::abs(cv - rv);
+      if (e > ev) {
+        std::cerr << "test failed (" << msg << ", " << cv << " vs " << rv
+                  << ", error " << e << ")\n";
+        success = false;
+      }
+    };
+    for (std::vector<mfem_mgis::real>::size_type i = 0; i != g0.size(); ++i) {
+      auto g0_ref = mfem_mgis::real{};
+      auto g1_ref = mfem_mgis::real{};
+      auto tf0_ref = mfem_mgis::real{};
+      auto v_ref = mfem_mgis::real{};
+      in >> g0_ref >> g1_ref >> tf0_ref >> v_ref;
+      check(tf0[i], tf0_ref, E * eps, "invalid stress value");
+      check(g1[i], g1_ref, eps, "invalid transverse strain");
+      check(v[i], v_ref, eps, "invalid internal state variable");
+    }
   }
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

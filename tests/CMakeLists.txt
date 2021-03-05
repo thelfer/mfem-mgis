@@ -1,5 +1,6 @@
 mfront_behaviours_check_library(BehaviourTest
   Elasticity
+  OrthotropicElasticity
   Plasticity
   Mazars
   SaintVenantKirchhoffElasticity)
@@ -61,6 +62,7 @@ function(add_unilateral_test behaviour internal_state_variable)
   endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
 endfunction(add_unilateral_test)
 
+add_unilateral_test(OrthotropicElasticity EquivalentStrain)
 add_unilateral_test(Plasticity EquivalentPlasticStrain)
 add_unilateral_test(Mazars Damage)
 add_unilateral_test(SaintVenantKirchhoffElasticity EquivalentStrain)

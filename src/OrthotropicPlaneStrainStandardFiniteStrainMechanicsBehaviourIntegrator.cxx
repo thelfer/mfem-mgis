@@ -16,9 +16,9 @@ namespace mfem_mgis {
     const auto u_0 = u[ni];
     const auto u_1 = u[ni + nnodes];
     g[0] += u_0 * dNi_0;
-    g[1] += dNi_1 * u_1;
+    g[1] += u_1 * dNi_1;
     g[2] += 0;
-    g[3] += dNi_1 * u_0;
+    g[3] += u_0 * dNi_1;
     g[4] += u_1 * dNi_0;
   }  // end of updateGradients
 
@@ -34,8 +34,8 @@ namespace mfem_mgis {
     const auto dNi_1 = dN(ni, 1);
     const auto ni_0 = ni;
     const auto ni_1 = ni + nnodes;
-    Fe[ni_0] += w * (dNi_0 * s[0] + dNi_1 * s[3]);
-    Fe[ni_1] += w * (s[4] * dNi_0 + s[1] * dNi_1);
+    Fe[ni_0] += w * (s[0] * dNi_0 + dNi_1 * s[3]);
+    Fe[ni_1] += w * (s[4] * dNi_0 + dNi_1 * s[1]);
   }  // end of updateInnerForces
 
   inline void
@@ -55,14 +55,14 @@ namespace mfem_mgis {
       const auto dNj_1 = dN(nj, 1);
       const auto nj_0 = nj;
       const auto nj_1 = nj + nnodes;
-      Ke(ni_0, nj_0) += w * (dNi_1 * Kip[15] * dNj_0 + dNj_1 * dNi_0 * Kip[3] +
-                             Kip[0] * dNi_0 * dNj_0 + dNj_1 * dNi_1 * Kip[18]);
-      Ke(ni_0, nj_1) += w * (dNj_1 * Kip[1] * dNi_0 + Kip[19] * dNi_1 * dNj_0 +
-                             Kip[16] * dNj_1 * dNi_1 + Kip[4] * dNi_0 * dNj_0);
-      Ke(ni_1, nj_0) += w * (dNj_1 * Kip[23] * dNi_0 + dNj_1 * Kip[8] * dNi_1 +
-                             Kip[5] * dNi_1 * dNj_0 + dNi_0 * Kip[20] * dNj_0);
-      Ke(ni_1, nj_1) += w * (dNj_1 * dNi_0 * Kip[21] + dNj_1 * dNi_1 * Kip[6] +
-                             dNi_0 * Kip[24] * dNj_0 + dNi_1 * Kip[9] * dNj_0);
+      Ke(ni_0, nj_0) += w * (dNi_1 * Kip[18] * dNj_1 + dNj_0 * Kip[0] * dNi_0 +
+                             dNi_1 * Kip[15] * dNj_0 + Kip[3] * dNj_1 * dNi_0);
+      Ke(ni_0, nj_1) += w * (dNi_1 * dNj_0 * Kip[19] + dNj_0 * Kip[4] * dNi_0 +
+                             dNi_1 * Kip[16] * dNj_1 + dNj_1 * Kip[1] * dNi_0);
+      Ke(ni_1, nj_0) += w * (dNj_0 * dNi_0 * Kip[20] + Kip[8] * dNi_1 * dNj_1 +
+                             Kip[5] * dNi_1 * dNj_0 + dNj_1 * Kip[23] * dNi_0);
+      Ke(ni_1, nj_1) += w * (Kip[24] * dNj_0 * dNi_0 + dNi_1 * Kip[6] * dNj_1 +
+                             dNi_1 * Kip[9] * dNj_0 + Kip[21] * dNj_1 * dNi_0);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 
@@ -80,28 +80,16 @@ namespace mfem_mgis {
   }  // end of
      // OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator
 
-  void OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      setRotationMatrix(const RotationMatrix2D &r) {
-    this->rotation_matrix = r;
-  }
-
-  void OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      setRotationMatrix(const RotationMatrix3D &) {
-    mgis::raise(
-        "OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator"
-        "::setRotationMatrix: invalid call");
-  }
-
   OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
       RotationMatrix
       OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-          getRotationMatrix() const {
-    return RotationMatrix{};
+          getRotationMatrix(const size_type i) const {
+    return this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
   }  // end of getRotationMatrix
 
   void OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
       rotateGradients(mgis::span<real> g, const RotationMatrix &r) {
-    mgis::behaviour::rotateGradients(g, this->b, r);
+    this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());
   }  // end of rotateGradients
 
   std::array<real, 5>
@@ -110,14 +98,15 @@ namespace mfem_mgis {
                                 const RotationMatrix &r) {
     std::array<real, 5> rs;
     std::copy(s.begin(), s.end(), rs.begin());
-    mgis::behaviour::rotateThermodynamicForces(rs, this->b, r);
+    this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), r.data());
     return rs;
   }
 
   void OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
       rotateTangentOperatorBlocks(mgis::span<real> Kip,
                                   const RotationMatrix &r) {
-    mgis::behaviour::rotateTangentOperatorBlocks(Kip, this->b, r);
+    this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
+                                               r.data());
   }
 
   void OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::

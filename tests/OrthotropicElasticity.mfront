@@ -1,0 +1,28 @@
+@DSL DefaultDSL;
+@Behaviour OrthotropicElasticity;
+@Author    Thomas Helfer;
+@Date      10/03/11;
+
+@OrthotropicBehaviour<Pipe>;
+@ComputeStiffnessTensor<UnAltered>{7.8e+10, 2.64233e+11, 3.32e+11,
+                                   0.13,    0.24,        0.18,
+                                   4.8e+10, 1.16418e+11, 7.8e+10};
+
+@StateVariable strain p;
+p.setGlossaryName("EquivalentStrain");
+
+@PredictionOperator{
+  static_cast<void>(smt);
+  Dt=D;
+}
+
+@Integrator{
+  const auto e = eto + deto;
+  sig = D * e;
+  p = e | e;
+}
+
+@TangentOperator {
+  static_cast<void>(smt);
+  Dt = D;
+}

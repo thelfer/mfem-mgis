@@ -53,12 +53,6 @@ namespace mfem_mgis {
      * \note this call is only meaningfull in 3D for orthotropic behaviours
      */
     void setRotationMatrix(const RotationMatrix3D &);
-    /*!
-     * \return the rotation matrix for the given integration point
-     * \param[in] integration point
-     * \note this call is only valid if the rotation matrix has been set
-     */
-    std::array<real, 9u> getRotationMatrix(const size_type) const;
     //! \brief destructor
     ~Material();
 
@@ -71,6 +65,16 @@ namespace mfem_mgis {
      * \brief macroscopic gradients
      */
     std::vector<real> macroscopic_gradients;
+
+   protected:
+    //! \brief the rotation matrix in 3D
+    RotationMatrix2D r2D;
+    //! \brief the rotation matrix in 3D
+    RotationMatrix3D r3D;
+    //! \brief pointer to a function returning the rotation matrix
+    std::array<real, 9u> (*get_rotation_fct_ptr)(const RotationMatrix2D &,
+                                                 const RotationMatrix3D &,
+                                                 const size_type);
 
    private:
     //! \brief copy constructor (disabled)
@@ -87,14 +91,6 @@ namespace mfem_mgis {
      * inherited from the `mgis::behaviour::MaterialDataManager` class.
      */
     const std::unique_ptr<const Behaviour> behaviour_ptr;
-    //! \brief the rotation matrix in 3D
-    RotationMatrix2D r2D;
-    //! \brief the rotation matrix in 3D
-    RotationMatrix3D r3D;
-    //! \brief pointer to a function returning the rotation matrix
-    std::array<real, 9u> (*get_rotation_fct_ptr)(const RotationMatrix2D &,
-                                                 const RotationMatrix3D &,
-                                                 const size_type);
 
   };  // end of struct Material
 

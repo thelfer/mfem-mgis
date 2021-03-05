@@ -15,10 +15,10 @@ namespace mfem_mgis {
     const auto dNi_1 = dN(ni, 1);
     const auto u_0 = u[ni];
     const auto u_1 = u[ni + nnodes];
-    g[0] += dNi_0 * u_0;
+    g[0] += u_0 * dNi_0;
     g[1] += u_1 * dNi_1;
     g[2] += 0;
-    g[3] += dNi_1 * u_0;
+    g[3] += u_0 * dNi_1;
     g[4] += u_1 * dNi_0;
   }  // end of updateGradients
 
@@ -55,14 +55,14 @@ namespace mfem_mgis {
       const auto dNj_1 = dN(nj, 1);
       const auto nj_0 = nj;
       const auto nj_1 = nj + nnodes;
-      Ke(ni_0, nj_0) += w * (Kip[18] * dNj_1 * dNi_1 + Kip[15] * dNj_0 * dNi_1 +
-                             Kip[3] * dNj_1 * dNi_0 + dNj_0 * Kip[0] * dNi_0);
-      Ke(ni_0, nj_1) += w * (Kip[16] * dNj_1 * dNi_1 + dNj_1 * Kip[1] * dNi_0 +
-                             dNj_0 * Kip[4] * dNi_0 + dNj_0 * Kip[19] * dNi_1);
-      Ke(ni_1, nj_0) += w * (dNj_1 * Kip[23] * dNi_0 + dNj_0 * Kip[5] * dNi_1 +
-                             dNj_0 * dNi_0 * Kip[20] + dNj_1 * Kip[8] * dNi_1);
-      Ke(ni_1, nj_1) += w * (dNj_1 * dNi_0 * Kip[21] + Kip[6] * dNj_1 * dNi_1 +
-                             dNj_0 * dNi_0 * Kip[24] + Kip[9] * dNj_0 * dNi_1);
+      Ke(ni_0, nj_0) += w * (dNi_1 * Kip[18] * dNj_1 + dNi_1 * Kip[15] * dNj_0 +
+                             dNj_0 * Kip[0] * dNi_0 + Kip[3] * dNj_1 * dNi_0);
+      Ke(ni_0, nj_1) += w * (dNi_1 * dNj_0 * Kip[19] + dNj_0 * Kip[4] * dNi_0 +
+                             dNj_1 * Kip[1] * dNi_0 + dNi_1 * Kip[16] * dNj_1);
+      Ke(ni_1, nj_0) += w * (dNj_1 * Kip[23] * dNi_0 + dNi_1 * dNj_1 * Kip[8] +
+                             dNj_0 * dNi_0 * Kip[20] + dNi_1 * dNj_0 * Kip[5]);
+      Ke(ni_1, nj_1) += w * (Kip[21] * dNj_1 * dNi_0 + dNi_1 * Kip[9] * dNj_0 +
+                             dNi_1 * Kip[6] * dNj_1 + Kip[24] * dNj_0 * dNi_0);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 
@@ -80,24 +80,10 @@ namespace mfem_mgis {
   }  // end of
      // IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator
 
-  void IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      setRotationMatrix(const RotationMatrix2D &) {
-    mgis::raise(
-        "IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::"
-        "setRotationMatrix: invalid call");
-  }
-
-  void IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      setRotationMatrix(const RotationMatrix3D &) {
-    mgis::raise(
-        "IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::"
-        "setRotationMatrix: invalid call");
-  }
-
   IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
       RotationMatrix
       IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-          getRotationMatrix() const {
+          getRotationMatrix(const size_type) const {
     return RotationMatrix{};
   }  // end of getRotationMatrix
 

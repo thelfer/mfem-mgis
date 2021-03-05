@@ -12,11 +12,10 @@
 
 namespace mfem_mgis {
 
-  inline std::array<real, 9u> Material::getRotationMatrix(
-      const size_type i) const {
-    assert(this->get_rotation__fct_ptr != nullptr);
-    return this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
-  }  // end of getRotationMatrix
+  //   inline std::array<real, 9u> Material::getRotationMatrix(
+  //       const size_type i) const {
+  //     return this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
+  //   }  // end of getRotationMatrix
 
 }  // end of namespace mfem_mgis
 

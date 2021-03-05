@@ -14,16 +14,16 @@ namespace mfem_mgis {
   /*!
    */
   struct MFEM_MGIS_EXPORT
-      IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator
+      IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator final
       : StandardBehaviourIntegratorCRTPBase<
             IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator> {
     /*!
-     * rief a constant value used for the computation of
+     * \brief a constant value used for the computation of
      * symmetric tensors
      */
     static constexpr const auto icste = real{0.70710678118654752440};
 
-    //! rief a dummy structure
+    //! \brief a dummy structure
     struct RotationMatrix {};
 
     /*!
@@ -37,9 +37,12 @@ namespace mfem_mgis {
         const size_type,
         std::unique_ptr<const Behaviour>);
 
-    [[noreturn]] void setRotationMatrix(const RotationMatrix2D &) override;
-    [[noreturn]] void setRotationMatrix(const RotationMatrix3D &) override;
-    inline RotationMatrix getRotationMatrix() const;
+    /*!
+     * \return the rotation matrix associated with the given integration
+     * point
+     * \param[in] i: integration points
+     */
+    inline RotationMatrix getRotationMatrix(const size_type) const;
 
     inline void rotateGradients(mgis::span<real>, const RotationMatrix &);
 

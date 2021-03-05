@@ -34,7 +34,7 @@ namespace mfem_mgis {
     Fe.SetSize(e.GetDof() * e.GetDim());
     Fe = 0.;
     const auto &ir = Child::getIntegrationRule(e, tr);
-    for (size_type i = 0; i < ir.GetNPoints(); ++i) {
+    for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
       // get the gradients of the shape functions
@@ -49,9 +49,9 @@ namespace mfem_mgis {
       for (size_type ni = 0; ni != nnodes; ++ni) {
         static_cast<Child *>(this)->updateGradients(g, u, dshape, ni);
       }
-      const auto r = static_cast<Child *>(this)->getRotationMatrix();
+      const auto r = static_cast<Child *>(this)->getRotationMatrix(o);
       static_cast<Child *>(this)->rotateGradients(g, r);
-      this->integrate(eoffset + i);
+      this->integrate(o);
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
       const auto &rs =
           static_cast<Child *>(this)->rotateThermodynamicForces(s, r);
@@ -81,7 +81,7 @@ namespace mfem_mgis {
     Ke.SetSize(e.GetDof() * e.GetDim(), e.GetDof() * e.GetDim());
     Ke = 0.;
     const auto &ir = Child::getIntegrationRule(e, tr);
-    for (size_type i = 0; i < ir.GetNPoints(); ++i) {
+    for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       // get the gradients of the shape functions
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);

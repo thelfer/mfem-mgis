@@ -32,11 +32,12 @@ namespace mfem_mgis {
       : MaterialDataManager(*b_ptr, s->getNumberOfIntegrationPoints()),
         quadrature_space(s),
         macroscopic_gradients(this->s1.gradients_stride, real(0)),
-        behaviour_ptr(std::move(b_ptr)),
-        get_rotation_fct_ptr(
-            this->b.symmetry == mgis::behaviour::Behaviour::ORTHOTROPIC
-                ? raiseInvalidGetRotationMatrixCall
-                : raiseUnsetRotationMatrix) {}  // end of Material::Material
+        get_rotation_fct_ptr(this->b.symmetry ==
+                                     mgis::behaviour::Behaviour::ORTHOTROPIC
+                                 ? &raiseInvalidGetRotationMatrixCall
+                                 : &raiseUnsetRotationMatrix),
+        behaviour_ptr(std::move(b_ptr)) {
+  }  // end of Material::Material
 
   void Material::setMacroscopicGradients(mgis::span<const real> g) {
     if (g.size() != this->s1.gradients_stride) {
