@@ -51,8 +51,7 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(
-        const std::function<
-            void(NonLinearEvolutionProblem<true>&, const real, const real)>&);
+        const std::function<void(const real, const real)>&);
     /*!
      * \brief execute the registred postprocessings
      * \param[in] t: time at the beginning of the time step
@@ -97,8 +96,7 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(
-        const std::function<
-            void(NonLinearEvolutionProblem<false>&, const real, const real)>&);
+        const std::function<void(const real, const real)>&);
     /*!
      * \brief execute the registred postprocessings
      * \param[in] t: time at the beginning of the time step

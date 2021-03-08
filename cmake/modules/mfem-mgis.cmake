@@ -13,8 +13,7 @@ function(mfem_mgis_library name)
     PUBLIC $<INSTALL_INTERFACE:include>
   )
   target_include_directories(${name}
-    SYSTEM
-	PUBLIC "$<BUILD_INTERFACE:${MFEM_INCLUDE_DIRS}>")
+    SYSTEM PUBLIC "$<BUILD_INTERFACE:${MFEM_INCLUDE_DIRS}>")
   target_link_libraries(${name} 
     PUBLIC mgis::MFrontGenericInterface
     PUBLIC mfem)
@@ -31,5 +30,6 @@ function(mfem_mgis_library name)
     set(export_install_path "share/mfem-mgis/cmake")
   endif(MFEMMGIS_APPEND_SUFFIX)
   install(EXPORT ${name} DESTINATION ${export_install_path}
-          NAMESPACE mfem-mgis:: FILE ${name}Config.cmake)
+    NAMESPACE mfem-mgis:: FILE ${name}Config.cmake)
+  
 endfunction(mfem_mgis_library)

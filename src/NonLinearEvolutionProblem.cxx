@@ -24,23 +24,20 @@ namespace mfem_mgis {
      * \param[in] fct: function executing the postprocessing
      */
     StdFunctionPostProcessing(
-        const std::function<void(
-            NonLinearEvolutionProblem<parallel>&, const real, const real)>& fct)
+        const std::function<void(const real, const real)>& fct)
         : f(fct) {}  // end of StdFunctionPostProcessing
     //
-    void execute(NonLinearEvolutionProblem<parallel>& p,
+    void execute(NonLinearEvolutionProblem<parallel>&,
                  const real t,
                  const real dt) override {
-      this->f(p, t, dt);
+      this->f(t, dt);
     }  // end of execute
     //! \brief destructor
     ~StdFunctionPostProcessing() override = default;
 
    private:
     //! \brief function executing the post-processing
-    std::function<void(
-        NonLinearEvolutionProblem<parallel>&, const real, const real)>
-        f;
+    std::function<void(const real, const real)> f;
   };  // end of struct StdFunctionPostProcessing
 
 #ifdef MFEM_USE_MPI
@@ -65,8 +62,7 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblem<true>::addPostProcessing(
-      const std::function<
-          void(NonLinearEvolutionProblem<true>&, const real, const real)>& p) {
+      const std::function<void(const real, const real)>& p) {
     this->addPostProcessing(
         std::make_unique<StdFunctionPostProcessing<true>>(p));
   }  // end of addPostProcessing
@@ -120,8 +116,7 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblem<false>::addPostProcessing(
-      const std::function<
-          void(NonLinearEvolutionProblem<false>&, const real, const real)>& p) {
+      const std::function<void(const real, const real)>& p) {
     this->addPostProcessing(
         std::make_unique<StdFunctionPostProcessing<false>>(p));
   }  // end of addPostProcessing
