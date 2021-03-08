@@ -9,6 +9,8 @@
 #define LIB_MFEM_MGIS_CONFIG_HXX
 
 #include "MGIS/Config.hxx"
+#include "MFEMMGIS/MGISForward.hxx"
+#include "MFEMMGIS/MFEMForward.hxx"
 
 #define MFEM_MGIS_VISIBILITY_LOCAL MGIS_VISIBILITY_LOCAL
 

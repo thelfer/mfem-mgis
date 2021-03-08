@@ -15,7 +15,7 @@
 #include "mfem/fem/pnonlinearform.hpp"
 #endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/MFEMForward.hxx"
+// #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemCommon.hxx"
 
 namespace mfem_mgis {

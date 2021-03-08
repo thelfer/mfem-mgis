@@ -10,8 +10,6 @@
 
 #include <memory>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/MGISForward.hxx"
-#include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/BehaviourIntegrator.hxx"
 #include "MFEMMGIS/Material.hxx"
 

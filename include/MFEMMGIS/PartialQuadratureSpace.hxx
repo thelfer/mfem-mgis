@@ -13,7 +13,6 @@
 #include <functional>
 #include <unordered_map>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/MFEMForward.hxx"
 
 namespace mfem_mgis {
 

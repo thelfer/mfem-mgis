@@ -9,6 +9,7 @@ mfem_mgis_library(MFEMMGIS
   BehaviourIntegratorBase.cxx
   BehaviourIntegratorFactory.cxx
   MultiMaterialNonLinearIntegrator.cxx
+  PostProcessing.cxx
   NonLinearEvolutionProblemCommon.cxx
   NonLinearEvolutionProblemBase.cxx
   MultiMaterialEvolutionProblemBase.cxx

@@ -9,12 +9,16 @@
 #define LIB_MFEM_MGIS_EVOLUTIONPROBLEM_HXX
 
 #include <memory>
-#include "MGIS/Behaviour/Hypothesis.hxx"
+#include <vector>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MultiMaterialEvolutionProblemBase.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemBase.hxx"
 
 namespace mfem_mgis {
+
+  // forward declaration
+  template <bool parallel>
+  struct PostProcessing;
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -37,6 +41,24 @@ namespace mfem_mgis {
      */
     NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis);
+    /*!
+     * \brief add a new post-processing
+     * \param[in] p: post-processing
+     */
+    virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
+    /*!
+     * \brief add a new post-processing
+     * \param[in] p: post-processing
+     */
+    virtual void addPostProcessing(
+        const std::function<
+            void(NonLinearEvolutionProblem<true>&, const real, const real)>&);
+    /*!
+     * \brief execute the registred postprocessings
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    virtual void executePostProcessings(const real, const real);
     //
     void revert() override;
     void update() override;
@@ -46,6 +68,8 @@ namespace mfem_mgis {
    private:
     void setTimeIncrement(const real) override;
     void setup() override;
+    //! \brief registred post-processings
+    std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblem
 
 #endif /* MFEM_USE_MPI */
@@ -63,6 +87,24 @@ namespace mfem_mgis {
      */
     NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis);
+    /*!
+     * \brief add a new post-processing
+     * \param[in] p: post-processing
+     */
+    virtual void addPostProcessing(std::unique_ptr<PostProcessing<false>>);
+    /*!
+     * \brief add a new post-processing
+     * \param[in] p: post-processing
+     */
+    virtual void addPostProcessing(
+        const std::function<
+            void(NonLinearEvolutionProblem<false>&, const real, const real)>&);
+    /*!
+     * \brief execute the registred postprocessings
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    virtual void executePostProcessings(const real, const real);
     //
     void revert() override;
     void update() override;
@@ -72,6 +114,8 @@ namespace mfem_mgis {
    private:
     void setTimeIncrement(const real) override;
     void setup() override;
+    //! \brief registred post-processings
+    std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblem
 
 }  // end of namespace mfem_mgis

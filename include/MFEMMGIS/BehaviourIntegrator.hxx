@@ -10,8 +10,6 @@
 
 #include <memory>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/MGISForward.hxx"
-#include "MFEMMGIS/MFEMForward.hxx"
 
 namespace mfem_mgis {
 

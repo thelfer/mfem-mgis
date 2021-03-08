@@ -11,7 +11,6 @@
 #include <memory>
 #include "mfem/linalg/vector.hpp"
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 
 namespace mfem_mgis {

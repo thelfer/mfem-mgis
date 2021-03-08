@@ -12,8 +12,6 @@
 #include <vector>
 #include "mfem/fem/nonlininteg.hpp"
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/MFEMForward.hxx"
-#include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/Material.hxx"
 
 namespace mfem_mgis {
