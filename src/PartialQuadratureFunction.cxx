@@ -72,28 +72,22 @@ namespace mfem_mgis {
 
   real& PartialQuadratureFunction::getIntegrationPointValue(const size_type e,
                                                             const size_type i) {
-    const auto o = (this->qspace->getOffset(e) + i) * (this->data_stride);
-    return *(this->values.data() + o + this->data_begin);
+    return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
   }  // end of PartialQuadratureFunction::getIntegrationPointValues
 
   const real& PartialQuadratureFunction::getIntegrationPointValue(
       const size_type e, const size_type i) const {
-    const auto o = (this->qspace->getOffset(e) + i) * (this->data_stride);
-    return *(this->values.data() + o + this->data_begin);
+    return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
   }  // end of PartialQuadratureFunction::getIntegrationPointValues
 
   mgis::span<real> PartialQuadratureFunction::getIntegrationPointValues(
       const size_type e, const size_type i) {
-    const auto o = (this->qspace->getOffset(e) + i) * (this->data_stride);
-    return mgis::span<real>(this->values.data() + o + this->data_begin,
-                            this->data_size);
+    return this->getIntegrationPointValues(this->qspace->getOffset(e) + i);
   }  // end of PartialQuadratureFunction::getIntegrationPointValues
 
   mgis::span<const real> PartialQuadratureFunction::getIntegrationPointValues(
       const size_type e, const size_type i) const {
-    const auto o = (this->qspace->getOffset(e) + i) * (this->data_stride);
-    return mgis::span<const real>(this->values.data() + o + this->data_begin,
-                                  this->data_size);
+    return this->getIntegrationPointValues(this->qspace->getOffset(e) + i);
   }  // end of PartialQuadratureFunction::getIntegrationPointValues
 
   PartialQuadratureFunction::~PartialQuadratureFunction() = default;

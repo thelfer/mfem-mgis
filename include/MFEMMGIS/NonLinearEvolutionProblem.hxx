@@ -5,8 +5,8 @@
  * \date 11/12/2020
  */
 
-#ifndef LIB_MFEM_MGIS_EVOLUTIONPROBLEM_HXX
-#define LIB_MFEM_MGIS_EVOLUTIONPROBLEM_HXX
+#ifndef LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEM_HXX
+#define LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEM_HXX
 
 #include <memory>
 #include <vector>
@@ -118,4 +118,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_EVOLUTIONPROBLEM */
+#endif /* LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEM */

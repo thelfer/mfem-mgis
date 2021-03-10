@@ -42,7 +42,20 @@ namespace mfem_mgis {
         mgis::span<real>,
         const size_type = 0,
         const size_type = std::numeric_limits<size_type>::max());
-
+    /*!
+     * \brief return the value associated with an integration point
+     * \param[in] o: offset associated with the integration point
+     * \note this method is only meaningful when the quadrature function is
+     * scalar
+     */
+    real& getIntegrationPointValue(const size_type);
+    /*!
+     * \brief return the data associated with an integration point
+     * \param[in] o: offset associated with the integration point
+     * \note this method is only meaningful when the quadrature function is
+     * scalar
+     */
+    const real& getIntegrationPointValue(const size_type) const;
     /*!
      * \brief return the value associated with an integration point
      * \param[in] e: global element number
@@ -62,6 +75,28 @@ namespace mfem_mgis {
                                          const size_type) const;
     /*!
      * \brief return the data associated with an integration point
+     * \param[in] o: offset associated with the integration point
+     */
+    template <size_type N>
+    mgis::span<real, N> getIntegrationPointValues(const size_type);
+    /*!
+     * \brief return the data associated with an integration point
+     * \param[in] o: offset associated with the integration point
+     */
+    template <size_type N>
+    mgis::span<const real, N> getIntegrationPointValues(const size_type) const;
+    /*!
+     * \brief return the data associated with an integration point
+     * \param[in] o: offset associated with the integration point
+     */
+    mgis::span<real> getIntegrationPointValues(const size_type);
+    /*!
+     * \brief return the data associated with an integration point
+     * \param[in] o: offset associated with the integration point
+     */
+    mgis::span<const real> getIntegrationPointValues(const size_type) const;
+    /*!
+     * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
      */
@@ -78,12 +113,18 @@ namespace mfem_mgis {
     //! \brief destructor
     ~PartialQuadratureFunction();
 
-   private:
+   protected:
+    /*!
+     * \return the data offset associated with the given integration point.
+     * \param[in] o: offset associated with the integration point
+     */
+    size_type getDataOffset(const size_type) const;
     //! \brief underlying finite element space
     std::shared_ptr<const PartialQuadratureSpace> qspace;
     //! \brief underlying values
     mgis::span<real> values;
-    //! \brief storage for the values when the partial function holds the values
+    //! \brief storage for the values when the partial function holds the
+    //! values
     std::vector<real> values_storage;
     //! \brief data stride
     size_type data_stride;
@@ -91,8 +132,10 @@ namespace mfem_mgis {
     size_type data_begin;
     //! \brief data size
     size_type data_size;
-  };  // end of struct QuadratureFunction
+    };  // end of struct PartialQuadratureFunction
 
 }  // namespace mfem_mgis
+
+#include "MFEMMGIS/PartialQuadratureFunction.ixx"
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_HXX */

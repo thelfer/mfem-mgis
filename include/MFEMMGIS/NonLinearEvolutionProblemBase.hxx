@@ -5,8 +5,8 @@
  * \date 11/12/2020
  */
 
-#ifndef LIB_MFEM_MGIS_EVOLUTIONPROBLEMBASE_HXX
-#define LIB_MFEM_MGIS_EVOLUTIONPROBLEMBASE_HXX
+#ifndef LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEMBASE_HXX
+#define LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEMBASE_HXX
 
 #include <memory>
 #include "mfem/linalg/solvers.hpp"
@@ -92,4 +92,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_EVOLUTIONPROBLEMBASE */
+#endif /* LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEMBASE */
