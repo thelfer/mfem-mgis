@@ -120,6 +120,48 @@ namespace mfem_mgis {
               std::get<std::array<real, 3u>>(a1),
               std::get<std::array<real, 3u>>(a2));
         };
+      } else if ((std::holds_alternative<std::array<real, 3u>>(v1)) &&
+                 (std::holds_alternative<
+                     std::shared_ptr<PartialQuadratureFunction>>(v2))) {
+        this->get_rotation_fct_ptr = +[](const RotationMatrix2D &,  //
+                                         const RotationMatrix3D &rm,
+                                         const size_type o) {
+          const auto &[a1, a2] = std::get<std::array<MaterialAxis3D, 2u>>(rm);
+          const auto &f2 =
+              *(std::get<std::shared_ptr<PartialQuadratureFunction>>(a2));
+          return mgis::behaviour::buildRotationMatrix(
+              std::get<std::array<real, 3u>>(a1),
+              f2.getIntegrationPointValues<3>(o));
+        };
+      } else if ((std::holds_alternative<
+                     std::shared_ptr<PartialQuadratureFunction>>(v1)) &&
+                 (std::holds_alternative<std::array<real, 3u>>(v2))) {
+        this->get_rotation_fct_ptr = +[](const RotationMatrix2D &,  //
+                                         const RotationMatrix3D &rm,
+                                         const size_type o) {
+          const auto &[a1, a2] = std::get<std::array<MaterialAxis3D, 2u>>(rm);
+          const auto &f1 =
+              *(std::get<std::shared_ptr<PartialQuadratureFunction>>(a1));
+          return mgis::behaviour::buildRotationMatrix(
+              f1.getIntegrationPointValues<3>(o),
+              std::get<std::array<real, 3u>>(a2));
+        };
+      } else if ((std::holds_alternative<
+                     std::shared_ptr<PartialQuadratureFunction>>(v1)) &&
+                 (std::holds_alternative<
+                     std::shared_ptr<PartialQuadratureFunction>>(v2))) {
+        this->get_rotation_fct_ptr = +[](const RotationMatrix2D &,  //
+                                         const RotationMatrix3D &rm,
+                                         const size_type o) {
+          const auto &[a1, a2] = std::get<std::array<MaterialAxis3D, 2u>>(rm);
+          const auto &f1 =
+              *(std::get<std::shared_ptr<PartialQuadratureFunction>>(a1));
+          const auto &f2 =
+              *(std::get<std::shared_ptr<PartialQuadratureFunction>>(a2));
+          return mgis::behaviour::buildRotationMatrix(
+              f1.getIntegrationPointValues<3>(o),
+              f2.getIntegrationPointValues<3>(o));
+        };
       } else {
         mgis::raise("Material::setRotationMatrix: unimplemented case yet");
       }
@@ -128,39 +170,6 @@ namespace mfem_mgis {
     }
     this->r3D = r;
   }  // end of setRotationMatrix
-
-  //   std::array<real, 9u> Material::getRotationMatrix(const size_type) const {
-  //     if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) == 3u) {
-  //       if (std::holds_alternative<std::array<real, 9u>>(this->r3D)) {
-  //         return std::get<std::array<real, 9u>>(this->r3D);
-  //       } else {
-  //         const auto &axes = std::get<std::array<MaterialAxis3D,
-  //         2u>>(this->r3D); if ((std::holds_alternative<std::array<real,
-  //         3u>>(axes[0])) &&
-  //             (std::holds_alternative<std::array<real, 3u>>(axes[1]))) {
-  //           const auto &a1 = std::get<std::array<real, 3u>>(axes[0]);
-  //           const auto &a2 = std::get<std::array<real, 3u>>(axes[1]);
-  //           return mgis::behaviour::buildRotationMatrix(a1, a2);
-  //         } else {
-  //           mgis::raise("Material::getRotationMatrix: unimplemented case
-  //           yet");
-  //         }
-  //       }
-  //     } else if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) ==
-  //     2u) {
-  //       if (std::holds_alternative<std::array<real, 9u>>(this->r2D)) {
-  //         return std::get<std::array<real, 9u>>(this->r2D);
-  //       } else {
-  //         mgis::raise("Material::getRotationMatrix: unimplemented case yet");
-  //       }
-  //     } else if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) !=
-  //     1u) {
-  //       mgis::raise("Material::getRotationMatrix: unimplemented case yet");
-  //     }
-  //     return {1, 0, 0,  //
-  //             0, 1, 0,  //
-  //             0, 0, 1};
-  //   }  // end of Material::getRotationMatrix
 
   Material::~Material() = default;
 
