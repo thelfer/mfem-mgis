@@ -14,6 +14,7 @@ mfem_mgis_library(MFEMMGIS
   NonLinearEvolutionProblemBase.cxx
   MultiMaterialEvolutionProblemBase.cxx
   NonLinearEvolutionProblem.cxx
+  PeriodicNonLinearEvolutionProblem.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
   IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.cxx
   IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator.cxx

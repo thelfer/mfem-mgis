@@ -47,7 +47,7 @@
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Material.hxx"
-#include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
 #ifndef MFEM_USE_MPI
 #define MPI_COMM_WORLD 0
@@ -150,68 +150,8 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
 template <bool parallel>
 void setBoundaryConditions(
     mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem) {
-  // Impose no displacement on the first node
-  // which needs to be on x=xmin or x=xmax axis.
-  // ux=0, uy=0, uz=0 on this point.
-  const auto mesh = problem.getFiniteElementSpace().GetMesh();
-  const auto dim = mesh->Dimension();
-  mfem::Array<int> ess_tdof_list;
-  if constexpr (parallel) {
-    ess_tdof_list.SetSize(0);
-    mfem::GridFunction nodes(&problem.getFiniteElementSpace());
-    int found = 0;
-    bool reorder_space = true;
-    mesh->GetNodes(nodes);
-    const auto size = nodes.Size()/dim;
-    std::cerr << "Number of nodes: " << size << std::endl;
-
-     // Traversal of all dofs to detect which one is (0,0,0)
-     for (int i = 0; i < size; ++i) {
-       double coord[dim]; // coordinates of a node
-       double dist = 0.;
-       for (int j = 0; j < dim; ++j) {
-         if (reorder_space)
-           coord[j] = (nodes)[j * size + i];
-         else
-           coord[j] = (nodes)[i * dim + j];
-         // because of periodic BC, 0. is also 1.
-         if (abs(coord[j] - 1.) < 1e-7)
-           coord[j] = 0.;
-         dist += coord[j] * coord[j];
-       }
-       // If distance is close to zero, we have our reference point
-       if (dist < 1.e-16) {
-         for (int j = 0; j < dim; ++j) {
-           int id_unk;
-           if (reorder_space)
-             {
-             //id_unk = (j * size + i);
-             id_unk = problem.getFiniteElementSpace().GetLocalTDofNumber(j * size + i);
-             }
-           else
-             {
-               //id_unk = (i * dim + j);
-               id_unk = problem.getFiniteElementSpace().GetLocalTDofNumber(i * dim + j);
-             }
-           if (id_unk >= 0)
-             {
-               found = 1;
-               ess_tdof_list.Append(id_unk);
-             }
-         }
-       }
-     }
-     MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-     MFEM_VERIFY(found, "Reference point at (0,0) was not found");
-  } else {
-    const auto nnodes = problem.getFiniteElementSpace().GetTrueVSize() / dim;
-    ess_tdof_list.SetSize(dim);
-    for (int k = 0; k < dim; k++) {
-      int tgdof = 0 + k * nnodes;
-      ess_tdof_list[k] = tgdof;
-    }
-  }
-  problem.SetEssentialTrueDofs(ess_tdof_list);
+  mfem_mgis::PeriodicNonLinearEvolutionProblem<parallel>::setBoundaryConditions(
+      problem);
 }
 
 template <bool parallel>
@@ -331,10 +271,9 @@ void executeMFEMMGISTest(const TestParameters& p) {
       }
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem<parallel> problem(
+  mfem_mgis::PeriodicNonLinearEvolutionProblem<parallel> problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-          mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3),
-      mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
+          mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3));
   problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
   problem.addBehaviourIntegrator("Mechanics", 2, p.library, "Elasticity");
   // materials
@@ -365,8 +304,6 @@ void executeMFEMMGISTest(const TestParameters& p) {
   }
   m1.setMacroscopicGradients(e);
   m2.setMacroscopicGradients(e);
-  //
-  setBoundaryConditions<parallel>(problem);
   //
   auto lsolver = getLinearSolver<parallel>(p.linearsolver);
   setSolverParameters(problem, *(lsolver.get()));
