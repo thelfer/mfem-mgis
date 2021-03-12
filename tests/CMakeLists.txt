@@ -100,4 +100,42 @@ if (MFEM_USE_MPI)
     endforeach(nsolver)
   endforeach(ncase)
 
-endif()
+
+  add_executable(PeriodicTestNL
+    EXCLUDE_FROM_ALL
+    PeriodicTestNL.cxx)
+  set_target_properties(PeriodicTestNL PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
+  target_link_libraries(PeriodicTestNL
+    PRIVATE MFEMMGIS)
+  add_dependencies(check PeriodicTestNL)
+  
+  function(add_periodic_testnl ncase nsolver nalgo nbprocs)
+    set(test "PeriodicTestNL-${ncase}-${nsolver}-${nalgo}-${nbprocs}")
+    add_test(NAME ${test}
+     COMMAND mpirun -n ${nbprocs} PeriodicTestNL 
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--test-case" "${ncase}"
+     "--algo" "${nalgo}"
+     "--linearsolver" "${nsolver}")
+    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest)
+    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+  endfunction(add_periodic_testnl)
+
+  foreach(ncase RANGE 0 0)
+    foreach(nsolver RANGE 1 1)
+      foreach(nbprocs RANGE 4 4)
+        foreach(nalgo RANGE 0 1)
+         add_periodic_testnl(${ncase} ${nsolver} ${nalgo} ${nbprocs})
+        endforeach(nalgo)
+      endforeach(nbprocs)
+    endforeach(nsolver)
+  endforeach(ncase)
+
+ endif()
