@@ -49,6 +49,10 @@
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
+#define USE_PROFILER 1
+#define LIB_PROFILER_PRINTF MpiPrintf
+#include "MFEMMGIS/libProfiler.h"
+
 #ifndef MFEM_USE_MPI
 #define MPI_COMM_WORLD 0
 #define MPI_Finalize(args...) {}
@@ -240,11 +244,15 @@ bool checkSolution(mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
   // comparison to analytical solution
   mfem::VectorFunctionCoefficient sol_coef(dim, getSolution(i));
   const auto error = x.ComputeL2Error(sol_coef);
+  int myid;
+  MPI_Comm_rank(MPI_COMM_WORLD, &myid);
   if (error > eps) {
-    std::cerr << "Error is greater than threshold (" << error << " > " << eps << ")\n";
+    if (myid==0)
+      std::cerr << "Error is greater than threshold (" << error << " > " << eps << ")\n";
     return false;
   }
-  std::cerr << "Error is lower than threshold (" << error << " < " << eps
+  if (myid==0)
+    std::cerr << "Error is lower than threshold (" << error << " < " << eps
             << ")\n";
   return true;
 }
@@ -278,7 +286,9 @@ template <bool parallel>
 TestParameters parseCommandLineOptions(int &argc, char* argv[]){
   TestParameters p;
   // options treatment
+  PROFILER_ENABLE;
   if constexpr (parallel) MPI_Init(&argc, &argv);
+  PROFILER_START(0_total);
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&p.mesh_file, "-m", "--mesh", "Mesh file to use.");
   args.AddOption(&p.library, "-l", "--library", "Material library.");
@@ -304,6 +314,11 @@ TestParameters parseCommandLineOptions(int &argc, char* argv[]){
 
 template <bool parallel>
 void exit_on_failure () {
+  int myid;
+  MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+  if (myid == 0)
+    LogProfiler();
+  PROFILER_DISABLE;
   if constexpr (parallel) MPI_Finalize();
   std::exit(EXIT_FAILURE);
 }
@@ -402,41 +417,6 @@ struct ElasticityNonLinearIntegrator final
   //! macroscopic gradients
   std::vector<mfem_mgis::real> e;
 };
-
-void executeMFEMMTest(const TestParameters& p) {
-  constexpr const auto dim = mfem_mgis::size_type{3};
-  // creating the finite element workspace
-  auto mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-  if (dim != mesh->Dimension()) {
-    std::cerr << "Invalid mesh dimension \n";
-    std::exit(EXIT_FAILURE);
-  }
-  // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblemBase<false> problem(
-      std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-          mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3));
-  std::vector<mfem_mgis::real> e(6, mfem_mgis::real{});
-  if (p.tcase < 3) {
-    e[p.tcase] = 1;
-  } else {
-    e[p.tcase] = 1 / 2;
-  }
-  //
-  problem.AddDomainIntegrator(new ElasticityNonLinearIntegrator());
-  //
-  setBoundaryConditions(problem);
-  //
-  auto lsolver = getLinearSolver<false>(p.linearsolver);
-  setSolverParameters(problem, *(lsolver.get()));
-  // solving the problem
-  problem.solve(1);
-  //
-  if (!checkSolution(problem, p.tcase)) {
-    std::exit(EXIT_FAILURE);
-  }
-  //
-  exportResults(problem, p.tcase);
-}
 
 int main(int argc, char* argv[]) {
 #ifdef DO_USE_MPI  
