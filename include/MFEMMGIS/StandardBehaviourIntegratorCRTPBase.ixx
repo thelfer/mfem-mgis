@@ -33,7 +33,7 @@ namespace mfem_mgis {
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
     Fe.SetSize(e.GetDof() * e.GetDim());
     Fe = 0.;
-    const auto &ir = Child::getIntegrationRule(e, tr);
+    const auto &ir = static_cast<Child *>(this)->getIntegrationRule(e, tr);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
@@ -80,7 +80,7 @@ namespace mfem_mgis {
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
     Ke.SetSize(e.GetDof() * e.GetDim(), e.GetDof() * e.GetDim());
     Ke = 0.;
-    const auto &ir = Child::getIntegrationRule(e, tr);
+    const auto &ir = static_cast<Child *>(this)->getIntegrationRule(e, tr);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       // get the gradients of the shape functions
       const auto &ip = ir.IntPoint(i);

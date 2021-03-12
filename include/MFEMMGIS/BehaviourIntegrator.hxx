@@ -34,6 +34,15 @@ namespace mfem_mgis {
      */
     virtual void setTimeIncrement(const real) = 0;
     /*!
+     * \return the integration rule for the given element and element
+     * transformation
+     * \param[in] e: element
+     * \param[in] tr: element transformation
+     */
+    virtual const mfem::IntegrationRule &getIntegrationRule(
+        const mfem::FiniteElement &,
+        const mfem::ElementTransformation &) const = 0;
+    /*!
      * \brief method call at the beginning of each resolution
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment

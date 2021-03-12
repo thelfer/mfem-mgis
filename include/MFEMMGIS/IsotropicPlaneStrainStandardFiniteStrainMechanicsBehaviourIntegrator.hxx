@@ -75,7 +75,7 @@ namespace mfem_mgis {
      * transformation. \param[in] e: element \param[in] tr: element
      * transformation
      */
-    static const mfem::IntegrationRule &getIntegrationRule(
+    static const mfem::IntegrationRule &selectIntegrationRule(
         const mfem::FiniteElement &, const mfem::ElementTransformation &);
     /*!
      * \brief build the quadrature space for the given  * material
@@ -84,6 +84,14 @@ namespace mfem_mgis {
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &, const size_type);
+    /*!
+     * \return the integration rule for the given element and  * element
+     * transformation. \param[in] e: element \param[in] tr: element
+     * transformation
+     */
+    const mfem::IntegrationRule &getIntegrationRule(
+        const mfem::FiniteElement &,
+        const mfem::ElementTransformation &) const override;
     /*!
      * \brief update the strain with the contribution of the
      * given node

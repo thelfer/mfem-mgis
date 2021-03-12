@@ -426,7 +426,7 @@ void generateHeaderFile(std::ostream& os,
      << " * \\param[in] e: element\n"
      << " * \\param[in] tr: element transformation\n"
      << " */\n"
-     << "static const mfem::IntegrationRule &getIntegrationRule(\n"
+     << "static const mfem::IntegrationRule &selectIntegrationRule(\n"
      << "    const mfem::FiniteElement &,\n"
      << "    const mfem::ElementTransformation &);\n"
      << "/*!\n"
@@ -438,6 +438,15 @@ void generateHeaderFile(std::ostream& os,
      << "static std::shared_ptr<const PartialQuadratureSpace> "
      << "buildQuadratureSpace(const FiniteElementDiscretization &,\n"
      << "                     const size_type);\n"
+     << "/*!\n"
+     << " * \\return the integration rule for the given element and "
+     << " * element transformation.\n"
+     << " * \\param[in] e: element\n"
+     << " * \\param[in] tr: element transformation\n"
+     << " */\n"
+     << "const mfem::IntegrationRule &getIntegrationRule(\n"
+     << "    const mfem::FiniteElement &,\n"
+     << "    const mfem::ElementTransformation &) const override;\n"
      << "/*!\n"
      << " * \\brief update the strain with the contribution of the\n"
      << " * given node\n"
@@ -505,10 +514,30 @@ void generateSourceFile(std::ostream& os,
      << "#include \"MGIS/Behaviour/Behaviour.hxx\"\n"
      << "#include \"MFEMMGIS/" << d.name << ".hxx\"\n\n"
      << "namespace mfem_mgis {\n\n";
-  generateUpdateGradient(os, d);
-  generateUpdateInnerForces(os, d);
-  generateUpdateStiffnessMatrix(os, d);
-  os << "\n"
+  os << "const mfem::IntegrationRule &\n"
+     << "" << d.name << "::selectIntegrationRule(\n"
+     << "const mfem::FiniteElement &e,"
+     << "const mfem::ElementTransformation &t) {\n"
+     << "  const auto order = 2 * t.OrderGrad(&e);\n";
+  if (isAxisymmetricalHypothesis(d.hypothesis)) {
+    os << "  return mfem::IntRules.Get(e.GetGeomType(), order + 1);\n";
+  } else {
+    os << "  return mfem::IntRules.Get(e.GetGeomType(), order);\n";
+  }
+  os << "}\n"
+     << "\n"
+     << "std::shared_ptr<const PartialQuadratureSpace>\n"
+     << "" << d.name << "::buildQuadratureSpace(\n"
+     << "    const FiniteElementDiscretization &fed, const size_type m) {\n"
+     << "  auto selector = [](const mfem::FiniteElement &e,\n"
+     << "                     const mfem::ElementTransformation &tr)\n"
+     << "      -> const mfem::IntegrationRule & {\n"
+     << "    return selectIntegrationRule(e, tr);\n"
+     << "  };  // end of selector\n"
+     << "  return std::make_shared<PartialQuadratureSpace>(fed, m, "
+        "selector);\n"
+     << "}  // end of buildQuadratureSpace\n"
+     << "\n"
      << "" << d.name << "::" << d.name << "(\n"
      << "        const FiniteElementDiscretization &fed,\n"
      << "        const size_type m,\n"
@@ -523,7 +552,13 @@ void generateSourceFile(std::ostream& os,
   os << "mgis::raise(\"invalid behaviour symmetry\");\n"
      << "}\n"
      << "}  // end of " << d.name << "\n"
-     << "\n";
+     << "\n"
+     << "const mfem::IntegrationRule &\n"
+     << d.name << "::getIntegrationRule(\n"
+     << "const mfem::FiniteElement &e, "
+     << "const mfem::ElementTransformation &t)const  {\n"
+     << "return " << d.name << "::selectIntegrationRule(e, t);\n"
+     << "}\n";
   if (d.isotropic) {
     os << d.name << "::RotationMatrix\n"
        << d.name << "::getRotationMatrix(const size_type) const{\n"
@@ -594,34 +629,12 @@ void generateSourceFile(std::ostream& os,
      << "    this->implementComputeStiffnessMatrix(Ke, e, tr);\n"
      << "  }  // end of computeStiffnessMatrix\n"
      << "\n"
-     << "const mfem::IntegrationRule &\n"
-     << "" << d.name << "::getIntegrationRule(\n"
-     << "    const mfem::FiniteElement &el, const "
-        "mfem::ElementTransformation "
-        "&Trans) {\n"
-     << "  const auto order = 2 * Trans.OrderGrad(&el);\n";
-  if (isAxisymmetricalHypothesis(d.hypothesis)) {
-    os << "  return mfem::IntRules.Get(el.GetGeomType(), order + 1);\n";
-  } else {
-    os << "  return mfem::IntRules.Get(el.GetGeomType(), order);\n";
-  }
-  os << "  }\n"
-     << "\n"
-     << "std::shared_ptr<const PartialQuadratureSpace>\n"
-     << "" << d.name << "::buildQuadratureSpace(\n"
-     << "    const FiniteElementDiscretization &fed, const size_type m) {\n"
-     << "  auto selector = [](const mfem::FiniteElement &e,\n"
-     << "                     const mfem::ElementTransformation &tr)\n"
-     << "      -> const mfem::IntegrationRule & {\n"
-     << "    return getIntegrationRule(e, tr);\n"
-     << "  };  // end of selector\n"
-     << "  return std::make_shared<PartialQuadratureSpace>(fed, m, "
-        "selector);\n"
-     << "}  // end of buildQuadratureSpace\n"
-     << "\n"
      << d.name << "::~" << d.name << "() = default;\n"
-     << "\n"
-     << "}  // end of namespace mfem_mgis\n";
+     << "\n";
+  generateUpdateGradient(os, d);
+  generateUpdateInnerForces(os, d);
+  generateUpdateStiffnessMatrix(os, d);
+  os << '\n' << "}  // end of namespace mfem_mgis\n";
 }  // end of generateSourceFile
 
 template <typename T>
