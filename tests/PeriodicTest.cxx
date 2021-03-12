@@ -335,9 +335,9 @@ void executeMFEMMGISTest(const TestParameters& p) {
         std::cerr << "Invalid mesh dimension \n";
         exit_on_failure<parallel>();
       }
-      for (int i = 0 ; i < 2 ; i++)
-        smesh->UniformRefinement();
       mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
+      for (int i = 0 ; i < 2 ; i++)
+        mesh->UniformRefinement();
     } else {
       mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
       if (dim != mesh->Dimension()) {
