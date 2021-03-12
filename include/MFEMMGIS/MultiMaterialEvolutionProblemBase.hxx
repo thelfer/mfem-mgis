@@ -20,6 +20,8 @@ namespace mfem_mgis {
   // forward declaration
   struct Material;
   // forward declaration
+  struct BehaviourIntegrator;
+  // forward declaration
   struct MultiMaterialNonLinearIntegrator;
 
   /*!
@@ -55,6 +57,16 @@ namespace mfem_mgis {
      * \param[in] m: material id
      */
     virtual Material& getMaterial(const size_type);
+    /*!
+     * \return the behaviour integrator with the given material id
+     * \param[in] m: material id
+     */
+    virtual const BehaviourIntegrator& getBehaviourIntegrator(const size_type) const;
+    /*!
+     * \return the behaviour integrator with the given material id
+     * \param[in] m: material id
+     */
+    virtual BehaviourIntegrator& getBehaviourIntegrator(const size_type);
     /*!
      * \brief add a new material
      * \param[in] n: name of the behaviour integrator
