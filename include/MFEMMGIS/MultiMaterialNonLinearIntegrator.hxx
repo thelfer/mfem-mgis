@@ -50,7 +50,7 @@ namespace mfem_mgis {
      * \brief set the value of the time increment
      * \param[in] dt: time increment
      */
-    void setTimeIncrement(const real);
+    virtual void setTimeIncrement(const real);
     /*!
      * \brief method called before each resolution
      * \param[in] t: time at the beginning of the time step
@@ -64,20 +64,30 @@ namespace mfem_mgis {
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
-    void addBehaviourIntegrator(const std::string &,
-                                const size_type,
-                                const std::string &,
-                                const std::string &);
+    virtual void addBehaviourIntegrator(const std::string &,
+					const size_type,
+					const std::string &,
+					const std::string &);
     /*!
      * \return the material with the given id
      * \param[in] m: material id
      */
-    const Material &getMaterial(const size_type) const;
+    virtual const Material &getMaterial(const size_type) const;
     /*!
      * \return the material with the given id
      * \param[in] m: material id
      */
-    Material &getMaterial(const size_type);
+    virtual Material &getMaterial(const size_type);
+    /*!
+     * \return the behaviour integrator with the given material id
+     * \param[in] m: material id
+     */
+    virtual const BehaviourIntegrator& getBehaviourIntegrator(const size_type) const;
+    /*!
+     * \return the behaviour integrator with the given material id
+     * \param[in] m: material id
+     */
+    virtual BehaviourIntegrator& getBehaviourIntegrator(const size_type);
     /*!
      * \brief revert the internal state variables.
      *
@@ -85,7 +95,7 @@ namespace mfem_mgis {
      * step are copied on the values of the internal state variables at
      * end of the time step.
      */
-    void revert();
+    virtual void revert();
     /*!
      * \brief update the internal state variables.
      *
@@ -93,12 +103,12 @@ namespace mfem_mgis {
      * are copied on the values of the internal state variables at beginning of
      * the time step.
      */
-    void update();
+    virtual void update();
     /*!
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    void setMacroscopicGradients(mgis::span<const real>);
+    virtual void setMacroscopicGradients(mgis::span<const real>);
     /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.

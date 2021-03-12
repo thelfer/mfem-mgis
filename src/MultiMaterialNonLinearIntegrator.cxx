@@ -107,6 +107,19 @@ namespace mfem_mgis {
     return bi->getMaterial();
   }  // end of getMaterial
 
+  const BehaviourIntegrator& MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
+      const size_type m) const {
+    const auto& bi = this->behaviour_integrators[m];
+    checkIfBehaviourIntegratorIsDefined(bi.get(), "getBehaviourIntegrator", m);
+    return *bi;
+  }  // end of getBehaviourIntegrator
+
+  BehaviourIntegrator& MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(const size_type m) {
+    const auto& bi = this->behaviour_integrators[m];
+    checkIfBehaviourIntegratorIsDefined(bi.get(), "getBehaviourIntegrator", m);
+    return *bi;
+  }  // end of getBehaviourIntegrator
+  
   void MultiMaterialNonLinearIntegrator::setTimeIncrement(const real dt) {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {

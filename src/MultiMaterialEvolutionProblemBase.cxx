@@ -45,12 +45,21 @@ namespace mfem_mgis {
   const Material& MultiMaterialEvolutionProblemBase::getMaterial(
       const size_type m) const {
     return this->mgis_integrator->getMaterial(m);
-  }  // end of MultiMaterialEvolutionProblemBase::getMaterial
+  }  // end of getMaterial
 
   Material& MultiMaterialEvolutionProblemBase::getMaterial(const size_type m) {
     return this->mgis_integrator->getMaterial(m);
-  }  // end of MultiMaterialEvolutionProblemBase::getMaterial
+  }  // end of getMaterial
 
+  const BehaviourIntegrator& MultiMaterialEvolutionProblemBase::getBehaviourIntegrator(
+      const size_type m) const {
+    return this->mgis_integrator->getBehaviourIntegrator(m);
+  }  // end of getBehaviourIntegrator
+
+  BehaviourIntegrator& MultiMaterialEvolutionProblemBase::getBehaviourIntegrator(const size_type m) {
+    return this->mgis_integrator->getBehaviourIntegrator(m);
+  }  // end of getBehaviourIntegrator
+  
   void MultiMaterialEvolutionProblemBase::setTimeIncrement(const real dt) {
     this->mgis_integrator->setTimeIncrement(dt);
   }  // end of setTimeIncrement
