@@ -109,7 +109,7 @@ namespace mfem_mgis {
     virtual ~MultiMaterialNonLinearIntegrator();
 
    protected:
-    //! \brief underlying finit element space
+    //! \brief underlying finite element space
     const std::shared_ptr<const FiniteElementDiscretization> fe_discretization;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
