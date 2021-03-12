@@ -47,9 +47,10 @@ namespace mfem_mgis {
     NewtonSolver& getSolver();
     /*!
      * \brief solve the non linear problem over the given time step
+     * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void solve(const real);
+    virtual void solve(const real, const real);
     //! \brief destructor
     ~NonLinearEvolutionProblemBase();
 
@@ -79,9 +80,10 @@ namespace mfem_mgis {
     NewtonSolver& getSolver();
     /*!
      * \brief solve the non linear problem over the given time step
+     * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void solve(const real);
+    virtual void solve(const real, const real);
     //! \brief destructor
     ~NonLinearEvolutionProblemBase();
 

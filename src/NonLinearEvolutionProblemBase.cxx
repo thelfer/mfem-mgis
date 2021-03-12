@@ -36,10 +36,10 @@ namespace mfem_mgis {
     return this->solver;
   }  // end of getSolver
 
-  void NonLinearEvolutionProblemBase<true>::solve(const real dt) {
+  void NonLinearEvolutionProblemBase<true>::solve(const real t, const real dt) {
     mfem::Vector zero;
     this->setTimeIncrement(dt);
-    this->setup();
+    this->setup(t, dt);
     this->solver.Mult(zero, this->u1);
     if (!this->solver.GetConverged()) {
       mgis::raise("Newton solver did not converge");
@@ -72,10 +72,11 @@ namespace mfem_mgis {
     return this->solver;
   }  // end of getSolver
 
-  void NonLinearEvolutionProblemBase<false>::solve(const real dt) {
+  void NonLinearEvolutionProblemBase<false>::solve(const real t,
+                                                   const real dt) {
     mfem::Vector zero;
     this->setTimeIncrement(dt);
-    this->setup();
+    this->setup(t, dt);
     this->solver.Mult(zero, this->u1);
     if (!this->solver.GetConverged()) {
       mgis::raise("Newton solver did not converge");

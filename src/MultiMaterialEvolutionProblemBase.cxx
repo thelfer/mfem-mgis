@@ -17,8 +17,8 @@ namespace mfem_mgis {
       : mgis_integrator(new MultiMaterialNonLinearIntegrator(fed, h)),
         hypothesis(h) {}  // end of MultiMaterialEvolutionProblemBase
 
-  void MultiMaterialEvolutionProblemBase::setup() {
-    this->mgis_integrator->setup();
+  void MultiMaterialEvolutionProblemBase::setup(const real t, const real dt) {
+    this->mgis_integrator->setup(t, dt);
   }  // end of setup
 
   void MultiMaterialEvolutionProblemBase::revert() {
@@ -28,6 +28,11 @@ namespace mfem_mgis {
   void MultiMaterialEvolutionProblemBase::update() {
     this->mgis_integrator->update();
   }  // end of update
+
+  std::vector<size_type>
+  MultiMaterialEvolutionProblemBase::getMaterialIdentifiers() const {
+    return this->mgis_integrator->getMaterialIdentifiers();
+  }  // end of getMaterialIdentifiers
 
   void MultiMaterialEvolutionProblemBase::addBehaviourIntegrator(
       const std::string& n,
@@ -49,6 +54,11 @@ namespace mfem_mgis {
   void MultiMaterialEvolutionProblemBase::setTimeIncrement(const real dt) {
     this->mgis_integrator->setTimeIncrement(dt);
   }  // end of setTimeIncrement
+
+  void MultiMaterialEvolutionProblemBase::setMacroscopicGradients(
+      mgis::span<const real> g) {
+    this->mgis_integrator->setMacroscopicGradients(g);
+  }  // end of setMacroscopicGradients
 
   MultiMaterialEvolutionProblemBase::~MultiMaterialEvolutionProblemBase() =
       default;

@@ -8,10 +8,39 @@
 #ifndef LIB_MFEM_MGIS_PERIODICNONLINEAREVOLUTIONPROBLEM_HXX
 #define LIB_MFEM_MGIS_PERIODICNONLINEAREVOLUTIONPROBLEM_HXX
 
+#include <functional>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {
+
+  /*!
+   * \brief a base class handling the evolution of the macroscopic gradients
+   */
+  struct PeriodicNonLinearEvolutionProblemBase {
+    /*!
+     * \brief set the evolution of the macroscopic gradients
+     * \param[in] e : function
+     */
+    virtual void setMacroscopicGradientsEvolution(
+        const std::function<std::vector<real>(const real)>&);
+    /*!
+     * \return the value of the macroscopic gradients at the end of the time
+     * step.
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    virtual std::vector<real> getMacroscopicGradients(
+        const real, const real) const;
+    //! \brief destructor
+    virtual ~PeriodicNonLinearEvolutionProblemBase();
+
+   protected:
+    //! \brief a function describing the evolution of the macroscopic gradients
+    std::function<std::vector<real>(const real)>
+        macroscopic_gradients_evolution;
+  };  // end of PeriodicNonLinearEvolutionProblemBase
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -23,7 +52,8 @@ namespace mfem_mgis {
 
   template <>
   struct MFEM_MGIS_EXPORT PeriodicNonLinearEvolutionProblem<true>
-      : public NonLinearEvolutionProblem<true> {
+      : public NonLinearEvolutionProblem<true>,
+        public PeriodicNonLinearEvolutionProblemBase {
     /*!
      * \brief an helper function fix the degree of freedom of a point
      * \param[in] p: non linear evolution problem
@@ -38,13 +68,17 @@ namespace mfem_mgis {
         std::shared_ptr<FiniteElementDiscretization>);
     //! \brief destructor
     ~PeriodicNonLinearEvolutionProblem() override;
+
+   protected:
+    void setup(const real, const real) override;
   };  // end of struct PeriodicNonLinearEvolutionProblem
 
 #endif /* MFEM_USE_MPI */
 
   template <>
   struct MFEM_MGIS_EXPORT PeriodicNonLinearEvolutionProblem<false>
-      : public NonLinearEvolutionProblem<false> {
+      : public NonLinearEvolutionProblem<false>,
+        public PeriodicNonLinearEvolutionProblemBase {
     /*!
      * \brief an helper function fix the degree of freedom of a point
      * \param[in] p: non linear evolution problem
@@ -59,6 +93,9 @@ namespace mfem_mgis {
         std::shared_ptr<FiniteElementDiscretization>);
     //! \brief destructor
     ~PeriodicNonLinearEvolutionProblem() override;
+
+   protected:
+    void setup(const real, const real) override;
   };  // end of struct PeriodicNonLinearEvolutionProblem
 
 }  // end of namespace mfem_mgis

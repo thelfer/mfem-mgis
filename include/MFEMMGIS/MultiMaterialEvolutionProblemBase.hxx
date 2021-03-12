@@ -9,6 +9,7 @@
 #define LIB_MFEM_MGIS_MULTIMATERIALEVOLUTIONPROBLEMBASE_HXX
 
 #include <memory>
+#include "MGIS/Span.hxx"
 #include "MGIS/Behaviour/Hypothesis.hxx"
 #include "MFEMMGIS/Config.hxx"
 
@@ -35,15 +36,25 @@ namespace mfem_mgis {
     MultiMaterialEvolutionProblemBase(
         std::shared_ptr<FiniteElementDiscretization>, const Hypothesis);
     /*!
-     * \return the material with the given id
-     * \param[in] m: material id
+     * \brief set the macroscropic gradients
+     * \param[in] g: macroscopic gradients
      */
-    const Material& getMaterial(const size_type) const;
+    virtual void setMacroscopicGradients(mgis::span<const real>);
+    /*!
+     * \return the list of material identifiers for which a behaviour
+     * integrator has been defined.
+     */
+    virtual std::vector<size_type> getMaterialIdentifiers() const;
     /*!
      * \return the material with the given id
      * \param[in] m: material id
      */
-    Material& getMaterial(const size_type);
+    virtual const Material& getMaterial(const size_type) const;
+    /*!
+     * \return the material with the given id
+     * \param[in] m: material id
+     */
+    virtual Material& getMaterial(const size_type);
     /*!
      * \brief add a new material
      * \param[in] n: name of the behaviour integrator
@@ -77,8 +88,10 @@ namespace mfem_mgis {
     void setTimeIncrement(const real);
     /*!
      * \brief method called at the beginning of each resolution.
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
      */
-    void setup();
+    void setup(const real, const real);
     //! \brief pointer to the underlying domain integrator
     MultiMaterialNonLinearIntegrator* const mgis_integrator;
     //! \brief modelling hypothesis

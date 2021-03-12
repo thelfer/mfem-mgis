@@ -64,9 +64,11 @@ namespace mfem_mgis {
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 
+   protected:
+    void setup(const real, const real) override;
+
    private:
     void setTimeIncrement(const real) override;
-    void setup() override;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblem
@@ -109,9 +111,11 @@ namespace mfem_mgis {
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 
+   protected:
+    void setup(const real, const real) override;
+
    private:
     void setTimeIncrement(const real) override;
-    void setup() override;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblem

@@ -9,6 +9,7 @@
 #define LIB_MFEM_MGIS_BEHAVIOURINTEGRATOR_HXX
 
 #include <memory>
+#include "MGIS/Span.hxx"
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
@@ -34,8 +35,10 @@ namespace mfem_mgis {
     virtual void setTimeIncrement(const real) = 0;
     /*!
      * \brief method call at the beginning of each resolution
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
      */
-    virtual void setup() = 0;
+    virtual void setup(const real, const real) = 0;
     /*!
      * \brief compute the inner forces for the given element
      * \param[out] Fe: element stiffness matrix
@@ -78,6 +81,11 @@ namespace mfem_mgis {
     virtual Material &getMaterial() = 0;
     //! \return the underlying material
     virtual const Material &getMaterial() const = 0;
+    /*!
+     * \brief set the macroscropic gradients
+     * \param[in] g: macroscopic gradients
+     */
+    virtual void setMacroscopicGradients(mgis::span<const real>) = 0;
     //! \brief destructor
     virtual ~BehaviourIntegrator();
   };  // end of struct BehaviourIntegrator

@@ -21,11 +21,12 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : BehaviourIntegrator,
                                                     Material {
     void setTimeIncrement(const real) override;
-    void setup() override;
+    void setup(const real, const real) override;
     void revert() override;
     void update() override;
     Material& getMaterial() override;
     const Material& getMaterial() const override;
+    void setMacroscopicGradients(mgis::span<const real>) override;
     //! \brief destructor
     ~BehaviourIntegratorBase() override;
 

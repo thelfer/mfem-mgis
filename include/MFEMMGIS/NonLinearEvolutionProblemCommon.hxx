@@ -52,8 +52,10 @@ namespace mfem_mgis {
     virtual void setTimeIncrement(const real);
     /*!
      * \brief method called before each resolution
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
      */
-    virtual void setup();
+    virtual void setup(const real, const real);
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief unknowns at the beginning of the time step

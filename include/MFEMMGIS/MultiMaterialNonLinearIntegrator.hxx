@@ -53,8 +53,10 @@ namespace mfem_mgis {
     void setTimeIncrement(const real);
     /*!
      * \brief method called before each resolution
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
      */
-    virtual void setup();
+    virtual void setup(const real, const real);
     /*!
      * \brief add a new material
      * \param[in] n: name of the behaviour integrator
@@ -92,6 +94,16 @@ namespace mfem_mgis {
      * the time step.
      */
     void update();
+    /*!
+     * \brief set the macroscropic gradients
+     * \param[in] g: macroscopic gradients
+     */
+    void setMacroscopicGradients(mgis::span<const real>);
+    /*!
+     * \return the list of material identifiers for which a behaviour
+     * integrator has been defined.
+     */
+    virtual std::vector<size_type> getMaterialIdentifiers() const;
 
     //! \brief destructor
     virtual ~MultiMaterialNonLinearIntegrator();

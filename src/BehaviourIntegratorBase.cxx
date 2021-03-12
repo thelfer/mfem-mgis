@@ -54,7 +54,7 @@ namespace mfem_mgis {
     return *this;
   }  // end of getMaterial
 
-  void BehaviourIntegratorBase::setup() {
+  void BehaviourIntegratorBase::setup(const real, const real) {
     /*
      * \brief uniform values are treated immediatly. For spatially variable
      * fields, we return the information needed to evaluate them
@@ -202,6 +202,11 @@ namespace mfem_mgis {
   void BehaviourIntegratorBase::update(){
     mgis::behaviour::update(*this);
   }  // end of update
+
+  void BehaviourIntegratorBase::setMacroscopicGradients(
+      mgis::span<const real> g) {
+    Material::setMacroscopicGradients(g);
+  }  // end of setMacroscopicGradients
 
   BehaviourIntegratorBase::~BehaviourIntegratorBase() = default;
 

@@ -302,13 +302,12 @@ void executeMFEMMGISTest(const TestParameters& p) {
   } else {
     e[p.tcase] = 1.41421356237309504880 / 2;
   }
-  m1.setMacroscopicGradients(e);
-  m2.setMacroscopicGradients(e);
+  problem.setMacroscopicGradientsEvolution([e](const double) { return e; });
   //
   auto lsolver = getLinearSolver<parallel>(p.linearsolver);
   setSolverParameters(problem, *(lsolver.get()));
   // solving the problem
-  problem.solve(1);
+  problem.solve(0, 1);
   //
   if (!checkSolution(problem, p.tcase)) {
     exit_on_failure<parallel>();
@@ -366,7 +365,7 @@ void executeMFEMMTest(const TestParameters& p) {
   auto lsolver = getLinearSolver<false>(p.linearsolver);
   setSolverParameters(problem, *(lsolver.get()));
   // solving the problem
-  problem.solve(1);
+  problem.solve(0, 1);
   //
   if (!checkSolution(problem, p.tcase)) {
     std::exit(EXIT_FAILURE);

@@ -115,10 +115,19 @@ namespace mfem_mgis {
     }
   }  // end of setTimeIncrement
 
-  void MultiMaterialNonLinearIntegrator::setup() {
+  void MultiMaterialNonLinearIntegrator::setMacroscopicGradients(
+      mgis::span<const real> g) {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {
-        bi->setup();
+        bi->setMacroscopicGradients(g);
+      }
+    }
+  }  // end of setMacroscopicGradients
+
+  void MultiMaterialNonLinearIntegrator::setup(const real t, const real dt) {
+    for (auto& bi : this->behaviour_integrators) {
+      if (bi != nullptr) {
+        bi->setup(t, dt);
       }
     }
   }  // end of setTimeIncrement
@@ -138,6 +147,17 @@ namespace mfem_mgis {
       }
     }
   }  // end of update
+
+  std::vector<size_type>
+  MultiMaterialNonLinearIntegrator::getMaterialIdentifiers() const {
+    std::vector<size_type> mids;
+    for (size_type i = 0; i != this->behaviour_integrators.size(); ++i) {
+      if (this->behaviour_integrators[i] != nullptr) {
+        mids.push_back(i);
+      }
+    }
+    return mids;
+  }  // end of getMaterialIdentifiers
 
   MultiMaterialNonLinearIntegrator::~MultiMaterialNonLinearIntegrator() =
       default;

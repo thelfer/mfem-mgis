@@ -5,9 +5,30 @@
  * \date   10/03/2021
  */
 
+#include <iostream>
+#include "MGIS/Raise.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {
+
+  void PeriodicNonLinearEvolutionProblemBase::setMacroscopicGradientsEvolution(
+      const std::function<std::vector<real>(const real)>& ev) {
+    this->macroscopic_gradients_evolution = ev;
+  } // end of setMacroscopicGradientsEvolution
+
+  std::vector<real>
+  PeriodicNonLinearEvolutionProblemBase::getMacroscopicGradients(
+      const real t, const real dt) const {
+    if (!this->macroscopic_gradients_evolution) {
+      mgis::raise(
+          "PeriodicNonLinearEvolutionProblemBase::getMacroscopicGradients: "
+          "the evolution of the macroscopic gradients has not been set");
+    }
+    return this->macroscopic_gradients_evolution(t + dt);
+  }  // end of getMacroscopicGradients
+
+  PeriodicNonLinearEvolutionProblemBase::
+      ~PeriodicNonLinearEvolutionProblemBase() = default;
 
 #ifdef MFEM_USE_MPI
 
@@ -23,7 +44,6 @@ namespace mfem_mgis {
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
     std::cerr << "Number of nodes: " << size << std::endl;
-
     // Traversal of all dofs to detect which one is (0,0,0)
     for (int i = 0; i < size; ++i) {
       double coord[dim];  // coordinates of a node
@@ -67,6 +87,12 @@ namespace mfem_mgis {
     PeriodicNonLinearEvolutionProblem<true>::setBoundaryConditions(*this);
   }  // end of PeriodicNonLinearEvolutionProblem
 
+  void PeriodicNonLinearEvolutionProblem<true>::setup(const real t,
+                                                      const real dt) {
+    NonLinearEvolutionProblem<true>::setup(t, dt);
+    this->setMacroscopicGradients(this->getMacroscopicGradients(t, dt));
+  }  // end of setup
+
   PeriodicNonLinearEvolutionProblem<
       true>::~PeriodicNonLinearEvolutionProblem() = default;
 
@@ -92,6 +118,12 @@ namespace mfem_mgis {
             fed, mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
     PeriodicNonLinearEvolutionProblem<false>::setBoundaryConditions(*this);
   }  // end of PeriodicNonLinearEvolutionProblem
+
+  void PeriodicNonLinearEvolutionProblem<false>::setup(const real t,
+                                                       const real dt) {
+    NonLinearEvolutionProblem<false>::setup(t, dt);
+    this->setMacroscopicGradients(this->getMacroscopicGradients(t, dt));
+  }  // end of setup
 
   PeriodicNonLinearEvolutionProblem<
       false>::~PeriodicNonLinearEvolutionProblem() = default;

@@ -150,7 +150,7 @@ int main(const int argc, char** const argv) {
       u1[yz1_ux_dofs[idx]] = u;
     }
     // resolution
-    problem.solve(dt);
+    problem.solve(t, dt);
     problem.update();
     t += dt;
     //

@@ -49,7 +49,7 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemCommon::setTimeIncrement(const real) {
   }  // end of NonLinearEvolutionProblemCommon::setTimeIncrement
 
-  void NonLinearEvolutionProblemCommon::setup() {
+  void NonLinearEvolutionProblemCommon::setup(const real, const real) {
   }  // end of NonLinearEvolutionProblemCommon::setup
 
   NonLinearEvolutionProblemCommon::~NonLinearEvolutionProblemCommon() = default;
