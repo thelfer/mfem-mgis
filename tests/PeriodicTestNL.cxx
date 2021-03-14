@@ -112,17 +112,18 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
         std::shared_ptr<mfem::GMRESSolver> pgmres(nullptr);
 	pgmres = std::make_shared<mfem::GMRESSolver>(MPI_COMM_WORLD);
         pgmres->iterative_mode = false;
-        pgmres->SetRelTol(1e-12);
-        pgmres->SetAbsTol(1e-12);
-        pgmres->SetMaxIter(300);
+        pgmres->SetRelTol(1e-9);
+        pgmres->SetAbsTol(1e-9);
+        pgmres->SetMaxIter(800);
         pgmres->SetPrintLevel(1);
         return pgmres;
       },
       []() -> std::shared_ptr<mfem::Solver> {
         std::shared_ptr<mfem::CGSolver> pcg(nullptr);                                
 	pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
-        pcg->SetRelTol(1e-12);
-        pcg->SetMaxIter(300);
+        pcg->SetRelTol(1e-9);
+        pcg->SetAbsTol(1e-9);
+        pcg->SetMaxIter(800);
         pcg->SetPrintLevel(1);
         return pcg;
       }
@@ -198,8 +199,8 @@ void setSolverParameters(mfem_mgis::NonLinearEvolutionProblemBase<true>& problem
   solver.iterative_mode = true;
   solver.SetSolver(lsolver);
   solver.SetPrintLevel(0);
-  solver.SetRelTol(1e-12);
-  solver.SetAbsTol(1e-12);
+  solver.SetRelTol(1e-9);
+  solver.SetAbsTol(1e-9);
   solver.SetMaxIter(10);
 }  // end of setSolverParmeters
 

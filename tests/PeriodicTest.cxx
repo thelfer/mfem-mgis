@@ -123,9 +123,9 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
         else
           pgmres = std::make_shared<mfem::GMRESSolver>();
         pgmres->iterative_mode = false;
-        pgmres->SetRelTol(1e-12);
-        pgmres->SetAbsTol(1e-12);
-        pgmres->SetMaxIter(300);
+        pgmres->SetRelTol(1e-9);
+        pgmres->SetAbsTol(1e-9);
+        pgmres->SetMaxIter(800);
         pgmres->SetPrintLevel(1);
         return pgmres;
       },
@@ -135,8 +135,9 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
           pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
         else
           pcg = std::make_shared<mfem::CGSolver>();
-        pcg->SetRelTol(1e-12);
-        pcg->SetMaxIter(300);
+        pcg->SetRelTol(1e-9);
+        pcg->SetAbsTol(1e-9);
+        pcg->SetMaxIter(800);
         pcg->SetPrintLevel(1);
         return pcg;
       }
@@ -226,8 +227,8 @@ void setSolverParameters(
   solver.iterative_mode = true;
   solver.SetSolver(lsolver);
   solver.SetPrintLevel(0);
-  solver.SetRelTol(1e-12);
-  solver.SetAbsTol(1e-12);
+  solver.SetRelTol(1e-9);
+  solver.SetAbsTol(1e-9);
   solver.SetMaxIter(10);
 }  // end of setSolverParmeters
 
@@ -290,6 +291,7 @@ TestParameters parseCommandLineOptions(int &argc, char* argv[]){
   PROFILER_ENABLE;
   if constexpr (parallel) MPI_Init(&argc, &argv);
   PROFILER_START(0_total);
+  PROFILER_START(1_initialize);
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&p.mesh_file, "-m", "--mesh", "Mesh file to use.");
   args.AddOption(&p.library, "-l", "--library", "Material library.");
@@ -312,22 +314,19 @@ TestParameters parseCommandLineOptions(int &argc, char* argv[]){
     std::cerr << "Invalid test case\n";
     std::exit(EXIT_FAILURE);
   }
+  PROFILER_END();
   return p;
 }
 
 template <bool parallel>
 void exit_on_failure () {
-  int myid;
-  MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-  if (myid == 0)
-    LogProfiler();
-  PROFILER_DISABLE;
   if constexpr (parallel) MPI_Finalize();
   std::exit(EXIT_FAILURE);
 }
 
 template <bool parallel>
 void executeMFEMMGISTest(const TestParameters& p) {
+  PROFILER_START(2_read_mesh);
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
@@ -339,6 +338,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
         exit_on_failure<parallel>();
       }
       mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
+      PROFILER_END(); PROFILER_START(3_refine_mesh);
       for (int i = 0 ; i < p.refine ; i++)
         mesh->UniformRefinement();
     } else {
@@ -347,7 +347,10 @@ void executeMFEMMGISTest(const TestParameters& p) {
         std::cerr << "Invalid mesh dimension \n";
         exit_on_failure<parallel>();
       }
+      PROFILER_END(); PROFILER_START(3_refine_mesh);
   }
+  PROFILER_END(); PROFILER_START(4_initialize_fem); 
+
   // building the non linear problem
   mfem_mgis::NonLinearEvolutionProblem<parallel> problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
@@ -388,14 +391,23 @@ void executeMFEMMGISTest(const TestParameters& p) {
   //
   auto lsolver = getLinearSolver<parallel>(p.linearsolver);
   setSolverParameters(problem, *(lsolver.get()));
+  PROFILER_END(); PROFILER_START(5_solve);
   // solving the problem
   problem.solve(1);
   //
+  PROFILER_END(); PROFILER_START(6_postprocess);
   if (!checkSolution(problem, p.tcase)) {
     exit_on_failure<parallel>();
   }
   //
   exportResults(problem, p.tcase);
+  PROFILER_END(); 
+  PROFILER_END();
+  int myid;
+  MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+  if (myid == 0)
+    LogProfiler();
+  PROFILER_DISABLE;
   if constexpr(parallel) MPI_Finalize();
 }
 
