@@ -279,6 +279,7 @@ struct TestParameters {
   const char* library = nullptr;
   int order = 1;
   int tcase = 0;
+  int refine = 2;
   int linearsolver = 0;
 };
 
@@ -297,6 +298,8 @@ TestParameters parseCommandLineOptions(int &argc, char* argv[]){
   args.AddOption(&p.tcase, "-t", "--test-case",
                  "identifier of the case : Exx->0, Eyy->1, Ezz->2, Exy->3, "
                  "Exz->4, Eyz->5");
+  args.AddOption(&p.refine, "-r", "--refine",
+                 "Level of refinement");
   args.AddOption(&p.linearsolver, "-ls", "--linearsolver",
                  "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
   args.Parse();
@@ -336,7 +339,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
         exit_on_failure<parallel>();
       }
       mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
-      for (int i = 0 ; i < 2 ; i++)
+      for (int i = 0 ; i < p.refine ; i++)
         mesh->UniformRefinement();
     } else {
       mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);

@@ -251,6 +251,7 @@ struct TestParameters {
   int algo  = 0;
   int order = 1;
   int tcase = 0;
+  int refine = 2;
   int linearsolver = 0;
 };
 
@@ -262,6 +263,8 @@ TestParameters parseCommandLineOptions(const int argc, char** const argv) {
   args.AddOption(&p.library, "-l", "--library", "Material library.");
   args.AddOption(&p.order, "-o", "--order",
                  "Finite element order (polynomial degree).");
+  args.AddOption(&p.refine, "-r", "--refine",
+                 "Level of refinement");
   args.AddOption(&p.algo, "-a", "--algo",
                  "Algorithm to be used");
   args.AddOption(&p.tcase, "-t", "--test-case",
@@ -312,7 +315,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
   }
   PROFILER_END(); PROFILER_START(3_refine_mesh);
 
-  for (int i = 0 ; i < 2 ; i++)
+  for (int i = 0 ; i < p.refine ; i++)
     mesh->UniformRefinement();
 
   PROFILER_END(); PROFILER_START(4_initialize_fem); 
@@ -598,7 +601,7 @@ void executeMFEMTest(const TestParameters& p) {
   }
   PROFILER_END(); PROFILER_START(3_refine_mesh);
 
-  for (int i = 0 ; i < 2 ; i++)
+  for (int i = 0 ; i < p.refine ; i++)
     mesh->UniformRefinement();
 
   PROFILER_END(); PROFILER_START(4_initialize_fem); 
