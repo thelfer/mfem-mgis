@@ -115,54 +115,28 @@ void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
 }
 
 template <bool parallel>
-std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
-  using generator = std::shared_ptr<mfem::Solver> (*)();
-  const generator generators[] = {
-      []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::GMRESSolver> pgmres(nullptr);
-        if constexpr (parallel) 
-          pgmres = std::make_shared<mfem::GMRESSolver>(MPI_COMM_WORLD);
-        else
-          pgmres = std::make_shared<mfem::GMRESSolver>();
-        pgmres->iterative_mode = false;
-        pgmres->SetRelTol(1e-9);
-        pgmres->SetAbsTol(1e-9);
-        pgmres->SetMaxIter(800);
-        pgmres->SetPrintLevel(1);
-        return pgmres;
-      },
-      []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::HyprePCG> pcg(nullptr);                                
-        if constexpr (parallel) 
-	  pcg = std::make_shared<mfem::HyprePCG>(MPI_COMM_WORLD);
-        else
-          pcg = nullptr;
-        pcg->SetTol(1e-9);
-        pcg->SetMaxIter(800);
-        pcg->SetPrintLevel(1);
-        return pcg;
-      },
-      []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::CGSolver> pcg(nullptr);                                
-        if constexpr (parallel) 
-	  pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
-        else
-          pcg = std::make_shared<mfem::CGSolver>();
-        pcg->SetRelTol(1e-9);
-        pcg->SetAbsTol(1e-9);
-        pcg->SetMaxIter(800);
-        pcg->SetPrintLevel(1);
-        return pcg;
-      }
-#ifdef MFEM_USE_SUITESPARSE
-      ,
-      []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::UMFPackSolver> pumf(new mfem::UMFPackSolver);
-        return (pumf);
-      }
-#endif
-  };
-  return (generators[i])();
+std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i, 
+					      mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem) {
+  std::shared_ptr<mfem::HyprePCG> pcg(nullptr);                                
+  if constexpr (parallel) 
+    pcg = std::make_shared<mfem::HyprePCG>(MPI_COMM_WORLD);
+  else
+    pcg = nullptr;
+  pcg->SetTol(1e-9);
+  pcg->SetMaxIter(800);
+  pcg->SetPrintLevel(1);
+  if constexpr(parallel) {
+      const auto mesh = problem.getFiniteElementSpace().GetMesh();
+      const auto dim = mesh->Dimension();
+      bool reorder_space = true;
+      mfem::OperatorHandle Oph(&(problem.getNonLinearForm()), false);
+      auto A = Oph.As<mfem::HypreParMatrix>();
+      auto *amg = new mfem::HypreBoomerAMG(*A);
+      //      amg->SetElasticityOptions(&problem.getFiniteElementSpace());
+      amg->SetSystemsOptions(dim, reorder_space);
+      pcg->SetPreconditioner(*amg);
+    }
+  return pcg;
 }
 
 template <bool parallel>
@@ -243,16 +217,6 @@ void setSolverParameters(
   solver.SetRelTol(1e-9);
   solver.SetAbsTol(1e-9);
   solver.SetMaxIter(10);
-  if constexpr(parallel) {
-      const auto mesh = problem.getFiniteElementSpace().GetMesh();
-      const auto dim = mesh->Dimension();
-      bool reorder_space = true;
-      mfem::OperatorHandle Oph(&(problem.getNonLinearForm()), false);
-      auto A = Oph.As<mfem::HypreParMatrix>();
-      auto *amg = new mfem::HypreBoomerAMG(*A);
-      amg->SetSystemsOptions(dim, reorder_space);
-      static_cast<mfem::HyprePCG>lsolver.SetPreconditioner(*amg);
-    }
 }  // end of setSolverParmeters
 
 template <bool parallel>
@@ -412,7 +376,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
   //
   setBoundaryConditions<parallel>(problem);
   //
-  auto lsolver = getLinearSolver<parallel>(p.linearsolver);
+  auto lsolver = getLinearSolver<parallel>(p.linearsolver, problem);
   setSolverParameters(problem, *(lsolver.get()));
   PROFILER_END(); PROFILER_START(5_solve);
   // solving the problem
