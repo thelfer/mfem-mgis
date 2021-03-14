@@ -42,6 +42,8 @@
 #include <memory>
 #include <cstdlib>
 #include <iostream>
+#include "mfem/linalg/handle.hpp"
+#include "mfem/linalg/hypre.hpp"
 #include "mfem/general/optparser.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
@@ -130,9 +132,20 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
         return pgmres;
       },
       []() -> std::shared_ptr<mfem::Solver> {
+        std::shared_ptr<mfem::HyprePCG> pcg(nullptr);                                
+        if constexpr (parallel) 
+	  pcg = std::make_shared<mfem::HyprePCG>(MPI_COMM_WORLD);
+        else
+          pcg = nullptr;
+        pcg->SetTol(1e-9);
+        pcg->SetMaxIter(800);
+        pcg->SetPrintLevel(1);
+        return pcg;
+      },
+      []() -> std::shared_ptr<mfem::Solver> {
         std::shared_ptr<mfem::CGSolver> pcg(nullptr);                                
         if constexpr (parallel) 
-          pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
+	  pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
         else
           pcg = std::make_shared<mfem::CGSolver>();
         pcg->SetRelTol(1e-9);
@@ -230,6 +243,16 @@ void setSolverParameters(
   solver.SetRelTol(1e-9);
   solver.SetAbsTol(1e-9);
   solver.SetMaxIter(10);
+  if constexpr(parallel) {
+      const auto mesh = problem.getFiniteElementSpace().GetMesh();
+      const auto dim = mesh->Dimension();
+      bool reorder_space = true;
+      mfem::OperatorHandle Oph(&(problem.getNonLinearForm()), false);
+      auto A = Oph.As<mfem::HypreParMatrix>();
+      auto *amg = new mfem::HypreBoomerAMG(*A);
+      amg->SetSystemsOptions(dim, reorder_space);
+      static_cast<mfem::HyprePCG>lsolver.SetPreconditioner(*amg);
+    }
 }  // end of setSolverParmeters
 
 template <bool parallel>

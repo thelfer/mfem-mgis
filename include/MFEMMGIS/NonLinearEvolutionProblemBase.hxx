@@ -45,6 +45,8 @@ namespace mfem_mgis {
     const FiniteElementSpace<true>& getFiniteElementSpace() const;
     //! \return the Newton solver
     NewtonSolver& getSolver();
+    //! \return the NOnlinearform
+    mfem::Operator& getNonLinearForm();
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] dt: time increment
@@ -77,6 +79,7 @@ namespace mfem_mgis {
     const FiniteElementSpace<false>& getFiniteElementSpace() const;
     //! \return the Newton solver
     NewtonSolver& getSolver();
+    mfem::Operator& getNonLinearForm();
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] dt: time increment

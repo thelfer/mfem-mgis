@@ -36,6 +36,10 @@ namespace mfem_mgis {
     return this->solver;
   }  // end of getSolver
 
+  mfem::Operator& NonLinearEvolutionProblemBase<true>::getNonLinearForm() {
+    return *this;
+  }  // end of getSolver
+
   void NonLinearEvolutionProblemBase<true>::solve(const real dt) {
     mfem::Vector zero;
     this->setTimeIncrement(dt);
@@ -70,6 +74,10 @@ namespace mfem_mgis {
 
   NewtonSolver& NonLinearEvolutionProblemBase<false>::getSolver() {
     return this->solver;
+  }  // end of getSolver
+
+  mfem::Operator& NonLinearEvolutionProblemBase<false>::getNonLinearForm() {
+    return *this;
   }  // end of getSolver
 
   void NonLinearEvolutionProblemBase<false>::solve(const real dt) {
