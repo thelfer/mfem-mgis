@@ -82,7 +82,7 @@ namespace mfem_mgis {
           }();
           const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
           bi->getMaterial().setMacroscopicGradients(F);
-          return std::move(bi);
+          return bi;
         });
     return f;
   }  // end of buildFactory
@@ -123,7 +123,7 @@ namespace mfem_mgis {
           }();
           const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
           bi->getMaterial().setMacroscopicGradients(F);
-          return std::move(bi);
+          return bi;
         });
     return f;
   }  // end of buildFactory
@@ -164,7 +164,7 @@ namespace mfem_mgis {
           }();
           const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
           bi->getMaterial().setMacroscopicGradients(F);
-          return std::move(bi);
+          return bi;
         });
     return f;
   }  // end of buildFactory

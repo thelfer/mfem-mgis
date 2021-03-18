@@ -20,6 +20,8 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : BehaviourIntegrator,
                                                     Material {
+    const PartialQuadratureSpace& getPartialQuadratureSpace() const override;
+    std::shared_ptr<const PartialQuadratureSpace> getPartialQuadratureSpacePointer() const override;
     void setTimeIncrement(const real) override;
     void setup(const real, const real) override;
     void revert() override;

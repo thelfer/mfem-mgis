@@ -24,6 +24,16 @@ namespace mfem_mgis {
     this->wks.esvs1.resize(getArraySize(this->b.esvs, this->b.hypothesis));
   }  // end of BehaviourIntegratorBase
 
+
+  const PartialQuadratureSpace& BehaviourIntegratorBase::getPartialQuadratureSpace() const{
+    return *(this->quadrature_space);
+  } // end of getPartialQuadratureSpace
+
+  std::shared_ptr<const PartialQuadratureSpace>
+  BehaviourIntegratorBase::getPartialQuadratureSpacePointer() const{
+    return this->quadrature_space;
+  } // end of getPartialQuadratureSpace
+  
   void BehaviourIntegratorBase::throwInvalidBehaviourType(
       const char* const mn, const char* const m) const {
     auto msg = std::string(mn) + ": invalid behaviour type";

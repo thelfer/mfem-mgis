@@ -16,6 +16,8 @@ namespace mfem_mgis {
 
   // forward declaration
   struct Material;
+  // forward declaration
+  struct PartialQuadratureSpace;
 
   /*!
    * \brief abstract class for all behaviour integrators
@@ -28,6 +30,11 @@ namespace mfem_mgis {
    * - compute the stiffness matrix (see the `computeStiffnessMatrix` method).
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegrator {
+    //! \return the quadrature space
+    virtual const PartialQuadratureSpace& getPartialQuadratureSpace() const = 0;
+    //! \return a shared pointer to the quadrature space
+    virtual std::shared_ptr<const PartialQuadratureSpace>
+    getPartialQuadratureSpacePointer() const = 0;
     /*!
      * \brief set the time increment
      * \param[in] dt: time increment
