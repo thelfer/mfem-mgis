@@ -15,7 +15,6 @@
 #include "mfem/fem/pnonlinearform.hpp"
 #endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/Config.hxx"
-// #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemCommon.hxx"
 
 namespace mfem_mgis {
@@ -55,6 +54,9 @@ namespace mfem_mgis {
     ~NonLinearEvolutionProblemBase();
 
    protected:
+    //
+    void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+        std::vector<size_type>) override;
     //! \brief newton solver
     NewtonSolver solver;
   };  // end of struct NonLinearEvolutionProblemBase<true>
@@ -88,6 +90,9 @@ namespace mfem_mgis {
     ~NonLinearEvolutionProblemBase();
 
    protected:
+    //
+    void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+        std::vector<size_type>) override;
     //! \brief newton solver
     NewtonSolver solver;
   };  // end of struct NonLinearEvolutionProblemBase<false>

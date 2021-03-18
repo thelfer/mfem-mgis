@@ -46,6 +46,13 @@ namespace mfem_mgis {
     }
   }  // end of solve
 
+  void NonLinearEvolutionProblemBase<true>::
+      markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+          std::vector<size_type> dofs) {
+    auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
+    this->SetEssentialTrueDofs(tmp);
+  }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
+
   NonLinearEvolutionProblemBase<true>::~NonLinearEvolutionProblemBase() = default;
 
 #endif /* MFEM_USE_MPI */
@@ -82,6 +89,13 @@ namespace mfem_mgis {
       mgis::raise("Newton solver did not converge");
     }
   }  // end of solve
+
+  void NonLinearEvolutionProblemBase<false>::
+      markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+          std::vector<size_type> dofs) {
+    auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
+    this->SetEssentialTrueDofs(tmp);
+  }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
 
   NonLinearEvolutionProblemBase<false>::~NonLinearEvolutionProblemBase() = default;
 
