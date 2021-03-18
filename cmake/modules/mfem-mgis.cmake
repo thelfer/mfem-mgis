@@ -3,6 +3,11 @@ function(mfem_mgis_header dir file)
     DESTINATION "include/${dir}")
 endfunction(mfem_mgis_header)
 
+function(mfem_mgis_share dir file)
+  install(FILES ${file}
+    DESTINATION "share/${dir}")
+endfunction(mfem_mgis_share)
+
 function(mfem_mgis_library name)
   if(${ARGC} LESS 2)
     message(FATAL_ERROR "mfem_mgis_library_internal : no source specified")

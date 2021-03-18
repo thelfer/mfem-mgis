@@ -1,3 +1,5 @@
+mfem_mgis_share(tests Plasticity.mfront)
+
 mfront_behaviours_check_library(BehaviourTest
   Elasticity
   OrthotropicElasticity
