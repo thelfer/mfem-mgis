@@ -83,16 +83,7 @@ else(CMAKE_CONFIGURATION_TYPES)
    endif(NOT TARGET check)
 endif(CMAKE_CONFIGURATION_TYPES)
 
-execute_process(COMMAND "which" "mfront" OUTPUT_VARIABLE MFRONT_PATH)
-string(REGEX REPLACE "\n$" "" MFRONT_PATH "${MFRONT_PATH}")
-execute_process(COMMAND "which" "cmake" OUTPUT_VARIABLE CMAKE_CP_PATH)
-string(REGEX REPLACE "\n$" "" CMAKE_CP_PATH "${CMAKE_CP_PATH}")
-configure_file(cmake/env.sh.in
-  ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh  @ONLY)
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh
-    DESTINATION share/examples/)
-
+mfem_mgis_buildenv()
 
 add_subdirectory(docs)
 add_subdirectory(include)

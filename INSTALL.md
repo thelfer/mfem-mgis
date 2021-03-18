@@ -78,3 +78,26 @@ cmake .. -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER
 make -j 4 install
 make check
 ~~~~~
+
+# Creating a simple app based on mfem-mgis
+
+- Through the `make install` command, a simple application
+  has been created in your installation directory.
+  You can copy it elsewhere together with the `env.sh` file.
+  For example :
+~~~~{.bash}
+export INSTALLDIR=<your_mfemmgis_install_directory>
+export TGDIR=<your_target_directory>
+cd ${TGDIR}
+cp ${INSTALLDIR}/share/examples/env.sh .
+cp -r ${INSTALLDIR}/share/examples/ex1 .
+source env.sh
+mkdir build
+cd build
+cmake ..
+make
+./UniaxialTensileTest 
+~~~~
+  You can then modify the source file and design your
+  own application.
+
