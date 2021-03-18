@@ -63,14 +63,16 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemCommon::setup(const real t, const real dt) {
     if (this->initialization_phase) {
-      auto fixed_dirichlet_dofs = std::vector<mfem_mgis::size_type>{};
-      for (const auto& bc : this->dirichlet_boundary_conditions) {
-        auto dofs = bc->getHandledDegreesOfFreedom();
-        fixed_dirichlet_dofs.insert(fixed_dirichlet_dofs.end(), dofs.begin(),
-                                    dofs.end());
+      if (!this->dirichlet_boundary_conditions.empty()) {
+        auto fixed_dirichlet_dofs = std::vector<mfem_mgis::size_type>{};
+        for (const auto& bc : this->dirichlet_boundary_conditions) {
+          auto dofs = bc->getHandledDegreesOfFreedom();
+          fixed_dirichlet_dofs.insert(fixed_dirichlet_dofs.end(), dofs.begin(),
+                                      dofs.end());
+        }
+        this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+            fixed_dirichlet_dofs);
       }
-      this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-          fixed_dirichlet_dofs);
     }
     this->initialization_phase = false;
     for (const auto& bc : this->dirichlet_boundary_conditions) {

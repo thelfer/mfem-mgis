@@ -66,6 +66,9 @@ namespace mfem_mgis {
      */
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>);
+    // disable adding boundary conditions
+    [[noreturn]] void addBoundaryCondition(
+        std::unique_ptr<DirichletBoundaryCondition>) override;
     //! \brief destructor
     ~PeriodicNonLinearEvolutionProblem() override;
 
@@ -91,6 +94,9 @@ namespace mfem_mgis {
      */
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>);
+    // disable adding boundary conditions
+    [[noreturn]] void addBoundaryCondition(
+        std::unique_ptr<DirichletBoundaryCondition>) override;
     //! \brief destructor
     ~PeriodicNonLinearEvolutionProblem() override;
 
