@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 project(mfem-mgis)
 
 include(cmake/modules/mfem-mgis.cmake)
-set(MFEMMGIS_ROOT_DIR "${PROJECT_SOURCE_DIR}")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -89,9 +88,3 @@ add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(tests)
 
-foreach(p LIB BIN INCLUDE CMAKE)
-  set(var INSTALL_${p}_DIR)
-  if(NOT IS_ABSOLUTE "${${var}}")
-    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-  endif()
-endforeach()

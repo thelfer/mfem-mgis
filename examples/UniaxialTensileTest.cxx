@@ -16,11 +16,11 @@
 
 int main(const int argc, char** const argv) {
   constexpr const auto dim = mfem_mgis::size_type{3};
-  const char* mesh_file = nullptr;
-  const char* behaviour = nullptr;
-  const char* library = nullptr;
-  const char* reference_file = nullptr;
-  const char* isv_name = nullptr;
+  const char* mesh_file = "cube.mesh";
+  const char* behaviour = "Plasticity";
+  const char* library = "src/libBehaviour.so";
+  const char* reference_file = "Plasticity.ref";
+  const char* isv_name = "EquivalentPlasticStrain";
   auto order = 1;
   // options treatment
   mfem::OptionsParser args(argc, argv);

@@ -1,5 +1,3 @@
-mfem_mgis_share(tests Plasticity.mfront)
-
 mfront_behaviours_check_library(BehaviourTest
   Elasticity
   OrthotropicElasticity
@@ -105,3 +103,7 @@ if (MFEM_USE_MPI)
   endforeach(ncase)
 
 endif()
+
+mfem_mgis_share(tests Plasticity.mfront)
+mfem_mgis_share(tests cube.mesh)
+
