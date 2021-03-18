@@ -104,6 +104,6 @@ if (MFEM_USE_MPI)
 
 endif()
 
-mfem_mgis_share(tests Plasticity.mfront)
-mfem_mgis_share(tests cube.mesh)
+mfem_mgis_share(tests   Plasticity.mfront)
+mfem_mgis_share(tests   cube.mesh)
 

@@ -1,3 +1,5 @@
+set(EXPORT_INSTALL_PATH "share/mfem-mgis/cmake")
+
 function(mfem_mgis_header dir file)
   install(FILES ${dir}/${file}
     DESTINATION "include/${dir}")
@@ -31,12 +33,7 @@ function(mfem_mgis_library name)
     install(TARGETS ${name} EXPORT ${name}
             DESTINATION lib${LIB_SUFFIX})
   endif(WIN32)
-  if(MFEMMGIS_APPEND_SUFFIX)
-    set(export_install_path "share/mfem-mgis-${MFEMMGIS_SUFFIX}/cmake")
-  else(MFEMMGIS_APPEND_SUFFIX)
-    set(export_install_path "share/mfem-mgis/cmake")
-  endif(MFEMMGIS_APPEND_SUFFIX)
-  install(EXPORT ${name} DESTINATION ${export_install_path}
+  install(EXPORT ${name} DESTINATION ${EXPORT_INSTALL_PATH}
     NAMESPACE mfem-mgis:: FILE ${name}Config.cmake)
   
 endfunction(mfem_mgis_library)
