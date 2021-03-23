@@ -93,6 +93,13 @@ namespace mfem_mgis {
     this->setMacroscopicGradients(this->getMacroscopicGradients(t, dt));
   }  // end of setup
 
+  [[noreturn]] void PeriodicNonLinearEvolutionProblem<
+      true>::addBoundaryCondition(std::unique_ptr<DirichletBoundaryCondition>) {
+    mgis::raise(
+        "PeriodicNonLinearEvolutionProblem<true>::addBoundaryCondition: "
+        "invalid call");
+  }  // end of addBoundaryCondition
+
   PeriodicNonLinearEvolutionProblem<
       true>::~PeriodicNonLinearEvolutionProblem() = default;
 
@@ -124,6 +131,14 @@ namespace mfem_mgis {
     NonLinearEvolutionProblem<false>::setup(t, dt);
     this->setMacroscopicGradients(this->getMacroscopicGradients(t, dt));
   }  // end of setup
+
+  [[noreturn]] void
+  PeriodicNonLinearEvolutionProblem<false>::addBoundaryCondition(
+      std::unique_ptr<DirichletBoundaryCondition>) {
+    mgis::raise(
+        "PeriodicNonLinearEvolutionProblem<false>::addBoundaryCondition: "
+        "invalid call");
+  }  // end of addBoundaryCondition
 
   PeriodicNonLinearEvolutionProblem<
       false>::~PeriodicNonLinearEvolutionProblem() = default;

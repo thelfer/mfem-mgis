@@ -75,6 +75,7 @@ namespace mfem_mgis {
   }  // end of executePostProcessings
 
   void NonLinearEvolutionProblem<true>::setup(const real t, const real dt) {
+    NonLinearEvolutionProblemCommon::setup(t, dt);
     MultiMaterialEvolutionProblemBase::setup(t, dt);
   }  // end of setup
 
@@ -129,6 +130,7 @@ namespace mfem_mgis {
   }  // end of executePostProcessings
 
   void NonLinearEvolutionProblem<false>::setup(const real t, const real dt) {
+    NonLinearEvolutionProblemCommon::setup(t, dt);
     MultiMaterialEvolutionProblemBase::setup(t, dt);
   }  // end of setup
 

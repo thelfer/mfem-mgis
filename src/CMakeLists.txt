@@ -9,6 +9,9 @@ mfem_mgis_library(MFEMMGIS
   BehaviourIntegratorBase.cxx
   BehaviourIntegratorFactory.cxx
   MultiMaterialNonLinearIntegrator.cxx
+  DirichletBoundaryCondition.cxx
+  DirichletBoundaryConditionBase.cxx
+  UniformDirichletBoundaryCondition.cxx
   PostProcessing.cxx
   NonLinearEvolutionProblemCommon.cxx
   NonLinearEvolutionProblemBase.cxx
