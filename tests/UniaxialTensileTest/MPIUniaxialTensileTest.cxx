@@ -108,15 +108,16 @@ struct MeanStressPostProcessing
 	  const auto &s1 = bi.getMaterial().s1;
 	  //const auto thsize = s1.thermodynamic_forces_stride;
 	  const auto thsize =static_cast<mfem_mgis::size_type>(s1.thermodynamic_forces_stride);
-          std::vector<double> stress_integral(s.size(), 0);
+          double stress_tmp[s.size()] = {};
           MPI_Reduce(&volume[mi], &res_mpi_v, 1, MPI_DOUBLE, MPI_SUM, 0,
                      MPI_COMM_WORLD);
 		std::cout << " MPI_V " << res_mpi_v << std::endl;
-          MPI_Reduce(s.data(), stress_integral.data(), s.size(), MPI_DOUBLE,
+          MPI_Reduce(s.data(), stress_tmp, s.size(), MPI_DOUBLE,
                      MPI_SUM, 0, MPI_COMM_WORLD);
+	std::cout <<  __LINE__ << std::endl;
           if (rank == 0) {
-            for (mfem_mgis::size_type k = 0; k != thsize; ++k) {
-              this->out << " " << stress_integral[k] / res_mpi_v;
+            for (mfem_mgis::size_type k = 0; k != s.size(); ++k) {
+              this->out << " " << stress_tmp[k] / res_mpi_v;
             }
           }
         }   
