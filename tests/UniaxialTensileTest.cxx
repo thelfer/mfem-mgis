@@ -11,8 +11,10 @@
 #include "mfem/general/optparser.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
+#include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 int main(const int argc, char** const argv) {
@@ -115,12 +117,13 @@ int main(const int argc, char** const argv) {
   lsolver.SetMaxIter(300);
   lsolver.SetPrintLevel(1);
 #endif
-  auto& solver = problem.getSolver();
+  auto& solver = problem.getImplementation<false>().getSolver();
   solver.SetSolver(lsolver);
-  solver.SetPrintLevel(0);
-  solver.SetRelTol(1e-12);
-  solver.SetAbsTol(0);
-  solver.SetMaxIter(10);
+  //
+  problem.setSolverParameters({{"VerbosityLevel", 0},
+                               {"RelativeTolerance", 1e-12},
+                               {"AbsoluteTolerance", 0.},
+                               {"MaximumNumberOfIterations", 10}});
   // vtk export
   mfem::ParaViewDataCollection paraview_dc("UniaxialTensileTestOutput",
                                            mesh.get());
@@ -149,7 +152,8 @@ int main(const int argc, char** const argv) {
     tf0.push_back(m1.s1.thermodynamic_forces[0]);
     v.push_back(m1.s1.internal_state_variables[vo]);
     // recover the solution as a grid function
-    auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
+    auto& u1 =
+        problem.getImplementation<false>().getUnknownsAtEndOfTheTimeStep();
     mfem::GridFunction x(&problem.getFiniteElementDiscretization()
                               .getFiniteElementSpace<false>());
     x.MakeTRef(&problem.getFiniteElementDiscretization()

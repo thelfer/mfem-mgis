@@ -6,12 +6,31 @@
  */
 
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
+
+  static void setSolverParametersImplementation(NewtonSolver& solver,
+                                                const Parameters& params) {
+    using Problem = AbstractNonLinearEvolutionProblem;
+    if (contains(params, Problem::SolverVerbosityLevel)) {
+      solver.SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
+    }
+    if (contains(params, Problem::SolverRelativeTolerance)) {
+      solver.SetRelTol(get<double>(params, Problem::SolverRelativeTolerance));
+    }
+    if (contains(params, Problem::SolverAbsoluteTolerance)) {
+      solver.SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance));
+    }
+    if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
+      solver.SetMaxIter(
+          get<int>(params, Problem::SolverMaximumNumberOfIterations));
+    }
+  }  // end of setSolverParametersImplementation
 
   /*!
    * \brief post-processing defined by an std::function
@@ -85,14 +104,19 @@ namespace mfem_mgis {
   }  // end of executePostProcessings
 
   const FiniteElementSpace<true>&
-  NonLinearEvolutionProblemImplementation::getFiniteElementSpace() const {
+  NonLinearEvolutionProblemImplementation<true>::getFiniteElementSpace() const {
     return this->fe_discretization->getFiniteElementSpace<true>();
   }  // end of getFiniteElementSpace
 
   FiniteElementSpace<true>&
-  NonLinearEvolutionProblemImplementation::getFiniteElementSpace() {
+  NonLinearEvolutionProblemImplementation<true>::getFiniteElementSpace() {
     return this->fe_discretization->getFiniteElementSpace<true>();
   }  // end of getFiniteElementSpace
+
+  void NonLinearEvolutionProblemImplementation<true>::setSolverParameters(
+      const Parameters& params) {
+    setSolverParametersImplementation(this->solver, params);
+  }  // end of setSolverParameters
 
   NewtonSolver& NonLinearEvolutionProblemImplementation<true>::getSolver() {
     return this->solver;
@@ -174,6 +198,11 @@ namespace mfem_mgis {
   NewtonSolver& NonLinearEvolutionProblemImplementation<false>::getSolver() {
     return this->solver;
   }  // end of getSolver
+
+  void NonLinearEvolutionProblemImplementation<false>::setSolverParameters(
+      const Parameters& params) {
+    setSolverParametersImplementation(this->solver, params);
+  }  // end of setSolverParameters
 
   void NonLinearEvolutionProblemImplementation<false>::solve(const real t,
                                                              const real dt) {

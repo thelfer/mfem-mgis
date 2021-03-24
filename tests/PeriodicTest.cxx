@@ -152,13 +152,11 @@ template <bool parallel>
 void setSolverParameters(
     mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& problem,
     mfem::Solver& lsolver) {
-  auto& solver = problem.getSolver();
-  solver.iterative_mode = true;
-  solver.SetSolver(lsolver);
-  solver.SetPrintLevel(0);
-  solver.SetRelTol(1e-12);
-  solver.SetAbsTol(1e-12);
-  solver.SetMaxIter(10);
+  problem.setSolverParameters({{"VerbosityLevel", 0},
+                               {"RelativeTolerance", 1e-12},
+                               {"AbsoluteTolerance", 1e-12},
+                               {"MaximumNumberOfIterations", 10}});
+  problem.getSolver().SetSolver(lsolver);
 }  // end of setSolverParmeters
 
 template <bool parallel>

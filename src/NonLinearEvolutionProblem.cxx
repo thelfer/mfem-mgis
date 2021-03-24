@@ -44,27 +44,8 @@ namespace mfem_mgis {
     return this->pimpl->getFiniteElementDiscretizationPointer();
   }  // end of getFiniteElementDiscretizationPointer
 
-  mfem::Vector&
-  NonLinearEvolutionProblem::getUnknownsAtBeginningOfTheTimeStep() {
-    return this->pimpl->getUnknownsAtBeginningOfTheTimeStep();
-  }  // end of getUnknownsAtBeginningOfTheTimeStep
-
-  const mfem::Vector&
-  NonLinearEvolutionProblem::getUnknownsAtBeginningOfTheTimeStep() const {
-    return this->pimpl->getUnknownsAtBeginningOfTheTimeStep();
-  }  // end of getUnknownsAtBeginningOfTheTimeStep
-
-  mfem::Vector& NonLinearEvolutionProblem::getUnknownsAtEndOfTheTimeStep() {
-    return this->pimpl->getUnknownsAtEndOfTheTimeStep();
-  }  // end of getUnknownsAtEndOfTheTimeStep
-
-  const mfem::Vector& NonLinearEvolutionProblem::getUnknownsAtEndOfTheTimeStep()
-      const {
-    return this->pimpl->getUnknownsAtEndOfTheTimeStep();
-  }  // end of getUnknownsAtEndOfTheTimeStep
-
-  NewtonSolver& NonLinearEvolutionProblem::getSolver() {
-    return this->pimpl->getSolver();
+  void NonLinearEvolutionProblem::setSolverParameters(const Parameters& params) {
+    return this->pimpl->setSolverParameters(params);
   }  // end of getSolver
 
   void NonLinearEvolutionProblem::solve(const real t, const real dt) {

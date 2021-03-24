@@ -30,13 +30,19 @@ namespace mfem_mgis {
   struct MultiMaterialNonLinearIntegrator;
 
   /*!
-   * \brief class for solving non linear evolution problems
+   * \brief class for solving non linear evolution problems.
+   *
+   * By default, we use of the `MultiMaterialNonLinearIntegrator` class to
+   * compute the inner forces contributions to the residual.
    */
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementationBase
       : AbstractNonLinearEvolutionProblem {
     //! \brief a simple alias
     using Hypothesis = mgis::behaviour::Hypothesis;
-    //! \brief name of the parameter used to desactivate
+    /*!
+     * \brief name of the parameter used to activate/desactivate
+     * this use of the `MultiMaterialNonLinearIntegrator` class
+     */
     static const char* const UseMultiMaterialNonLinearIntegrator;
     /*!
      * \brief constructor
@@ -47,13 +53,23 @@ namespace mfem_mgis {
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
         const Parameters&);
+    /*!
+     * \brief set the macroscropic gradients
+     * \param[in] g: macroscopic gradients
+     */
+    virtual void setMacroscopicGradients(const std::vector<real>&);
+    //! \return the unknowns at the beginning of the time step
+    virtual mfem::Vector &getUnknownsAtBeginningOfTheTimeStep();
+    //! \return the unknowns at the beginning of the time step
+    virtual const mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() const;
+    //! \return the unknowns at the end of the time step
+    virtual mfem::Vector &getUnknownsAtEndOfTheTimeStep();
+    //! \return the unknowns at the end of the time step
+    virtual const mfem::Vector &getUnknownsAtEndOfTheTimeStep() const;
+    //
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
-    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
-    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
-    mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
-    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
     std::vector<size_type> getMaterialIdentifiers() const override;
     const Material& getMaterial(const size_type) const override;
     Material& getMaterial(const size_type) override;
@@ -68,11 +84,6 @@ namespace mfem_mgis {
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void revert() override;
     void update() override;
-    /*!
-     * \brief set the macroscropic gradients
-     * \param[in] g: macroscopic gradients
-     */
-    virtual void setMacroscopicGradients(const std::vector<real>&);
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 

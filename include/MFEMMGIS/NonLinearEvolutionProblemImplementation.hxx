@@ -47,19 +47,25 @@ namespace mfem_mgis {
     NonLinearEvolutionProblemImplementation(
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
-        const Parameters &);
+        const Parameters&);
     //! \return the finite element space
     FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
     const FiniteElementSpace<true>& getFiniteElementSpace() const;
-    //
-    NewtonSolver& getSolver() override;
+    // ! \brief return the underlying newton solver
+    virtual NewtonSolver& getSolver();
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
-    //! \brief destructor
+    //
+    void setSolverParameters(const Parameters&) override;
+    void addPostProcessing(
+        const std::function<void(const real, const real)>&) override;
+    void executePostProcessings(const real, const real) override;
+    void solve(const real, const real) override;
+`    //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
    protected:
@@ -91,19 +97,20 @@ namespace mfem_mgis {
     NonLinearEvolutionProblemImplementation(
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
-        const Parameters &);
+        const Parameters&);
     //! \return the finite element space
     FiniteElementSpace<false>& getFiniteElementSpace();
     //! \return the finite element space
     const FiniteElementSpace<false>& getFiniteElementSpace() const;
-    //
-    NewtonSolver& getSolver() override;
+    // ! \brief return the underlying newton solver
+    virtual NewtonSolver& getSolver();
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<false>>);
     //
+    void setSolverParameters(const Parameters&) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void executePostProcessings(const real, const real) override;

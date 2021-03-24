@@ -48,11 +48,7 @@ namespace mfem_mgis {
     FiniteElementDiscretization &getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
-    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
-    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
-    mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
-    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
-    NewtonSolver &getSolver() override;
+    void setSolverParameters(const Parameters &) override;
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void addPostProcessing(
