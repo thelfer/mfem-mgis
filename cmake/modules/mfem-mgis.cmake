@@ -1,6 +1,13 @@
 set(EXPORT_INSTALL_PATH "share/mfem-mgis/cmake")
 
 function(mfem_mgis_buildenv)
+  set(METIS_DIR "$ENV{METIS_DIR}")
+  set(HYPRE_DIR "$ENV{HYPRE_DIR}")
+  if (MFEM_USE_MPI)
+    set(MFEMMGIS_CXX "${MPI_CXX_COMPILER}")
+  else()
+    set(MFEMMGIS_CXX "${CMAKE_CXX_COMPILER}")
+  endif()
   string(REGEX REPLACE "/mfront$" "" MFRONT_PATH "${MFRONT}")
   string(REGEX REPLACE "/[^/]*$" "" MPICXX_PATH "${MPI_CXX_COMPILER}")
   execute_process(COMMAND "which" "cmake" OUTPUT_VARIABLE CMAKE_CP_PATH)
