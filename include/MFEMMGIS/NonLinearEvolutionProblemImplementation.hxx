@@ -61,6 +61,7 @@ namespace mfem_mgis {
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
     //
     void setSolverParameters(const Parameters&) override;
+    void setLinearSolver(std::string_view, const Parameters &) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
@@ -77,6 +78,8 @@ namespace mfem_mgis {
    private:
     //! \brief newton solver
     NewtonSolver solver;
+    //! \brief linear solver
+    std::unique_ptr<LinearSolver> linear_solver;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
@@ -112,6 +115,7 @@ namespace mfem_mgis {
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<false>>);
     //
     void setSolverParameters(const Parameters&) override;
+    void setLinearSolver(std::string_view, const Parameters &) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
@@ -128,6 +132,8 @@ namespace mfem_mgis {
    private:
     //! \brief newton solver
     NewtonSolver solver;
+    //! \brief linear solver
+    std::unique_ptr<LinearSolver> linear_solver;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation

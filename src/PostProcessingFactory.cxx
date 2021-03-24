@@ -38,10 +38,10 @@ namespace mfem_mgis {
       const Parameters& params) const {
     const auto pg = this->generators.find(n);
     if (pg == this->generators.end()) {
-      std::string msg("PostProcessingFactory<true>::add: ");
-      msg += "a post-processing called '";
+      std::string msg("PostProcessingFactory<true>::generate: ");
+      msg += "no post-processing called '";
       msg += n;
-      msg += "' has already been declared";
+      msg += "' declared";
       mgis::raise(msg);
     }
     const auto& g = pg->second;
@@ -83,10 +83,10 @@ namespace mfem_mgis {
       const Parameters& params) const {
     const auto pg = this->generators.find(n);
     if (pg == this->generators.end()) {
-      std::string msg("PostProcessingFactory<false>::add: ");
-      msg += "a post-processing called '";
+      std::string msg("PostProcessingFactory<false>::generate: ");
+      msg += "no post-processing called '";
       msg += n;
-      msg += "' has already been declared";
+      msg += "' declared";
       mgis::raise(msg);
     }
     const auto& g = pg->second;

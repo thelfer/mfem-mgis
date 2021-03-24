@@ -48,6 +48,16 @@ namespace mfem_mgis {
      */
     virtual void setSolverParameters(const Parameters &) = 0;
     /*!
+     * \brief set the solver parameters
+     * \param[in] n: name of the linear solver
+     * \param[in] params: parameters
+     *
+     * The following parameters are allowed:
+     *
+     * -
+     */
+    virtual void setLinearSolver(std::string_view, const Parameters &) = 0;
+    /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment

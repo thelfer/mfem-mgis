@@ -108,25 +108,23 @@ int main(const int argc, char** const argv) {
             }
             return -0.021 + 0.1 * (t - 0.6);
           }));
-// solving the problem
-#ifdef MFEM_USE_SUITESPARSE
-  mfem::UMFPackSolver lsolver;
-#else
-  mfem::CGSolver lsolver;
-  lsolver.SetRelTol(1e-12);
-  lsolver.SetMaxIter(300);
-  lsolver.SetPrintLevel(1);
-#endif
-  auto& solver = problem.getImplementation<false>().getSolver();
-  solver.SetSolver(lsolver);
-  //
+  // solving the problem
   problem.setSolverParameters({{"VerbosityLevel", 0},
                                {"RelativeTolerance", 1e-12},
                                {"AbsoluteTolerance", 0.},
                                {"MaximumNumberOfIterations", 10}});
+#ifdef MFEM_USE_SUITESPARSE
+  problem.setLinearSolver("UMFPackSolver", {});
+#else
+  problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
+                                       {"RelativeTolerance", 1e-12},
+                                       {"MaximumNumberOfIterations", 300}});
+#endif
   // vtk export
-  mfem::ParaViewDataCollection paraview_dc("UniaxialTensileTestOutput",
-                                           mesh.get());
+  problem.addPostProcessing("ParaviewExportResults",
+                            {{"OutputFileName", "UniaxialTensileTestOutput-" +
+                                                    std::string(behaviour)}});
+  //
   const auto vo =
       mgis::behaviour::getVariableOffset(m1.b.isvs, isv_name, m1.b.hypothesis);
   auto g0 = std::vector<mfem_mgis::real>{};
@@ -144,6 +142,7 @@ int main(const int argc, char** const argv) {
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
     // resolution
     problem.solve(t, dt);
+    problem.executePostProcessings(t, dt);
     problem.update();
     t += dt;
     //
@@ -151,19 +150,6 @@ int main(const int argc, char** const argv) {
     g1.push_back(m1.s1.gradients[1]);
     tf0.push_back(m1.s1.thermodynamic_forces[0]);
     v.push_back(m1.s1.internal_state_variables[vo]);
-    // recover the solution as a grid function
-    auto& u1 =
-        problem.getImplementation<false>().getUnknownsAtEndOfTheTimeStep();
-    mfem::GridFunction x(&problem.getFiniteElementDiscretization()
-                              .getFiniteElementSpace<false>());
-    x.MakeTRef(&problem.getFiniteElementDiscretization()
-                    .getFiniteElementSpace<false>(),
-               u1, 0);
-    x.SetFromTrueVector();
-    paraview_dc.RegisterField("u", &x);
-    paraview_dc.SetCycle(i);
-    paraview_dc.SetTime(t);
-    paraview_dc.Save();
   }
   // save the traction curve
   std::ofstream out("UniaxialTensileTest-" + std::string(behaviour) + ".txt");

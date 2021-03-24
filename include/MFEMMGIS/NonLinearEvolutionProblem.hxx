@@ -49,6 +49,7 @@ namespace mfem_mgis {
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
     void setSolverParameters(const Parameters &) override;
+    void setLinearSolver(std::string_view, const Parameters &) override;
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void addPostProcessing(

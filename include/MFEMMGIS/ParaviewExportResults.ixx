@@ -17,9 +17,10 @@ namespace mfem_mgis {
   ParaviewExportResults<parallel>::ParaviewExportResults(
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const Parameters& params)
-      : exporter(get<std::string>(params, "FileName"),
+      : exporter(get<std::string>(params, "OutputFileName"),
                  p.getFiniteElementSpace().GetMesh()),
-        result(&p.getFiniteElementSpace()) {
+        result(&p.getFiniteElementSpace()),
+        cycle(0) {
     auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
     this->result.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
     this->result.SetFromTrueVector();
@@ -36,9 +37,10 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel>&,
       const real t,
       const real dt) {
-    this->exporter.SetCycle(0);
+    this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
     this->exporter.Save();
+    ++(this->cycle);
   }  // end of execute
 
   template <bool parallel>

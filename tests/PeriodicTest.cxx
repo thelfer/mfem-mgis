@@ -109,54 +109,34 @@ void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
   return solutions[i];
 }
 
-template <bool parallel>
-std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
-  using generator = std::shared_ptr<mfem::Solver> (*)();
-  const generator generators[] = {
-      []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::GMRESSolver> pgmres(nullptr);
-        if constexpr (parallel) 
-          pgmres = std::make_shared<mfem::GMRESSolver>(MPI_COMM_WORLD);
-        else
-          pgmres = std::make_shared<mfem::GMRESSolver>();
-        pgmres->iterative_mode = false;
-        pgmres->SetRelTol(1e-12);
-        pgmres->SetAbsTol(1e-12);
-        pgmres->SetMaxIter(300);
-        pgmres->SetPrintLevel(1);
-        return pgmres;
-      },
-      []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::CGSolver> pcg(nullptr);                                
-        if constexpr (parallel) 
-          pcg = std::make_shared<mfem::CGSolver>(MPI_COMM_WORLD);
-        else
-          pcg = std::make_shared<mfem::CGSolver>();
-        pcg->SetRelTol(1e-12);
-        pcg->SetMaxIter(300);
-        pcg->SetPrintLevel(1);
-        return pcg;
-      }
+static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
+                            const std::size_t i) {
+  if (i == 0) {
+    p.setLinearSolver("GMRESSolver", {{"VerbosityLevel", 1},
+                                      {"AbsoluteTolerance", 1e-12},
+                                      {"RelativeTolerance", 1e-12},
+                                      {"MaximumNumberOfIterations", 300}});
+  } else if (i == 1) {
+    p.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
+                                   {"AbsoluteTolerance", 1e-12},
+                                   {"RelativeTolerance", 1e-12},
+                                   {"MaximumNumberOfIterations", 300}});
 #ifdef MFEM_USE_SUITESPARSE
-      ,
-      []() -> std::shared_ptr<mfem::Solver> {
-        std::shared_ptr<mfem::UMFPackSolver> pumf(new mfem::UMFPackSolver);
-        return (pumf);
-      }
+  } else if (i == 2) {
+    p.setLinearSolver("UMFPackSolver", {});
 #endif
-  };
-  return (generators[i])();
+  } else {
+    std::cerr << "unsupported linear solver\n";
+    std::exit(EXIT_FAILURE);
+  }
 }
 
-template <bool parallel>
-void setSolverParameters(
-    mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& problem,
-    mfem::Solver& lsolver) {
+static void setSolverParameters(
+    mfem_mgis::AbstractNonLinearEvolutionProblem& problem) {
   problem.setSolverParameters({{"VerbosityLevel", 0},
                                {"RelativeTolerance", 1e-12},
                                {"AbsoluteTolerance", 1e-12},
                                {"MaximumNumberOfIterations", 10}});
-  problem.getSolver().SetSolver(lsolver);
 }  // end of setSolverParmeters
 
 template <bool parallel>
@@ -280,12 +260,12 @@ void executeMFEMMGISTest(const TestParameters& p) {
   }
   problem.setMacroscopicGradientsEvolution([e](const double) { return e; });
   //
-  auto lsolver = getLinearSolver<parallel>(p.linearsolver);
-  setSolverParameters(problem.getImplementation<parallel>(), *(lsolver.get()));
+  setLinearSolver(problem, p.linearsolver);
+  setSolverParameters(problem);
   //
   problem.addPostProcessing(
       "ParaviewExportResults",
-      {{"FileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
+      {{"OutputFileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
   // solving the problem
   problem.solve(0, 1);
   problem.executePostProcessings(0, 1);
@@ -346,8 +326,8 @@ void executeMFEMMTest(const TestParameters& p) {
   //
   mfem_mgis::setPeriodicBoundaryConditions(problem);
   //
-  auto lsolver = getLinearSolver<false>(p.linearsolver);
-  setSolverParameters(problem, *(lsolver.get()));
+  setLinearSolver(problem, p.linearsolver);
+  setSolverParameters(problem);
   // solving the problem
   problem.solve(0, 1);
   //

@@ -40,6 +40,8 @@ namespace mfem_mgis {
     mfem::ParaViewDataCollection exporter;
     //! exported grid function
     mfem_mgis::GridFunction<parallel> result;
+    //!
+    size_type cycle;
   };  // end of struct ParaviewExportResults
 
 }  // end of namespace mfem_mgis

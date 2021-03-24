@@ -48,6 +48,11 @@ namespace mfem_mgis {
     return this->pimpl->setSolverParameters(params);
   }  // end of getSolver
 
+  void NonLinearEvolutionProblem::setLinearSolver(std::string_view n,
+                                                  const Parameters& params) {
+    this->pimpl->setLinearSolver(n, params);
+  }  // end of setLinearSolver
+
   void NonLinearEvolutionProblem::solve(const real t, const real dt) {
     this->setup(t, dt);
     this->pimpl->solve(t, dt);

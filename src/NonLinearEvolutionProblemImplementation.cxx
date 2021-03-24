@@ -7,6 +7,7 @@
 
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -97,6 +98,13 @@ namespace mfem_mgis {
     this->postprocessings.push_back(f.generate(n, *this, p));
   }  // end of addPostProcessing
 
+  void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
+      std::string_view n, const Parameters& p) {
+    const auto& f = LinearSolverFactory<true>::getFactory();
+    this->linear_solver = f.generate(n, p);
+    this->solver.SetSolver(*(this->linear_solver));
+  }  // end of setLinearSolver
+
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       const std::function<void(const real, const real)>& p) {
     this->addPostProcessing(
@@ -131,6 +139,11 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<true>::solve(const real t,
                                                             const real dt) {
+    if (this->linear_solver == nullptr) {
+      mgis::raise(
+          "NonLinearEvolutionProblemImplementation<true>::solve: "
+          "no linear solver set");
+    }
     mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
@@ -216,8 +229,20 @@ namespace mfem_mgis {
     setSolverParametersImplementation(this->solver, params);
   }  // end of setSolverParameters
 
+  void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
+      std::string_view n, const Parameters& p) {
+    const auto& f = LinearSolverFactory<false>::getFactory();
+    this->linear_solver = f.generate(n, p);
+    this->solver.SetSolver(*(this->linear_solver));
+  }  // end of setLinearSolver
+
   void NonLinearEvolutionProblemImplementation<false>::solve(const real t,
                                                              const real dt) {
+    if (this->linear_solver == nullptr) {
+      mgis::raise(
+          "NonLinearEvolutionProblemImplementation<true>::solve: "
+          "no linear solver set");
+    }
     mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
