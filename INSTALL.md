@@ -84,13 +84,14 @@ make check
 - Through the `make install` command, a simple application
   has been created in your installation directory.
   You can copy it elsewhere together with the `env.sh` file.
-  For example :
+  For example:
 ~~~~{.bash}
 export INSTALLDIR=<your_mfemmgis_install_directory>
-export TGDIR=<your_target_directory>
+export TGDIR=<your_work_directory>
 cd ${TGDIR}
-cp ${INSTALLDIR}/share/examples/env.sh .
 cp -r ${INSTALLDIR}/share/examples/ex1 .
+cp ${INSTALLDIR}/share/examples/env.sh ex1/
+cd ex1
 source env.sh
 mkdir build
 cd build
@@ -100,4 +101,17 @@ make
 ~~~~
   You can then modify the source file and design your
   own application.
+
+  Alternatively you can also use a standard makefile:
+~~~~{.bash}
+export INSTALLDIR=<your_mfemmgis_install_directory>
+export TGDIR=<your_work_directory>
+cd ${TGDIR}
+cp -r ${INSTALLDIR}/share/examples/ex1 .
+cp ${INSTALLDIR}/share/examples/env.sh ex1/
+cd ex1
+source env.sh
+make
+./UniaxialTensileTest 
+~~~~
 
