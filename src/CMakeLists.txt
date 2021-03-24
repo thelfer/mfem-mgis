@@ -14,6 +14,7 @@ mfem_mgis_library(MFEMMGIS
   DirichletBoundaryConditionBase.cxx
   UniformDirichletBoundaryCondition.cxx
   PostProcessing.cxx
+  PostProcessingFactory.cxx
   AbstractNonLinearEvolutionProblem.cxx
   NonLinearEvolutionProblemImplementationBase.cxx
   NonLinearEvolutionProblemImplementation.cxx

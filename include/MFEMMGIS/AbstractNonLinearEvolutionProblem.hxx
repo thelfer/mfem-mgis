@@ -103,6 +103,12 @@ namespace mfem_mgis {
     virtual void addPostProcessing(
         const std::function<void(const real, const real)>&) = 0;
     /*!
+     * \brief add a new post-processing
+     * \param[in] n: name of the post-processing
+     * \param[in] p: parameters
+     */
+    virtual void addPostProcessing(std::string_view, const Parameters &) = 0;
+    /*!
      * \brief execute the registred postprocessings
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment

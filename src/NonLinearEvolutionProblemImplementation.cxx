@@ -8,6 +8,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
+#include "MFEMMGIS/PostProcessingFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
@@ -91,6 +92,12 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
+      std::string_view n, const Parameters& p) {
+    const auto& f = PostProcessingFactory<true>::getFactory();
+    this->postprocessings.push_back(f.generate(n, *this, p));
+  }  // end of addPostProcessing
+
+  void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       const std::function<void(const real, const real)>& p) {
     this->addPostProcessing(
         std::make_unique<StdFunctionPostProcessing<true>>(p));
@@ -142,7 +149,6 @@ namespace mfem_mgis {
 
   NonLinearEvolutionProblemImplementation<
       true>::~NonLinearEvolutionProblemImplementation() = default;
-
 #endif /* MFEM_USE_MPI */
 
   NonLinearEvolutionProblemImplementation<false>::
@@ -176,6 +182,12 @@ namespace mfem_mgis {
       const std::function<void(const real, const real)>& p) {
     this->addPostProcessing(
         std::make_unique<StdFunctionPostProcessing<false>>(p));
+  }  // end of addPostProcessing
+
+  void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
+      std::string_view n, const Parameters& p) {
+    const auto& f = PostProcessingFactory<false>::getFactory();
+    this->postprocessings.push_back(f.generate(n, *this, p));
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblemImplementation<false>::executePostProcessings(

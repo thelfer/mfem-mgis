@@ -63,6 +63,7 @@ namespace mfem_mgis {
     void setSolverParameters(const Parameters&) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
+    void addPostProcessing(std::string_view, const Parameters&) override;
     void executePostProcessings(const real, const real) override;
     void solve(const real, const real) override;
 `    //! \brief destructor
@@ -113,6 +114,7 @@ namespace mfem_mgis {
     void setSolverParameters(const Parameters&) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
+    void addPostProcessing(std::string_view, const Parameters&) override;
     void executePostProcessings(const real, const real) override;
     void solve(const real, const real) override;
     //! \brief destructor

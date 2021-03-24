@@ -182,24 +182,6 @@ bool checkSolution(
   return true;
 }
 
-template <bool parallel>
-void exportResults(
-    mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& problem,
-    const std::size_t tcase) {
-  auto* const mesh = problem.getFiniteElementSpace().GetMesh();
-  auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-  mfem_mgis::GridFunction<parallel> x(&problem.getFiniteElementSpace());
-  x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
-  x.SetFromTrueVector();
-
-  mfem::ParaViewDataCollection paraview_dc(
-      "PeriodicTestOutput-" + std::to_string(tcase), mesh);
-  paraview_dc.RegisterField("u", &x);
-  paraview_dc.SetCycle(0);
-  paraview_dc.SetTime(0.0);
-  paraview_dc.Save();
-};
-
 struct TestParameters {
   const char* mesh_file = nullptr;
   const char* library = nullptr;
@@ -300,14 +282,17 @@ void executeMFEMMGISTest(const TestParameters& p) {
   //
   auto lsolver = getLinearSolver<parallel>(p.linearsolver);
   setSolverParameters(problem.getImplementation<parallel>(), *(lsolver.get()));
+  //
+  problem.addPostProcessing(
+      "ParaviewExportResults",
+      {{"FileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
   // solving the problem
   problem.solve(0, 1);
+  problem.executePostProcessings(0, 1);
   //
   if (!checkSolution(problem.getImplementation<parallel>(), p.tcase)) {
     exit_on_failure<parallel>();
   }
-  //
-  exportResults(problem.getImplementation<parallel>(), p.tcase);
   if constexpr(parallel) MPI_Finalize();
 }
 
@@ -369,8 +354,6 @@ void executeMFEMMTest(const TestParameters& p) {
   if (!checkSolution(problem, p.tcase)) {
     std::exit(EXIT_FAILURE);
   }
-  //
-  exportResults(problem, p.tcase);
 }
 
 int main(int argc, char* argv[]) {

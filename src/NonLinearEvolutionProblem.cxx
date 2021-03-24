@@ -67,6 +67,11 @@ namespace mfem_mgis {
     this->pimpl->addPostProcessing(p);
   }  // end of addPostProcessing
 
+  void NonLinearEvolutionProblem::addPostProcessing(std::string_view n,
+                                                    const Parameters& p) {
+    this->pimpl->addPostProcessing(n, p);
+  }  // end of addPostProcessing
+
   void NonLinearEvolutionProblem::executePostProcessings(const real t,
                                                          const real dt) {
     this->pimpl->executePostProcessings(t, dt);

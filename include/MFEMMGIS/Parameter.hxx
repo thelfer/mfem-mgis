@@ -14,8 +14,12 @@
 namespace mfem_mgis {
 
   //! \brief a simple alias
-  using Parameter = std::
-      variant<std::monostate, bool, int, real, std::function<real(const real)>>;
+  using Parameter = std::variant<std::monostate,
+                                 bool,
+                                 int,
+                                 real,
+                                 std::string,
+                                 std::function<real(const real)>>;
 
 }  // end of namespace mfem_mgis
 
