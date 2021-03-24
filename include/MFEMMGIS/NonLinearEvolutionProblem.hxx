@@ -9,6 +9,7 @@
 #define LIB_MFEMMGIS_NONLINEAREVOLUTIONPROBLEM_HXX
 
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
@@ -28,9 +29,11 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
+     * \param[in] p: parameters
      */
     NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
-                              const Hypothesis);
+                              const Hypothesis,
+                              const Parameters& = Parameters());
     //
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>

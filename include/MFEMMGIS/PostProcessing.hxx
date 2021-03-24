@@ -14,7 +14,7 @@ namespace mfem_mgis {
 
   // forward declaration
   template <bool parallel>
-  struct NonLinearEvolutionProblem;
+  struct NonLinearEvolutionProblemImplementation;
 
   /*!
    * \brief base class for post-processing done at the end of each time step.
@@ -33,7 +33,7 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void execute(NonLinearEvolutionProblem<true>&,
+    virtual void execute(NonLinearEvolutionProblemImplementation<true>&,
                          const real,
                          const real) = 0;
     //! \brief destructor
@@ -51,7 +51,7 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void execute(NonLinearEvolutionProblem<false>&,
+    virtual void execute(NonLinearEvolutionProblemImplementation<false>&,
                          const real,
                          const real) = 0;
     //! \brief destructor

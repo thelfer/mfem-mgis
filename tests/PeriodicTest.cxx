@@ -47,6 +47,7 @@
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
 #ifndef MFEM_USE_MPI
@@ -148,15 +149,8 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
 }
 
 template <bool parallel>
-void setBoundaryConditions(
-    mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem) {
-  mfem_mgis::PeriodicNonLinearEvolutionProblem<parallel>::setBoundaryConditions(
-      problem);
-}
-
-template <bool parallel>
 void setSolverParameters(
-    mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
+    mfem_mgis::NonLinearEvolutionProblemImplementationBase<parallel>& problem,
     mfem::Solver& lsolver) {
   auto& solver = problem.getSolver();
   solver.iterative_mode = true;
@@ -168,7 +162,7 @@ void setSolverParameters(
 }  // end of setSolverParmeters
 
 template <bool parallel>
-bool checkSolution(mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
+bool checkSolution(mfem_mgis::NonLinearEvolutionProblemImplementationBase<parallel>& problem,
                    const std::size_t i) {
   constexpr const auto eps = mfem_mgis::real{1e-10};
   const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
@@ -190,7 +184,7 @@ bool checkSolution(mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
 }
 
 template <bool parallel>
-void exportResults(mfem_mgis::NonLinearEvolutionProblemBase<parallel>& problem,
+void exportResults(mfem_mgis::NonLinearEvolutionProblemImplementationBase<parallel>& problem,
                    const std::size_t tcase) {
   auto* const mesh = problem.getFiniteElementSpace().GetMesh();
   auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
@@ -271,7 +265,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
       }
   }
   // building the non linear problem
-  mfem_mgis::PeriodicNonLinearEvolutionProblem<parallel> problem(
+  mfem_mgis::PeriodicNonLinearEvolutionProblem problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3));
   problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
@@ -348,7 +342,7 @@ void executeMFEMMTest(const TestParameters& p) {
     std::exit(EXIT_FAILURE);
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblemBase<false> problem(
+  mfem_mgis::NonLinearEvolutionProblemImplementationBase<false> problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3));
   std::vector<mfem_mgis::real> e(6, mfem_mgis::real{});
@@ -360,7 +354,7 @@ void executeMFEMMTest(const TestParameters& p) {
   //
   problem.AddDomainIntegrator(new ElasticityNonLinearIntegrator());
   //
-  setBoundaryConditions(problem);
+  mfem_mgis::setPeriodicBoundaryConditions(problem);
   //
   auto lsolver = getLinearSolver<false>(p.linearsolver);
   setSolverParameters(problem, *(lsolver.get()));

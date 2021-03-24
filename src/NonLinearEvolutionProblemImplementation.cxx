@@ -1,5 +1,5 @@
 /*!
- * \file   src/NonLinearEvolutionProblem.cxx
+ * \file   src/NonLinearEvolutionProblemImplementation.cxx
  * \brief
  * \author Thomas Helfer
  * \date   11/12/2020
@@ -8,7 +8,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
-#include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
 
@@ -27,7 +27,7 @@ namespace mfem_mgis {
         const std::function<void(const real, const real)>& fct)
         : f(fct) {}  // end of StdFunctionPostProcessing
     //
-    void execute(NonLinearEvolutionProblem<parallel>&,
+    void execute(NonLinearEvolutionProblemImplementation<parallel>&,
                  const real t,
                  const real dt) override {
       this->f(t, dt);
@@ -42,112 +42,253 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  NonLinearEvolutionProblem<true>::NonLinearEvolutionProblem(
-      std::shared_ptr<FiniteElementDiscretization> fed, const Hypothesis h)
-      : NonLinearEvolutionProblemBase(fed),
-        MultiMaterialEvolutionProblemBase(fed, h) {
+  NonLinearEvolutionProblemImplementation<true>::
+      NonLinearEvolutionProblemImplementation(
+          std::shared_ptr<FiniteElementDiscretization> fed,
+          const Hypothesis h,
+          const Parameters&)
+      : NonLinearEvolutionProblemImplementationBase(fed),
+        MultiMaterialEvolutionProblemBase(fed, h),
+        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())),
+        solver(fed->getFiniteElementSpace<true>().GetComm()) {
     if (this->fe_discretization->getMesh<true>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       mgis::raise(
-          "NonLinearEvolutionProblemBase::NonLinearEvolutionProblemBase: "
+          "NonLinearEvolutionProblemImplementationBase::"
+          "NonLinearEvolutionProblemImplementationBase: "
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
+    this->solver.SetOperator(*(this));
+    this->solver.iterative_mode = true;
     this->AddDomainIntegrator(this->mgis_integrator);
-  }  // end of NonLinearEvolutionProblem
+  }  // end of NonLinearEvolutionProblemImplementation
 
-  void NonLinearEvolutionProblem<true>::addPostProcessing(
+  void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       std::unique_ptr<PostProcessing<true>> p) {
     this->postprocessings.push_back(std::move(p));
   }  // end of addPostProcessing
 
-  void NonLinearEvolutionProblem<true>::addPostProcessing(
+  void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       const std::function<void(const real, const real)>& p) {
     this->addPostProcessing(
         std::make_unique<StdFunctionPostProcessing<true>>(p));
   }  // end of addPostProcessing
 
-  void NonLinearEvolutionProblem<true>::executePostProcessings(const real t,
-                                                               const real dt) {
+  void NonLinearEvolutionProblemImplementation<true>::executePostProcessings(
+      const real t, const real dt) {
     for (auto& p : this->postprocessings) {
       p->execute(*this, t, dt);
     }
   }  // end of executePostProcessings
 
-  void NonLinearEvolutionProblem<true>::setup(const real t, const real dt) {
-    NonLinearEvolutionProblemCommon::setup(t, dt);
+  void NonLinearEvolutionProblemImplementation<true>::addBehaviourIntegrator(
+      const std::string& n,
+      const size_type l,
+      const std::string& m,
+      const std::string& b) {
+    MultiMaterialEvolutionProblemBase::addBehaviourIntegrator(n, l, m, b);
+  }  // end of addBehaviourIntegrator
+
+  const Material& NonLinearEvolutionProblemImplementation<true>::getMaterial(
+      const size_type m) const {
+    return MultiMaterialEvolutionProblemBase::getMaterial(m);
+  }  // end of getMaterial
+
+  Material& NonLinearEvolutionProblemImplementation<true>::getMaterial(
+      const size_type m) {
+    return MultiMaterialEvolutionProblemBase::getMaterial(m);
+  }  // end of getMaterial
+
+  const BehaviourIntegrator& NonLinearEvolutionProblemImplementation<
+      true>::getBehaviourIntegrator(const size_type m) const {
+    return MultiMaterialEvolutionProblemBase::getBehaviourIntegrator(m);
+  }  // end of getBehaviourIntegrator
+
+  BehaviourIntegrator& NonLinearEvolutionProblemImplementation<
+      true>::getBehaviourIntegrator(const size_type m) {
+    return MultiMaterialEvolutionProblemBase::getBehaviourIntegrator(m);
+  }  // end of getBehaviourIntegrator
+
+  void NonLinearEvolutionProblemImplementation<true>::setup(const real t,
+                                                            const real dt) {
+    NonLinearEvolutionProblemImplementationBase::setup(t, dt);
     MultiMaterialEvolutionProblemBase::setup(t, dt);
   }  // end of setup
 
-  void NonLinearEvolutionProblem<true>::revert() {
-    NonLinearEvolutionProblemBase<true>::revert();
+  void NonLinearEvolutionProblemImplementation<true>::revert() {
+    NonLinearEvolutionProblemImplementationBase::revert();
     MultiMaterialEvolutionProblemBase::revert();
   }  // end of revert
 
-  void NonLinearEvolutionProblem<true>::update() {
-    NonLinearEvolutionProblemBase<true>::update();
+  void NonLinearEvolutionProblemImplementation<true>::update() {
+    NonLinearEvolutionProblemImplementationBase::update();
     MultiMaterialEvolutionProblemBase::update();
   }  // end of update
 
-  void NonLinearEvolutionProblem<true>::setTimeIncrement(const real dt) {
+  void NonLinearEvolutionProblemImplementation<true>::setTimeIncrement(
+      const real dt) {
     MultiMaterialEvolutionProblemBase::setTimeIncrement(dt);
   }  // end of setTimeIncrement
 
-  NonLinearEvolutionProblem<true>::~NonLinearEvolutionProblem() = default;
+  const FiniteElementSpace<true>&
+  NonLinearEvolutionProblemImplementation::getFiniteElementSpace() const {
+    return this->fe_discretization->getFiniteElementSpace<true>();
+  }  // end of getFiniteElementSpace
+
+  FiniteElementSpace<true>&
+  NonLinearEvolutionProblemImplementation::getFiniteElementSpace() {
+    return this->fe_discretization->getFiniteElementSpace<true>();
+  }  // end of getFiniteElementSpace
+
+  NewtonSolver& NonLinearEvolutionProblemImplementation<true>::getSolver() {
+    return this->solver;
+  }  // end of getSolver
+
+  void NonLinearEvolutionProblemImplementation<true>::solve(const real t,
+                                                            const real dt) {
+    mfem::Vector zero;
+    this->setTimeIncrement(dt);
+    this->setup(t, dt);
+    this->solver.Mult(zero, this->u1);
+    if (!this->solver.GetConverged()) {
+      mgis::raise("Newton solver did not converge");
+    }
+  }  // end of solve
+
+  void NonLinearEvolutionProblemImplementation<true>::
+      markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+          std::vector<size_type> dofs) {
+    auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
+    this->SetEssentialTrueDofs(tmp);
+  }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
+
+  NonLinearEvolutionProblemImplementation<
+      true>::~NonLinearEvolutionProblemImplementation() = default;
 
 #endif /* MFEM_USE_MPI */
 
-  NonLinearEvolutionProblem<false>::NonLinearEvolutionProblem(
-      std::shared_ptr<FiniteElementDiscretization> fed, const Hypothesis h)
-      : NonLinearEvolutionProblemBase(fed),
-        MultiMaterialEvolutionProblemBase(fed, h) {
+  NonLinearEvolutionProblemImplementation<false>::
+      NonLinearEvolutionProblemImplementation(
+          std::shared_ptr<FiniteElementDiscretization> fed,
+          const Hypothesis h,
+          const Parameters&)
+      : NonLinearEvolutionProblemImplementationBase(fed),
+        MultiMaterialEvolutionProblemBase(fed, h),
+        mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())) {
     if (this->fe_discretization->getMesh<false>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       mgis::raise(
-          "NonLinearEvolutionProblemBase::NonLinearEvolutionProblemBase: "
+          "NonLinearEvolutionProblemImplementationBase::"
+          "NonLinearEvolutionProblemImplementationBase: "
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
+    this->solver.SetOperator(*(this));
+    this->solver.iterative_mode = true;
     this->AddDomainIntegrator(this->mgis_integrator);
-  }  // end of NonLinearEvolutionProblem
+  }  // end of NonLinearEvolutionProblemImplementation
 
-  void NonLinearEvolutionProblem<false>::addPostProcessing(
+  void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
       std::unique_ptr<PostProcessing<false>> p) {
     this->postprocessings.push_back(std::move(p));
   }  // end of addPostProcessing
 
-  void NonLinearEvolutionProblem<false>::addPostProcessing(
+  void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
       const std::function<void(const real, const real)>& p) {
     this->addPostProcessing(
         std::make_unique<StdFunctionPostProcessing<false>>(p));
   }  // end of addPostProcessing
 
-  void NonLinearEvolutionProblem<false>::executePostProcessings(const real t,
-                                                                const real dt) {
+  void NonLinearEvolutionProblemImplementation<false>::executePostProcessings(
+      const real t, const real dt) {
     for (auto& p : this->postprocessings) {
       p->execute(*this, t, dt);
     }
   }  // end of executePostProcessings
 
-  void NonLinearEvolutionProblem<false>::setup(const real t, const real dt) {
-    NonLinearEvolutionProblemCommon::setup(t, dt);
+  void NonLinearEvolutionProblemImplementation<false>::addBehaviourIntegrator(
+      const std::string& n,
+      const size_type l,
+      const std::string& m,
+      const std::string& b) {
+    MultiMaterialEvolutionProblemBase::addBehaviourIntegrator(n, l, m, b);
+  }  // end of addBehaviourIntegrator
+
+  const Material& NonLinearEvolutionProblemImplementation<false>::getMaterial(
+      const size_type m) const {
+    return MultiMaterialEvolutionProblemBase::getMaterial(m);
+  }  // end of getMaterial
+
+  Material& NonLinearEvolutionProblemImplementation<false>::getMaterial(
+      const size_type m) {
+    return MultiMaterialEvolutionProblemBase::getMaterial(m);
+  }  // end of getMaterial
+
+  const BehaviourIntegrator& NonLinearEvolutionProblemImplementation<
+      false>::getBehaviourIntegrator(const size_type m) const {
+    return MultiMaterialEvolutionProblemBase::getBehaviourIntegrator(m);
+  }  // end of getBehaviourIntegrator
+
+  BehaviourIntegrator& NonLinearEvolutionProblemImplementation<
+      false>::getBehaviourIntegrator(const size_type m) {
+    return MultiMaterialEvolutionProblemBase::getBehaviourIntegrator(m);
+  }  // end of getBehaviourIntegrator
+
+  void NonLinearEvolutionProblemImplementation<false>::setup(const real t,
+                                                             const real dt) {
+    NonLinearEvolutionProblemImplementationBase::setup(t, dt);
     MultiMaterialEvolutionProblemBase::setup(t, dt);
   }  // end of setup
 
-  void NonLinearEvolutionProblem<false>::revert() {
-    NonLinearEvolutionProblemBase<false>::revert();
+  void NonLinearEvolutionProblemImplementation<false>::revert() {
+    NonLinearEvolutionProblemImplementationBase::revert();
     MultiMaterialEvolutionProblemBase::revert();
   }  // end of revert
 
-  void NonLinearEvolutionProblem<false>::update() {
-    NonLinearEvolutionProblemBase<false>::update();
+  void NonLinearEvolutionProblemImplementation<false>::update() {
+    NonLinearEvolutionProblemImplementationBase::update();
     MultiMaterialEvolutionProblemBase::update();
   }  // end of update
 
-  void NonLinearEvolutionProblem<false>::setTimeIncrement(const real dt) {
+  void NonLinearEvolutionProblemImplementation<false>::setTimeIncrement(
+      const real dt) {
     MultiMaterialEvolutionProblemBase::setTimeIncrement(dt);
   }  // end of setTimeIncrement
 
-  NonLinearEvolutionProblem<false>::~NonLinearEvolutionProblem() = default;
+  const FiniteElementSpace<false>& NonLinearEvolutionProblemImplementation<
+      false>::getFiniteElementSpace() const {
+    return this->fe_discretization->getFiniteElementSpace<false>();
+  }  // end of getFiniteElementSpace
+
+  FiniteElementSpace<false>&
+  NonLinearEvolutionProblemImplementation<false>::getFiniteElementSpace() {
+    return this->fe_discretization->getFiniteElementSpace<false>();
+  }  // end of getFiniteElementSpace
+
+  NewtonSolver& NonLinearEvolutionProblemImplementation<false>::getSolver() {
+    return this->solver;
+  }  // end of getSolver
+
+  void NonLinearEvolutionProblemImplementation<false>::solve(const real t,
+                                                             const real dt) {
+    mfem::Vector zero;
+    this->setTimeIncrement(dt);
+    this->setup(t, dt);
+    this->solver.Mult(zero, this->u1);
+    if (!this->solver.GetConverged()) {
+      mgis::raise("Newton solver did not converge");
+    }
+  }  // end of solve
+
+  void NonLinearEvolutionProblemImplementation<false>::
+      markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+          std::vector<size_type> dofs) {
+    auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
+    this->SetEssentialTrueDofs(tmp);
+  }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
+
+  NonLinearEvolutionProblemImplementation<
+      false>::~NonLinearEvolutionProblemImplementation() = default;
 
 }  // end of namespace mfem_mgis

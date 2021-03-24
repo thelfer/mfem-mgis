@@ -1,5 +1,6 @@
 mfem_mgis_library(MFEMMGIS
   Config.cxx
+  Parameters.cxx
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
@@ -13,9 +14,10 @@ mfem_mgis_library(MFEMMGIS
   DirichletBoundaryConditionBase.cxx
   UniformDirichletBoundaryCondition.cxx
   PostProcessing.cxx
-  NonLinearEvolutionProblemCommon.cxx
-  NonLinearEvolutionProblemBase.cxx
+  AbstractNonLinearEvolutionProblem.cxx
   MultiMaterialEvolutionProblemBase.cxx
+  NonLinearEvolutionProblemImplementationBase.cxx
+  NonLinearEvolutionProblemImplementation.cxx
   NonLinearEvolutionProblem.cxx
   PeriodicNonLinearEvolutionProblem.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx

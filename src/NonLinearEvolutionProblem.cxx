@@ -14,21 +14,23 @@
 namespace mfem_mgis {
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
-      std::shared_ptr<FiniteElementDiscretization> fed, const Hypothesis h) {
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const Hypothesis h,
+      const Parameters& p) {
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
           NonLinearEvolutionProblemImplementation<true>;
-      this->pimpl = std::make_unique<ParallelImplementation>(fed, h);
+      this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
 #else
       mgis::raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
     } else {
-      this->pimpl = std::make_unique<SequentialImplementation>(fed, h);
+      this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
     }
   }  // end of NonLinearEvolutionProblem
 
@@ -72,7 +74,7 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {
-    this->addBoundaryCondition(std::move(bc));
+    this->pimpl->addBoundaryCondition(std::move(bc));
   }  // end of NonLinearEvolutionProblem::addBoundaryCondition
 
   void NonLinearEvolutionProblem::addPostProcessing(

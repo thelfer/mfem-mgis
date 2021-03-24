@@ -47,7 +47,7 @@ int main(const int argc, char** const argv) {
     return EXIT_FAILURE;
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem<false> problem(
+  mfem_mgis::NonLinearEvolutionProblem problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(order, dim), 3),
       mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
@@ -150,8 +150,11 @@ int main(const int argc, char** const argv) {
     v.push_back(m1.s1.internal_state_variables[vo]);
     // recover the solution as a grid function
     auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-    mfem::GridFunction x(&problem.getFiniteElementSpace());
-    x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
+    mfem::GridFunction x(&problem.getFiniteElementDiscretization()
+                              .getFiniteElementSpace<false>());
+    x.MakeTRef(&problem.getFiniteElementDiscretization()
+                    .getFiniteElementSpace<false>(),
+               u1, 0);
     x.SetFromTrueVector();
     paraview_dc.RegisterField("u", &x);
     paraview_dc.SetCycle(i);

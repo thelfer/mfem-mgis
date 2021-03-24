@@ -1,102 +1,96 @@
 /*!
- * \file   src/NonLinearEvolutionProblemBase.cxx
+ * \file   src/NonLinearEvolutionProblemImplementationBase.cxx
  * \brief
  * \author Thomas Helfer
  * \date   11/12/2020
  */
 
+#include <utility>
 #include "MGIS/Raise.hxx"
-#include "MFEMMGIS/FiniteElementDiscretization.hxx"
-#include "MFEMMGIS/NonLinearEvolutionProblemBase.hxx"
+#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
 
 namespace mfem_mgis {
 
-#ifdef MFEM_USE_MPI
+  NonLinearEvolutionProblemImplementationBase::
+      NonLinearEvolutionProblemImplementationBase(
+          std::shared_ptr<FiniteElementDiscretization> fed)
+      : fe_discretization(fed), u0(getTrueVSize(*fed)), u1(getTrueVSize(*fed)) {
+    this->u0 = real{0};
+    this->u1 = real{0};
+  }  // end of NonLinearEvolutionProblemImplementationBase
 
-  NonLinearEvolutionProblemBase<true>::NonLinearEvolutionProblemBase(
-      std::shared_ptr<FiniteElementDiscretization> fed)
-      : NonLinearEvolutionProblemCommon(fed),
-        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())),
-        solver(fed->getFiniteElementSpace<true>().GetComm()) {
-    this->solver.SetOperator(*(this));
-    this->solver.iterative_mode = true;
-  }  // end of NonLinearEvolutionProblemBase
+  FiniteElementDiscretization& NonLinearEvolutionProblemImplementationBase::
+      getFiniteElementDiscretization() {
+    return *(this->fe_discretization);
+  }  // end of getFiniteElementDiscretization
 
-  const FiniteElementSpace<true>&
-  NonLinearEvolutionProblemBase<true>::getFiniteElementSpace() const {
-    return this->fe_discretization->getFiniteElementSpace<true>();
-  }  // end of getFiniteElementSpace
+  std::shared_ptr<FiniteElementDiscretization>
+  NonLinearEvolutionProblemImplementationBase::
+      getFiniteElementDiscretizationPointer() {
+    return this->fe_discretization;
+  }  // end of getFiniteElementDiscretization
 
-  FiniteElementSpace<true>&
-  NonLinearEvolutionProblemBase<true>::getFiniteElementSpace() {
-    return this->fe_discretization->getFiniteElementSpace<true>();
-  }  // end of getFiniteElementSpace
+  mfem::Vector& NonLinearEvolutionProblemImplementationBase::
+      getUnknownsAtBeginningOfTheTimeStep() {
+    return this->u0;
+  }  // end of getUnknownsAtBeginningOfTheTimeStep
 
-  NewtonSolver& NonLinearEvolutionProblemBase<true>::getSolver() {
-    return this->solver;
-  }  // end of getSolver
+  const mfem::Vector& NonLinearEvolutionProblemImplementationBase::
+      getUnknownsAtBeginningOfTheTimeStep() const {
+    return this->u0;
+  }  // end of getUnknownsAtBeginningOfTheTimeStep
 
-  void NonLinearEvolutionProblemBase<true>::solve(const real t, const real dt) {
-    mfem::Vector zero;
-    this->setTimeIncrement(dt);
-    this->setup(t, dt);
-    this->solver.Mult(zero, this->u1);
-    if (!this->solver.GetConverged()) {
-      mgis::raise("Newton solver did not converge");
+  mfem::Vector& NonLinearEvolutionProblemImplementationBase::
+      getUnknownsAtEndOfTheTimeStep() {
+    return this->u1;
+  }  // end of getUnknownsAtEndOfTheTimeStep
+
+  const mfem::Vector&
+  NonLinearEvolutionProblemImplementationBase::getUnknownsAtEndOfTheTimeStep()
+      const {
+    return this->u1;
+  }  // end of getUnknownsAtEndOfTheTimeStep
+
+  void NonLinearEvolutionProblemImplementationBase::revert() {
+    this->u1 = this->u0;
+  }  // end of revert
+
+  void NonLinearEvolutionProblemImplementationBase::update() {
+    this->u0 = this->u1;
+  }  // end of update
+
+  void NonLinearEvolutionProblemImplementationBase::setTimeIncrement(
+      const real) {
+  }  // end of NonLinearEvolutionProblemImplementationBase::setTimeIncrement
+
+  void NonLinearEvolutionProblemImplementationBase::setup(const real t,
+                                                            const real dt) {
+    if (this->initialization_phase) {
+      if (!this->dirichlet_boundary_conditions.empty()) {
+        auto fixed_dirichlet_dofs = std::vector<mfem_mgis::size_type>{};
+        for (const auto& bc : this->dirichlet_boundary_conditions) {
+          auto dofs = bc->getHandledDegreesOfFreedom();
+          fixed_dirichlet_dofs.insert(fixed_dirichlet_dofs.end(), dofs.begin(),
+                                      dofs.end());
+        }
+        this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+            fixed_dirichlet_dofs);
+      }
     }
-  }  // end of solve
-
-  void NonLinearEvolutionProblemBase<true>::
-      markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-          std::vector<size_type> dofs) {
-    auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
-    this->SetEssentialTrueDofs(tmp);
-  }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
-
-  NonLinearEvolutionProblemBase<true>::~NonLinearEvolutionProblemBase() = default;
-
-#endif /* MFEM_USE_MPI */
-
-  NonLinearEvolutionProblemBase<false>::NonLinearEvolutionProblemBase(
-      std::shared_ptr<FiniteElementDiscretization> fed)
-      : NonLinearEvolutionProblemCommon(fed),
-        mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())) {
-    this->solver.SetOperator(*(this));
-    this->solver.iterative_mode = true;
-  }  // end of NonLinearEvolutionProblemBase
-
-  const FiniteElementSpace<false>&
-  NonLinearEvolutionProblemBase<false>::getFiniteElementSpace() const {
-    return this->fe_discretization->getFiniteElementSpace<false>();
-  }  // end of getFiniteElementSpace
-
-  FiniteElementSpace<false>&
-  NonLinearEvolutionProblemBase<false>::getFiniteElementSpace() {
-    return this->fe_discretization->getFiniteElementSpace<false>();
-  }  // end of getFiniteElementSpace
-
-  NewtonSolver& NonLinearEvolutionProblemBase<false>::getSolver() {
-    return this->solver;
-  }  // end of getSolver
-
-  void NonLinearEvolutionProblemBase<false>::solve(const real t,
-                                                   const real dt) {
-    mfem::Vector zero;
-    this->setTimeIncrement(dt);
-    this->setup(t, dt);
-    this->solver.Mult(zero, this->u1);
-    if (!this->solver.GetConverged()) {
-      mgis::raise("Newton solver did not converge");
+    this->initialization_phase = false;
+    for (const auto& bc : this->dirichlet_boundary_conditions) {
+      bc->updateImposedValues(this->u1, t + dt);
     }
-  }  // end of solve
+  }  // end of NonLinearEvolutionProblemImplementationBase::setup
 
-  void NonLinearEvolutionProblemBase<false>::
-      markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-          std::vector<size_type> dofs) {
-    auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
-    this->SetEssentialTrueDofs(tmp);
-  }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
+  void NonLinearEvolutionProblemImplementationBase::addBoundaryCondition(
+      std::unique_ptr<DirichletBoundaryCondition> bc) {
+    this->dirichlet_boundary_conditions.push_back(std::move(bc));
+  }  // end of
+     // NonLinearEvolutionProblemImplementationBase::addBoundaryCondition
 
-  NonLinearEvolutionProblemBase<false>::~NonLinearEvolutionProblemBase() = default;
+  NonLinearEvolutionProblemImplementationBase::
+      ~NonLinearEvolutionProblemImplementationBase() = default;
 
 }  // end of namespace mfem_mgis
