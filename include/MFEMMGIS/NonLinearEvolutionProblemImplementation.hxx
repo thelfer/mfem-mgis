@@ -55,6 +55,11 @@ namespace mfem_mgis {
     // ! \brief return the underlying newton solver
     virtual NewtonSolver& getSolver();
     /*!
+     * \brief set the linear solver
+     * \param[in] s: linear solver
+     */
+    virtual void setLinearSolver(std::unique_ptr<LinearSolver>);
+    /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
      */
@@ -108,6 +113,11 @@ namespace mfem_mgis {
     const FiniteElementSpace<false>& getFiniteElementSpace() const;
     // ! \brief return the underlying newton solver
     virtual NewtonSolver& getSolver();
+    /*!
+     * \brief set the linear solver
+     * \param[in] s: linear solver
+     */
+    virtual void setLinearSolver(std::unique_ptr<LinearSolver>);
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing

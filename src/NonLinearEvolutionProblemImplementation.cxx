@@ -101,7 +101,12 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
       std::string_view n, const Parameters& p) {
     const auto& f = LinearSolverFactory<true>::getFactory();
-    this->linear_solver = f.generate(n, p);
+    this->setLinearSolver(f.generate(n, p));
+  }  // end of setLinearSolver
+
+  void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
+      std::unique_ptr<LinearSolver> s) {
+    this->linear_solver = std::move(s);
     this->solver.SetSolver(*(this->linear_solver));
   }  // end of setLinearSolver
 
@@ -232,7 +237,12 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       std::string_view n, const Parameters& p) {
     const auto& f = LinearSolverFactory<false>::getFactory();
-    this->linear_solver = f.generate(n, p);
+    this->setLinearSolver(f.generate(n, p));
+  }  // end of setLinearSolver
+
+  void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
+      std::unique_ptr<LinearSolver> s) {
+    this->linear_solver = std::move(s);
     this->solver.SetSolver(*(this->linear_solver));
   }  // end of setLinearSolver
 
