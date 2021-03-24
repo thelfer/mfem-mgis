@@ -24,6 +24,10 @@ function(mfem_mgis_buildenv)
     COMMAND  ${CMAKE_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${CMAKE_SOURCE_DIR}/tests/UniaxialTensileTest.cxx  ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UniaxialTensileTest.cxx
     COMMENT "seding the UniaxialTensileTest.cxx"
     DEPENDS MFEMMGIS)
+  install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UniaxialTensileTest.cxx
+    DESTINATION share/examples/ex1)
+  
 endfunction(mfem_mgis_buildenv)
 
 function(mfem_mgis_header dir file)
