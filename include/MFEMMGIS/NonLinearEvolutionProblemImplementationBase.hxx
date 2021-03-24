@@ -12,49 +12,67 @@
 #include <vector>
 #include "mfem/linalg/vector.hpp"
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {
 
-  // struct forward declaration
+  // forward declaration
+  struct Parameters;
+  // forward declaration
   struct DirichletBoundaryCondition;
+  // forward declaration
+  struct FiniteElementDiscretization;
+  // forward declaration
+  struct Material;
+  // forward declaration
+  struct BehaviourIntegrator;
+  // forward declaration
+  struct MultiMaterialNonLinearIntegrator;
 
   /*!
    * \brief class for solving non linear evolution problems
    */
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementationBase
       : AbstractNonLinearEvolutionProblem {
+    //! \brief a simple alias
+    using Hypothesis = mgis::behaviour::Hypothesis;
+    //! \brief name of the parameter used to desactivate
+    static const char* const UseMultiMaterialNonLinearIntegrator;
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
+     * \param[in] h: modelling hypothesis
      */
     NonLinearEvolutionProblemImplementationBase(
-        std::shared_ptr<FiniteElementDiscretization>);
-    //! \return the underlying finite element discretization
+        std::shared_ptr<FiniteElementDiscretization>,
+        const Hypothesis,
+        const Parameters&);
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
-    //! \return the underlying finite element discretization
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
-    //! \return the unknowns at the beginning of the time step
     mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
-    //! \return the unknowns at the beginning of the time step
     const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
-    //! \return the unknowns at the end of the time step
     mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
-    //! \return the unknowns at the end of the time step
     const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
-    /*!
-     * \brief add a Dirichlet boundary condition
-     * \param[in] bc: boundary condition
-     */
+    std::vector<size_type> getMaterialIdentifiers() const override;
+    const Material& getMaterial(const size_type) const override;
+    Material& getMaterial(const size_type) override;
+    const BehaviourIntegrator& getBehaviourIntegrator(
+        const size_type) const override;
+    BehaviourIntegrator& getBehaviourIntegrator(const size_type) override;
+    void addBehaviourIntegrator(const std::string&,
+                                const size_type,
+                                const std::string&,
+                                const std::string&) override;
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
-    //! \brief revert the state to the beginning of the time step.
     void revert() override;
-    //! \brief update the state to the end of the time step.
     void update() override;
-
+    /*!
+     * \brief set the macroscropic gradients
+     * \param[in] g: macroscopic gradients
+     */
+    virtual void setMacroscopicGradients(const std::vector<real>&);
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 
@@ -94,6 +112,13 @@ namespace mfem_mgis {
     mfem::Vector u0;
     //! \brief unknowns at the end of the time step
     mfem::Vector u1;
+    /*!
+     * \brief pointer to the underlying domain integrator
+     * The memory associated with this pointer must be released in derived class
+     */
+    MultiMaterialNonLinearIntegrator* const mgis_integrator;
+    //! \brief modelling hypothesis
+    const Hypothesis hypothesis;
   };  // end of struct NonLinearEvolutionProblemImplementationBase
 
 }  // end of namespace mfem_mgis

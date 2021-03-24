@@ -14,7 +14,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  void setPeriodicBoundaryCondition(
+  void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<true>& p) {
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -60,11 +60,11 @@ namespace mfem_mgis {
     MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
     MFEM_VERIFY(found, "Reference point at (0,0) was not found");
     p.SetEssentialTrueDofs(ess_tdof_list);
-  }  // end of setPeriodicBoundaryCondition
+  }  // end of setPeriodicBoundaryConditions
 
 #endif
 
-  void setPeriodicBoundaryCondition(
+  void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<false>& p) {
     const auto mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -76,7 +76,7 @@ namespace mfem_mgis {
       ess_tdof_list[k] = tgdof;
     }
     p.SetEssentialTrueDofs(ess_tdof_list);
-  }  // end of setPeriodicBoundaryCondition
+  }  // end of setPeriodicBoundaryConditions
 
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed)
@@ -84,21 +84,23 @@ namespace mfem_mgis {
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      auto& impl = dynamic_cast<NonLinearEvolutionProblemImplementation<true>&>(
-          *(this->pimpl));
-      setPeriodicBoundaryCondition(impl);
+      setPeriodicBoundaryConditions(this->getImplementation<true>());
 #else
       mgis::raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
     } else {
-      auto& impl =
-          dynamic_cast<NonLinearEvolutionProblemImplementation<false>&>(
-              *(this->pimpl));
-      setPeriodicBoundaryCondition(impl);
+      setPeriodicBoundaryConditions(this->getImplementation<false>());
     }
   }  // end of PeriodicNonLinearEvolutionProblem
+
+  void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
+      std::unique_ptr<DirichletBoundaryCondition>) {
+    mgis::raise(
+        "PeriodicNonLinearEvolutionProblem::addBoundaryCondition: "
+        "invalid call");
+  }  // end of addBoundaryCondition
 
   void PeriodicNonLinearEvolutionProblem::setMacroscopicGradientsEvolution(
       const std::function<std::vector<real>(const real)>& ev) {
@@ -116,8 +118,8 @@ namespace mfem_mgis {
   }  // end of getMacroscopicGradients
 
   void PeriodicNonLinearEvolutionProblem::setup(const real t, const real dt) {
-    auto& impl =
-        dynamic_cast<MultiMaterialEvolutionProblemBase&>(*(this->pimpl));
+    auto& impl = dynamic_cast<NonLinearEvolutionProblemImplementationBase&>(
+        *(this->pimpl));
     impl.setMacroscopicGradients(this->getMacroscopicGradients(t, dt));
   }  // end of setup
 

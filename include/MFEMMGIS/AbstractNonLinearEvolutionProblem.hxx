@@ -60,6 +60,11 @@ namespace mfem_mgis {
                                         const std::string &,
                                         const std::string &) = 0;
     /*!
+     * \return the list of material identifiers for which a behaviour
+     * integrator has been defined.
+     */
+    virtual std::vector<size_type> getMaterialIdentifiers() const = 0;
+    /*!
      * \return the material with the given id
      * \param[in] m: material id
      */

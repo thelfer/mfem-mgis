@@ -17,6 +17,9 @@ namespace mfem_mgis {
 
   // forward declaration
   struct FiniteElementDiscretization;
+  // forward declaration
+  template <bool parallel>
+  struct NonLinearEvolutionProblemImplementation;
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -34,8 +37,15 @@ namespace mfem_mgis {
     NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis,
                               const Parameters& = Parameters());
+    //! \return the implementation
+    template <bool parallel>
+    NonLinearEvolutionProblemImplementation<parallel>& getImplementation();
+    //! \return the implementation
+    template <bool parallel>
+    const NonLinearEvolutionProblemImplementation<parallel> &getImplementation()
+        const;
     //
-    FiniteElementDiscretization& getFiniteElementDiscretization() override;
+    FiniteElementDiscretization &getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
     mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
@@ -52,6 +62,7 @@ namespace mfem_mgis {
                                 const size_type,
                                 const std::string &,
                                 const std::string &)override;
+    std::vector<size_type> getMaterialIdentifiers() const override;
     const Material &getMaterial(const size_type) const override;
     Material &getMaterial(const size_type)override;
     const BehaviourIntegrator &getBehaviourIntegrator(
@@ -73,6 +84,36 @@ namespace mfem_mgis {
     //! \brief implementation of the non linear problem
     std::unique_ptr<AbstractNonLinearEvolutionProblem> pimpl;
   };  // end of struct NonLinearEvolutionProblem
+
+#ifdef MFEM_USE_MPI
+
+  template <>
+  NonLinearEvolutionProblemImplementation<true>
+      &NonLinearEvolutionProblem::getImplementation();
+
+  template <>
+  const NonLinearEvolutionProblemImplementation<true>
+      &NonLinearEvolutionProblem::getImplementation() const;
+
+#else /* MFEM_USE_MPI */
+
+  template <>
+  [[noreturn]] NonLinearEvolutionProblemImplementation<true>
+      &NonLinearEvolutionProblem::getImplementation();
+
+  template <>
+  [[noreturn]] const NonLinearEvolutionProblemImplementation<true>
+      &NonLinearEvolutionProblem::getImplementation() const;
+
+#endif /* MFEM_USE_MPI */
+
+  template <>
+  NonLinearEvolutionProblemImplementation<false>
+      &NonLinearEvolutionProblem::getImplementation();
+
+  template <>
+  const NonLinearEvolutionProblemImplementation<false>
+      &NonLinearEvolutionProblem::getImplementation() const;
 
 }  // end of namespace mfem_mgis
 

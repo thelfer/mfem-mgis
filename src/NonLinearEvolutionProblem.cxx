@@ -72,6 +72,10 @@ namespace mfem_mgis {
     this->pimpl->solve(t, dt);
   }  // end of solve
 
+  std::vector<size_type> NonLinearEvolutionProblem::getMaterialIdentifiers() const{
+    return this->pimpl->getMaterialIdentifiers();
+  } // end of getMaterialIdentifiers
+
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {
     this->pimpl->addBoundaryCondition(std::move(bc));
@@ -123,6 +127,69 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblem::setup(const real, const real) {
   }  // end of setup
+
+  template <bool parallel>
+  static NonLinearEvolutionProblemImplementation<parallel>&
+  getImplementationInternal(AbstractNonLinearEvolutionProblem* const p) {
+    auto* const pi =
+        dynamic_cast<NonLinearEvolutionProblemImplementation<parallel>*>(p);
+    if (pi == nullptr) {
+      mgis::raise(
+          "NonLinearEvolutionProblem::getImplementation: "
+          "invalid call");
+    }
+    return *pi;
+  }  // end of getImplementationInternal
+
+  template <bool parallel>
+  static const NonLinearEvolutionProblemImplementation<parallel>&
+  getImplementationInternal(const AbstractNonLinearEvolutionProblem* const p) {
+    const auto* const pi =
+        dynamic_cast<const NonLinearEvolutionProblemImplementation<parallel>*>(
+            p);
+    if (pi == nullptr) {
+      mgis::raise(
+          "NonLinearEvolutionProblem::getImplementation: "
+          "invalid call");
+    }
+    return *pi;
+  }  // end of getImplementationInternal
+
+  template <>
+  const NonLinearEvolutionProblemImplementation<true>&
+  NonLinearEvolutionProblem::getImplementation() const {
+#ifdef MFEM_USE_MPI
+    return getImplementationInternal<true>(this->pimpl.get());
+#else /* MFEM_USE_MPI */
+    mgis::raise(
+        "NonLinearEvolutionProblem::getImplementation: "
+        "invalid call");
+#endif /* MFEM_USE_MPI */
+  }    // end of getImplementation
+
+  template <>
+  NonLinearEvolutionProblemImplementation<true>&
+  NonLinearEvolutionProblem::getImplementation() {
+#ifdef MFEM_USE_MPI
+    return getImplementationInternal<true>(this->pimpl.get());
+#else /* MFEM_USE_MPI */
+    mgis::raise(
+        "NonLinearEvolutionProblem::getImplementation: "
+        "invalid call");
+#endif /* MFEM_USE_MPI */
+  }    // end of getImplementation
+
+  template <>
+  const NonLinearEvolutionProblemImplementation<false>&
+  NonLinearEvolutionProblem::getImplementation() const {
+    return getImplementationInternal<false>(this->pimpl.get());
+  }
+
+  template <>
+  NonLinearEvolutionProblemImplementation<false>&
+  NonLinearEvolutionProblem::getImplementation() {
+    return getImplementationInternal<false>(this->pimpl.get());
+  }
 
   NonLinearEvolutionProblem::~NonLinearEvolutionProblem() = default;
 

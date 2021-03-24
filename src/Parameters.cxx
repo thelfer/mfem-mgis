@@ -54,7 +54,7 @@ namespace mfem_mgis {
   }  // end of cend
 
   bool Parameters::contains(std::string_view n) const {
-    return this->count(n) == 0;
+    return this->count(n) != 0;
   }  // end of contains
 
   Parameters& Parameters::insert(const Parameters& src) {

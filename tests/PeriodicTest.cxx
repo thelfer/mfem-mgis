@@ -47,7 +47,7 @@
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Material.hxx"
-#include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
 #ifndef MFEM_USE_MPI
@@ -150,7 +150,7 @@ std::shared_ptr<mfem::Solver> getLinearSolver(const std::size_t i) {
 
 template <bool parallel>
 void setSolverParameters(
-    mfem_mgis::NonLinearEvolutionProblemImplementationBase<parallel>& problem,
+    mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& problem,
     mfem::Solver& lsolver) {
   auto& solver = problem.getSolver();
   solver.iterative_mode = true;
@@ -162,8 +162,9 @@ void setSolverParameters(
 }  // end of setSolverParmeters
 
 template <bool parallel>
-bool checkSolution(mfem_mgis::NonLinearEvolutionProblemImplementationBase<parallel>& problem,
-                   const std::size_t i) {
+bool checkSolution(
+    mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& problem,
+    const std::size_t i) {
   constexpr const auto eps = mfem_mgis::real{1e-10};
   const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
   // recover the solution as a grid function
@@ -184,8 +185,9 @@ bool checkSolution(mfem_mgis::NonLinearEvolutionProblemImplementationBase<parall
 }
 
 template <bool parallel>
-void exportResults(mfem_mgis::NonLinearEvolutionProblemImplementationBase<parallel>& problem,
-                   const std::size_t tcase) {
+void exportResults(
+    mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& problem,
+    const std::size_t tcase) {
   auto* const mesh = problem.getFiniteElementSpace().GetMesh();
   auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
   mfem_mgis::GridFunction<parallel> x(&problem.getFiniteElementSpace());
@@ -299,15 +301,15 @@ void executeMFEMMGISTest(const TestParameters& p) {
   problem.setMacroscopicGradientsEvolution([e](const double) { return e; });
   //
   auto lsolver = getLinearSolver<parallel>(p.linearsolver);
-  setSolverParameters(problem, *(lsolver.get()));
+  setSolverParameters(problem.getImplementation<parallel>(), *(lsolver.get()));
   // solving the problem
   problem.solve(0, 1);
   //
-  if (!checkSolution(problem, p.tcase)) {
+  if (!checkSolution(problem.getImplementation<parallel>(), p.tcase)) {
     exit_on_failure<parallel>();
   }
   //
-  exportResults(problem, p.tcase);
+  exportResults(problem.getImplementation<parallel>(), p.tcase);
   if constexpr(parallel) MPI_Finalize();
 }
 
@@ -342,9 +344,14 @@ void executeMFEMMTest(const TestParameters& p) {
     std::exit(EXIT_FAILURE);
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblemImplementationBase<false> problem(
+  mfem_mgis::NonLinearEvolutionProblemImplementation<false> problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-          mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3));
+          mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3),
+      mfem_mgis::NonLinearEvolutionProblemImplementationBase::Hypothesis::
+          TRIDIMENSIONAL,
+      {{mfem_mgis::NonLinearEvolutionProblemImplementationBase::
+            UseMultiMaterialNonLinearIntegrator,
+        false}});
   std::vector<mfem_mgis::real> e(6, mfem_mgis::real{});
   if (p.tcase < 3) {
     e[p.tcase] = 1;

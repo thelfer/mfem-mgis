@@ -16,7 +16,6 @@
 #endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/MultiMaterialEvolutionProblemBase.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
 
 namespace mfem_mgis {
@@ -36,7 +35,6 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementation<true>
       : public NonLinearEvolutionProblemImplementationBase,
-        public MultiMaterialEvolutionProblemBase,
         public NonlinearForm<true> {
     //! \brief a simple alias
     using Hypothesis = mgis::behaviour::Hypothesis;
@@ -61,22 +59,6 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
-    //
-    void addBehaviourIntegrator(const std::string &,
-                                const size_type,
-                                const std::string &,
-                                const std::string &)override;
-    const Material &getMaterial(const size_type) const override;
-    Material &getMaterial(const size_type)override;
-    const BehaviourIntegrator &getBehaviourIntegrator(
-        const size_type) const override;
-    BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
-    void addPostProcessing(
-        const std::function<void(const real, const real)> &) override;
-    void executePostProcessings(const real, const real) override;
-    void revert() override;
-    void update() override;
-    void solve(const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -84,10 +66,8 @@ namespace mfem_mgis {
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
-    void setup(const real, const real) override;
 
    private:
-    void setTimeIncrement(const real) override;
     //! \brief newton solver
     NewtonSolver solver;
     //! \brief registred post-processings
@@ -99,7 +79,6 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementation<false>
       : public NonLinearEvolutionProblemImplementationBase,
-        public MultiMaterialEvolutionProblemBase,
         public NonlinearForm<false> {
     //! \brief a simple alias
     using Hypothesis = mgis::behaviour::Hypothesis;
@@ -128,17 +107,6 @@ namespace mfem_mgis {
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void executePostProcessings(const real, const real) override;
-    void addBehaviourIntegrator(const std::string &,
-                                const size_type,
-                                const std::string &,
-                                const std::string &)override;
-    const Material &getMaterial(const size_type) const override;
-    Material &getMaterial(const size_type)override;
-    const BehaviourIntegrator &getBehaviourIntegrator(
-        const size_type) const override;
-    BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
-    void revert() override;
-    void update() override;
     void solve(const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
@@ -147,10 +115,8 @@ namespace mfem_mgis {
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
-    void setup(const real, const real) override;
 
    private:
-    void setTimeIncrement(const real) override;
     //! \brief newton solver
     NewtonSolver solver;
     //! \brief registred post-processings
