@@ -60,8 +60,14 @@
 
 #ifdef DO_USE_MPI
 static constexpr bool parallel = true;
+using MMNonLinearEvolutionProblemImpl = mfem_mgis::NonLinearEvolutionProblemImplementation<true>;
+using MMMesh = mfem_mgis::Mesh<true>;
+using MMGridFunction = mfem_mgis::GridFunction<true>;
 #else
 static constexpr bool parallel = false;
+using MMNonLinearEvolutionProblemImpl = mfem_mgis::NonLinearEvolutionProblemImplementation<false>;
+using MMMesh = mfem_mgis::Mesh<false>;
+using MMGridFunction = mfem_mgis::GridFunction<false>;
 #endif
 
 void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
@@ -147,13 +153,13 @@ static void setSolverParameters(
 }  // end of setSolverParmeters
 
 bool checkSolution(
-    mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& problem,
+    MMNonLinearEvolutionProblemImpl &problem,
     const std::size_t i) {
   constexpr const auto eps = mfem_mgis::real{1e-10};
   const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
   // recover the solution as a grid function
   auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-  mfem_mgis::GridFunction<parallel> x(&problem.getFiniteElementSpace());
+  MMGridFunction x(&problem.getFiniteElementSpace());
   x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
   x.SetFromTrueVector();
   // comparison to analytical solution
@@ -179,7 +185,7 @@ struct TestParameters {
 TestParameters parseCommandLineOptions(int &argc, char* argv[]){
   TestParameters p;
   // options treatment
-  if constexpr (parallel) MPI_Init(&argc, &argv);
+  MPI_Init(&argc, &argv);
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&p.mesh_file, "-m", "--mesh", "Mesh file to use.");
   args.AddOption(&p.library, "-l", "--library", "Material library.");
@@ -204,7 +210,7 @@ TestParameters parseCommandLineOptions(int &argc, char* argv[]){
 }
 
 void exit_on_failure () {
-  if constexpr (parallel) MPI_Finalize();
+  MPI_Finalize();
   std::exit(EXIT_FAILURE);
 }
 
@@ -212,7 +218,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
-  std::shared_ptr<mfem_mgis::Mesh<parallel>> mesh;
+  std::shared_ptr<MMMesh> mesh;
   if constexpr (parallel) {
       auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
       if (dim != smesh->Dimension()) {
@@ -223,7 +229,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
         smesh->UniformRefinement();
       mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
     } else {
-      mesh = std::make_shared<mfem_mgis::Mesh<parallel>>(p.mesh_file, 1, 1);
+      mesh = std::make_shared<MMMesh>(p.mesh_file, 1, 1);
       if (dim != mesh->Dimension()) {
         std::cerr << "Invalid mesh dimension \n";
         exit_on_failure();
@@ -276,7 +282,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
   if (!checkSolution(problem.getImplementation<parallel>(), p.tcase)) {
     exit_on_failure();
   }
-  if constexpr(parallel) MPI_Finalize();
+  MPI_Finalize();
 }
 
 struct ElasticityNonLinearIntegrator final
