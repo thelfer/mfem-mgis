@@ -59,14 +59,10 @@
 
 
 #ifdef DO_USE_MPI
-static constexpr bool parallel = true;
 using MMNonLinearEvolutionProblemImpl = mfem_mgis::NonLinearEvolutionProblemImplementation<true>;
-using MMMesh = mfem_mgis::Mesh<true>;
 using MMGridFunction = mfem_mgis::GridFunction<true>;
 #else
-static constexpr bool parallel = false;
 using MMNonLinearEvolutionProblemImpl = mfem_mgis::NonLinearEvolutionProblemImplementation<false>;
-using MMMesh = mfem_mgis::Mesh<false>;
 using MMGridFunction = mfem_mgis::GridFunction<false>;
 #endif
 
@@ -218,23 +214,24 @@ void executeMFEMMGISTest(const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
-  std::shared_ptr<MMMesh> mesh;
-  if constexpr (parallel) {
-      auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-      if (dim != smesh->Dimension()) {
-        std::cerr << "Invalid mesh dimension \n";
-        exit_on_failure();
-      }
-      for (int i = 0 ; i < 2 ; i++)
-        smesh->UniformRefinement();
-      mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
-    } else {
-      mesh = std::make_shared<MMMesh>(p.mesh_file, 1, 1);
-      if (dim != mesh->Dimension()) {
-        std::cerr << "Invalid mesh dimension \n";
-        exit_on_failure();
-      }
+#ifdef DO_USE_MPI
+  std::shared_ptr<mfem::ParMesh> mesh;
+  auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
+  if (dim != smesh->Dimension()) {
+    std::cerr << "Invalid mesh dimension \n";
+    exit_on_failure();
   }
+  for (int i = 0 ; i < 2 ; i++)
+    smesh->UniformRefinement();
+  mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
+#else
+  std::shared_ptr<mfem::Mesh> mesh;
+  mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
+  if (dim != mesh->Dimension()) {
+    std::cerr << "Invalid mesh dimension \n";
+    exit_on_failure();
+  }
+#endif
   // building the non linear problem
   mfem_mgis::PeriodicNonLinearEvolutionProblem problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
@@ -279,7 +276,12 @@ void executeMFEMMGISTest(const TestParameters& p) {
   problem.solve(0, 1);
   problem.executePostProcessings(0, 1);
   //
-  if (!checkSolution(problem.getImplementation<parallel>(), p.tcase)) {
+#ifdef DO_USE_MPI
+  bool check = checkSolution(problem.getImplementation<true>(), p.tcase);
+#else
+  bool check = checkSolution(problem.getImplementation<false>(), p.tcase);
+#endif
+  if (!check) {
     exit_on_failure();
   }
   MPI_Finalize();
