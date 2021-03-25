@@ -54,8 +54,6 @@
 #define MPI_COMM_WORLD 0
 #define MPI_Finalize(args...) \
   {}
-#define MPI_Allreduce(args...) \
-  {}
 #define MPI_Init(args...) \
   {}
 #endif
