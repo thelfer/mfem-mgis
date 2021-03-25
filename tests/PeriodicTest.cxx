@@ -57,14 +57,14 @@
 #define MPI_Init(args...) {}
 #endif
 
-
 #ifdef DO_USE_MPI
-using MMNonLinearEvolutionProblemImpl = mfem_mgis::NonLinearEvolutionProblemImplementation<true>;
-using MMGridFunction = mfem_mgis::GridFunction<true>;
-#else
-using MMNonLinearEvolutionProblemImpl = mfem_mgis::NonLinearEvolutionProblemImplementation<false>;
-using MMGridFunction = mfem_mgis::GridFunction<false>;
-#endif
+constexpr bool parallel = true;
+#else /* DO_USE_MPI */
+constexpr bool parallel = false;
+#endif /* DO_USE_MPI */
+
+using MMNonLinearEvolutionProblemImpl = mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>;
+using MMGridFunction = mfem_mgis::GridFunction<parallel>;
 
 void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
   constexpr const auto xthr = mfem_mgis::real(1) / 2;
@@ -276,12 +276,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
   problem.solve(0, 1);
   problem.executePostProcessings(0, 1);
   //
-#ifdef DO_USE_MPI
-  bool check = checkSolution(problem.getImplementation<true>(), p.tcase);
-#else
-  bool check = checkSolution(problem.getImplementation<false>(), p.tcase);
-#endif
-  if (!check) {
+  if (!checkSolution(problem.getImplementation<parallel>(), p.tcase)) {
     exit_on_failure();
   }
   MPI_Finalize();
