@@ -5,34 +5,34 @@
  * describing a multi-material square.
  * This problem has a 1D analytic solution along x1 dimension,
  * the solution is constant along x2 dimension which is also periodic.
- * 
+ *
  * The geometry of the domain is assumed to be as
  * follows:
- * 
+ *
  *             x2=1  +----------+----------+
  *                   | material | material |
  *                   |    1     |    2     |
  *             x2=0  +----------+----------+
  *                 x1=0                   x1=1
- * 
- * 
+ *
+ *
  * Specifically, we approximate the weak form of -div(sigma(u))=0
  * where sigma(u)=lambda*div(u)*I+mu*(grad*u+u*grad) is the stress
  * tensor corresponding to displacement field u, and lambda and mu
  * are the material Lame constants. The boundary conditions are
  * periodic.
- * 
+ *
  * Mechanical strain:
  *                 eps = E + grad_s v
- * 
+ *
  *           with  E the given macrocoscopic strain
  *                 v the periodic displacement fluctuation
  * Displacement:
  *                   u = U + v
- * 
+ *
  *           with  U the given displacement associated to E
  *                   E = grad_s U
- * 
+ *
  * The local microscopic strain is equal, on average, to the macroscopic strain:
  *           <eps> = <E>
  * \author Thomas Helfer, Guillaume Latu
@@ -52,18 +52,22 @@
 
 #ifndef MFEM_USE_MPI
 #define MPI_COMM_WORLD 0
-#define MPI_Finalize(args...) {}
-#define MPI_Allreduce(args...) {}
-#define MPI_Init(args...) {}
+#define MPI_Finalize(args...) \
+  {}
+#define MPI_Allreduce(args...) \
+  {}
+#define MPI_Init(args...) \
+  {}
 #endif
 
 #ifdef DO_USE_MPI
 constexpr bool parallel = true;
-#else /* DO_USE_MPI */
+#else  /* DO_USE_MPI */
 constexpr bool parallel = false;
 #endif /* DO_USE_MPI */
 
-using MMNonLinearEvolutionProblemImpl = mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>;
+using MMNonLinearEvolutionProblemImpl =
+    mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>;
 using MMGridFunction = mfem_mgis::GridFunction<parallel>;
 
 void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
@@ -148,9 +152,8 @@ static void setSolverParameters(
                                {"MaximumNumberOfIterations", 10}});
 }  // end of setSolverParmeters
 
-bool checkSolution(
-    MMNonLinearEvolutionProblemImpl &problem,
-    const std::size_t i) {
+bool checkSolution(MMNonLinearEvolutionProblemImpl& problem,
+                   const std::size_t i) {
   constexpr const auto eps = mfem_mgis::real{1e-10};
   const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
   // recover the solution as a grid function
@@ -162,7 +165,8 @@ bool checkSolution(
   mfem::VectorFunctionCoefficient sol_coef(dim, getSolution(i));
   const auto error = x.ComputeL2Error(sol_coef);
   if (error > eps) {
-    std::cerr << "Error is greater than threshold (" << error << " > " << eps << ")\n";
+    std::cerr << "Error is greater than threshold (" << error << " > " << eps
+              << ")\n";
     return false;
   }
   std::cerr << "Error is lower than threshold (" << error << " < " << eps
@@ -178,7 +182,7 @@ struct TestParameters {
   int linearsolver = 0;
 };
 
-TestParameters parseCommandLineOptions(int &argc, char* argv[]){
+TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   TestParameters p;
   // options treatment
   MPI_Init(&argc, &argv);
@@ -190,8 +194,9 @@ TestParameters parseCommandLineOptions(int &argc, char* argv[]){
   args.AddOption(&p.tcase, "-t", "--test-case",
                  "identifier of the case : Exx->0, Eyy->1, Ezz->2, Exy->3, "
                  "Exz->4, Eyz->5");
-  args.AddOption(&p.linearsolver, "-ls", "--linearsolver",
-                 "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
+  args.AddOption(
+      &p.linearsolver, "-ls", "--linearsolver",
+      "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
   args.Parse();
   if ((!args.Good()) || (p.mesh_file == nullptr)) {
     args.PrintUsage(std::cout);
@@ -205,7 +210,7 @@ TestParameters parseCommandLineOptions(int &argc, char* argv[]){
   return p;
 }
 
-void exit_on_failure () {
+void exit_on_failure() {
   MPI_Finalize();
   std::exit(EXIT_FAILURE);
 }
@@ -214,28 +219,31 @@ void executeMFEMMGISTest(const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
-#ifdef DO_USE_MPI
-  std::shared_ptr<mfem::ParMesh> mesh;
-  auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-  if (dim != smesh->Dimension()) {
-    std::cerr << "Invalid mesh dimension \n";
-    exit_on_failure();
+  std::shared_ptr<mfem_mgis::FiniteElementDiscretization> fed;
+  if constexpr (parallel) {
+    auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
+    if (dim != smesh->Dimension()) {
+      std::cerr << "Invalid mesh dimension \n";
+      exit_on_failure();
+    }
+    for (int i = 0; i < 2; i++) {
+      smesh->UniformRefinement();
+    }
+    auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
+    fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+        mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
+  } else {
+    std::shared_ptr<mfem::Mesh> mesh;
+    mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
+    if (dim != mesh->Dimension()) {
+      std::cerr << "Invalid mesh dimension \n";
+      exit_on_failure();
+    }
+    fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+        mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
   }
-  for (int i = 0 ; i < 2 ; i++)
-    smesh->UniformRefinement();
-  mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
-#else
-  std::shared_ptr<mfem::Mesh> mesh;
-  mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-  if (dim != mesh->Dimension()) {
-    std::cerr << "Invalid mesh dimension \n";
-    exit_on_failure();
-  }
-#endif
   // building the non linear problem
-  mfem_mgis::PeriodicNonLinearEvolutionProblem problem(
-      std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-          mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), 3));
+  mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);
   problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
   problem.addBehaviourIntegrator("Mechanics", 2, p.library, "Elasticity");
   // materials
@@ -284,7 +292,6 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
 struct ElasticityNonLinearIntegrator final
     : public mfem::NonlinearFormIntegrator {
-
   void AssembleElementVector(const mfem::FiniteElement&,
                              mfem::ElementTransformation&,
                              const mfem::Vector&,
