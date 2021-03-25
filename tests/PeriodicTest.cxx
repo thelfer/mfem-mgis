@@ -58,16 +58,6 @@
   {}
 #endif
 
-#ifdef DO_USE_MPI
-constexpr bool parallel = true;
-#else  /* DO_USE_MPI */
-constexpr bool parallel = false;
-#endif /* DO_USE_MPI */
-
-using MMNonLinearEvolutionProblemImpl =
-    mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>;
-using MMGridFunction = mfem_mgis::GridFunction<parallel>;
-
 void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
   constexpr const auto xthr = mfem_mgis::real(1) / 2;
   std::array<void (*)(const mfem::Vector&, mfem::Vector&), 6u> solutions = {
@@ -150,13 +140,19 @@ static void setSolverParameters(
                                {"MaximumNumberOfIterations", 10}});
 }  // end of setSolverParmeters
 
-bool checkSolution(MMNonLinearEvolutionProblemImpl& problem,
+bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& iproblem,
                    const std::size_t i) {
   constexpr const auto eps = mfem_mgis::real{1e-10};
+#ifdef DO_USE_MPI
+  mfem_mgis::NonLinearEvolutionProblemImplementation<true> &problem = iproblem.getImplementation<true>();
+  mfem_mgis::GridFunction<true> x(&problem.getFiniteElementSpace());
+#else
+  mfem_mgis::NonLinearEvolutionProblemImplementation<false> &problem = iproblem.getImplementation<false>();
+  mfem_mgis::GridFunction<false> x(&problem.getFiniteElementSpace());
+#endif
   const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
   // recover the solution as a grid function
   auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-  MMGridFunction x(&problem.getFiniteElementSpace());
   x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
   x.SetFromTrueVector();
   // comparison to analytical solution
@@ -218,28 +214,20 @@ void executeMFEMMGISTest(const TestParameters& p) {
   // creating the finite element workspace
 
   std::shared_ptr<mfem_mgis::FiniteElementDiscretization> fed;
-  if constexpr (parallel) {
-    auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-    if (dim != smesh->Dimension()) {
-      std::cerr << "Invalid mesh dimension \n";
-      exit_on_failure();
-    }
-    for (int i = 0; i < 2; i++) {
-      smesh->UniformRefinement();
-    }
-    auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
-    fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-        mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
-  } else {
-    std::shared_ptr<mfem::Mesh> mesh;
-    mesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-    if (dim != mesh->Dimension()) {
-      std::cerr << "Invalid mesh dimension \n";
-      exit_on_failure();
-    }
-    fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-        mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
+  auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
+  if (dim != smesh->Dimension()) {
+    std::cerr << "Invalid mesh dimension \n";
+    exit_on_failure();
   }
+
+#ifdef DO_USE_MPI  
+  auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
+#else
+  auto mesh = smesh;
+#endif
+  fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+        mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
+
   // building the non linear problem
   mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);
   problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
@@ -282,7 +270,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
   problem.solve(0, 1);
   problem.executePostProcessings(0, 1);
   //
-  if (!checkSolution(problem.getImplementation<parallel>(), p.tcase)) {
+  if (!checkSolution(problem, p.tcase)) {
     exit_on_failure();
   }
   MPI_Finalize();
