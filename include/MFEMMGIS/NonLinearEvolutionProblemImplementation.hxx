@@ -72,7 +72,7 @@ namespace mfem_mgis {
     void addPostProcessing(std::string_view, const Parameters&) override;
     void executePostProcessings(const real, const real) override;
     void solve(const real, const real) override;
-`    //! \brief destructor
+    //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
    protected:
