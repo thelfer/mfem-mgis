@@ -47,6 +47,7 @@
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/AnalyticalTests.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
@@ -58,10 +59,10 @@
   {}
 #endif
 
-void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
+void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
   constexpr const auto xthr = mfem_mgis::real(1) / 2;
-  std::array<void (*)(const mfem::Vector&, mfem::Vector&), 6u> solutions = {
-      +[](const mfem::Vector& x, mfem::Vector& u) {
+  std::array<void (*)(mfem::Vector&, const mfem::Vector&), 6u> solutions = {
+      +[](mfem::Vector& u, const mfem::Vector& x) {
         constexpr const auto gradx = mfem_mgis::real(1) / 3;
         u = mfem_mgis::real{};
         if (x(0) < xthr) {
@@ -70,7 +71,7 @@ void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
           u(0) = gradx * xthr - gradx * (x(0) - xthr);
         }
       },
-      +[](const mfem::Vector& x, mfem::Vector& u) {
+      +[](mfem::Vector& u, const mfem::Vector& x) {
         constexpr const auto gradx = mfem_mgis::real(4) / 30;
         u = mfem_mgis::real{};
         if (x(0) < xthr) {
@@ -79,7 +80,7 @@ void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
           u(0) = gradx * xthr - gradx * (x(0) - xthr);
         }
       },
-      +[](const mfem::Vector& x, mfem::Vector& u) {
+      +[](mfem::Vector& u, const mfem::Vector& x) {
         constexpr const auto gradx = mfem_mgis::real(4) / 30;
         u = mfem_mgis::real{};
         if (x(0) < xthr) {
@@ -88,7 +89,7 @@ void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
           u(0) = gradx * xthr - gradx * (x(0) - xthr);
         }
       },
-      +[](const mfem::Vector& x, mfem::Vector& u) {
+      +[](mfem::Vector& u, const mfem::Vector& x) {
         constexpr const auto gradx = mfem_mgis::real(1) / 3;
         u = mfem_mgis::real{};
         if (x(0) < xthr) {
@@ -97,7 +98,7 @@ void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
           u(1) = gradx * xthr - gradx * (x(0) - xthr);
         }
       },
-      +[](const mfem::Vector& x, mfem::Vector& u) {
+      +[](mfem::Vector& u, const mfem::Vector& x) {
         constexpr const auto gradx = mfem_mgis::real(1) / 3;
         u = mfem_mgis::real{};
         if (x(0) < xthr) {
@@ -106,7 +107,7 @@ void (*getSolution(const std::size_t i))(const mfem::Vector&, mfem::Vector&) {
           u(2) = gradx * xthr - gradx * (x(0) - xthr);
         }
       },
-      +[](const mfem::Vector&, mfem::Vector& u) { u = mfem_mgis::real{}; }};
+      +[](mfem::Vector& u, const mfem::Vector&) { u = mfem_mgis::real{}; }};
   return solutions[i];
 }
 
@@ -140,31 +141,16 @@ static void setSolverParameters(
                                {"MaximumNumberOfIterations", 10}});
 }  // end of setSolverParmeters
 
-bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& iproblem,
+bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& problem,
                    const std::size_t i) {
-  constexpr const auto eps = mfem_mgis::real{1e-10};
-#ifdef DO_USE_MPI
-  mfem_mgis::NonLinearEvolutionProblemImplementation<true> &problem = iproblem.getImplementation<true>();
-  mfem_mgis::GridFunction<true> x(&problem.getFiniteElementSpace());
-#else
-  mfem_mgis::NonLinearEvolutionProblemImplementation<false> &problem = iproblem.getImplementation<false>();
-  mfem_mgis::GridFunction<false> x(&problem.getFiniteElementSpace());
-#endif
-  const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
-  // recover the solution as a grid function
-  auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-  x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
-  x.SetFromTrueVector();
-  // comparison to analytical solution
-  mfem::VectorFunctionCoefficient sol_coef(dim, getSolution(i));
-  const auto error = x.ComputeL2Error(sol_coef);
-  if (error > eps) {
-    std::cerr << "Error is greater than threshold (" << error << " > " << eps
-              << ")\n";
+  const auto b = mfem_mgis::compareToAnalyticalSolution(
+      problem, getSolution(i),
+      {{"CriterionThreshold", 1e-10}});
+  if (!b) {
+    std::cerr << "Error is greater than threshold\n";
     return false;
   }
-  std::cerr << "Error is lower than threshold (" << error << " < " << eps
-            << ")\n";
+  std::cerr << "Error is lower than threshold\n";
   return true;
 }
 
@@ -219,6 +205,12 @@ void executeMFEMMGISTest(const TestParameters& p) {
     std::cerr << "Invalid mesh dimension \n";
     exit_on_failure();
   }
+
+  //   auto fed = FiniteElementDiscretization({{"MeshFileName", p.mesh_file},
+  //                                           {"FiniteElementCollection",
+  //                                           "H1"},
+  //                                           {"FiniteElementOrder", p.order},
+  //                                           {"parallel", true}});
 
 #ifdef DO_USE_MPI  
   auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
@@ -275,27 +267,6 @@ void executeMFEMMGISTest(const TestParameters& p) {
   }
   MPI_Finalize();
 }
-
-struct ElasticityNonLinearIntegrator final
-    : public mfem::NonlinearFormIntegrator {
-  void AssembleElementVector(const mfem::FiniteElement&,
-                             mfem::ElementTransformation&,
-                             const mfem::Vector&,
-                             mfem::Vector&) override {}
-
-  void AssembleElementGrad(const mfem::FiniteElement&,
-                           mfem::ElementTransformation&,
-                           const mfem::Vector&,
-                           mfem::DenseMatrix&) override {}
-
-  void setMacroscopicGradients(const std::vector<mfem_mgis::real>& g) {
-    this->e = g;
-  }
-
- private:
-  //! macroscopic gradients
-  std::vector<mfem_mgis::real> e;
-};
 
 int main(int argc, char* argv[]) {
   const auto p = parseCommandLineOptions(argc, argv);

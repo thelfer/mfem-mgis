@@ -33,6 +33,7 @@ mfem_mgis_library(MFEMMGIS
   OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.cxx
   OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
   OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.cxx
+  AnalyticalTests.cxx
 )
 
 if(OpenMP_FOUND)
