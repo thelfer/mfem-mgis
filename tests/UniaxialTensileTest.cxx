@@ -82,24 +82,18 @@ int main(const int argc, char** const argv) {
   //    3 7 "mat"
   //    $EndPhysicalNames
   // Only the index is used in this C++ code for manipulating related dof.
-  //
-  // Please notice there is an offset hereafter due
-  // to C notation. Hence, the corresponding indices used for ess_bdr are 0,
-  // 1, 4 (which corresponds to boundary attributes numbered as 1, 2, 5). This
-  // means that we want to fix dirichlet boundary conditions on "xz0", "xy0"
-  // and "yz0".
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 0, 1));
+          problem.getFiniteElementDiscretizationPointer(), 1, 1));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 1, 2));
+          problem.getFiniteElementDiscretizationPointer(), 2, 2));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 4, 0));
+          problem.getFiniteElementDiscretizationPointer(), 5, 0));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 2, 0,
+          problem.getFiniteElementDiscretizationPointer(), 3, 0,
           [](const auto t) {
             if (t < 0.3) {
               return 3e-2 * t;
