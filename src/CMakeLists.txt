@@ -1,5 +1,6 @@
 mfem_mgis_library(MFEMMGIS
   Config.cxx
+  Parameter.cxx
   Parameters.cxx
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
