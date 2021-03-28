@@ -42,7 +42,7 @@ namespace mfem_mgis {
     mgis::raise(msg);
   }  // end of throwInvalidBehaviourType
 
-  void BehaviourIntegratorBase::setTimeIncrement(const real dt){
+  void BehaviourIntegratorBase::setTimeIncrement(const real dt) {
     this->time_increment = dt;
   }  // end of setTimeIncrement
 
@@ -91,18 +91,18 @@ namespace mfem_mgis {
               }
               mgis::raise(msg);
             }
-	    // depending on the type of p->second, we are branching
-	    // on one of the following procedure:
+            // depending on the type of p->second, we are branching
+            // on one of the following procedure:
             if (mgis::holds_alternative<real>(p->second)) {
-	      // if uniform field, copy p->second into v[i]
-	      // `evs` will be untouched.
+              // if uniform field, copy p->second into v[i]
+              // `evs` will be untouched.
               v[i] = mgis::get<real>(p->second);
             } else if (mgis::holds_alternative<mgis::span<real>>(p->second)) {
-	      // if we have a span, we store in evs this span for future use
+              // if we have a span, we store in evs this span for future use
               evs.push_back(std::make_tuple(
                   i, mgis::get<mgis::span<real>>(p->second).data()));
             } else {
-	      // if we have a vector, we store in evs this vector for future use
+              // if we have a vector, we store in evs this vector for future use
               evs.push_back(std::make_tuple(
                   i, mgis::get<std::vector<real>>(p->second).data()));
             }
@@ -159,10 +159,8 @@ namespace mfem_mgis {
     v.K = this->K.data() + this->K_stride * ip;
     v.s0.gradients = this->s0.gradients.data() + g_offset;
     v.s1.gradients = this->s1.gradients.data() + g_offset;
-    v.s0.thermodynamic_forces =
-        this->s0.thermodynamic_forces.data() + t_offset;
-    v.s1.thermodynamic_forces =
-        this->s1.thermodynamic_forces.data() + t_offset;
+    v.s0.thermodynamic_forces = this->s0.thermodynamic_forces.data() + t_offset;
+    v.s1.thermodynamic_forces = this->s1.thermodynamic_forces.data() + t_offset;
     v.s0.material_properties = this->wks.mps.data();
     v.s1.material_properties = this->wks.mps.data();
     v.s0.internal_state_variables =
@@ -195,11 +193,11 @@ namespace mfem_mgis {
     }
   }  // end of BehaviourIntegratorBase::integrate
 
-  void BehaviourIntegratorBase::revert(){
+  void BehaviourIntegratorBase::revert() {
     mgis::behaviour::revert(*this);
   }  // end of revert
 
-  void BehaviourIntegratorBase::update(){
+  void BehaviourIntegratorBase::update() {
     mgis::behaviour::update(*this);
   }  // end of update
 

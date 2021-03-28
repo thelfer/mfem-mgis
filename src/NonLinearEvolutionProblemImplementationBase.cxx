@@ -68,8 +68,8 @@ namespace mfem_mgis {
     return this->u0;
   }  // end of getUnknownsAtBeginningOfTheTimeStep
 
-  mfem::Vector& NonLinearEvolutionProblemImplementationBase::
-      getUnknownsAtEndOfTheTimeStep() {
+  mfem::Vector&
+  NonLinearEvolutionProblemImplementationBase::getUnknownsAtEndOfTheTimeStep() {
     return this->u1;
   }  // end of getUnknownsAtEndOfTheTimeStep
 
@@ -122,31 +122,34 @@ namespace mfem_mgis {
 
   const Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
       const size_type m) const {
-    checkMultiMaterialSupportEnabled("getMaterial",
-                                     this->mgis_integrator);
+    checkMultiMaterialSupportEnabled("getMaterial", this->mgis_integrator);
     return this->mgis_integrator->getMaterial(m);
   }  // end of getMaterial
 
-  Material& NonLinearEvolutionProblemImplementationBase::getMaterial(const size_type m) {
-    checkMultiMaterialSupportEnabled("getMaterial",
-                                     this->mgis_integrator);
+  Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
+      const size_type m) {
+    checkMultiMaterialSupportEnabled("getMaterial", this->mgis_integrator);
     return this->mgis_integrator->getMaterial(m);
   }  // end of getMaterial
 
-  const BehaviourIntegrator& NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
+  const BehaviourIntegrator&
+  NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
       const size_type m) const {
     checkMultiMaterialSupportEnabled("getBehaviourIntegrator",
                                      this->mgis_integrator);
     return this->mgis_integrator->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 
-  BehaviourIntegrator& NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(const size_type m) {
+  BehaviourIntegrator&
+  NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
+      const size_type m) {
     checkMultiMaterialSupportEnabled("getBehaviourIntegrator",
                                      this->mgis_integrator);
     return this->mgis_integrator->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
-  
-  void NonLinearEvolutionProblemImplementationBase::setTimeIncrement(const real dt) {
+
+  void NonLinearEvolutionProblemImplementationBase::setTimeIncrement(
+      const real dt) {
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->setTimeIncrement(dt);
     }

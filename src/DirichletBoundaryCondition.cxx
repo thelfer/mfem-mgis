@@ -1,6 +1,6 @@
 /*!
  * \file   src/DirichletBoundaryCondition.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   18/03/2021
  */

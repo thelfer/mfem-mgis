@@ -1,6 +1,6 @@
 /*!
  * \file   src/Behaviour.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   13/10/2020
  */
@@ -8,7 +8,7 @@
 #include "MGIS/Behaviour/FiniteStrainBehaviourOptions.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
 
-namespace mfem_mgis{
+namespace mfem_mgis {
 
   std::unique_ptr<Behaviour> load(const std::string& l,
                                   const std::string& b,
@@ -23,4 +23,4 @@ namespace mfem_mgis{
     return std::make_unique<Behaviour>(mgis::behaviour::load(l, b, h));
   }  // end of load
 
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

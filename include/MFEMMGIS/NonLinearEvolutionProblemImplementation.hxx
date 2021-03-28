@@ -66,7 +66,7 @@ namespace mfem_mgis {
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
     //
     void setSolverParameters(const Parameters&) override;
-    void setLinearSolver(std::string_view, const Parameters &) override;
+    void setLinearSolver(std::string_view, const Parameters&) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
@@ -125,7 +125,7 @@ namespace mfem_mgis {
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<false>>);
     //
     void setSolverParameters(const Parameters&) override;
-    void setLinearSolver(std::string_view, const Parameters &) override;
+    void setLinearSolver(std::string_view, const Parameters&) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
@@ -148,6 +148,25 @@ namespace mfem_mgis {
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
 
+
+  /*!
+   * \brief return the resultant of the inner forces on the given boundary
+   * \param[out] F: resultant
+   * \param[in] p: non linear evolution problem
+   * \param[in] faces: description of the boundary by a vector of pair
+   * associating for each face its identifier and the identifier of the adjacent
+   * element.
+   *
+   * \note in parallel, the resultant is only the contribution of the given process
+   */
+  template <bool parallel>
+  void computeResultantForceOnBoundary(
+      mfem::Vector&,
+      NonLinearEvolutionProblemImplementation<parallel>&,
+      const std::vector<std::pair<size_type, size_type>>&);
+
 }  // end of namespace mfem_mgis
+
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.ixx"
 
 #endif /* LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEMIMPLEMENTATION */

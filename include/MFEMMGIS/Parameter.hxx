@@ -63,7 +63,7 @@ namespace mfem_mgis {
     Parameter& operator=(std::string_view);
     //! \brief destructor
     ~Parameter();
-  }; // end of struct Parameter
+  };  // end of struct Parameter
 
 }  // end of namespace mfem_mgis
 

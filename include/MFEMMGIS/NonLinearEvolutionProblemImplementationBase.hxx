@@ -59,13 +59,13 @@ namespace mfem_mgis {
      */
     virtual void setMacroscopicGradients(const std::vector<real>&);
     //! \return the unknowns at the beginning of the time step
-    virtual mfem::Vector &getUnknownsAtBeginningOfTheTimeStep();
+    virtual mfem::Vector& getUnknownsAtBeginningOfTheTimeStep();
     //! \return the unknowns at the beginning of the time step
-    virtual const mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() const;
+    virtual const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const;
     //! \return the unknowns at the end of the time step
-    virtual mfem::Vector &getUnknownsAtEndOfTheTimeStep();
+    virtual mfem::Vector& getUnknownsAtEndOfTheTimeStep();
     //! \return the unknowns at the end of the time step
-    virtual const mfem::Vector &getUnknownsAtEndOfTheTimeStep() const;
+    virtual const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const;
     //
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>

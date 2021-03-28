@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/PostProcessingFactory.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   24/03/2021
  */
@@ -31,7 +31,7 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   struct PostProcessingFactory;
-  
+
 #ifdef MFEM_USE_MPI
 
   //! \brief partial specialisation in parallel
@@ -66,7 +66,7 @@ namespace mfem_mgis {
     ~PostProcessingFactory();
     //! \brief registred factories
     std::map<std::string, Generator, std::less<>> generators;
-  }; // end of struct PostProcessingFactory
+  };  // end of struct PostProcessingFactory
 
 #endif /* MFEM_USE_MPI */
 
@@ -102,7 +102,7 @@ namespace mfem_mgis {
     ~PostProcessingFactory();
     //! \brief registred factories
     std::map<std::string, Generator, std::less<>> generators;
-  }; // end of struct PostProcessingFactory
+  };  // end of struct PostProcessingFactory
 
 }  // end of namespace mfem_mgis
 

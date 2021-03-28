@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/PartialQuadratureFunction.ixx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   10/03/2021
  */
@@ -10,11 +10,13 @@
 
 namespace mfem_mgis {
 
-  inline size_type PartialQuadratureFunction::getDataOffset(const size_type o) const {
+  inline size_type PartialQuadratureFunction::getDataOffset(
+      const size_type o) const {
     return o * (this->data_stride) + this->data_begin;
-  } // end of getDataOffset
+  }  // end of getDataOffset
 
-  inline real& PartialQuadratureFunction::getIntegrationPointValue(const size_type o) {
+  inline real& PartialQuadratureFunction::getIntegrationPointValue(
+      const size_type o) {
     return *(this->values.data() + this->getDataOffset(o));
   }  // end of getIntegrationPointValues
 
@@ -51,7 +53,6 @@ namespace mfem_mgis {
         this->values.data() + this->getDataOffset(o), this->data_size);
   }  // end of getIntegrationPointValues
 
-
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_IXX */

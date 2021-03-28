@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/Parameters.ixx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   24/03/2021
  */

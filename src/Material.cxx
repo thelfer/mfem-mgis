@@ -1,6 +1,6 @@
 /*!
  * \file   src/Material.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   26/08/2020
  */
@@ -37,8 +37,7 @@ namespace mfem_mgis {
                                      mgis::behaviour::Behaviour::ORTHOTROPIC
                                  ? &raiseInvalidGetRotationMatrixCall
                                  : &raiseUnsetRotationMatrix),
-        behaviour_ptr(std::move(b_ptr)) {
-  }  // end of Material::Material
+        behaviour_ptr(std::move(b_ptr)) {}  // end of Material::Material
 
   void Material::setMacroscopicGradients(mgis::span<const real> g) {
     if (g.size() != this->s1.gradients_stride) {

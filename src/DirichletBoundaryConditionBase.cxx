@@ -59,7 +59,7 @@ namespace mfem_mgis {
   std::vector<size_type>
   DirichletBoundaryConditionBase::getHandledDegreesOfFreedom() const {
     return this->dofs;
-  } // end of getHandledDegreesOfFreedom
+  }  // end of getHandledDegreesOfFreedom
 
   DirichletBoundaryConditionBase::~DirichletBoundaryConditionBase() = default;
 

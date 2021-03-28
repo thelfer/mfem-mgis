@@ -78,21 +78,29 @@ namespace mfem_mgis {
 
   void
   OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator::
-      computeInnerForces(mfem::Vector &Fe,
-                         const mfem::FiniteElement &e,
-                         mfem::ElementTransformation &tr,
-                         const mfem::Vector &u) {
-    this->implementComputeInnerForces(Fe, e, tr, u);
-  }  // end of computeInnerForces
+      updateResidual(mfem::Vector &Fe,
+                     const mfem::FiniteElement &e,
+                     mfem::ElementTransformation &tr,
+                     const mfem::Vector &u) {
+    this->implementUpdateResidual(Fe, e, tr, u);
+  }  // end of updateResidual
 
   void
   OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator::
-      computeStiffnessMatrix(mfem::DenseMatrix &Ke,
-                             const mfem::FiniteElement &e,
-                             mfem::ElementTransformation &tr,
-                             const mfem::Vector &) {
-    this->implementComputeStiffnessMatrix(Ke, e, tr);
-  }  // end of computeStiffnessMatrix
+      updateJacobian(mfem::DenseMatrix &Ke,
+                     const mfem::FiniteElement &e,
+                     mfem::ElementTransformation &tr,
+                     const mfem::Vector &) {
+    this->implementUpdateJacobian(Ke, e, tr);
+  }  // end of updateJacobian
+
+  void
+  OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator::
+      computeInnerForces(mfem::Vector &Fe,
+                         const mfem::FiniteElement &e,
+                         mfem::ElementTransformation &tr) {
+    this->implementComputeInnerForces(Fe, e, tr);
+  }  // end of computeInnerForces
 
   OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator::
       ~OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator() =
@@ -116,10 +124,10 @@ namespace mfem_mgis {
     g[2] += u_2 * dNi_2;
     g[3] += u_0 * dNi_1;
     g[4] += dNi_0 * u_1;
-    g[5] += u_0 * dNi_2;
-    g[6] += dNi_0 * u_2;
-    g[7] += u_1 * dNi_2;
-    g[8] += dNi_1 * u_2;
+    g[5] += dNi_2 * u_0;
+    g[6] += u_2 * dNi_0;
+    g[7] += dNi_2 * u_1;
+    g[8] += u_2 * dNi_1;
   }  // end of updateGradients
 
   inline void
@@ -136,9 +144,9 @@ namespace mfem_mgis {
     const auto ni_0 = ni;
     const auto ni_1 = ni + nnodes;
     const auto ni_2 = ni + 2 * nnodes;
-    Fe[ni_0] += w * (s[0] * dNi_0 + s[5] * dNi_2 + dNi_1 * s[3]);
-    Fe[ni_1] += w * (s[4] * dNi_0 + s[7] * dNi_2 + s[1] * dNi_1);
-    Fe[ni_2] += w * (s[2] * dNi_2 + dNi_1 * s[8] + s[6] * dNi_0);
+    Fe[ni_0] += w * (dNi_2 * s[5] + s[3] * dNi_1 + s[0] * dNi_0);
+    Fe[ni_1] += w * (dNi_0 * s[4] + dNi_2 * s[7] + s[1] * dNi_1);
+    Fe[ni_2] += w * (s[6] * dNi_0 + dNi_1 * s[8] + dNi_2 * s[2]);
   }  // end of updateInnerForces
 
   inline void
@@ -162,51 +170,51 @@ namespace mfem_mgis {
       const auto nj_0 = nj;
       const auto nj_1 = nj + nnodes;
       const auto nj_2 = nj + 2 * nnodes;
-      Ke(ni_0, nj_0) += w * (dNi_2 * dNj_1 * Kip[48] + dNj_1 * dNi_0 * Kip[3] +
-                             dNi_2 * dNj_0 * Kip[45] + dNi_2 * Kip[50] * dNj_2 +
-                             Kip[27] * dNj_0 * dNi_1 + Kip[32] * dNj_2 * dNi_1 +
-                             Kip[5] * dNi_0 * dNj_2 + dNj_0 * Kip[0] * dNi_0 +
-                             Kip[30] * dNj_1 * dNi_1);
-      Ke(ni_0, nj_1) += w * (Kip[4] * dNj_0 * dNi_0 + Kip[34] * dNj_2 * dNi_1 +
-                             Kip[52] * dNi_2 * dNj_2 + dNj_1 * dNi_0 * Kip[1] +
-                             Kip[28] * dNj_1 * dNi_1 + Kip[49] * dNi_2 * dNj_0 +
-                             Kip[46] * dNi_2 * dNj_1 + dNi_0 * dNj_2 * Kip[7] +
-                             dNj_0 * Kip[31] * dNi_1);
-      Ke(ni_0, nj_2) += w * (dNi_2 * dNj_0 * Kip[51] + dNi_2 * Kip[47] * dNj_2 +
-                             dNi_2 * Kip[53] * dNj_1 + Kip[2] * dNi_0 * dNj_2 +
-                             dNj_0 * dNi_0 * Kip[6] + Kip[33] * dNj_0 * dNi_1 +
-                             dNj_1 * Kip[35] * dNi_1 + Kip[8] * dNj_1 * dNi_0 +
-                             Kip[29] * dNj_2 * dNi_1);
-      Ke(ni_1, nj_0) += w * (dNj_0 * Kip[9] * dNi_1 + Kip[12] * dNj_1 * dNi_1 +
-                             Kip[39] * dNj_1 * dNi_0 + Kip[68] * dNi_2 * dNj_2 +
-                             dNi_2 * Kip[66] * dNj_1 + dNi_2 * dNj_0 * Kip[63] +
-                             dNi_0 * Kip[41] * dNj_2 + Kip[36] * dNj_0 * dNi_0 +
-                             Kip[14] * dNj_2 * dNi_1);
-      Ke(ni_1, nj_1) += w * (dNj_0 * Kip[13] * dNi_1 + Kip[37] * dNj_1 * dNi_0 +
-                             dNi_2 * dNj_1 * Kip[64] + dNj_1 * Kip[10] * dNi_1 +
-                             Kip[43] * dNi_0 * dNj_2 + dNi_2 * dNj_0 * Kip[67] +
-                             dNj_0 * Kip[40] * dNi_0 + Kip[16] * dNj_2 * dNi_1 +
-                             dNi_2 * Kip[70] * dNj_2);
-      Ke(ni_1, nj_2) += w * (Kip[65] * dNi_2 * dNj_2 + Kip[71] * dNi_2 * dNj_1 +
-                             Kip[11] * dNj_2 * dNi_1 + dNi_0 * Kip[38] * dNj_2 +
-                             dNi_2 * dNj_0 * Kip[69] + dNj_0 * Kip[15] * dNi_1 +
-                             dNj_1 * Kip[44] * dNi_0 + Kip[17] * dNj_1 * dNi_1 +
-                             Kip[42] * dNj_0 * dNi_0);
-      Ke(ni_2, nj_0) += w * (Kip[77] * dNj_2 * dNi_1 + dNj_0 * dNi_0 * Kip[54] +
-                             dNj_0 * Kip[72] * dNi_1 + dNi_2 * dNj_0 * Kip[18] +
-                             dNi_2 * dNj_2 * Kip[23] + Kip[59] * dNi_0 * dNj_2 +
-                             Kip[75] * dNj_1 * dNi_1 + dNi_2 * Kip[21] * dNj_1 +
-                             dNj_1 * Kip[57] * dNi_0);
-      Ke(ni_2, nj_1) += w * (Kip[79] * dNj_2 * dNi_1 + dNj_0 * Kip[76] * dNi_1 +
-                             dNi_2 * Kip[25] * dNj_2 + dNi_2 * dNj_1 * Kip[19] +
-                             dNj_1 * Kip[73] * dNi_1 + Kip[55] * dNj_1 * dNi_0 +
-                             dNj_0 * dNi_0 * Kip[58] + dNi_2 * dNj_0 * Kip[22] +
-                             dNi_0 * Kip[61] * dNj_2);
-      Ke(ni_2, nj_2) += w * (Kip[20] * dNi_2 * dNj_2 + Kip[24] * dNi_2 * dNj_0 +
-                             dNi_2 * dNj_1 * Kip[26] + Kip[62] * dNj_1 * dNi_0 +
-                             Kip[80] * dNj_1 * dNi_1 + Kip[56] * dNi_0 * dNj_2 +
-                             Kip[74] * dNj_2 * dNi_1 + dNj_0 * Kip[60] * dNi_0 +
-                             dNj_0 * Kip[78] * dNi_1);
+      Ke(ni_0, nj_0) += w * (dNi_1 * Kip[27] * dNj_0 + dNj_1 * dNi_0 * Kip[3] +
+                             dNj_1 * Kip[48] * dNi_2 + dNi_0 * dNj_2 * Kip[5] +
+                             Kip[0] * dNi_0 * dNj_0 + dNj_2 * dNi_2 * Kip[50] +
+                             dNj_1 * dNi_1 * Kip[30] + Kip[45] * dNi_2 * dNj_0 +
+                             Kip[32] * dNj_2 * dNi_1);
+      Ke(ni_0, nj_1) += w * (Kip[49] * dNi_2 * dNj_0 + dNi_0 * Kip[4] * dNj_0 +
+                             dNi_0 * dNj_2 * Kip[7] + dNi_1 * dNj_0 * Kip[31] +
+                             dNj_1 * dNi_1 * Kip[28] + dNj_1 * Kip[46] * dNi_2 +
+                             dNj_2 * dNi_1 * Kip[34] + dNj_2 * Kip[52] * dNi_2 +
+                             dNj_1 * dNi_0 * Kip[1]);
+      Ke(ni_0, nj_2) += w * (dNj_1 * dNi_0 * Kip[8] + Kip[51] * dNi_2 * dNj_0 +
+                             Kip[29] * dNj_2 * dNi_1 + dNj_1 * dNi_2 * Kip[53] +
+                             dNi_0 * Kip[6] * dNj_0 + dNi_1 * Kip[33] * dNj_0 +
+                             dNi_0 * dNj_2 * Kip[2] + dNj_2 * dNi_2 * Kip[47] +
+                             dNj_1 * Kip[35] * dNi_1);
+      Ke(ni_1, nj_0) += w * (dNj_2 * dNi_1 * Kip[14] + dNj_2 * Kip[68] * dNi_2 +
+                             dNj_1 * dNi_1 * Kip[12] + dNj_1 * dNi_0 * Kip[39] +
+                             dNj_1 * dNi_2 * Kip[66] + dNi_0 * Kip[36] * dNj_0 +
+                             dNi_0 * Kip[41] * dNj_2 + Kip[9] * dNi_1 * dNj_0 +
+                             dNi_2 * dNj_0 * Kip[63]);
+      Ke(ni_1, nj_1) += w * (Kip[16] * dNj_2 * dNi_1 + dNj_1 * Kip[64] * dNi_2 +
+                             dNi_0 * dNj_2 * Kip[43] + dNj_1 * Kip[10] * dNi_1 +
+                             Kip[13] * dNi_1 * dNj_0 + dNj_1 * dNi_0 * Kip[37] +
+                             Kip[70] * dNj_2 * dNi_2 + Kip[67] * dNi_2 * dNj_0 +
+                             dNi_0 * dNj_0 * Kip[40]);
+      Ke(ni_1, nj_2) += w * (dNi_0 * Kip[42] * dNj_0 + dNi_1 * dNj_0 * Kip[15] +
+                             dNj_1 * Kip[44] * dNi_0 + dNj_2 * dNi_1 * Kip[11] +
+                             dNj_1 * dNi_1 * Kip[17] + dNj_2 * Kip[65] * dNi_2 +
+                             Kip[69] * dNi_2 * dNj_0 + dNi_0 * Kip[38] * dNj_2 +
+                             dNj_1 * Kip[71] * dNi_2);
+      Ke(ni_2, nj_0) += w * (dNj_1 * dNi_1 * Kip[75] + dNi_1 * dNj_0 * Kip[72] +
+                             dNi_0 * Kip[54] * dNj_0 + dNj_1 * Kip[57] * dNi_0 +
+                             dNi_0 * dNj_2 * Kip[59] + dNj_2 * Kip[23] * dNi_2 +
+                             dNi_2 * dNj_0 * Kip[18] + dNj_1 * dNi_2 * Kip[21] +
+                             dNj_2 * dNi_1 * Kip[77]);
+      Ke(ni_2, nj_1) += w * (dNj_1 * Kip[19] * dNi_2 + Kip[79] * dNj_2 * dNi_1 +
+                             dNi_0 * Kip[61] * dNj_2 + dNi_0 * Kip[58] * dNj_0 +
+                             dNj_1 * dNi_0 * Kip[55] + Kip[22] * dNi_2 * dNj_0 +
+                             dNj_2 * dNi_2 * Kip[25] + dNj_1 * Kip[73] * dNi_1 +
+                             Kip[76] * dNi_1 * dNj_0);
+      Ke(ni_2, nj_2) += w * (dNj_2 * dNi_1 * Kip[74] + dNj_1 * dNi_0 * Kip[62] +
+                             dNj_2 * Kip[20] * dNi_2 + dNj_1 * Kip[26] * dNi_2 +
+                             Kip[60] * dNi_0 * dNj_0 + dNi_1 * dNj_0 * Kip[78] +
+                             dNj_1 * dNi_1 * Kip[80] + dNi_0 * dNj_2 * Kip[56] +
+                             Kip[24] * dNi_2 * dNj_0);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 

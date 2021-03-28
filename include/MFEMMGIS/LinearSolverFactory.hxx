@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/LinearSolverFactory.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   24/03/2021
  */
@@ -25,7 +25,7 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   struct LinearSolverFactory;
-  
+
 #ifdef MFEM_USE_MPI
 
   //! \brief partial specialisation in parallel
@@ -57,7 +57,7 @@ namespace mfem_mgis {
     ~LinearSolverFactory();
     //! \brief registred factories
     std::map<std::string, Generator, std::less<>> generators;
-  }; // end of struct LinearSolverFactory
+  };  // end of struct LinearSolverFactory
 
 #endif /* MFEM_USE_MPI */
 
@@ -90,7 +90,7 @@ namespace mfem_mgis {
     ~LinearSolverFactory();
     //! \brief registred factories
     std::map<std::string, Generator, std::less<>> generators;
-  }; // end of struct LinearSolverFactory
+  };  // end of struct LinearSolverFactory
 
 }  // end of namespace mfem_mgis
 

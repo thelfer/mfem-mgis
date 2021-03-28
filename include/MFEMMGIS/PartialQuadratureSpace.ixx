@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/PartialQuadratureSpace.ixx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   14/02/2021
  */
@@ -27,6 +27,6 @@ namespace mfem_mgis {
     return p->second;
   }  // end of PartialQuadratureSpace::getOffset
 
-}  // end of mfem_mgis
+}  // namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATURESPACE_IXX */

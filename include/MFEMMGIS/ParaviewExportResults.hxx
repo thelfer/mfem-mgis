@@ -19,8 +19,7 @@ namespace mfem_mgis {
    * \brief a post-processing to export the results to paraview
    */
   template <bool parallel>
-  struct ParaviewExportResults final
-      : public PostProcessing<parallel> {
+  struct ParaviewExportResults final : public PostProcessing<parallel> {
     /*!
      * \brief constructor
      * \param[in] p: non linear problem

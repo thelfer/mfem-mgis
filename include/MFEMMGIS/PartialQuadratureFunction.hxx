@@ -132,7 +132,7 @@ namespace mfem_mgis {
     size_type data_begin;
     //! \brief data size
     size_type data_size;
-    };  // end of struct PartialQuadratureFunction
+  };  // end of struct PartialQuadratureFunction
 
 }  // namespace mfem_mgis
 

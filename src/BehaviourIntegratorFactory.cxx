@@ -53,37 +53,69 @@ namespace mfem_mgis {
   BehaviourIntegratorFactory buildFactory<Hypothesis::TRIDIMENSIONAL>() {
     BehaviourIntegratorFactory f;
     fillWithDefaultBehaviourIntegrators<Hypothesis::TRIDIMENSIONAL>(f);
-    f.addGenerator(
-        "Mechanics",
-        [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
-          if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
-            if (b->symmetry == Behaviour::ISOTROPIC) {
-              return std::make_unique<
-                  IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
-                  fed, m, std::move(b));
-            }
-            return std::make_unique<
-                OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
-                fed, m, std::move(b));
-          } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-            mgis::raise("invalid behaviour type");
-          }
-          auto bi = [&]() -> std::unique_ptr<BehaviourIntegrator> {
-            if (b->symmetry == Behaviour::ISOTROPIC) {
-              return std::make_unique<
-                  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                  fed, m, std::move(b));
-            }
-            return std::make_unique<
-                OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                fed, m, std::move(b));
-          }();
-          const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
-          bi->getMaterial().setMacroscopicGradients(F);
-          return std::move(bi);
-        });
+    f.addGenerator("Mechanics",
+                   [](const FiniteElementDiscretization& fed,
+                      const size_type m, std::unique_ptr<const Behaviour> b) -> std::
+                                                                                 unique_ptr<
+                                                                                     BehaviourIntegrator> {
+                                                                                   if (b->btype ==
+                                                                                       Behaviour::
+                                                                                           STANDARDSTRAINBASEDBEHAVIOUR) {
+                                                                                     if (b->symmetry ==
+                                                                                         Behaviour::
+                                                                                             ISOTROPIC) {
+                                                                                       return std::make_unique<
+                                                                                           IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+                                                                                           fed,
+                                                                                           m,
+                                                                                           std::move(
+                                                                                               b));
+                                                                                     }
+                                                                                     return std::make_unique<
+                                                                                         OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+                                                                                         fed,
+                                                                                         m,
+                                                                                         std::move(
+                                                                                             b));
+                                                                                   } else if (
+                                                                                       b->btype !=
+                                                                                       Behaviour::
+                                                                                           STANDARDFINITESTRAINBEHAVIOUR) {
+                                                                                     mgis::raise(
+                                                                                         "invalid behaviour type");
+                                                                                   }
+                                                                                   auto bi =
+                                                                                       [&]()
+                                                                                       -> std::unique_ptr<
+                                                                                           BehaviourIntegrator> {
+                                                                                     if (b->symmetry ==
+                                                                                         Behaviour::
+                                                                                             ISOTROPIC) {
+                                                                                       return std::make_unique<
+                                                                                           IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+                                                                                           fed,
+                                                                                           m,
+                                                                                           std::move(
+                                                                                               b));
+                                                                                     }
+                                                                                     return std::make_unique<
+                                                                                         OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+                                                                                         fed,
+                                                                                         m,
+                                                                                         std::move(
+                                                                                             b));
+                                                                                   }();
+                                                                                   const auto F = std::array<
+                                                                                       real,
+                                                                                       9u>{
+                                                                                       1, 1, 1, 0, 0, 0, 0, 0, 0};
+                                                                                   bi->getMaterial()
+                                                                                       .setMacroscopicGradients(
+                                                                                           F);
+                                                                                   return std::
+                                                                                       move(
+                                                                                           bi);
+                                                                                 });
     return f;
   }  // end of buildFactory
 

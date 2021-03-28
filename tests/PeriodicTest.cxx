@@ -144,8 +144,7 @@ static void setSolverParameters(
 bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& problem,
                    const std::size_t i) {
   const auto b = mfem_mgis::compareToAnalyticalSolution(
-      problem, getSolution(i),
-      {{"CriterionThreshold", 1e-10}});
+      problem, getSolution(i), {{"CriterionThreshold", 1e-10}});
   if (!b) {
     std::cerr << "Error is greater than threshold\n";
     return false;
@@ -212,13 +211,13 @@ void executeMFEMMGISTest(const TestParameters& p) {
   //                                           {"FiniteElementOrder", p.order},
   //                                           {"parallel", true}});
 
-#ifdef DO_USE_MPI  
+#ifdef DO_USE_MPI
   auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
 #else
   auto mesh = smesh;
 #endif
   fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-        mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
+      mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
 
   // building the non linear problem
   mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);

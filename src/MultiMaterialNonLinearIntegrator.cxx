@@ -63,7 +63,7 @@ namespace mfem_mgis {
     const auto m = tr.Attribute;
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementVector", m);
-    bi->computeInnerForces(F, e, tr, U);
+    bi->updateResidual(F, e, tr, U);
   }  // end of AssembleElementVector
 
   void MultiMaterialNonLinearIntegrator::AssembleElementGrad(
@@ -74,7 +74,7 @@ namespace mfem_mgis {
     const auto m = tr.Attribute;
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementGrad", m);
-    bi->computeStiffnessMatrix(K, e, tr, U);
+    bi->updateJacobian(K, e, tr, U);
   }  // end of AssembleElementGrad
 
   void MultiMaterialNonLinearIntegrator::addBehaviourIntegrator(
@@ -107,19 +107,21 @@ namespace mfem_mgis {
     return bi->getMaterial();
   }  // end of getMaterial
 
-  const BehaviourIntegrator& MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
+  const BehaviourIntegrator&
+  MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
       const size_type m) const {
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "getBehaviourIntegrator", m);
     return *bi;
   }  // end of getBehaviourIntegrator
 
-  BehaviourIntegrator& MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(const size_type m) {
+  BehaviourIntegrator& MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
+      const size_type m) {
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "getBehaviourIntegrator", m);
     return *bi;
   }  // end of getBehaviourIntegrator
-  
+
   void MultiMaterialNonLinearIntegrator::setTimeIncrement(const real dt) {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {

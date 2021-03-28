@@ -111,7 +111,7 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(
-        const std::function<void(const real, const real)>&) = 0;
+        const std::function<void(const real, const real)> &) = 0;
     /*!
      * \brief add a new post-processing
      * \param[in] n: name of the post-processing

@@ -7,6 +7,7 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/BoundaryUtilities.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
@@ -44,7 +45,8 @@ namespace mfem_mgis {
     return this->pimpl->getFiniteElementDiscretizationPointer();
   }  // end of getFiniteElementDiscretizationPointer
 
-  void NonLinearEvolutionProblem::setSolverParameters(const Parameters& params) {
+  void NonLinearEvolutionProblem::setSolverParameters(
+      const Parameters& params) {
     return this->pimpl->setSolverParameters(params);
   }  // end of getSolver
 
@@ -58,9 +60,10 @@ namespace mfem_mgis {
     this->pimpl->solve(t, dt);
   }  // end of solve
 
-  std::vector<size_type> NonLinearEvolutionProblem::getMaterialIdentifiers() const{
+  std::vector<size_type> NonLinearEvolutionProblem::getMaterialIdentifiers()
+      const {
     return this->pimpl->getMaterialIdentifiers();
-  } // end of getMaterialIdentifiers
+  }  // end of getMaterialIdentifiers
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {
@@ -151,7 +154,7 @@ namespace mfem_mgis {
   NonLinearEvolutionProblem::getImplementation() const {
 #ifdef MFEM_USE_MPI
     return getImplementationInternal<true>(this->pimpl.get());
-#else /* MFEM_USE_MPI */
+#else  /* MFEM_USE_MPI */
     mgis::raise(
         "NonLinearEvolutionProblem::getImplementation: "
         "invalid call");
@@ -163,7 +166,7 @@ namespace mfem_mgis {
   NonLinearEvolutionProblem::getImplementation() {
 #ifdef MFEM_USE_MPI
     return getImplementationInternal<true>(this->pimpl.get());
-#else /* MFEM_USE_MPI */
+#else  /* MFEM_USE_MPI */
     mgis::raise(
         "NonLinearEvolutionProblem::getImplementation: "
         "invalid call");
@@ -183,5 +186,38 @@ namespace mfem_mgis {
   }
 
   NonLinearEvolutionProblem::~NonLinearEvolutionProblem() = default;
+
+  std::vector<std::pair<size_type, size_type>> buildFacesDescription(
+      NonLinearEvolutionProblem& p, const size_type bid) {
+    auto& fed = p.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      return buildFacesDescription(p.getImplementation<true>(), bid);
+#else
+      mgis::raise(
+          "computeResultantForceOnBoundary: "
+          "unsupported parallel computations");
+#endif
+    }
+    return buildFacesDescription(p.getImplementation<false>(), bid);
+  }  // end of buildFacesDescription
+
+  void computeResultantForceOnBoundary(
+      mfem::Vector& F,
+      NonLinearEvolutionProblem& p,
+      const std::vector<std::pair<size_type, size_type>>& faces) {
+    auto& fed = p.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      computeResultantForceOnBoundary(F, p.getImplementation<true>(), faces);
+#else
+      mgis::raise(
+          "computeResultantForceOnBoundary: "
+          "unsupported parallel computations");
+#endif
+    } else {
+      computeResultantForceOnBoundary(F, p.getImplementation<false>(), faces);
+    }
+  }  // end of computeResultantForceOnBoundary
 
 }  // end of namespace mfem_mgis

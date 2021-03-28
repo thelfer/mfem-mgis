@@ -1,6 +1,6 @@
 /*!
  * \file   src/Config.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   14/02/2021
  */
@@ -10,10 +10,10 @@
 
 namespace mfem_mgis {
 
-  [[noreturn]] void reportUnsupportedParallelComputations(){
+  [[noreturn]] void reportUnsupportedParallelComputations() {
     mgis::raise(
         "FiniteElementDiscretization::reportUnsupportedParallelComputations: "
         "unsupported parallel computations");
   }
 
-}  // end of namespace mfront_mgis
+}  // namespace mfem_mgis

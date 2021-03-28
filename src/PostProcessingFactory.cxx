@@ -9,6 +9,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/ParaviewExportResults.hxx"
+#include "MFEMMGIS/ComputeResultantForceOnBoundary.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 
 namespace mfem_mgis {
@@ -93,12 +94,18 @@ namespace mfem_mgis {
     return g(p, params);
   }  // end of generate
 
-  PostProcessingFactory<false>::PostProcessingFactory(){
+  PostProcessingFactory<false>::PostProcessingFactory() {
     this->add("ParaviewExportResults",
               [](NonLinearEvolutionProblemImplementation<false>& p,
                  const Parameters& params) {
                 return std::make_unique<ParaviewExportResults<false>>(p,
                                                                       params);
+              });
+    this->add("ComputeResultantForceOnBoundary",
+              [](NonLinearEvolutionProblemImplementation<false>& p,
+                 const Parameters& params) {
+                return std::make_unique<ComputeResultantForceOnBoundary<false>>(
+                    p, params);
               });
   }  // end of PostProcessingFactory
 

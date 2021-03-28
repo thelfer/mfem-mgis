@@ -54,10 +54,12 @@ int main(int argc, char *argv[]) {
 
   OptionsParser args(argc, argv);
   args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
-  args.AddOption(&order, "-o", "--order", "Finite element order (polynomial degree).");
-  args.AddOption(&static_cond, "-sc", "--static-condensation", "-no-sc", "--no-static-condensation",
-                 "Enable static condensation.");
-  args.AddOption(&visualization, "-vis", "--visualization", "-no-vis", "--no-visualization",
+  args.AddOption(&order, "-o", "--order",
+                 "Finite element order (polynomial degree).");
+  args.AddOption(&static_cond, "-sc", "--static-condensation", "-no-sc",
+                 "--no-static-condensation", "Enable static condensation.");
+  args.AddOption(&visualization, "-vis", "--visualization", "-no-vis",
+                 "--no-visualization",
                  "Enable or disable GLVis visualization.");
   args.Parse();
   if (!args.Good()) {
@@ -109,7 +111,8 @@ int main(int argc, char *argv[]) {
     fec = new H1_FECollection(order, dim);
     fespace = new FiniteElementSpace(mesh, fec, dim);
   }
-  cout << "Number of finite element unknowns: " << fespace->GetTrueVSize() << endl
+  cout << "Number of finite element unknowns: " << fespace->GetTrueVSize()
+       << endl
        << "Assembling: " << flush;
 
   // 6. Determine the list of true (i.e. conforming) essential boundary dofs.
@@ -156,8 +159,10 @@ int main(int argc, char *argv[]) {
   //    constants coefficient lambda and mu.
 
   BilinearForm *a = new BilinearForm(fespace);
-  a->AddDomainIntegrator(new mfem_mgis::MGISIntegrator(*fespace, mesh->attributes[0], 50, 50));
-  a->AddDomainIntegrator(new mfem_mgis::MGISIntegrator(*fespace, mesh->attributes[1], 1, 1));
+  a->AddDomainIntegrator(
+      new mfem_mgis::MGISIntegrator(*fespace, mesh->attributes[0], 50, 50));
+  a->AddDomainIntegrator(
+      new mfem_mgis::MGISIntegrator(*fespace, mesh->attributes[1], 1, 1));
 
   // 10. Assemble the bilinear form and the corresponding linear system,
   //     applying any necessary transformations such as: eliminating boundary

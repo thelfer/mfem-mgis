@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/AnalyticalTests.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   25/03/2021
  */
@@ -20,7 +20,7 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT bool compareToAnalyticalSolution(
       NonLinearEvolutionProblem &,
       std::function<void(mfem::Vector &, const mfem::Vector &)>,
-      const Parameters&);
+      const Parameters &);
 
   //   MFEM_MGIS_EXPORT bool compareToAnalyticalSolution(
   //       NonLinearEvolutionProblem &,

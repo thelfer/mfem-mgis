@@ -8,6 +8,9 @@
 #ifndef LIB_MFEMMGIS_NONLINEAREVOLUTIONPROBLEM_HXX
 #define LIB_MFEMMGIS_NONLINEAREVOLUTIONPROBLEM_HXX
 
+#include <vector>
+#include <utility>
+
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -36,10 +39,10 @@ namespace mfem_mgis {
      */
     NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis,
-                              const Parameters& = Parameters());
+                              const Parameters & = Parameters());
     //! \return the implementation
     template <bool parallel>
-    NonLinearEvolutionProblemImplementation<parallel>& getImplementation();
+    NonLinearEvolutionProblemImplementation<parallel> &getImplementation();
     //! \return the implementation
     template <bool parallel>
     const NonLinearEvolutionProblemImplementation<parallel> &getImplementation()
@@ -53,16 +56,16 @@ namespace mfem_mgis {
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void addPostProcessing(
-        const std::function<void(const real, const real)>&) override;
-    void addPostProcessing(std::string_view, const Parameters&) override;
+        const std::function<void(const real, const real)> &) override;
+    void addPostProcessing(std::string_view, const Parameters &) override;
     void executePostProcessings(const real, const real) override;
     void addBehaviourIntegrator(const std::string &,
                                 const size_type,
                                 const std::string &,
-                                const std::string &)override;
+                                const std::string &) override;
     std::vector<size_type> getMaterialIdentifiers() const override;
     const Material &getMaterial(const size_type) const override;
-    Material &getMaterial(const size_type)override;
+    Material &getMaterial(const size_type) override;
     const BehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const override;
     BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
@@ -112,6 +115,31 @@ namespace mfem_mgis {
   template <>
   const NonLinearEvolutionProblemImplementation<false>
       &NonLinearEvolutionProblem::getImplementation() const;
+
+  /*!
+   * \return a description of the boundary by a vector of pair
+   * associating for each face its identifier and the identifier of the
+   * adjacent element.
+   * \param[in] p: non linear evolution problem
+   * \param[in] bid: boundary identifier
+   */
+  MFEM_MGIS_EXPORT std::vector<std::pair<size_type, size_type>>
+  buildFacesDescription(NonLinearEvolutionProblem &, const size_type);
+  /*!
+   * \return the resultant of the inner forces on the given boundary
+   * \param[out] F: resultant
+   * \param[in] p: non linear evolution problem
+   * \param[in] faces: description of the boundary by a vector of pair
+   * associating for each face its identifier and the identifier of the
+   * adjacent element.
+   *
+   * \note in parallel, the resultant is only the contribution of the given
+   * process
+   */
+  MFEM_MGIS_EXPORT void computeResultantForceOnBoundary(
+      mfem::Vector &,
+      NonLinearEvolutionProblem &,
+      const std::vector<std::pair<size_type, size_type>> &);
 
 }  // end of namespace mfem_mgis
 

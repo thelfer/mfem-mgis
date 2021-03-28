@@ -65,9 +65,9 @@ namespace mfem_mgis {
      * \param[in] b: behaviour name
      */
     virtual void addBehaviourIntegrator(const std::string &,
-					const size_type,
-					const std::string &,
-					const std::string &);
+                                        const size_type,
+                                        const std::string &,
+                                        const std::string &);
     /*!
      * \return the material with the given id
      * \param[in] m: material id
@@ -82,12 +82,13 @@ namespace mfem_mgis {
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    virtual const BehaviourIntegrator& getBehaviourIntegrator(const size_type) const;
+    virtual const BehaviourIntegrator &getBehaviourIntegrator(
+        const size_type) const;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    virtual BehaviourIntegrator& getBehaviourIntegrator(const size_type);
+    virtual BehaviourIntegrator &getBehaviourIntegrator(const size_type);
     /*!
      * \brief revert the internal state variables.
      *

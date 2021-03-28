@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/Config.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   19/06/2018
  */
@@ -24,7 +24,7 @@
 #define MFEM_MGIS_EXPORT
 #endif /* MFEM_MGIS_STATIC_BUILD */
 #endif /* defined MFEMMGIS_EXPORTS */
-#else /* defined _WIN32 || defined _WIN64 || defined __CYGWIN__ */
+#else  /* defined _WIN32 || defined _WIN64 || defined __CYGWIN__ */
 #define MFEM_MGIS_EXPORT MGIS_VISIBILITY_EXPORT
 #endif /* */
 
@@ -42,6 +42,6 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[noreturn]] void reportUnsupportedParallelComputations();
 
-}  // end of namespace mfront_mgis
+}  // namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_CONFIG_HXX */

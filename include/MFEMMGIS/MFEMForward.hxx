@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/MFEMForward.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   11/06/2020
  */

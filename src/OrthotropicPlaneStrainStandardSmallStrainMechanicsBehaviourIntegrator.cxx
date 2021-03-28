@@ -75,20 +75,27 @@ namespace mfem_mgis {
   }
 
   void OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
-      computeInnerForces(mfem::Vector &Fe,
-                         const mfem::FiniteElement &e,
-                         mfem::ElementTransformation &tr,
-                         const mfem::Vector &u) {
-    this->implementComputeInnerForces(Fe, e, tr, u);
-  }  // end of computeInnerForces
+      updateResidual(mfem::Vector &Fe,
+                     const mfem::FiniteElement &e,
+                     mfem::ElementTransformation &tr,
+                     const mfem::Vector &u) {
+    this->implementUpdateResidual(Fe, e, tr, u);
+  }  // end of updateResidual
 
   void OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
-      computeStiffnessMatrix(mfem::DenseMatrix &Ke,
-                             const mfem::FiniteElement &e,
-                             mfem::ElementTransformation &tr,
-                             const mfem::Vector &) {
-    this->implementComputeStiffnessMatrix(Ke, e, tr);
-  }  // end of computeStiffnessMatrix
+      updateJacobian(mfem::DenseMatrix &Ke,
+                     const mfem::FiniteElement &e,
+                     mfem::ElementTransformation &tr,
+                     const mfem::Vector &) {
+    this->implementUpdateJacobian(Ke, e, tr);
+  }  // end of updateJacobian
+
+  void OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+      computeInnerForces(mfem::Vector &Fe,
+                         const mfem::FiniteElement &e,
+                         mfem::ElementTransformation &tr) {
+    this->implementComputeInnerForces(Fe, e, tr);
+  }  // end of computeInnerForces
 
   OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
       ~OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator() =
@@ -110,7 +117,7 @@ namespace mfem_mgis {
     g[0] += Bi_0_0 * u_0;
     g[1] += Bi_1_1 * u_1;
     g[2] += 0;
-    g[3] += Bi_3_0 * u_0 + Bi_3_1 * u_1;
+    g[3] += u_0 * Bi_3_0 + Bi_3_1 * u_1;
   }  // end of updateGradients
 
   inline void
@@ -156,14 +163,14 @@ namespace mfem_mgis {
           w * (Bj_0_0 * Bi_3_0 * Kip[12] + Bi_3_0 * Bj_3_0 * Kip[15] +
                Bi_0_0 * Bj_3_0 * Kip[3] + Bj_0_0 * Bi_0_0 * Kip[0]);
       Ke(ni_0, nj_1) +=
-          w * (Bj_3_1 * Bi_3_0 * Kip[15] + Kip[1] * Bj_1_1 * Bi_0_0 +
-               Kip[13] * Bi_3_0 * Bj_1_1 + Bj_3_1 * Bi_0_0 * Kip[3]);
+          w * (Bj_3_1 * Bi_0_0 * Kip[3] + Kip[1] * Bj_1_1 * Bi_0_0 +
+               Bj_3_1 * Bi_3_0 * Kip[15] + Kip[13] * Bi_3_0 * Bj_1_1);
       Ke(ni_1, nj_0) +=
-          w * (Bi_1_1 * Bj_0_0 * Kip[4] + Bi_1_1 * Kip[7] * Bj_3_0 +
-               Bj_0_0 * Bi_3_1 * Kip[12] + Bi_3_1 * Bj_3_0 * Kip[15]);
+          w * (Bj_0_0 * Bi_3_1 * Kip[12] + Kip[7] * Bj_3_0 * Bi_1_1 +
+               Bj_0_0 * Kip[4] * Bi_1_1 + Bi_3_1 * Bj_3_0 * Kip[15]);
       Ke(ni_1, nj_1) +=
-          w * (Bi_1_1 * Bj_1_1 * Kip[5] + Bi_1_1 * Bj_3_1 * Kip[7] +
-               Bj_3_1 * Bi_3_1 * Kip[15] + Kip[13] * Bj_1_1 * Bi_3_1);
+          w * (Bj_1_1 * Kip[5] * Bi_1_1 + Kip[13] * Bj_1_1 * Bi_3_1 +
+               Bj_3_1 * Bi_3_1 * Kip[15] + Bj_3_1 * Kip[7] * Bi_1_1);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 
