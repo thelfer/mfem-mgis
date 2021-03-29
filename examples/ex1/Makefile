@@ -14,20 +14,11 @@ LDFLAGS= -L$(MFEMMGIS_DIR)/../../../lib  \
 	 -L$(MFrontGenericInterface_DIR)/../../../lib  \
 	 -lMFEMMGIS -lMFrontGenericInterface -lmfem 
 
-ifeq ($(strip $(SUITESPARSE_DIR)),)
+ifeq ($(strip $(MFEM_LINK_LIST)),)
 else
-	LDFLAGS+="-L$(SUITESPARSE_DIR)/lib -lsuite-sparse -llibumfpack "
+	LDFLAGS+=$(MFEM_LINK_LIST)
 endif	
 
-ifeq ($(strip $(HYPRE_DIR)),)
-else
-	LDFLAGS+="-L$(HYPRE_DIR)/lib -lHYPRE"
-endif	
-
-ifeq ($(strip $(METIS_DIR)),)
-else
-	LDFLAGS+="-L$(METIS_DIR)/lib -lmetis"
-endif	
 
 all: UniaxialTensileTest src/libBehaviour.so 
 

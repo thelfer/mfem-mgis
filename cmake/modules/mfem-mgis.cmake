@@ -15,6 +15,7 @@ function(mfem_mgis_buildenv)
     message( FATAL_ERROR  "Program cmake not found")
   endif()
   string(REGEX REPLACE "/cmake\n$" "" CMAKE_CP_PATH "${CMAKE_CP_PATH}")
+  get_target_property(MFEM_LIB_LIST mfem INTERFACE_LINK_LIBRARIES)
   configure_file(cmake/env.sh.in
     ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh  @ONLY)
   install(FILES

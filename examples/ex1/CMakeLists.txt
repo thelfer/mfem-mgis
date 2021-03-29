@@ -11,8 +11,10 @@ find_package(MFEMMGIS REQUIRED)
 add_executable(UniaxialTensileTest UniaxialTensileTest.cxx)
 target_link_libraries(UniaxialTensileTest mfem-mgis::MFEMMGIS)
 set(MFEMMGIS_TESTDIR "${MFEMMGIS_DIR}/../examples/ex1")
+file(COPY ${MFEMMGIS_TESTDIR}/Plasticity.mfront
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 add_custom_target(mfront
-  COMMAND mfront --obuild --interface=generic ${MFEMMGIS_TESTDIR}/Plasticity.mfront
+  COMMAND mfront --obuild --interface=generic Plasticity.mfront
   COMMENT "Performing mfront code generation")
 add_dependencies(UniaxialTensileTest mfront)
 file(COPY ${MFEMMGIS_TESTDIR}/cube.mesh
