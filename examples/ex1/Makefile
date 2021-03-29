@@ -4,7 +4,10 @@ MFEM_LIB_FILE = mfem_is_not_built
 
 CPPFLAGS= $(MFEM_CPPFLAGS) -g -Wall -W -pedantic                    
 
-MFEM_ISYSTEM := $(subst -I,-isystem ,$(MFEM_INCFLAGS))
+# Change "-I" into "-isystem" to avoid too much warnings.
+# Avoid this change for /usr/include directory because it fails.
+#$(info $$MFEM_INCFLAGS is [${MFEM_INCFLAGS}])
+MFEM_ISYSTEM := $(shell echo $(MFEM_INCFLAGS) | sed "s%-I%-isystem %g;s%-isystem\ \ */usr/include%-I/usr/include%g") 
 
 INCFLAGS = $(MFEM_ISYSTEM) \
           -isystem $(MFEMMGIS_DIR)/../../../include      \
