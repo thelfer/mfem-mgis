@@ -1,31 +1,25 @@
-CPPFLAGS= -g -Wall -W -pedantic                             \
-          -I $(MFEMMGIS_DIR)/../../../include      \
-          -I $(MFEM_DIR)/../../../include            \
-          -I $(MFrontGenericInterface_DIR)/../../../include
-          
+CONFIG_MK = $(MFEM_DIR)/../../../share/mfem/config.mk
+MFEM_LIB_FILE = mfem_is_not_built
+-include $(CONFIG_MK)
 
-CXXFLAGS= -O2 -std=c++17
+CPPFLAGS= $(MFEM_CPPFLAGS) -g -Wall -W -pedantic                    
+
+MFEM_ISYSTEM := $(subst -I,-isystem ,$(MFEM_INCFLAGS))
+
+INCFLAGS = $(MFEM_ISYSTEM) \
+          -isystem $(MFEMMGIS_DIR)/../../../include      \
+          -isystem $(MFrontGenericInterface_DIR)/../../../include
+
+CXXFLAGS =  -O2 -std=c++17 # $(MFEM_CXXFLAGS)
 
 LDFLAGS= -L$(MFEMMGIS_DIR)/../../../lib  \
-	 -L$(MFEM_DIR)/../../../lib  \
 	 -L$(MFrontGenericInterface_DIR)/../../../lib  \
-	 -lMFEMMGIS -lMFrontGenericInterface -lmfem 
-
-ifeq ($(strip $(MFEM_LIB_MAKE)),)
-else
-	LDFLAGS+=$(MFEM_LIB_MAKE)
-endif	
-
-ifeq ($(strip $(MFEM_INC_MAKE)),)
-else
-	CPPFLAGS+=$(MFEM_INC_MAKE)
-endif	
-
+	 -lMFEMMGIS -lMFrontGenericInterface $(MFEM_LIBS) 
 
 all: UniaxialTensileTest src/libBehaviour.so 
 
 UniaxialTensileTest: UniaxialTensileTest.cxx
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) UniaxialTensileTest.cxx -o UniaxialTensileTest $(LDFLAGS)
+	$(CXX) $(INCFLAGS) $(CPPFLAGS) $(CXXFLAGS) UniaxialTensileTest.cxx -o UniaxialTensileTest $(LDFLAGS)
 
 src/libBehaviour.so: Plasticity.mfront
 	mfront --obuild --interface=generic Plasticity.mfront
