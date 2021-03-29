@@ -28,7 +28,6 @@ namespace mfem {
   class ParMesh;
   class ParFiniteElementSpace;
   class ParNonlinearForm;
-  class NewtonSolver;
   class Solver;
 
 }  // end of namespace mfem
@@ -81,8 +80,6 @@ namespace mfem_mgis {
       std::conditional_t<parallel, mfem::ParGridFunction, mfem::GridFunction>;
   //! a simple alias
   using LinearSolver = mfem::Solver;
-  //! a simple alias
-  using NewtonSolver = mfem::NewtonSolver;
 
 }  // namespace mfem_mgis
 

@@ -23,6 +23,8 @@ mfem_mgis_library(MFEMMGIS
   NonLinearEvolutionProblemImplementation.cxx
   NonLinearEvolutionProblem.cxx
   PeriodicNonLinearEvolutionProblem.cxx
+  NewtonSolver.cxx
+  AnalyticalTests.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
   IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.cxx
   IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
@@ -35,7 +37,6 @@ mfem_mgis_library(MFEMMGIS
   OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.cxx
   OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
   OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.cxx
-  AnalyticalTests.cxx
 )
 
 if(OpenMP_FOUND)

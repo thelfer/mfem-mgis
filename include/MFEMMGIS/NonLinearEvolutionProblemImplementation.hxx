@@ -16,6 +16,7 @@
 #endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
 
 namespace mfem_mgis {

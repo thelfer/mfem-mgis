@@ -84,6 +84,10 @@ namespace mfem_mgis {
     this->solver.iterative_mode = true;
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
+      this->solver.addNewUnknownsEstimateActions([](const mfem::Vector&) {
+        std::cout << "call behaviour integration\n";
+        return true;
+      });
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
@@ -188,6 +192,10 @@ namespace mfem_mgis {
     this->solver.iterative_mode = true;
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
+      this->solver.addNewUnknownsEstimateActions([](const mfem::Vector&) {
+        std::cout << "call behaviour integration\n";
+        return true;
+      });
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
@@ -243,7 +251,7 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       std::unique_ptr<LinearSolver> s) {
     this->linear_solver = std::move(s);
-    this->solver.SetSolver(*(this->linear_solver));
+    this->solver.setLinearSolver(*(this->linear_solver));
   }  // end of setLinearSolver
 
   void NonLinearEvolutionProblemImplementation<false>::solve(const real t,

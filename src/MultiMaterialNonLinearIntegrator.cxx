@@ -55,6 +55,16 @@ namespace mfem_mgis {
     }
   }  // end of MultiMaterialNonLinearIntegrator
 
+  //   void MultiMaterialNonLinearIntegrator::integrate(
+  //       const mfem::FiniteElement& e,
+  //       mfem::ElementTransformation& tr,
+  //       const mfem::Vector& U){
+  //     const auto m = tr.Attribute;
+  //     const auto& bi = this->behaviour_integrators[m];
+  //     checkIfBehaviourIntegratorIsDefined(bi.get(), "integrate", m);
+  //     bi->integrate(e, tr, U);
+  //   }  // end of integrate
+
   void MultiMaterialNonLinearIntegrator::AssembleElementVector(
       const mfem::FiniteElement& e,
       mfem::ElementTransformation& tr,
