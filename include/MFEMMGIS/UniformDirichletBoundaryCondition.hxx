@@ -54,7 +54,7 @@ namespace mfem_mgis {
    protected:
     //! \brief function returning
     std::function<real(const real)> ufct;
-  }; // end of struct UniformDirichletBoundaryCondition
+  };  // end of struct UniformDirichletBoundaryCondition
 
 }  // end of namespace mfem_mgis
 

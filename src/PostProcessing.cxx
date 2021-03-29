@@ -1,6 +1,6 @@
 /*!
  * \file   src/PostProcessing.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   08/03/2021
  */

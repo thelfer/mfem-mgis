@@ -26,7 +26,7 @@ namespace mfem_mgis {
     auto boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
     boundaries_markers = 0;
-    boundaries_markers[bid] = 1;
+    boundaries_markers[bid - 1] = 1;
     auto tmp = mfem::Array<mfem_mgis::size_type>{};
     fed.getFiniteElementSpace<parallel>().GetEssentialTrueDofs(
         boundaries_markers, tmp, c);
@@ -59,7 +59,7 @@ namespace mfem_mgis {
   std::vector<size_type>
   DirichletBoundaryConditionBase::getHandledDegreesOfFreedom() const {
     return this->dofs;
-  } // end of getHandledDegreesOfFreedom
+  }  // end of getHandledDegreesOfFreedom
 
   DirichletBoundaryConditionBase::~DirichletBoundaryConditionBase() = default;
 

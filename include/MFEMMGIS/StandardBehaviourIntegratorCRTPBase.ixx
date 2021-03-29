@@ -16,7 +16,7 @@
 namespace mfem_mgis {
 
   template <typename Child>
-  void StandardBehaviourIntegratorCRTPBase<Child>::implementComputeInnerForces(
+  void StandardBehaviourIntegratorCRTPBase<Child>::implementUpdateResidual(
       mfem::Vector &Fe,
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
@@ -63,13 +63,47 @@ namespace mfem_mgis {
       auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
       static_cast<Child *>(this)->rotateTangentOperatorBlocks(Kip, r);
     }
+  }  // end of implementUpdateResidual
+
+  template <typename Child>
+  void StandardBehaviourIntegratorCRTPBase<Child>::implementComputeInnerForces(
+      mfem::Vector &Fe,
+      const mfem::FiniteElement &e,
+      mfem::ElementTransformation &tr) {
+#ifdef MFEM_THREAD_SAFE
+    mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
+#else
+    this->dshape.SetSize(e.GetDof(), e.GetDim());
+#endif
+    const auto nnodes = e.GetDof();
+    const auto thsize = this->s1.thermodynamic_forces_stride;
+    // element offset
+    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    Fe.SetSize(e.GetDof() * e.GetDim());
+    Fe = 0.;
+    const auto &ir = static_cast<Child *>(this)->getIntegrationRule(e, tr);
+    for (size_type i = 0; i != ir.GetNPoints(); ++i) {
+      const auto &ip = ir.IntPoint(i);
+      tr.SetIntPoint(&ip);
+      // get the gradients of the shape functions
+      e.CalcPhysDShape(tr, dshape);
+      // get the weights associated to point ip
+      const auto w = ip.weight * tr.Weight();
+      // offset of the integration point
+      const auto o = eoffset + i;
+      const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
+      for (size_type ni = 0; ni != nnodes; ++ni) {
+        static_cast<const Child *>(this)->updateInnerForces(Fe, s, dshape, w,
+                                                            ni);
+      }
+    }
   }  // end of implementComputeInnerForces
 
   template <typename Child>
-  void StandardBehaviourIntegratorCRTPBase<
-      Child>::implementComputeStiffnessMatrix(mfem::DenseMatrix &Ke,
-                                              const mfem::FiniteElement &e,
-                                              mfem::ElementTransformation &tr) {
+  void StandardBehaviourIntegratorCRTPBase<Child>::implementUpdateJacobian(
+      mfem::DenseMatrix &Ke,
+      const mfem::FiniteElement &e,
+      mfem::ElementTransformation &tr) {
 #ifdef MFEM_THREAD_SAFE
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
@@ -97,7 +131,7 @@ namespace mfem_mgis {
                                                                 w, ni);
       }
     }
-  }  // end of implementComputeStiffnessMatrix
+  }  // end of implementUpdateJacobian
 
   template <typename Child>
   StandardBehaviourIntegratorCRTPBase<

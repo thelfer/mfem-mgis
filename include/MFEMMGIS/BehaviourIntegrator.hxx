@@ -24,8 +24,8 @@ namespace mfem_mgis {
    *
    * - integrate the behaviour over the time step
    * - compute the nodal forces du to the material reaction (see the
-   *   `computeInnerForces` method).
-   * - compute the stiffness matrix (see the `computeStiffnessMatrix` method).
+   *   `updateResidual` method).
+   * - compute the stiffness matrix (see the `updateJacobian` method).
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegrator {
     /*!
@@ -49,27 +49,37 @@ namespace mfem_mgis {
      */
     virtual void setup(const real, const real) = 0;
     /*!
-     * \brief compute the inner forces for the given element
-     * \param[out] Fe: element stiffness matrix
+     * \brief compute the contribution of the given element to the inner forces
+     * \param[out] Fe: inner forces
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     */
+    virtual void computeInnerForces(mfem::Vector &,
+                                    const mfem::FiniteElement &,
+                                    mfem::ElementTransformation &) = 0;
+
+    /*!
+     * \brief compute the contribution of the given element to the residual
+     * \param[out] Fe: element contribution to the residual
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
      * \param[in] u: current estimation of the displacement field
      */
-    virtual void computeInnerForces(mfem::Vector &,
-                                    const mfem::FiniteElement &,
-                                    mfem::ElementTransformation &,
-                                    const mfem::Vector &) = 0;
+    virtual void updateResidual(mfem::Vector &,
+                                const mfem::FiniteElement &,
+                                mfem::ElementTransformation &,
+                                const mfem::Vector &) = 0;
     /*!
-     * \brief compute the stiffness matrix for the given element
+     * \brief compute the contribution of the given element to the jacobian
      * \param[out] Ke: element stiffness matrix
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
      * \param[in] u: current estimation of the displacement field
      */
-    virtual void computeStiffnessMatrix(mfem::DenseMatrix &,
-                                        const mfem::FiniteElement &,
-                                        mfem::ElementTransformation &,
-                                        const mfem::Vector &) = 0;
+    virtual void updateJacobian(mfem::DenseMatrix &,
+                                const mfem::FiniteElement &,
+                                mfem::ElementTransformation &,
+                                const mfem::Vector &) = 0;
     /*!
      * \brief revert the internal state variables.
      *

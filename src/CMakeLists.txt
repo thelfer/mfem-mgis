@@ -1,5 +1,7 @@
 mfem_mgis_library(MFEMMGIS
   Config.cxx
+  Parameter.cxx
+  Parameters.cxx
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
@@ -13,9 +15,12 @@ mfem_mgis_library(MFEMMGIS
   DirichletBoundaryConditionBase.cxx
   UniformDirichletBoundaryCondition.cxx
   PostProcessing.cxx
-  NonLinearEvolutionProblemCommon.cxx
-  NonLinearEvolutionProblemBase.cxx
-  MultiMaterialEvolutionProblemBase.cxx
+  PostProcessingFactory.cxx
+  ComputeResultantForceOnBoundary.cxx
+  LinearSolverFactory.cxx
+  AbstractNonLinearEvolutionProblem.cxx
+  NonLinearEvolutionProblemImplementationBase.cxx
+  NonLinearEvolutionProblemImplementation.cxx
   NonLinearEvolutionProblem.cxx
   PeriodicNonLinearEvolutionProblem.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
@@ -30,6 +35,7 @@ mfem_mgis_library(MFEMMGIS
   OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.cxx
   OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
   OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.cxx
+  AnalyticalTests.cxx
 )
 
 if(OpenMP_FOUND)

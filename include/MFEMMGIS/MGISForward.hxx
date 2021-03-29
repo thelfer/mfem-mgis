@@ -1,6 +1,6 @@
 /*!
  * \file   MGISForward.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   26/08/2020
  */
@@ -16,15 +16,15 @@ namespace mgis {
 
     struct Behaviour;
 
-  } // end of namespace behaviour
+  }  // end of namespace behaviour
 
-} // end of namespace mgis
+}  // end of namespace mgis
 
 namespace mfem_mgis {
 
   //! \brief a simple alias
   using Hypothesis = mgis::behaviour::Hypothesis;
 
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_MGISFORWARD_HXX */

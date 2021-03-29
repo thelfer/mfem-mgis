@@ -2,124 +2,145 @@
  * \file   include/MFEMMGIS/NonLinearEvolutionProblem.hxx
  * \brief
  * \author Thomas Helfer
- * \date 11/12/2020
+ * \date   23/03/2021
  */
 
-#ifndef LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEM_HXX
-#define LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEM_HXX
+#ifndef LIB_MFEMMGIS_NONLINEAREVOLUTIONPROBLEM_HXX
+#define LIB_MFEMMGIS_NONLINEAREVOLUTIONPROBLEM_HXX
 
-#include <memory>
 #include <vector>
+#include <utility>
+
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/MultiMaterialEvolutionProblemBase.hxx"
-#include "MFEMMGIS/NonLinearEvolutionProblemBase.hxx"
+#include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {
 
   // forward declaration
+  struct FiniteElementDiscretization;
+  // forward declaration
   template <bool parallel>
-  struct PostProcessing;
+  struct NonLinearEvolutionProblemImplementation;
 
   /*!
    * \brief class for solving non linear evolution problems
    */
-  template <bool parallel>
-  struct NonLinearEvolutionProblem;
+  struct MFEM_MGIS_EXPORT NonLinearEvolutionProblem
+      : AbstractNonLinearEvolutionProblem {
+    //! \brief a simple alias
+    using Hypothesis = mgis::behaviour::Hypothesis;
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization
+     * \param[in] h: modelling hypothesis
+     * \param[in] p: parameters
+     */
+    NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
+                              const Hypothesis,
+                              const Parameters & = Parameters());
+    //! \return the implementation
+    template <bool parallel>
+    NonLinearEvolutionProblemImplementation<parallel> &getImplementation();
+    //! \return the implementation
+    template <bool parallel>
+    const NonLinearEvolutionProblemImplementation<parallel> &getImplementation()
+        const;
+    //
+    FiniteElementDiscretization &getFiniteElementDiscretization() override;
+    std::shared_ptr<FiniteElementDiscretization>
+    getFiniteElementDiscretizationPointer() override;
+    void setSolverParameters(const Parameters &) override;
+    void setLinearSolver(std::string_view, const Parameters &) override;
+    void addBoundaryCondition(
+        std::unique_ptr<DirichletBoundaryCondition>) override;
+    void addPostProcessing(
+        const std::function<void(const real, const real)> &) override;
+    void addPostProcessing(std::string_view, const Parameters &) override;
+    void executePostProcessings(const real, const real) override;
+    void addBehaviourIntegrator(const std::string &,
+                                const size_type,
+                                const std::string &,
+                                const std::string &) override;
+    std::vector<size_type> getMaterialIdentifiers() const override;
+    const Material &getMaterial(const size_type) const override;
+    Material &getMaterial(const size_type) override;
+    const BehaviourIntegrator &getBehaviourIntegrator(
+        const size_type) const override;
+    BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
+    void revert() override;
+    void update() override;
+    void solve(const real, const real) override;
+    //! \brief destructor
+    ~NonLinearEvolutionProblem() override;
+
+   protected:
+    /*!
+     * \brief method called before each resolution
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    virtual void setup(const real, const real);
+    //! \brief implementation of the non linear problem
+    std::unique_ptr<AbstractNonLinearEvolutionProblem> pimpl;
+  };  // end of struct NonLinearEvolutionProblem
 
 #ifdef MFEM_USE_MPI
 
   template <>
-  struct MFEM_MGIS_EXPORT NonLinearEvolutionProblem<true>
-      : public NonLinearEvolutionProblemBase<true>,
-        public MultiMaterialEvolutionProblemBase {
-    //! \brief a simple alias
-    using Hypothesis = mgis::behaviour::Hypothesis;
-    /*!
-     * \brief constructor
-     * \param[in] fed: finite element discretization
-     * \param[in] h: modelling hypothesis
-     */
-    NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
-                              const Hypothesis);
-    /*!
-     * \brief add a new post-processing
-     * \param[in] p: post-processing
-     */
-    virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
-    /*!
-     * \brief add a new post-processing
-     * \param[in] p: post-processing
-     */
-    virtual void addPostProcessing(
-        const std::function<void(const real, const real)>&);
-    /*!
-     * \brief execute the registred postprocessings
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     */
-    virtual void executePostProcessings(const real, const real);
-    //
-    void revert() override;
-    void update() override;
-    //! \brief destructor
-    ~NonLinearEvolutionProblem() override;
+  NonLinearEvolutionProblemImplementation<true>
+      &NonLinearEvolutionProblem::getImplementation();
 
-   protected:
-    void setup(const real, const real) override;
+  template <>
+  const NonLinearEvolutionProblemImplementation<true>
+      &NonLinearEvolutionProblem::getImplementation() const;
 
-   private:
-    void setTimeIncrement(const real) override;
-    //! \brief registred post-processings
-    std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
-  };  // end of struct NonLinearEvolutionProblem
+#else /* MFEM_USE_MPI */
+
+  template <>
+  [[noreturn]] NonLinearEvolutionProblemImplementation<true>
+      &NonLinearEvolutionProblem::getImplementation();
+
+  template <>
+  [[noreturn]] const NonLinearEvolutionProblemImplementation<true>
+      &NonLinearEvolutionProblem::getImplementation() const;
 
 #endif /* MFEM_USE_MPI */
 
   template <>
-  struct MFEM_MGIS_EXPORT NonLinearEvolutionProblem<false>
-      : public NonLinearEvolutionProblemBase<false>,
-        public MultiMaterialEvolutionProblemBase {
-    //! \brief a simple alias
-    using Hypothesis = mgis::behaviour::Hypothesis;
-    /*!
-     * \brief constructor
-     * \param[in] fed: finite element discretization
-     * \param[in] h: modelling hypothesis
-     */
-    NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
-                              const Hypothesis);
-    /*!
-     * \brief add a new post-processing
-     * \param[in] p: post-processing
-     */
-    virtual void addPostProcessing(std::unique_ptr<PostProcessing<false>>);
-    /*!
-     * \brief add a new post-processing
-     * \param[in] p: post-processing
-     */
-    virtual void addPostProcessing(
-        const std::function<void(const real, const real)>&);
-    /*!
-     * \brief execute the registred postprocessings
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     */
-    virtual void executePostProcessings(const real, const real);
-    //
-    void revert() override;
-    void update() override;
-    //! \brief destructor
-    ~NonLinearEvolutionProblem() override;
+  NonLinearEvolutionProblemImplementation<false>
+      &NonLinearEvolutionProblem::getImplementation();
 
-   protected:
-    void setup(const real, const real) override;
+  template <>
+  const NonLinearEvolutionProblemImplementation<false>
+      &NonLinearEvolutionProblem::getImplementation() const;
 
-   private:
-    void setTimeIncrement(const real) override;
-    //! \brief registred post-processings
-    std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
-  };  // end of struct NonLinearEvolutionProblem
+  /*!
+   * \return a description of the boundary by a vector of pair
+   * associating for each face its identifier and the identifier of the
+   * adjacent element.
+   * \param[in] p: non linear evolution problem
+   * \param[in] bid: boundary identifier
+   */
+  MFEM_MGIS_EXPORT std::vector<std::pair<size_type, size_type>>
+  buildFacesDescription(NonLinearEvolutionProblem &, const size_type);
+  /*!
+   * \return the resultant of the inner forces on the given boundary
+   * \param[out] F: resultant
+   * \param[in] p: non linear evolution problem
+   * \param[in] faces: description of the boundary by a vector of pair
+   * associating for each face its identifier and the identifier of the
+   * adjacent element.
+   *
+   * \note in parallel, the resultant is only the contribution of the given
+   * process
+   */
+  MFEM_MGIS_EXPORT void computeResultantForceOnBoundary(
+      mfem::Vector &,
+      NonLinearEvolutionProblem &,
+      const std::vector<std::pair<size_type, size_type>> &);
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEM */
+#endif /* LIB_MFEMMGIS_NONLINEAREVOLUTIONPROBLEM_HXX */

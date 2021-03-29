@@ -31,14 +31,12 @@ namespace mfem_mgis {
    * - a method called `rotateTangentOperatorBlocks`
    */
   template <typename Child>
-  struct StandardBehaviourIntegratorCRTPBase
-      : BehaviourIntegratorBase {
-
+  struct StandardBehaviourIntegratorCRTPBase : BehaviourIntegratorBase {
    protected:
     // inheriting `BehaviourIntegratorBase`' constructor
     using BehaviourIntegratorBase::BehaviourIntegratorBase;
     /*!
-     * \brief compute the inner forces for the given element
+     * \brief compute the contribution of the element to the residual
      * \param[out] Fe: element stiffness matrix
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
@@ -48,29 +46,38 @@ namespace mfem_mgis {
      * the `updateGradients` and the `updateInnerForces` methods defined
      * in the derived class without a virtual call. Those call may
      * even be inlined.
-     * \note The implementation of the `computeInnerForces` in the
+     * \note The implementation of the `updateResidual` in the
      * `Child` class trivially calls this method. This indirection is made to
-     * control where the code associated to the `implementComputeInnerForces` is
+     * control where the code associated to the `implementUpdateResidual` is
      * generated.
      */
-    void implementComputeInnerForces(mfem::Vector &,
-                                     const mfem::FiniteElement &,
-                                     mfem::ElementTransformation &,
-                                     const mfem::Vector &);
+    void implementUpdateResidual(mfem::Vector &,
+                                 const mfem::FiniteElement &,
+                                 mfem::ElementTransformation &,
+                                 const mfem::Vector &);
     /*!
-     * \brief compute the stiffness matrix for the given element
+     * \brief compute the contribution of the element to the jacobian
      * \param[out] Ke: element stiffness matrix
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
      *
-     * \note The implementation of the `computeStiffnessMatrix` in the
+     * \note The implementation of the `updateJacobian` in the
      * `Child` class trivially calls this method. This indirection is made to
      * control where the code associated to the
-     * `implementComputeStiffnessMatrix` is generated.
+     * `implementUpdateJacobian` is generated.
      */
-    void implementComputeStiffnessMatrix(mfem::DenseMatrix &,
-                                         const mfem::FiniteElement &,
-                                         mfem::ElementTransformation &);
+    void implementUpdateJacobian(mfem::DenseMatrix &,
+                                 const mfem::FiniteElement &,
+                                 mfem::ElementTransformation &);
+    /*!
+     * \brief compute the contribution of the element to the inner forces
+     * \param[out] Fe: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     */
+    void implementComputeInnerForces(mfem::Vector&,
+                                     const mfem::FiniteElement &,
+                                     mfem::ElementTransformation &);
     //! \brief destructor
     ~StandardBehaviourIntegratorCRTPBase() override;
 

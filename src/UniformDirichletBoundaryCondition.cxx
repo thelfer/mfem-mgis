@@ -1,6 +1,6 @@
 /*!
  * \file   UniformDirichletBoundaryCondition.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   18/03/2021
  */
@@ -30,7 +30,6 @@ namespace mfem_mgis {
   void UniformDirichletBoundaryCondition::updateImposedValues(
       mfem::Vector& u, const real t) const {
     const auto uv = this->ufct(t);
-    std::cout << "setting value: " << uv << '\n';
     for (const auto& dof : this->dofs) {
       u[dof] = uv;
     }

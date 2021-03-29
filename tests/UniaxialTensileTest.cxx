@@ -11,8 +11,10 @@
 #include "mfem/general/optparser.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
+#include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 int main(const int argc, char** const argv) {
@@ -47,7 +49,7 @@ int main(const int argc, char** const argv) {
     return EXIT_FAILURE;
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem<false> problem(
+  mfem_mgis::NonLinearEvolutionProblem problem(
       std::make_shared<mfem_mgis::FiniteElementDiscretization>(
           mesh, std::make_shared<mfem::H1_FECollection>(order, dim), 3),
       mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
@@ -80,24 +82,18 @@ int main(const int argc, char** const argv) {
   //    3 7 "mat"
   //    $EndPhysicalNames
   // Only the index is used in this C++ code for manipulating related dof.
-  //
-  // Please notice there is an offset hereafter due
-  // to C notation. Hence, the corresponding indices used for ess_bdr are 0,
-  // 1, 4 (which corresponds to boundary attributes numbered as 1, 2, 5). This
-  // means that we want to fix dirichlet boundary conditions on "xz0", "xy0"
-  // and "yz0".
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 0, 1));
+          problem.getFiniteElementDiscretizationPointer(), 1, 1));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 1, 2));
+          problem.getFiniteElementDiscretizationPointer(), 2, 2));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 4, 0));
+          problem.getFiniteElementDiscretizationPointer(), 5, 0));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 2, 0,
+          problem.getFiniteElementDiscretizationPointer(), 3, 0,
           [](const auto t) {
             if (t < 0.3) {
               return 3e-2 * t;
@@ -106,24 +102,23 @@ int main(const int argc, char** const argv) {
             }
             return -0.021 + 0.1 * (t - 0.6);
           }));
-// solving the problem
+  // solving the problem
+  problem.setSolverParameters({{"VerbosityLevel", 0},
+                               {"RelativeTolerance", 1e-12},
+                               {"AbsoluteTolerance", 0.},
+                               {"MaximumNumberOfIterations", 10}});
 #ifdef MFEM_USE_SUITESPARSE
-  mfem::UMFPackSolver lsolver;
+  problem.setLinearSolver("UMFPackSolver", {});
 #else
-  mfem::CGSolver lsolver;
-  lsolver.SetRelTol(1e-12);
-  lsolver.SetMaxIter(300);
-  lsolver.SetPrintLevel(1);
+  problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
+                                       {"RelativeTolerance", 1e-12},
+                                       {"MaximumNumberOfIterations", 300}});
 #endif
-  auto& solver = problem.getSolver();
-  solver.SetSolver(lsolver);
-  solver.SetPrintLevel(0);
-  solver.SetRelTol(1e-12);
-  solver.SetAbsTol(0);
-  solver.SetMaxIter(10);
   // vtk export
-  mfem::ParaViewDataCollection paraview_dc("UniaxialTensileTestOutput",
-                                           mesh.get());
+  problem.addPostProcessing("ParaviewExportResults",
+                            {{"OutputFileName", "UniaxialTensileTestOutput-" +
+                                                    std::string(behaviour)}});
+  //
   const auto vo =
       mgis::behaviour::getVariableOffset(m1.b.isvs, isv_name, m1.b.hypothesis);
   auto g0 = std::vector<mfem_mgis::real>{};
@@ -141,6 +136,7 @@ int main(const int argc, char** const argv) {
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
     // resolution
     problem.solve(t, dt);
+    problem.executePostProcessings(t, dt);
     problem.update();
     t += dt;
     //
@@ -148,15 +144,6 @@ int main(const int argc, char** const argv) {
     g1.push_back(m1.s1.gradients[1]);
     tf0.push_back(m1.s1.thermodynamic_forces[0]);
     v.push_back(m1.s1.internal_state_variables[vo]);
-    // recover the solution as a grid function
-    auto& u1 = problem.getUnknownsAtEndOfTheTimeStep();
-    mfem::GridFunction x(&problem.getFiniteElementSpace());
-    x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
-    x.SetFromTrueVector();
-    paraview_dc.RegisterField("u", &x);
-    paraview_dc.SetCycle(i);
-    paraview_dc.SetTime(t);
-    paraview_dc.Save();
   }
   // save the traction curve
   std::ofstream out("UniaxialTensileTest-" + std::string(behaviour) + ".txt");

@@ -52,15 +52,19 @@ namespace mfem_mgis {
     inline void rotateTangentOperatorBlocks(mgis::span<real>,
                                             const RotationMatrix &);
 
+    void updateResidual(mfem::Vector &,
+                        const mfem::FiniteElement &,
+                        mfem::ElementTransformation &,
+                        const mfem::Vector &) override;
+
+    void updateJacobian(mfem::DenseMatrix &,
+                        const mfem::FiniteElement &,
+                        mfem::ElementTransformation &,
+                        const mfem::Vector &) override;
+
     void computeInnerForces(mfem::Vector &,
                             const mfem::FiniteElement &,
-                            mfem::ElementTransformation &,
-                            const mfem::Vector &) override;
-
-    void computeStiffnessMatrix(mfem::DenseMatrix &,
-                                const mfem::FiniteElement &,
-                                mfem::ElementTransformation &,
-                                const mfem::Vector &) override;
+                            mfem::ElementTransformation &) override;
 
     //! \brief destructor
     ~OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator()
