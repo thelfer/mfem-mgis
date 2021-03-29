@@ -25,7 +25,7 @@ endif
 all: UniaxialTensileTest src/libBehaviour.so 
 
 UniaxialTensileTest: UniaxialTensileTest.cxx
-	$(MFEMMGIS_CXX) $(CPPFLAGS) $(CXXFLAGS) UniaxialTensileTest.cxx -o UniaxialTensileTest $(LDFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) UniaxialTensileTest.cxx -o UniaxialTensileTest $(LDFLAGS)
 
 src/libBehaviour.so: Plasticity.mfront
 	mfront --obuild --interface=generic Plasticity.mfront
