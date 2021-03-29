@@ -67,4 +67,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif LIB_MFEM_MGIS_PARAMETER_HXX
+#endif /* LIB_MFEM_MGIS_PARAMETER_HXX */

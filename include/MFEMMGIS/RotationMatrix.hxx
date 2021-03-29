@@ -41,6 +41,6 @@ namespace mfem_mgis {
                                         std::array<real, 9u>,
                                         std::array<MaterialAxis3D, 2u>>;
 
-};  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_ROTATIONMATRIX_HXX */
