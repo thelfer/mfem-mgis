@@ -10,7 +10,7 @@ find_package(MFEMMGIS REQUIRED)
 
 add_executable(UniaxialTensileTest UniaxialTensileTest.cxx)
 target_link_libraries(UniaxialTensileTest mfem-mgis::MFEMMGIS)
-set(MFEMMGIS_TESTDIR "${MFEMMGIS_DIR}/../../tests")
+set(MFEMMGIS_TESTDIR "${MFEMMGIS_DIR}/../examples/ex1")
 add_custom_target(mfront
   COMMAND mfront --obuild --interface=generic ${MFEMMGIS_TESTDIR}/Plasticity.mfront
   COMMENT "Performing mfront code generation")

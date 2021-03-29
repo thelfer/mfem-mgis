@@ -19,7 +19,7 @@ function(mfem_mgis_buildenv)
     ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh  @ONLY)
   install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh
-    DESTINATION share/examples/)
+    DESTINATION share/mfem-mgis/examples/)
   set(OUTPUT_EX1 ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UniaxialTensileTest.cxx)
   add_custom_command(
     OUTPUT  ${OUTPUT_EX1}
@@ -30,18 +30,13 @@ function(mfem_mgis_buildenv)
     DEPENDS ${OUTPUT_EX1})
   install(FILES
     ${OUTPUT_EX1}
-    DESTINATION share/examples/ex1)
+    DESTINATION share/mfem-mgis/examples/ex1)
 endfunction(mfem_mgis_buildenv)
 
 function(mfem_mgis_header dir file)
   install(FILES ${dir}/${file}
     DESTINATION "include/${dir}")
 endfunction(mfem_mgis_header)
-
-function(mfem_mgis_share dir file)
-  install(FILES ${file}
-    DESTINATION "share/${dir}")
-endfunction(mfem_mgis_share)
 
 function(mfem_mgis_library name)
   if(${ARGC} LESS 2)

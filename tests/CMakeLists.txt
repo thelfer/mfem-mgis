@@ -104,6 +104,6 @@ if (MFEM_USE_MPI)
 
 endif()
 
-mfem_mgis_share(examples/ex1   Plasticity.mfront)
-mfem_mgis_share(examples/ex1   cube.mesh)
+install(FILES Plasticity.mfront cube.mesh
+  DESTINATION "share/mfem-mgis/examples/ex1")
 
