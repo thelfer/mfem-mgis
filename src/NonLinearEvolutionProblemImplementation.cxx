@@ -84,10 +84,8 @@ namespace mfem_mgis {
     this->solver.iterative_mode = true;
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
-      this->solver.addNewUnknownsEstimateActions([](const mfem::Vector&) {
-        std::cout << "call behaviour integration\n";
-        return true;
-      });
+      this->solver.addNewUnknownsEstimateActions(
+          [this](const mfem::Vector& u) { return this->integrate(u); });
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
@@ -146,6 +144,27 @@ namespace mfem_mgis {
     return this->solver;
   }  // end of getSolver
 
+  bool NonLinearEvolutionProblemImplementation<true>::integrate(
+      const mfem::Vector& u) {
+    if (this->mgis_integrator == nullptr) {
+      return false;
+    }
+    const auto& pu = this->Prolongate(u);
+    const auto& fespace = this->getFiniteElementSpace();
+    mfem::Array<int> vdofs;
+    mfem::Vector ue;
+    for (size_type i = 0; i != fespace.GetNE(); ++i) {
+      const auto& e = *(fespace.GetFE(i));
+      const auto& tr = *(fespace.GetElementTransformation(i));
+      fespace.GetElementVDofs(i, vdofs);
+      pu.GetSubVector(vdofs, ue);
+      if (!this->mgis_integrator->integrate(e, tr, ue)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of integrate
+
   void NonLinearEvolutionProblemImplementation<true>::solve(const real t,
                                                             const real dt) {
     if (this->linear_solver == nullptr) {
@@ -192,10 +211,8 @@ namespace mfem_mgis {
     this->solver.iterative_mode = true;
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
-      this->solver.addNewUnknownsEstimateActions([](const mfem::Vector&) {
-        std::cout << "call behaviour integration\n";
-        return true;
-      });
+      this->solver.addNewUnknownsEstimateActions(
+          [this](const mfem::Vector& u) { return this->integrate(u); });
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
@@ -253,6 +270,27 @@ namespace mfem_mgis {
     this->linear_solver = std::move(s);
     this->solver.setLinearSolver(*(this->linear_solver));
   }  // end of setLinearSolver
+
+  bool NonLinearEvolutionProblemImplementation<false>::integrate(
+      const mfem::Vector& u) {
+    if (this->mgis_integrator == nullptr) {
+      return false;
+    }
+    const auto& pu = this->Prolongate(u);
+    const auto& fespace = this->getFiniteElementSpace();
+    mfem::Array<int> vdofs;
+    mfem::Vector ue;
+    for (size_type i = 0; i != fespace.GetNE(); ++i) {
+      const auto& e = *(fespace.GetFE(i));
+      auto& tr = *(fespace.GetElementTransformation(i));
+      fespace.GetElementVDofs(i, vdofs);
+      pu.GetSubVector(vdofs, ue);
+      if (!this->mgis_integrator->integrate(e, tr, ue)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of integrate
 
   void NonLinearEvolutionProblemImplementation<false>::solve(const real t,
                                                              const real dt) {

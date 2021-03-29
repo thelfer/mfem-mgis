@@ -77,6 +77,12 @@ namespace mfem_mgis {
     ~NonLinearEvolutionProblemImplementation() override;
 
    protected:
+    /*!
+     * \brief integrate the behaviour for given estimate of the unknowns at
+     * the end of the time step.
+     * \param[in] u: current estimate of the unknowns
+     */
+    virtual bool integrate(const mfem::Vector&);
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
@@ -136,11 +142,15 @@ namespace mfem_mgis {
     ~NonLinearEvolutionProblemImplementation() override;
 
    protected:
+    /*!
+     * \brief integrate the behaviour for given estimate of the unknowns at
+     * the end of the time step.
+     * \param[in] u: current estimate of the unknowns
+     */
+    virtual bool integrate(const mfem::Vector&);
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
-
-   private:
     //! \brief newton solver
     NewtonSolver solver;
     //! \brief linear solver
@@ -148,7 +158,6 @@ namespace mfem_mgis {
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
-
 
   /*!
    * \brief return the resultant of the inner forces on the given boundary
@@ -158,7 +167,8 @@ namespace mfem_mgis {
    * associating for each face its identifier and the identifier of the adjacent
    * element.
    *
-   * \note in parallel, the resultant is only the contribution of the given process
+   * \note in parallel, the resultant is only the contribution of the given
+   * process
    */
   template <bool parallel>
   void computeResultantForceOnBoundary(

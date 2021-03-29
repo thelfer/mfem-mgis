@@ -66,11 +66,11 @@ namespace mfem_mgis {
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent
      * operator and internal state variables are updated.
-     *
+     * \return true if the integration is successful.
      * \param[in] ip: local integration point index
      * \note this method shall be called after having set the gradients.
      */
-    virtual void integrate(const size_type);
+    virtual bool performsLocalBehaviourIntegration(const size_type);
     //! \brief workspace
     struct {
       //! \brief array for material properties at the end of the time step

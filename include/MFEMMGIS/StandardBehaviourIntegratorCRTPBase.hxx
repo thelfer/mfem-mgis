@@ -36,6 +36,18 @@ namespace mfem_mgis {
     // inheriting `BehaviourIntegratorBase`' constructor
     using BehaviourIntegratorBase::BehaviourIntegratorBase;
     /*!
+     * \brief integrate the mechanical behaviour over the time step
+     * If successful, the value of the stress, consistent tangent
+     * operator and internal state variables are updated.
+     *
+     * \param[in] e: finite element
+     * \param[in] tr: finite element transformation
+     * \param[in] u: current estimate of the unknowns
+     */
+    bool implementIntegrate(const mfem::FiniteElement &,
+                            mfem::ElementTransformation &,
+                            const mfem::Vector &);
+    /*!
      * \brief compute the contribution of the element to the residual
      * \param[out] Fe: element stiffness matrix
      * \param[in] e: finite element

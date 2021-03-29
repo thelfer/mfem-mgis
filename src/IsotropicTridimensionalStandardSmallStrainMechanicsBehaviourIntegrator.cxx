@@ -66,6 +66,13 @@ namespace mfem_mgis {
   void IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator::
       rotateTangentOperatorBlocks(mgis::span<real>, const RotationMatrix &) {}
 
+  bool IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator::
+      integrate(const mfem::FiniteElement &e,
+                mfem::ElementTransformation &tr,
+                const mfem::Vector &u) {
+    return this->implementIntegrate(e, tr, u);
+  }  // end of integrate
+
   void IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator::
       updateResidual(mfem::Vector &Fe,
                      const mfem::FiniteElement &e,
@@ -112,12 +119,12 @@ namespace mfem_mgis {
     const auto u_0 = u[ni];
     const auto u_1 = u[ni + nnodes];
     const auto u_2 = u[ni + 2 * nnodes];
-    g[0] += u_0 * Bi_0_0;
+    g[0] += Bi_0_0 * u_0;
     g[1] += u_1 * Bi_1_1;
-    g[2] += Bi_2_2 * u_2;
-    g[3] += u_1 * Bi_3_1 + u_0 * Bi_3_0;
-    g[4] += Bi_4_2 * u_2 + Bi_4_0 * u_0;
-    g[5] += Bi_5_2 * u_2 + u_1 * Bi_5_1;
+    g[2] += u_2 * Bi_2_2;
+    g[3] += u_1 * Bi_3_1 + Bi_3_0 * u_0;
+    g[4] += Bi_4_0 * u_0 + Bi_4_2 * u_2;
+    g[5] += u_1 * Bi_5_1 + u_2 * Bi_5_2;
   }  // end of updateGradients
 
   inline void
@@ -140,9 +147,9 @@ namespace mfem_mgis {
     const auto ni_0 = ni;
     const auto ni_1 = ni + nnodes;
     const auto ni_2 = ni + 2 * nnodes;
-    Fe[ni_0] += w * (Bi_4_0 * s[4] + s[3] * Bi_3_0 + s[0] * Bi_0_0);
-    Fe[ni_1] += w * (Bi_5_1 * s[5] + s[3] * Bi_3_1 + s[1] * Bi_1_1);
-    Fe[ni_2] += w * (Bi_4_2 * s[4] + s[5] * Bi_5_2 + Bi_2_2 * s[2]);
+    Fe[ni_0] += w * (Bi_3_0 * s[3] + s[4] * Bi_4_0 + Bi_0_0 * s[0]);
+    Fe[ni_1] += w * (Bi_5_1 * s[5] + Bi_3_1 * s[3] + s[1] * Bi_1_1);
+    Fe[ni_2] += w * (s[5] * Bi_5_2 + s[2] * Bi_2_2 + s[4] * Bi_4_2);
   }  // end of updateInnerForces
 
   inline void
@@ -179,59 +186,59 @@ namespace mfem_mgis {
       const auto nj_1 = nj + nnodes;
       const auto nj_2 = nj + 2 * nnodes;
       Ke(ni_0, nj_0) +=
-          w * (Bi_0_0 * Bj_3_0 * Kip[3] + Bj_0_0 * Kip[24] * Bi_4_0 +
-               Bj_3_0 * Kip[27] * Bi_4_0 + Bj_4_0 * Bi_4_0 * Kip[28] +
-               Bi_3_0 * Bj_0_0 * Kip[18] + Bi_3_0 * Bj_3_0 * Kip[21] +
-               Bj_4_0 * Bi_0_0 * Kip[4] + Bj_4_0 * Bi_3_0 * Kip[22] +
-               Bi_0_0 * Bj_0_0 * Kip[0]);
+          w * (Kip[18] * Bi_3_0 * Bj_0_0 + Kip[27] * Bi_4_0 * Bj_3_0 +
+               Bj_4_0 * Bi_0_0 * Kip[4] + Kip[0] * Bi_0_0 * Bj_0_0 +
+               Kip[3] * Bi_0_0 * Bj_3_0 + Kip[21] * Bi_3_0 * Bj_3_0 +
+               Kip[22] * Bj_4_0 * Bi_3_0 + Bi_4_0 * Kip[28] * Bj_4_0 +
+               Kip[24] * Bi_4_0 * Bj_0_0);
       Ke(ni_0, nj_1) +=
-          w * (Bi_0_0 * Bj_3_1 * Kip[3] + Kip[19] * Bi_3_0 * Bj_1_1 +
-               Kip[29] * Bj_5_1 * Bi_4_0 + Kip[27] * Bi_4_0 * Bj_3_1 +
-               Bi_0_0 * Kip[1] * Bj_1_1 + Bi_3_0 * Kip[23] * Bj_5_1 +
-               Bi_3_0 * Kip[21] * Bj_3_1 + Bj_1_1 * Bi_4_0 * Kip[25] +
-               Bi_0_0 * Kip[5] * Bj_5_1);
+          w * (Bj_1_1 * Bi_4_0 * Kip[25] + Kip[27] * Bi_4_0 * Bj_3_1 +
+               Bj_3_1 * Kip[3] * Bi_0_0 + Bj_5_1 * Bi_3_0 * Kip[23] +
+               Bj_1_1 * Kip[19] * Bi_3_0 + Kip[5] * Bj_5_1 * Bi_0_0 +
+               Bj_5_1 * Bi_4_0 * Kip[29] + Bj_1_1 * Bi_0_0 * Kip[1] +
+               Kip[21] * Bj_3_1 * Bi_3_0);
       Ke(ni_0, nj_2) +=
-          w * (Bi_3_0 * Kip[23] * Bj_5_2 + Kip[26] * Bi_4_0 * Bj_2_2 +
-               Bi_0_0 * Kip[4] * Bj_4_2 + Bi_0_0 * Kip[5] * Bj_5_2 +
-               Bi_0_0 * Kip[2] * Bj_2_2 + Bi_3_0 * Kip[20] * Bj_2_2 +
-               Bi_3_0 * Bj_4_2 * Kip[22] + Bj_4_2 * Bi_4_0 * Kip[28] +
-               Kip[29] * Bi_4_0 * Bj_5_2);
+          w * (Bi_4_0 * Kip[28] * Bj_4_2 + Bj_5_2 * Bi_3_0 * Kip[23] +
+               Bi_0_0 * Kip[4] * Bj_4_2 + Kip[2] * Bj_2_2 * Bi_0_0 +
+               Kip[22] * Bi_3_0 * Bj_4_2 + Bi_4_0 * Bj_5_2 * Kip[29] +
+               Bj_2_2 * Bi_3_0 * Kip[20] + Kip[5] * Bj_5_2 * Bi_0_0 +
+               Bi_4_0 * Bj_2_2 * Kip[26]);
       Ke(ni_1, nj_0) +=
-          w * (Bj_4_0 * Bi_5_1 * Kip[34] + Bj_0_0 * Bi_1_1 * Kip[6] +
-               Bj_4_0 * Kip[10] * Bi_1_1 + Bj_0_0 * Bi_3_1 * Kip[18] +
-               Bj_3_0 * Bi_5_1 * Kip[33] + Bj_0_0 * Bi_5_1 * Kip[30] +
-               Bj_3_0 * Bi_3_1 * Kip[21] + Bj_4_0 * Bi_3_1 * Kip[22] +
-               Bj_3_0 * Bi_1_1 * Kip[9]);
+          w * (Bi_1_1 * Kip[6] * Bj_0_0 + Bi_3_1 * Kip[18] * Bj_0_0 +
+               Bi_3_1 * Kip[21] * Bj_3_0 + Bj_3_0 * Bi_5_1 * Kip[33] +
+               Bi_1_1 * Bj_4_0 * Kip[10] + Bi_1_1 * Kip[9] * Bj_3_0 +
+               Kip[34] * Bj_4_0 * Bi_5_1 + Kip[30] * Bj_0_0 * Bi_5_1 +
+               Bi_3_1 * Kip[22] * Bj_4_0);
       Ke(ni_1, nj_1) +=
-          w * (Kip[7] * Bi_1_1 * Bj_1_1 + Bi_5_1 * Kip[33] * Bj_3_1 +
-               Bi_5_1 * Bj_1_1 * Kip[31] + Kip[19] * Bi_3_1 * Bj_1_1 +
-               Bi_5_1 * Bj_5_1 * Kip[35] + Bi_3_1 * Kip[21] * Bj_3_1 +
-               Bi_1_1 * Kip[11] * Bj_5_1 + Kip[23] * Bi_3_1 * Bj_5_1 +
-               Bi_1_1 * Bj_3_1 * Kip[9]);
+          w * (Bj_5_1 * Kip[35] * Bi_5_1 + Bj_3_1 * Bi_5_1 * Kip[33] +
+               Bi_3_1 * Bj_5_1 * Kip[23] + Bi_1_1 * Bj_3_1 * Kip[9] +
+               Bi_1_1 * Kip[11] * Bj_5_1 + Bi_3_1 * Kip[21] * Bj_3_1 +
+               Bi_3_1 * Bj_1_1 * Kip[19] + Bi_1_1 * Bj_1_1 * Kip[7] +
+               Bj_1_1 * Kip[31] * Bi_5_1);
       Ke(ni_1, nj_2) +=
-          w * (Kip[10] * Bj_4_2 * Bi_1_1 + Kip[23] * Bi_3_1 * Bj_5_2 +
-               Bi_5_1 * Kip[35] * Bj_5_2 + Bi_5_1 * Bj_4_2 * Kip[34] +
-               Bi_1_1 * Kip[11] * Bj_5_2 + Bi_1_1 * Kip[8] * Bj_2_2 +
-               Kip[20] * Bi_3_1 * Bj_2_2 + Bj_4_2 * Bi_3_1 * Kip[22] +
-               Kip[32] * Bi_5_1 * Bj_2_2);
+          w * (Bi_3_1 * Bj_2_2 * Kip[20] + Bi_3_1 * Bj_5_2 * Kip[23] +
+               Bi_3_1 * Kip[22] * Bj_4_2 + Bi_1_1 * Kip[8] * Bj_2_2 +
+               Kip[35] * Bj_5_2 * Bi_5_1 + Bj_2_2 * Kip[32] * Bi_5_1 +
+               Kip[34] * Bi_5_1 * Bj_4_2 + Bi_1_1 * Kip[10] * Bj_4_2 +
+               Bi_1_1 * Kip[11] * Bj_5_2);
       Ke(ni_2, nj_0) +=
-          w * (Bj_3_0 * Bi_2_2 * Kip[15] + Bj_4_0 * Bi_5_2 * Kip[34] +
-               Bj_4_0 * Kip[28] * Bi_4_2 + Bj_4_0 * Kip[16] * Bi_2_2 +
-               Bj_3_0 * Kip[33] * Bi_5_2 + Bj_0_0 * Kip[24] * Bi_4_2 +
-               Bj_0_0 * Bi_2_2 * Kip[12] + Bj_0_0 * Kip[30] * Bi_5_2 +
-               Bj_3_0 * Kip[27] * Bi_4_2);
+          w * (Kip[24] * Bi_4_2 * Bj_0_0 + Bi_2_2 * Bj_4_0 * Kip[16] +
+               Kip[30] * Bi_5_2 * Bj_0_0 + Bi_5_2 * Bj_3_0 * Kip[33] +
+               Kip[28] * Bi_4_2 * Bj_4_0 + Bi_5_2 * Kip[34] * Bj_4_0 +
+               Bi_2_2 * Kip[12] * Bj_0_0 + Bi_2_2 * Kip[15] * Bj_3_0 +
+               Kip[27] * Bi_4_2 * Bj_3_0);
       Ke(ni_2, nj_1) +=
-          w * (Bj_3_1 * Bi_2_2 * Kip[15] + Kip[17] * Bj_5_1 * Bi_2_2 +
-               Bj_1_1 * Kip[25] * Bi_4_2 + Kip[13] * Bj_1_1 * Bi_2_2 +
-               Kip[27] * Bj_3_1 * Bi_4_2 + Bi_5_2 * Bj_5_1 * Kip[35] +
-               Kip[29] * Bj_5_1 * Bi_4_2 + Kip[33] * Bi_5_2 * Bj_3_1 +
-               Bj_1_1 * Bi_5_2 * Kip[31]);
+          w * (Bj_1_1 * Kip[25] * Bi_4_2 + Bi_5_2 * Bj_3_1 * Kip[33] +
+               Bj_3_1 * Bi_2_2 * Kip[15] + Bj_1_1 * Bi_2_2 * Kip[13] +
+               Bj_5_1 * Bi_4_2 * Kip[29] + Kip[17] * Bj_5_1 * Bi_2_2 +
+               Bi_5_2 * Bj_5_1 * Kip[35] + Bj_1_1 * Bi_5_2 * Kip[31] +
+               Kip[27] * Bj_3_1 * Bi_4_2);
       Ke(ni_2, nj_2) +=
-          w * (Bj_4_2 * Kip[28] * Bi_4_2 + Kip[16] * Bj_4_2 * Bi_2_2 +
-               Kip[14] * Bi_2_2 * Bj_2_2 + Kip[26] * Bj_2_2 * Bi_4_2 +
-               Kip[29] * Bj_5_2 * Bi_4_2 + Kip[17] * Bi_2_2 * Bj_5_2 +
-               Bi_5_2 * Kip[35] * Bj_5_2 + Kip[32] * Bi_5_2 * Bj_2_2 +
-               Bj_4_2 * Bi_5_2 * Kip[34]);
+          w * (Bi_5_2 * Kip[34] * Bj_4_2 + Kip[17] * Bi_2_2 * Bj_5_2 +
+               Bi_5_2 * Kip[35] * Bj_5_2 + Bi_5_2 * Bj_2_2 * Kip[32] +
+               Kip[14] * Bi_2_2 * Bj_2_2 + Bj_2_2 * Bi_4_2 * Kip[26] +
+               Kip[28] * Bi_4_2 * Bj_4_2 + Bj_5_2 * Bi_4_2 * Kip[29] +
+               Bi_2_2 * Kip[16] * Bj_4_2);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 

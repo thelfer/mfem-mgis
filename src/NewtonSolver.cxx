@@ -32,6 +32,7 @@ namespace mfem_mgis {
   }  // end of setLinearSolver
 
   void NewtonSolver::Mult(const mfem::Vector &b, mfem::Vector &x) const {
+
     MFEM_ASSERT(oper != nullptr, "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(prec != nullptr, "the Solver is not set (use SetSolver).");
 
@@ -109,7 +110,6 @@ namespace mfem_mgis {
       norm = Norm(r);
       ++it;
     }
-
     this->final_iter = it;
     this->final_norm = norm;
   } // end of Mult

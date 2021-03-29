@@ -133,7 +133,8 @@ namespace mfem_mgis {
     }
   }  // end of BehaviourIntegratorBase::checkHypotheses
 
-  void BehaviourIntegratorBase::integrate(const size_type ip) {
+  bool BehaviourIntegratorBase::performsLocalBehaviourIntegration(
+      const size_type ip) {
     constexpr const auto it = mgis::behaviour::IntegrationType::
         INTEGRATION_CONSISTENT_TANGENT_OPERATOR;
     const auto g_offset = this->s0.gradients_stride * ip;
@@ -185,12 +186,7 @@ namespace mfem_mgis {
     v.s1.external_state_variables = this->wks.esvs1.data();
     v.K[0] = static_cast<int>(it);
     const auto r = mgis::behaviour::integrate(v, this->b);
-    if ((r != 0) && (r != 1)) {
-      mgis::raise(
-          "BehaviourIntegratorBase::integrate: "
-          "behaviour integration failed (" +
-          std::to_string(r) + ")");
-    }
+    return (r == 0) || (r == 1);
   }  // end of BehaviourIntegratorBase::integrate
 
   void BehaviourIntegratorBase::revert() {

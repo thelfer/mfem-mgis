@@ -53,6 +53,10 @@ namespace mfem_mgis {
     inline void rotateTangentOperatorBlocks(mgis::span<real>,
                                             const RotationMatrix &);
 
+    bool integrate(const mfem::FiniteElement &,
+                   mfem::ElementTransformation &,
+                   const mfem::Vector &) override;
+
     void updateResidual(mfem::Vector &,
                         const mfem::FiniteElement &,
                         mfem::ElementTransformation &,

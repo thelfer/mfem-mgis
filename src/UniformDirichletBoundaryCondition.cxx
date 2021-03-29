@@ -5,7 +5,6 @@
  * \date   18/03/2021
  */
 
-#include <iostream>
 #include "mfem/linalg/vector.hpp"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 
