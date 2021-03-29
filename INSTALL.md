@@ -89,8 +89,8 @@ make check
 export INSTALLDIR=<your_mfemmgis_install_directory>
 export TGDIR=<your_work_directory>
 cd ${TGDIR}
-cp -r ${INSTALLDIR}/share/examples/ex1 .
-cp ${INSTALLDIR}/share/examples/env.sh ex1/
+cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
+cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
 cd ex1
 source env.sh
 mkdir build
@@ -107,8 +107,8 @@ make
 export INSTALLDIR=<your_mfemmgis_install_directory>
 export TGDIR=<your_work_directory>
 cd ${TGDIR}
-cp -r ${INSTALLDIR}/share/examples/ex1 .
-cp ${INSTALLDIR}/share/examples/env.sh ex1/
+cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
+cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
 cd ex1
 source env.sh
 make

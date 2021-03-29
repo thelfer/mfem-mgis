@@ -130,4 +130,4 @@ namespace mfem_mgis {
 
 #include "MFEMMGIS/Parameters.ixx"
 
-#endif  /* LIB_MFEM_MGIS_PARAMETERS_HXX */
+#endif /* LIB_MFEM_MGIS_PARAMETERS_HXX */
