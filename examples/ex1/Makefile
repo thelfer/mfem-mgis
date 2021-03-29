@@ -1,10 +1,7 @@
 CPPFLAGS= -g -Wall -W -pedantic                             \
-          -isystem $(MFEMMGIS_DIR)/../../../include      \
-          -isystem $(MFEM_DIR)/../../../include            \
-          -isystem $(HYPRE_DIR)/include            \
-          -isystem $(SUITESPARSE_DIR)/include            \
-          -isystem $(METIS_DIR)/include            \
-          -isystem $(MFrontGenericInterface_DIR)/../../../include
+          -I $(MFEMMGIS_DIR)/../../../include      \
+          -I $(MFEM_DIR)/../../../include            \
+          -I $(MFrontGenericInterface_DIR)/../../../include
           
 
 CXXFLAGS= -O2 -std=c++17
@@ -14,9 +11,14 @@ LDFLAGS= -L$(MFEMMGIS_DIR)/../../../lib  \
 	 -L$(MFrontGenericInterface_DIR)/../../../lib  \
 	 -lMFEMMGIS -lMFrontGenericInterface -lmfem 
 
-ifeq ($(strip $(MFEM_LINK_LIST)),)
+ifeq ($(strip $(MFEM_LIB_MAKE)),)
 else
-	LDFLAGS+=$(MFEM_LINK_LIST)
+	LDFLAGS+=$(MFEM_LIB_MAKE)
+endif	
+
+ifeq ($(strip $(MFEM_INC_MAKE)),)
+else
+	CPPFLAGS+=$(MFEM_INC_MAKE)
 endif	
 
 
