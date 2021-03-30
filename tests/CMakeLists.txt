@@ -104,9 +104,14 @@ if(MFEM_MGIS_HAVE_TFEL)
         endforeach(nbprocs)
       endforeach(nsolver)
     endforeach(ncase)
-  
-  endif(MFEM_USE_MPI)
 
+    if(MFEM_USE_MUMPS)
+      add_periodic_testp(0 3 1)
+      add_periodic_testp(0 3 4)
+    endif()
+
+  endif(MFEM_USE_MPI)
+  
 endif(MFEM_MGIS_HAVE_TFEL)
 
 install(FILES Plasticity.mfront cube.mesh

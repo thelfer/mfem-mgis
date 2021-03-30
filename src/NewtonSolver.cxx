@@ -61,7 +61,7 @@ namespace mfem_mgis {
     const auto norm_goal = std::max(rel_tol * norm0, abs_tol);
 
     const auto usesIterativeLinearSolver =
-        dynamic_cast<const IterativeSolver *>(this->prec);
+        dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
     this->prec->iterative_mode = false;
 
     // x_{i+1} = x_i - [DF(x_i)]^{-1} [F(x_i)-b]

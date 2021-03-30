@@ -40,7 +40,8 @@ namespace mfem_mgis {
       const auto n_cell_nodes = fe.GetDof();
       const auto n_face_nodes = face_dofs.Size() / fe.GetDim();
       const auto cell_dofs_begin = cell_dofs.GetData();
-      // here we take into account the components are store contiguously
+      // here we take into account the fact that that the components are stored
+      // contiguously
       for (size_type c = 0; c != nc; ++c) {
         const auto cell_dofs_c_begin = cell_dofs_begin + c * n_cell_nodes;
         const auto cell_dofs_c_end = cell_dofs_c_begin + n_cell_nodes;

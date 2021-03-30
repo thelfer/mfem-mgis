@@ -73,8 +73,8 @@ namespace mfem_mgis {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
       mfem::Vector gF;
-      gf.SetSize(F.GetSize());
-      MPI_Reduce(F.data(), gF.data(), F.GetSize(), MPI_DOUBLE, MPI_SUM, 0,
+      gF.SetSize(F.Size());
+      MPI_Reduce(F.GetData(), gF.GetData(), F.Size(), MPI_DOUBLE, MPI_SUM, 0,
                  MPI_COMM_WORLD);
       writeResultantForce(this->out, gF, t + dt);
     }
