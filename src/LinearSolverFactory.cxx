@@ -7,6 +7,10 @@
 
 #include <utility>
 #include "mfem/linalg/solvers.hpp"
+#include "mfem/config/config.hpp"
+#ifdef MFEM_USE_MUMPS
+#include "mfem/linalg/mumps.hpp"
+#endif
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
@@ -16,8 +20,12 @@ namespace mfem_mgis {
 
   static void setLinearSolverParameters(mfem::IterativeSolver& s,
                                         const Parameters& params) {
-    s.iterative_mode = false;
     using Problem = AbstractNonLinearEvolutionProblem;
+    s.iterative_mode = false;
+    checkParameters(params, {Problem::SolverVerbosityLevel,
+                             Problem::SolverRelativeTolerance,
+                             Problem::SolverAbsoluteTolerance,
+                             Problem::SolverMaximumNumberOfIterations});
     if (contains(params, Problem::SolverVerbosityLevel)) {
       s.SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
     }
@@ -54,12 +62,40 @@ namespace mfem_mgis {
     }
   }  // end of buildIterativeSolverGenerator
 
+#ifdef MFEM_USE_MUMPS
+
+  std::function<std::unique_ptr<LinearSolver>(const Parameters&)>
+  buildMUMPSSolverGenerator() {
+    return [](const Parameters& p) {
+      checkParameters(p, {"Symmetric", "PositiveDefinite"});
+      auto s = std::make_unique<mfem::MUMPSSolver>();
+      const auto symmetric = get_if<bool>(p, "Symmetric", false);
+      const auto positive_definite = get_if<bool>(p, "PositiveDefinite", false);
+      if (symmetric) {
+        if (positive_definite) {
+          s->SetMatrixSymType(
+              mfem::MUMPSSolver::MatType::SYMMETRIC_POSITIVE_DEFINITE);
+        } else {
+          s->SetMatrixSymType(mfem::MUMPSSolver::MatType::SYMMETRIC_INDEFINITE);
+        }
+      } else {
+        s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
+      }
+      return s;
+    };
+  }  // end of builMUMPSGenerator
+
+#endif /* MFEM_USE_MUMPS */
+
   template <bool parallel>
   static void declareDefaultSolvers(LinearSolverFactory<parallel>& f) {
     f.add("CGSolver",
           buildIterativeSolverGenerator<parallel, mfem::CGSolver>());
     f.add("GMRESSolver",
           buildIterativeSolverGenerator<parallel, mfem::GMRESSolver>());
+#ifdef MFEM_USE_MUMPS
+    f.add("MUMPSSolver", buildMUMPSSolverGenerator());
+#endif
     if constexpr (!parallel) {
 #ifdef MFEM_USE_SUITESPARSE
       f.add("UMFPackSolver", [](const Parameters&) {

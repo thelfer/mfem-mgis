@@ -10,10 +10,15 @@
 
 #include <variant>
 #include <functional>
+#include <type_traits>
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/Parameters.hxx"
 
 namespace mfem_mgis {
+
+  // forward declaration
+  struct Parameter;
 
   //! \brief a simple alias
   using ParameterVariant = std::variant<std::monostate,
@@ -21,12 +26,18 @@ namespace mfem_mgis {
                                         int,
                                         real,
                                         std::string,
+                                        std::vector<Parameter>,
+                                        Parameters,
                                         std::function<real(const real)>>;
 
   /*!
    *
    */
   struct MFEM_MGIS_EXPORT Parameter : ParameterVariant {
+    /*!
+     * \brief throw an exception if the parameter type is not the expected one.
+     */
+    [[noreturn]] static void raiseUnmatchedParameterType();
     // inheriting constructors
     using ParameterVariant::ParameterVariant;
     // \brief default constructor
@@ -65,6 +76,84 @@ namespace mfem_mgis {
     ~Parameter();
   };  // end of struct Parameter
 
+  //! \brief a simple alias
+  template <typename ResultType>
+  using GetResultType = std::conditional_t<std::is_same_v<ResultType, double>,
+                                           ResultType,
+                                           const ResultType&>;
+
+  /*!
+   * \return true if the given parameter has the given type
+   * \param[in] p: parameters
+   */
+  template <typename ResultType>
+  bool is(const Parameter&);
+
+  //! \brief partial specialisation of the `is` function for double
+  template <>
+  bool is<double>(const Parameter&);
+
+  /*!
+   * \return value of the parameter
+   * \tparam ResultType: expected type of the parameter
+   * \param[in] p: parameters
+   * \throws if the parameter does not have the good type.
+   */
+  template <typename ResultType>
+  GetResultType<ResultType> get(const Parameter&);
+
+  //! \brief partial specialisation of the `get` function for double
+  template <>
+  GetResultType<double> get<double>(const Parameter&);
+
+  /*!
+   * \return true if the given parameter exists
+   * \param[in] p: parameters
+   * \param[in] n: name
+   */
+  bool contains(const Parameters&, std::string_view);
+
+  /*!
+   * \return true if the given parameter has the given type
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \throws if the parameter does not exists
+   */
+  template <typename ResultType>
+  bool is(const Parameters&, std::string_view);
+
+  /*!
+   * \return value of the parameter
+   * \tparam ResultType: expected type of the parameter
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \throws if the parameter does not exists or does not have the good type.
+   */
+  template <typename ResultType>
+  GetResultType<ResultType> get(const Parameters&, std::string_view);
+
+  /*!
+   * \return value of the parameter
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \throws if the parameter does not exists or does not have the good type.
+   */
+  template <>
+  GetResultType<double> get<double>(const Parameters&, std::string_view);
+
+  /*!
+   * \return value of the parameter if present, a default value otherwise
+   * \tparam ResultType: expected type of the parameter
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \param[in] v: default value
+   * \throws if the parameter exists but does not have the good type.
+   */
+  template <typename ResultType>
+  ResultType get_if(const Parameters&, std::string_view, const ResultType&);
+
 }  // end of namespace mfem_mgis
+
+#include "MFEMMGIS/Parameter.ixx"
 
 #endif /* LIB_MFEM_MGIS_PARAMETER_HXX */

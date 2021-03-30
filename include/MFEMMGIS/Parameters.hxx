@@ -14,19 +14,22 @@
 #include <string_view>
 #include <initializer_list>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/Parameter.hxx"
 
 namespace mfem_mgis {
+
+  // forward declaration
+  struct Parameter;
 
   /*!
    * \brief a structure representing a map associating a name to a parameter
    * \note inheritance is required here to allow forward declaration of the
    * Parameters structure.
    */
-  struct Parameters : private std::map<std::string, Parameter, std::less<>> {
+  struct MFEM_MGIS_EXPORT Parameters
+      : private std::map<std::string, Parameter, std::less<>> {
     /*!
      * \brief throw an exception if the parameter type is not the expected one.
-     * \param[in] p: parameter
+     * \param[in] n: name of the parameter
      */
     [[noreturn]] static void raiseUnmatchedParameterType(std::string_view);
     // exposing base class iterator
@@ -94,33 +97,7 @@ namespace mfem_mgis {
   };  // end of struct Parameters
 
   /*!
-   * \return true if the given parameter exists
-   * \param[in] p: parameters
-   * \param[in] n: name
-   */
-  bool contains(const Parameters&, std::string_view);
-
-  /*!
-   * \return true if the given parameter has the given type
-   * \param[in] p: parameters
-   * \param[in] n: name
-   * \throws if the parameter does not exists
-   */
-  template <typename ResultType>
-  bool is(const Parameters&, std::string_view);
-
-  /*!
-   * \return value of the parameter
-   * \tparam ResultType: expected type of the parameter
-   * \param[in] p: parameters
-   * \param[in] n: name
-   * \throws if the parameter does not exists or does not have the good type.
-   */
-  template <typename ResultType>
-  const ResultType& get(const Parameters&, std::string_view);
-
-  /*!
-   * \param[in] p: parameters
+   * \param[in] parameters: parameters
    * \param[in] names: list of valid parameters names
    * \throws if an invalid parameter is present
    */
@@ -128,6 +105,6 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#include "MFEMMGIS/Parameters.ixx"
+#include "MFEMMGIS/Parameter.hxx"
 
 #endif /* LIB_MFEM_MGIS_PARAMETERS_HXX */

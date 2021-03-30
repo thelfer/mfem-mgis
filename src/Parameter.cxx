@@ -5,9 +5,16 @@
  * \date   27/03/2021
  */
 
+#include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameter.hxx"
 
 namespace mfem_mgis {
+
+  void Parameter::raiseUnmatchedParameterType() {
+    mgis::raise(
+        "Parameter::raiseUnmatchedParameterType: "
+        "the type of parameter is not the expected one");
+  }  // end of raiseUnmatchedParameterType
 
   Parameter::Parameter() = default;
   Parameter::Parameter(Parameter&&) = default;
