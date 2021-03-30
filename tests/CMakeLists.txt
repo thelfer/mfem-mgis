@@ -102,4 +102,9 @@ if (MFEM_USE_MPI)
     endforeach(nsolver)
   endforeach(ncase)
 
+  if(MFEM_USE_MUMPS)
+    add_periodic_testp(0 3 1)
+    add_periodic_testp(0 3 4)
+  endif()
+  
 endif()

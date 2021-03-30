@@ -18,6 +18,9 @@ namespace mfem_mgis {
   const char *const
       AbstractNonLinearEvolutionProblem::SolverMaximumNumberOfIterations =
           "MaximumNumberOfIterations";
+  const char *const
+      AbstractNonLinearEvolutionProblem::SolverType =
+          "Type";
 
   AbstractNonLinearEvolutionProblem::~AbstractNonLinearEvolutionProblem() =
       default;

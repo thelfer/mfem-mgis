@@ -33,6 +33,7 @@ namespace mfem_mgis {
     static const char *const SolverRelativeTolerance;
     static const char *const SolverAbsoluteTolerance;
     static const char *const SolverMaximumNumberOfIterations;
+    static const char *const SolverType;
     //! \return the underlying finite element discretization
     virtual FiniteElementDiscretization &getFiniteElementDiscretization() = 0;
     //! \return the underlying finite element discretization
