@@ -1,3 +1,21 @@
+---
+title: Installation guide
+author: Guillaume Latu, Thomas Helfer
+date: 30/03/2021
+lang: en-EN
+link-citations: true
+colorlinks: true
+numbersections: true
+toc: true
+geometry:
+  - margin=2cm
+papersize: a4
+figPrefixTemplate: "$$i$$"
+tblPrefixTemplate: "$$i$$"
+secPrefixTemplate: "$$i$$"
+eqnPrefixTemplate: "($$i$$)"
+---
+
 This project uses [`cmake`](https://cmake.org/) as build system.
 
 # Dependencies
@@ -7,27 +25,30 @@ This project uses [`cmake`](https://cmake.org/) as build system.
 - [`MFEM`](https://mfem.org/)
 - [`MGIS`](https://github.com/thelfer/MFrontGenericInterfaceSupport)
 
-A simple way to install dependencies is to rely on `Spack` system. 
-Spack is an open source package manager that simplifies building, installing, customizing, and sharing HPC software.
-It will allow you to install recent versions of compilers (that handle c++17, for example gnu compiler suite version 8),
-and to get python, cmake and other tools that are required for this project to be installed.
+A simple way to install dependencies is to rely on [`Spack` packaging
+system](https://spack.io/). `Spack` is an open source package manager
+that simplifies building, installing, customizing, and sharing HPC
+software. It will allow you to install recent versions of compilers
+(that handle `C++17`, for example gnu compiler suite version 8), and to
+get `python`, `cmake` and other tools that are required for this project
+to be installed.
 
 ~~~~{.bash}
-    git clone https://github.com/spack/spack.git
-    export SPACK_ROOT=$PWD/spack
-    source ${SPACK_ROOT}/share/spack/setup-env.sh
-    spack compiler find
-    spack install hypre metis mgis@master cmake
-    spack load hypre metis mgis@master cmake
-
-    git clone https://github.com/mfem/mfem.git
-    # or download a tarball here : https://mfem.org/download/
-    cd mfem
-    mkdir build; cd build
-    cmake ../ -DCMAKE_INSTALL_PREFIX=$PWD/mfem -DCMAKE_CXX_COMPILER=g++ 
-    make -j 4 install
-    make check
-    export MFEM_DIR=$PWD/mfem/lib/cmake/mfem
+$ git clone https://github.com/spack/spack.git
+$ export SPACK_ROOT=$PWD/spack
+$ source ${SPACK_ROOT}/share/spack/setup-env.sh
+$ spack compiler find
+$ spack install hypre metis mgis@master cmake
+$ spack load hypre metis mgis@master cmake
+$ 
+$ git clone https://github.com/mfem/mfem.git
+$ # or download a tarball here : https://mfem.org/download/
+$ cd mfem
+$ mkdir build; cd build
+$ cmake ../ -DCMAKE_INSTALL_PREFIX=$PWD/mfem -DCMAKE_CXX_COMPILER=g++ 
+$ make -j 4 install
+$ make check
+$ export MFEM_DIR=$PWD/mfem/lib/cmake/mfem
 ~~~~
 
 ## Optional dependencies
@@ -46,35 +67,96 @@ The `TFEL` project can be used for testing purposes.
 
 # Example of usage
 
-- Suppose that you install `mgis` using spack. For example with the command `spack install mgis@master`.
-~~~~{.bash}
-cmake .. -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
-   -DCMAKE_INSTALL_PREFIX=$PWD/../install \
-   -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
+Suppose that you install `mgis` using spack. For example with the command `spack install mgis@master`.
 
-make -j 4 install
-make check
+~~~~{.bash}
+$ cmake .. -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+$    -DCMAKE_INSTALL_PREFIX=$PWD/../install \
+$    -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
+$ 
+$ make -j 4 install
+$ make check
 ~~~~
 
 # Parallel setting
 
-- To use parallel features of MFEM and MFEM-MGIS, you need to activate them at compile time.
-  - Configuring MFEM through the following setting
+To use parallel features of MFEM and MFEM-MGIS, you need to activate them at compile time.
+
+1. Configuring MFEM through the following setting
+
 ~~~~{.bash}
-cd mfem/build
-make clean; rm CMakeCache.txt
-cmake .. -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=$PWD/mfem -DCMAKE_CXX_COMPILER=g++
-make -j 4 install
-make check
-export MFEM_DIR=$PWD/mfem/lib/cmake/mfem
+$ cd mfem/build
+$ make clean; rm CMakeCache.txt
+$ cmake .. -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=$PWD/mfem \
+        -DCMAKE_CXX_COMPILER=g++
+$ make -j 4 install
+$ make check
+$ export MFEM_DIR=$PWD/mfem/lib/cmake/mfem
 ~~~~
-  - Configuring MFEM-MGIS with the command
+
+2. Configuring `mfem-mgis` with the command:
+
 ~~~~{.bash}
-cd mfem-mgis/build
-make clean; rm CMakeCache.txt
-cmake .. -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
-   -DCMAKE_INSTALL_PREFIX=$PWD/../install \
-   -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
-make -j 4 install
-make check
+$ cd mfem-mgis/build
+$ make clean; rm CMakeCache.txt
+$ cmake .. -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+$       -DCMAKE_INSTALL_PREFIX=$PWD/../install \
+$       -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake
+$ make -j 4 install
+$ make check
 ~~~~~
+
+# Creating a simple example based on `mfem-mgis`
+
+Through the `make install` command, a simple example has been created in
+your installation directory.
+
+You can copy it elsewhere together with the `env.sh` file. The example
+can be compiled either using the build systems `cmake` or`make`.
+
+## Building the example using the `cmake` build-system
+
+~~~~{.bash}
+$ export INSTALLDIR=<your_mfemmgis_install_directory>
+$ export TGDIR=<your_work_directory>
+$ cd ${TGDIR}
+$ cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
+$ cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
+$ cd ex1
+$ source env.sh
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+~~~~
+
+The example may then be run as follows:
+
+~~~~{.bash}
+$ ./UniaxialTensileTest 
+~~~~
+
+You can then modify the source file and design your
+own case of study.
+
+## Building the example using the `make` build-system
+
+~~~~{.bash}
+$ export INSTALLDIR=<your_mfemmgis_install_directory>
+$ export TGDIR=<your_work_directory>
+$ cd ${TGDIR}
+$ cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
+$ cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
+$ cd ex1
+$ source env.sh
+$ make
+~~~~
+
+### Building in debug mode
+
+The example and the `MFront` behaviour may be compiled in `debug` mode
+by changing the call to make as follows:
+
+~~~~{.bash}
+$ make DEBUG=1
+~~~~

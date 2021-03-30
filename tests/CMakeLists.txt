@@ -108,4 +108,6 @@ if(MFEM_MGIS_HAVE_TFEL)
   endif(MFEM_USE_MPI)
 
 endif(MFEM_MGIS_HAVE_TFEL)
-  
+
+install(FILES Plasticity.mfront cube.mesh
+  DESTINATION "share/mfem-mgis/examples/ex1")

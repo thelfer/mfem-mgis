@@ -32,8 +32,8 @@ namespace mfem_mgis {
   }  // end of setLinearSolver
 
   void NewtonSolver::Mult(const mfem::Vector &b, mfem::Vector &x) const {
-    MFEM_ASSERT(oper != nullptr, "the Operator is not set (use SetOperator).");
-    MFEM_ASSERT(prec != nullptr, "the Solver is not set (use SetSolver).");
+    MFEM_ASSERT(this->oper != nullptr, "the Operator is not set (use SetOperator).");
+    MFEM_ASSERT(this->prec != nullptr, "the Solver is not set (use SetSolver).");
 
     mfem::Vector r, c;
     r.SetSize(this->oper->Width());
@@ -52,19 +52,22 @@ namespace mfem_mgis {
       x = 0.0;
     }
 
-    oper->Mult(x, r);
+    this->oper->Mult(x, r);
     if (have_b) {
       r -= b;
     }
 
-    const auto norm0 = Norm(r);
+    const auto norm0 = this->Norm(r);
     const auto norm_goal = std::max(rel_tol * norm0, abs_tol);
 
-    prec->iterative_mode = false;
+    const auto usesIterativeLinearSolver =
+        dynamic_cast<const IterativeSolver *>(this->prec);
+    this->prec->iterative_mode = false;
 
     // x_{i+1} = x_i - [DF(x_i)]^{-1} [F(x_i)-b]
     auto it = size_type{};
     auto norm = norm0;
+
     while (true) {
       MFEM_ASSERT(IsFinite(norm), "norm = " << norm);
       if (this->print_level >= 0) {
@@ -87,9 +90,16 @@ namespace mfem_mgis {
         break;
       }
 
-      prec->SetOperator(oper->GetGradient(x));
-      prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
-
+      this->prec->SetOperator(this->oper->GetGradient(x));
+      this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
+      if (usesIterativeLinearSolver) {
+        const auto &iprec =
+            static_cast<const mfem::IterativeSolver &>(*(this->prec));
+        if (!iprec.GetConverged()) {
+          this->converged = 0;
+          break;
+        }
+      }
       const double c_scale = ComputeScalingFactor(x, b);
       if (c_scale == 0.0) {
         this->converged = 0;
@@ -102,11 +112,11 @@ namespace mfem_mgis {
         break;
       }
 
-      oper->Mult(x, r);
+      this->oper->Mult(x, r);
       if (have_b) {
         r -= b;
       }
-      norm = Norm(r);
+      norm = this->Norm(r);
       ++it;
     }
     this->final_iter = it;
