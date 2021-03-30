@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementation.ixx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   28/03/2021
  */

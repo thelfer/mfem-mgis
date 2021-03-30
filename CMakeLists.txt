@@ -83,7 +83,10 @@ else(CMAKE_CONFIGURATION_TYPES)
    endif(NOT TARGET check)
 endif(CMAKE_CONFIGURATION_TYPES)
 
+mfem_mgis_buildenv()
+
 add_subdirectory(docs)
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(examples)
