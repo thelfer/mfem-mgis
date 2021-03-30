@@ -1,6 +1,6 @@
 /*!
  * \file   src/ComputeResultantForceOnBoundary.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   28/03/2021
  */

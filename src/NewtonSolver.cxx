@@ -1,6 +1,6 @@
 /*!
  * \file   src/NewtonSolver.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   29/03/2021
  */
@@ -25,14 +25,13 @@ namespace mfem_mgis {
     this->height = op.Height();
     this->width = op.Width();
     MFEM_ASSERT(height == width, "square Operator is required.");
-  } // end of SetOperator
+  }  // end of SetOperator
 
   void NewtonSolver::setLinearSolver(LinearSolver &s) {
     this->prec = &s;
   }  // end of setLinearSolver
 
   void NewtonSolver::Mult(const mfem::Vector &b, mfem::Vector &x) const {
-
     MFEM_ASSERT(oper != nullptr, "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(prec != nullptr, "the Solver is not set (use SetSolver).");
 
@@ -112,7 +111,7 @@ namespace mfem_mgis {
     }
     this->final_iter = it;
     this->final_norm = norm;
-  } // end of Mult
+  }  // end of Mult
 
   void NewtonSolver::addNewUnknownsEstimateActions(
       std::function<bool(const mfem::Vector &)> a) {
@@ -131,4 +130,3 @@ namespace mfem_mgis {
   NewtonSolver::~NewtonSolver() = default;
 
 }  // end of namespace mfem_mgis
-
