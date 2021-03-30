@@ -7,6 +7,10 @@
 
 #include <utility>
 #include "mfem/linalg/solvers.hpp"
+#include "mfem/config/config.hpp"
+#ifdef MFEM_USE_MUMPS
+#include "mfem/linalg/mumps.hpp"
+#endif
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
@@ -32,6 +36,7 @@ namespace mfem_mgis {
     }
   }  // end of setLinearSolverParameters
 
+
   template <bool parallel, typename LinearSolverType>
   std::function<std::unique_ptr<LinearSolver>(const Parameters&)>
   buildIterativeSolverGenerator() {
@@ -54,6 +59,24 @@ namespace mfem_mgis {
     }
   }  // end of buildIterativeSolverGenerator
 
+#ifdef MFEM_USE_MUMPS  
+  std::function<std::unique_ptr<LinearSolver>(const Parameters&)>
+  buildMUMPSSolverGenerator() {
+    using Problem = AbstractNonLinearEvolutionProblem;
+    return [](const Parameters& p) {
+       auto s = std::make_unique<mfem::MUMPSSolver>();
+       if (contains(p, Problem::SolverType)) {
+	 if (!std::string("UNSYMMETRIC").compare(get<std::string>(p, Problem::SolverType))) {
+	   s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
+	 } else {
+	   mgis::raise("Matrix type undefined");
+	 }
+       }
+      return s;
+    };
+  }// end of builMUMPSGenerator
+#endif
+  
   template <bool parallel>
   static void declareDefaultSolvers(LinearSolverFactory<parallel>& f) {
     f.add("CGSolver",
@@ -65,6 +88,11 @@ namespace mfem_mgis {
       f.add("UMFPackSolver", [](const Parameters&) {
         return std::make_unique<mfem::UMFPackSolver>();
       });
+#endif
+      } else {
+#ifdef MFEM_USE_MUMPS
+      f.add("MUMPSSolver",
+	    buildMUMPSSolverGenerator());
 #endif
     }
   }  // end of declareDefaultSolvers
