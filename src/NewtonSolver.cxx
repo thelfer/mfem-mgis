@@ -68,79 +68,82 @@ namespace mfem_mgis {
     this->final_iter = size_type{};
     this->final_norm = std::numeric_limits<real>::max();
 
-    auto norm0 = real{};
+    if (!this->processNewUnknownsEstimate(x)) {
+      this->converged = 0;
+      return;
+    }
+    const auto norm0 = updateResidual();
 
     if (this->prediction) {
-      norm0 = updateResidual();
-      if (!computeNewtonCorrection()) {
-        this->converged = false;
-        return;
-      }
-      add(x, -1, c, x);
-      if (!this->processNewUnknownsEstimate(x)) {
-        this->converged = 0;
-        return;
-      }
-    } else {
-      if (!this->processNewUnknownsEstimate(x)) {
-        this->converged = 0;
-        return;
-      }
-      norm0 = updateResidual();
+
+
     }
+      //
+      //       if (!computeNewtonCorrection()) {
+      //         this->converged = false;
+      //         return;
+      //       }
+      //       add(x, -1, c, x);
+      //     } else {
+      //       if (!this->processNewUnknownsEstimate(x)) {
+      //         this->converged = 0;
+      //         return;
+      //       }
+      //       norm0 = updateResidual();
+      //     }
 
-    //
-    const auto norm_goal = std::max(rel_tol * norm0, abs_tol);
-    auto it = size_type{};
-    auto norm = norm0;
+      //
+      const auto norm_goal = std::max(rel_tol * norm0, abs_tol);
+      auto it = size_type{};
+      auto norm = norm0;
 
-    while (true) {
-      MFEM_ASSERT(IsFinite(norm), "norm = " << norm);
-      if (this->print_level >= 0) {
-        mfem::out << "Newton iteration " << std::setw(2) << it
-                  << " : ||r|| = " << norm;
-        if (it > 0) {
-          mfem::out << ", ||r||/||r_0|| = " << norm / norm0;
+      while (true) {
+        MFEM_ASSERT(IsFinite(norm), "norm = " << norm);
+        if (this->print_level >= 0) {
+          mfem::out << "Newton iteration " << std::setw(2) << it
+                    << " : ||r|| = " << norm;
+          if (it > 0) {
+            mfem::out << ", ||r||/||r_0|| = " << norm / norm0;
+          }
+          mfem::out << '\n';
         }
-        mfem::out << '\n';
-      }
-      Monitor(it, norm, r, x);
-      //
-      if (norm <= norm_goal) {
-        this->converged = 1;
-        break;
-      }
-      //
-      if (it >= this->max_iter) {
-        this->converged = 0;
-        break;
-      }
-      //
-      if (!computeNewtonCorrection()) {
-        this->converged = 0;
-        break;
-      }
-      //
-      const double c_scale = ComputeScalingFactor(x, b);
-      if (c_scale == 0.0) {
-        this->converged = 0;
-        break;
-      }
-      // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
-      add(x, -c_scale, c, x);
+        Monitor(it, norm, r, x);
+        //
+        if (norm <= norm_goal) {
+          this->converged = 1;
+          break;
+        }
+        //
+        if (it >= this->max_iter) {
+          this->converged = 0;
+          break;
+        }
+        //
+        if (!computeNewtonCorrection()) {
+          this->converged = 0;
+          break;
+        }
+        //
+        const double c_scale = ComputeScalingFactor(x, b);
+        if (c_scale == 0.0) {
+          this->converged = 0;
+          break;
+        }
+        // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
+        add(x, -c_scale, c, x);
 
-      if (!this->processNewUnknownsEstimate(x)) {
-        this->converged = 0;
-        break;
-      }
+        if (!this->processNewUnknownsEstimate(x)) {
+          this->converged = 0;
+          break;
+        }
 
-      updateResidual();
-      norm = this->Norm(r);
-      ++it;
-    }
-    this->final_iter = it;
-    this->final_norm = norm;
-  }  // end of Mult
+        updateResidual();
+        norm = this->Norm(r);
+        ++it;
+      }
+      this->final_iter = it;
+      this->final_norm = norm;
+    }  // end of Mult
 
   void NewtonSolver::addNewUnknownsEstimateActions(
       std::function<bool(const mfem::Vector &)> a) {

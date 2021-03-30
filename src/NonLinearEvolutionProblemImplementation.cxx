@@ -7,6 +7,7 @@
 
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
@@ -15,24 +16,6 @@
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
-
-  static void setSolverParametersImplementation(NewtonSolver& solver,
-                                                const Parameters& params) {
-    using Problem = AbstractNonLinearEvolutionProblem;
-    if (contains(params, Problem::SolverVerbosityLevel)) {
-      solver.SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
-    }
-    if (contains(params, Problem::SolverRelativeTolerance)) {
-      solver.SetRelTol(get<double>(params, Problem::SolverRelativeTolerance));
-    }
-    if (contains(params, Problem::SolverAbsoluteTolerance)) {
-      solver.SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance));
-    }
-    if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-      solver.SetMaxIter(
-          get<int>(params, Problem::SolverMaximumNumberOfIterations));
-    }
-  }  // end of setSolverParametersImplementation
 
   /*!
    * \brief post-processing defined by an std::function
@@ -137,7 +120,7 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<true>::setSolverParameters(
       const Parameters& params) {
-    setSolverParametersImplementation(this->solver, params);
+    mfem_mgis::setSolverParameters(this->solver, params);
   }  // end of setSolverParameters
 
   NewtonSolver& NonLinearEvolutionProblemImplementation<true>::getSolver() {
@@ -256,7 +239,7 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<false>::setSolverParameters(
       const Parameters& params) {
-    setSolverParametersImplementation(this->solver, params);
+    mfem_mgis::setSolverParameters(this->solver, params);
   }  // end of setSolverParameters
 
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(

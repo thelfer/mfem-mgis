@@ -65,6 +65,12 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
+    /*!
+     * \brief integrate the behaviour for given estimate of the unknowns at
+     * the end of the time step.
+     * \param[in] u: current estimate of the unknowns
+     */
+    virtual bool integrate(const mfem::Vector&);
     //
     void setSolverParameters(const Parameters&) override;
     void setLinearSolver(std::string_view, const Parameters&) override;
@@ -77,12 +83,6 @@ namespace mfem_mgis {
     ~NonLinearEvolutionProblemImplementation() override;
 
    protected:
-    /*!
-     * \brief integrate the behaviour for given estimate of the unknowns at
-     * the end of the time step.
-     * \param[in] u: current estimate of the unknowns
-     */
-    virtual bool integrate(const mfem::Vector&);
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;

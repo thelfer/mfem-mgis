@@ -17,12 +17,13 @@ mfem_mgis_library(MFEMMGIS
   PostProcessing.cxx
   PostProcessingFactory.cxx
   ComputeResultantForceOnBoundary.cxx
-  LinearSolverFactory.cxx
   AbstractNonLinearEvolutionProblem.cxx
   NonLinearEvolutionProblemImplementationBase.cxx
   NonLinearEvolutionProblemImplementation.cxx
   NonLinearEvolutionProblem.cxx
   PeriodicNonLinearEvolutionProblem.cxx
+  SolverUtilities.cxx
+  LinearSolverFactory.cxx
   NewtonSolver.cxx
   AnalyticalTests.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx

@@ -72,7 +72,7 @@ namespace mfem_mgis {
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
     //!
-    bool prediction = false;
+    bool prediction = true;
   };  // end of struct NewtonSolver
 
 }  // end of namespace mfem_mgis

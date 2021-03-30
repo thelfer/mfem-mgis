@@ -13,31 +13,15 @@
 #endif
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 
 namespace mfem_mgis {
 
   static void setLinearSolverParameters(mfem::IterativeSolver& s,
                                         const Parameters& params) {
-    using Problem = AbstractNonLinearEvolutionProblem;
     s.iterative_mode = false;
-    checkParameters(params, {Problem::SolverVerbosityLevel,
-                             Problem::SolverRelativeTolerance,
-                             Problem::SolverAbsoluteTolerance,
-                             Problem::SolverMaximumNumberOfIterations});
-    if (contains(params, Problem::SolverVerbosityLevel)) {
-      s.SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
-    }
-    if (contains(params, Problem::SolverRelativeTolerance)) {
-      s.SetRelTol(get<double>(params, Problem::SolverRelativeTolerance));
-    }
-    if (contains(params, Problem::SolverAbsoluteTolerance)) {
-      s.SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance));
-    }
-    if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-      s.SetMaxIter(get<int>(params, Problem::SolverMaximumNumberOfIterations));
-    }
+    setSolverParameters(s, params);
   }  // end of setLinearSolverParameters
 
   template <bool parallel, typename LinearSolverType>
