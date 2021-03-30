@@ -68,6 +68,12 @@ namespace mfem_mgis {
        if (contains(p, Problem::SolverType)) {
 	 if (!std::string("UNSYMMETRIC").compare(get<std::string>(p, Problem::SolverType))) {
 	   s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
+	 } else if (!std::string("SYMMETRIC_INDEFINITE").compare(get<std::string>(p, Problem::SolverType))) {
+	   s->SetMatrixSymType(mfem::MUMPSSolver::MatType::SYMMETRIC_INDEFINITE);
+	 } else if (!std::string("SYMMETRIC_POSITIVE_DEFINITE").compare(get<std::string>(p, Problem::SolverType))) {
+	   s->SetMatrixSymType(mfem::MUMPSSolver::MatType::SYMMETRIC_POSITIVE_DEFINITE);
+	 } else {
+	   mgis::raise("Matrix type undefined");
 	 }
        } else {
 	 mgis::raise("Matrix type undefined");
