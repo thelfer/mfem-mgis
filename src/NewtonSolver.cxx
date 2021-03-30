@@ -39,32 +39,58 @@ namespace mfem_mgis {
     r.SetSize(this->oper->Width());
     c.SetSize(this->oper->Width());
 
-    const auto have_b = (b.Size() == Height());
-    this->final_iter = size_type{};
-    this->final_norm = std::numeric_limits<real>::max();
-
-    if (!this->processNewUnknownsEstimate(x)) {
-      this->converged = 0;
-      return;
-    }
-
-    if (!this->iterative_mode) {
-      x = 0.0;
-    }
-
-    this->oper->Mult(x, r);
-    if (have_b) {
-      r -= b;
-    }
-
-    const auto norm0 = this->Norm(r);
-    const auto norm_goal = std::max(rel_tol * norm0, abs_tol);
-
     const auto usesIterativeLinearSolver =
         dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
     this->prec->iterative_mode = false;
 
-    // x_{i+1} = x_i - [DF(x_i)]^{-1} [F(x_i)-b]
+    auto updateResidual = [this, &r, &x, &b] {
+      this->oper->Mult(x, r);
+      if (b.Size() == this->Height()) {
+        r -= b;
+      }
+      return this->Norm(r);
+    };
+
+    auto computeNewtonCorrection = [this, &c, &r, &x,
+                                    usesIterativeLinearSolver] {
+      this->prec->SetOperator(this->oper->GetGradient(x));
+      this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
+      if (usesIterativeLinearSolver) {
+        const auto &iprec =
+            static_cast<const mfem::IterativeSolver &>(*(this->prec));
+        if (!iprec.GetConverged()) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    this->final_iter = size_type{};
+    this->final_norm = std::numeric_limits<real>::max();
+
+    auto norm0 = real{};
+
+    if (this->prediction) {
+      norm0 = updateResidual();
+      if (!computeNewtonCorrection()) {
+        this->converged = false;
+        return;
+      }
+      add(x, -1, c, x);
+      if (!this->processNewUnknownsEstimate(x)) {
+        this->converged = 0;
+        return;
+      }
+    } else {
+      if (!this->processNewUnknownsEstimate(x)) {
+        this->converged = 0;
+        return;
+      }
+      norm0 = updateResidual();
+    }
+
+    //
+    const auto norm_goal = std::max(rel_tol * norm0, abs_tol);
     auto it = size_type{};
     auto norm = norm0;
 
@@ -79,32 +105,28 @@ namespace mfem_mgis {
         mfem::out << '\n';
       }
       Monitor(it, norm, r, x);
-
+      //
       if (norm <= norm_goal) {
         this->converged = 1;
         break;
       }
-
+      //
       if (it >= this->max_iter) {
         this->converged = 0;
         break;
       }
-
-      this->prec->SetOperator(this->oper->GetGradient(x));
-      this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
-      if (usesIterativeLinearSolver) {
-        const auto &iprec =
-            static_cast<const mfem::IterativeSolver &>(*(this->prec));
-        if (!iprec.GetConverged()) {
-          this->converged = 0;
-          break;
-        }
+      //
+      if (!computeNewtonCorrection()) {
+        this->converged = 0;
+        break;
       }
+      //
       const double c_scale = ComputeScalingFactor(x, b);
       if (c_scale == 0.0) {
         this->converged = 0;
         break;
       }
+      // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
       add(x, -c_scale, c, x);
 
       if (!this->processNewUnknownsEstimate(x)) {
@@ -112,10 +134,7 @@ namespace mfem_mgis {
         break;
       }
 
-      this->oper->Mult(x, r);
-      if (have_b) {
-        r -= b;
-      }
+      updateResidual();
       norm = this->Norm(r);
       ++it;
     }
