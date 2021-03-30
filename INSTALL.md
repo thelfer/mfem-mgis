@@ -96,7 +96,7 @@ $ export MFEM_DIR=$PWD/mfem/lib/cmake/mfem
 
    You can also add the suite-sparse and MUMPS supports for accessing two extra linear
    solvers within mfem-mgis. During the cmake configuration you just have to provide
-   the flag "-DMFEM_USE_SUITESPARSE=ON" and/or "-DMFEM_USE_MUMPS=ON".
+   the flag "-DMFEM_USE_SUITESPARSE=ON" and/or "-DMFEM_USE_MUMPS=ON". 
    
 2. Configuring `mfem-mgis` with the command:
 
