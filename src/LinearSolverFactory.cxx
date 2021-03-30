@@ -66,12 +66,11 @@ namespace mfem_mgis {
 
   std::function<std::unique_ptr<LinearSolver>(const Parameters&)>
   buildMUMPSSolverGenerator() {
-    using Problem = AbstractNonLinearEvolutionProblem;
     return [](const Parameters& p) {
-      checkParameters(p, {"Symmetric", "DefinitePositive"});
+      checkParameters(p, {"Symmetric", "PositiveDefinite"});
       auto s = std::make_unique<mfem::MUMPSSolver>();
-      const auto symmetric = get_if<bool>(, "Symmetric", false);
-      const auto p = get_if<bool>(properties, "DefinitePositive", false);
+      const auto symmetric = get_if<bool>(p, "Symmetric", false);
+      const auto positive_definite = get_if<bool>(p, "PositiveDefinite", false);
       if (symmetric) {
         if (positive_definite) {
           s->SetMatrixSymType(
