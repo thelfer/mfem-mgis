@@ -1,3 +1,39 @@
+set(EXPORT_INSTALL_PATH "share/mfem-mgis/cmake")
+
+function(mfem_mgis_buildenv)
+  set(METIS_DIR "$ENV{METIS_DIR}")
+  set(HYPRE_DIR "$ENV{HYPRE_DIR}")
+  if (MFEM_USE_MPI)
+    set(MFEMMGIS_CXX "${MPI_CXX_COMPILER}")
+  else()
+    set(MFEMMGIS_CXX "${CMAKE_CXX_COMPILER}")
+  endif()
+  string(REGEX REPLACE "/mfront$" "" MFRONT_PATH "${MFRONT}")
+  string(REGEX REPLACE "/[^/]*$" "" MPICXX_PATH "${MPI_CXX_COMPILER}")
+  execute_process(COMMAND "which" "cmake" OUTPUT_VARIABLE CMAKE_CP_PATH)
+  if(CMAKE_CP_PATH STREQUAL "")
+    message( FATAL_ERROR  "Program cmake not found")
+  endif()
+  string(REGEX REPLACE "/cmake\n$" "" CMAKE_CP_PATH "${CMAKE_CP_PATH}")
+  get_target_property(MFEM_LIB_LIST mfem INTERFACE_LINK_LIBRARIES)
+  configure_file(cmake/env.sh.in
+    ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh  @ONLY)
+  install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh
+    DESTINATION share/mfem-mgis/examples/)
+  set(OUTPUT_EX1 ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UniaxialTensileTest.cxx)
+  add_custom_command(
+    OUTPUT  ${OUTPUT_EX1}
+    COMMAND ${CMAKE_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${CMAKE_SOURCE_DIR}/tests/UniaxialTensileTest.cxx ${OUTPUT_EX1}
+    DEPENDS ${CMAKE_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${CMAKE_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
+    COMMENT "seding the UniaxialTensileTest.cxx")
+  add_custom_target(generate-ex1 ALL
+    DEPENDS ${OUTPUT_EX1})
+  install(FILES
+    ${OUTPUT_EX1}
+    DESTINATION share/mfem-mgis/examples/ex1)
+endfunction(mfem_mgis_buildenv)
+
 function(mfem_mgis_header dir file)
   install(FILES ${dir}/${file}
     DESTINATION "include/${dir}")
@@ -26,12 +62,7 @@ function(mfem_mgis_library name)
     install(TARGETS ${name} EXPORT ${name}
             DESTINATION lib${LIB_SUFFIX})
   endif(WIN32)
-  if(MFEMMGIS_APPEND_SUFFIX)
-    set(export_install_path "share/mfem-mgis-${MFEMMGIS_SUFFIX}/cmake")
-  else(MFEMMGIS_APPEND_SUFFIX)
-    set(export_install_path "share/mfem-mgis/cmake")
-  endif(MFEMMGIS_APPEND_SUFFIX)
-  install(EXPORT ${name} DESTINATION ${export_install_path}
+  install(EXPORT ${name} DESTINATION ${EXPORT_INSTALL_PATH}
     NAMESPACE mfem-mgis:: FILE ${name}Config.cmake)
   
 endfunction(mfem_mgis_library)

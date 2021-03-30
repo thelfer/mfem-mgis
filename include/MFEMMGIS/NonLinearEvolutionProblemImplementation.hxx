@@ -148,7 +148,6 @@ namespace mfem_mgis {
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
 
-
   /*!
    * \brief return the resultant of the inner forces on the given boundary
    * \param[out] F: resultant
@@ -157,7 +156,8 @@ namespace mfem_mgis {
    * associating for each face its identifier and the identifier of the adjacent
    * element.
    *
-   * \note in parallel, the resultant is only the contribution of the given process
+   * \note in parallel, the resultant is only the contribution of the given
+   * process
    */
   template <bool parallel>
   void computeResultantForceOnBoundary(

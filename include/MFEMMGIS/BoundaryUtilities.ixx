@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/BoundaryUtilities.ixx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   28/03/2021
  */
@@ -34,6 +34,5 @@ namespace mfem_mgis {
   }  // end of buildFaces
 
 }  // end of namespace mfem_mgis
-
 
 #endif /* LIB_MFEM_MGIS_BOUNDARYUTILITIES_IXX */

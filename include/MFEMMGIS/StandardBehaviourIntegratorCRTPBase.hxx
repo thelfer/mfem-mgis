@@ -75,7 +75,7 @@ namespace mfem_mgis {
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
      */
-    void implementComputeInnerForces(mfem::Vector&,
+    void implementComputeInnerForces(mfem::Vector &,
                                      const mfem::FiniteElement &,
                                      mfem::ElementTransformation &);
     //! \brief destructor

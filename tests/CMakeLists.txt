@@ -103,3 +103,7 @@ if (MFEM_USE_MPI)
   endforeach(ncase)
 
 endif()
+
+install(FILES Plasticity.mfront cube.mesh
+  DESTINATION "share/mfem-mgis/examples/ex1")
+
