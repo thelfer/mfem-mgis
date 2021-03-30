@@ -20,8 +20,12 @@ namespace mfem_mgis {
 
   static void setLinearSolverParameters(mfem::IterativeSolver& s,
                                         const Parameters& params) {
-    s.iterative_mode = false;
     using Problem = AbstractNonLinearEvolutionProblem;
+    s.iterative_mode = false;
+    checkParameters(params, {Problem::SolverVerbosityLevel,
+                             Problem::SolverRelativeTolerance,
+                             Problem::SolverAbsoluteTolerance,
+                             Problem::SolverMaximumNumberOfIterations});
     if (contains(params, Problem::SolverVerbosityLevel)) {
       s.SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
     }
@@ -35,7 +39,6 @@ namespace mfem_mgis {
       s.SetMaxIter(get<int>(params, Problem::SolverMaximumNumberOfIterations));
     }
   }  // end of setLinearSolverParameters
-
 
   template <bool parallel, typename LinearSolverType>
   std::function<std::unique_ptr<LinearSolver>(const Parameters&)>
@@ -59,44 +62,46 @@ namespace mfem_mgis {
     }
   }  // end of buildIterativeSolverGenerator
 
-#ifdef MFEM_USE_MUMPS  
+#ifdef MFEM_USE_MUMPS
+
   std::function<std::unique_ptr<LinearSolver>(const Parameters&)>
   buildMUMPSSolverGenerator() {
     using Problem = AbstractNonLinearEvolutionProblem;
     return [](const Parameters& p) {
-       auto s = std::make_unique<mfem::MUMPSSolver>();
-       if (contains(p, Problem::SolverType)) {
-	 if (!std::string("SYMMETRIC_INDEFINITE").compare(get<std::string>(p, Problem::SolverType))) {
-	   s->SetMatrixSymType(mfem::MUMPSSolver::MatType::SYMMETRIC_INDEFINITE);
-	 } else if (!std::string("SYMMETRIC_POSITIVE_DEFINITE").compare(get<std::string>(p, Problem::SolverType))) {
-	   s->SetMatrixSymType(mfem::MUMPSSolver::MatType::SYMMETRIC_POSITIVE_DEFINITE);
-	 } else {
-	   s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
-	 }
-       } else {
-	 s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
-       }
+      checkParameters(p, {"Symmetric", "DefinitePositive"});
+      auto s = std::make_unique<mfem::MUMPSSolver>();
+      const auto symmetric = get_if<bool>(, "Symmetric", false);
+      const auto p = get_if<bool>(properties, "DefinitePositive", false);
+      if (symmetric) {
+        if (positive_definite) {
+          s->SetMatrixSymType(
+              mfem::MUMPSSolver::MatType::SYMMETRIC_POSITIVE_DEFINITE);
+        } else {
+          s->SetMatrixSymType(mfem::MUMPSSolver::MatType::SYMMETRIC_INDEFINITE);
+        }
+      } else {
+        s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
+      }
       return s;
     };
-  }// end of builMUMPSGenerator
-#endif
-  
+  }  // end of builMUMPSGenerator
+
+#endif /* MFEM_USE_MUMPS */
+
   template <bool parallel>
   static void declareDefaultSolvers(LinearSolverFactory<parallel>& f) {
     f.add("CGSolver",
           buildIterativeSolverGenerator<parallel, mfem::CGSolver>());
     f.add("GMRESSolver",
           buildIterativeSolverGenerator<parallel, mfem::GMRESSolver>());
+#ifdef MFEM_USE_MUMPS
+    f.add("MUMPSSolver", buildMUMPSSolverGenerator());
+#endif
     if constexpr (!parallel) {
 #ifdef MFEM_USE_SUITESPARSE
       f.add("UMFPackSolver", [](const Parameters&) {
         return std::make_unique<mfem::UMFPackSolver>();
       });
-#endif
-      } else {
-#ifdef MFEM_USE_MUMPS
-      f.add("MUMPSSolver",
-	    buildMUMPSSolverGenerator());
 #endif
     }
   }  // end of declareDefaultSolvers

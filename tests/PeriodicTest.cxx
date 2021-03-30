@@ -129,7 +129,8 @@ static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
 #endif
 #ifdef MFEM_USE_MUMPS
   } else if (i == 3) {
-    p.setLinearSolver("MUMPSSolver", {{"Type", "SYMMETRIC_POSITIVE_DEFINITE"}});
+    p.setLinearSolver("MUMPSSolver",
+                      {{"Symmetric", true}, {"PositiveDefinite", true}});
 #endif
   } else {
     std::cerr << "unsupported linear solver\n";

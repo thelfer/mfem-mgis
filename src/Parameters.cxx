@@ -99,4 +99,23 @@ namespace mfem_mgis {
     return p.contains(n);
   }  // end of contains
 
+  void checkParameters(const Parameters& parameters,
+                       const std::vector<std::string>& names) {
+    for (const auto& p : parameters) {
+      if (std::find(names.begin(), names.end(), p.first) == names.end()) {
+        auto msg = std::string("checkParameters: invalid parameter '" +
+                               p.first + "'.");
+        if (!names.empty()) {
+          msg += "\nAllowed parameters are:\n";
+          for (const auto& n : names) {
+            msg += "- " + n + '\n';
+          }
+        } else {
+          msg += "No parameters allowed";
+        }
+        mgis::raise(msg);
+      }
+    }
+  } // end of checkParameters
+
 }  // end of namespace mfem_mgis
