@@ -21,7 +21,7 @@ if (NOT TARGET mfem)
   message(STATUS "Searching for MFEM")
   find_package(MFEM REQUIRED)
 else(NOT TARGET mfem)
-   message(STATUS "MFEM target already set")
+  message(STATUS "MFEM target already set")
 endif(NOT TARGET mfem)
 
 if (MFEM_USE_MPI)
@@ -41,7 +41,9 @@ endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
 include(cmake/modules/tfel.cmake)  
 
 # documentation
-add_custom_target(doc)
+if (NOT TARGET doc)
+  add_custom_target(doc)
+endif(NOT TARGET doc)
 
 option(enable-website "enable generation of the website" ON)
 if(enable-website)
