@@ -50,6 +50,12 @@ namespace mfem_mgis {
     bool computeNewtonCorrection(mfem::Vector &,
                                  const mfem::Vector &,
                                  const mfem::Vector &) const;
+    /*!
+     * \brief compute the residual
+     * \param[in] r: residual
+     * \param[in] u: current estimate of the unknowns
+     */
+    void computeResidual(mfem::Vector &, const mfem::Vector &) const;
     //
     [[noreturn]] void SetPreconditioner(Solver &) override;
     [[noreturn]] void SetOperator(const mfem::Operator &) override;

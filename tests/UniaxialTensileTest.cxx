@@ -132,7 +132,9 @@ int main(const int argc, char** const argv) {
   auto t = mfem_mgis::real{0};
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
     // resolution
-    problem.solve(t, dt);
+    if (!problem.solve(t, dt)) {
+      return EXIT_FAILURE;
+    }
     problem.executePostProcessings(t, dt);
     problem.update();
     t += dt;

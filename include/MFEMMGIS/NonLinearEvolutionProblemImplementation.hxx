@@ -21,8 +21,6 @@
 namespace mfem_mgis {
 
   // forward declaration
-  enum struct IntegrationType;
-  // forward declaration
   template <bool parallel>
   struct PostProcessing;
 
@@ -59,13 +57,8 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
-    /*!
-     * \brief integrate the behaviour for given estimate of the unknowns at
-     * the end of the time step.
-     * \param[in] u: current estimate of the unknowns
-     * \param[in] it: integration type
-     */
-    virtual bool integrate(const mfem::Vector&, const IntegrationType);
+    //
+    bool integrate(const mfem::Vector&, const IntegrationType) override;
     void setLinearSolver(std::string_view, const Parameters&) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
@@ -109,15 +102,9 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<false>>);
-    /*!
-     * \brief integrate the behaviour for given estimate of the unknowns at
-     * the end of the time step.
-     * \param[in] u: current estimate of the unknowns
-     * \param[in] it: integration type
-     */
-    virtual bool integrate(const mfem::Vector&, const IntegrationType);
     //
     void setLinearSolver(std::string_view, const Parameters&) override;
+    bool integrate(const mfem::Vector&, const IntegrationType) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;

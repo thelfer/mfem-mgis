@@ -74,7 +74,7 @@ namespace mfem_mgis {
     c.SetSize(this->oper->Width());
 
     auto updateResidual = [this, &r, &x] {
-      this->oper->Mult(x, r);
+      this->computeResidual(r, x);
       return this->Norm(r);
     };
 
@@ -120,7 +120,8 @@ namespace mfem_mgis {
       }
       //
       // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
-      add(x, -1, c, x);
+//      add(x, -1, c, x);
+      x -= c;
 
       if (!this->processNewUnknownsEstimate(x)) {
         this->converged = 0;
@@ -134,6 +135,13 @@ namespace mfem_mgis {
     this->final_iter = it;
     this->final_norm = norm;
   }  // end of Mult
+
+  void NewtonSolver::computeResidual(mfem::Vector &r,
+                                     const mfem::Vector &u) const {
+    MFEM_ASSERT(this->oper != nullptr,
+                "the Operator is not set (use SetOperator).");
+    this->oper->Mult(u, r);
+  }  // end of NewtonSolver::computeResidual
 
   bool NewtonSolver::computeNewtonCorrection(mfem::Vector &c,
                                              const mfem::Vector &r,

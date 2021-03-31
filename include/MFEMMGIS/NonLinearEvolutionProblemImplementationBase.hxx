@@ -30,6 +30,8 @@ namespace mfem_mgis {
   struct MultiMaterialNonLinearIntegrator;
   // forward declaration
   struct NewtonSolver;
+  // forward declaration
+  enum struct IntegrationType;
 
   /*!
    * \brief class for solving non linear evolution problems.
@@ -92,7 +94,7 @@ namespace mfem_mgis {
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void revert() override;
     void update() override;
-    void solve(const real, const real) override;
+    bool solve(const real, const real) override;
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 
@@ -119,6 +121,13 @@ namespace mfem_mgis {
      * \brief compute prediction
      */
     virtual void computePrediction();
+    /*!
+     * \brief integrate the behaviour for given estimate of the unknowns at
+     * the end of the time step.
+     * \param[in] u: current estimate of the unknowns
+     * \param[in] it: integration type
+     */
+    virtual bool integrate(const mfem::Vector&, const IntegrationType) = 0;
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief list of boundary conditions

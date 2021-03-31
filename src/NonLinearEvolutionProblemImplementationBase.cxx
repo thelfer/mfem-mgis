@@ -9,6 +9,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -190,7 +191,7 @@ namespace mfem_mgis {
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->setup(t, dt);
     }
-  }  // end of NonLinearEvolutionProblemImplementationBase::setup
+  }  // end of setup
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
       std::unique_ptr<LinearSolver> s) {
@@ -201,23 +202,29 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementationBase::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
-  }  // end of
-     // NonLinearEvolutionProblemImplementationBase::addBoundaryCondition
+  }  // end of addBoundaryCondition
 
-  void NonLinearEvolutionProblemImplementationBase::solve(const real t,
+  bool NonLinearEvolutionProblemImplementationBase::solve(const real t,
                                                           const real dt) {
     mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
+    // this->computePrediction();
     this->solver->Mult(zero, this->u1);
-    if (!this->solver->GetConverged()) {
-      mgis::raise("Newton solver did not converge");
-    }
+    return this->solver->GetConverged();
   }  // end of solve
 
   void NonLinearEvolutionProblemImplementationBase::computePrediction() {
     mfem::Vector c;
+    mfem::Vector r;
+    r.SetSize(this->u1.Size());
     c.SetSize(this->u1.Size());
+    this->integrate(this->u1, IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+    this->solver->computeResidual(r, this->u1);
+    if (!this->solver->computeNewtonCorrection(c, r, this->u1)) {
+      return;
+    }
+    this->u1 += c;
   }  // end of computePrediction
 
   NonLinearEvolutionProblemImplementationBase::

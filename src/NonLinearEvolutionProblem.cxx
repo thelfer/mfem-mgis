@@ -78,9 +78,9 @@ namespace mfem_mgis {
     this->pimpl->setLinearSolver(n, params);
   }  // end of setLinearSolver
 
-  void NonLinearEvolutionProblem::solve(const real t, const real dt) {
+  bool NonLinearEvolutionProblem::solve(const real t, const real dt) {
     this->setup(t, dt);
-    this->pimpl->solve(t, dt);
+    return this->pimpl->solve(t, dt);
   }  // end of solve
 
   std::vector<size_type> NonLinearEvolutionProblem::getMaterialIdentifiers()
