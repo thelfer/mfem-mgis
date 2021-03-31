@@ -118,16 +118,17 @@ namespace mfem_mgis {
     const auto& fespace = this->getFiniteElementSpace();
     mfem::Array<int> vdofs;
     mfem::Vector ue;
-    for (size_type i = 0; i != fespace.GetNE(); ++i) {
+    bool noerror = true;
+    for (size_type i = 0; noerror && (i != fespace.GetNE()); ++i) {
       const auto& e = *(fespace.GetFE(i));
-      const auto& tr = *(fespace.GetElementTransformation(i));
+      auto& tr = *(fespace.GetElementTransformation(i));
       fespace.GetElementVDofs(i, vdofs);
       pu.GetSubVector(vdofs, ue);
-      if (!this->mgis_integrator->integrate(e, tr, ue, it)) {
-        return false;
-      }
+      noerror = this->mgis_integrator->integrate(e, tr, ue, it);
     }
-    return true;
+    MPI_Allreduce(MPI_IN_PLACE, &noerror, 1, MPI_C_BOOL,
+		  MPI_LAND, MPI_COMM_WORLD);
+    return noerror;
   }  // end of integrate
 
   void NonLinearEvolutionProblemImplementation<true>::
