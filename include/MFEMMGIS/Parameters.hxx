@@ -102,9 +102,15 @@ namespace mfem_mgis {
    * \throws if an invalid parameter is present
    */
   void checkParameters(const Parameters&, const std::vector<std::string>&);
+  /*!
+   * \brief extract the given parameters if they exists
+   * \param[in] parameters: parameters
+   * \param[in] names: list of valid parameters names
+   */
+  Parameters extract(const Parameters&, const std::vector<std::string>&);
 
-}  // end of namespace mfem_mgis
+  }  // end of namespace mfem_mgis
 
-#include "MFEMMGIS/Parameter.hxx"
+  #include "MFEMMGIS/Parameter.hxx"
 
-#endif /* LIB_MFEM_MGIS_PARAMETERS_HXX */
+  #endif /* LIB_MFEM_MGIS_PARAMETERS_HXX */

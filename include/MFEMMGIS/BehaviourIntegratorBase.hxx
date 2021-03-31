@@ -68,9 +68,11 @@ namespace mfem_mgis {
      * operator and internal state variables are updated.
      * \return true if the integration is successful.
      * \param[in] ip: local integration point index
+     * \param[in] it: integration type
      * \note this method shall be called after having set the gradients.
      */
-    virtual bool performsLocalBehaviourIntegration(const size_type);
+    virtual bool performsLocalBehaviourIntegration(const size_type,
+                                                   const IntegrationType);
     //! \brief workspace
     struct {
       //! \brief array for material properties at the end of the time step

@@ -16,21 +16,24 @@
 
 namespace mfem_mgis {
 
-  /// Newton's method for solving F(x)=b for a given operator F.
-  /** The method GetGradient() must be implemented for the operator F.
-      The preconditioner is used (in non-iterative mode) to evaluate
-      the action of the inverse gradient of the operator. */
-  template <bool parallel>
+  /*!
+   * \brief custom implementation of the Newton Solver
+   */
   struct NewtonSolver : public mfem::IterativeSolver {
+
+#ifdef MFEM_USE_MPI
     //! \brief default constructor
-    NewtonSolver(NonLinearEvolutionProblemImplementation<parallel> &);
+    NewtonSolver(NonLinearEvolutionProblemImplementation<true> &);
+#endif /* MFEM_USE_MPI */
+
+    //! \brief default constructor
+    NewtonSolver(NonLinearEvolutionProblemImplementation<false> &);
+
     /*!
      * \brief set the linear solver for inverting the Jacobian.
      * \param[in] s: linear solver
      */
-    virtual void setLinearSolver(std::unique_ptr<LinearSolver>);
-    //! \brief solve the problem.
-    virtual void solve() const;
+    virtual void setLinearSolver(LinearSolver&);
     /*!
      * \brief add a new action called when a new estimate of the unknowns is
      * available.
@@ -38,48 +41,36 @@ namespace mfem_mgis {
      */
     virtual void addNewUnknownsEstimateActions(
         std::function<bool(const mfem::Vector &)>);
+    /*!
+     * \brief compute the correction associated with the given residual
+     * \param[in] c: Newton' correction
+     * \param[in] r: residual
+     * \param[in] u: current estimate of the unknowns
+     */
+    bool computeNewtonCorrection(mfem::Vector &,
+                                 const mfem::Vector &,
+                                 const mfem::Vector &) const;
     //
     [[noreturn]] void SetPreconditioner(Solver &) override;
     [[noreturn]] void SetOperator(const mfem::Operator &) override;
-    [[noreturn]] void Mult(const mfem::Vector &, mfem::Vector &) const override;
+    void Mult(const mfem::Vector &, mfem::Vector &) const override;
+
     //! \brief destructor
     ~NewtonSolver() override;
 
    protected:
-
     /*!
      * \brief method called when a new estimate of the unknowns is available.
      * \param[in] u: new unknown estimate
      */
     virtual bool processNewUnknownsEstimate(const mfem::Vector &) const;
-    //! \brief underlying problem
-    NonLinearEvolutionProblemImplementation<parallel> &problem;
     /*!
      * \brief actions performed when a new estimate of the unknowns are
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
-    //! \brief linear solver
-    std::unique_ptr<LinearSolver> linear_solver;
-    //!
-    bool prediction = true;
-  };  // end of struct NewtonSolver
+    };  // end of struct NewtonSolver
 
-
-#ifdef MFEM_USE_MPI
-
-  template <>
-  NewtonSolver<true>::NewtonSolver(
-      NonLinearEvolutionProblemImplementation<true> &);
-
-#endif MFEM_USE_MPI
-
-  template <>
-  NewtonSolver<false>::NewtonSolver(
-      NonLinearEvolutionProblemImplementation<false> &);
-
-}  // end of namespace mfem_mgis
-
-#include "MFEMMGIS/NewtonSolver.ixx"
+} // end of namespace mfem_mgis
 
 #endif /* LIB_NEWTONSOLVER_HXX */

@@ -55,7 +55,8 @@ namespace mfem_mgis {
 
     bool integrate(const mfem::FiniteElement &,
                    mfem::ElementTransformation &,
-                   const mfem::Vector &) override;
+                   const mfem::Vector &,
+                   const IntegrationType) override;
 
     void updateResidual(mfem::Vector &,
                         const mfem::FiniteElement &,

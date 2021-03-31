@@ -28,6 +28,8 @@ namespace mfem_mgis {
   struct BehaviourIntegrator;
   // forward declaration
   struct MultiMaterialNonLinearIntegrator;
+  // forward declaration
+  struct NewtonSolver;
 
   /*!
    * \brief class for solving non linear evolution problems.
@@ -66,10 +68,16 @@ namespace mfem_mgis {
     virtual mfem::Vector& getUnknownsAtEndOfTheTimeStep();
     //! \return the unknowns at the end of the time step
     virtual const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const;
+    /*!
+     * \brief set the linear solver
+     * \param[in] s: linear solver
+     */
+    virtual void updateLinearSolver(std::unique_ptr<LinearSolver>);
     //
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
+    void setSolverParameters(const Parameters&) override;
     std::vector<size_type> getMaterialIdentifiers() const override;
     const Material& getMaterial(const size_type) const override;
     Material& getMaterial(const size_type) override;
@@ -84,10 +92,18 @@ namespace mfem_mgis {
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void revert() override;
     void update() override;
+    void solve(const real, const real) override;
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 
    protected:
+    /*!
+     * \brief declare the degrees of freedom handled by Dirichlet boundary
+     * conditions.
+     * \param[in] dofs: list of degrees of freedom
+     */
+    virtual void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+        std::vector<size_type>) = 0;
     /*!
      * \brief set the time time increment
      * \param[in] dt: time increment
@@ -100,12 +116,9 @@ namespace mfem_mgis {
      */
     virtual void setup(const real, const real);
     /*!
-     * \brief declare the degrees of freedom handled by Dirichlet boundary
-     * conditions.
-     * \param[in] dofs: list of degrees of freedom
+     * \brief compute prediction
      */
-    virtual void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-        std::vector<size_type>) = 0;
+    virtual void computePrediction();
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief list of boundary conditions
@@ -123,6 +136,10 @@ namespace mfem_mgis {
     mfem::Vector u0;
     //! \brief unknowns at the end of the time step
     mfem::Vector u1;
+    //! \brief newton solver
+    std::unique_ptr<NewtonSolver> solver;
+    //! \brief linear solver
+    std::unique_ptr<LinearSolver> linear_solver;
     /*!
      * \brief pointer to the underlying domain integrator
      * The memory associated with this pointer must be released in derived class
@@ -130,6 +147,7 @@ namespace mfem_mgis {
     MultiMaterialNonLinearIntegrator* const mgis_integrator;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
+
   };  // end of struct NonLinearEvolutionProblemImplementationBase
 
 }  // end of namespace mfem_mgis

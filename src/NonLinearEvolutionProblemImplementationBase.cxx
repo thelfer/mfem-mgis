@@ -8,6 +8,8 @@
 #include <utility>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
@@ -162,6 +164,11 @@ namespace mfem_mgis {
     this->mgis_integrator->setMacroscopicGradients(g);
   }  // end of setMacroscopicGradients
 
+  void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
+      const Parameters& params) {
+    mfem_mgis::setSolverParameters(*(this->solver), params);
+  }  // end of setSolverParameters
+
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
     if (this->initialization_phase) {
@@ -185,11 +192,33 @@ namespace mfem_mgis {
     }
   }  // end of NonLinearEvolutionProblemImplementationBase::setup
 
+  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      std::unique_ptr<LinearSolver> s) {
+    this->linear_solver = std::move(s);
+    this->solver->setLinearSolver(*(this->linear_solver));
+  }  // end of updateLinearSolver
+
   void NonLinearEvolutionProblemImplementationBase::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
   }  // end of
      // NonLinearEvolutionProblemImplementationBase::addBoundaryCondition
+
+  void NonLinearEvolutionProblemImplementationBase::solve(const real t,
+                                                          const real dt) {
+    mfem::Vector zero;
+    this->setTimeIncrement(dt);
+    this->setup(t, dt);
+    this->solver->Mult(zero, this->u1);
+    if (!this->solver->GetConverged()) {
+      mgis::raise("Newton solver did not converge");
+    }
+  }  // end of solve
+
+  void NonLinearEvolutionProblemImplementationBase::computePrediction() {
+    mfem::Vector c;
+    c.SetSize(this->u1.Size());
+  }  // end of computePrediction
 
   NonLinearEvolutionProblemImplementationBase::
       ~NonLinearEvolutionProblemImplementationBase() = default;

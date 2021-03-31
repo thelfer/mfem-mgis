@@ -63,7 +63,7 @@ namespace mfem_mgis {
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
-    this->solver = std::make_unique<NewtonSolver<true>>(*this);
+    this->solver = std::make_unique<NewtonSolver>(*this);
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
     }
@@ -83,12 +83,7 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
       std::string_view n, const Parameters& p) {
     const auto& f = LinearSolverFactory<true>::getFactory();
-    this->setLinearSolver(f.generate(n, p));
-  }  // end of setLinearSolver
-
-  void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
-      std::unique_ptr<LinearSolver> s) {
-    this->solver->setLinearSolver(std::move(s));
+    this->updateLinearSolver(f.generate(n, p));
   }  // end of setLinearSolver
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
@@ -114,13 +109,8 @@ namespace mfem_mgis {
     return this->fe_discretization->getFiniteElementSpace<true>();
   }  // end of getFiniteElementSpace
 
-  void NonLinearEvolutionProblemImplementation<true>::setSolverParameters(
-      const Parameters& params) {
-    mfem_mgis::setSolverParameters(*(this->solver), params);
-  }  // end of setSolverParameters
-
   bool NonLinearEvolutionProblemImplementation<true>::integrate(
-      const mfem::Vector& u) {
+      const mfem::Vector& u, const IntegrationType it) {
     if (this->mgis_integrator == nullptr) {
       return true;
     }
@@ -133,22 +123,12 @@ namespace mfem_mgis {
       const auto& tr = *(fespace.GetElementTransformation(i));
       fespace.GetElementVDofs(i, vdofs);
       pu.GetSubVector(vdofs, ue);
-      if (!this->mgis_integrator->integrate(e, tr, ue)) {
+      if (!this->mgis_integrator->integrate(e, tr, ue, it)) {
         return false;
       }
     }
     return true;
   }  // end of integrate
-
-  void NonLinearEvolutionProblemImplementation<true>::solve(const real t,
-                                                            const real dt) {
-    this->setTimeIncrement(dt);
-    this->setup(t, dt);
-    this->solver->solve();
-    if (!this->solver->GetConverged()) {
-      mgis::raise("Newton solver did not converge");
-    }
-  }  // end of solve
 
   void NonLinearEvolutionProblemImplementation<true>::
       markDegreesOfFreedomHandledByDirichletBoundaryConditions(
@@ -159,6 +139,7 @@ namespace mfem_mgis {
 
   NonLinearEvolutionProblemImplementation<
       true>::~NonLinearEvolutionProblemImplementation() = default;
+
 #endif /* MFEM_USE_MPI */
 
   NonLinearEvolutionProblemImplementation<false>::
@@ -168,7 +149,7 @@ namespace mfem_mgis {
           const Parameters& p)
       : NonLinearEvolutionProblemImplementationBase(fed, h, p),
         mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())) {
-    this->solver = std::make_unique<NewtonSolver<false>>(*this);
+    this->solver = std::make_unique<NewtonSolver>(*this);
     if (this->fe_discretization->getMesh<false>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       mgis::raise(
@@ -216,24 +197,14 @@ namespace mfem_mgis {
     return this->fe_discretization->getFiniteElementSpace<false>();
   }  // end of getFiniteElementSpace
 
-  void NonLinearEvolutionProblemImplementation<false>::setSolverParameters(
-      const Parameters& params) {
-    mfem_mgis::setSolverParameters(*(this->solver), params);
-  }  // end of setSolverParameters
-
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       std::string_view n, const Parameters& p) {
     const auto& f = LinearSolverFactory<false>::getFactory();
-    this->setLinearSolver(f.generate(n, p));
-  }  // end of setLinearSolver
-
-  void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
-      std::unique_ptr<LinearSolver> s) {
-    this->solver->setLinearSolver(std::move(s));
+    this->updateLinearSolver(f.generate(n, p));
   }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::integrate(
-      const mfem::Vector& u) {
+      const mfem::Vector& u, const IntegrationType it) {
     if (this->mgis_integrator == nullptr) {
       return true;
     }
@@ -246,22 +217,12 @@ namespace mfem_mgis {
       auto& tr = *(fespace.GetElementTransformation(i));
       fespace.GetElementVDofs(i, vdofs);
       pu.GetSubVector(vdofs, ue);
-      if (!this->mgis_integrator->integrate(e, tr, ue)) {
+      if (!this->mgis_integrator->integrate(e, tr, ue, it)) {
         return false;
       }
     }
     return true;
   }  // end of integrate
-
-  void NonLinearEvolutionProblemImplementation<false>::solve(const real t,
-                                                             const real dt) {
-    this->setTimeIncrement(dt);
-    this->setup(t, dt);
-    this->solver->solve();
-    if (!this->solver->GetConverged()) {
-      mgis::raise("Newton solver did not converge");
-    }
-  }  // end of solve
 
   void NonLinearEvolutionProblemImplementation<false>::
       markDegreesOfFreedomHandledByDirichletBoundaryConditions(

@@ -42,17 +42,14 @@ int main(const int argc, char** const argv) {
     return EXIT_FAILURE;
   }
   args.PrintOptions(std::cout);
-  // loading the mesh
-  auto mesh = std::make_shared<mfem::Mesh>(mesh_file, 1, 1);
-  if (mesh->Dimension() != dim) {
-    std::cerr << "Invalid mesh dimension\n";
-    return EXIT_FAILURE;
-  }
   // building the non linear problem
   mfem_mgis::NonLinearEvolutionProblem problem(
-      std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-          mesh, std::make_shared<mfem::H1_FECollection>(order, dim), 3),
-      mgis::behaviour::Hypothesis::TRIDIMENSIONAL);
+      {{"MeshFileName", mesh_file},
+       {"FiniteElementFamily", "H1"},
+       {"FiniteElementOrder", order},
+       {"Hypothesis", "Tridimensional"},
+       {"UnknownsSize", dim},
+       {"Parallel", false}});
   problem.addBehaviourIntegrator("Mechanics", 1, library, behaviour);
   // materials
   auto& m1 = problem.getMaterial(1);

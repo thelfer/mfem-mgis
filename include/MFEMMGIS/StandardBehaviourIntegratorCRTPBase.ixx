@@ -11,6 +11,7 @@
 #include "mfem/fem/fe.hpp"
 #include "mfem/fem/eltrans.hpp"
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
 namespace mfem_mgis {
@@ -19,41 +20,61 @@ namespace mfem_mgis {
   bool StandardBehaviourIntegratorCRTPBase<Child>::implementIntegrate(
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
-      const mfem::Vector &u) {
-#ifdef MFEM_THREAD_SAFE
-    mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
-#else
-    this->dshape.SetSize(e.GetDof(), e.GetDim());
-#endif
-    const auto nnodes = e.GetDof();
-    const auto gsize = this->s1.gradients_stride;
-    const auto thsize = this->s1.thermodynamic_forces_stride;
+      const mfem::Vector &u,
+      const IntegrationType it) {
     // element offset
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
     const auto &ir = static_cast<Child *>(this)->getIntegrationRule(e, tr);
-    for (size_type i = 0; i != ir.GetNPoints(); ++i) {
-      const auto &ip = ir.IntPoint(i);
-      tr.SetIntPoint(&ip);
-      // get the gradients of the shape functions
-      e.CalcPhysDShape(tr, dshape);
-      // offset of the integration point
-      const auto o = eoffset + i;
-      auto g = this->s1.gradients.subspan(o * gsize, gsize);
-      std::copy(this->macroscopic_gradients.begin(),
-                this->macroscopic_gradients.end(), g.begin());
-      for (size_type ni = 0; ni != nnodes; ++ni) {
-        static_cast<Child *>(this)->updateGradients(g, u, dshape, ni);
+    if ((it == IntegrationType::PREDICTION_TANGENT_OPERATOR) ||
+        (it == IntegrationType::PREDICTION_SECANT_OPERATOR) ||
+        (it == IntegrationType::PREDICTION_ELASTIC_OPERATOR)) {
+      for (size_type i = 0; i != ir.GetNPoints(); ++i) {
+        // offset of the integration point
+        const auto o = eoffset + i;
+        if (!this->performsLocalBehaviourIntegration(o, it)) {
+          return false;
+        }
+        // rotate the tangent operator blocks
+        const auto r = static_cast<Child *>(this)->getRotationMatrix(o);
+        auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
+        static_cast<Child *>(this)->rotateTangentOperatorBlocks(Kip, r);
       }
-      const auto r = static_cast<Child *>(this)->getRotationMatrix(o);
-      static_cast<Child *>(this)->rotateGradients(g, r);
-      if (!this->performsLocalBehaviourIntegration(o)) {
-        return false;
+    } else {
+#ifdef MFEM_THREAD_SAFE
+      mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
+#else
+      this->dshape.SetSize(e.GetDof(), e.GetDim());
+#endif
+      const auto nnodes = e.GetDof();
+      const auto gsize = this->s1.gradients_stride;
+      const auto thsize = this->s1.thermodynamic_forces_stride;
+      for (size_type i = 0; i != ir.GetNPoints(); ++i) {
+        const auto &ip = ir.IntPoint(i);
+        tr.SetIntPoint(&ip);
+        // get the gradients of the shape functions
+        e.CalcPhysDShape(tr, dshape);
+        // offset of the integration point
+        const auto o = eoffset + i;
+        auto g = this->s1.gradients.subspan(o * gsize, gsize);
+        std::copy(this->macroscopic_gradients.begin(),
+                  this->macroscopic_gradients.end(), g.begin());
+        for (size_type ni = 0; ni != nnodes; ++ni) {
+          static_cast<Child *>(this)->updateGradients(g, u, dshape, ni);
+        }
+        const auto r = static_cast<Child *>(this)->getRotationMatrix(o);
+        static_cast<Child *>(this)->rotateGradients(g, r);
+        if (!this->performsLocalBehaviourIntegration(o, it)) {
+          return false;
+        }
+        const auto s =
+            this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
+        // Here we rotate the tangent operator blocks but not the thermodynamic
+        // forces.
+        if (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR) {
+          auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
+          static_cast<Child *>(this)->rotateTangentOperatorBlocks(Kip, r);
+        }
       }
-      const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
-      // Here we rotate the tangent operator blocks but not the thermodynamic
-      // forces.
-      auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
-      static_cast<Child *>(this)->rotateTangentOperatorBlocks(Kip, r);
     }
     return true;
   }  // end of implementIntegrate

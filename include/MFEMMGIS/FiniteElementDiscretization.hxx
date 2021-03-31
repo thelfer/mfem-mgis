@@ -13,6 +13,9 @@
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct Parameters;
+
   /*!
    * \brief a simple class used to:
    * - handle the life time of the mesh and the finite element collection.
@@ -29,8 +32,25 @@ namespace mfem_mgis {
     [[noreturn]] static void reportInvalidSequentialFiniteElementSpace();
     /*!
      * \brief constructor
+     * \param[in] params: parameters
+     *
+     * The following parameters are expected:
+     *
+     * - `Parallel` (boolean): if true, a parallel computation is to be be
+     *    performed. This value if assumed to be false by default.
+     * - `MeshFileName` (string): mesh file.
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used. Supported families are:
+     *   - `H1`:
+     *   The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation. 
+     * - `UnknownsSize` (int): number of components of the unknows
+     */
+    FiniteElementDiscretization(const Parameters&);
+    /*!
+     * \brief constructor
      * \param[in] m: mesh
-     * \param[in] c: collection
+     * \param[in] c: finite element collection
      * \param[in] d: size of the unknowns
      *
      * \note this methods creates the finite element space.

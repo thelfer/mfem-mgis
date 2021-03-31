@@ -211,10 +211,10 @@ void executeMFEMMGISTest(const TestParameters& p) {
   }
 
   //   auto fed = FiniteElementDiscretization({{"MeshFileName", p.mesh_file},
-  //                                           {"FiniteElementCollection",
+  //                                           {"FiniteElementFamily",
   //                                           "H1"},
   //                                           {"FiniteElementOrder", p.order},
-  //                                           {"parallel", true}});
+  //                                           {"Parallel", true}});
 
 #ifdef DO_USE_MPI
   auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);

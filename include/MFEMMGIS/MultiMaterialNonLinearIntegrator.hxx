@@ -17,6 +17,8 @@
 namespace mfem_mgis {
 
   // forward declaration
+  enum struct IntegrationType;
+  // forward declaration
   struct FiniteElementDiscretization;
   // forward declaration
   struct BehaviourIntegrator;
@@ -52,10 +54,12 @@ namespace mfem_mgis {
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
      * \param[in] u: current estimate of the unknowns
+     * \param[in] it: integration type
      */
     virtual bool integrate(const mfem::FiniteElement &,
                            mfem::ElementTransformation &,
-                           const mfem::Vector &);
+                           const mfem::Vector &,
+                           const IntegrationType);
     /*!
      * \brief set the value of the time increment
      * \param[in] dt: time increment

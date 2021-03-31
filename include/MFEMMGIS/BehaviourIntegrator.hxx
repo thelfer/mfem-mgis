@@ -16,6 +16,8 @@ namespace mfem_mgis {
 
   // forward declaration
   struct Material;
+  // forward declaration
+  enum struct IntegrationType;
 
   /*!
    * \brief abstract class for all behaviour integrators
@@ -56,10 +58,12 @@ namespace mfem_mgis {
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
      * \param[in] u: current estimate of the unknowns
+     * \param[in] it: integration type
      */
     virtual bool integrate(const mfem::FiniteElement &,
                            mfem::ElementTransformation &,
-                           const mfem::Vector &) = 0;
+                           const mfem::Vector &,
+                           const IntegrationType) = 0;
     /*!
      * \brief compute the contribution of the given element to the inner forces
      * \param[out] Fe: inner forces

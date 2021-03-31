@@ -21,11 +21,10 @@
 namespace mfem_mgis {
 
   // forward declaration
-  template <bool parallel>
-  struct PostProcessing;
+  enum struct IntegrationType;
   // forward declaration
   template <bool parallel>
-  struct NewtonSolver;
+  struct PostProcessing;
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -56,11 +55,6 @@ namespace mfem_mgis {
     //! \return the finite element space
     const FiniteElementSpace<true>& getFiniteElementSpace() const;
     /*!
-     * \brief set the linear solver
-     * \param[in] s: linear solver
-     */
-    virtual void setLinearSolver(std::unique_ptr<LinearSolver>);
-    /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
      */
@@ -69,16 +63,14 @@ namespace mfem_mgis {
      * \brief integrate the behaviour for given estimate of the unknowns at
      * the end of the time step.
      * \param[in] u: current estimate of the unknowns
+     * \param[in] it: integration type
      */
-    virtual bool integrate(const mfem::Vector&);
-    //
-    void setSolverParameters(const Parameters&) override;
+    virtual bool integrate(const mfem::Vector&, const IntegrationType);
     void setLinearSolver(std::string_view, const Parameters&) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
     void executePostProcessings(const real, const real) override;
-    void solve(const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -86,10 +78,6 @@ namespace mfem_mgis {
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
-
-   private:
-    //! \brief newton solver
-    std::unique_ptr<NewtonSolver<true>> solver;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
@@ -117,11 +105,6 @@ namespace mfem_mgis {
     //! \return the finite element space
     const FiniteElementSpace<false>& getFiniteElementSpace() const;
     /*!
-     * \brief set the linear solver
-     * \param[in] s: linear solver
-     */
-    virtual void setLinearSolver(std::unique_ptr<LinearSolver>);
-    /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
      */
@@ -130,16 +113,15 @@ namespace mfem_mgis {
      * \brief integrate the behaviour for given estimate of the unknowns at
      * the end of the time step.
      * \param[in] u: current estimate of the unknowns
+     * \param[in] it: integration type
      */
-    virtual bool integrate(const mfem::Vector&);
+    virtual bool integrate(const mfem::Vector&, const IntegrationType);
     //
-    void setSolverParameters(const Parameters&) override;
     void setLinearSolver(std::string_view, const Parameters&) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
     void executePostProcessings(const real, const real) override;
-    void solve(const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -147,8 +129,6 @@ namespace mfem_mgis {
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
-    //! \brief newton solver
-    std::unique_ptr<NewtonSolver<false>> solver;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
