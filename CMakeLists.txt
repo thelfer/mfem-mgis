@@ -21,7 +21,7 @@ if (NOT TARGET mfem)
   message(STATUS "Searching for MFEM")
   find_package(MFEM REQUIRED)
 else(NOT TARGET mfem)
-   message(STATUS "MFEM target already set")
+  message(STATUS "MFEM target already set")
 endif(NOT TARGET mfem)
 
 if (MFEM_USE_MPI)

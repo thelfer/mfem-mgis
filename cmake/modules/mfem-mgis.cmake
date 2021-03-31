@@ -24,8 +24,8 @@ function(mfem_mgis_buildenv)
   set(OUTPUT_EX1 ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UniaxialTensileTest.cxx)
   add_custom_command(
     OUTPUT  ${OUTPUT_EX1}
-    COMMAND ${CMAKE_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${CMAKE_SOURCE_DIR}/tests/UniaxialTensileTest.cxx ${OUTPUT_EX1}
-    DEPENDS ${CMAKE_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${CMAKE_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
+    COMMAND ${PROJECT_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx ${OUTPUT_EX1}
+    DEPENDS ${PROJECT_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
     COMMENT "seding the UniaxialTensileTest.cxx")
   add_custom_target(generate-ex1 ALL
     DEPENDS ${OUTPUT_EX1})
