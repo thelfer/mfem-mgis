@@ -16,7 +16,6 @@
 #endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
 
 namespace mfem_mgis {
@@ -24,6 +23,9 @@ namespace mfem_mgis {
   // forward declaration
   template <bool parallel>
   struct PostProcessing;
+  // forward declaration
+  template <bool parallel>
+  struct NewtonSolver;
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -53,8 +55,6 @@ namespace mfem_mgis {
     FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
     const FiniteElementSpace<true>& getFiniteElementSpace() const;
-    // ! \brief return the underlying newton solver
-    virtual NewtonSolver& getSolver();
     /*!
      * \brief set the linear solver
      * \param[in] s: linear solver
@@ -89,9 +89,7 @@ namespace mfem_mgis {
 
    private:
     //! \brief newton solver
-    NewtonSolver solver;
-    //! \brief linear solver
-    std::unique_ptr<LinearSolver> linear_solver;
+    std::unique_ptr<NewtonSolver<true>> solver;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
@@ -118,8 +116,6 @@ namespace mfem_mgis {
     FiniteElementSpace<false>& getFiniteElementSpace();
     //! \return the finite element space
     const FiniteElementSpace<false>& getFiniteElementSpace() const;
-    // ! \brief return the underlying newton solver
-    virtual NewtonSolver& getSolver();
     /*!
      * \brief set the linear solver
      * \param[in] s: linear solver
@@ -130,6 +126,12 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<false>>);
+    /*!
+     * \brief integrate the behaviour for given estimate of the unknowns at
+     * the end of the time step.
+     * \param[in] u: current estimate of the unknowns
+     */
+    virtual bool integrate(const mfem::Vector&);
     //
     void setSolverParameters(const Parameters&) override;
     void setLinearSolver(std::string_view, const Parameters&) override;
@@ -142,19 +144,11 @@ namespace mfem_mgis {
     ~NonLinearEvolutionProblemImplementation() override;
 
    protected:
-    /*!
-     * \brief integrate the behaviour for given estimate of the unknowns at
-     * the end of the time step.
-     * \param[in] u: current estimate of the unknowns
-     */
-    virtual bool integrate(const mfem::Vector&);
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
     //! \brief newton solver
-    NewtonSolver solver;
-    //! \brief linear solver
-    std::unique_ptr<LinearSolver> linear_solver;
+    std::unique_ptr<NewtonSolver<false>> solver;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation

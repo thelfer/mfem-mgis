@@ -9,6 +9,7 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
+#include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -53,8 +54,7 @@ namespace mfem_mgis {
           const Hypothesis h,
           const Parameters& p)
       : NonLinearEvolutionProblemImplementationBase(fed, h, p),
-        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())),
-        solver(fed->getFiniteElementSpace<true>().GetComm()) {
+        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())){
     if (this->fe_discretization->getMesh<true>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       mgis::raise(
@@ -63,12 +63,9 @@ namespace mfem_mgis {
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
-    this->solver.SetOperator(*(this));
-    this->solver.iterative_mode = true;
+    this->solver = std::make_unique<NewtonSolver<true>>(*this);
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
-      this->solver.addNewUnknownsEstimateActions(
-          [this](const mfem::Vector& u) { return this->integrate(u); });
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
@@ -91,8 +88,7 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
       std::unique_ptr<LinearSolver> s) {
-    this->linear_solver = std::move(s);
-    this->solver.SetSolver(*(this->linear_solver));
+    this->solver->setLinearSolver(std::move(s));
   }  // end of setLinearSolver
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
@@ -120,17 +116,13 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<true>::setSolverParameters(
       const Parameters& params) {
-    mfem_mgis::setSolverParameters(this->solver, params);
+    mfem_mgis::setSolverParameters(*(this->solver), params);
   }  // end of setSolverParameters
-
-  NewtonSolver& NonLinearEvolutionProblemImplementation<true>::getSolver() {
-    return this->solver;
-  }  // end of getSolver
 
   bool NonLinearEvolutionProblemImplementation<true>::integrate(
       const mfem::Vector& u) {
     if (this->mgis_integrator == nullptr) {
-      return false;
+      return true;
     }
     const auto& pu = this->Prolongate(u);
     const auto& fespace = this->getFiniteElementSpace();
@@ -150,16 +142,10 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<true>::solve(const real t,
                                                             const real dt) {
-    if (this->linear_solver == nullptr) {
-      mgis::raise(
-          "NonLinearEvolutionProblemImplementation<true>::solve: "
-          "no linear solver set");
-    }
-    mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
-    this->solver.Mult(zero, this->u1);
-    if (!this->solver.GetConverged()) {
+    this->solver->solve();
+    if (!this->solver->GetConverged()) {
       mgis::raise("Newton solver did not converge");
     }
   }  // end of solve
@@ -182,6 +168,7 @@ namespace mfem_mgis {
           const Parameters& p)
       : NonLinearEvolutionProblemImplementationBase(fed, h, p),
         mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())) {
+    this->solver = std::make_unique<NewtonSolver<false>>(*this);
     if (this->fe_discretization->getMesh<false>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       mgis::raise(
@@ -190,12 +177,8 @@ namespace mfem_mgis {
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
-    this->solver.SetOperator(*(this));
-    this->solver.iterative_mode = true;
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
-      this->solver.addNewUnknownsEstimateActions(
-          [this](const mfem::Vector& u) { return this->integrate(u); });
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
@@ -233,13 +216,9 @@ namespace mfem_mgis {
     return this->fe_discretization->getFiniteElementSpace<false>();
   }  // end of getFiniteElementSpace
 
-  NewtonSolver& NonLinearEvolutionProblemImplementation<false>::getSolver() {
-    return this->solver;
-  }  // end of getSolver
-
   void NonLinearEvolutionProblemImplementation<false>::setSolverParameters(
       const Parameters& params) {
-    mfem_mgis::setSolverParameters(this->solver, params);
+    mfem_mgis::setSolverParameters(*(this->solver), params);
   }  // end of setSolverParameters
 
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
@@ -250,14 +229,13 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       std::unique_ptr<LinearSolver> s) {
-    this->linear_solver = std::move(s);
-    this->solver.setLinearSolver(*(this->linear_solver));
+    this->solver->setLinearSolver(std::move(s));
   }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::integrate(
       const mfem::Vector& u) {
     if (this->mgis_integrator == nullptr) {
-      return false;
+      return true;
     }
     const auto& pu = this->Prolongate(u);
     const auto& fespace = this->getFiniteElementSpace();
@@ -277,16 +255,10 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<false>::solve(const real t,
                                                              const real dt) {
-    if (this->linear_solver == nullptr) {
-      mgis::raise(
-          "NonLinearEvolutionProblemImplementation<true>::solve: "
-          "no linear solver set");
-    }
-    mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
-    this->solver.Mult(zero, this->u1);
-    if (!this->solver.GetConverged()) {
+    this->solver->solve();
+    if (!this->solver->GetConverged()) {
       mgis::raise("Newton solver did not converge");
     }
   }  // end of solve

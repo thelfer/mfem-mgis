@@ -7,158 +7,46 @@
 
 #include <iomanip>
 #include <utility>
+#include "MGIS/Raise.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
 
 namespace mfem_mgis {
 
-  NewtonSolver::NewtonSolver() = default;
+  template <bool parallel>
+  static void checkSolverOperator(
+      const NonLinearEvolutionProblemImplementation<parallel> &p) {
+    MFEM_ASSERT(p.Height() == p.Width(),
+                "checkSolverOperator: "
+                "a square operator is required.");
+  }  // end of checkSolverOperator
 
 #ifdef MFEM_USE_MPI
 
-  NewtonSolver::NewtonSolver(MPI_Comm c)
-      : mfem::IterativeSolver(c) {}  // end of NewtonSolver
+  template <>
+  NewtonSolver<true>::NewtonSolver(
+      NonLinearEvolutionProblemImplementation<true> &p)
+      : IterativeSolver(p.getFiniteElementSpace().GetComm()), problem(p) {
+    checkSolverOperator(p);
+    this->oper = &p;
+    this->height = p.Height();
+    this->width = p.Width();
+    this->iterative_mode = true;
+    this->addNewUnknownsEstimateActions(
+        [&p](const mfem::Vector &u) { return p.integrate(u); });
+  }  // end of NewtonSolver
 
 #endif /* MFEM_USE_MPI */
 
-  void NewtonSolver::SetOperator(const mfem::Operator &op) {
-    this->oper = &op;
-    this->height = op.Height();
-    this->width = op.Width();
-    MFEM_ASSERT(height == width, "square Operator is required.");
-  }  // end of SetOperator
-
-  void NewtonSolver::setLinearSolver(LinearSolver &s) {
-    this->prec = &s;
-  }  // end of setLinearSolver
-
-  void NewtonSolver::Mult(const mfem::Vector &b, mfem::Vector &x) const {
-    MFEM_ASSERT(this->oper != nullptr, "the Operator is not set (use SetOperator).");
-    MFEM_ASSERT(this->prec != nullptr, "the Solver is not set (use SetSolver).");
-
-    mfem::Vector r, c;
-    r.SetSize(this->oper->Width());
-    c.SetSize(this->oper->Width());
-
-    const auto usesIterativeLinearSolver =
-        dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
-    this->prec->iterative_mode = false;
-
-    auto updateResidual = [this, &r, &x, &b] {
-      this->oper->Mult(x, r);
-      if (b.Size() == this->Height()) {
-        r -= b;
-      }
-      return this->Norm(r);
-    };
-
-    auto computeNewtonCorrection = [this, &c, &r, &x,
-                                    usesIterativeLinearSolver] {
-      this->prec->SetOperator(this->oper->GetGradient(x));
-      this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
-      if (usesIterativeLinearSolver) {
-        const auto &iprec =
-            static_cast<const mfem::IterativeSolver &>(*(this->prec));
-        if (!iprec.GetConverged()) {
-          return false;
-        }
-      }
-      return true;
-    };
-
-    this->final_iter = size_type{};
-    this->final_norm = std::numeric_limits<real>::max();
-
-    if (!this->processNewUnknownsEstimate(x)) {
-      this->converged = 0;
-      return;
-    }
-    const auto norm0 = updateResidual();
-
-    if (this->prediction) {
-
-
-    }
-      //
-      //       if (!computeNewtonCorrection()) {
-      //         this->converged = false;
-      //         return;
-      //       }
-      //       add(x, -1, c, x);
-      //     } else {
-      //       if (!this->processNewUnknownsEstimate(x)) {
-      //         this->converged = 0;
-      //         return;
-      //       }
-      //       norm0 = updateResidual();
-      //     }
-
-      //
-      const auto norm_goal = std::max(rel_tol * norm0, abs_tol);
-      auto it = size_type{};
-      auto norm = norm0;
-
-      while (true) {
-        MFEM_ASSERT(IsFinite(norm), "norm = " << norm);
-        if (this->print_level >= 0) {
-          mfem::out << "Newton iteration " << std::setw(2) << it
-                    << " : ||r|| = " << norm;
-          if (it > 0) {
-            mfem::out << ", ||r||/||r_0|| = " << norm / norm0;
-          }
-          mfem::out << '\n';
-        }
-        Monitor(it, norm, r, x);
-        //
-        if (norm <= norm_goal) {
-          this->converged = 1;
-          break;
-        }
-        //
-        if (it >= this->max_iter) {
-          this->converged = 0;
-          break;
-        }
-        //
-        if (!computeNewtonCorrection()) {
-          this->converged = 0;
-          break;
-        }
-        //
-        const double c_scale = ComputeScalingFactor(x, b);
-        if (c_scale == 0.0) {
-          this->converged = 0;
-          break;
-        }
-        // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
-        add(x, -c_scale, c, x);
-
-        if (!this->processNewUnknownsEstimate(x)) {
-          this->converged = 0;
-          break;
-        }
-
-        updateResidual();
-        norm = this->Norm(r);
-        ++it;
-      }
-      this->final_iter = it;
-      this->final_norm = norm;
-    }  // end of Mult
-
-  void NewtonSolver::addNewUnknownsEstimateActions(
-      std::function<bool(const mfem::Vector &)> a) {
-    this->nue_actions.push_back(std::move(a));
-  }  // end of addNewUnknownsEstimateActions
-
-  bool NewtonSolver::processNewUnknownsEstimate(const mfem::Vector &u) const {
-    for (const auto &a : this->nue_actions) {
-      if (!a(u)) {
-        return false;
-      }
-    }
-    return true;
-  }  // end of processNewUnknownsEstimate
-
-  NewtonSolver::~NewtonSolver() = default;
+  template <>
+  NewtonSolver<false>::NewtonSolver(
+      NonLinearEvolutionProblemImplementation<false> &p)
+      : problem(p) {
+    this->oper = &p;
+    this->height = p.Height();
+    this->width = p.Width();
+    this->iterative_mode = true;
+    this->addNewUnknownsEstimateActions(
+        [&p](const mfem::Vector &u) { return p.integrate(u); });
+  }  // end of NewtonSolver
 
 }  // end of namespace mfem_mgis
