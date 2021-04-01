@@ -119,8 +119,10 @@ namespace mfem_mgis {
     virtual void setup(const real, const real);
     /*!
      * \brief compute prediction
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
      */
-    virtual void computePrediction();
+    virtual void computePrediction(const real, const real);
     /*!
      * \brief integrate the behaviour for given estimate of the unknowns at
      * the end of the time step.

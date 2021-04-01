@@ -32,6 +32,15 @@ namespace mfem_mgis {
      * \param[in] t: time at the end of the time step
      */
     virtual void updateImposedValues(mfem::Vector&, const real) const = 0;
+    /*!
+     * \brief update the values of the imposed degrees of freedom
+     * \param[in] u: unknown vector
+     * \param[in] ti: time at the beginning of the time step
+     * \param[in] te: time at the end of the time step
+     */
+    virtual void setImposedValuesIncrements(mfem::Vector&,
+                                            const real,
+                                            const real) const = 0;
     //! \brief destructor
     virtual ~DirichletBoundaryCondition();
   };  // end of struct DirichletBoundaryCondition
