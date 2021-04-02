@@ -51,14 +51,6 @@
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
-#ifndef MFEM_USE_MPI
-#define MPI_COMM_WORLD 0
-#define MPI_Finalize(args...) \
-  {}
-#define MPI_Init(args...) \
-  {}
-#endif
-
 void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
   constexpr const auto xthr = mfem_mgis::real(1) / 2;
   std::array<void (*)(mfem::Vector&, const mfem::Vector&), 6u> solutions = {
@@ -180,7 +172,7 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
                  "Exz->4, Eyz->5");
   args.AddOption(
       &p.linearsolver, "-ls", "--linearsolver",
-      "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
+      "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack, 3 -> MUMPS");
   args.Parse();
   if ((!args.Good()) || (p.mesh_file == nullptr)) {
     args.PrintUsage(std::cout);
