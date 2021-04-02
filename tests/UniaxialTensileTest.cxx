@@ -70,7 +70,6 @@ int main(int argc, char** argv) {
     auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
     mesh->UniformRefinement();
     mesh->UniformRefinement();
-    mesh->UniformRefinement();
 #else
     auto mesh = smesh;
 #endif
