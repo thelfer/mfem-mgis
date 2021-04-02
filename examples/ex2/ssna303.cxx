@@ -103,6 +103,8 @@ int main(int argc, char** argv) {
   // selection of the linear solver
 #if defined (MFEM_USE_MUMPS)
     problem.setLinearSolver("MUMPSSolver", {});
+#elif defined (MFEM_USE_SUITESPARSE)
+    problem.setLinearSolver("UMFPackSolver", {});
 #else
     problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
                                          {"RelativeTolerance", 1e-12},
