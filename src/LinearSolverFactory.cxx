@@ -93,9 +93,11 @@ namespace mfem_mgis {
           buildIterativeSolverGenerator<parallel, mfem::CGSolver>());
     f.add("GMRESSolver",
           buildIterativeSolverGenerator<parallel, mfem::GMRESSolver>());
+    if constexpr (parallel) {
 #ifdef MFEM_USE_MUMPS
-    f.add("MUMPSSolver", buildMUMPSSolverGenerator());
+      f.add("MUMPSSolver", buildMUMPSSolverGenerator());
 #endif
+    }
     if constexpr (!parallel) {
 #ifdef MFEM_USE_SUITESPARSE
       f.add("UMFPackSolver", [](const Parameters&) {
@@ -135,7 +137,18 @@ namespace mfem_mgis {
       mgis::raise(msg);
     }
     const auto& g = pg->second;
-    return g(params);
+    auto s = std::unique_ptr<LinearSolver>{};
+    try {
+      s = g(params);
+    } catch (std::exception& e) {
+      std::string msg("LinearSolverFactory<false>::generate: ");
+      msg += "error while generating no linear '";
+      msg += n;
+      msg += "'\n";
+      msg += e.what();
+      mgis::raise(msg);
+    }
+    return s;
   }  // end of generate
 
   LinearSolverFactory<true>::LinearSolverFactory() {
@@ -174,7 +187,18 @@ namespace mfem_mgis {
       mgis::raise(msg);
     }
     const auto& g = pg->second;
-    return g(params);
+    auto s = std::unique_ptr<LinearSolver>{};
+    try {
+      s = g(params);
+    } catch (std::exception& e) {
+      std::string msg("LinearSolverFactory<false>::generate: ");
+      msg += "error while generating no linear '";
+      msg += n;
+      msg += "'\n";
+      msg += e.what();
+      mgis::raise(msg);
+    }
+    return s;
   }  // end of generate
 
   LinearSolverFactory<false>::LinearSolverFactory() {
