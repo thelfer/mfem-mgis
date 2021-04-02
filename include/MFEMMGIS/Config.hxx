@@ -42,6 +42,24 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[noreturn]] void reportUnsupportedParallelComputations();
 
+  //! \brief a simple alias
+  using MainFunctionArguments = char**;
+
+  /*!
+   * \brief function that must be called to initialize `mfem-mgis`.
+   * \param[in] argc: number of arguments
+   * \param[in] argv: arguments
+   *
+   * In parallel, this function calls the `MPI_Init` function.
+   * It is safe to call this function multiple time.
+   */
+  MFEM_MGIS_EXPORT void initialize(int&, MainFunctionArguments&);
+  /*!
+   * \brief function that must be called to end `mfem-mgis`
+   * This call is optional if the code exits normally.
+   */
+  MFEM_MGIS_EXPORT void finalize();
+
 }  // namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_CONFIG_HXX */

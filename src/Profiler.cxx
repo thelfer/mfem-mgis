@@ -6,8 +6,15 @@
  */
 
 #include <ctime>
+#include <vector>
+#include <numeric>
 #include <ostream>
+#include <algorithm>
+#include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Profiler.hxx"
+#ifdef MFEM_USE_MPI
+#include "mpi.h"
+#endif /* MFEM_USE_MPI */
 
 namespace mfem_mgis{
 
@@ -16,7 +23,7 @@ namespace mfem_mgis{
    * start : start of the measure
    * end   : end of the measure
    */
-  static inline intmax_t get_measure(const timespec& start,
+  static inline uint64_t get_measure(const timespec& start,
                                      const timespec& end) {
     /* http://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime */
     timespec temp;
@@ -33,25 +40,25 @@ namespace mfem_mgis{
   /*!
    * print a time to the specified stream
    */
-  static void print_time(std::ostream& os, const intmax_t time) {
-    constexpr intmax_t musec_d = 1000;
-    constexpr intmax_t msec_d  = 1000*musec_d;
-    constexpr intmax_t sec_d   = msec_d*1000;
-    constexpr intmax_t min_d   = sec_d*60;
-    constexpr intmax_t hour_d  = min_d*60;
-    constexpr intmax_t days_d  = hour_d*24;
-    intmax_t t = time;
-    const intmax_t ndays  = t/days_d;
+  static void print_time(std::ostream& os, const uint64_t time) {
+    constexpr uint64_t musec_d = 1000;
+    constexpr uint64_t msec_d  = 1000*musec_d;
+    constexpr uint64_t sec_d   = msec_d*1000;
+    constexpr uint64_t min_d   = sec_d*60;
+    constexpr uint64_t hour_d  = min_d*60;
+    constexpr uint64_t days_d  = hour_d*24;
+    uint64_t t = time;
+    const uint64_t ndays  = t/days_d;
     t -= ndays*days_d;
-    const intmax_t nhours = t/hour_d;
+    const uint64_t nhours = t/hour_d;
     t -= nhours*hour_d;
-    const intmax_t nmins  = t/min_d;
+    const uint64_t nmins  = t/min_d;
     t -= nmins*min_d;
-    const intmax_t nsecs   = t/sec_d;
+    const uint64_t nsecs   = t/sec_d;
     t -= nsecs*sec_d;
-    const intmax_t nmsecs   = t/msec_d;
+    const uint64_t nmsecs   = t/msec_d;
     t -= nmsecs*msec_d;
-    const intmax_t nmusecs   = t/musec_d;
+    const uint64_t nmusecs   = t/musec_d;
     t -= nmusecs*musec_d;
     if(ndays>0){
       os << ndays << "days ";
@@ -91,7 +98,7 @@ namespace mfem_mgis{
   Profiler::TimeSection::TimeSection(Profiler::TimeSection* p)
       : parent(p), measure(0) {}  // end of TimeSection
 
-  void  Profiler::TimeSection::close(const intmax_t m) {
+  void  Profiler::TimeSection::close(const uint64_t m) {
     auto& p = Profiler::getProfiler();
     p.current = this->parent;
     this->measure += m;
@@ -112,9 +119,37 @@ namespace mfem_mgis{
   void Profiler::TimeSection::print(std::ostream& os,
                                     const std::string& n,
                                     const std::string& s) const {
+#ifdef MFEM_USE_MPI
+    int rank;
+    int gsize;
+    std::vector<std::uint64_t> measures;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (rank == 0) {
+      MPI_Comm_size(MPI_COMM_WORLD, &gsize);
+      measures.resize(gsize);
+    }
+    MPI_Gather(&(this->measure), 1, MPI_UINT64_T, measures.data(), 1,
+               MPI_UINT64_T, 0, MPI_COMM_WORLD);
+    if (rank == 0) {
+      const auto r = std::minmax_element(measures.begin(), measures.end());
+      const auto min = *(r.first);
+      const auto max = *(r.second);
+      const auto mean_value =
+          std::accumulate(measures.begin(), measures.end(), std::uint64_t{}) /
+          gsize;
+      os << s << "- " << n << ": ";
+      print_time(os, min);
+      os << " ";
+      print_time(os, max);
+      os << " ";
+      print_time(os, mean_value);
+      os << '\n';
+    }
+#else /* MFEM_USE_MPI */
     os << s << "- " << n << ": ";
     print_time(os, this->measure);
     os << '\n';
+#endif /* MFEM_USE_MPI */
     for (const auto& ts : this->subsections) {
       ts.second->print(os, ts.first, s + "  ");
     }

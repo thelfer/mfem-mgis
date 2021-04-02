@@ -18,7 +18,7 @@
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
-int main(const int argc, char** const argv) {
+int main(int argc, char** argv) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   const char* mesh_file = nullptr;
   const char* behaviour = nullptr;
@@ -27,6 +27,7 @@ int main(const int argc, char** const argv) {
   const char* isv_name = nullptr;
   auto order = 1;
   // options treatment
+  mfem_mgis::initialize(argc, argv);
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
   args.AddOption(&reference_file, "-r", "--reference-file", "Reference file.");

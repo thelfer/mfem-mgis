@@ -59,7 +59,7 @@ namespace mfem_mgis {
       //! \brief print the results
       void print(std::ostream&, const std::string&, const std::string&) const;
       //! \brief close the section
-      void close(const intmax_t);
+      void close(const uint64_t);
       /*!
        * \return a new timer for the given subsection
        * \param[in] n: name of the subsection
@@ -68,7 +68,7 @@ namespace mfem_mgis {
       //! \brief paren section
       TimeSection* const parent;
       //! \brief total time spend in this region
-      std::atomic<intmax_t> measure;
+      std::atomic<uint64_t> measure;
       //! \brief child sections
       std::map<std::string, std::unique_ptr<TimeSection>, std::less<>>
           subsections;

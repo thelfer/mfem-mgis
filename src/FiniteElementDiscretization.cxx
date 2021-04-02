@@ -11,6 +11,7 @@
 #include <mfem/fem/pfespace.hpp>
 #endif
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 
 namespace mfem_mgis {
@@ -40,6 +41,60 @@ namespace mfem_mgis {
         "reportInvalidSequentialFiniteElementSpace: "
         "no sequential finite element space defined");
   }  // end of reportInvalidSequentialFiniteElementSpace
+
+  FiniteElementDiscretization::FiniteElementDiscretization(
+      const Parameters& params) {
+    checkParameters(params, {"Parallel", "MeshFileName", "FiniteElementFamily",
+                             "FiniteElementOrder", "UnknownsSize",
+                             "NumberOfUniformRefinements"});
+    const auto parallel = get_if<bool>(params, "Parallel", false);
+    const auto& mesh_file = get<std::string>(params, "MeshFileName");
+    const auto& fe_family =
+        get_if<std::string>(params, "FiniteElementFamily", "H1");
+    const auto fe_order = get_if<int>(params, "FiniteElementOrder", 1);
+    const auto u_size = get<int>(params, "UnknownsSize");
+    const auto nrefinement =
+        get_if<int>(params, "NumberOfUniformRefinements", 0);
+    if (parallel) {
+#ifdef MFEM_USE_MPI
+      auto smesh = std::make_shared<Mesh<false>>(mesh_file.c_str(), 1, 1);
+      this->parallel_mesh =
+          std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
+      for (size_type i = 0; i != nrefinement; ++i) {
+        this->parallel_mesh->UniformRefinement();
+      }
+#else /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      this->sequential_mesh =
+          std::make_shared<Mesh<false>>(mesh_file.c_str(), 1, 1);
+      for (size_type i = 0; i != nrefinement; ++i) {
+        this->sequential_mesh->UniformRefinement();
+      }
+    }
+    // building the finite element collection
+    if (fe_family == "H1") {
+      this->fec = std::make_shared<mfem::H1_FECollection>(fe_order, u_size);
+    } else {
+      mgis::raise(
+          "FiniteElementDiscretization::FiniteElementDiscretization: "
+          "unsupported finite element family '" +
+          fe_family + "'");
+    }
+    // building the finite element space
+    if (parallel) {
+#ifdef MFEM_USE_MPI
+      this->parallel_fe_space = std::make_unique<FiniteElementSpace<true>>(
+          this->parallel_mesh.get(), this->fec.get(), u_size);
+#else /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      this->sequential_fe_space = std::make_unique<FiniteElementSpace<false>>(
+          this->sequential_mesh.get(), this->fec.get(), u_size);
+    }
+  }  // end of FiniteElementDiscretization
 
 #ifdef MFEM_USE_MPI
   FiniteElementDiscretization::FiniteElementDiscretization(
