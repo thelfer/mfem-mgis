@@ -5,8 +5,6 @@
  * \date   18/03/2021
  */
 
-#include <iostream>
-
 #include "mfem/linalg/vector.hpp"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 
@@ -38,12 +36,7 @@ namespace mfem_mgis {
 
   void UniformDirichletBoundaryCondition::setImposedValuesIncrements(
       mfem::Vector& u, const real ti, const real te) const {
-    std::cerr << "ti: " << ti << '\n';
-    std::cerr << "te: " << te << '\n';
-    std::cerr << "u(ti): " << this->ufct(ti) << '\n';
-    std::cerr << "u(te): " << this->ufct(te) << '\n';
     const auto duv = this->ufct(te) - this->ufct(ti);
-    std::cerr << "duv: " << duv << std::endl;
     for (const auto& dof : this->dofs) {
       u[dof] = duv;
     }
