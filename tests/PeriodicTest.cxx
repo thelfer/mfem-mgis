@@ -204,22 +204,6 @@ void executeMFEMMGISTest(const TestParameters& p) {
                             {"NumberOfUniformRefinements", p.parallel ? 2 : 0},
                             {"Parallel", p.parallel}});
 
-  //   std::shared_ptr<mfem_mgis::FiniteElementDiscretization> fed;
-  //   auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-  //   if (dim != smesh->Dimension()) {
-  //     std::cerr << "Invalid mesh dimension \n";
-  //     std::exit(EXIT_FAILURE);
-  //   }
-  // #ifdef DO_USE_MPI
-  //   auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
-  //   mesh->UniformRefinement();
-  //   mesh->UniformRefinement();
-  // #else
-  //   auto mesh = smesh;
-  // #endif
-  //   fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-  //       mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
-
   {
     // building the non linear problem
     mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);
@@ -260,7 +244,9 @@ void executeMFEMMGISTest(const TestParameters& p) {
         "ParaviewExportResults",
         {{"OutputFileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
     // solving the problem
-    problem.solve(0, 1);
+    if (!problem.solve(0, 1)) {
+      std::exit(EXIT_FAILURE);
+    }
     problem.executePostProcessings(0, 1);
     //
     if (!checkSolution(problem, p.tcase)) {
