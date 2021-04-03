@@ -46,23 +46,34 @@ namespace mfem_mgis {
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       const Parameters& params) {
+    checkParameters(params, {"Parallel", "MeshFileName", "FiniteElementFamily",
+                             "FiniteElementOrder", "UnknownsSize",
+                             "NumberOfUniformRefinements"});
     const auto parallel = get_if<bool>(params, "Parallel", false);
     const auto& mesh_file = get<std::string>(params, "MeshFileName");
     const auto& fe_family =
         get_if<std::string>(params, "FiniteElementFamily", "H1");
-    const auto fe_order = 1;//get_if<int>(params, "FiniteElementOrder", 1);
+    const auto fe_order = get_if<int>(params, "FiniteElementOrder", 1);
     const auto u_size = get<int>(params, "UnknownsSize");
+    const auto nrefinement =
+        get_if<int>(params, "NumberOfUniformRefinements", 0);
     if (parallel) {
 #ifdef MFEM_USE_MPI
       auto smesh = std::make_shared<Mesh<false>>(mesh_file.c_str(), 1, 1);
       this->parallel_mesh =
           std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
+      for (size_type i = 0; i != nrefinement; ++i) {
+        this->parallel_mesh->UniformRefinement();
+      }
 #else /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
       this->sequential_mesh =
           std::make_shared<Mesh<false>>(mesh_file.c_str(), 1, 1);
+      for (size_type i = 0; i != nrefinement; ++i) {
+        this->sequential_mesh->UniformRefinement();
+      }
     }
     // building the finite element collection
     if (fe_family == "H1") {

@@ -51,14 +51,6 @@
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
-#ifndef MFEM_USE_MPI
-#define MPI_COMM_WORLD 0
-#define MPI_Finalize(args...) \
-  {}
-#define MPI_Init(args...) \
-  {}
-#endif
-
 void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
   constexpr const auto xthr = mfem_mgis::real(1) / 2;
   std::array<void (*)(mfem::Vector&, const mfem::Vector&), 6u> solutions = {
@@ -164,12 +156,16 @@ struct TestParameters {
   int order = 1;
   int tcase = 0;
   int linearsolver = 0;
+#ifdef DO_USE_MPI
+  bool parallel = true;
+#else  /* DO_USE_MPI */
+  bool parallel = false;
+#endif /* DO_USE_MPI */
 };
 
 TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   TestParameters p;
   // options treatment
-  MPI_Init(&argc, &argv);
   mfem::OptionsParser args(argc, argv);
   args.AddOption(&p.mesh_file, "-m", "--mesh", "Mesh file to use.");
   args.AddOption(&p.library, "-l", "--library", "Material library.");
@@ -181,6 +177,8 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   args.AddOption(
       &p.linearsolver, "-ls", "--linearsolver",
       "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
+  //   args.AddOption(&p.parallel, "-p", "--parallel",
+  //                  "if true, perform the computation in parallel");
   args.Parse();
   if ((!args.Good()) || (p.mesh_file == nullptr)) {
     args.PrintUsage(std::cout);
@@ -194,37 +192,17 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   return p;
 }
 
-void exit_on_failure() {
-  MPI_Finalize();
-  std::exit(EXIT_FAILURE);
-}
-
 void executeMFEMMGISTest(const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
-  std::shared_ptr<mfem_mgis::FiniteElementDiscretization> fed;
-  auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-  if (dim != smesh->Dimension()) {
-    std::cerr << "Invalid mesh dimension \n";
-    exit_on_failure();
-  }
-
-  //   auto fed = FiniteElementDiscretization({{"MeshFileName", p.mesh_file},
-  //                                           {"FiniteElementFamily",
-  //                                           "H1"},
-  //                                           {"FiniteElementOrder", p.order},
-  //                                           {"Parallel", true}});
-
-#ifdef DO_USE_MPI
-  auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
-  mesh->UniformRefinement();
-  mesh->UniformRefinement();
-#else
-  auto mesh = smesh;
-#endif
-  fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-      mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+      mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
+                            {"FiniteElementFamily", "H1"},
+                            {"FiniteElementOrder", p.order},
+                            {"UnknownsSize", dim},
+                            {"NumberOfUniformRefinements", p.parallel ? 2 : 0},
+                            {"Parallel", p.parallel}});
 
   {
     // building the non linear problem
@@ -267,18 +245,18 @@ void executeMFEMMGISTest(const TestParameters& p) {
         {{"OutputFileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
     // solving the problem
     if (!problem.solve(0, 1)) {
-      exit_on_failure();
+      std::exit(EXIT_FAILURE);
     }
     problem.executePostProcessings(0, 1);
     //
     if (!checkSolution(problem, p.tcase)) {
-      exit_on_failure();
+      std::exit(EXIT_FAILURE);
     }
   }
-  MPI_Finalize();
 }
 
 int main(int argc, char* argv[]) {
+  mfem_mgis::initialize(argc, argv);
   const auto p = parseCommandLineOptions(argc, argv);
   executeMFEMMGISTest(p);
   return EXIT_SUCCESS;

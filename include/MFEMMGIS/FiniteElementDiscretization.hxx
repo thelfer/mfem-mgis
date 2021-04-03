@@ -43,8 +43,10 @@ namespace mfem_mgis {
      *   used. Supported families are:
      *   - `H1`:
      *   The default value if `H1`.
-     * - `FiniteElementOrder` (int): order of the polynomial approximation. 
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `UnknownsSize` (int): number of components of the unknows
+     * - `NumberOfUniformRefinements` (int): number of uniform refinements
+     *   applied to the mesh
      */
     FiniteElementDiscretization(const Parameters&);
     /*!

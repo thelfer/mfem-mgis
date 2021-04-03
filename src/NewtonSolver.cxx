@@ -15,7 +15,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static void checkSolverOperator(
-      const NonLinearEvolutionProblemImplementation<parallel> &p) {
+      const NonLinearEvolutionProblemImplementation<parallel> &) {
     MFEM_ASSERT(p.Height() == p.Width(),
                 "checkSolverOperator: "
                 "a square operator is required.");

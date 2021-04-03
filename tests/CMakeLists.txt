@@ -37,7 +37,7 @@ if(MFEM_MGIS_HAVE_TFEL)
       add_periodic_test(${ncase} ${nsolver})
     endforeach(nsolver)
   endforeach(ncase)
-  
+      
   add_executable(UniaxialTensileTest
     EXCLUDE_FROM_ALL
     UniaxialTensileTest.cxx)
@@ -100,16 +100,18 @@ if(MFEM_MGIS_HAVE_TFEL)
     foreach(ncase RANGE 0 0)
       foreach(nsolver RANGE 1 1)
         foreach(nbprocs RANGE 1 4 3)
-  	add_periodic_testp(${ncase} ${nsolver} ${nbprocs})
+          add_periodic_testp(${ncase} ${nsolver} ${nbprocs})
         endforeach(nbprocs)
       endforeach(nsolver)
     endforeach(ncase)
 
     if(MFEM_USE_MUMPS)
+      add_unilateral_testp(OrthotropicElasticity EquivalentStrain 3 1)
+      add_unilateral_testp(OrthotropicElasticity EquivalentStrain 3 4)
       add_periodic_testp(0 3 1)
       add_periodic_testp(0 3 4)
     endif()
-
+    
   endif(MFEM_USE_MPI)
   
 endif(MFEM_MGIS_HAVE_TFEL)

@@ -8,8 +8,17 @@
 #ifndef LIB_MFEM_MGIS_MFEM_FORWARD_HXX
 #define LIB_MFEM_MGIS_MFEM_FORWARD_HXX
 
+
 #include <type_traits>
 #include "mfem/config/config.hpp"
+
+#ifndef MFEM_USE_MPI
+#define MPI_COMM_WORLD 0
+#define MPI_Finalize(args...) {}
+#define MPI_Init(args...) {}
+#define MPI_Comm_rank(comm,rank) {*rank=0;}
+#endif
+
 
 namespace mfem {
 

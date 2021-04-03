@@ -1,6 +1,7 @@
 mfem_mgis_header(MFEMMGIS MGISForward.hxx)
 mfem_mgis_header(MFEMMGIS MFEMForward.hxx)
 mfem_mgis_header(MFEMMGIS Config.hxx)
+mfem_mgis_header(MFEMMGIS Profiler.hxx)
 mfem_mgis_header(MFEMMGIS Parameter.hxx)
 mfem_mgis_header(MFEMMGIS Parameter.ixx)
 mfem_mgis_header(MFEMMGIS Parameters.hxx)
