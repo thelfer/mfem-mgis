@@ -47,6 +47,7 @@
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AnalyticalTests.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
@@ -126,7 +127,7 @@ static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
 #endif
   } else {
     std::cerr << "unsupported linear solver\n";
-    std::exit(EXIT_FAILURE);
+    mfem_mgis::exit_on_failure();
   }
 }
 
@@ -176,18 +177,18 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
                  "Exz->4, Eyz->5");
   args.AddOption(
       &p.linearsolver, "-ls", "--linearsolver",
-      "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
+      "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack, 3 -> MUMPS");
   //   args.AddOption(&p.parallel, "-p", "--parallel",
   //                  "if true, perform the computation in parallel");
   args.Parse();
   if ((!args.Good()) || (p.mesh_file == nullptr)) {
     args.PrintUsage(std::cout);
-    std::exit(EXIT_FAILURE);
+    mfem_mgis::exit_on_failure();
   }
   args.PrintOptions(std::cout);
   if ((p.tcase < 0) || (p.tcase > 5)) {
     std::cerr << "Invalid test case\n";
-    std::exit(EXIT_FAILURE);
+    mfem_mgis::exit_on_failure();
   }
   return p;
 }
@@ -203,22 +204,6 @@ void executeMFEMMGISTest(const TestParameters& p) {
                             {"UnknownsSize", dim},
                             {"NumberOfUniformRefinements", p.parallel ? 2 : 0},
                             {"Parallel", p.parallel}});
-
-  //   std::shared_ptr<mfem_mgis::FiniteElementDiscretization> fed;
-  //   auto smesh = std::make_shared<mfem::Mesh>(p.mesh_file, 1, 1);
-  //   if (dim != smesh->Dimension()) {
-  //     std::cerr << "Invalid mesh dimension \n";
-  //     std::exit(EXIT_FAILURE);
-  //   }
-  // #ifdef DO_USE_MPI
-  //   auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
-  //   mesh->UniformRefinement();
-  //   mesh->UniformRefinement();
-  // #else
-  //   auto mesh = smesh;
-  // #endif
-  //   fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-  //       mesh, std::make_shared<mfem::H1_FECollection>(p.order, dim), dim);
 
   {
     // building the non linear problem
@@ -264,7 +249,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
     problem.executePostProcessings(0, 1);
     //
     if (!checkSolution(problem, p.tcase)) {
-      std::exit(EXIT_FAILURE);
+      mfem_mgis::exit_on_failure();
     }
   }
 }
@@ -273,5 +258,6 @@ int main(int argc, char* argv[]) {
   mfem_mgis::initialize(argc, argv);
   const auto p = parseCommandLineOptions(argc, argv);
   executeMFEMMGISTest(p);
+  mfem_mgis::finalize();
   return EXIT_SUCCESS;
 }

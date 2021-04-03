@@ -42,6 +42,8 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[noreturn]] void reportUnsupportedParallelComputations();
 
+  MFEM_MGIS_EXPORT void exit_on_failure();
+  
   //! \brief a simple alias
   using MainFunctionArguments = char**;
 

@@ -62,7 +62,7 @@ namespace mfem_mgis {
         "unsupported parallel computations");
   }  // end of reportUnsupportedParallelComputations
 
-  static void exit_on_failure() {
+  void exit_on_failure() {
     try {
       throw;
     } catch (std::exception& e) {
@@ -94,6 +94,8 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
-  void finalize() { Finalizer::get().finalize(); }  // end of finalize
+  void finalize() {
+    Finalizer::get().finalize();
+  }  // end of finalize
 
 }  // namespace mfem_mgis
