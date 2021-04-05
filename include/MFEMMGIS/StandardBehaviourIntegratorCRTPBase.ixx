@@ -144,8 +144,10 @@ namespace mfem_mgis {
       // offset of the integration point
       const auto o = eoffset + i;
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
+      const auto &rs =
+          static_cast<Child *>(this)->rotateThermodynamicForces(s, r);
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        static_cast<const Child *>(this)->updateInnerForces(Fe, s, dshape, w,
+        static_cast<const Child *>(this)->updateInnerForces(Fe, rs, dshape, w,
                                                             ni);
       }
     }
