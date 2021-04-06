@@ -13,6 +13,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
+#include "MFEMMGIS/BehaviourIntegratorTraits.hxx"
 
 namespace mfem_mgis {
 
@@ -22,9 +23,16 @@ namespace mfem_mgis {
       mfem::ElementTransformation &tr,
       const mfem::Vector &u,
       const IntegrationType it) {
+    //
+    using Traits = BehaviourIntegratorTraits<Child>;
+    constexpr const auto evaluateShapeFunctions =
+        Traits::updateExternalStateVariablesFromUnknownsValues &&
+        Traits::gradientsComputationRequiresShapeFunctions;
+    //
+    auto &child = static_cast<Child &>(*this);
     // element offset
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    const auto &ir = static_cast<Child &>(*this).getIntegrationRule(e, tr);
+    const auto &ir = child.getIntegrationRule(e, tr);
     if ((it == IntegrationType::PREDICTION_TANGENT_OPERATOR) ||
         (it == IntegrationType::PREDICTION_SECANT_OPERATOR) ||
         (it == IntegrationType::PREDICTION_ELASTIC_OPERATOR)) {
@@ -35,14 +43,21 @@ namespace mfem_mgis {
           return false;
         }
         // rotate the tangent operator blocks
-        const auto r = static_cast<Child &>(*this).getRotationMatrix(o);
+        const auto r = child.getRotationMatrix(o);
         auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
-        static_cast<Child &>(*this).rotateTangentOperatorBlocks(Kip, r);
+        child.rotateTangentOperatorBlocks(Kip, r);
       }
     } else {
 #ifdef MFEM_THREAD_SAFE
+      mfem::Vector shape;
       mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
+      if constexpr (evaluateShapeFunctions) {
+        shape.SetSize(e.GetDof());
+      }
 #else
+      if constexpr (evaluateShapeFunctions) {
+        this->shape.SetSize(e.GetDof());
+      }
       this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
       const auto nnodes = e.GetDof();
@@ -51,18 +66,32 @@ namespace mfem_mgis {
       for (size_type i = 0; i != ir.GetNPoints(); ++i) {
         const auto &ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
-        // get the gradients of the shape functions
-        e.CalcPhysDShape(tr, dshape);
         // offset of the integration point
         const auto o = eoffset + i;
+        if constexpr (evaluateShapeFunctions) {
+          // get the gradients of the shape functions
+          e.CalcPhysShape(tr, shape);
+        }
+        if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+          auto *const esvs = child.getUnknowns(o);
+          std::fill(this->s1., real(0));
+          for (size_type ni = 0; ni != nnodes; ++ni) {
+          }
+        }
+        // get the gradients of the shape functions
+        e.CalcPhysDShape(tr, dshape);
         auto g = this->s1.gradients.subspan(o * gsize, gsize);
         std::copy(this->macroscopic_gradients.begin(),
                   this->macroscopic_gradients.end(), g.begin());
         for (size_type ni = 0; ni != nnodes; ++ni) {
-          static_cast<Child &>(*this).updateGradients(g, u, dshape, ni);
+          if constexpr (Traits::gradientsComputationRequiresShapeFunctions) {
+            child.updateGradients(g, u, shape, dshape, ni);
+          } else {
+            child.updateGradients(g, u, dshape, ni);
+          }
         }
-        const auto r = static_cast<Child &>(*this).getRotationMatrix(o);
-        static_cast<Child &>(*this).rotateGradients(g, r);
+        const auto r = child.getRotationMatrix(o);
+        child.rotateGradients(g, r);
         if (!this->performsLocalBehaviourIntegration(o, it)) {
           return false;
         }
@@ -72,7 +101,7 @@ namespace mfem_mgis {
         // forces.
         if (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR) {
           auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
-          static_cast<Child &>(*this).rotateTangentOperatorBlocks(Kip, r);
+          child.rotateTangentOperatorBlocks(Kip, r);
         }
       }
     }
@@ -85,6 +114,8 @@ namespace mfem_mgis {
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
       const mfem::Vector &) {
+    using Traits = BehaviourIntegratorTraits<Child>;
+    auto &child = static_cast<Child &>(*this);
 #ifdef MFEM_THREAD_SAFE
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
@@ -94,26 +125,23 @@ namespace mfem_mgis {
     const auto thsize = this->s1.thermodynamic_forces_stride;
     // element offset
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    Fe.SetSize(e.GetDof() * e.GetDim());
+    Fe.SetSize(e.GetDof() * Traits::unknownsSize());
     Fe = 0.;
-    const auto &ir = static_cast<Child &>(*this).getIntegrationRule(e, tr);
+    const auto &ir = child.getIntegrationRule(e, tr);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
       // get the gradients of the shape functions
       e.CalcPhysDShape(tr, dshape);
       // get the weights associated to point ip
-      const auto w =
-          static_cast<const Child &>(*this).getIntegrationPointWeight(tr, ip);
+      const auto w = child.getIntegrationPointWeight(tr, ip);
       const auto o = eoffset + i;
-      const auto r = static_cast<Child &>(*this).getRotationMatrix(o);
+      const auto r = child.getRotationMatrix(o);
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
-      const auto &rs =
-          static_cast<Child &>(*this).rotateThermodynamicForces(s, r);
+      const auto &rs = child.rotateThermodynamicForces(s, r);
       // assembly of the inner forces
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        static_cast<const Child &>(*this).updateInnerForces(Fe, rs, dshape, w,
-                                                            ni);
+        child.updateInnerForces(Fe, rs, dshape, w, ni);
       }
     }
   }  // end of implementUpdateResidual
@@ -123,6 +151,8 @@ namespace mfem_mgis {
       mfem::Vector &Fe,
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr) {
+    using Traits = BehaviourIntegratorTraits<Child>;
+    auto &child = static_cast<Child &>(*this);
 #ifdef MFEM_THREAD_SAFE
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
@@ -132,26 +162,23 @@ namespace mfem_mgis {
     const auto thsize = this->s1.thermodynamic_forces_stride;
     // element offset
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    Fe.SetSize(e.GetDof() * e.GetDim());
+    Fe.SetSize(e.GetDof() * Traits::unknownsSize());
     Fe = 0.;
-    const auto &ir = static_cast<Child &>(*this).getIntegrationRule(e, tr);
+    const auto &ir = child.getIntegrationRule(e, tr);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
       // get the gradients of the shape functions
       e.CalcPhysDShape(tr, dshape);
       // get the weights associated to point ip
-      const auto w =
-          static_cast<const Child &>(*this).getIntegrationPointWeight(tr, ip);
+      const auto w = child.getIntegrationPointWeight(tr, ip);
       // offset of the integration point
       const auto o = eoffset + i;
-      const auto r = static_cast<Child &>(*this).getRotationMatrix(o);
+      const auto r = child.getRotationMatrix(o);
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
-      const auto &rs =
-          static_cast<Child &>(*this).rotateThermodynamicForces(s, r);
+      const auto &rs = child.rotateThermodynamicForces(s, r);
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        static_cast<const Child &>(*this).updateInnerForces(Fe, rs, dshape, w,
-                                                            ni);
+        child.updateInnerForces(Fe, rs, dshape, w, ni);
       }
     }
   }  // end of implementComputeInnerForces
@@ -161,6 +188,8 @@ namespace mfem_mgis {
       mfem::DenseMatrix &Ke,
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr) {
+    using Traits = BehaviourIntegratorTraits<Child>;
+    auto &child = static_cast<Child &>(*this);
 #ifdef MFEM_THREAD_SAFE
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
@@ -169,24 +198,23 @@ namespace mfem_mgis {
     // element offset
     const auto nnodes = e.GetDof();
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    Ke.SetSize(e.GetDof() * e.GetDim(), e.GetDof() * e.GetDim());
+    Ke.SetSize(e.GetDof() * Traits::unknownsSize(),
+               e.GetDof() * Traits::unknownsSize());
     Ke = 0.;
-    const auto &ir = static_cast<Child &>(*this).getIntegrationRule(e, tr);
+    const auto &ir = child.getIntegrationRule(e, tr);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       // get the gradients of the shape functions
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
       e.CalcPhysDShape(tr, dshape);
       // get the weights associated to point ip
-      const auto w =
-          static_cast<const Child &>(*this).getIntegrationPointWeight(tr, ip);
+      const auto w = child.getIntegrationPointWeight(tr, ip);
       // offset of the integration point
       const auto o = eoffset + i;
       const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
       // assembly of the stiffness matrix
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        static_cast<const Child &>(*this).updateStiffnessMatrix(Ke, Kip, dshape,
-                                                                w, ni);
+        child.updateStiffnessMatrix(Ke, Kip, dshape, w, ni);
       }
     }
   }  // end of implementUpdateJacobian

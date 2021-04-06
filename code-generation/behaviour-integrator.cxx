@@ -73,7 +73,7 @@ bool isAxisymmetricalHypothesis(const std::string& h) {
 void writeHeaderGuardAtBeginnnigOfFile(std::ostream& os,
                                        const std::string& cn,
                                        const std::string& ftype) {
-  os << "#ifndef LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype << "\n"
+  os << "#ifndef LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype << '\n'
      << "#define LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype << "\n\n";
 }  // end of writeHeaderGuardAtBeginnnigOfFile
 
@@ -346,13 +346,29 @@ void generateHeaderFile(std::ostream& os,
   os << "#include <array>\n"
      << "#include <mfem/linalg/densemat.hpp>\n"
      << "#include \"MFEMMGIS/Config.hxx\"\n"
+     << "#include \"MFEMMGIS/BehaviourIntegratorTraits.hxx\"\n"
      << "#include \"MFEMMGIS/StandardBehaviourIntegratorCRTPBase.hxx\"\n"
-     << "\n"
+     << '\n'
      << "namespace mfem_mgis {\n"
-     << "\n"
+     << '\n'
      << "  // forward declaration\n"
      << "  struct FiniteElementDiscretization;\n"
-     << "\n"
+     << '\n'
+     << "// forward declaration\n"
+     << "  struct " << d.name << ";\n"
+     << '\n'
+     << "template<>\n"
+     << "struct BehaviourIntegrationTraits<" << d.name << ">{\n"
+     << "//! \brief size of the unknowns\n"
+     << "static constexpr size_type unknownsSize = " << B.cols() << ";\n"
+     << "//! \brief\n"
+     << "static constexpr bool gradientsComputationRequiresShapeFunctions"
+     << " = false;\n"
+     << "//! \brief\n"
+     << "static constexpr bool updateExternalStateVariablesFromUnknownsValues"
+     << " = false;\n"
+     << "}; // end of struct BehaviourIntegrationTraits<" << d.name << ">\n"
+     << '\n'
      << "  /*!\n"
      << "   */\n"
      << "  struct MFEM_MGIS_EXPORT " << d.name << " final\n"
@@ -362,7 +378,7 @@ void generateHeaderFile(std::ostream& os,
      << " * symmetric tensors\n"
      << " */"
      << "static constexpr const auto icste = real{0.70710678118654752440};\n"
-     << "\n";
+     << '\n';
   if (d.isotropic) {
     os << "//! \\brief a dummy structure\n"
        << " struct RotationMatrix {};\n\n";
@@ -379,7 +395,7 @@ void generateHeaderFile(std::ostream& os,
      << "" << d.name << "(const FiniteElementDiscretization &,\n"
      << "             const size_type,\n"
      << "             std::unique_ptr<const Behaviour>);\n"
-     << "\n"
+     << '\n'
      << "/*!\n"
      << " * \\return the rotation matrix associated with the given "
         "integration\n"
@@ -387,10 +403,10 @@ void generateHeaderFile(std::ostream& os,
      << " * \\param[in] i: integration points\n"
      << " */\n"
      << "inline RotationMatrix getRotationMatrix(const size_type) const;\n"
-     << "\n"
+     << '\n'
      << "inline void rotateGradients(mgis::span<real>, const "
      << "RotationMatrix&);\n"
-     << "\n";
+     << '\n';
   if (d.isotropic) {
     os << "inline mgis::span<const real>\n"
        << "rotateThermodynamicForces(mgis::span<const real>, "
@@ -402,29 +418,29 @@ void generateHeaderFile(std::ostream& os,
   }
   os << "inline void rotateTangentOperatorBlocks(mgis::span<real>,\n"
      << "const RotationMatrix&);\n"
-     << "\n"
+     << '\n'
      << "bool integrate(const mfem::FiniteElement &,\n"
      << "               mfem::ElementTransformation &,\n"
      << "               const mfem::Vector &,\n"
      << "               const IntegrationType) override;\n"
-     << "\n"
+     << '\n'
      << "void updateResidual(mfem::Vector &,\n"
      << "                    const mfem::FiniteElement &,\n"
      << "                    mfem::ElementTransformation &,\n"
      << "                    const mfem::Vector &) override;\n"
-     << "\n"
+     << '\n'
      << "void updateJacobian(mfem::DenseMatrix &,\n"
      << "                    const mfem::FiniteElement &,\n"
      << "                    mfem::ElementTransformation &,\n"
      << "                    const mfem::Vector &) override;\n"
-     << "\n"
+     << '\n'
      << "void computeInnerForces(mfem::Vector &,\n"
      << "                        const mfem::FiniteElement &,\n"
      << "                        mfem::ElementTransformation &) override;\n"
-     << "\n"
+     << '\n'
      << "//! \\brief destructor\n"
      << "~" << d.name << "() override;\n"
-     << "\n"
+     << '\n'
      << "protected:\n"
      << "//! \\brief allow the CRTP base class the protected members\n"
      << "friend struct StandardBehaviourIntegratorCRTPBase<\n"
@@ -499,7 +515,7 @@ void generateHeaderFile(std::ostream& os,
      << "                           const mfem::DenseMatrix &,\n"
      << "                           const real,\n"
      << "                           const size_type) const noexcept;\n"
-     << "\n"
+     << '\n'
      << "/*!\n"
      << " * \\brief return the weight of the integration point, taking the\n"
      << " * modelling hypothesis into account\n"
@@ -509,7 +525,7 @@ void generateHeaderFile(std::ostream& os,
      << "real getIntegrationPointWeight(mfem::ElementTransformation&,\n"
      << "                               const mfem::IntegrationPoint&) \n"
      << "                              const noexcept;\n"
-     << "\n"
+     << '\n'
      << "protected:\n"
      << "";
   if (!d.isotropic) {
@@ -521,10 +537,10 @@ void generateHeaderFile(std::ostream& os,
          << "RotationMatrix3D rotation_matrix;\n";
     }
   }
-  os << "    };  // end of struct " << d.name << "\n"
-     << "\n"
+  os << "    };  // end of struct " << d.name << '\n'
+     << '\n'
      << "}  // end of namespace mfem_mgis\n"
-     << "\n";
+     << '\n';
   writeHeaderGuardAtEndOfFile(os, d.name, "HXX");
 }  // end of generateHeaderFile
 
@@ -546,7 +562,7 @@ void generateSourceFile(std::ostream& os,
     os << "  return mfem::IntRules.Get(e.GetGeomType(), order);\n";
   }
   os << "}\n"
-     << "\n"
+     << '\n'
      << "std::shared_ptr<const PartialQuadratureSpace>\n"
      << "" << d.name << "::buildQuadratureSpace(\n"
      << "    const FiniteElementDiscretization &fed, const size_type m) {\n"
@@ -558,7 +574,7 @@ void generateSourceFile(std::ostream& os,
      << "  return std::make_shared<PartialQuadratureSpace>(fed, m, "
         "selector);\n"
      << "}  // end of buildQuadratureSpace\n"
-     << "\n"
+     << '\n'
      << d.name << "::" << d.name << "(\n"
      << "        const FiniteElementDiscretization &fed,\n"
      << "        const size_type m,\n"
@@ -572,8 +588,8 @@ void generateSourceFile(std::ostream& os,
   }
   os << "mgis::raise(\"invalid behaviour symmetry\");\n"
      << "}\n"
-     << "}  // end of " << d.name << "\n"
-     << "\n"
+     << "}  // end of " << d.name << '\n'
+     << '\n'
      << "real " << d.name << "::getIntegrationPointWeight"
      << "(mfem::ElementTransformation& tr,\n"
      << " const mfem::IntegrationPoint& ip) const noexcept{\n";
@@ -597,13 +613,13 @@ void generateSourceFile(std::ostream& os,
        << d.name << "::getRotationMatrix(const size_type) const{\n"
        << "return RotationMatrix{};\n"
        << "} // end of getRotationMatrix\n"
-       << "\n";
+       << '\n';
   } else {
     os << d.name << "::RotationMatrix\n"
        << d.name << "::getRotationMatrix(const size_type i) const{\n"
        << "return this->get_rotation_fct_ptr(this->r2D, this->r3D, i);\n"
        << "} // end of getRotationMatrix\n"
-       << "\n";
+       << '\n';
   }
   if (d.isotropic) {
     os << "void " << d.name
@@ -615,7 +631,7 @@ void generateSourceFile(std::ostream& os,
        << "this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());\n"
        << "} // end of rotateGradients\n";
   }
-  os << "\n";
+  os << '\n';
   if (d.isotropic) {
     os << "mgis::span<const real>\n"
        << d.name << "::rotateThermodynamicForces(mgis::span<const real> s, "
@@ -646,40 +662,40 @@ void generateSourceFile(std::ostream& os,
           "r.data());\n"
        << "}\n";
   }
-  os << "\n"
-     << "bool " << d.name << "::integrate(const mfem::FiniteElement &e,\n"
+  os << '\n';
+  generateUpdateGradient(os, d);
+  generateUpdateInnerForces(os, d);
+  generateUpdateStiffnessMatrix(os, d);
+  os << "bool " << d.name << "::integrate(const mfem::FiniteElement &e,\n"
      << "                                 mfem::ElementTransformation &tr,\n"
      << "                                 const mfem::Vector &u,\n"
      << "                                 const IntegrationType it) {\n"
      << "  return this->implementIntegrate(e, tr, u, it);\n"
      << "}  // end of integrate\n"
-     << "\n"
+     << '\n'
      << "void " << d.name << "::updateResidual(mfem::Vector &Fe,\n"
      << "                         const mfem::FiniteElement &e,\n"
      << "                         mfem::ElementTransformation &tr,\n"
      << "                         const mfem::Vector &u) {\n"
      << "  this->implementUpdateResidual(Fe, e, tr, u);\n"
      << "}  // end of updateResidual\n"
-     << "\n"
+     << '\n'
      << "  void " << d.name << "::updateJacobian(mfem::DenseMatrix &Ke,\n"
      << "                             const mfem::FiniteElement &e,\n"
      << "                             mfem::ElementTransformation &tr,\n"
      << "                             const mfem::Vector &) {\n"
      << "  this->implementUpdateJacobian(Ke, e, tr);\n"
      << "}  // end of updateJacobian\n"
-     << "\n"
+     << '\n'
      << "void " << d.name << "::computeInnerForces(mfem::Vector &Fe,\n"
      << "                         const mfem::FiniteElement &e,\n"
      << "                         mfem::ElementTransformation &tr) {\n"
      << "  this->implementComputeInnerForces(Fe, e, tr);\n"
      << "}  // end of computeInnerForces\n"
-     << "\n"
+     << '\n'
      << d.name << "::~" << d.name << "() = default;\n"
-     << "\n";
-  generateUpdateGradient(os, d);
-  generateUpdateInnerForces(os, d);
-  generateUpdateStiffnessMatrix(os, d);
-  os << '\n' << "}  // end of namespace mfem_mgis\n";
+     << '\n'
+     << "}  // end of namespace mfem_mgis\n";
 }  // end of generateSourceFile
 
 template <typename T>
