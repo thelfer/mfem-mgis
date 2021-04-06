@@ -12,7 +12,6 @@
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/Profiler.hxx"
-#include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
