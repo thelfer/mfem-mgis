@@ -5,9 +5,13 @@
  * \date   11/12/2020
  */
 
+#include <iostream>
 #include <utility>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/IntegrationType.hxx"
+#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
@@ -162,6 +166,11 @@ namespace mfem_mgis {
     this->mgis_integrator->setMacroscopicGradients(g);
   }  // end of setMacroscopicGradients
 
+  void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
+      const Parameters& params) {
+    mfem_mgis::setSolverParameters(*(this->solver), params);
+  }  // end of setSolverParameters
+
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
     if (this->initialization_phase) {
@@ -183,13 +192,59 @@ namespace mfem_mgis {
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->setup(t, dt);
     }
-  }  // end of NonLinearEvolutionProblemImplementationBase::setup
+  }  // end of setup
+
+  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      std::unique_ptr<LinearSolver> s) {
+    this->linear_solver = std::move(s);
+    this->solver->setLinearSolver(*(this->linear_solver));
+  }  // end of updateLinearSolver
 
   void NonLinearEvolutionProblemImplementationBase::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
-  }  // end of
-     // NonLinearEvolutionProblemImplementationBase::addBoundaryCondition
+  }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblemImplementationBase::solve(const real t,
+                                                          const real dt) {
+    mfem::Vector zero;
+    this->setTimeIncrement(dt);
+    this->setup(t, dt);
+//    this->computePrediction(t, dt);
+    this->solver->Mult(zero, this->u1);
+    return this->solver->GetConverged();
+  }  // end of solve
+
+  void NonLinearEvolutionProblemImplementationBase::computePrediction(
+      const real, const real) {
+//    constexpr auto it = IntegrationType::PREDICTION_ELASTIC_OPERATOR;
+    //     std::cout << "ComputePrediction\n";
+    //     mfem::Vector c;
+    //     mfem::Vector r;
+    //     r.SetSize(this->u1.Size());
+    //     c.SetSize(this->u1.Size());
+//     if (!this->integrate(this->u1, it)) {
+//       return;
+//     }
+//     std::cout << "this->dirichlet_boundary_conditions: "
+//               << this->dirichlet_boundary_conditions.size() << '\n';
+//     for (const auto& bc : this->dirichlet_boundary_conditions) {
+//       std::cerr << "calling bc: " << bc.get() << '\n';
+//       bc->setImposedValuesIncrements(c, t, t + dt);
+//       bc->setImposedValuesIncrements(this->u1, t, t + dt);
+//     }
+//     this->solver->computeResidual(r, this->u1);
+//     if (!this->solver->computeNewtonCorrection(c, r, this->u1)) {
+//       std::cerr << "Marche pas !\n";
+//       return;
+//     }
+//     c.Print(std::cout);
+//     std::cout << '\n';
+//     this->u1 -= c;
+//     for (const auto& bc : this->dirichlet_boundary_conditions) {
+//       bc->updateImposedValues(this->u1, t + dt);
+//     }
+  }  // end of computePrediction
 
   NonLinearEvolutionProblemImplementationBase::
       ~NonLinearEvolutionProblemImplementationBase() = default;

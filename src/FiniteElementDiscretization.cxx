@@ -6,8 +6,10 @@
  */
 
 #include <utility>
+#include <mfem/mesh/mesh.hpp>
 #include <mfem/fem/fespace.hpp>
 #ifdef MFEM_USE_MPI
+#include <mfem/mesh/pmesh.hpp>
 #include <mfem/fem/pfespace.hpp>
 #endif
 #include "MGIS/Raise.hxx"
@@ -97,6 +99,7 @@ namespace mfem_mgis {
   }  // end of FiniteElementDiscretization
 
 #ifdef MFEM_USE_MPI
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>> m,
       std::shared_ptr<const FiniteElementCollection> c,
@@ -105,16 +108,20 @@ namespace mfem_mgis {
     this->parallel_fe_space = std::make_unique<FiniteElementSpace<true>>(
         this->parallel_mesh.get(), this->fec.get(), d);
   }    // end of FiniteElementDiscretization
+
 #else  /* MFEM_USE_MPI */
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>>,
       std::shared_ptr<const FiniteElementCollection>,
       const size_type) {
     reportUnsupportedParallelComputations();
   }  // end of FiniteElementDiscretization
+
 #endif /* MFEM_USE_MPI */
 
 #ifdef MFEM_USE_MPI
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>> m,
       std::shared_ptr<const FiniteElementCollection> c,
@@ -129,13 +136,16 @@ namespace mfem_mgis {
           "is built");
     }
   }    // end of FiniteElementDiscretization
+
 #else  /* MFEM_USE_MPI */
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>>,
       std::shared_ptr<const FiniteElementCollection>,
       std::unique_ptr<FiniteElementSpace<true>>) {
     reportUnsupportedParallelComputations();
   }  // end of FiniteElementDiscretization
+
 #endif /* MFEM_USE_MPI */
 
   FiniteElementDiscretization::FiniteElementDiscretization(

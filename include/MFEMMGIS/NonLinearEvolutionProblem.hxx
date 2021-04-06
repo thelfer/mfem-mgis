@@ -33,6 +33,23 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
+     * \param[in] p: parameters.
+     *
+     * The following parameters are allowed:
+     *
+     * - `Parallel` (boolean): if true, a parallel computation is to be be
+     *    performed. This value if assumed to be false by default.
+     * - `MeshFileName` (string): mesh file.
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used.The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `Hypothesis` (string): modelling hypothesis
+     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
+     *   add the `MultiMaterialNonLinearIntegrator`. True by default.
+     */
+    NonLinearEvolutionProblem(const Parameters &);
+    /*!
+     * \brief constructor
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
@@ -71,7 +88,7 @@ namespace mfem_mgis {
     BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
     void revert() override;
     void update() override;
-    void solve(const real, const real) override;
+    bool solve(const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 

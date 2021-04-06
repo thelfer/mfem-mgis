@@ -1,4 +1,4 @@
-set(HHO_HAVE_TFEL OFF)
+set(MFEM_MGIS_HAVE_TFEL OFF)
 
 # find the tfel library
 if(TFEL_INSTALL_PATH)
@@ -122,7 +122,7 @@ IF(TFEL_CONFIG AND MFRONT AND MFRONT_QUERY)
   endmacro(add_mfront_dependency)
 
   include(cmake/modules/mfront-behaviours.cmake)
-  set(HHO_HAVE_TFEL ON)
+  set(MFEM_MGIS_HAVE_TFEL ON)
   
 ELSE(TFEL_CONFIG AND MFRONT AND MFRONT_QUERY)
   MESSAGE(STATUS "tfel not found")

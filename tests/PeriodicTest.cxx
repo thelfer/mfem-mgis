@@ -244,7 +244,9 @@ void executeMFEMMGISTest(const TestParameters& p) {
         "ParaviewExportResults",
         {{"OutputFileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
     // solving the problem
-    problem.solve(0, 1);
+    if (!problem.solve(0, 1)) {
+      std::exit(EXIT_FAILURE);
+    }
     problem.executePostProcessings(0, 1);
     //
     if (!checkSolution(problem, p.tcase)) {

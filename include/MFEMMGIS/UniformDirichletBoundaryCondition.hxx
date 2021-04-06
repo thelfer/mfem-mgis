@@ -48,6 +48,9 @@ namespace mfem_mgis {
         std::function<real(const real)>);
     //
     void updateImposedValues(mfem::Vector&, const real) const override;
+    void setImposedValuesIncrements(mfem::Vector&,
+                                    const real,
+                                    const real) const override;
     //! \brief destructor
     ~UniformDirichletBoundaryCondition() override;
 

@@ -52,7 +52,7 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] m: mesh
-     * \param[in] c: collection
+     * \param[in] c: finite element collection
      * \param[in] d: size of the unknowns
      *
      * \note this methods creates the finite element space.

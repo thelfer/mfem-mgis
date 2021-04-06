@@ -62,7 +62,7 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void solve(const real, const real) = 0;
+    virtual bool solve(const real, const real) = 0;
     /*!
      * \brief add a new behaviour integrator
      * \param[in] n: name of the behaviour integrator

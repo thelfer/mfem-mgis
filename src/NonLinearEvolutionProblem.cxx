@@ -14,6 +14,29 @@
 
 namespace mfem_mgis {
 
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(const Parameters& p) {
+    using SequentialImplementation =
+        NonLinearEvolutionProblemImplementation<false>;
+    const auto h =
+        mgis::behaviour::fromString(get<std::string>(p, "Hypothesis"));
+    const auto fed = std::make_shared<FiniteElementDiscretization>(
+        extract(p, {"Parallel", "MeshFileName", "FiniteElementFamily",
+                    "FiniteElementOrder", "UnknownsSize"}));
+    if (fed->describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      using ParallelImplementation =
+          NonLinearEvolutionProblemImplementation<true>;
+      this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
+#else
+      mgis::raise(
+          "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
+          "unsupported parallel computations");
+#endif
+    } else {
+      this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
+    }
+  }  // end of NonLinearEvolutionProblem
+
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
@@ -48,16 +71,16 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::setSolverParameters(
       const Parameters& params) {
     return this->pimpl->setSolverParameters(params);
-  }  // end of getSolver
+  }  // end of setSolverParameters
 
   void NonLinearEvolutionProblem::setLinearSolver(std::string_view n,
                                                   const Parameters& params) {
     this->pimpl->setLinearSolver(n, params);
   }  // end of setLinearSolver
 
-  void NonLinearEvolutionProblem::solve(const real t, const real dt) {
+  bool NonLinearEvolutionProblem::solve(const real t, const real dt) {
     this->setup(t, dt);
-    this->pimpl->solve(t, dt);
+    return this->pimpl->solve(t, dt);
   }  // end of solve
 
   std::vector<size_type> NonLinearEvolutionProblem::getMaterialIdentifiers()
