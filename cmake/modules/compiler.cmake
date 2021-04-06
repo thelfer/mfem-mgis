@@ -117,18 +117,22 @@ MACRO(tfel_enable_cxx_compiler_flag out)
 ENDMACRO(tfel_enable_cxx_compiler_flag)
 
 #compiler specific options
-set(CMAKE_C_FLAGS           "")
-set(CMAKE_C_FLAGS_RELEASE "")
-set(CMAKE_C_FLAGS_DEBUG   "")
-set(CMAKE_CXX_FLAGS         "")
-set(CMAKE_CXX_FLAGS_RELEASE "")
-set(CMAKE_CXX_FLAGS_DEBUG   "")
+
 set(VISIBILITY_FLAGS   "")
 set(OPTIMISATION_FLAGS "")
 set(COMPILER_WARNINGS  "")
 
 option(enable-fast-math "enable -ffast-math compiler flag" OFF)
 option(PATHSCALE_COMPILER "set true if using the PathScale compiler" OFF)
+
+if(NOT USE_EXTERNAL_COMPILER_FLAGS)
+  set(CMAKE_C_FLAGS           "")
+  set(CMAKE_C_FLAGS_RELEASE "")
+  set(CMAKE_C_FLAGS_DEBUG   "")
+  set(CMAKE_CXX_FLAGS         "")
+  set(CMAKE_CXX_FLAGS_RELEASE "")
+  set(CMAKE_CXX_FLAGS_DEBUG   "")
+endif(NOT USE_EXTERNAL_COMPILER_FLAGS)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   include(cmake/modules/gcc.cmake)
