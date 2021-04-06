@@ -12,7 +12,6 @@
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/Profiler.hxx"
-#include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
@@ -52,7 +51,7 @@ int main(int argc, char** argv) {
   if ((!args.Good()) || (mesh_file == nullptr) || (reference_file == nullptr) ||
       (isv_name == nullptr) || (behaviour == nullptr)) {
     args.PrintUsage(std::cout);
-    std::exit(EXIT_FAILURE);
+    mfem_mgis::abort(EXIT_FAILURE);
   }
   args.PrintOptions(std::cout);
 
@@ -64,7 +63,7 @@ int main(int argc, char** argv) {
     auto smesh = std::make_shared<mfem::Mesh>(mesh_file, 1, 1);
     if (dim != smesh->Dimension()) {
       std::cerr << "Invalid mesh dimension \n";
-      std::exit(EXIT_FAILURE);
+      mfem_mgis::abort(EXIT_FAILURE);
     }
 #ifdef DO_USE_MPI
     auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
@@ -151,7 +150,7 @@ int main(int argc, char** argv) {
 #endif
     } else {
       std::cerr << "unsupported linear solver\n";
-      std::exit(EXIT_FAILURE);
+      mfem_mgis::abort(EXIT_FAILURE);
     }
 
     problem.setSolverParameters({{"VerbosityLevel", 0},
@@ -175,13 +174,16 @@ int main(int argc, char** argv) {
     const auto dt = mfem_mgis::real{1} / nsteps;
     auto t = mfem_mgis::real{0};
 
-    // loop over time step
+    // If one material exists we store some internal state.
+    // On some MPI processes, this is possible that no material
+    // is defined.
     if (m1.n != 0) {
       g0.push_back(m1.s0.gradients[0]);
       g1.push_back(m1.s0.gradients[1]);
       tf0.push_back(m1.s0.thermodynamic_forces[0]);
       v.push_back(m1.s0.internal_state_variables[vo]);
     }
+    // loop over time step
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
       // resolution
       const auto step_timer = mfem_mgis::getTimer("step" + std::to_string(i));
@@ -199,7 +201,8 @@ int main(int argc, char** argv) {
         problem.update();
       }
       t += dt;
-      //
+
+      // If one material exists we store some internal state.
       if (m1.n != 0) {
         g0.push_back(m1.s1.gradients[0]);
         g1.push_back(m1.s1.gradients[1]);
