@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
   if ((!args.Good()) || (mesh_file == nullptr) || (reference_file == nullptr) ||
       (isv_name == nullptr) || (behaviour == nullptr)) {
     args.PrintUsage(std::cout);
-    std::exit(EXIT_FAILURE);
+    mfem_mgis::abort(EXIT_FAILURE);
   }
   args.PrintOptions(std::cout);
 
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     auto smesh = std::make_shared<mfem::Mesh>(mesh_file, 1, 1);
     if (dim != smesh->Dimension()) {
       std::cerr << "Invalid mesh dimension \n";
-      std::exit(EXIT_FAILURE);
+      mfem_mgis::abort(EXIT_FAILURE);
     }
 #ifdef DO_USE_MPI
     auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
 #endif
     } else {
       std::cerr << "unsupported linear solver\n";
-      std::exit(EXIT_FAILURE);
+      mfem_mgis::abort(EXIT_FAILURE);
     }
 
     problem.setSolverParameters({{"VerbosityLevel", 0},
@@ -175,12 +175,16 @@ int main(int argc, char** argv) {
     const auto dt = mfem_mgis::real{1} / nsteps;
     auto t = mfem_mgis::real{0};
 
+    // If one material exists we store some internal state.
+    // On some MPI processes, this is possible that no material
+    // is defined.
+    if (m1.n != 0) {
+      g0.push_back(m1.s0.gradients[0]);
+      g1.push_back(m1.s0.gradients[1]);
+      tf0.push_back(m1.s0.thermodynamic_forces[0]);
+      v.push_back(m1.s0.internal_state_variables[vo]);
+    }
     // loop over time step
-    g0.push_back(m1.s0.gradients[0]);
-    g1.push_back(m1.s0.gradients[1]);
-    tf0.push_back(m1.s0.thermodynamic_forces[0]);
-    v.push_back(m1.s0.internal_state_variables[vo]);
-
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
       // resolution
       const auto step_timer = mfem_mgis::getTimer("step" + std::to_string(i));
@@ -198,11 +202,13 @@ int main(int argc, char** argv) {
         problem.update();
       }
       t += dt;
-      //
-      g0.push_back(m1.s1.gradients[0]);
-      g1.push_back(m1.s1.gradients[1]);
-      tf0.push_back(m1.s1.thermodynamic_forces[0]);
-      v.push_back(m1.s1.internal_state_variables[vo]);
+      // If one material exists we store some internal state.
+      if (m1.n != 0) {
+        g0.push_back(m1.s1.gradients[0]);
+        g1.push_back(m1.s1.gradients[1]);
+        tf0.push_back(m1.s1.thermodynamic_forces[0]);
+        v.push_back(m1.s1.internal_state_variables[vo]);
+      }
     }
 
     // save the traction curve
@@ -213,35 +219,38 @@ int main(int argc, char** argv) {
     }
 
     // comparison to reference results
-    std::ifstream in(reference_file);
-    if (in) {
-      constexpr const auto eps = mfem_mgis::real(1.e-10);
-      constexpr const auto E = mfem_mgis::real(70.e9);
-      auto check = [&success](const auto cv,  // computed value
-                              const auto rv,  // reference value,
-                              const auto ev, const auto msg) {
-        const auto e = std::abs(cv - rv);
-        if (e > ev) {
-          std::cerr << "test failed (" << msg << ", " << cv << " vs " << rv
-                    << ", error " << e << ")\n";
-          success = false;
+    if (m1.n != 0) {
+      std::ifstream in(reference_file);
+      if (in) {
+        constexpr const auto eps = mfem_mgis::real(1.e-10);
+        constexpr const auto E = mfem_mgis::real(70.e9);
+        auto check = [&success](const auto cv,  // computed value
+                                const auto rv,  // reference value,
+                                const auto ev, const auto msg) {
+          const auto e = std::abs(cv - rv);
+          if (e > ev) {
+            std::cerr << "test failed (" << msg << ", " << cv << " vs " << rv
+                      << ", error " << e << ")\n";
+            success = false;
+          }
+        };
+        for (std::vector<mfem_mgis::real>::size_type i = 0; i != g0.size();
+             ++i) {
+          auto g0_ref = mfem_mgis::real{};
+          auto g1_ref = mfem_mgis::real{};
+          auto tf0_ref = mfem_mgis::real{};
+          auto v_ref = mfem_mgis::real{};
+          in >> g0_ref >> g1_ref >> tf0_ref >> v_ref;
+          check(tf0[i], tf0_ref, E * eps, "invalid stress value");
+          check(g1[i], g1_ref, eps, "invalid transverse strain");
+          check(v[i], v_ref, eps, "invalid internal state variable");
         }
-      };
-      for (std::vector<mfem_mgis::real>::size_type i = 0; i != g0.size(); ++i) {
-        auto g0_ref = mfem_mgis::real{};
-        auto g1_ref = mfem_mgis::real{};
-        auto tf0_ref = mfem_mgis::real{};
-        auto v_ref = mfem_mgis::real{};
-        in >> g0_ref >> g1_ref >> tf0_ref >> v_ref;
-        check(tf0[i], tf0_ref, E * eps, "invalid stress value");
-        check(g1[i], g1_ref, eps, "invalid transverse strain");
-        check(v[i], v_ref, eps, "invalid internal state variable");
-      }
 #ifdef MFEM_USE_MPI
-      MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
-                    MPI_COMM_WORLD);
+        MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
+                      MPI_COMM_WORLD);
 #endif /* MFEM_USE_MPI */
-    }
+      }
+    } // end of if (m1.n != 0)
   }
   //  mfem_mgis::Profiler::getProfiler().print(std::cout);
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

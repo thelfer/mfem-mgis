@@ -59,6 +59,10 @@ namespace mfem_mgis {
    * This call is optional if the code exits normally.
    */
   MFEM_MGIS_EXPORT void finalize();
+  /*!
+   * \brief function that must be called if one MPI process detect an fatal error.
+   */
+  MFEM_MGIS_EXPORT void abort(int error = 1);
 
 }  // namespace mfem_mgis
 
