@@ -53,6 +53,11 @@ namespace mfem_mgis {
      * \note this call is only meaningfull in 3D for orthotropic behaviours
      */
     void setRotationMatrix(const RotationMatrix3D &);
+    //! \return the quadrature space
+    const PartialQuadratureSpace &getPartialQuadratureSpace() const;
+    //! \return the quadrature space
+    std::shared_ptr<const PartialQuadratureSpace>
+    getPartialQuadratureSpacePointer() const;
     //! \brief destructor
     ~Material();
 
