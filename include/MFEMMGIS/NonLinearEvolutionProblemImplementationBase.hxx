@@ -48,6 +48,8 @@ namespace mfem_mgis {
      * this use of the `MultiMaterialNonLinearIntegrator` class
      */
     static const char* const UseMultiMaterialNonLinearIntegrator;
+    //! \return the list of valid parameters
+    static std::vector<std::string> getParametersList();
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization

@@ -29,6 +29,10 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblem
       : AbstractNonLinearEvolutionProblem {
+    //! \brief name of the `Hypothesis` parameter
+    static const char *const HypothesisParameter;
+    //! \return the list of valid parameters
+    static std::vector<std::string> getParametersList();
     //! \brief a simple alias
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!

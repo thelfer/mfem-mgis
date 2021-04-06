@@ -23,6 +23,11 @@ namespace mfem_mgis {
       UseMultiMaterialNonLinearIntegrator =
           "UseMultiMaterialNonLinearIntegrator";
 
+  std::vector<std::string> NonLinearEvolutionProblemImplementationBase::getParametersList(){
+    return {NonLinearEvolutionProblemImplementationBase::
+                UseMultiMaterialNonLinearIntegrator};
+  } // end of getParametersList
+
   MultiMaterialNonLinearIntegrator* buildMultiMaterialNonLinearIntegrator(
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,

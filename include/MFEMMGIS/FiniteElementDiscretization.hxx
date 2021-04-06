@@ -22,6 +22,18 @@ namespace mfem_mgis {
    * - create and handle a finite element space
    */
   struct MFEM_MGIS_EXPORT FiniteElementDiscretization {
+    //! \brief string associated to the `Parallel` parameter
+    static const char* const Parallel;
+    //! \brief string associated to the `MeshFileName` parameter
+    static const char* const MeshFileName;
+    //! \brief string associated to the `FiniteElementFamily` parameter
+    static const char* const FiniteElementFamily;
+    //! \brief string associated to the `FiniteElementOrder` parameter
+    static const char* const FiniteElementOrder;
+    //! \brief string associated to the `UnknownsSize` parameter
+    static const char* const UnknownsSize;
+    //! \brief string associated to the `NumberOfUniformRefinements` parameter
+    static const char* const NumberOfUniformRefinements;
     //!
     [[noreturn]] static void reportInvalidParallelMesh();
     //!
@@ -30,6 +42,8 @@ namespace mfem_mgis {
     [[noreturn]] static void reportInvalidParallelFiniteElementSpace();
     //!
     [[noreturn]] static void reportInvalidSequentialFiniteElementSpace();
+    //!
+    static std::vector<std::string> getParametersList();
     /*!
      * \brief constructor
      * \param[in] params: parameters

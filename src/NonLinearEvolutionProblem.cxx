@@ -14,14 +14,25 @@
 
 namespace mfem_mgis {
 
+  const char* const NonLinearEvolutionProblem::HypothesisParameter =
+      "Hypothesis";
+
+  std::vector<std::string> NonLinearEvolutionProblem::getParametersList() {
+    auto params = FiniteElementDiscretization::getParametersList();
+    auto params2 =
+        NonLinearEvolutionProblemImplementationBase::getParametersList();
+    params.insert(params.end(), params2.begin(), params2.end());
+    params.push_back(NonLinearEvolutionProblem::HypothesisParameter);
+    return params;
+  }  // end of getParametersList
+
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(const Parameters& p) {
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
-    const auto h =
-        mgis::behaviour::fromString(get<std::string>(p, "Hypothesis"));
+    const auto h = mgis::behaviour::fromString(
+        get<std::string>(p, NonLinearEvolutionProblem::HypothesisParameter));
     const auto fed = std::make_shared<FiniteElementDiscretization>(
-        extract(p, {"Parallel", "MeshFileName", "FiniteElementFamily",
-                    "FiniteElementOrder", "UnknownsSize"}));
+        extract(p, FiniteElementDiscretization::getParametersList()));
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
@@ -32,7 +43,8 @@ namespace mfem_mgis {
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
-    } else {
+    }
+    else {
       this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
     }
   }  // end of NonLinearEvolutionProblem
@@ -243,4 +255,4 @@ namespace mfem_mgis {
     }
   }  // end of computeResultantForceOnBoundary
 
-}  // end of namespace mfem_mgis
+  }  // end of namespace mfem_mgis
