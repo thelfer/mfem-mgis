@@ -22,11 +22,11 @@ namespace mfem_mgis {
     static Finalizer& get();
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
-    void abort(int error);
+    [[noreturn]] void abort(int error);
     
    private:
     //! boolean stating if the finalize method has been called
-    bool  ExistingOnTheWay = false;
+    bool _AskForExit = false;
     /*!
      * \brief constructor
      * \param[in] argc: number of command line arguments
@@ -45,19 +45,19 @@ namespace mfem_mgis {
   Finalizer::Finalizer() = default;
 
   void Finalizer::finalize() {
-    if (!this-> ExistingOnTheWay) {
+    if (!this->_AskForExit) {
 #ifdef MFEM_USE_MPI
       MPI_Finalize();
-      this-> ExistingOnTheWay = true;
+      this->_AskForExit = true;
 #endif /* MFEM_USE_MPI */
     }
   }  // end of finalize
 
-  void Finalizer::abort(int error) {
-    if (!this-> ExistingOnTheWay) {
+  [[noreturn]] void Finalizer::abort(int error) {
+    if (!this->_AskForExit) {
 #ifdef MFEM_USE_MPI
       MPI_Abort(MPI_COMM_WORLD, error);
-      this-> ExistingOnTheWay = true;
+      this->_AskForExit = true;
 #endif /* MFEM_USE_MPI */
     }
     std::exit(error);
