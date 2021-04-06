@@ -22,10 +22,11 @@ namespace mfem_mgis {
     static Finalizer& get();
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
-
+    [[noreturn]] void abort(int error);
+    
    private:
     //! boolean stating if the finalize method has been called
-    bool hasFinalizeBeenCalled = false;
+    bool _AskForExit = false;
     /*!
      * \brief constructor
      * \param[in] argc: number of command line arguments
@@ -44,15 +45,27 @@ namespace mfem_mgis {
   Finalizer::Finalizer() = default;
 
   void Finalizer::finalize() {
-    if (!this->hasFinalizeBeenCalled) {
+    if (!this->_AskForExit) {
 #ifdef MFEM_USE_MPI
       MPI_Finalize();
-      this->hasFinalizeBeenCalled = true;
+      this->_AskForExit = true;
 #endif /* MFEM_USE_MPI */
     }
   }  // end of finalize
 
-  Finalizer::~Finalizer() { this->finalize(); }
+  [[noreturn]] void Finalizer::abort(int error) {
+    if (!this->_AskForExit) {
+#ifdef MFEM_USE_MPI
+      MPI_Abort(MPI_COMM_WORLD, error);
+      this->_AskForExit = true;
+#endif /* MFEM_USE_MPI */
+    }
+    std::exit(error);
+  }  // end of abort
+
+  Finalizer::~Finalizer() {
+    this->finalize();
+  }
 
   [[noreturn]] void reportUnsupportedParallelComputations() {
     mgis::raise(
@@ -70,7 +83,7 @@ namespace mfem_mgis {
     } catch (...) {
       std::cerr << "unknown exception thrown";
     }
-    finalize();
+    abort();
     std::abort();
   }  // end of exit_on_failure
 
@@ -94,4 +107,9 @@ namespace mfem_mgis {
 
   void finalize() { Finalizer::get().finalize(); }  // end of finalize
 
+  void abort(int error) {
+    Finalizer::get().abort(error);
+    std::exit(error);
+  }  // end of abort
+  
 }  // namespace mfem_mgis
