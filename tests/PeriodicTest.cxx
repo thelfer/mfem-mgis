@@ -126,7 +126,7 @@ static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
 #endif
   } else {
     std::cerr << "unsupported linear solver\n";
-    std::exit(EXIT_FAILURE);
+    mfem_mgis::abort(EXIT_FAILURE);
   }
 }
 
@@ -182,12 +182,12 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   args.Parse();
   if ((!args.Good()) || (p.mesh_file == nullptr)) {
     args.PrintUsage(std::cout);
-    std::exit(EXIT_FAILURE);
+    mfem_mgis::abort(EXIT_FAILURE);
   }
   args.PrintOptions(std::cout);
   if ((p.tcase < 0) || (p.tcase > 5)) {
     std::cerr << "Invalid test case\n";
-    std::exit(EXIT_FAILURE);
+    mfem_mgis::abort(EXIT_FAILURE);
   }
   return p;
 }
@@ -250,7 +250,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
     problem.executePostProcessings(0, 1);
     //
     if (!checkSolution(problem, p.tcase)) {
-      std::exit(EXIT_FAILURE);
+      mfem_mgis::abort(EXIT_FAILURE);
     }
   }
 }
