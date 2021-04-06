@@ -39,6 +39,15 @@ namespace mfem_mgis {
                                  : &raiseUnsetRotationMatrix),
         behaviour_ptr(std::move(b_ptr)) {}  // end of Material::Material
 
+  const PartialQuadratureSpace &Material::getPartialQuadratureSpace() const {
+    return *(this->quadrature_space);
+  }  // end of getPartialQuadratureSpace
+
+  std::shared_ptr<const PartialQuadratureSpace>
+  Material::getPartialQuadratureSpacePointer() const{
+    return this->quadrature_space;
+  }  // end of getPartialQuadratureSpacePointer
+
   void Material::setMacroscopicGradients(mgis::span<const real> g) {
     if (g.size() != this->s1.gradients_stride) {
       mgis::raise(

@@ -118,4 +118,15 @@ namespace mfem_mgis {
     }
   } // end of checkParameters
 
+  Parameters extract(const Parameters& parameters,
+                     const std::vector<std::string>& names) {
+    auto r = Parameters{};
+    for (const auto& n :names) {
+      if (contains(parameters, n)) {
+        r.insert(n, parameters.get(n));
+      }
+    }
+    return r;
+  }  // end of extract
+
 }  // end of namespace mfem_mgis

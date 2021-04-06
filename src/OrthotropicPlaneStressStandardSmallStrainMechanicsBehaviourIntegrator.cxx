@@ -38,6 +38,13 @@ namespace mfem_mgis {
   }  // end of
      // OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator
 
+  real OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+      getIntegrationPointWeight(mfem::ElementTransformation &tr,
+                                const mfem::IntegrationPoint &ip) const
+      noexcept {
+    constexpr const real two_pi = 2 * 3.14159265358979323846;
+    return two_pi * ip.x * ip.weight * tr.Weight();
+  }
   const mfem::IntegrationRule &
   OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
       getIntegrationRule(const mfem::FiniteElement &e,
@@ -73,6 +80,14 @@ namespace mfem_mgis {
     this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
                                                r.data());
   }
+
+  bool OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+      integrate(const mfem::FiniteElement &e,
+                mfem::ElementTransformation &tr,
+                const mfem::Vector &u,
+                const IntegrationType it) {
+    return this->implementIntegrate(e, tr, u, it);
+  }  // end of integrate
 
   void OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
       updateResidual(mfem::Vector &Fe,
@@ -134,8 +149,8 @@ namespace mfem_mgis {
     const auto Bi_3_1 = dN(ni, 0) * icste;
     const auto ni_0 = ni;
     const auto ni_1 = ni + nnodes;
-    Fe[ni_0] += w * (s[3] * Bi_3_0 + Bi_0_0 * s[0]);
-    Fe[ni_1] += w * (s[3] * Bi_3_1 + Bi_1_1 * s[1]);
+    Fe[ni_0] += w * (Bi_0_0 * s[0] + s[3] * Bi_3_0);
+    Fe[ni_1] += w * (Bi_1_1 * s[1] + s[3] * Bi_3_1);
   }  // end of updateInnerForces
 
   inline void
@@ -160,17 +175,17 @@ namespace mfem_mgis {
       const auto nj_0 = nj;
       const auto nj_1 = nj + nnodes;
       Ke(ni_0, nj_0) +=
-          w * (Bi_0_0 * Kip[0] * Bj_0_0 + Bi_3_0 * Bj_3_0 * Kip[15] +
-               Bi_3_0 * Kip[12] * Bj_0_0 + Bi_0_0 * Bj_3_0 * Kip[3]);
+          w * (Bi_0_0 * Bj_3_0 * Kip[3] + Bi_3_0 * Bj_3_0 * Kip[15] +
+               Bi_0_0 * Kip[0] * Bj_0_0 + Bi_3_0 * Kip[12] * Bj_0_0);
       Ke(ni_0, nj_1) +=
-          w * (Bi_3_0 * Kip[15] * Bj_3_1 + Kip[1] * Bj_1_1 * Bi_0_0 +
+          w * (Kip[1] * Bj_1_1 * Bi_0_0 + Bi_3_0 * Kip[15] * Bj_3_1 +
                Bi_0_0 * Kip[3] * Bj_3_1 + Bi_3_0 * Bj_1_1 * Kip[13]);
       Ke(ni_1, nj_0) +=
-          w * (Kip[7] * Bj_3_0 * Bi_1_1 + Bi_3_1 * Kip[12] * Bj_0_0 +
-               Bi_3_1 * Bj_3_0 * Kip[15] + Kip[4] * Bi_1_1 * Bj_0_0);
+          w * (Bi_3_1 * Kip[12] * Bj_0_0 + Bi_3_1 * Bj_3_0 * Kip[15] +
+               Kip[4] * Bi_1_1 * Bj_0_0 + Kip[7] * Bj_3_0 * Bi_1_1);
       Ke(ni_1, nj_1) +=
-          w * (Kip[7] * Bi_1_1 * Bj_3_1 + Bj_1_1 * Bi_3_1 * Kip[13] +
-               Bj_1_1 * Kip[5] * Bi_1_1 + Bi_3_1 * Kip[15] * Bj_3_1);
+          w * (Kip[7] * Bi_1_1 * Bj_3_1 + Bj_1_1 * Kip[5] * Bi_1_1 +
+               Bj_1_1 * Bi_3_1 * Kip[13] + Bi_3_1 * Kip[15] * Bj_3_1);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 

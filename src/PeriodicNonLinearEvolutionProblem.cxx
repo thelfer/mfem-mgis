@@ -5,7 +5,6 @@
  * \date   10/03/2021
  */
 
-#include <iostream>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
@@ -25,7 +24,6 @@ namespace mfem_mgis {
     bool reorder_space = true;
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
-    std::cerr << "Number of nodes: " << size << std::endl;
     // Traversal of all dofs to detect which one is (0,0,0)
     for (int i = 0; i < size; ++i) {
       double coord[dim];  // coordinates of a node

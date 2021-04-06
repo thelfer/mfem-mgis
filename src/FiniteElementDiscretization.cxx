@@ -6,8 +6,10 @@
  */
 
 #include <utility>
+#include <mfem/mesh/mesh.hpp>
 #include <mfem/fem/fespace.hpp>
 #ifdef MFEM_USE_MPI
+#include <mfem/mesh/pmesh.hpp>
 #include <mfem/fem/pfespace.hpp>
 #endif
 #include "MGIS/Raise.hxx"
@@ -15,6 +17,16 @@
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 
 namespace mfem_mgis {
+
+  const char* const FiniteElementDiscretization::Parallel = "Parallel";
+  const char* const FiniteElementDiscretization::MeshFileName = "MeshFileName";
+  const char* const FiniteElementDiscretization::FiniteElementFamily =
+      "FiniteElementFamily";
+  const char* const FiniteElementDiscretization::FiniteElementOrder =
+      "FiniteElementOrder";
+  const char* const FiniteElementDiscretization::UnknownsSize = "UnknownsSize";
+  const char* const FiniteElementDiscretization::NumberOfUniformRefinements =
+      "NumberOfUniformRefinements";
 
   void FiniteElementDiscretization::reportInvalidParallelMesh() {
     mgis::raise(
@@ -42,19 +54,30 @@ namespace mfem_mgis {
         "no sequential finite element space defined");
   }  // end of reportInvalidSequentialFiniteElementSpace
 
+  std::vector<std::string> FiniteElementDiscretization::getParametersList() {
+    return {FiniteElementDiscretization::Parallel,
+            FiniteElementDiscretization::MeshFileName,
+            FiniteElementDiscretization::FiniteElementFamily,
+            FiniteElementDiscretization::FiniteElementOrder,
+            FiniteElementDiscretization::UnknownsSize,
+            FiniteElementDiscretization::NumberOfUniformRefinements};
+  }  // end of getParametersList
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       const Parameters& params) {
-    checkParameters(params, {"Parallel", "MeshFileName", "FiniteElementFamily",
-                             "FiniteElementOrder", "UnknownsSize",
-                             "NumberOfUniformRefinements"});
-    const auto parallel = get_if<bool>(params, "Parallel", false);
-    const auto& mesh_file = get<std::string>(params, "MeshFileName");
-    const auto& fe_family =
-        get_if<std::string>(params, "FiniteElementFamily", "H1");
-    const auto fe_order = get_if<int>(params, "FiniteElementOrder", 1);
-    const auto u_size = get<int>(params, "UnknownsSize");
-    const auto nrefinement =
-        get_if<int>(params, "NumberOfUniformRefinements", 0);
+    checkParameters(params, FiniteElementDiscretization::getParametersList());
+    const auto parallel =
+        get_if<bool>(params, FiniteElementDiscretization::Parallel, false);
+    const auto& mesh_file =
+        get<std::string>(params, FiniteElementDiscretization::MeshFileName);
+    const auto& fe_family = get_if<std::string>(
+        params, FiniteElementDiscretization::FiniteElementFamily, "H1");
+    const auto fe_order =
+        get_if<int>(params, FiniteElementDiscretization::FiniteElementOrder, 1);
+    const auto u_size =
+        get<int>(params, FiniteElementDiscretization::UnknownsSize);
+    const auto nrefinement = get_if<int>(
+        params, FiniteElementDiscretization::NumberOfUniformRefinements, 0);
     if (parallel) {
 #ifdef MFEM_USE_MPI
       auto smesh = std::make_shared<Mesh<false>>(mesh_file.c_str(), 1, 1);
@@ -97,6 +120,7 @@ namespace mfem_mgis {
   }  // end of FiniteElementDiscretization
 
 #ifdef MFEM_USE_MPI
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>> m,
       std::shared_ptr<const FiniteElementCollection> c,
@@ -105,16 +129,20 @@ namespace mfem_mgis {
     this->parallel_fe_space = std::make_unique<FiniteElementSpace<true>>(
         this->parallel_mesh.get(), this->fec.get(), d);
   }    // end of FiniteElementDiscretization
+
 #else  /* MFEM_USE_MPI */
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>>,
       std::shared_ptr<const FiniteElementCollection>,
       const size_type) {
     reportUnsupportedParallelComputations();
   }  // end of FiniteElementDiscretization
+
 #endif /* MFEM_USE_MPI */
 
 #ifdef MFEM_USE_MPI
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>> m,
       std::shared_ptr<const FiniteElementCollection> c,
@@ -129,13 +157,16 @@ namespace mfem_mgis {
           "is built");
     }
   }    // end of FiniteElementDiscretization
+
 #else  /* MFEM_USE_MPI */
+
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>>,
       std::shared_ptr<const FiniteElementCollection>,
       std::unique_ptr<FiniteElementSpace<true>>) {
     reportUnsupportedParallelComputations();
   }  // end of FiniteElementDiscretization
+
 #endif /* MFEM_USE_MPI */
 
   FiniteElementDiscretization::FiniteElementDiscretization(

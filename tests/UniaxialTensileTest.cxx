@@ -184,6 +184,14 @@ int main(int argc, char** argv) {
       v.push_back(m1.s0.internal_state_variables[vo]);
     }
     // loop over time step
+
+    if (m1.n != 0) {
+      g0.push_back(m1.s0.gradients[0]);
+      g1.push_back(m1.s0.gradients[1]);
+      tf0.push_back(m1.s0.thermodynamic_forces[0]);
+      v.push_back(m1.s0.internal_state_variables[vo]);
+    }
+
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
       // resolution
       const auto step_timer = mfem_mgis::getTimer("step" + std::to_string(i));
@@ -201,6 +209,7 @@ int main(int argc, char** argv) {
         problem.update();
       }
       t += dt;
+
       // If one material exists we store some internal state.
       if (m1.n != 0) {
         g0.push_back(m1.s1.gradients[0]);

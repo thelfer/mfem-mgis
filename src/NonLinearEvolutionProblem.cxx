@@ -14,6 +14,41 @@
 
 namespace mfem_mgis {
 
+  const char* const NonLinearEvolutionProblem::HypothesisParameter =
+      "Hypothesis";
+
+  std::vector<std::string> NonLinearEvolutionProblem::getParametersList() {
+    auto params = FiniteElementDiscretization::getParametersList();
+    auto params2 =
+        NonLinearEvolutionProblemImplementationBase::getParametersList();
+    params.insert(params.end(), params2.begin(), params2.end());
+    params.push_back(NonLinearEvolutionProblem::HypothesisParameter);
+    return params;
+  }  // end of getParametersList
+
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(const Parameters& p) {
+    using SequentialImplementation =
+        NonLinearEvolutionProblemImplementation<false>;
+    const auto h = mgis::behaviour::fromString(
+        get<std::string>(p, NonLinearEvolutionProblem::HypothesisParameter));
+    const auto fed = std::make_shared<FiniteElementDiscretization>(
+        extract(p, FiniteElementDiscretization::getParametersList()));
+    if (fed->describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      using ParallelImplementation =
+          NonLinearEvolutionProblemImplementation<true>;
+      this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
+#else
+      mgis::raise(
+          "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
+          "unsupported parallel computations");
+#endif
+    }
+    else {
+      this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
+    }
+  }  // end of NonLinearEvolutionProblem
+
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
@@ -48,16 +83,16 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::setSolverParameters(
       const Parameters& params) {
     return this->pimpl->setSolverParameters(params);
-  }  // end of getSolver
+  }  // end of setSolverParameters
 
   void NonLinearEvolutionProblem::setLinearSolver(std::string_view n,
                                                   const Parameters& params) {
     this->pimpl->setLinearSolver(n, params);
   }  // end of setLinearSolver
 
-  void NonLinearEvolutionProblem::solve(const real t, const real dt) {
+  bool NonLinearEvolutionProblem::solve(const real t, const real dt) {
     this->setup(t, dt);
-    this->pimpl->solve(t, dt);
+    return this->pimpl->solve(t, dt);
   }  // end of solve
 
   std::vector<size_type> NonLinearEvolutionProblem::getMaterialIdentifiers()
@@ -220,4 +255,4 @@ namespace mfem_mgis {
     }
   }  // end of computeResultantForceOnBoundary
 
-}  // end of namespace mfem_mgis
+  }  // end of namespace mfem_mgis

@@ -15,7 +15,7 @@
 namespace mfem_mgis {
 
   /*!
-   *
+   * \brief structure in charge of freeing ressources on exit.
    */
   struct MGIS_VISIBILITY_LOCAL Finalizer {
     //! \return the unique instance of this class
@@ -37,7 +37,8 @@ namespace mfem_mgis {
     ~Finalizer();
   };  // end of Finalizer
 
-  Finalizer& Finalizer::get() { static Finalizer f;
+  Finalizer& Finalizer::get() {
+    static Finalizer f;
     return f;
   }  // end of get
 
@@ -66,12 +67,13 @@ namespace mfem_mgis {
     this->finalize();
   }
 
-  [[noreturn]] void
-  reportUnsupportedParallelComputations() {
+  [[noreturn]] void reportUnsupportedParallelComputations() {
     mgis::raise(
         "reportUnsupportedParallelComputations: "
         "unsupported parallel computations");
   }  // end of reportUnsupportedParallelComputations
+
+#ifdef MFEM_USE_MPI
 
   static void exit_on_failure() {
     try {
@@ -83,11 +85,9 @@ namespace mfem_mgis {
     }
     abort();
     std::abort();
-  } // end of exit_on_failure
+  }  // end of exit_on_failure
 
-#ifdef MFEM_USE_MPI
-
-  void initialize(int& argc, MainFunctionArguments& argv){
+  void initialize(int& argc, MainFunctionArguments& argv) {
     static bool first = true;
     if (first) {
       mgis::setExceptionHandler(exit_on_failure);
@@ -99,7 +99,7 @@ namespace mfem_mgis {
 
 #else /* MFEM_USE_MPI */
 
-  void initialize(int&, MainFunctionArguments& ){
+  void initialize(int&, MainFunctionArguments&) {
     Finalizer::get();
   }  // end of initialize
 
