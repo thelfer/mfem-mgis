@@ -124,9 +124,9 @@ int main(int argc, char** argv) {
       // resolution
       auto ct = t;
       auto dt2 = dt;
-      auto nsteps = mfem_mgis::size_type{1};
-      auto niter  = mfem_mgis::size_type{0};
-      while (nsteps != 0) {
+      auto locsteps = mfem_mgis::size_type{1};
+      auto lociter = mfem_mgis::size_type{0};
+      while (locsteps != 0) {
         auto converged = true;
         try {
           problem.solve(ct, dt2);
@@ -140,15 +140,15 @@ int main(int argc, char** argv) {
 	
         //      const auto converged = problem.solve(ct, dt2);
         if (converged) {
-          --nsteps;
+          --locsteps;
           ct += dt2;
         } else {
-          std::cout << "\nsubstep: " << niter << '\n';
-          nsteps *= 2;
+          std::cout << "\nsubstep: " << lociter << '\n';
+          locsteps *= 2;
           dt2 /= 2;
-          ++niter;
+          ++lociter;
           problem.revert();
-          if (niter == 10) {
+          if (lociter == 10) {
             mgis::raise("maximum number of substeps");
           }
         }
