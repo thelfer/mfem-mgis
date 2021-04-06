@@ -87,6 +87,21 @@ endif(CMAKE_CONFIGURATION_TYPES)
 
 mfem_mgis_buildenv()
 
+
+include(FetchContent)
+FetchContent_Declare(mfem-mgis-data
+  GIT_REPOSITORY https://github.com/latug0/mfem-mgis-data.git
+  GIT_TAG master
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  )
+
+FetchContent_GetProperties(mfem-mgis-data)
+if(NOT mfem-mgis-data_POPULATED)
+  FetchContent_Populate(mfem-mgis-data)
+endif()
+
+
 add_subdirectory(docs)
 add_subdirectory(include)
 add_subdirectory(src)

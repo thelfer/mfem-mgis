@@ -1,8 +1,8 @@
 /*!
  * \file   ssna3030.cxx
  * \brief
- * \author Thomas Helfer
- * \date   14/12/2020
+ * \author Thomas Helfer, Guillaume Latu
+ * \date   06/04/2021
  */
 
 #include <memory>
@@ -17,17 +17,9 @@
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
-void exit_on_failure() {
-  MPI_Finalize();
-  std::exit(EXIT_FAILURE);
-}
-
 int main(int argc, char** argv) {
-   // 1. Initialize MPI.
-  int num_procs, myid;
-  MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-  MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+  // Initialize mfem_mgis (it includes a call to MPI_Init)
+  mfem_mgis::initialize(argc, argv);
 
   constexpr const auto dim = mfem_mgis::size_type{2};
   const char* mesh_file = "ssna303.msh";
@@ -41,16 +33,20 @@ int main(int argc, char** argv) {
   args.Parse();
   if (!args.Good()) {
     args.PrintUsage(std::cout);
-    exit_on_failure();
+    mfem_mgis::abort(EXIT_FAILURE);
   }
   args.PrintOptions(std::cout);
   // loading the mesh
   auto smesh = std::make_shared<mfem::Mesh>(mesh_file, 1, 1);
-  auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh); //
-  //  auto mesh = smesh; // Uncomment this line for serial version
+#ifdef MFEM_USE_MPI
+  auto mesh = std::make_shared<mfem::ParMesh>(MPI_COMM_WORLD, *smesh);
+#else
+  auto mesh = smesh;
+#endif  
+
   if (mesh->Dimension() != dim) {
     std::cerr << "Invalid mesh dimension\n";
-    exit_on_failure();
+    mfem_mgis::abort(EXIT_FAILURE);
   }
   //
   const auto& bdr_attributes = mesh->bdr_attributes;
@@ -72,22 +68,20 @@ int main(int argc, char** argv) {
         std::make_shared<mfem_mgis::FiniteElementDiscretization>(
             mesh, std::make_shared<mfem::H1_FECollection>(order, dim), dim),
         mgis::behaviour::Hypothesis::PLANESTRAIN);
-    // 2 1 "Volume"
+
     problem.addBehaviourIntegrator("Mechanics", 1, library, behaviour);
+
     // materials
     auto& m1 = problem.getMaterial(1);
     mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
     mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
     // boundary conditions
-    // 1 3 "LowerBoundary"
     problem.addBoundaryCondition(
         std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
             problem.getFiniteElementDiscretizationPointer(), 3, 1));
-    // 1 4 "SymmetryAxis "
     problem.addBoundaryCondition(
         std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
             problem.getFiniteElementDiscretizationPointer(), 4, 0));
-    // 1 2 "UpperBoundary"
     problem.addBoundaryCondition(
         std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
             problem.getFiniteElementDiscretizationPointer(), 2, 1,
@@ -100,29 +94,33 @@ int main(int argc, char** argv) {
                                  {"RelativeTolerance", 1e-6},
                                  {"AbsoluteTolerance", 0.},
                                  {"MaximumNumberOfIterations", 10}});
-  // selection of the linear solver
-#if defined (MFEM_USE_MUMPS)
+
+    // selection of the linear solver
+#if defined(MFEM_USE_MUMPS) && defined(MFEM_USE_MPI)
     problem.setLinearSolver("MUMPSSolver", {});
 #elif defined (MFEM_USE_SUITESPARSE)
     problem.setLinearSolver("UMFPackSolver", {});
 #else
-    problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
-                                         {"RelativeTolerance", 1e-12},
-                                         {"MaximumNumberOfIterations", 300}});
+//    problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
+//                                         {"RelativeTolerance", 1e-12},
+//                                         {"MaximumNumberOfIterations", 300}});
+    std::cerr << "You shall use a direct solver : MUMPS or UMFPackSolver\n";
+    mfem_mgis::abort(EXIT_FAILURE);
 #endif
     // vtk export
     problem.addPostProcessing("ParaviewExportResults",
                               {{"OutputFileName", std::string("ssna303-displacements")}});
 //    problem.addPostProcessing("ComputeResultantForceOnBoundary",
 //                              {{"Boundary", 2}, {"OutputFileName", "force.txt"}});
+
     // loop over time step
     const auto nsteps = mfem_mgis::size_type{50};
     const auto dt = mfem_mgis::real{1} / nsteps;
     auto t = mfem_mgis::real{0};
     auto iteration = mfem_mgis::size_type{};
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
-      std::cout << "iteration " << iteration << " from " << t << " to " << t + dt
-                << '\n';
+      std::cout << "iteration " << iteration << " from " <<
+	t << " to " << t + dt << '\n';
       // resolution
       auto ct = t;
       auto dt2 = dt;
@@ -135,6 +133,11 @@ int main(int argc, char** argv) {
         } catch (std::runtime_error&) {
           converged = false;
         }
+#ifdef MFEM_USE_MPI
+        MPI_Allreduce(MPI_IN_PLACE, &converged, 1, MPI_C_BOOL,
+		      MPI_LAND, MPI_COMM_WORLD);
+#endif /* MFEM_USE_MPI */
+	
         //      const auto converged = problem.solve(ct, dt2);
         if (converged) {
           --nsteps;
@@ -157,6 +160,5 @@ int main(int argc, char** argv) {
       std::cout << '\n';
     }
   }
-  MPI_Finalize();
   return EXIT_SUCCESS;
 }

@@ -7,4 +7,5 @@ install(FILES
 install(FILES
   ex2/CMakeLists.txt
   ex2/ssna303.cxx
+  ${mfem-mgis-data_SOURCE_DIR}/mesh/ssna303.msh
   DESTINATION share/mfem-mgis/examples/ex2)
