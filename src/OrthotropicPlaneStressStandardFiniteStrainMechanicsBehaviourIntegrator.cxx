@@ -38,6 +38,13 @@ namespace mfem_mgis {
   }  // end of
      // OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator
 
+  real OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator::
+      getIntegrationPointWeight(mfem::ElementTransformation &tr,
+                                const mfem::IntegrationPoint &ip) const
+      noexcept {
+    constexpr const real two_pi = 2 * 3.14159265358979323846;
+    return two_pi * ip.x * ip.weight * tr.Weight();
+  }
   const mfem::IntegrationRule &
   OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator::
       getIntegrationRule(const mfem::FiniteElement &e,
@@ -160,14 +167,14 @@ namespace mfem_mgis {
       const auto dNj_1 = dN(nj, 1);
       const auto nj_0 = nj;
       const auto nj_1 = nj + nnodes;
-      Ke(ni_0, nj_0) += w * (Kip[3] * dNj_1 * dNi_0 + dNi_1 * Kip[18] * dNj_1 +
-                             dNj_0 * Kip[0] * dNi_0 + dNi_1 * Kip[15] * dNj_0);
-      Ke(ni_0, nj_1) += w * (dNj_0 * Kip[4] * dNi_0 + dNj_1 * Kip[1] * dNi_0 +
-                             dNi_1 * Kip[16] * dNj_1 + dNi_1 * dNj_0 * Kip[19]);
-      Ke(ni_1, nj_0) += w * (Kip[5] * dNi_1 * dNj_0 + dNj_1 * Kip[23] * dNi_0 +
-                             dNi_1 * dNj_1 * Kip[8] + dNj_0 * dNi_0 * Kip[20]);
-      Ke(ni_1, nj_1) += w * (dNi_1 * Kip[6] * dNj_1 + dNi_1 * Kip[9] * dNj_0 +
-                             Kip[21] * dNj_1 * dNi_0 + Kip[24] * dNj_0 * dNi_0);
+      Ke(ni_0, nj_0) += w * (dNj_0 * Kip[0] * dNi_0 + Kip[3] * dNj_1 * dNi_0 +
+                             dNi_1 * Kip[15] * dNj_0 + dNi_1 * Kip[18] * dNj_1);
+      Ke(ni_0, nj_1) += w * (dNj_0 * Kip[4] * dNi_0 + dNi_1 * Kip[16] * dNj_1 +
+                             dNj_1 * Kip[1] * dNi_0 + dNi_1 * dNj_0 * Kip[19]);
+      Ke(ni_1, nj_0) += w * (dNj_1 * Kip[23] * dNi_0 + dNj_0 * dNi_0 * Kip[20] +
+                             Kip[5] * dNi_1 * dNj_0 + Kip[8] * dNi_1 * dNj_1);
+      Ke(ni_1, nj_1) += w * (Kip[21] * dNj_1 * dNi_0 + dNi_1 * Kip[9] * dNj_0 +
+                             dNi_1 * Kip[6] * dNj_1 + Kip[24] * dNj_0 * dNi_0);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 

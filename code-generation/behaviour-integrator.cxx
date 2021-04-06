@@ -63,8 +63,8 @@ bool isTwoDimensionalHypothesis(const std::string& h) {
 
 bool isAxisymmetricalHypothesis(const std::string& h) {
   if ((h == "Axisymmetrical") ||
-      (h == "AxisymmetricalGeneralizedPlaneStrain") ||
-      (h == "AxisymmetricalGeneralizedPlaneStress")) {
+      (h == "AxisymmetricalGeneralisedPlaneStrain") ||
+      (h == "AxisymmetricalGeneralisedPlaneStress")) {
     return true;
   }
   return false;
@@ -499,7 +499,19 @@ void generateHeaderFile(std::ostream& os,
      << "                           const mfem::DenseMatrix &,\n"
      << "                           const real,\n"
      << "                           const size_type) const noexcept;\n"
-     << "\n";
+     << "\n"
+     << "/*!\n"
+     << " * \\brief return the weight of the integration point, taking the\n"
+     << " * modelling hypothesis into account\n"
+     << " * \\param[in] tr: element transformation\n"
+     << " * \\param[in] ip: integration point\n"
+     << " */\n"
+     << "real getIntegrationPointWeight(mfem::ElementTransformation&,\n"
+     << "                               const mfem::IntegrationPoint&) \n"
+     << "                              const noexcept;\n"
+     << "\n"
+     << "protected:\n"
+     << "";
   if (!d.isotropic) {
     if (isTwoDimensionalHypothesis(d.hypothesis)) {
       os << "//! \brief the rotation matrix\n"
@@ -547,7 +559,7 @@ void generateSourceFile(std::ostream& os,
         "selector);\n"
      << "}  // end of buildQuadratureSpace\n"
      << "\n"
-     << "" << d.name << "::" << d.name << "(\n"
+     << d.name << "::" << d.name << "(\n"
      << "        const FiniteElementDiscretization &fed,\n"
      << "        const size_type m,\n"
      << "        std::unique_ptr<const Behaviour> b_ptr)\n"
@@ -562,6 +574,18 @@ void generateSourceFile(std::ostream& os,
      << "}\n"
      << "}  // end of " << d.name << "\n"
      << "\n"
+     << "real " << d.name << "::getIntegrationPointWeight"
+     << "(mfem::ElementTransformation& tr,\n"
+     << " const mfem::IntegrationPoint& ip) const noexcept{\n";
+  if ((d.hypothesis == "Axisymmetrical") ||
+      (d.hypothesis == "AxisymmetricalGeneralisedPlaneStrain") ||
+      (d.hypothesis == "AxisymmetricalGeneralisedPlaneStress")) {
+    os << "return ip.weight * tr.Weight();\n";
+  } else {
+    os << "constexpr const real two_pi = 2 * 3.14159265358979323846;\n"
+       << "return two_pi * ip.x * ip.weight * tr.Weight();\n";
+  }
+  os << "}\n"
      << "const mfem::IntegrationRule &\n"
      << d.name << "::getIntegrationRule(\n"
      << "const mfem::FiniteElement &e, "

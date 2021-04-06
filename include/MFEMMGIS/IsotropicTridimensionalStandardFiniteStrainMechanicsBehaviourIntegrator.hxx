@@ -146,6 +146,17 @@ namespace mfem_mgis {
                                const real,
                                const size_type) const noexcept;
 
+    /*!
+     * \brief return the weight of the integration point, taking the
+     * modelling hypothesis into account
+     * \param[in] tr: element transformation
+     * \param[in] ip: integration point
+     */
+    real getIntegrationPointWeight(mfem::ElementTransformation &,
+                                   const mfem::IntegrationPoint &) const
+        noexcept;
+
+   protected:
   };  // end of struct
       // IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator
 
