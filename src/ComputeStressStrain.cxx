@@ -14,12 +14,15 @@
 
 namespace mfem_mgis {
 
+  ComputeStressStrainCommon::ComputeStressStrainCommon(
+      size_type picomp)
+    : icomp(picomp) {}  // end of ComputeStressStrainCommon
 
 #ifdef MFEM_USE_MPI
-
   ComputeStressStrain<true>::ComputeStressStrain(
       NonLinearEvolutionProblemImplementation<true>& p,
-      const Parameters& params) {
+      const Parameters& params)
+    : ComputeStressStrainCommon(get<int>(params, "StressComponent")) {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
@@ -27,6 +30,8 @@ namespace mfem_mgis {
       auto& fed = p.getFiniteElementDiscretization();
       auto& fes = fed.template getFiniteElementSpace<true>();
     }
+    std::cout << "WIP" << std::endl;
+    mfem_mgis::abort(3);
   }  // end of ComputeStressStrain
 
   void ComputeStressStrain<true>::execute(
@@ -42,6 +47,8 @@ namespace mfem_mgis {
     gF.SetSize(F.Size());
     MPI_Reduce(F.GetData(), gF.GetData(), F.Size(), MPI_DOUBLE, MPI_SUM, 0,
                  MPI_COMM_WORLD);
+    std::cout << "WIP" << std::endl;
+    mfem_mgis::abort(3);
   }  // end of execute
 
   ComputeStressStrain<true>::~ComputeStressStrain() =
@@ -51,9 +58,11 @@ namespace mfem_mgis {
 
   ComputeStressStrain<false>::ComputeStressStrain(
       NonLinearEvolutionProblemImplementation<false>& p,
-      const Parameters& params) {
+      const Parameters& params)
+      : ComputeStressStrainCommon(get<int>(params, "StressComponent")) {
     auto& fed = p.getFiniteElementDiscretization();
     auto& fes = fed.template getFiniteElementSpace<false>();
+    //    fieldspace = new FiniteElementSpace(mesh, fec, 1, Ordering::byVDIM);
   }  // end of ComputeStressStrain
 
   void ComputeStressStrain<false>::execute(

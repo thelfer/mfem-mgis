@@ -24,6 +24,21 @@ namespace mfem_mgis {
   template <bool parallel>
   struct ComputeStressStrain;
 
+  /*!
+   * \brief a base class for the `ComputeStressStrain`
+   * post-processing
+   */
+  struct ComputeStressStrainCommon {
+    /*!
+     * \brief constructor
+     * \param[in] i: component to be exported
+     */
+    ComputeStressStrainCommon(const size_type);
+
+    //! \brief component to be exported
+    const size_type icomp;
+  };  // end of struct ComputeStressStrainCommon
+  
 #ifdef MFEM_USE_MPI
 
   /*!
@@ -32,7 +47,8 @@ namespace mfem_mgis {
    */
   template <>
   struct MFEM_MGIS_EXPORT ComputeStressStrain<true> final
-      : public PostProcessing<true> {
+    : public PostProcessing<true>,
+      protected ComputeStressStrainCommon {
     /*!
      * \brief constructor
      * \param[in] p: non linear problem
@@ -56,7 +72,8 @@ namespace mfem_mgis {
    */
   template <>
   struct MFEM_MGIS_EXPORT ComputeStressStrain<false> final
-      : public PostProcessing<false> {
+      : public PostProcessing<false>,
+        protected ComputeStressStrainCommon {
     /*!
      * \brief constructor
      * \param[in] p: non linear problem
