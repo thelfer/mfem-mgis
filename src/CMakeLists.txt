@@ -18,6 +18,7 @@ mfem_mgis_library(MFEMMGIS
   PostProcessing.cxx
   PostProcessingFactory.cxx
   ComputeResultantForceOnBoundary.cxx
+  ComputeStressStrain.cxx
   AbstractNonLinearEvolutionProblem.cxx
   NonLinearEvolutionProblemImplementationBase.cxx
   NonLinearEvolutionProblemImplementation.cxx
