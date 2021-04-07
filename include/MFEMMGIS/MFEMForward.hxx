@@ -39,6 +39,7 @@ namespace mfem {
   class ParNonlinearForm;
   class Solver;
   class IterativeSolver;
+  class Coefficient;
 
 }  // end of namespace mfem
 

@@ -7,13 +7,34 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/BoundaryUtilities.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
+#include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/ComputeStressStrain.hxx"
 
 namespace mfem_mgis {
 
+  template <bool parallel>
+  class DiagCoefficient : public mfem::Coefficient
+  {
+  protected:
+    const size_type _icomp; // component to evaluate, 0 <= _icom < max
+    mfem::DenseMatrix _grad; // auxiliary matrix, used in Eval
+    const Material _m; // problem
+    
+  public:
+    DiagCoefficient(NonLinearEvolutionProblemImplementation<parallel> &p, size_type icomp = 0)
+      : _icomp(icomp), _m(p.getMaterial()) { }
+    
+    void SetComponent(size_type icomp) { _icomp = icomp; }
+    
+    virtual double Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip) = 0;
+
+    //    DiagCoefficient::~DiagCoefficient() = default;
+  };
+  
   ComputeStressStrainCommon::ComputeStressStrainCommon(
       size_type picomp)
     : icomp(picomp) {}  // end of ComputeStressStrainCommon
