@@ -33,10 +33,12 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] i: component to be exported
      */
-    ComputeStressStrainCommon(const size_type);
+    ComputeStressStrainCommon(const size_type, std::shared_ptr<FiniteElementDiscretization>);
 
     //! \brief component to be exported
     const size_type icomp;
+    //! \brief underlying finite element discretization
+    const std::shared_ptr<FiniteElementDiscretization> fed;
   };  // end of struct ComputeStressStrainCommon
   
 #ifdef MFEM_USE_MPI
