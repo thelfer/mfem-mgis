@@ -17,6 +17,17 @@ namespace mfem_mgis {
 
   // forward declaration
   struct Parameters;
+  // forward declaration
+  template <bool parallel>
+  struct NonLinearEvolutionProblemImplementation;
+
+  /*!
+   * \brief result from the linear solver factories
+   */
+  struct LinearSolverHandler {
+    std::unique_ptr<LinearSolver> linear_solver;
+    std::unique_ptr<LinearSolverPreconditioner> preconditioner;
+  };  // end of LinearSolverHandler
 
   /*!
    * \brief an abstract factory for behaviour integrators
@@ -32,8 +43,8 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT LinearSolverFactory<true> {
     //! a simple alias
-    using Generator =
-        std::function<std::unique_ptr<LinearSolver>(const Parameters&)>;
+    using Generator = std::function<LinearSolverHandler(
+        NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>;
     //! \return the unique instance of the class
     static LinearSolverFactory& getFactory();
     /*!
@@ -45,10 +56,12 @@ namespace mfem_mgis {
     /*!
      * \return the requested post-processing
      * \param[in] n: name of the post-processing
+     * \param[in] p: problem to be solved
      * \param[in] params: parameters passed to the post-processing
      */
-    std::unique_ptr<LinearSolver> generate(std::string_view,
-                                           const Parameters&) const;
+    LinearSolverHandler generate(std::string_view,
+                                 NonLinearEvolutionProblemImplementation<true>&,
+                                 const Parameters&) const;
 
    private:
     //! \brief default destructor
@@ -65,8 +78,8 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT LinearSolverFactory<false> {
     //! a simple alias
-    using Generator =
-        std::function<std::unique_ptr<LinearSolver>(const Parameters&)>;
+    using Generator = std::function<LinearSolverHandler(
+        NonLinearEvolutionProblemImplementation<false>&, const Parameters&)>;
     //! \return the unique instance of the class
     static LinearSolverFactory& getFactory();
     /*!
@@ -78,10 +91,13 @@ namespace mfem_mgis {
     /*!
      * \return the requested post-processing
      * \param[in] n: name of the post-processing
+     * \param[in] p: problem to be solved
      * \param[in] params: parameters passed to the post-processing
      */
-    std::unique_ptr<LinearSolver> generate(std::string_view,
-                                           const Parameters&) const;
+    LinearSolverHandler generate(
+        std::string_view,
+        NonLinearEvolutionProblemImplementation<false>&,
+        const Parameters&) const;
 
    private:
     //! \brief default destructor

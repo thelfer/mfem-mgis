@@ -12,12 +12,16 @@
 
 namespace mfem_mgis {
 
+  std::vector<std::string> getIterativeSolverParametersList() {
+    using Problem = AbstractNonLinearEvolutionProblem;
+    return {Problem::SolverVerbosityLevel, Problem::SolverRelativeTolerance,
+            Problem::SolverAbsoluteTolerance,
+            Problem::SolverMaximumNumberOfIterations};
+  } // end of getIterativeSolverParametersList
+
   void setSolverParameters(IterativeSolver& solver, const Parameters& params) {
     using Problem = AbstractNonLinearEvolutionProblem;
-    checkParameters(params, {Problem::SolverVerbosityLevel,
-                             Problem::SolverRelativeTolerance,
-                             Problem::SolverAbsoluteTolerance,
-                             Problem::SolverMaximumNumberOfIterations});
+    checkParameters(params, getIterativeSolverParametersList());
     if (contains(params, Problem::SolverVerbosityLevel)) {
       solver.SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
     }

@@ -14,47 +14,122 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 
 namespace mfem_mgis {
 
-  static void setLinearSolverParameters(mfem::IterativeSolver& s,
-                                        const Parameters& params) {
+#ifdef MFEM_USE_MPI
+
+  std::unique_ptr<LinearSolverPreconditioner> setHypreBoomerAMGPreconditioner(
+      mfem::IterativeSolver& s,
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const Parameters& opts) {
+    auto amg = std::make_unique<mfem::HypreBoomerAMG>();
+    checkParameters(opts, {"Strategy"});
+    if (contains(opts, "Strategy")) {
+      const auto strategy = get<std::string>("Strategy");
+      auto& fespace = p.getFiniteElementSpace();
+      if (strategy == "Elasticity") {
+        amg->SetElasticityOptions(&fespace);
+      } else if (strategy == "System") {
+        const auto* const m = fespace.GetMesh();
+        const auto o = fespace.GetOrdering();
+        amg->SetSystemsOptions(m->Dimension(), o == mfem::Ordering::byNODES);
+      } else {
+        raise(
+            "setLinearSolverParameters: "
+            "invalid strategy '" +
+            strategy + "' for preconditioner HypreBoomerAMG");
+      }
+    }
+    s.SetPreconditioner(*amg);
+    return std::move(amg);
+  }  // end of setHypreBoomerAMGPreconditioner
+
+#else /* MFEM_USE_MPI */
+
+  [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
+  setHypreBoomerAMGPreconditioner(
+      mfem::IterativeSolver&,
+      NonLinearEvolutionProblemImplementation<true>&,
+      const Parameters&) {
+    reportUnsupportedParallelComputations();
+  }  // end of setHypreBoomerAMGPreconditioner
+
+#endif /* MFEM_USE_MPI */
+
+  template <bool parallel>
+  std::unique_ptr<LinearSolverPreconditioner> setLinearSolverParameters(
+      mfem::IterativeSolver& s,
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const Parameters& params) {
+    const char* const Preconditioner = "Preconditioner";
     s.iterative_mode = false;
-    setSolverParameters(s, params);
+    auto allowed_parameters = getIterativeSolverParametersList();
+    allowed_parameters.push_back(Preconditioner);
+    checkParameters(params, allowed_parameters);
+    setSolverParameters(s, extract(params, getIterativeSolverParametersList()));
+    if (contains(params, Preconditioner)) {
+      const auto pr = get<Parameters>(params, Preconditioner);
+      checkParameters(params, {"Name", "Options"});
+      const auto name = get<std::string>(pr, "Name");
+      if (name == "HypreBoomerAMG") {
+        if constexpr (parallel) {
+          return setHypreBoomerAMGPreconditioner(
+              s, p, get_if<Parameters>(params, "Options", Parameters{}));
+        } else {
+          raise(
+              "setLinearSolverParameters: "
+              "the 'HypreBoomerAMG' is only available in parallel");
+        }
+      } else {
+        raise(
+            "setLinearSolverParameters: "
+            "unsupported preconditioner '" +
+            name + "'");
+      }
+    }
+    return {};
   }  // end of setLinearSolverParameters
 
   template <bool parallel, typename LinearSolverType>
-  std::function<std::unique_ptr<LinearSolver>(const Parameters&)>
+  std::function<LinearSolverHandler(
+      NonLinearEvolutionProblemImplementation<parallel>&, const Parameters&)>
   buildIterativeSolverGenerator() {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
-      return [](const Parameters& p) {
+      return [](NonLinearEvolutionProblemImplementation<true>& p,
+                const Parameters& params) {
         auto s = std::make_unique<LinearSolverType>(MPI_COMM_WORLD);
-        setLinearSolverParameters(*s, p);
-        return s;
+        auto prec = setLinearSolverParameters(*s, p, params);
+        return LinearSolverHandler{std::move(s), std::move(prec)};
       };
 #else  /* MFEM_USE_MPI */
       return {};
 #endif /* MFEM_USE_MPI */
     } else {
-      return [](const Parameters& p) {
+      return [](NonLinearEvolutionProblemImplementation<false>& p,
+                const Parameters& params) {
         auto s = std::make_unique<LinearSolverType>();
-        setLinearSolverParameters(*s, p);
-        return s;
+        auto prec = setLinearSolverParameters(*s, p, params);
+        return LinearSolverHandler{std::move(s), std::move(prec)};
       };
     }
   }  // end of buildIterativeSolverGenerator
 
 #ifdef MFEM_USE_MUMPS
 
-  std::function<std::unique_ptr<LinearSolver>(const Parameters&)>
+  std::function<LinearSolverHandler(
+      NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>
   buildMUMPSSolverGenerator() {
-    return [](const Parameters& p) {
-      checkParameters(p, {"Symmetric", "PositiveDefinite"});
+    return [](NonLinearEvolutionProblemImplementation<true>&,
+              const Parameters& params) {
+      checkParameters(params, {"Symmetric", "PositiveDefinite"});
       auto s = std::make_unique<mfem::MUMPSSolver>();
-      const auto symmetric = get_if<bool>(p, "Symmetric", false);
-      const auto positive_definite = get_if<bool>(p, "PositiveDefinite", false);
+      const auto symmetric = get_if<bool>(params, "Symmetric", false);
+      const auto positive_definite =
+          get_if<bool>(params, "PositiveDefinite", false);
       if (symmetric) {
         if (positive_definite) {
           s->SetMatrixSymType(
@@ -65,7 +140,7 @@ namespace mfem_mgis {
       } else {
         s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
       }
-      return s;
+      return {s, std::unique_ptr<LinearSolverPreconditioner>{}};
     };
   }  // end of builMUMPSGenerator
 
@@ -84,8 +159,11 @@ namespace mfem_mgis {
     }
     if constexpr (!parallel) {
 #ifdef MFEM_USE_SUITESPARSE
-      f.add("UMFPackSolver", [](const Parameters&) {
-        return std::make_unique<mfem::UMFPackSolver>();
+      f.add("UMFPackSolver", [](NonLinearEvolutionProblemImplementation<false>&,
+                                const Parameters&) {
+        return LinearSolverHandler{
+            std::make_unique<mfem::UMFPackSolver>(),
+            std::unique_ptr<LinearSolverPreconditioner>{}};
       });
 #endif
     }
@@ -110,8 +188,10 @@ namespace mfem_mgis {
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
 
-  std::unique_ptr<LinearSolver> LinearSolverFactory<true>::generate(
-      std::string_view n, const Parameters& params) const {
+  LinearSolverHandler LinearSolverFactory<true>::generate(
+      std::string_view n,
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const Parameters& params) const {
     const auto pg = this->generators.find(n);
     if (pg == this->generators.end()) {
       std::string msg("LinearSolverFactory<true>::generate: ");
@@ -121,9 +201,9 @@ namespace mfem_mgis {
       raise(msg);
     }
     const auto& g = pg->second;
-    auto s = std::unique_ptr<LinearSolver>{};
+    LinearSolverHandler s;
     try {
-      s = g(params);
+      s = g(p, params);
     } catch (std::exception& e) {
       std::string msg("LinearSolverFactory<false>::generate: ");
       msg += "error while generating no linear '";
@@ -160,8 +240,10 @@ namespace mfem_mgis {
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
 
-  std::unique_ptr<LinearSolver> LinearSolverFactory<false>::generate(
-      std::string_view n, const Parameters& params) const {
+  LinearSolverHandler LinearSolverFactory<false>::generate(
+      std::string_view n,
+      NonLinearEvolutionProblemImplementation<false>& p,
+      const Parameters& params) const {
     const auto pg = this->generators.find(n);
     if (pg == this->generators.end()) {
       std::string msg("LinearSolverFactory<false>::generate: ");
@@ -171,9 +253,9 @@ namespace mfem_mgis {
       raise(msg);
     }
     const auto& g = pg->second;
-    auto s = std::unique_ptr<LinearSolver>{};
+    LinearSolverHandler s;
     try {
-      s = g(params);
+      s = g(p, params);
     } catch (std::exception& e) {
       std::string msg("LinearSolverFactory<false>::generate: ");
       msg += "error while generating no linear '";

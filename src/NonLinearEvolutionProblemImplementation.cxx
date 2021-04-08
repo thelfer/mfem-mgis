@@ -83,7 +83,7 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
       std::string_view n, const Parameters& p) {
     const auto& f = LinearSolverFactory<true>::getFactory();
-    this->updateLinearSolver(f.generate(n, p));
+    this->updateLinearSolver(f.generate(n, *this, p));
   }  // end of setLinearSolver
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
@@ -201,7 +201,7 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       std::string_view n, const Parameters& p) {
     const auto& f = LinearSolverFactory<false>::getFactory();
-    this->updateLinearSolver(f.generate(n, p));
+    this->updateLinearSolver(f.generate(n, *this, p));
   }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::integrate(

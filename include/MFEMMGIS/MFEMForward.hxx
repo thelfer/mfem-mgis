@@ -84,6 +84,8 @@ namespace mfem_mgis {
   using LinearSolver = mfem::Solver;
   //! \brief a simple alias
   using IterativeSolver = mfem::IterativeSolver;
+  //! \brief a simple alias
+  using LinearSolverPreconditioner = mfem::Solver;
 
 }  // namespace mfem_mgis
 

@@ -136,6 +136,7 @@ namespace mfem_mgis {
       mfem::Vector&,
       NonLinearEvolutionProblemImplementation<parallel>&,
       const std::vector<std::pair<size_type, size_type>>&);
+
   /*!
    * \return the integral of the thermodynamic forces at the end of the time
    * step and the volume of each material.

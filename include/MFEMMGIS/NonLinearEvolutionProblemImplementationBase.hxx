@@ -32,6 +32,8 @@ namespace mfem_mgis {
   struct NewtonSolver;
   // forward declaration
   enum struct IntegrationType;
+  // forward declaration
+  struct LinearSolverHandler;
 
   /*!
    * \brief class for solving non linear evolution problems.
@@ -69,6 +71,19 @@ namespace mfem_mgis {
      * \param[in] s: linear solver
      */
     virtual void updateLinearSolver(std::unique_ptr<LinearSolver>);
+    /*!
+     * \brief set the linear solver
+     * \param[in] s: linear solver
+     * \param[in] p: linear solver preconditioner
+     */
+    virtual void updateLinearSolver(
+        std::unique_ptr<LinearSolver>,
+        std::unique_ptr<LinearSolverPreconditioner>);
+    /*!
+     * \brief set the linear solver
+     * \param[in] s: linear solver handler
+     */
+    virtual void updateLinearSolver(LinearSolverHandler);
     //
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>
@@ -149,11 +164,13 @@ namespace mfem_mgis {
     std::unique_ptr<NewtonSolver> solver;
     //! \brief linear solver
     std::unique_ptr<LinearSolver> linear_solver;
+    //! \brief linear solver preconditioner
+    std::unique_ptr<LinearSolverPreconditioner> linear_solver_preconditioner;
     /*!
      * \brief pointer to the underlying domain integrator
      * The memory associated with this pointer must be released in derived class
      */
-    MultiMaterialNonLinearIntegrator* const mgis_integrator;
+    MultiMaterialNonLinearIntegrator* const mgis_integrator = nullptr;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
 

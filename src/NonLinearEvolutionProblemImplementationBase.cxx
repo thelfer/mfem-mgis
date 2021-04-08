@@ -15,6 +15,7 @@
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
+#include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
 
 namespace mfem_mgis {
@@ -202,8 +203,33 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
       std::unique_ptr<LinearSolver> s) {
+    this->linear_solver_preconditioner.reset();
     this->linear_solver = std::move(s);
     this->solver->setLinearSolver(*(this->linear_solver));
+  }  // end of updateLinearSolver
+
+  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      std::unique_ptr<LinearSolver> s,
+      std::unique_ptr<LinearSolverPreconditioner> p) {
+    if (p != nullptr) {
+      auto* const isolver = dynamic_cast<IterativeSolver*>(s.get());
+      if (isolver == nullptr) {
+        mgis::raise(
+            "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
+            "can't associate a preconditioner to a non iterative solver");
+      }
+      isolver->SetPreconditioner(*p);
+      this->updateLinearSolver(std::move(s));
+      this->linear_solver_preconditioner = std::move(p);
+    } else {
+      this->updateLinearSolver(std::move(s));
+    }
+  }  // end of updateLinearSolver
+
+  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      LinearSolverHandler s) {
+    this->updateLinearSolver(std::move(s.linear_solver),
+                             std::move(s.preconditioner));
   }  // end of updateLinearSolver
 
   void NonLinearEvolutionProblemImplementationBase::addBoundaryCondition(
