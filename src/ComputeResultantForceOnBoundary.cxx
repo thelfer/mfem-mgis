@@ -71,11 +71,11 @@ namespace mfem_mgis {
     //
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    if (rank == 0) {
-      mfem::Vector gF;
-      gF.SetSize(F.Size());
-      MPI_Reduce(F.GetData(), gF.GetData(), F.Size(), MPI_DOUBLE, MPI_SUM, 0,
+    mfem::Vector gF;
+    gF.SetSize(F.Size());
+    MPI_Reduce(F.GetData(), gF.GetData(), F.Size(), MPI_DOUBLE, MPI_SUM, 0,
                  MPI_COMM_WORLD);
+    if (rank == 0) {
       writeResultantForce(this->out, gF, t + dt);
     }
   }  // end of execute
