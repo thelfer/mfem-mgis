@@ -54,10 +54,10 @@ namespace mfem_mgis {
           const Hypothesis h,
           const Parameters& p)
       : NonLinearEvolutionProblemImplementationBase(fed, h, p),
-        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())){
+        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())) {
     if (this->fe_discretization->getMesh<true>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
-      mgis::raise(
+      raise(
           "NonLinearEvolutionProblemImplementationBase::"
           "NonLinearEvolutionProblemImplementationBase: "
           "modelling hypothesis is not consistent with the spatial dimension "
@@ -126,8 +126,8 @@ namespace mfem_mgis {
       pu.GetSubVector(vdofs, ue);
       noerror = this->mgis_integrator->integrate(e, tr, ue, it);
     }
-    MPI_Allreduce(MPI_IN_PLACE, &noerror, 1, MPI_C_BOOL,
-		  MPI_LAND, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, &noerror, 1, MPI_C_BOOL, MPI_LAND,
+                  MPI_COMM_WORLD);
     return noerror;
   }  // end of integrate
 
@@ -153,7 +153,7 @@ namespace mfem_mgis {
     this->solver = std::make_unique<NewtonSolver>(*this);
     if (this->fe_discretization->getMesh<false>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
-      mgis::raise(
+      raise(
           "NonLinearEvolutionProblemImplementationBase::"
           "NonLinearEvolutionProblemImplementationBase: "
           "modelling hypothesis is not consistent with the spatial dimension "

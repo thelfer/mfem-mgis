@@ -21,8 +21,6 @@
 #include <mpi.h>
 #endif
 
-
-
 int main(int argc, char** argv) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   const char* mesh_file = nullptr;
@@ -189,7 +187,9 @@ int main(int argc, char** argv) {
       const auto step_timer = mfem_mgis::getTimer("step" + std::to_string(i));
       {
         const auto solve_timer = mfem_mgis::getTimer("solve");
-        problem.solve(t, dt);
+        if (!problem.solve(t, dt)) {
+          mfem_mgis::abort(-1);
+        }
       }
       {
         const auto post_processing_timer =
@@ -250,7 +250,7 @@ int main(int argc, char** argv) {
                       MPI_COMM_WORLD);
 #endif /* MFEM_USE_MPI */
       }
-    } // end of if (m1.n != 0)
+    }  // end of if (m1.n != 0)
   }
   //  mfem_mgis::Profiler::getProfiler().print(std::cout);
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

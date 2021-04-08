@@ -26,7 +26,7 @@ namespace mfem_mgis {
     //
     using Traits = BehaviourIntegratorTraits<Child>;
     constexpr const auto evaluateShapeFunctions =
-        Traits::updateExternalStateVariablesFromUnknownsValues &&
+        Traits::updateExternalStateVariablesFromUnknownsValues ||
         Traits::gradientsComputationRequiresShapeFunctions;
     //
     auto &child = static_cast<Child &>(*this);
@@ -73,10 +73,7 @@ namespace mfem_mgis {
           e.CalcPhysShape(tr, shape);
         }
         if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
-          auto *const esvs = child.getUnknowns(o);
-          std::fill(this->s1., real(0));
-          for (size_type ni = 0; ni != nnodes; ++ni) {
-          }
+          child.updateExternalStateVariablesFromUnknownsValues(u, shape, o);
         }
         // get the gradients of the shape functions
         e.CalcPhysDShape(tr, dshape);
@@ -125,7 +122,7 @@ namespace mfem_mgis {
     const auto thsize = this->s1.thermodynamic_forces_stride;
     // element offset
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    Fe.SetSize(e.GetDof() * Traits::unknownsSize());
+    Fe.SetSize(e.GetDof() * Traits::unknownsSize);
     Fe = 0.;
     const auto &ir = child.getIntegrationRule(e, tr);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
@@ -162,7 +159,7 @@ namespace mfem_mgis {
     const auto thsize = this->s1.thermodynamic_forces_stride;
     // element offset
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    Fe.SetSize(e.GetDof() * Traits::unknownsSize());
+    Fe.SetSize(e.GetDof() * Traits::unknownsSize);
     Fe = 0.;
     const auto &ir = child.getIntegrationRule(e, tr);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
@@ -191,21 +188,32 @@ namespace mfem_mgis {
     using Traits = BehaviourIntegratorTraits<Child>;
     auto &child = static_cast<Child &>(*this);
 #ifdef MFEM_THREAD_SAFE
+    mfem::DenseMatrix shape;
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
+    if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+      shape.SetSize(e.GetDof());
+    }
 #else
+    if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+      this->shape.SetSize(e.GetDof());
+    }
     this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
     // element offset
     const auto nnodes = e.GetDof();
     const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    Ke.SetSize(e.GetDof() * Traits::unknownsSize(),
-               e.GetDof() * Traits::unknownsSize());
+    Ke.SetSize(e.GetDof() * Traits::unknownsSize,
+               e.GetDof() * Traits::unknownsSize);
     Ke = 0.;
     const auto &ir = child.getIntegrationRule(e, tr);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       // get the gradients of the shape functions
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
+      if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+        // get the gradients of the shape functions
+        e.CalcPhysShape(tr, shape);
+      }
       e.CalcPhysDShape(tr, dshape);
       // get the weights associated to point ip
       const auto w = child.getIntegrationPointWeight(tr, ip);
@@ -214,7 +222,11 @@ namespace mfem_mgis {
       const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
       // assembly of the stiffness matrix
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        child.updateStiffnessMatrix(Ke, Kip, dshape, w, ni);
+        if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+          child.updateStiffnessMatrix(Ke, Kip, shape, dshape, w, ni);
+        } else {
+          child.updateStiffnessMatrix(Ke, Kip, dshape, w, ni);
+        }
       }
     }
   }  // end of implementUpdateJacobian

@@ -4,12 +4,34 @@
 #include <array>
 #include <mfem/linalg/densemat.hpp>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/BehaviourIntegratorTraits.hxx"
 #include "MFEMMGIS/StandardBehaviourIntegratorCRTPBase.hxx"
 
 namespace mfem_mgis {
 
   // forward declaration
   struct FiniteElementDiscretization;
+
+  // forward declaration
+  struct OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator;
+
+  /*!
+   * \brief partial specialisation of the `BehaviourIntegratorTraits`  * class
+   * for the
+   * `OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator`
+   * behaviour integrator */
+  template <>
+  struct BehaviourIntegratorTraits<
+      OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator> {
+    //! \brief size of the unknowns
+    static constexpr size_type unknownsSize = 2;
+    //! \brief
+    static constexpr bool gradientsComputationRequiresShapeFunctions = false;
+    //! \brief
+    static constexpr bool updateExternalStateVariablesFromUnknownsValues =
+        false;
+  };  // end of struct
+      // BehaviourIntegratorTraits<OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>
 
   /*!
    */
@@ -38,9 +60,8 @@ namespace mfem_mgis {
         std::unique_ptr<const Behaviour>);
 
     /*!
-     * \return the rotation matrix associated with the given integration
-     * point
-     * \param[in] i: integration points
+     * \return the rotation matrix associated with the given  * integration
+     * point \param[in] i: integration points
      */
     inline RotationMatrix getRotationMatrix(const size_type) const;
 
@@ -135,7 +156,7 @@ namespace mfem_mgis {
      *
      * \param[out] Ke: inner forces
      * \param[in] Kip: stress
-     * \param[in] dshape: derivatives of the shape function
+     * \param[in] dN: derivatives of the shape function
      * \param[in] w: weight of the integration point
      * \param[in] n: node index
      */
@@ -155,9 +176,9 @@ namespace mfem_mgis {
                                    const mfem::IntegrationPoint &) const
         noexcept;
 
-   protected:
     //! rief the rotation matrix
     RotationMatrix2D rotation_matrix;
+
   };  // end of struct
       // OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator
 

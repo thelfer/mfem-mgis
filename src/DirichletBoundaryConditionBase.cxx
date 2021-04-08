@@ -41,7 +41,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       return buildDegreesOfFredomList<true>(fed, bid, c);
 #else
-      mgis::raise(
+      raise(
           "DirichletBoundaryConditionBase::DirichletBoundaryConditionBase: "
           "unsupported parallel computations");
 #endif

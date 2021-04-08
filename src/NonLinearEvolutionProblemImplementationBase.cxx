@@ -23,10 +23,11 @@ namespace mfem_mgis {
       UseMultiMaterialNonLinearIntegrator =
           "UseMultiMaterialNonLinearIntegrator";
 
-  std::vector<std::string> NonLinearEvolutionProblemImplementationBase::getParametersList(){
+  std::vector<std::string>
+  NonLinearEvolutionProblemImplementationBase::getParametersList() {
     return {NonLinearEvolutionProblemImplementationBase::
                 UseMultiMaterialNonLinearIntegrator};
-  } // end of getParametersList
+  }  // end of getParametersList
 
   MultiMaterialNonLinearIntegrator* buildMultiMaterialNonLinearIntegrator(
       std::shared_ptr<FiniteElementDiscretization> fed,
@@ -108,7 +109,7 @@ namespace mfem_mgis {
       std::string msg("NonLinearEvolutionProblemImplementationBase::");
       msg += n;
       msg += ": multi material support has been disabled";
-      mgis::raise(msg);
+      raise(msg);
     }
   }  // end of checkMultiMaterialSupportEnabled
 
@@ -215,40 +216,40 @@ namespace mfem_mgis {
     mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
-//    this->computePrediction(t, dt);
+    //    this->computePrediction(t, dt);
     this->solver->Mult(zero, this->u1);
     return this->solver->GetConverged();
   }  // end of solve
 
   void NonLinearEvolutionProblemImplementationBase::computePrediction(
       const real, const real) {
-//    constexpr auto it = IntegrationType::PREDICTION_ELASTIC_OPERATOR;
+    //    constexpr auto it = IntegrationType::PREDICTION_ELASTIC_OPERATOR;
     //     std::cout << "ComputePrediction\n";
     //     mfem::Vector c;
     //     mfem::Vector r;
     //     r.SetSize(this->u1.Size());
     //     c.SetSize(this->u1.Size());
-//     if (!this->integrate(this->u1, it)) {
-//       return;
-//     }
-//     std::cout << "this->dirichlet_boundary_conditions: "
-//               << this->dirichlet_boundary_conditions.size() << '\n';
-//     for (const auto& bc : this->dirichlet_boundary_conditions) {
-//       std::cerr << "calling bc: " << bc.get() << '\n';
-//       bc->setImposedValuesIncrements(c, t, t + dt);
-//       bc->setImposedValuesIncrements(this->u1, t, t + dt);
-//     }
-//     this->solver->computeResidual(r, this->u1);
-//     if (!this->solver->computeNewtonCorrection(c, r, this->u1)) {
-//       std::cerr << "Marche pas !\n";
-//       return;
-//     }
-//     c.Print(std::cout);
-//     std::cout << '\n';
-//     this->u1 -= c;
-//     for (const auto& bc : this->dirichlet_boundary_conditions) {
-//       bc->updateImposedValues(this->u1, t + dt);
-//     }
+    //     if (!this->integrate(this->u1, it)) {
+    //       return;
+    //     }
+    //     std::cout << "this->dirichlet_boundary_conditions: "
+    //               << this->dirichlet_boundary_conditions.size() << '\n';
+    //     for (const auto& bc : this->dirichlet_boundary_conditions) {
+    //       std::cerr << "calling bc: " << bc.get() << '\n';
+    //       bc->setImposedValuesIncrements(c, t, t + dt);
+    //       bc->setImposedValuesIncrements(this->u1, t, t + dt);
+    //     }
+    //     this->solver->computeResidual(r, this->u1);
+    //     if (!this->solver->computeNewtonCorrection(c, r, this->u1)) {
+    //       std::cerr << "Marche pas !\n";
+    //       return;
+    //     }
+    //     c.Print(std::cout);
+    //     std::cout << '\n';
+    //     this->u1 -= c;
+    //     for (const auto& bc : this->dirichlet_boundary_conditions) {
+    //       bc->updateImposedValues(this->u1, t + dt);
+    //     }
   }  // end of computePrediction
 
   NonLinearEvolutionProblemImplementationBase::

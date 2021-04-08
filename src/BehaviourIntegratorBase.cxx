@@ -30,7 +30,7 @@ namespace mfem_mgis {
     if (m != nullptr) {
       msg += "(" + std::string(m) + ')';
     }
-    mgis::raise(msg);
+    raise(msg);
   }  // end of throwInvalidBehaviourType
 
   void BehaviourIntegratorBase::throwInvalidBehaviourKinematic(
@@ -39,7 +39,7 @@ namespace mfem_mgis {
     if (m != nullptr) {
       msg += "(" + std::string(m) + ')';
     }
-    mgis::raise(msg);
+    raise(msg);
   }  // end of throwInvalidBehaviourType
 
   void BehaviourIntegratorBase::setTimeIncrement(const real dt) {
@@ -67,15 +67,13 @@ namespace mfem_mgis {
                     mgis::variant<real, mgis::span<real>, std::vector<real>>>&
                values,
            const std::vector<mgis::behaviour::Variable>& ds) {
-          mgis::raise_if(ds.size() != v.size(),
-                         "integrate: ill allocated memory");
+          raise_if(ds.size() != v.size(), "integrate: ill allocated memory");
           // evaluators
           std::vector<std::tuple<size_type, real*>> evs;
           auto i = mgis::size_type{};
           for (const auto& d : ds) {
             if (d.type != mgis::behaviour::Variable::SCALAR) {
-              mgis::raise("integrate: invalid type for variable '" + d.name +
-                          "'");
+              raise("integrate: invalid type for variable '" + d.name + "'");
             }
             auto p = values.find(d.name);
             if (p == values.end()) {
@@ -89,7 +87,7 @@ namespace mfem_mgis {
               } else {
                 msg += "\nNo variable declared.";
               }
-              mgis::raise(msg);
+              raise(msg);
             }
             // depending on the type of p->second, we are branching
             // on one of the following procedure:
@@ -126,7 +124,7 @@ namespace mfem_mgis {
     if (this->b.hypothesis != h) {
       const auto h1 = std::string(toString(this->b.hypothesis));
       const auto h2 = std::string(toString(h));
-      mgis::raise(
+      raise(
           "BehaviourIntegratorBase::checkHypotheses: "
           "the behaviour hypothesis (" +
           h1 + ") does not match the integrator hypothesis (" + h2 + ")");

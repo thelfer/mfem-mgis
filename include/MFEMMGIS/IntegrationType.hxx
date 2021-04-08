@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/IntegrationType.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   31/03/2021
  */
@@ -8,7 +8,7 @@
 #ifndef LIB_MFEM_MGIS_INTEGRATIONTYPE_HXX
 #define LIB_MFEM_MGIS_INTEGRATIONTYPE_HXX
 
-namespace mfem_mgis{
+namespace mfem_mgis {
 
   //! \brief type of integration to be performed
   enum struct IntegrationType {
@@ -22,6 +22,6 @@ namespace mfem_mgis{
     INTEGRATION_CONSISTENT_TANGENT_OPERATOR = 4
   };  // end of enum IntegrationType
 
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_INTEGRATIONTYPE_HXX */

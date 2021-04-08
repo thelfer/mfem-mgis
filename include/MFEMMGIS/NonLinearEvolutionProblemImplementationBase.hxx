@@ -64,14 +64,6 @@ namespace mfem_mgis {
      * \param[in] g: macroscopic gradients
      */
     virtual void setMacroscopicGradients(const std::vector<real>&);
-    //! \return the unknowns at the beginning of the time step
-    virtual mfem::Vector& getUnknownsAtBeginningOfTheTimeStep();
-    //! \return the unknowns at the beginning of the time step
-    virtual const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const;
-    //! \return the unknowns at the end of the time step
-    virtual mfem::Vector& getUnknownsAtEndOfTheTimeStep();
-    //! \return the unknowns at the end of the time step
-    virtual const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const;
     /*!
      * \brief set the linear solver
      * \param[in] s: linear solver
@@ -81,6 +73,10 @@ namespace mfem_mgis {
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
+    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
+    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
+    mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
+    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
     void setSolverParameters(const Parameters&) override;
     std::vector<size_type> getMaterialIdentifiers() const override;
     const Material& getMaterial(const size_type) const override;

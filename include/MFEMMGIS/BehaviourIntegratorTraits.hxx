@@ -8,7 +8,7 @@
 #ifndef LIB_MFEMMGIS_BEHAVIOURINTEGRATORTRAITS_HXX
 #define LIB_MFEMMGIS_BEHAVIOURINTEGRATORTRAITS_HXX
 
-#include "MFEMMGIS/Config.hxx";
+#include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
 

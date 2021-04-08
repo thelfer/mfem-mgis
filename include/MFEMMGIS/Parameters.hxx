@@ -109,8 +109,8 @@ namespace mfem_mgis {
    */
   Parameters extract(const Parameters&, const std::vector<std::string>&);
 
-  }  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
-  #include "MFEMMGIS/Parameter.hxx"
+#include "MFEMMGIS/Parameter.hxx"
 
-  #endif /* LIB_MFEM_MGIS_PARAMETERS_HXX */
+#endif /* LIB_MFEM_MGIS_PARAMETERS_HXX */

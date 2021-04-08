@@ -84,7 +84,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       setPeriodicBoundaryConditions(this->getImplementation<true>());
 #else
-      mgis::raise(
+      raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
@@ -95,7 +95,7 @@ namespace mfem_mgis {
 
   void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition>) {
-    mgis::raise(
+    raise(
         "PeriodicNonLinearEvolutionProblem::addBoundaryCondition: "
         "invalid call");
   }  // end of addBoundaryCondition
@@ -108,7 +108,7 @@ namespace mfem_mgis {
   std::vector<real> PeriodicNonLinearEvolutionProblem::getMacroscopicGradients(
       const real t, const real dt) const {
     if (!this->macroscopic_gradients_evolution) {
-      mgis::raise(
+      raise(
           "PeriodicNonLinearEvolutionProblem::getMacroscopicGradients: "
           "the evolution of the macroscopic gradients has not been set");
     }

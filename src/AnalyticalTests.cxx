@@ -42,7 +42,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       return checkSolution<true>(p, mf, params);
 #else
-      mgis::raise(
+      raise(
           "compareToAnalyticalSolution: "
           "unsupported parallel computations");
 #endif

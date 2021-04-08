@@ -38,6 +38,14 @@ namespace mfem_mgis {
     //! \return the underlying finite element discretization
     virtual std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() = 0;
+    //! \return the unknowns at the beginning of the time step
+    virtual mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() = 0;
+    //! \return the unknowns at the beginning of the time step
+    virtual const mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() const = 0;
+    //! \return the unknowns at the end of the time step
+    virtual mfem::Vector &getUnknownsAtEndOfTheTimeStep() = 0;
+    //! \return the unknowns at the end of the time step
+    virtual const mfem::Vector &getUnknownsAtEndOfTheTimeStep() const = 0;
     /*!
      * \brief set the solver parameters
      * \param[in] params: parameters

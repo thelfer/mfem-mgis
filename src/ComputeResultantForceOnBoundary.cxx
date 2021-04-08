@@ -54,7 +54,7 @@ namespace mfem_mgis {
       const auto& f = get<std::string>(params, "OutputFileName");
       this->out.open(f);
       if (!this->out) {
-        mgis::raise("can't open file '" + f + "'");
+        raise("can't open file '" + f + "'");
       }
       auto& fed = p.getFiniteElementDiscretization();
       auto& fes = fed.template getFiniteElementSpace<true>();
@@ -94,7 +94,7 @@ namespace mfem_mgis {
     const auto& f = get<std::string>(params, "OutputFileName");
     this->out.open(f);
     if (!this->out) {
-      mgis::raise("can't open file '" + f + "'");
+      raise("can't open file '" + f + "'");
     }
     auto& fed = p.getFiniteElementDiscretization();
     auto& fes = fed.template getFiniteElementSpace<false>();

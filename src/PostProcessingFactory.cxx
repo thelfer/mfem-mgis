@@ -28,7 +28,7 @@ namespace mfem_mgis {
       msg += "a post-processing called '";
       msg += n;
       msg += "' has already been declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
@@ -43,7 +43,7 @@ namespace mfem_mgis {
       msg += "no post-processing called '";
       msg += n;
       msg += "' declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     const auto& g = pg->second;
     return g(p, params);
@@ -73,7 +73,7 @@ namespace mfem_mgis {
       msg += "a post-processing called '";
       msg += n;
       msg += "' has already been declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
@@ -88,7 +88,7 @@ namespace mfem_mgis {
       msg += "no post-processing called '";
       msg += n;
       msg += "' declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     const auto& g = pg->second;
     return g(p, params);

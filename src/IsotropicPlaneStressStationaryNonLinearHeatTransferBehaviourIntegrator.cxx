@@ -1,11 +1,11 @@
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
-#include "MFEMMGIS/IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
   const mfem::IntegrationRule &
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       selectIntegrationRule(const mfem::FiniteElement &e,
                             const mfem::ElementTransformation &t) {
     const auto order = 2 * t.OrderGrad(&e);
@@ -13,7 +13,7 @@ namespace mfem_mgis {
   }
 
   std::shared_ptr<const PartialQuadratureSpace>
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       buildQuadratureSpace(const FiniteElementDiscretization &fed,
                            const size_type m) {
     auto selector = [](const mfem::FiniteElement &e,
@@ -24,128 +24,134 @@ namespace mfem_mgis {
     return std::make_shared<PartialQuadratureSpace>(fed, m, selector);
   }  // end of buildQuadratureSpace
 
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
-      IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator(
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
+      IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator(
           const FiniteElementDiscretization &fed,
           const size_type m,
           std::unique_ptr<const Behaviour> b_ptr)
       : StandardBehaviourIntegratorCRTPBase<
-            IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
+            IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator>(
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     if (this->b.symmetry != Behaviour::ISOTROPIC) {
       raise("invalid behaviour symmetry");
     }
   }  // end of
-     // IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator
+     // IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator
 
-  real IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  real IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       getIntegrationPointWeight(mfem::ElementTransformation &tr,
                                 const mfem::IntegrationPoint &ip) const
       noexcept {
     return ip.weight * tr.Weight();
   }
   const mfem::IntegrationRule &
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       getIntegrationRule(const mfem::FiniteElement &e,
                          const mfem::ElementTransformation &t) const {
-    return IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+    return IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
         selectIntegrationRule(e, t);
   }
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  void
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::setup(
+      const real t, const real dt) {
+    BehaviourIntegratorBase::setup(t, dt);
+    const auto &pev = this->s1.external_state_variables.find("Temperature");
+    if (pev == this->s1.external_state_variables.end()) {
+      raise(
+          "IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrat"
+          "or::setup: "
+          "external state variable 'Temperature' is not defined");
+    }
+    if (mgis::holds_alternative<mgis::span<real>>(pev->second)) {
+      this->uesv = mgis::get<mgis::span<real>>(pev->second).data();
+    } else if (mgis::holds_alternative<std::vector<real>>(pev->second)) {
+      this->uesv = mgis::get<std::vector<real>>(pev->second).data();
+    } else {
+      raise(
+          "IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrat"
+          "or::setup: "
+          "external state variable 'Temperature' shall not be uniform");
+    }
+  }  // end of setup
+
+  void IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
+      updateExternalStateVariablesFromUnknownsValues(const mfem::Vector &u,
+                                                     const mfem::Vector &N,
+                                                     const size_type o) {
+    auto &ev = this->uesv[o];
+    ev = 0;
+    for (size_type i = 0; i != u.Size(); ++i) {
+      ev += u[i] * N[i];
+    }
+  }
+
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       RotationMatrix
-      IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+      IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
           getRotationMatrix(const size_type) const {
     return RotationMatrix{};
   }  // end of getRotationMatrix
 
-  void IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  void IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       rotateGradients(mgis::span<real>, const RotationMatrix &) {
   }  // end of rotateGradients
 
   mgis::span<const real>
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       rotateThermodynamicForces(mgis::span<const real> s,
                                 const RotationMatrix &) {
     return s;
   }
 
-  void IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  void IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       rotateTangentOperatorBlocks(mgis::span<real>, const RotationMatrix &) {}
 
   inline void
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateGradients(mgis::span<real> &g,
                       const mfem::Vector &u,
                       const mfem::DenseMatrix &dN,
                       const size_type ni) noexcept {
-    const auto Bi_0_0 = dN(ni, 0);
-    const auto Bi_1_1 = dN(ni, 1);
-    const auto Bi_3_0 = dN(ni, 1) * icste;
-    const auto Bi_3_1 = dN(ni, 0) * icste;
-    const auto nnodes = dN.NumRows();
+    const auto dNi_0 = dN(ni, 0);
+    const auto dNi_1 = dN(ni, 1);
     const auto u_0 = u[ni];
-    const auto u_1 = u[ni + nnodes];
-    g[0] += Bi_0_0 * u_0;
-    g[1] += u_1 * Bi_1_1;
-    g[2] += 0;
-    g[3] += Bi_3_0 * u_0 + u_1 * Bi_3_1;
+    g[0] += dNi_0 * u_0;
+    g[1] += dNi_1 * u_0;
   }  // end of updateGradients
 
   inline void
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateInnerForces(mfem::Vector &Fe,
                         const mgis::span<const real> &s,
                         const mfem::DenseMatrix &dN,
                         const real w,
                         const size_type ni) const noexcept {
-    const auto Bi_0_0 = dN(ni, 0);
-    const auto Bi_1_1 = dN(ni, 1);
-    const auto Bi_3_0 = dN(ni, 1) * icste;
-    const auto Bi_3_1 = dN(ni, 0) * icste;
-    const auto nnodes = dN.NumRows();
-    const auto ni_0 = ni;
-    const auto ni_1 = ni + nnodes;
-    Fe[ni_0] += w * (Bi_3_0 * s[3] + Bi_0_0 * s[0]);
-    Fe[ni_1] += w * (Bi_3_1 * s[3] + s[1] * Bi_1_1);
+    const auto dNi_0 = dN(ni, 0);
+    const auto dNi_1 = dN(ni, 1);
+    Fe[ni] += w * (dNi_0 * s[0] + s[1] * dNi_1);
   }  // end of updateInnerForces
 
   inline void
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                             const mgis::span<const real> &Kip,
+                            const mfem::Vector &N,
                             const mfem::DenseMatrix &dN,
                             const real w,
                             const size_type ni) const noexcept {
     const auto nnodes = dN.NumRows();
-    const auto Bi_0_0 = dN(ni, 0);
-    const auto Bi_1_1 = dN(ni, 1);
-    const auto Bi_3_0 = dN(ni, 1) * icste;
-    const auto Bi_3_1 = dN(ni, 0) * icste;
-    const auto ni_0 = ni;
-    const auto ni_1 = ni + nnodes;
+    const auto dNi_0 = dN(ni, 0);
+    const auto dNi_1 = dN(ni, 1);
     for (size_type nj = 0; nj != nnodes; ++nj) {
-      const auto Bj_0_0 = dN(nj, 0);
-      const auto Bj_1_1 = dN(nj, 1);
-      const auto Bj_3_0 = dN(nj, 1) * icste;
-      const auto Bj_3_1 = dN(nj, 0) * icste;
-      const auto nj_0 = nj;
-      const auto nj_1 = nj + nnodes;
-      Ke(ni_0, nj_0) +=
-          w * (Kip[0] * Bj_0_0 * Bi_0_0 + Kip[3] * Bi_0_0 * Bj_3_0 +
-               Kip[12] * Bj_0_0 * Bi_3_0 + Kip[15] * Bi_3_0 * Bj_3_0);
-      Ke(ni_0, nj_1) +=
-          w * (Kip[1] * Bj_1_1 * Bi_0_0 + Kip[15] * Bj_3_1 * Bi_3_0 +
-               Kip[13] * Bi_3_0 * Bj_1_1 + Kip[3] * Bj_3_1 * Bi_0_0);
-      Ke(ni_1, nj_0) +=
-          w * (Kip[15] * Bi_3_1 * Bj_3_0 + Bi_1_1 * Bj_0_0 * Kip[4] +
-               Kip[12] * Bj_0_0 * Bi_3_1 + Bi_1_1 * Kip[7] * Bj_3_0);
-      Ke(ni_1, nj_1) +=
-          w * (Bi_1_1 * Bj_3_1 * Kip[7] + Kip[15] * Bj_3_1 * Bi_3_1 +
-               Bi_1_1 * Bj_1_1 * Kip[5] + Kip[13] * Bj_1_1 * Bi_3_1);
+      const auto dNj_0 = dN(nj, 0);
+      const auto dNj_1 = dN(nj, 1);
+      Ke(ni, nj) += w * (Kip[1] * dNi_0 * dNj_1 + dNj_0 * Kip[2] * dNi_1 +
+                         Kip[0] * dNj_0 * dNi_0 + dNj_1 * dNi_1 * Kip[3] +
+                         (dNi_0 * Kip[4] + Kip[5] * dNi_1) * N[nj]);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 
-  bool IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  bool IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       integrate(const mfem::FiniteElement &e,
                 mfem::ElementTransformation &tr,
                 const mfem::Vector &u,
@@ -153,7 +159,7 @@ namespace mfem_mgis {
     return this->implementIntegrate(e, tr, u, it);
   }  // end of integrate
 
-  void IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  void IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateResidual(mfem::Vector &Fe,
                      const mfem::FiniteElement &e,
                      mfem::ElementTransformation &tr,
@@ -161,7 +167,7 @@ namespace mfem_mgis {
     this->implementUpdateResidual(Fe, e, tr, u);
   }  // end of updateResidual
 
-  void IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  void IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateJacobian(mfem::DenseMatrix &Ke,
                      const mfem::FiniteElement &e,
                      mfem::ElementTransformation &tr,
@@ -169,15 +175,15 @@ namespace mfem_mgis {
     this->implementUpdateJacobian(Ke, e, tr);
   }  // end of updateJacobian
 
-  void IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
+  void IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       computeInnerForces(mfem::Vector &Fe,
                          const mfem::FiniteElement &e,
                          mfem::ElementTransformation &tr) {
     this->implementComputeInnerForces(Fe, e, tr);
   }  // end of computeInnerForces
 
-  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator::
-      ~IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator() =
+  IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
+      ~IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator() =
           default;
 
 }  // end of namespace mfem_mgis

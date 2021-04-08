@@ -15,10 +15,11 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static void checkSolverOperator(
-      const NonLinearEvolutionProblemImplementation<parallel> &) {
+      const NonLinearEvolutionProblemImplementation<parallel> &p) {
     MFEM_ASSERT(p.Height() == p.Width(),
                 "checkSolverOperator: "
                 "a square operator is required.");
+    static_cast<void>(p);
   }  // end of checkSolverOperator
 
 #ifdef MFEM_USE_MPI
@@ -51,14 +52,14 @@ namespace mfem_mgis {
   }  // end of NewtonSolver
 
   void NewtonSolver::SetOperator(const mfem::Operator &) {
-    mgis::raise("NewtonSolver::SetOperator: invalid call");
+    raise("NewtonSolver::SetOperator: invalid call");
   }  // end of SetOperator
 
   void NewtonSolver::SetPreconditioner(Solver &) {
-    mgis::raise("NewtonSolver::SetOperator: invalid call");
+    raise("NewtonSolver::SetOperator: invalid call");
   }  // end of SetPreconditioner
 
-  void NewtonSolver::setLinearSolver(LinearSolver& s) {
+  void NewtonSolver::setLinearSolver(LinearSolver &s) {
     this->prec = &s;
     this->prec->iterative_mode = false;
   }  // end of setLinearSolver
@@ -93,7 +94,7 @@ namespace mfem_mgis {
     auto norm = norm0;
 
     while (true) {
-      MFEM_ASSERT(IsFinite(norm), "norm = " << norm);
+      MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
       if (this->print_level >= 0) {
         mfem::out << "Newton iteration " << std::setw(2) << it
                   << " : ||r|| = " << norm;
@@ -120,7 +121,7 @@ namespace mfem_mgis {
       }
       //
       // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
-//      add(x, -1, c, x);
+      //      add(x, -1, c, x);
       x -= c;
 
       if (!this->processNewUnknownsEstimate(x)) {
@@ -178,4 +179,4 @@ namespace mfem_mgis {
 
   NewtonSolver::~NewtonSolver() = default;
 
-  }  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

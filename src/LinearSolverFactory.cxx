@@ -105,7 +105,7 @@ namespace mfem_mgis {
       msg += "a linear solver called '";
       msg += n;
       msg += "' has already been declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
@@ -118,7 +118,7 @@ namespace mfem_mgis {
       msg += "no linear solver called '";
       msg += n;
       msg += "' declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     const auto& g = pg->second;
     auto s = std::unique_ptr<LinearSolver>{};
@@ -130,7 +130,7 @@ namespace mfem_mgis {
       msg += n;
       msg += "'\n";
       msg += e.what();
-      mgis::raise(msg);
+      raise(msg);
     }
     return s;
   }  // end of generate
@@ -155,7 +155,7 @@ namespace mfem_mgis {
       msg += "a linear solver called '";
       msg += n;
       msg += "' has already been declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
@@ -168,7 +168,7 @@ namespace mfem_mgis {
       msg += "no linear solver called '";
       msg += n;
       msg += "' declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     const auto& g = pg->second;
     auto s = std::unique_ptr<LinearSolver>{};
@@ -180,7 +180,7 @@ namespace mfem_mgis {
       msg += n;
       msg += "'\n";
       msg += e.what();
-      mgis::raise(msg);
+      raise(msg);
     }
     return s;
   }  // end of generate

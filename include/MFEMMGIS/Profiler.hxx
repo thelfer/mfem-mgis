@@ -22,7 +22,7 @@ namespace mfem_mgis {
   /*!
    * \brief structure used to profile the execution
    */
-  struct MFEM_MGIS_EXPORT  Profiler {
+  struct MFEM_MGIS_EXPORT Profiler {
     // foward declaration
     struct TimeSection;
     /*!
@@ -44,7 +44,7 @@ namespace mfem_mgis {
       timespec start;
       //! \brief end
       timespec end;
-    }; // end of struct Timer
+    };  // end of struct Timer
     /*!
      * \brief structure handling the measurement of a portion of the code
      */
@@ -87,7 +87,6 @@ namespace mfem_mgis {
     Timer getTimer(std::string_view);
 
    private:
-
     //! \brief default constructor
     Profiler();
     // explicitly deleted constructors and assignement operators

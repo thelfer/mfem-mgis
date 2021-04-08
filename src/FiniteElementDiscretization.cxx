@@ -29,26 +29,26 @@ namespace mfem_mgis {
       "NumberOfUniformRefinements";
 
   void FiniteElementDiscretization::reportInvalidParallelMesh() {
-    mgis::raise(
+    raise(
         "FiniteElementDiscretization::reportInvalidParallelMesh: "
         "no parallel mesh defined");
   }  // end of reportInvalidParallelMesh
 
   void FiniteElementDiscretization::reportInvalidSequentialMesh() {
-    mgis::raise(
+    raise(
         "FiniteElementDiscretization::reportInvalidSequentialMesh: "
         "no sequential mesh defined");
   }  // end of reportInvalidSequentialMesh
 
   void FiniteElementDiscretization::reportInvalidParallelFiniteElementSpace() {
-    mgis::raise(
+    raise(
         "FiniteElementDiscretization::reportInvalidParallelFiniteElementSpace: "
         "no parallel finite element space defined");
   }  // end of reportInvalidParallelFiniteElementSpace
 
   void
   FiniteElementDiscretization::reportInvalidSequentialFiniteElementSpace() {
-    mgis::raise(
+    raise(
         "FiniteElementDiscretization::"
         "reportInvalidSequentialFiniteElementSpace: "
         "no sequential finite element space defined");
@@ -86,7 +86,7 @@ namespace mfem_mgis {
       for (size_type i = 0; i != nrefinement; ++i) {
         this->parallel_mesh->UniformRefinement();
       }
-#else /* MFEM_USE_MPI */
+#else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
@@ -100,7 +100,7 @@ namespace mfem_mgis {
     if (fe_family == "H1") {
       this->fec = std::make_shared<mfem::H1_FECollection>(fe_order, u_size);
     } else {
-      mgis::raise(
+      raise(
           "FiniteElementDiscretization::FiniteElementDiscretization: "
           "unsupported finite element family '" +
           fe_family + "'");
@@ -110,7 +110,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       this->parallel_fe_space = std::make_unique<FiniteElementSpace<true>>(
           this->parallel_mesh.get(), this->fec.get(), u_size);
-#else /* MFEM_USE_MPI */
+#else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
@@ -128,9 +128,9 @@ namespace mfem_mgis {
       : parallel_mesh(std::move(m)), fec(std::move(c)) {
     this->parallel_fe_space = std::make_unique<FiniteElementSpace<true>>(
         this->parallel_mesh.get(), this->fec.get(), d);
-  }    // end of FiniteElementDiscretization
+  }  // end of FiniteElementDiscretization
 
-#else  /* MFEM_USE_MPI */
+#else /* MFEM_USE_MPI */
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>>,
@@ -151,14 +151,14 @@ namespace mfem_mgis {
         fec(std::move(c)),
         parallel_fe_space(std::move(s)) {
     if (this->parallel_mesh.get() != this->parallel_fe_space->GetMesh()) {
-      mgis::raise(
+      raise(
           "FiniteElementDiscretization::FiniteElementDiscretization: "
           "mesh pointer don't match the mesh on which the finite element space "
           "is built");
     }
-  }    // end of FiniteElementDiscretization
+  }  // end of FiniteElementDiscretization
 
-#else  /* MFEM_USE_MPI */
+#else /* MFEM_USE_MPI */
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>>,
@@ -186,7 +186,7 @@ namespace mfem_mgis {
         fec(std::move(c)),
         sequential_fe_space(std::move(s)) {
     if (this->sequential_mesh.get() != this->sequential_fe_space->GetMesh()) {
-      mgis::raise(
+      raise(
           "FiniteElementDiscretization::FiniteElementDiscretization: "
           "mesh pointer don't match the mesh on which the finite element space "
           "is built");

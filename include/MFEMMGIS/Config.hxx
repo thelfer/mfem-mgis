@@ -8,7 +8,9 @@
 #ifndef LIB_MFEM_MGIS_CONFIG_HXX
 #define LIB_MFEM_MGIS_CONFIG_HXX
 
+#include <cstdlib>
 #include "MGIS/Config.hxx"
+#include "MGIS/Raise.hxx"
 #include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 
@@ -60,10 +62,58 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT void finalize();
   /*!
-   * \brief function that must be called if one MPI process detect an fatal error.
+   * \brief a small wrapper used to build the exception outside the
+   * `throw` statement. As most exception's classes constructors may
+   * throw, this avoids undefined behaviour as reported by the
+   * `cert-err60-cpp` warning of `clang-tidy` (thrown exception type
+   * is not nothrow copy constructible).
+   * \tparam Exception: type of the exception to be thrown.
    */
-  MFEM_MGIS_EXPORT [[noreturn]] void abort(int error = EXIT_FAILURE);
+  template <typename Exception = std::runtime_error>
+  [[noreturn]] MFEM_MGIS_VISIBILITY_LOCAL void raise();
+
+  /*!
+   * \brief a small wrapper used to build the exception outside the
+   * `throw` statement. As most exception's classes constructors may
+   * throw, this avoids undefined behaviour as reported by the
+   * `cert-err60-cpp` warning of `clang-tidy` (thrown exception type
+   * is not nothrow copy constructible).
+   * \tparam Exception: type of the exception to be thrown.
+   * \tparam Args: type of the arguments passed to the exception'
+   * constructor.
+   * \param[in] a: arguments passed to the exception' constructor.
+   */
+  template <typename Exception = std::runtime_error, typename... Args>
+  [[noreturn]] MFEM_MGIS_VISIBILITY_LOCAL void raise(Args&&...);
+  /*!
+   * \brief raise an exception if the first argument is `true`.
+   * \tparam Exception: type of the exception to be thrown.
+   * \tparam Args: type of the arguments passed to the exception'
+   * constructor.
+   * \param[in] b: condition to be checked. If `true`, an exception is
+   * thrown.
+   * \param[in] a: arguments passed to the exception' constructor.
+   */
+  template <typename Exception = std::runtime_error, typename... Args>
+  MFEM_MGIS_VISIBILITY_LOCAL inline void raise_if(const bool, Args&&...);
+
+  /*!
+   * \brief function that must be called if one MPI process detect an fatal
+   * error.
+   * \param[in] error: exit status
+   */
+  MFEM_MGIS_EXPORT [[noreturn]] void abort(const int = EXIT_FAILURE);
+  /*!
+   * \brief function that must be called if one MPI process detect an fatal
+   * error.
+   * \param[in] msg: message displayed of the calling process
+   * \param[in] error: exit status
+   */
+  MFEM_MGIS_EXPORT [[noreturn]] void abort(const char* const,
+                                           const int = EXIT_FAILURE);
 
 }  // namespace mfem_mgis
+
+#include "MFEMMGIS/Config.ixx"
 
 #endif /* LIB_MFEM_MGIS_CONFIG_HXX */

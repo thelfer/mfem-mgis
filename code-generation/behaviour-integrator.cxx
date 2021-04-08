@@ -44,16 +44,17 @@ std::string makeUpperCase(const std::string& n) {
 }  // end of makeUpperCase
 
 struct BehaviourIntegratorDescription {
-  using BMatrixGenerator = GiNaC::matrix (*)(std::ostream&,
-                                             const std::string&,
-                                             const bool);
+  using BMatrixGenerator = std::pair<bool, GiNaC::matrix> (*)(
+      std::ostream&, const std::string&, const bool);
   std::string name;
   std::string hypothesis;
+  std::string unknown_name;
   BMatrixGenerator generator;
+  bool requires_unknowns_value = false;
   bool isotropic = true;
 };  // end of struct BehaviourIntegratorDescription
 
-bool isTwoDimensionalHypothesis(const std::string& h) {
+static bool isTwoDimensionalHypothesis(const std::string& h) {
   if ((h == "Axisymmetrical") || (h == "PlaneStrain") || (h == "PlaneStress") ||
       (h == "GeneralisedPlaneStrain")) {
     return true;
@@ -61,7 +62,7 @@ bool isTwoDimensionalHypothesis(const std::string& h) {
   return false;
 }  // end of isTwoDimensionalHypothesis
 
-bool isAxisymmetricalHypothesis(const std::string& h) {
+static bool isAxisymmetricalHypothesis(const std::string& h) {
   if ((h == "Axisymmetrical") ||
       (h == "AxisymmetricalGeneralisedPlaneStrain") ||
       (h == "AxisymmetricalGeneralisedPlaneStress")) {
@@ -70,24 +71,22 @@ bool isAxisymmetricalHypothesis(const std::string& h) {
   return false;
 }  // end of isAxisymmetricalHypothesis
 
-void writeHeaderGuardAtBeginnnigOfFile(std::ostream& os,
-                                       const std::string& cn,
-                                       const std::string& ftype) {
+static void writeHeaderGuardAtBeginnnigOfFile(std::ostream& os,
+                                              const std::string& cn,
+                                              const std::string& ftype) {
   os << "#ifndef LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype << '\n'
      << "#define LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype << "\n\n";
 }  // end of writeHeaderGuardAtBeginnnigOfFile
 
-void writeHeaderGuardAtEndOfFile(std::ostream& os,
-                                 const std::string& cn,
-                                 const std::string& ftype) {
+static void writeHeaderGuardAtEndOfFile(std::ostream& os,
+                                        const std::string& cn,
+                                        const std::string& ftype) {
   os << "#endif /* LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype
      << "*/\n";
 }  // end of writeHeaderGuardAtEndOfFile
 
-std::vector<GiNaC::symbol> makeShapeFunctionDerivatives(std::ostream& os,
-                                                        const std::string& idx,
-                                                        const size_type d,
-                                                        const bool b) {
+static std::vector<GiNaC::symbol> makeShapeFunctionDerivatives(
+    std::ostream& os, const std::string& idx, const size_type d, const bool b) {
   std::vector<GiNaC::symbol> dNs;
   for (size_type i = 0; i != d; ++i) {
     const auto dN = "dN" + idx + "_" + std::to_string(i);
@@ -99,7 +98,8 @@ std::vector<GiNaC::symbol> makeShapeFunctionDerivatives(std::ostream& os,
   return dNs;
 }  // end of makeShapeFunctionDerivative
 
-GiNaC::matrix makeVectorOfSymbols(const std::string& name, const size_type s) {
+static GiNaC::matrix makeVectorOfSymbols(const std::string& name,
+                                         const size_type s) {
   GiNaC::matrix v(s, 1);
   for (size_type i = 0; i != s; ++i) {
     v(i, 0) = GiNaC::symbol(name + '[' + std::to_string(i) + "]");
@@ -107,13 +107,15 @@ GiNaC::matrix makeVectorOfSymbols(const std::string& name, const size_type s) {
   return v;
 }
 
-GiNaC::matrix makeMatrixOfSymbols(const std::string& name,
-                                  const size_type n,
-                                  const size_type m) {
+static GiNaC::matrix makeMatrixOfSymbols(const std::string& name,
+                                         const size_type n,
+                                         const size_type m,
+                                         const size_type o = 0) {
   GiNaC::matrix v(n, m);
   for (size_type i = 0; i != n; ++i) {
     for (size_type j = 0; j != m; ++j) {
-      v(i, j) = GiNaC::symbol(name + '[' + std::to_string(i * n + j) + ']');
+      const auto offset = std::to_string(i * m + j + o);
+      v(i, j) = GiNaC::symbol(name + '[' + offset + ']');
     }
   }
   return v;
@@ -189,9 +191,11 @@ void generateUpdateGradient(std::ostream& os,
      << d.name << "::updateGradients(mgis::span<real> &g,\n"
      << "const mfem::Vector &u,\n"
      << "const mfem::DenseMatrix &dN,\n"
-     << "const size_type ni) noexcept {\n"
-     << "const auto nnodes = dN.NumRows();\n";
-  const auto Bi = d.generator(os, "i", true);
+     << "const size_type ni) noexcept {\n";
+  const auto [b, Bi] = d.generator(os, "i", true);
+  if (Bi.cols() != 1) {
+    os << "const auto nnodes = dN.NumRows();\n";
+  }
   const auto u = makeVectorOfUnknowns(os, "u", "ni", Bi.cols(), false);
   const auto g = Bi.mul(u);
   for (size_type i = 0; i != Bi.rows(); ++i) {
@@ -207,11 +211,13 @@ void generateUpdateInnerForces(std::ostream& os,
      << "const mgis::span<const real> &s,\n"
      << "const mfem::DenseMatrix &dN,\n"
      << "const real w,\n"
-     << "const size_type ni) const noexcept {\n"
-     << "const auto nnodes = dN.NumRows();\n";
-  const auto Bi = d.generator(os, "i", true);
+     << "const size_type ni) const noexcept {\n";
+  const auto [bi, Bi] = d.generator(os, "i", true);
   const auto S = makeVectorOfSymbols("s", Bi.rows());
   const auto Fe = transpose(Bi).mul(S);
+  if (Bi.cols() != 1) {
+    os << "const auto nnodes = dN.NumRows();\n";
+  }
   generateUnknownOffsets(os, "ni", Bi.cols());
   for (size_type i = 0; i != Bi.cols(); ++i) {
     const auto ni = getUnknownOffset("ni", i, Bi.cols());
@@ -223,35 +229,64 @@ void generateUpdateInnerForces(std::ostream& os,
 
 void generateUpdateStiffnessMatrix(std::ostream& os,
                                    const BehaviourIntegratorDescription& d) {
-  os << "inline void\n"
-     << d.name << "::updateStiffnessMatrix(mfem::DenseMatrix &Ke,\n"
-     << "const mgis::span<const real> &Kip,\n"
-     << "const mfem::DenseMatrix &dN,\n"
-     << "const real w,\n"
-     << "const size_type ni) const noexcept {\n"
-     << "const auto nnodes = dN.NumRows();\n";
-  const auto Bi = d.generator(os, "i", true);
-  generateUnknownOffsets(os, "ni", Bi.cols());
+  if (d.requires_unknowns_value) {
+    os << "inline void\n"
+       << d.name << "::updateStiffnessMatrix(mfem::DenseMatrix &Ke,\n"
+       << "const mgis::span<const real> &Kip,\n"
+       << "const mfem::Vector &N,\n"
+       << "const mfem::DenseMatrix &dN,\n"
+       << "const real w,\n"
+       << "const size_type ni) const noexcept {\n";
+  } else {
+    os << "inline void\n"
+       << d.name << "::updateStiffnessMatrix(mfem::DenseMatrix &Ke,\n"
+       << "const mgis::span<const real> &Kip,\n"
+       << "const mfem::DenseMatrix &dN,\n"
+       << "const real w,\n"
+       << "const size_type ni) const noexcept {\n";
+  }
+  os << "const auto nnodes = dN.NumRows();\n";
+  const auto [bi, Bi] = d.generator(os, "i", true);
   const auto K = makeMatrixOfSymbols("Kip", Bi.rows(), Bi.rows());
+  generateUnknownOffsets(os, "ni", Bi.cols());
   os << "for (size_type nj = 0; nj != nnodes; ++nj) {\n";
-  const auto Bj = d.generator(os, "j", true);
+  const auto [bj, Bj] = d.generator(os, "j", true);
   const auto Ke = transpose(Bi).mul(K).mul(Bj);
   generateUnknownOffsets(os, "nj", Bj.cols());
-  for (size_type i = 0; i != Bi.cols(); ++i) {
-    const auto ni = getUnknownOffset("ni", i, Bi.cols());
-    for (size_type j = 0; j != Bi.cols(); ++j) {
-      const auto nj = getUnknownOffset("nj", j, Bj.cols());
-      os << "Ke(" << ni << ", " << nj << ") += "
-         << "w * (" << simplify(Ke(i, j)) << ");\n";
+  if (d.requires_unknowns_value) {
+    if (Bi.cols() != 1) {
+      raise("generateUpdateStiffnessMatrix: invalid call");
+    }
+    const auto ds_ddu =
+        makeMatrixOfSymbols("Kip", Bi.rows(), 1, Bi.rows() * Bi.rows());
+    const auto dFe_ddu = transpose(Bi).mul(ds_ddu);
+    for (size_type i = 0; i != Bi.cols(); ++i) {
+      const auto ni = getUnknownOffset("ni", i, Bi.cols());
+      for (size_type j = 0; j != Bi.cols(); ++j) {
+        const auto nj = getUnknownOffset("nj", j, Bj.cols());
+        const auto Ke1v = simplify(Ke(i, j));
+        const auto Ke2v = simplify(dFe_ddu(i, 0));
+        os << "Ke(" << ni << ", " << nj << ") += "
+           << "w * (" << simplify(Ke1v) << " + (" << Ke2v << ") * "
+           << "N[" << nj << "]);\n";
+      }
+    }
+  } else {
+    for (size_type i = 0; i != Bi.cols(); ++i) {
+      const auto ni = getUnknownOffset("ni", i, Bi.cols());
+      for (size_type j = 0; j != Bi.cols(); ++j) {
+        const auto nj = getUnknownOffset("nj", j, Bj.cols());
+        os << "Ke(" << ni << ", " << nj << ") += "
+           << "w * (" << simplify(Ke(i, j)) << ");\n";
+      }
     }
   }
   os << "} // end of for (size_type nj = 0; nj != nnodes; ++nj)\n"
      << "} // end of updateStiffnessMatrix\n\n";
 }  // end of generateUpdateStiffnessMatrix
 
-GiNaC::matrix makeSmallStrainMechanicsBMatrixPlaneStrain(std::ostream& os,
-                                                         const std::string& nid,
-                                                         const bool b) {
+std::pair<bool, GiNaC::matrix> makePlaneStrainSmallStrainMechanicsBMatrix(
+    std::ostream& os, const std::string& nid, const bool b) {
   auto B = GiNaC::matrix(4, 2);
   const auto Bn = "B" + nid;
   const auto dN = [&nid](const size_type i) {
@@ -268,18 +303,16 @@ GiNaC::matrix makeSmallStrainMechanicsBMatrixPlaneStrain(std::ostream& os,
   generate(1, 1, dN(1));
   generate(3, 0, dN(1) + " * icste");
   generate(3, 1, dN(0) + " * icste");
-  return B;
+  return std::make_pair(false, B);
 }
 
-GiNaC::matrix makeSmallStrainMechanicsBMatrixPlaneStress(std::ostream& os,
-                                                         const std::string& nid,
-                                                         const bool b) {
-  return makeSmallStrainMechanicsBMatrixPlaneStrain(os, nid, b);
+std::pair<bool, GiNaC::matrix> makePlaneStressSmallStrainMechanicsBMatrix(
+    std::ostream& os, const std::string& nid, const bool b) {
+  return makePlaneStrainSmallStrainMechanicsBMatrix(os, nid, b);
 }
 
-GiNaC::matrix makeSmallStrainMechanicsBMatrix3D(std::ostream& os,
-                                                const std::string& nid,
-                                                const bool b) {
+std::pair<bool, GiNaC::matrix> makeTridimensionalSmallStrainMechanicsBMatrix(
+    std::ostream& os, const std::string& nid, const bool b) {
   auto B = GiNaC::matrix(6, 3);
   const auto Bn = "B" + nid;
   const auto dN = [&nid](const size_type i) {
@@ -301,10 +334,10 @@ GiNaC::matrix makeSmallStrainMechanicsBMatrix3D(std::ostream& os,
   generate(4, 2, dN(0) + "* icste");
   generate(5, 1, dN(2) + "* icste");
   generate(5, 2, dN(1) + "* icste");
-  return B;
+  return std::make_pair(false, B);
 }
 
-GiNaC::matrix makeFiniteStrainMechanicsBMatrixPlaneStrain(
+std::pair<bool, GiNaC::matrix> makePlaneStrainFiniteStrainMechanicsBMatrix(
     std::ostream& os, const std::string& idx, const bool b) {
   const auto d = size_type{2};
   const auto dN = makeShapeFunctionDerivatives(os, idx, d, b);
@@ -313,17 +346,16 @@ GiNaC::matrix makeFiniteStrainMechanicsBMatrixPlaneStrain(
   B(1, 1) = dN[1];
   B(3, 0) = dN[1];  // dux_dy
   B(4, 1) = dN[0];  // duy_dx
-  return B;
+  return std::make_pair(false, B);
 }
 
-GiNaC::matrix makeFiniteStrainMechanicsBMatrixPlaneStress(
+std::pair<bool, GiNaC::matrix> makePlaneStressFiniteStrainMechanicsBMatrix(
     std::ostream& os, const std::string& idx, const bool b) {
-  return makeFiniteStrainMechanicsBMatrixPlaneStrain(os, idx, b);
+  return makePlaneStrainFiniteStrainMechanicsBMatrix(os, idx, b);
 }
 
-GiNaC::matrix makeFiniteStrainMechanicsBMatrix3D(std::ostream& os,
-                                                 const std::string& idx,
-                                                 const bool b) {
+std::pair<bool, GiNaC::matrix> makeTridimensionalFiniteStrainMechanicsBMatrix(
+    std::ostream& os, const std::string& idx, const bool b) {
   const auto d = size_type{3};
   const auto dN = makeShapeFunctionDerivatives(os, idx, d, b);
   auto B = GiNaC::matrix(9, d);
@@ -336,13 +368,25 @@ GiNaC::matrix makeFiniteStrainMechanicsBMatrix3D(std::ostream& os,
   B(6, 2) = dN[0];  // duz_dx
   B(7, 1) = dN[2];  // duy_dz
   B(8, 2) = dN[1];  // duz_dy
-  return B;
+  return std::make_pair(false, B);
+}
+
+template <unsigned short dime>
+std::pair<bool, GiNaC::matrix> makeHeatTransferBMatrix(std::ostream& os,
+                                                       const std::string& idx,
+                                                       const bool b) {
+  const auto dN = makeShapeFunctionDerivatives(os, idx, dime, b);
+  auto B = GiNaC::matrix(dime, 1);
+  for (size_type i = 0; i != dime; ++i) {
+    B(i, 0) = dN[i];
+  }
+  return std::make_pair(false, B);
 }
 
 void generateHeaderFile(std::ostream& os,
                         const BehaviourIntegratorDescription& d) {
   writeHeaderGuardAtBeginnnigOfFile(os, d.name, "HXX");
-  const auto B = d.generator(os, "", false);
+  const auto [b, B] = d.generator(os, "", false);
   os << "#include <array>\n"
      << "#include <mfem/linalg/densemat.hpp>\n"
      << "#include \"MFEMMGIS/Config.hxx\"\n"
@@ -351,28 +395,37 @@ void generateHeaderFile(std::ostream& os,
      << '\n'
      << "namespace mfem_mgis {\n"
      << '\n'
-     << "  // forward declaration\n"
-     << "  struct FiniteElementDiscretization;\n"
+     << "// forward declaration\n"
+     << "struct FiniteElementDiscretization;\n"
      << '\n'
      << "// forward declaration\n"
-     << "  struct " << d.name << ";\n"
+     << "struct " << d.name << ";\n"
      << '\n'
+     << "/*!\n"
+     << " * \\brief partial specialisation of the `BehaviourIntegratorTraits` "
+     << " * class for the `" << d.name << "` behaviour integrator"
+     << " */\n"
      << "template<>\n"
-     << "struct BehaviourIntegrationTraits<" << d.name << ">{\n"
-     << "//! \brief size of the unknowns\n"
+     << "struct BehaviourIntegratorTraits<" << d.name << ">{\n"
+     << "//! \\brief size of the unknowns\n"
      << "static constexpr size_type unknownsSize = " << B.cols() << ";\n"
-     << "//! \brief\n"
+     << "//! \\brief\n"
      << "static constexpr bool gradientsComputationRequiresShapeFunctions"
      << " = false;\n"
-     << "//! \brief\n"
-     << "static constexpr bool updateExternalStateVariablesFromUnknownsValues"
-     << " = false;\n"
-     << "}; // end of struct BehaviourIntegrationTraits<" << d.name << ">\n"
+     << "//! \\brief\n";
+  if (d.requires_unknowns_value) {
+    os << "static constexpr bool "
+          "updateExternalStateVariablesFromUnknownsValues = true;\n";
+  } else {
+    os << "static constexpr bool "
+          "updateExternalStateVariablesFromUnknownsValues = false;\n";
+  }
+  os << "}; // end of struct BehaviourIntegratorTraits<" << d.name << ">\n"
      << '\n'
-     << "  /*!\n"
-     << "   */\n"
-     << "  struct MFEM_MGIS_EXPORT " << d.name << " final\n"
-     << "  : StandardBehaviourIntegratorCRTPBase<" << d.name << "> {\n\n"
+     << "/*!\n"
+     << " */\n"
+     << "struct MFEM_MGIS_EXPORT " << d.name << " final\n"
+     << ": StandardBehaviourIntegratorCRTPBase<" << d.name << "> {\n\n"
      << "/*!\n"
      << " * \\brief a constant value used for the computation of\n"
      << " * symmetric tensors\n"
@@ -395,11 +448,25 @@ void generateHeaderFile(std::ostream& os,
      << "" << d.name << "(const FiniteElementDiscretization &,\n"
      << "             const size_type,\n"
      << "             std::unique_ptr<const Behaviour>);\n"
-     << '\n'
+     << '\n';
+  if (d.requires_unknowns_value) {
+    os << "void setup(const real, const real) override;\n"
+       << "/*!\n"
+       << " * \\brief update the external state variable\n"
+       << " * corresponding to the unknowns.\n"
+       << " *\n"
+       << " * \\param[in] u: unknowns\n"
+       << " * \\param[in] N: values of the shape functions\n"
+       << " * \\param[in] o: offset associated with the\n"
+       << " * current integration point\n"
+       << " */\n"
+       << "void updateExternalStateVariablesFromUnknownsValues(\n"
+       << "const mfem::Vector&, const mfem::Vector&, const size_type);\n";
+  }
+  os << '\n'
      << "/*!\n"
      << " * \\return the rotation matrix associated with the given "
-        "integration\n"
-     << " * point\n"
+     << " * integration point\n"
      << " * \\param[in] i: integration points\n"
      << " */\n"
      << "inline RotationMatrix getRotationMatrix(const size_type) const;\n"
@@ -498,24 +565,46 @@ void generateHeaderFile(std::ostream& os,
      << "                       const mgis::span<const real> &,\n"
      << "                       const mfem::DenseMatrix &,\n"
      << "                       const real,\n"
-     << "                       const size_type) const noexcept;\n"
-     << "/*!\n"
-     << " * \\brief update the stiffness matrix of the given node\n"
-     << " * with the contribution of the consistent tangent operator of "
-     << " * an integration point.\n"
-     << " *\n"
-     << " * \\param[out] Ke: inner forces\n"
-     << " * \\param[in] Kip: stress\n"
-     << " * \\param[in] dshape: derivatives of the shape function\n"
-     << " * \\param[in] w: weight of the integration point\n"
-     << " * \\param[in] n: node index\n"
-     << " */\n"
-     << "void updateStiffnessMatrix(mfem::DenseMatrix &,\n"
-     << "                           const mgis::span<const real>&,\n"
-     << "                           const mfem::DenseMatrix &,\n"
-     << "                           const real,\n"
-     << "                           const size_type) const noexcept;\n"
-     << '\n'
+     << "                       const size_type) const noexcept;\n";
+
+  if (d.requires_unknowns_value) {
+    os << "/*!\n"
+       << " * \\brief update the stiffness matrix of the given node\n"
+       << " * with the contribution of the consistent tangent operator of "
+       << " * an integration point.\n"
+       << " *\n"
+       << " * \\param[out] Ke: inner forces\n"
+       << " * \\param[in] Kip: stress\n"
+       << " * \\param[in] N: shape function values\n"
+       << " * \\param[in] dN: derivatives of the shape function\n"
+       << " * \\param[in] w: weight of the integration point\n"
+       << " * \\param[in] n: node index\n"
+       << " */\n"
+       << "void updateStiffnessMatrix(mfem::DenseMatrix &,\n"
+       << "                           const mgis::span<const real>&,\n"
+       << "                           const mfem::Vector &,\n"
+       << "                           const mfem::DenseMatrix &,\n"
+       << "                           const real,\n"
+       << "                           const size_type) const noexcept;\n";
+  } else {
+    os << "/*!\n"
+       << " * \\brief update the stiffness matrix of the given node\n"
+       << " * with the contribution of the consistent tangent operator of "
+       << " * an integration point.\n"
+       << " *\n"
+       << " * \\param[out] Ke: inner forces\n"
+       << " * \\param[in] Kip: stress\n"
+       << " * \\param[in] dN: derivatives of the shape function\n"
+       << " * \\param[in] w: weight of the integration point\n"
+       << " * \\param[in] n: node index\n"
+       << " */\n"
+       << "void updateStiffnessMatrix(mfem::DenseMatrix &,\n"
+       << "                           const mgis::span<const real>&,\n"
+       << "                           const mfem::DenseMatrix &,\n"
+       << "                           const real,\n"
+       << "                           const size_type) const noexcept;\n";
+  }
+  os << '\n'
      << "/*!\n"
      << " * \\brief return the weight of the integration point, taking the\n"
      << " * modelling hypothesis into account\n"
@@ -525,19 +614,28 @@ void generateHeaderFile(std::ostream& os,
      << "real getIntegrationPointWeight(mfem::ElementTransformation&,\n"
      << "                               const mfem::IntegrationPoint&) \n"
      << "                              const noexcept;\n"
-     << '\n'
-     << "protected:\n"
-     << "";
+     << '\n';
   if (!d.isotropic) {
     if (isTwoDimensionalHypothesis(d.hypothesis)) {
       os << "//! \brief the rotation matrix\n"
-         << "RotationMatrix2D rotation_matrix;\n";
+         << "RotationMatrix2D rotation_matrix;\n\n";
     } else if (d.hypothesis == "Tridimensional") {
       os << "//! \brief the rotation matrix\n"
-         << "RotationMatrix3D rotation_matrix;\n";
+         << "RotationMatrix3D rotation_matrix;\n\n";
     }
   }
-  os << "    };  // end of struct " << d.name << '\n'
+  if (d.requires_unknowns_value) {
+    if (B.cols() == 1) {
+      os << "/*!\n"
+         << " * \\brief pointer to the external state variable\n"
+         << " * associated with the unknown\n"
+         << " */\n"
+         << "real* uesv = nullptr;\n";
+    } else {
+      raise("generateHeaderFile: unsupported case");
+    }
+  }
+  os << "};  // end of struct " << d.name << '\n'
      << '\n'
      << "}  // end of namespace mfem_mgis\n"
      << '\n';
@@ -546,7 +644,7 @@ void generateHeaderFile(std::ostream& os,
 
 void generateSourceFile(std::ostream& os,
                         const BehaviourIntegratorDescription& d) {
-  const auto B = d.generator(os, "", false);
+  const auto [b, B] = d.generator(os, "", false);
   os << "#include <algorithm>\n"
      << "#include \"MGIS/Behaviour/Behaviour.hxx\"\n"
      << "#include \"MFEMMGIS/" << d.name << ".hxx\"\n\n"
@@ -586,20 +684,18 @@ void generateSourceFile(std::ostream& os,
   } else {
     os << "if(this->b.symmetry!=Behaviour::ORTHOTROPIC){\n";
   }
-  os << "mgis::raise(\"invalid behaviour symmetry\");\n"
+  os << "raise(\"invalid behaviour symmetry\");\n"
      << "}\n"
      << "}  // end of " << d.name << '\n'
      << '\n'
      << "real " << d.name << "::getIntegrationPointWeight"
      << "(mfem::ElementTransformation& tr,\n"
      << " const mfem::IntegrationPoint& ip) const noexcept{\n";
-  if ((d.hypothesis == "Axisymmetrical") ||
-      (d.hypothesis == "AxisymmetricalGeneralisedPlaneStrain") ||
-      (d.hypothesis == "AxisymmetricalGeneralisedPlaneStress")) {
-    os << "return ip.weight * tr.Weight();\n";
-  } else {
+  if (isAxisymmetricalHypothesis(d.hypothesis)) {
     os << "constexpr const real two_pi = 2 * 3.14159265358979323846;\n"
        << "return two_pi * ip.x * ip.weight * tr.Weight();\n";
+  } else {
+    os << "return ip.weight * tr.Weight();\n";
   }
   os << "}\n"
      << "const mfem::IntegrationRule &\n"
@@ -608,6 +704,49 @@ void generateSourceFile(std::ostream& os,
      << "const mfem::ElementTransformation &t)const  {\n"
      << "return " << d.name << "::selectIntegrationRule(e, t);\n"
      << "}\n";
+  if (d.requires_unknowns_value) {
+    os << "void " << d.name << "::setup(const real t, const real dt) {\n"
+       << "BehaviourIntegratorBase::setup(t, dt);\n";
+    if (B.cols() == 1) {
+      os << "const auto& pev = this->s1.external_state_variables.find("
+         << "\"" << d.unknown_name << "\");\n"
+         << "if(pev == this->s1.external_state_variables.end()){\n"
+         << "raise(\"" << d.name << "::setup: \"\n"
+         << "            \"external state variable '" << d.unknown_name
+         << "' is not defined\");\n"
+         << "}\n"
+         << "if (mgis::holds_alternative<mgis::span<real>>(pev->second)){\n"
+         << "this->uesv = mgis::get<mgis::span<real>>(pev->second).data();\n"
+         << "} else if "
+            "(mgis::holds_alternative<std::vector<real>>(pev->second)){\n"
+         << "this->uesv = mgis::get<std::vector<real>>(pev->second).data();\n"
+         << "} else {\n"
+         << "raise(\"" << d.name << "::setup: \"\n"
+         << "            \"external state variable '" << d.unknown_name
+         << "' shall not be uniform\");\n"
+         << "}\n"
+         << "} // end of setup\n";
+    } else {
+      raise("generateSourceFile: unsupported case");
+    }
+    os << "\n"
+       << "void " << d.name
+       << "::updateExternalStateVariablesFromUnknownsValues(\n"
+       << "const mfem::Vector& u, const mfem::Vector& N, "
+       << "const size_type o){\n";
+    if (B.cols() == 1) {
+      os << "auto& ev = this->uesv[o];\n"
+         << "ev = 0;\n"
+         << "for(size_type i=0; i != u.Size(); ++i){\n"
+         << "  ev += u[i] * N[i];"
+         << "}\n";
+    } else {
+      raise(
+          "unsupport case: multicomponents unknowns as external state "
+          "variables is not supported");
+    }
+    os << "}\n\n";
+  }
   if (d.isotropic) {
     os << d.name << "::RotationMatrix\n"
        << d.name << "::getRotationMatrix(const size_type) const{\n"
@@ -927,17 +1066,24 @@ int main(const int argc, const char* const* const argv) {
     generators[h].insert({n, g});
   };
   insert("Tridimensional", "StandardFiniteStrainMechanics",
-         &makeFiniteStrainMechanicsBMatrix3D);
+         &makeTridimensionalFiniteStrainMechanicsBMatrix);
   insert("Tridimensional", "StandardSmallStrainMechanics",
-         &makeSmallStrainMechanicsBMatrix3D);
+         &makeTridimensionalSmallStrainMechanicsBMatrix);
   insert("PlaneStrain", "StandardFiniteStrainMechanics",
-         &makeFiniteStrainMechanicsBMatrixPlaneStrain);
+         &makePlaneStrainFiniteStrainMechanicsBMatrix);
   insert("PlaneStrain", "StandardSmallStrainMechanics",
-         &makeSmallStrainMechanicsBMatrixPlaneStrain);
+         &makePlaneStrainSmallStrainMechanicsBMatrix);
   insert("PlaneStress", "StandardFiniteStrainMechanics",
-         &makeFiniteStrainMechanicsBMatrixPlaneStress);
+         &makePlaneStressFiniteStrainMechanicsBMatrix);
   insert("PlaneStress", "StandardSmallStrainMechanics",
-         &makeSmallStrainMechanicsBMatrixPlaneStress);
+         &makePlaneStressSmallStrainMechanicsBMatrix);
+  //
+  insert("PlaneStrain", "StationaryNonLinearHeatTransfer",
+         &makeHeatTransferBMatrix<2u>);
+  insert("PlaneStress", "StationaryNonLinearHeatTransfer",
+         &makeHeatTransferBMatrix<2u>);
+  insert("Tridimensional", "StationaryNonLinearHeatTransfer",
+         &makeHeatTransferBMatrix<3u>);
   //
   auto d = BehaviourIntegratorDescription{};
   //
@@ -971,11 +1117,22 @@ int main(const int argc, const char* const* const argv) {
                                      }
                                      generator = g;
                                    })
-      .registerCommandLineArgument("hypothesis", [&d](std::string_view h) {
-        if (!d.hypothesis.empty()) {
-          raise("hypothesis already set");
-        }
-        d.hypothesis = h;
+      .registerCommandLineArgument("hypothesis",
+                                   [&d](std::string_view h) {
+                                     if (!d.hypothesis.empty()) {
+                                       raise("hypothesis already set");
+                                     }
+                                     d.hypothesis = h;
+                                   })
+      .registerCommandLineArgument("unknown-name",
+                                   [&d](std::string_view n) {
+                                     if (!d.unknown_name.empty()) {
+                                       raise("unknown name already set");
+                                     }
+                                     d.unknown_name = n;
+                                   })
+      .registerCommandLineArgument("requires-unknowns-values", [&d]() {
+        d.requires_unknowns_value = true;
       });
   args_parser.parse(argc, argv);
   //
@@ -1003,6 +1160,11 @@ int main(const int argc, const char* const* const argv) {
       d.isotropic
           ? "Isotropic" + d.hypothesis + generator + "BehaviourIntegrator"
           : "Orthotropic" + d.hypothesis + generator + "BehaviourIntegrator";
+  if (d.requires_unknowns_value) {
+    if (d.unknown_name.empty()) {
+      raise("unknown name must be specified\n");
+    }
+  }
   if (generate_header_file) {
     std::ofstream out(d.name + ".hxx");
     generateHeaderFile(out, d);

@@ -1,5 +1,5 @@
-#ifndef LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALSTANDARDSMALLSTRAINMECHANICSBEHAVIOURINTEGRATOR_HXX
-#define LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALSTANDARDSMALLSTRAINMECHANICSBEHAVIOURINTEGRATOR_HXX
+#ifndef LIB_MFEM_MGIS_ISOTROPICPLANESTRESSSTATIONARYNONLINEARHEATTRANSFERBEHAVIOURINTEGRATOR_HXX
+#define LIB_MFEM_MGIS_ISOTROPICPLANESTRESSSTATIONARYNONLINEARHEATTRANSFERBEHAVIOURINTEGRATOR_HXX
 
 #include <array>
 #include <mfem/linalg/densemat.hpp>
@@ -13,52 +13,65 @@ namespace mfem_mgis {
   struct FiniteElementDiscretization;
 
   // forward declaration
-  struct
-      OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator;
+  struct IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator;
 
   /*!
    * \brief partial specialisation of the `BehaviourIntegratorTraits`  * class
    * for the
-   * `OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator`
+   * `IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator`
    * behaviour integrator */
   template <>
   struct BehaviourIntegratorTraits<
-      OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator> {
+      IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator> {
     //! \brief size of the unknowns
-    static constexpr size_type unknownsSize = 3;
+    static constexpr size_type unknownsSize = 1;
     //! \brief
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
     //! \brief
-    static constexpr bool updateExternalStateVariablesFromUnknownsValues =
-        false;
+    static constexpr bool updateExternalStateVariablesFromUnknownsValues = true;
   };  // end of struct
-      // BehaviourIntegratorTraits<OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>
+      // BehaviourIntegratorTraits<IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator>
 
   /*!
    */
   struct MFEM_MGIS_EXPORT
-      OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator
+      IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator
           final
       : StandardBehaviourIntegratorCRTPBase<
-            OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator> {
+            IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator> {
     /*!
      * \brief a constant value used for the computation of
      * symmetric tensors
      */
     static constexpr const auto icste = real{0.70710678118654752440};
 
-    //! \brief a simple alias
-    using RotationMatrix =
-        std::array<real, 9u>; /*!
-                               * \brief constructor
-                               * \param[in] fed: finite element discretization.
-                               * \param[in] m: material attribute.
-                               * \param[in] b_ptr: behaviour
-                               */
-    OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator(
+    //! \brief a dummy structure
+    struct RotationMatrix {};
+
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization.
+     * \param[in] m: material attribute.
+     * \param[in] b_ptr: behaviour
+     */
+    IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
         std::unique_ptr<const Behaviour>);
+
+    void setup(const real, const real) override;
+    /*!
+     * \brief update the external state variable
+     * corresponding to the unknowns.
+     *
+     * \param[in] u: unknowns
+     * \param[in] N: values of the shape functions
+     * \param[in] o: offset associated with the
+     * current integration point
+     */
+    void updateExternalStateVariablesFromUnknownsValues(const mfem::Vector &,
+                                                        const mfem::Vector &,
+                                                        const size_type);
 
     /*!
      * \return the rotation matrix associated with the given  * integration
@@ -68,7 +81,7 @@ namespace mfem_mgis {
 
     inline void rotateGradients(mgis::span<real>, const RotationMatrix &);
 
-    inline std::array<real, 6> rotateThermodynamicForces(
+    inline mgis::span<const real> rotateThermodynamicForces(
         mgis::span<const real>, const RotationMatrix &);
 
     inline void rotateTangentOperatorBlocks(mgis::span<real>,
@@ -94,13 +107,13 @@ namespace mfem_mgis {
                             mfem::ElementTransformation &) override;
 
     //! \brief destructor
-    ~OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator()
+    ~IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator()
         override;
 
    protected:
     //! \brief allow the CRTP base class the protected members
     friend struct StandardBehaviourIntegratorCRTPBase<
-        OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>;
+        IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator>;
     /*!
      * \return the integration rule for the given element and  * element
      * transformation. \param[in] e: element \param[in] tr: element
@@ -157,12 +170,14 @@ namespace mfem_mgis {
      *
      * \param[out] Ke: inner forces
      * \param[in] Kip: stress
+     * \param[in] N: shape function values
      * \param[in] dN: derivatives of the shape function
      * \param[in] w: weight of the integration point
      * \param[in] n: node index
      */
     void updateStiffnessMatrix(mfem::DenseMatrix &,
                                const mgis::span<const real> &,
+                               const mfem::Vector &,
                                const mfem::DenseMatrix &,
                                const real,
                                const size_type) const noexcept;
@@ -177,12 +192,14 @@ namespace mfem_mgis {
                                    const mfem::IntegrationPoint &) const
         noexcept;
 
-    //! rief the rotation matrix
-    RotationMatrix3D rotation_matrix;
-
+    /*!
+     * \brief pointer to the external state variable
+     * associated with the unknown
+     */
+    real *uesv = nullptr;
   };  // end of struct
-      // OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator
+      // IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALSTANDARDSMALLSTRAINMECHANICSBEHAVIOURINTEGRATOR_HXX*/
+#endif /* LIB_MFEM_MGIS_ISOTROPICPLANESTRESSSTATIONARYNONLINEARHEATTRANSFERBEHAVIOURINTEGRATOR_HXX*/

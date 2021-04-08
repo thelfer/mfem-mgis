@@ -1,11 +1,11 @@
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
-#include "MFEMMGIS/OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
   const mfem::IntegrationRule &
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       selectIntegrationRule(const mfem::FiniteElement &e,
                             const mfem::ElementTransformation &t) {
     const auto order = 2 * t.OrderGrad(&e);
@@ -13,7 +13,7 @@ namespace mfem_mgis {
   }
 
   std::shared_ptr<const PartialQuadratureSpace>
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       buildQuadratureSpace(const FiniteElementDiscretization &fed,
                            const size_type m) {
     auto selector = [](const mfem::FiniteElement &e,
@@ -24,56 +24,94 @@ namespace mfem_mgis {
     return std::make_shared<PartialQuadratureSpace>(fed, m, selector);
   }  // end of buildQuadratureSpace
 
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
-      OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator(
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
+      OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator(
           const FiniteElementDiscretization &fed,
           const size_type m,
           std::unique_ptr<const Behaviour> b_ptr)
       : StandardBehaviourIntegratorCRTPBase<
-            OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
+            OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator>(
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     if (this->b.symmetry != Behaviour::ORTHOTROPIC) {
       raise("invalid behaviour symmetry");
     }
   }  // end of
-     // OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator
+     // OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator
 
-  real OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  real
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       getIntegrationPointWeight(mfem::ElementTransformation &tr,
                                 const mfem::IntegrationPoint &ip) const
       noexcept {
     return ip.weight * tr.Weight();
   }
   const mfem::IntegrationRule &
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       getIntegrationRule(const mfem::FiniteElement &e,
                          const mfem::ElementTransformation &t) const {
-    return OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+    return OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
         selectIntegrationRule(e, t);
   }
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  void
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
+      setup(const real t, const real dt) {
+    BehaviourIntegratorBase::setup(t, dt);
+    const auto &pev = this->s1.external_state_variables.find("Temperature");
+    if (pev == this->s1.external_state_variables.end()) {
+      raise(
+          "OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegr"
+          "ator::setup: "
+          "external state variable 'Temperature' is not defined");
+    }
+    if (mgis::holds_alternative<mgis::span<real>>(pev->second)) {
+      this->uesv = mgis::get<mgis::span<real>>(pev->second).data();
+    } else if (mgis::holds_alternative<std::vector<real>>(pev->second)) {
+      this->uesv = mgis::get<std::vector<real>>(pev->second).data();
+    } else {
+      raise(
+          "OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegr"
+          "ator::setup: "
+          "external state variable 'Temperature' shall not be uniform");
+    }
+  }  // end of setup
+
+  void
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
+      updateExternalStateVariablesFromUnknownsValues(const mfem::Vector &u,
+                                                     const mfem::Vector &N,
+                                                     const size_type o) {
+    auto &ev = this->uesv[o];
+    ev = 0;
+    for (size_type i = 0; i != u.Size(); ++i) {
+      ev += u[i] * N[i];
+    }
+  }
+
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       RotationMatrix
-      OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+      OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
           getRotationMatrix(const size_type i) const {
     return this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
   }  // end of getRotationMatrix
 
-  void OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  void
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       rotateGradients(mgis::span<real> g, const RotationMatrix &r) {
     this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());
   }  // end of rotateGradients
 
-  std::array<real, 4>
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  std::array<real, 2>
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       rotateThermodynamicForces(mgis::span<const real> s,
                                 const RotationMatrix &r) {
-    std::array<real, 4> rs;
+    std::array<real, 2> rs;
     std::copy(s.begin(), s.end(), rs.begin());
     this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), r.data());
     return rs;
   }
 
-  void OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  void
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       rotateTangentOperatorBlocks(mgis::span<real> Kip,
                                   const RotationMatrix &r) {
     this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
@@ -81,79 +119,52 @@ namespace mfem_mgis {
   }
 
   inline void
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateGradients(mgis::span<real> &g,
                       const mfem::Vector &u,
                       const mfem::DenseMatrix &dN,
                       const size_type ni) noexcept {
-    const auto Bi_0_0 = dN(ni, 0);
-    const auto Bi_1_1 = dN(ni, 1);
-    const auto Bi_3_0 = dN(ni, 1) * icste;
-    const auto Bi_3_1 = dN(ni, 0) * icste;
-    const auto nnodes = dN.NumRows();
+    const auto dNi_0 = dN(ni, 0);
+    const auto dNi_1 = dN(ni, 1);
     const auto u_0 = u[ni];
-    const auto u_1 = u[ni + nnodes];
-    g[0] += Bi_0_0 * u_0;
-    g[1] += u_1 * Bi_1_1;
-    g[2] += 0;
-    g[3] += Bi_3_0 * u_0 + u_1 * Bi_3_1;
+    g[0] += dNi_0 * u_0;
+    g[1] += dNi_1 * u_0;
   }  // end of updateGradients
 
   inline void
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateInnerForces(mfem::Vector &Fe,
                         const mgis::span<const real> &s,
                         const mfem::DenseMatrix &dN,
                         const real w,
                         const size_type ni) const noexcept {
-    const auto Bi_0_0 = dN(ni, 0);
-    const auto Bi_1_1 = dN(ni, 1);
-    const auto Bi_3_0 = dN(ni, 1) * icste;
-    const auto Bi_3_1 = dN(ni, 0) * icste;
-    const auto nnodes = dN.NumRows();
-    const auto ni_0 = ni;
-    const auto ni_1 = ni + nnodes;
-    Fe[ni_0] += w * (Bi_0_0 * s[0] + s[3] * Bi_3_0);
-    Fe[ni_1] += w * (Bi_1_1 * s[1] + Bi_3_1 * s[3]);
+    const auto dNi_0 = dN(ni, 0);
+    const auto dNi_1 = dN(ni, 1);
+    Fe[ni] += w * (dNi_0 * s[0] + dNi_1 * s[1]);
   }  // end of updateInnerForces
 
   inline void
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                             const mgis::span<const real> &Kip,
+                            const mfem::Vector &N,
                             const mfem::DenseMatrix &dN,
                             const real w,
                             const size_type ni) const noexcept {
     const auto nnodes = dN.NumRows();
-    const auto Bi_0_0 = dN(ni, 0);
-    const auto Bi_1_1 = dN(ni, 1);
-    const auto Bi_3_0 = dN(ni, 1) * icste;
-    const auto Bi_3_1 = dN(ni, 0) * icste;
-    const auto ni_0 = ni;
-    const auto ni_1 = ni + nnodes;
+    const auto dNi_0 = dN(ni, 0);
+    const auto dNi_1 = dN(ni, 1);
     for (size_type nj = 0; nj != nnodes; ++nj) {
-      const auto Bj_0_0 = dN(nj, 0);
-      const auto Bj_1_1 = dN(nj, 1);
-      const auto Bj_3_0 = dN(nj, 1) * icste;
-      const auto Bj_3_1 = dN(nj, 0) * icste;
-      const auto nj_0 = nj;
-      const auto nj_1 = nj + nnodes;
-      Ke(ni_0, nj_0) +=
-          w * (Bi_0_0 * Bj_3_0 * Kip[3] + Bi_3_0 * Bj_3_0 * Kip[15] +
-               Bj_0_0 * Bi_3_0 * Kip[12] + Kip[0] * Bj_0_0 * Bi_0_0);
-      Ke(ni_0, nj_1) +=
-          w * (Kip[13] * Bi_3_0 * Bj_1_1 + Bj_3_1 * Bi_0_0 * Kip[3] +
-               Kip[1] * Bj_1_1 * Bi_0_0 + Bj_3_1 * Bi_3_0 * Kip[15]);
-      Ke(ni_1, nj_0) +=
-          w * (Bi_1_1 * Kip[7] * Bj_3_0 + Bj_0_0 * Bi_3_1 * Kip[12] +
-               Bi_3_1 * Bj_3_0 * Kip[15] + Bi_1_1 * Bj_0_0 * Kip[4]);
-      Ke(ni_1, nj_1) +=
-          w * (Bi_1_1 * Bj_3_1 * Kip[7] + Bi_1_1 * Bj_1_1 * Kip[5] +
-               Bj_3_1 * Bi_3_1 * Kip[15] + Kip[13] * Bj_1_1 * Bi_3_1);
+      const auto dNj_0 = dN(nj, 0);
+      const auto dNj_1 = dN(nj, 1);
+      Ke(ni, nj) += w * (dNj_0 * dNi_0 * Kip[0] + dNj_1 * dNi_1 * Kip[3] +
+                         Kip[1] * dNi_0 * dNj_1 + dNj_0 * Kip[2] * dNi_1 +
+                         (Kip[5] * dNi_1 + dNi_0 * Kip[4]) * N[nj]);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 
-  bool OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  bool
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       integrate(const mfem::FiniteElement &e,
                 mfem::ElementTransformation &tr,
                 const mfem::Vector &u,
@@ -161,7 +172,8 @@ namespace mfem_mgis {
     return this->implementIntegrate(e, tr, u, it);
   }  // end of integrate
 
-  void OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  void
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateResidual(mfem::Vector &Fe,
                      const mfem::FiniteElement &e,
                      mfem::ElementTransformation &tr,
@@ -169,7 +181,8 @@ namespace mfem_mgis {
     this->implementUpdateResidual(Fe, e, tr, u);
   }  // end of updateResidual
 
-  void OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  void
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateJacobian(mfem::DenseMatrix &Ke,
                      const mfem::FiniteElement &e,
                      mfem::ElementTransformation &tr,
@@ -177,15 +190,16 @@ namespace mfem_mgis {
     this->implementUpdateJacobian(Ke, e, tr);
   }  // end of updateJacobian
 
-  void OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
+  void
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       computeInnerForces(mfem::Vector &Fe,
                          const mfem::FiniteElement &e,
                          mfem::ElementTransformation &tr) {
     this->implementComputeInnerForces(Fe, e, tr);
   }  // end of computeInnerForces
 
-  OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
-      ~OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator() =
+  OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
+      ~OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator() =
           default;
 
 }  // end of namespace mfem_mgis
