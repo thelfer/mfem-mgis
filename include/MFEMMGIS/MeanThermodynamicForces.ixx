@@ -51,10 +51,10 @@ namespace mfem_mgis {
       for (const auto &mi : p.getMaterialIdentifiers()) {
         real v = 0;
         std::vector<double> tf_integral(tf_integrals[mi].size(), 0);
-        MPI_Reduce(&volume[m], &res_mpi_v, 1, MPI_DOUBLE, MPI_SUM, 0,
-                   MPI_COMM_WORLD);
-        MPI_Reduce(tf_integrals[mi].data(), &stress_integral.data(),
+        MPI_Reduce(tf_integrals[mi].data(), tf_integral.data(),
                    tf_integrals[mi].size(), MPI_DOUBLE, MPI_SUM, 0,
+                   MPI_COMM_WORLD);
+        MPI_Reduce(&volumes[mi], &v, 1, MPI_DOUBLE, MPI_SUM, 0,
                    MPI_COMM_WORLD);
         if (rank == 0) {
           this->writeResults(tf_integral, v);
