@@ -5,14 +5,15 @@ if(MFEM_MGIS_HAVE_TFEL)
     OrthotropicElasticity
     Plasticity
     Mazars
-    SaintVenantKirchhoffElasticity)
+    SaintVenantKirchhoffElasticity
+    StationaryNonLinearHeatTransfer)
   
   add_executable(PeriodicTest
     EXCLUDE_FROM_ALL
     PeriodicTest.cxx)
   target_link_libraries(PeriodicTest
     PRIVATE MFEMMGIS)
-    add_dependencies(check PeriodicTest)
+  add_dependencies(check PeriodicTest)
   
   function(add_periodic_test ncase nsolver)
     set(test "PeriodicTest-${ncase}-${nsolver}")
@@ -41,11 +42,13 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_executable(UniaxialTensileTest
     EXCLUDE_FROM_ALL
     UniaxialTensileTest.cxx)
+  target_include_directories(UniaxialTensileTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(UniaxialTensileTest
     PRIVATE MFEMMGIS)
   add_dependencies(check UniaxialTensileTest)
   
-  function(add_unilateral_test behaviour internal_state_variable)
+  function(add_uniaxial_tensile_test behaviour internal_state_variable)
     set(test "UniaxialTensileTest-${behaviour}")
     add_test(NAME ${test}
      COMMAND UniaxialTensileTest
@@ -62,13 +65,47 @@ if(MFEM_MGIS_HAVE_TFEL)
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
-  endfunction(add_unilateral_test)
+  endfunction(add_uniaxial_tensile_test)
   
-  add_unilateral_test(OrthotropicElasticity EquivalentStrain)
-  add_unilateral_test(Plasticity EquivalentPlasticStrain)
-  add_unilateral_test(Mazars Damage)
-  add_unilateral_test(SaintVenantKirchhoffElasticity EquivalentStrain)
+  add_uniaxial_tensile_test(OrthotropicElasticity EquivalentStrain)
+  add_uniaxial_tensile_test(Plasticity EquivalentPlasticStrain)
+  add_uniaxial_tensile_test(Mazars Damage)
+  add_uniaxial_tensile_test(SaintVenantKirchhoffElasticity EquivalentStrain)
   
+  add_executable(StationaryNonLinearHeatTransferTest
+    EXCLUDE_FROM_ALL
+    StationaryNonLinearHeatTransferTest.cxx)
+  target_include_directories(StationaryNonLinearHeatTransferTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(StationaryNonLinearHeatTransferTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check StationaryNonLinearHeatTransferTest)
+  
+  function(add_stationary_non_linear_heat_transfer_test nsolver)
+    set(test "StationaryNonLinearHeatTransferTest-${nsolver}")
+    add_test(NAME ${test}
+     COMMAND StationaryNonLinearHeatTransferTest
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--behaviour" "StationaryNonLinearHeatTransfer"
+     "--linearsolver" "${nsolver}"
+#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
+	)
+    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest)
+    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+  endfunction(add_stationary_non_linear_heat_transfer_test)
+  
+  add_stationary_non_linear_heat_transfer_test(1)
+  if(MFEM_USE_SUITESPARSE)
+	add_stationary_non_linear_heat_transfer_test(2)
+  endif(MFEM_USE_SUITESPARSE)
+
   if (MFEM_USE_MPI)
     
     add_executable(PeriodicTestP
@@ -107,39 +144,43 @@ if(MFEM_MGIS_HAVE_TFEL)
 
     if(MFEM_USE_MUMPS)
 
-      add_executable(UniaxialTensileTestP
-	EXCLUDE_FROM_ALL
-	UniaxialTensileTest.cxx)
-      set_target_properties(UniaxialTensileTestP PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
-      target_link_libraries(UniaxialTensileTestP
-	PRIVATE MFEMMGIS)
-      add_dependencies(check UniaxialTensileTestP)
-      
-      function(add_unilateral_testp behaviour internal_state_variable linear_solver nbprocs)
-	set(test "UniaxialTensileTestP-${behaviour}-${linear_solver}-${nbprocs}")
-	add_test(NAME ${test}
-	  COMMAND mpirun -n ${nbprocs} UniaxialTensileTestP
-	  "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
-	  "--library" "$<TARGET_FILE:BehaviourTest>"
-	  "--linearsolver" "${linear_solver}"
-	  "--behaviour" "${behaviour}"
-	  "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-	  "--internal-state-variable" "${internal_state_variable}")
-	if((CMAKE_HOST_WIN32) AND (NOT MSYS))
-	  set_property(TEST ${test}
-            PROPERTY DEPENDS BehaviourTest
-            PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
-	else((CMAKE_HOST_WIN32) AND (NOT MSYS))
-	  set_property(TEST ${test}
-            PROPERTY DEPENDS BehaviourTest)
-	endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
-      endfunction(add_unilateral_testp)
-      
-      add_unilateral_testp(OrthotropicElasticity EquivalentStrain 3 1)
-      add_unilateral_testp(OrthotropicElasticity EquivalentStrain 3 4)
       add_periodic_testp(0 3 1)
       add_periodic_testp(0 3 4)
-    endif()
+
+      add_executable(UniaxialTensileTestP
+      	EXCLUDE_FROM_ALL
+      	UniaxialTensileTest.cxx)
+      set_target_properties(UniaxialTensileTestP PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
+      target_include_directories(UniaxialTensileTestP
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+      target_link_libraries(UniaxialTensileTestP
+	    PRIVATE MFEMMGIS)
+      add_dependencies(check UniaxialTensileTestP)
+      
+      function(add_uniaxial_tensile_testp behaviour internal_state_variable linear_solver nbprocs)
+	    set(test "UniaxialTensileTestP-${behaviour}-${linear_solver}-${nbprocs}")
+	    add_test(NAME ${test}
+	      COMMAND mpirun -n ${nbprocs} UniaxialTensileTestP
+	      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+	      "--library" "$<TARGET_FILE:BehaviourTest>"
+	      "--linearsolver" "${linear_solver}"
+	      "--behaviour" "${behaviour}"
+	      "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
+	      "--internal-state-variable" "${internal_state_variable}")
+	    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+	      set_property(TEST ${test}
+                PROPERTY DEPENDS BehaviourTest
+                PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+	    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+	      set_property(TEST ${test}
+                PROPERTY DEPENDS BehaviourTest)
+	    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      endfunction(add_uniaxial_tensile_testp)
+      
+      add_uniaxial_tensile_testp(OrthotropicElasticity EquivalentStrain 3 1)
+      add_uniaxial_tensile_testp(OrthotropicElasticity EquivalentStrain 3 4)
+
+    endif(MFEM_USE_MUMPS)
     
   endif(MFEM_USE_MPI)
   

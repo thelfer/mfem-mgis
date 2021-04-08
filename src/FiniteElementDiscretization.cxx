@@ -98,7 +98,17 @@ namespace mfem_mgis {
     }
     // building the finite element collection
     if (fe_family == "H1") {
-      this->fec = std::make_shared<mfem::H1_FECollection>(fe_order, u_size);
+      if (parallel) {
+#ifdef MFEM_USE_MPI
+        this->fec = std::make_shared<mfem::H1_FECollection>(
+            fe_order, this->parallel_mesh->Dimension());
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      } else {
+        this->fec = std::make_shared<mfem::H1_FECollection>(
+            fe_order, this->sequential_mesh->Dimension());
+      }
     } else {
       raise(
           "FiniteElementDiscretization::FiniteElementDiscretization: "
