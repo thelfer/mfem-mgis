@@ -486,6 +486,14 @@ void generateHeaderFile(std::ostream& os,
   os << "inline void rotateTangentOperatorBlocks(mgis::span<real>,\n"
      << "const RotationMatrix&);\n"
      << '\n'
+     << "const mfem::IntegrationRule &getIntegrationRule(\n"
+     << "    const mfem::FiniteElement &,\n"
+     << "    const mfem::ElementTransformation &) const override;\n"
+     << '\n'
+     << "real getIntegrationPointWeight(mfem::ElementTransformation&,\n"
+     << "                               const mfem::IntegrationPoint&) \n"
+     << "                              const noexcept override;\n"
+     << '\n'
      << "bool integrate(const mfem::FiniteElement &,\n"
      << "               mfem::ElementTransformation &,\n"
      << "               const mfem::Vector &,\n"
@@ -530,15 +538,6 @@ void generateHeaderFile(std::ostream& os,
      << "static std::shared_ptr<const PartialQuadratureSpace> "
      << "buildQuadratureSpace(const FiniteElementDiscretization &,\n"
      << "                     const size_type);\n"
-     << "/*!\n"
-     << " * \\return the integration rule for the given element and "
-     << " * element transformation.\n"
-     << " * \\param[in] e: element\n"
-     << " * \\param[in] tr: element transformation\n"
-     << " */\n"
-     << "const mfem::IntegrationRule &getIntegrationRule(\n"
-     << "    const mfem::FiniteElement &,\n"
-     << "    const mfem::ElementTransformation &) const override;\n"
      << "/*!\n"
      << " * \\brief update the strain with the contribution of the\n"
      << " * given node\n"
@@ -604,17 +603,7 @@ void generateHeaderFile(std::ostream& os,
        << "                           const real,\n"
        << "                           const size_type) const noexcept;\n";
   }
-  os << '\n'
-     << "/*!\n"
-     << " * \\brief return the weight of the integration point, taking the\n"
-     << " * modelling hypothesis into account\n"
-     << " * \\param[in] tr: element transformation\n"
-     << " * \\param[in] ip: integration point\n"
-     << " */\n"
-     << "real getIntegrationPointWeight(mfem::ElementTransformation&,\n"
-     << "                               const mfem::IntegrationPoint&) \n"
-     << "                              const noexcept;\n"
-     << '\n';
+  os << '\n';
   if (!d.isotropic) {
     if (isTwoDimensionalHypothesis(d.hypothesis)) {
       os << "//! \brief the rotation matrix\n"

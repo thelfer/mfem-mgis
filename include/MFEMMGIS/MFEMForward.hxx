@@ -11,16 +11,6 @@
 #include <type_traits>
 #include "mfem/config/config.hpp"
 
-#ifndef MFEM_USE_MPI
-#define MPI_COMM_WORLD 0
-#define MPI_Finalize(args...) \
-  {}
-#define MPI_Init(args...) \
-  {}
-#define MPI_Comm_rank(comm, rank) \
-  { *rank = 0; }
-#endif
-
 namespace mfem {
 
   class Vector;
@@ -40,6 +30,7 @@ namespace mfem {
   class ParNonlinearForm;
   class Solver;
   class IterativeSolver;
+  class IntegrationPoint;
 
 }  // end of namespace mfem
 

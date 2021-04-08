@@ -45,6 +45,15 @@ namespace mfem_mgis {
         const mfem::FiniteElement &,
         const mfem::ElementTransformation &) const = 0;
     /*!
+     * \brief return the weight of the integration point, taking the
+     * modelling hypothesis into account
+     * \param[in] tr: element transformation
+     * \param[in] ip: integration point
+     */
+    virtual real getIntegrationPointWeight(
+        mfem::ElementTransformation &,
+        const mfem::IntegrationPoint &) const = 0;
+    /*!
      * \brief method call at the beginning of each resolution
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment

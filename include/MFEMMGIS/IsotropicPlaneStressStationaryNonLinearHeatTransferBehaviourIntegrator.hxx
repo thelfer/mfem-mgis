@@ -87,6 +87,14 @@ namespace mfem_mgis {
     inline void rotateTangentOperatorBlocks(mgis::span<real>,
                                             const RotationMatrix &);
 
+    const mfem::IntegrationRule &getIntegrationRule(
+        const mfem::FiniteElement &,
+        const mfem::ElementTransformation &) const override;
+
+    real getIntegrationPointWeight(mfem::ElementTransformation &,
+                                   const mfem::IntegrationPoint &) const
+        noexcept override;
+
     bool integrate(const mfem::FiniteElement &,
                    mfem::ElementTransformation &,
                    const mfem::Vector &,
@@ -128,14 +136,6 @@ namespace mfem_mgis {
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &, const size_type);
-    /*!
-     * \return the integration rule for the given element and  * element
-     * transformation. \param[in] e: element \param[in] tr: element
-     * transformation
-     */
-    const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &,
-        const mfem::ElementTransformation &) const override;
     /*!
      * \brief update the strain with the contribution of the
      * given node
@@ -181,16 +181,6 @@ namespace mfem_mgis {
                                const mfem::DenseMatrix &,
                                const real,
                                const size_type) const noexcept;
-
-    /*!
-     * \brief return the weight of the integration point, taking the
-     * modelling hypothesis into account
-     * \param[in] tr: element transformation
-     * \param[in] ip: integration point
-     */
-    real getIntegrationPointWeight(mfem::ElementTransformation &,
-                                   const mfem::IntegrationPoint &) const
-        noexcept;
 
     /*!
      * \brief pointer to the external state variable
