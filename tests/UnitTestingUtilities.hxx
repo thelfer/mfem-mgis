@@ -67,8 +67,7 @@ namespace mfem_mgis::unit_tests {
                    "Finite element order (polynomial degree).");
     args.Parse();
     if ((!args.Good()) || (params.mesh_file == nullptr) ||
-        (params.library == nullptr) || (params.library == nullptr) ||
-        (params.behaviour == nullptr)) {
+        (params.library == nullptr) || (params.behaviour == nullptr)) {
       args.PrintUsage(std::cout);
       mfem_mgis::abort(EXIT_FAILURE);
     }
