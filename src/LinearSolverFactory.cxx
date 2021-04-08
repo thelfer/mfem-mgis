@@ -140,7 +140,7 @@ namespace mfem_mgis {
       } else {
         s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
       }
-      return {s, std::unique_ptr<LinearSolverPreconditioner>{}};
+      return LinearSolverHandler{std::move(s), std::unique_ptr<LinearSolverPreconditioner>{}};
     };
   }  // end of builMUMPSGenerator
 
