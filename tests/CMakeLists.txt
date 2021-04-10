@@ -186,5 +186,24 @@ if(MFEM_MGIS_HAVE_TFEL)
   
 endif(MFEM_MGIS_HAVE_TFEL)
 
+# Configure and export example 1
+# This example is based on UniaxialTensileTest from the unit tests
+
+set(DEST_DIR "share/mfem-mgis/examples/ex1")
 install(FILES Plasticity.mfront cube.mesh
-  DESTINATION "share/mfem-mgis/examples/ex1")
+  DESTINATION ${DEST_DIR})
+
+set(UTILITY_FILE ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UnitTestingUtilities.hxx)
+add_custom_command(
+  OUTPUT  ${UTILITY_FILE}
+  COMMAND ${PROJECT_SOURCE_DIR}/tests/sed_utility.sh ${PROJECT_SOURCE_DIR}/tests/UnitTestingUtilities.hxx ${UTILITY_FILE}
+  DEPENDS ${PROJECT_SOURCE_DIR}/tests/sed_utility.sh ${PROJECT_SOURCE_DIR}/tests/UnitTestingUtilities.hxx
+  COMMENT "seding the UnitTestingUtilities.hxx")
+
+add_custom_target(generate-ex1 ALL
+  DEPENDS ${UTILITY_FILE})
+
+install(FILES
+  ${UTILITY_FILE}
+  ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
+  DESTINATION ${DEST_DIR})
