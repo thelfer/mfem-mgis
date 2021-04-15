@@ -25,10 +25,11 @@ namespace mfem_mgis {
       mfem::IterativeSolver& s,
       NonLinearEvolutionProblemImplementation<true>& p,
       const Parameters& opts) {
+    using Problem = AbstractNonLinearEvolutionProblem;
     auto amg = std::make_unique<mfem::HypreBoomerAMG>();
-    checkParameters(opts, {"Strategy"});
+    checkParameters(opts, {"Strategy", Problem::SolverVerbosityLevel});
     if (contains(opts, "Strategy")) {
-      const auto strategy = get<std::string>("Strategy");
+      const auto strategy = get<std::string>(opts, "Strategy");
       auto& fespace = p.getFiniteElementSpace();
       if (strategy == "Elasticity") {
         amg->SetElasticityOptions(&fespace);
@@ -36,12 +37,15 @@ namespace mfem_mgis {
         const auto* const m = fespace.GetMesh();
         const auto o = fespace.GetOrdering();
         amg->SetSystemsOptions(m->Dimension(), o == mfem::Ordering::byNODES);
-      } else {
+      } else if (strategy != "None") {
         raise(
             "setLinearSolverParameters: "
             "invalid strategy '" +
             strategy + "' for preconditioner HypreBoomerAMG");
       }
+    }
+    if (contains(opts, Problem::SolverVerbosityLevel)) {
+      amg->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     }
     s.SetPreconditioner(*amg);
     return std::move(amg);
@@ -60,6 +64,39 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
 
   template <bool parallel>
+  std::unique_ptr<LinearSolverPreconditioner> getLinearSolverPreconditioner(
+      mfem::IterativeSolver& s,
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const Parameters& pr) {
+    checkParameters(pr, {"Name", "Options"});
+    const auto name = get<std::string>(pr, "Name");
+    if (name == "None") {
+      if (contains(pr, "Options")) {
+        raise(
+            "setLinearSolverPreconditioner: "
+            "no options expected for preconditioner '" +
+            name + "'");
+      }
+      return {};
+    } else if (name == "HypreBoomerAMG") {
+      if constexpr (parallel) {
+        return setHypreBoomerAMGPreconditioner(
+            s, p, get_if<Parameters>(pr, "Options", Parameters{}));
+      } else {
+        raise(
+            "setLinearSolverPreconditioner: "
+            "the 'HypreBoomerAMG' is only available in parallel");
+      }
+    } else {
+      raise(
+          "setLinearSolverPreconditioner: "
+          "unsupported preconditioner '" +
+          name + "'");
+    }
+    return {};
+  } // end of getLinearSolverPreconditioner
+
+  template <bool parallel>
   std::unique_ptr<LinearSolverPreconditioner> setLinearSolverParameters(
       mfem::IterativeSolver& s,
       NonLinearEvolutionProblemImplementation<parallel>& p,
@@ -72,23 +109,7 @@ namespace mfem_mgis {
     setSolverParameters(s, extract(params, getIterativeSolverParametersList()));
     if (contains(params, Preconditioner)) {
       const auto pr = get<Parameters>(params, Preconditioner);
-      checkParameters(params, {"Name", "Options"});
-      const auto name = get<std::string>(pr, "Name");
-      if (name == "HypreBoomerAMG") {
-        if constexpr (parallel) {
-          return setHypreBoomerAMGPreconditioner(
-              s, p, get_if<Parameters>(params, "Options", Parameters{}));
-        } else {
-          raise(
-              "setLinearSolverParameters: "
-              "the 'HypreBoomerAMG' is only available in parallel");
-        }
-      } else {
-        raise(
-            "setLinearSolverParameters: "
-            "unsupported preconditioner '" +
-            name + "'");
-      }
+      return getLinearSolverPreconditioner(s, p, pr);
     }
     return {};
   }  // end of setLinearSolverParameters
@@ -152,6 +173,10 @@ namespace mfem_mgis {
           buildIterativeSolverGenerator<parallel, mfem::CGSolver>());
     f.add("GMRESSolver",
           buildIterativeSolverGenerator<parallel, mfem::GMRESSolver>());
+    f.add("BiCGSTABSolver",
+          buildIterativeSolverGenerator<parallel, mfem::BiCGSTABSolver>());
+    f.add("MINRESSolver",
+          buildIterativeSolverGenerator<parallel, mfem::MINRESSolver>());
     if constexpr (parallel) {
 #ifdef MFEM_USE_MUMPS
       f.add("MUMPSSolver", buildMUMPSSolverGenerator());
