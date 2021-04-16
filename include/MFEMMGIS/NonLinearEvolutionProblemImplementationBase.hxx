@@ -113,6 +113,11 @@ namespace mfem_mgis {
 
    protected:
     /*!
+     * \return the list of the degrees of freedom handled by Dirichlet boundary
+     * conditions.
+     */
+    virtual std::vector<size_type> getEssentialDegreesOfFreedom() const;
+    /*!
      * \brief declare the degrees of freedom handled by Dirichlet boundary
      * conditions.
      * \param[in] dofs: list of degrees of freedom
@@ -136,6 +141,15 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     virtual void computePrediction(const real, const real);
+    /*!
+     * \brief solve the prediction problem
+     * \param[out] du: displacement increment
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    virtual bool solvePredictionProblem(mfem::Vector&,
+                                        const real,
+                                        const real) = 0;
     /*!
      * \brief integrate the behaviour for given estimate of the unknowns at
      * the end of the time step.

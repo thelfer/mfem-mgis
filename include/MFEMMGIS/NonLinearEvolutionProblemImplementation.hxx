@@ -71,6 +71,8 @@ namespace mfem_mgis {
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
+    //
+    bool solvePredictionProblem(mfem::Vector&, const real, const real) override;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
@@ -116,6 +118,8 @@ namespace mfem_mgis {
     //
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
+    //
+    bool solvePredictionProblem(mfem::Vector&, const real, const real) override;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation

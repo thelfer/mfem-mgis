@@ -178,18 +178,23 @@ namespace mfem_mgis {
     mfem_mgis::setSolverParameters(*(this->solver), params);
   }  // end of setSolverParameters
 
+  std::vector<size_type>
+  NonLinearEvolutionProblemImplementationBase::getEssentialDegreesOfFreedom()
+      const {
+    auto ddofs = std::vector<mfem_mgis::size_type>{};
+    for (const auto& bc : this->dirichlet_boundary_conditions) {
+      auto dofs = bc->getHandledDegreesOfFreedom();
+      ddofs.insert(ddofs.end(), dofs.begin(), dofs.end());
+    }
+    return ddofs;
+  }  // end of getEssentialDegreesOfFreedom
+
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
     if (this->initialization_phase) {
       if (!this->dirichlet_boundary_conditions.empty()) {
-        auto fixed_dirichlet_dofs = std::vector<mfem_mgis::size_type>{};
-        for (const auto& bc : this->dirichlet_boundary_conditions) {
-          auto dofs = bc->getHandledDegreesOfFreedom();
-          fixed_dirichlet_dofs.insert(fixed_dirichlet_dofs.end(), dofs.begin(),
-                                      dofs.end());
-        }
         this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-            fixed_dirichlet_dofs);
+            this->getEssentialDegreesOfFreedom());
       }
     }
     this->initialization_phase = false;
@@ -248,34 +253,19 @@ namespace mfem_mgis {
   }  // end of solve
 
   void NonLinearEvolutionProblemImplementationBase::computePrediction(
-      const real, const real) {
-    //    constexpr auto it = IntegrationType::PREDICTION_ELASTIC_OPERATOR;
-    //     std::cout << "ComputePrediction\n";
-    //     mfem::Vector c;
-    //     mfem::Vector r;
-    //     r.SetSize(this->u1.Size());
-    //     c.SetSize(this->u1.Size());
-    //     if (!this->integrate(this->u1, it)) {
-    //       return;
-    //     }
-    //     std::cout << "this->dirichlet_boundary_conditions: "
-    //               << this->dirichlet_boundary_conditions.size() << '\n';
-    //     for (const auto& bc : this->dirichlet_boundary_conditions) {
-    //       std::cerr << "calling bc: " << bc.get() << '\n';
-    //       bc->setImposedValuesIncrements(c, t, t + dt);
-    //       bc->setImposedValuesIncrements(this->u1, t, t + dt);
-    //     }
-    //     this->solver->computeResidual(r, this->u1);
-    //     if (!this->solver->computeNewtonCorrection(c, r, this->u1)) {
-    //       std::cerr << "Marche pas !\n";
-    //       return;
-    //     }
-    //     c.Print(std::cout);
-    //     std::cout << '\n';
-    //     this->u1 -= c;
-    //     for (const auto& bc : this->dirichlet_boundary_conditions) {
-    //       bc->updateImposedValues(this->u1, t + dt);
-    //     }
+      const real t, const real dt) {
+    if (mgis_integrator == nullptr) {
+      return;
+    }
+    constexpr auto it = IntegrationType::PREDICTION_ELASTIC_OPERATOR;
+    if (!this->integrate(this->u0, it)) {
+      return;
+    }
+    mfem::Vector du(this->u1.Size());
+    if (this->solvePredictionProblem(du, t, dt)) {
+      this->u1 = this->u0;
+      this->u1 += du;
+    }
   }  // end of computePrediction
 
   NonLinearEvolutionProblemImplementationBase::
