@@ -188,7 +188,7 @@ namespace mfem_mgis {
     using Traits = BehaviourIntegratorTraits<Child>;
     auto &child = static_cast<Child &>(*this);
 #ifdef MFEM_THREAD_SAFE
-    mfem::DenseMatrix shape;
+    mfem::Vector shape;
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
     if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
       shape.SetSize(e.GetDof());
