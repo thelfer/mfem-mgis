@@ -26,9 +26,9 @@ namespace mfem_mgis {
       if (rank == 0) {
         this->openFile(p, get<std::string>(params, "OutputFileName"));
       }
-#else
+#else /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
-#endif MFEM_USE_MPI
+#endif /* MFEM_USE_MPI */
     } else {
       this->openFile(p, get<std::string>(params, "OutputFileName"));
     }
