@@ -122,9 +122,9 @@ ENDMACRO(tfel_enable_cxx_compiler_flag)
 
 #compiler specific options
 
-set(VISIBILITY_FLAGS   "" )
-set(OPTIMISATION_FLAGS "" )
-set(COMPILER_WARNINGS  "" )
+set(VISIBILITY_FLAGS   "")
+set(OPTIMISATION_FLAGS "")
+set(COMPILER_WARNINGS  "")
 
 option(enable-fast-math "enable -ffast-math compiler flag" OFF)
 option(PATHSCALE_COMPILER "set true if using the PathScale compiler" OFF)
