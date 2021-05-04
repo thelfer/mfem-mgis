@@ -1,5 +1,4 @@
 if(MFEM_MGIS_HAVE_TFEL)
-
   mfront_behaviours_check_library(BehaviourTest
     Elasticity
     OrthotropicElasticity
@@ -183,7 +182,8 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif(MFEM_USE_MUMPS)
     
   endif(MFEM_USE_MPI)
-  
+else(MFEM_MGIS_HAVE_TFEL)
+    MESSAGE(FATAL_ERROR "Tfel is not accessible, aborting")
 endif(MFEM_MGIS_HAVE_TFEL)
 
 # Configure and export example 1

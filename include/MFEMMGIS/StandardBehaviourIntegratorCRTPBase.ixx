@@ -187,16 +187,17 @@ namespace mfem_mgis {
       mfem::ElementTransformation &tr) {
     using Traits = BehaviourIntegratorTraits<Child>;
     auto &child = static_cast<Child &>(*this);
+    constexpr const bool updateExt = Traits::updateExternalStateVariablesFromUnknownsValues;
 #ifdef MFEM_THREAD_SAFE
     mfem::Vector shape;
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
-    if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+    if (updateExt)
       shape.SetSize(e.GetDof());
-    }
+    } 
 #else
-    if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+    if constexpr (updateExt) {
       this->shape.SetSize(e.GetDof());
-    }
+    } 
     this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
     // element offset
@@ -210,7 +211,7 @@ namespace mfem_mgis {
       // get the gradients of the shape functions
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
-      if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+      if constexpr (updateExt) {
         // get the gradients of the shape functions
         e.CalcPhysShape(tr, shape);
       }
@@ -222,7 +223,7 @@ namespace mfem_mgis {
       const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
       // assembly of the stiffness matrix
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
+        if constexpr (updateExt) {
           child.updateStiffnessMatrix(Ke, Kip, shape, dshape, w, ni);
         } else {
           child.updateStiffnessMatrix(Ke, Kip, dshape, w, ni);
