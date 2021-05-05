@@ -90,7 +90,7 @@ MACRO (TFEL_CHECK_CXX_COMPILER_FLAG _FLAG _RESULT)
 ENDMACRO (TFEL_CHECK_CXX_COMPILER_FLAG)
 
 MACRO(tfel_enable_cxx_compiler_flag2 out flag var)
-  get_property(_cached CACHE "${var}" PROPERTY VALUE)
+  get_property(_cached CACHE ${var} PROPERTY TYPE SET)
   if (NOT ${_cached})
     if(MSVC)
       TFEL_CHECK_CXX_COMPILER_FLAG("/${flag}" ${var})
