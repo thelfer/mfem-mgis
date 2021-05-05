@@ -54,18 +54,19 @@ MACRO(TFEL_CHECK_CXX_SOURCE_COMPILES SOURCE VAR)
 
     FOREACH(_regex ${_FAIL_REGEX})
       IF("${OUTPUT}" MATCHES "${_regex}")
-        SET(${VAR} 0)
+        SET(${VAR} FALSE)
       ENDIF()
     ENDFOREACH()
 
     IF(${VAR})
-      SET(${VAR} 1 CACHE INTERNAL "Test ${VAR}")
+      SET(${VAR} TRUE CACHE BOOL "Test ${VAR}" FORCE )
       FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
         "Performing C++ SOURCE FILE Test ${VAR} succeded with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n")
     ELSE(${VAR})
-      SET(${VAR} "" CACHE INTERNAL "Test ${VAR}")
+      MESSAGE(STATUS "False ${VAR}")
+      SET(${VAR} FALSE CACHE BOOL "Test ${VAR}" FORCE )
       FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
         "Performing C++ SOURCE FILE Test ${VAR} failed with the following output:\n"
         "${OUTPUT}\n"
@@ -90,25 +91,23 @@ MACRO (TFEL_CHECK_CXX_COMPILER_FLAG _FLAG _RESULT)
 ENDMACRO (TFEL_CHECK_CXX_COMPILER_FLAG)
  
 MACRO(tfel_enable_cxx_compiler_flag2 out flag var)
-  if (DEFINED CACHE{${out}})
-      MESSAGE(STATUS "'${out}' in cache")
-  else()
+  if (NOT DEFINED CACHE{${var}})
     if(MSVC)
-  	TFEL_CHECK_CXX_COMPILER_FLAG("/${flag}" ${var})
+      TFEL_CHECK_CXX_COMPILER_FLAG("/${flag}" ${var})
     else(MSVC)
-  	TFEL_CHECK_CXX_COMPILER_FLAG("-${flag}" ${var})
+      TFEL_CHECK_CXX_COMPILER_FLAG("-${flag}" ${var})
     endif(MSVC)
-    IF(${var})
-      MESSAGE(STATUS "enabling flag '${flag}'")
-      if(MSVC)
-  	SET(${out} "/${flag} ${${out}}" )
-      else(MSVC)
-  	SET(${out} "-${flag} ${${out}}" )
-      endif(MSVC)
-    ELSE(${${var})
-      MESSAGE(STATUS "flag '${flag}' disabled")
-    ENDIF(${var})
-  endif()
+  endif(NOT DEFINED CACHE{${var}})
+  IF(${var})
+    MESSAGE(STATUS "enabling flag '${flag}'")
+    if(MSVC)
+      SET(${out} "/${flag} ${${out}}")
+    else(MSVC)
+      SET(${out} "-${flag} ${${out}}")
+    endif(MSVC)
+  ELSE(${${var})
+    MESSAGE(STATUS "flag '${flag}' disabled")
+  ENDIF(${var})
 ENDMACRO(tfel_enable_cxx_compiler_flag2)
 
 MACRO(tfel_enable_cxx_compiler_flag out)
@@ -161,10 +160,6 @@ else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   message(FATAL_ERROR "unsupported compiler id ${CMAKE_CXX_COMPILER_ID}")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			  
-set(VISIBILITY_FLAGS   "" CACHE INTERNAL "")
-set(OPTIMISATION_FLAGS "" CACHE INTERNAL "")
-set(COMPILER_WARNINGS  "" CACHE INTERNAL "")
-
 # This option has been added for building conda package.
 # It circumvents the following issue: `cmake` discards `Boost_INCLUDEDIRS`
 # which is equal to `$PREFIX/include`. The same applies to
