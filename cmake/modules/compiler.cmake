@@ -65,7 +65,6 @@ MACRO(TFEL_CHECK_CXX_SOURCE_COMPILES SOURCE VAR)
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n")
     ELSE(${VAR})
-      MESSAGE(STATUS "False ${VAR}")
       SET(${VAR} FALSE CACHE BOOL "Test ${VAR}" FORCE )
       FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
         "Performing C++ SOURCE FILE Test ${VAR} failed with the following output:\n"
