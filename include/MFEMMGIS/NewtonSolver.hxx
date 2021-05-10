@@ -55,6 +55,8 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      */
     void computeResidual(mfem::Vector &, const mfem::Vector &) const;
+    //! \return the jacobian of the system
+    mfem::Operator &getJacobian(const mfem::Vector&) const;
     //
     [[noreturn]] void SetPreconditioner(Solver &) override;
     [[noreturn]] void SetOperator(const mfem::Operator &) override;

@@ -37,7 +37,9 @@ namespace mfem_mgis {
                                      mgis::behaviour::Behaviour::ORTHOTROPIC
                                  ? &raiseInvalidGetRotationMatrixCall
                                  : &raiseUnsetRotationMatrix),
-        behaviour_ptr(std::move(b_ptr)) {}  // end of Material::Material
+        behaviour_ptr(std::move(b_ptr)) {
+    this->allocateArrayOfTangentOperatorBlocks();
+}  // end of Material::Material
 
   const PartialQuadratureSpace &Material::getPartialQuadratureSpace() const {
     return *(this->quadrature_space);

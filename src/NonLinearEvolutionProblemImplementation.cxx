@@ -138,11 +138,6 @@ namespace mfem_mgis {
     this->SetEssentialTrueDofs(tmp);
   }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
 
-  bool NonLinearEvolutionProblemImplementation<true>::solvePredictionProblem(
-      mfem::Vector&, const real, const real) {
-    return false;
-  }  // end of solvePredictionProblem
-
   NonLinearEvolutionProblemImplementation<
       true>::~NonLinearEvolutionProblemImplementation() = default;
 
@@ -236,43 +231,6 @@ namespace mfem_mgis {
     auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
     this->SetEssentialTrueDofs(tmp);
   }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
-
-  bool NonLinearEvolutionProblemImplementation<false>::solvePredictionProblem(
-      mfem::Vector& du, const real t, const real dt) {
-    //     mfem::Vector r(this->u1.Size());
-    //     r = 0.;
-    //     //
-    //     for (const auto& bc : this->dirichlet_boundary_conditions) {
-    //       bc->setImposedValuesIncrements(r, t, t + dt);
-    //     }
-    //     // unmarked Dirichlet boundary conditions
-    //     this->markDegreesOfFreedomHandledByDirichletBoundaryConditions({});
-    //     // solve the tangent problem
-    //     const auto ddofs = this->getEssentialDegreesOfFreedom();
-    //     auto& K = this->GetGradient(this->u0);
-    //     auto Kh = mfem::OperatorHandle(K, false);
-    //     // eliminiate boundary conditions
-    //     auto tmp = mfem::Array<size_type>(ddofs.data(), ddofs.size());
-    //
-    //
-    //     //
-    //     this->linear_solver->SetOperator(Kh);
-    //     this->linear_solver->Mult(r, du);
-    //     // check convergence of the linear solver
-    //     const auto converged = [this] {
-    //       const auto* const isolver =
-    //           dynamic_cast<const
-    //           mfem::IterativeSolver*>(this->linear_solver.get());
-    //       if (isolver != nullptr) {
-    //         return isolver.GetConverged();
-    //       }
-    //       return true;
-    //     }();
-    //     // reset Dirichlet boundary conditions
-    //     this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(ddofs);
-    //     return converged;
-    return false;
-  }  // end of solvePredictionProblem
 
   NonLinearEvolutionProblemImplementation<
       false>::~NonLinearEvolutionProblemImplementation() = default;

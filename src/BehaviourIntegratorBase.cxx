@@ -64,7 +64,7 @@ namespace mfem_mgis {
     auto dispatch =
         [](std::vector<real>& v,
            std::map<std::string,
-                    mgis::variant<real, mgis::span<real>, std::vector<real>>>&
+                    std::variant<real, mgis::span<real>, std::vector<real>>>&
                values,
            const std::vector<mgis::behaviour::Variable>& ds) {
           raise_if(ds.size() != v.size(), "integrate: ill allocated memory");
@@ -91,18 +91,18 @@ namespace mfem_mgis {
             }
             // depending on the type of p->second, we are branching
             // on one of the following procedure:
-            if (mgis::holds_alternative<real>(p->second)) {
+            if (std::holds_alternative<real>(p->second)) {
               // if uniform field, copy p->second into v[i]
               // `evs` will be untouched.
-              v[i] = mgis::get<real>(p->second);
-            } else if (mgis::holds_alternative<mgis::span<real>>(p->second)) {
+              v[i] = std::get<real>(p->second);
+            } else if (std::holds_alternative<mgis::span<real>>(p->second)) {
               // if we have a span, we store in evs this span for future use
               evs.push_back(std::make_tuple(
-                  i, mgis::get<mgis::span<real>>(p->second).data()));
+                  i, std::get<mgis::span<real>>(p->second).data()));
             } else {
               // if we have a vector, we store in evs this vector for future use
               evs.push_back(std::make_tuple(
-                  i, mgis::get<std::vector<real>>(p->second).data()));
+                  i, std::get<std::vector<real>>(p->second).data()));
             }
             ++i;
           }
@@ -150,10 +150,12 @@ namespace mfem_mgis {
     eval(this->wks.esvs0, this->wks.esvs0_evaluators, ip);
     eval(this->wks.esvs1, this->wks.esvs1_evaluators, ip);
     //
+    rdt = real{1};
     mgis::behaviour::BehaviourDataView v;
-    v.rdt = real(1);
+    v.rdt = &rdt;
     v.dt = this->time_increment;
     v.K = this->K.data() + this->K_stride * ip;
+    v.speed_of_sound = nullptr;
     v.s0.gradients = this->s0.gradients.data() + g_offset;
     v.s1.gradients = this->s1.gradients.data() + g_offset;
     v.s0.thermodynamic_forces = this->s0.thermodynamic_forces.data() + t_offset;
@@ -178,6 +180,8 @@ namespace mfem_mgis {
       v.s0.dissipated_energy = nullptr;
       v.s1.dissipated_energy = nullptr;
     }
+    v.s0.mass_density = nullptr;
+    v.s1.mass_density = nullptr;
     v.s0.external_state_variables = this->wks.esvs0.data();
     v.s1.external_state_variables = this->wks.esvs1.data();
     v.K[0] = static_cast<int>(it);

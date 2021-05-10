@@ -63,10 +63,10 @@ namespace mfem_mgis {
           "rator::setup: "
           "external state variable 'Temperature' is not defined");
     }
-    if (mgis::holds_alternative<mgis::span<real>>(pev->second)) {
-      this->uesv = mgis::get<mgis::span<real>>(pev->second).data();
-    } else if (mgis::holds_alternative<std::vector<real>>(pev->second)) {
-      this->uesv = mgis::get<std::vector<real>>(pev->second).data();
+    if (std::holds_alternative<mgis::span<real>>(pev->second)) {
+      this->uesv = std::get<mgis::span<real>>(pev->second).data();
+    } else if (std::holds_alternative<std::vector<real>>(pev->second)) {
+      this->uesv = std::get<std::vector<real>>(pev->second).data();
     } else {
       raise(
           "IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourInteg"
@@ -135,7 +135,7 @@ namespace mfem_mgis {
     const auto dNi_0 = dN(ni, 0);
     const auto dNi_1 = dN(ni, 1);
     const auto dNi_2 = dN(ni, 2);
-    Fe[ni] += w * (s[0] * dNi_0 + s[1] * dNi_1 + s[2] * dNi_2);
+    Fe[ni] += w * (s[2] * dNi_2 + s[1] * dNi_1 + s[0] * dNi_0);
   }  // end of updateInnerForces
 
   inline void
@@ -155,12 +155,12 @@ namespace mfem_mgis {
       const auto dNj_1 = dN(nj, 1);
       const auto dNj_2 = dN(nj, 2);
       Ke(ni, nj) +=
-          w * (dNi_2 * dNj_0 * Kip[6] + dNj_0 * Kip[0] * dNi_0 +
-               dNi_1 * dNj_0 * Kip[3] + Kip[7] * dNi_2 * dNj_1 +
-               Kip[8] * dNj_2 * dNi_2 + dNi_1 * Kip[5] * dNj_2 +
-               Kip[2] * dNj_2 * dNi_0 + Kip[4] * dNi_1 * dNj_1 +
-               Kip[1] * dNi_0 * dNj_1 +
-               (Kip[10] * dNi_1 + Kip[9] * dNi_0 + Kip[11] * dNi_2) * N[nj]);
+          w * (Kip[2] * dNj_2 * dNi_0 + Kip[8] * dNj_2 * dNi_2 +
+               dNi_1 * Kip[5] * dNj_2 + dNj_0 * Kip[0] * dNi_0 +
+               dNi_1 * dNj_1 * Kip[4] + dNi_2 * dNj_0 * Kip[6] +
+               dNi_1 * dNj_0 * Kip[3] + Kip[1] * dNi_0 * dNj_1 +
+               dNi_2 * dNj_1 * Kip[7] +
+               (Kip[9] * dNi_0 + dNi_1 * Kip[10] + Kip[11] * dNi_2) * N[nj]);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 

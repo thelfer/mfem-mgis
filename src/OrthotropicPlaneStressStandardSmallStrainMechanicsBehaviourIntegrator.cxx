@@ -96,7 +96,7 @@ namespace mfem_mgis {
     g[0] += Bi_0_0 * u_0;
     g[1] += Bi_1_1 * u_1;
     g[2] += 0;
-    g[3] += u_0 * Bi_3_0 + Bi_3_1 * u_1;
+    g[3] += Bi_3_0 * u_0 + u_1 * Bi_3_1;
   }  // end of updateGradients
 
   inline void
@@ -113,8 +113,8 @@ namespace mfem_mgis {
     const auto nnodes = dN.NumRows();
     const auto ni_0 = ni;
     const auto ni_1 = ni + nnodes;
-    Fe[ni_0] += w * (Bi_0_0 * s[0] + s[3] * Bi_3_0);
-    Fe[ni_1] += w * (s[3] * Bi_3_1 + Bi_1_1 * s[1]);
+    Fe[ni_0] += w * (Bi_0_0 * s[0] + Bi_3_0 * s[3]);
+    Fe[ni_1] += w * (Bi_3_1 * s[3] + s[1] * Bi_1_1);
   }  // end of updateInnerForces
 
   inline void
@@ -139,17 +139,17 @@ namespace mfem_mgis {
       const auto nj_0 = nj;
       const auto nj_1 = nj + nnodes;
       Ke(ni_0, nj_0) +=
-          w * (Bi_0_0 * Bj_3_0 * Kip[3] + Bi_3_0 * Kip[12] * Bj_0_0 +
-               Bi_3_0 * Bj_3_0 * Kip[15] + Bi_0_0 * Kip[0] * Bj_0_0);
+          w * (Bi_0_0 * Bj_3_0 * Kip[3] + Bj_3_0 * Kip[15] * Bi_3_0 +
+               Kip[12] * Bj_0_0 * Bi_3_0 + Bi_0_0 * Kip[0] * Bj_0_0);
       Ke(ni_0, nj_1) +=
-          w * (Bi_0_0 * Kip[3] * Bj_3_1 + Kip[1] * Bj_1_1 * Bi_0_0 +
-               Bi_3_0 * Kip[15] * Bj_3_1 + Kip[13] * Bi_3_0 * Bj_1_1);
+          w * (Kip[15] * Bj_3_1 * Bi_3_0 + Bi_0_0 * Kip[3] * Bj_3_1 +
+               Kip[13] * Bi_3_0 * Bj_1_1 + Bi_0_0 * Kip[1] * Bj_1_1);
       Ke(ni_1, nj_0) +=
-          w * (Kip[4] * Bi_1_1 * Bj_0_0 + Bi_3_1 * Bj_3_0 * Kip[15] +
-               Bi_3_1 * Kip[12] * Bj_0_0 + Kip[7] * Bj_3_0 * Bi_1_1);
+          w * (Bi_3_1 * Bj_3_0 * Kip[15] + Bj_3_0 * Bi_1_1 * Kip[7] +
+               Bi_3_1 * Kip[12] * Bj_0_0 + Bi_1_1 * Bj_0_0 * Kip[4]);
       Ke(ni_1, nj_1) +=
-          w * (Bi_3_1 * Kip[15] * Bj_3_1 + Bj_1_1 * Kip[5] * Bi_1_1 +
-               Kip[13] * Bj_1_1 * Bi_3_1 + Kip[7] * Bi_1_1 * Bj_3_1);
+          w * (Bi_3_1 * Kip[13] * Bj_1_1 + Kip[5] * Bi_1_1 * Bj_1_1 +
+               Bi_1_1 * Bj_3_1 * Kip[7] + Bi_3_1 * Kip[15] * Bj_3_1);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 

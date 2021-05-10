@@ -704,11 +704,11 @@ void generateSourceFile(std::ostream& os,
          << "            \"external state variable '" << d.unknown_name
          << "' is not defined\");\n"
          << "}\n"
-         << "if (mgis::holds_alternative<mgis::span<real>>(pev->second)){\n"
-         << "this->uesv = mgis::get<mgis::span<real>>(pev->second).data();\n"
+         << "if (std::holds_alternative<mgis::span<real>>(pev->second)){\n"
+         << "this->uesv = std::get<mgis::span<real>>(pev->second).data();\n"
          << "} else if "
-            "(mgis::holds_alternative<std::vector<real>>(pev->second)){\n"
-         << "this->uesv = mgis::get<std::vector<real>>(pev->second).data();\n"
+            "(std::holds_alternative<std::vector<real>>(pev->second)){\n"
+         << "this->uesv = std::get<std::vector<real>>(pev->second).data();\n"
          << "} else {\n"
          << "raise(\"" << d.name << "::setup: \"\n"
          << "            \"external state variable '" << d.unknown_name

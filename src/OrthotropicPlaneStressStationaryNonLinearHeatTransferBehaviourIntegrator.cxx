@@ -63,10 +63,10 @@ namespace mfem_mgis {
           "ator::setup: "
           "external state variable 'Temperature' is not defined");
     }
-    if (mgis::holds_alternative<mgis::span<real>>(pev->second)) {
-      this->uesv = mgis::get<mgis::span<real>>(pev->second).data();
-    } else if (mgis::holds_alternative<std::vector<real>>(pev->second)) {
-      this->uesv = mgis::get<std::vector<real>>(pev->second).data();
+    if (std::holds_alternative<mgis::span<real>>(pev->second)) {
+      this->uesv = std::get<mgis::span<real>>(pev->second).data();
+    } else if (std::holds_alternative<std::vector<real>>(pev->second)) {
+      this->uesv = std::get<std::vector<real>>(pev->second).data();
     } else {
       raise(
           "OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegr"
@@ -127,8 +127,8 @@ namespace mfem_mgis {
     const auto dNi_0 = dN(ni, 0);
     const auto dNi_1 = dN(ni, 1);
     const auto u_0 = u[ni];
-    g[0] += u_0 * dNi_0;
-    g[1] += u_0 * dNi_1;
+    g[0] += dNi_0 * u_0;
+    g[1] += dNi_1 * u_0;
   }  // end of updateGradients
 
   inline void
@@ -140,7 +140,7 @@ namespace mfem_mgis {
                         const size_type ni) const noexcept {
     const auto dNi_0 = dN(ni, 0);
     const auto dNi_1 = dN(ni, 1);
-    Fe[ni] += w * (dNi_0 * s[0] + s[1] * dNi_1);
+    Fe[ni] += w * (dNi_1 * s[1] + dNi_0 * s[0]);
   }  // end of updateInnerForces
 
   inline void
@@ -157,9 +157,9 @@ namespace mfem_mgis {
     for (size_type nj = 0; nj != nnodes; ++nj) {
       const auto dNj_0 = dN(nj, 0);
       const auto dNj_1 = dN(nj, 1);
-      Ke(ni, nj) += w * (Kip[3] * dNj_1 * dNi_1 + Kip[0] * dNj_0 * dNi_0 +
+      Ke(ni, nj) += w * (dNj_1 * dNi_1 * Kip[3] + dNj_0 * dNi_0 * Kip[0] +
                          dNj_0 * Kip[2] * dNi_1 + Kip[1] * dNi_0 * dNj_1 +
-                         (Kip[4] * dNi_0 + Kip[5] * dNi_1) * N[nj]);
+                         (dNi_0 * Kip[4] + Kip[5] * dNi_1) * N[nj]);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 

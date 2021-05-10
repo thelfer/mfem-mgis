@@ -153,7 +153,7 @@ namespace mfem_mgis {
                 "the Solver is not set (use setLinearSolver).");
     const auto usesIterativeLinearSolver =
         dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
-    this->prec->SetOperator(this->oper->GetGradient(u));
+    this->prec->SetOperator(this->getJacobian(u));
     this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
     if (usesIterativeLinearSolver) {
       const auto &iprec =
@@ -162,6 +162,12 @@ namespace mfem_mgis {
     }
     return true;
   }  // end of computeNewtonCorrection
+
+  mfem::Operator &NewtonSolver::getJacobian(const mfem::Vector &u) const {
+    MFEM_ASSERT(this->oper != nullptr,
+                "the Operator is not set (use SetOperator).");
+    return this->oper->GetGradient(u);
+  } // end of getJacobian
 
   void NewtonSolver::addNewUnknownsEstimateActions(
       std::function<bool(const mfem::Vector &)> a) {

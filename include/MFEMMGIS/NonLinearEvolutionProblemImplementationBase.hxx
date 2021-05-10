@@ -142,15 +142,6 @@ namespace mfem_mgis {
      */
     virtual void computePrediction(const real, const real);
     /*!
-     * \brief solve the prediction problem
-     * \param[out] du: displacement increment
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     */
-    virtual bool solvePredictionProblem(mfem::Vector&,
-                                        const real,
-                                        const real) = 0;
-    /*!
      * \brief integrate the behaviour for given estimate of the unknowns at
      * the end of the time step.
      * \param[in] u: current estimate of the unknowns
