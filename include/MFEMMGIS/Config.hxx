@@ -14,6 +14,15 @@
 #include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 
+#ifndef MGIS_BEHAVIOUR_API_VERSION
+#error "Incompatible version of MGIS"
+#endif /* MGIS_BEHAVIOUR_API_VERSION */
+
+#if MGIS_BEHAVIOUR_API_VERSION != 1
+#error "Incompatible version of MGIS"
+#endif /* MGIS_BEHAVIOUR_API_VERSION */
+
+
 #define MFEM_MGIS_VISIBILITY_LOCAL MGIS_VISIBILITY_LOCAL
 
 #if defined _WIN32 || defined _WIN64 || defined __CYGWIN__
