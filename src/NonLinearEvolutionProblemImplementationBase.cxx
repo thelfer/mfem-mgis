@@ -218,12 +218,9 @@ namespace mfem_mgis {
       std::unique_ptr<LinearSolverPreconditioner> p) {
     if (p != nullptr) {
       auto* const isolver = dynamic_cast<IterativeSolver*>(s.get());
-      if (isolver == nullptr) {
-        mgis::raise(
-            "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
-            "can't associate a preconditioner to a non iterative solver");
+      if (isolver != nullptr) {
+	isolver->SetPreconditioner(*p);
       }
-      isolver->SetPreconditioner(*p);
       this->updateLinearSolver(std::move(s));
       this->linear_solver_preconditioner = std::move(p);
     } else {

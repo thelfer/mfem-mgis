@@ -30,18 +30,15 @@ int main(int argc, char** argv) {
   const char* mesh_file = "ssna303_3d.msh";
   const char* behaviour = "Plasticity";
   const char* library = "src/libBehaviour.so";
-  auto solver = "SLISolver";
+  auto solver = "HyprePCG";
   auto preconditioner = "";
-  auto ref_para = 0;
-  auto ref_seq = 0;
+  auto ref_para = 1;
+  auto ref_seq = 1;
   auto order = 1;
-  // initialization for the MPI 
-  int rank;
-  MPI_Comm_rank (MPI_COMM_WORLD,&rank);
 
 
   //file creation 
-  std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/Test_Ssna303/HypreBoomerAMG/CGSolver/CG_test.txt");
+  std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/Test_Ssna303/Without_Preconditioner/HyprePCG/HPCG.txt");
   std::ofstream out(myFile.c_str());
 
   // options treatment
@@ -51,7 +48,7 @@ int main(int argc, char** argv) {
   args.AddOption(&solver,"-s", "--solver",
                  "Solver of the Problem.");
   args.AddOption(&preconditioner,"-p", "--preconditioner",
-                 "Preconditioner uses for the Problem.");
+                 "Preconditioner for the Problem.");
   args.AddOption(&ref_para,"-rp", "--refinement_parallel",
                  "Number of Refinement for parallel call.");
   args.AddOption(&ref_seq,"-rs", "--refinement_sequential",
@@ -124,7 +121,7 @@ int main(int argc, char** argv) {
   }
   if ( preconditioner == ""){
   problem.setLinearSolver(solver,  {{"VerbosityLevel", 0},
-                                   {"RelativeTolerance", 1e-12},
+                                   {"Tolerance", 1e-12},
                                    {"MaximumNumberOfIterations",300}});
   }
   else{
@@ -137,19 +134,20 @@ int main(int argc, char** argv) {
                            {"VerbosityLevel", 0}}}};
 
    problem.setLinearSolver(solver, {{"VerbosityLevel", 0},
-                                          {"AbsoluteTolerance", 1e-12},
-                                          {"RelativeTolerance", 1e-12},
+                                          // {"AbsoluteTolerance", 1e-12},
+                                          // {"RelativeTolerance", 1e-12},
+	  {"Tolerance", 1e-12},
                                           {"MaximumNumberOfIterations", 300},
                                           {"Preconditioner", prec_boomer}});
   }
 	// print on file
-  out << "SetLinearSolver" << std::endl;
-  out << "VerbosityLevel = " << 0 << std::endl;
-  out << "RelativeTolerance = " << 1e-12 << std::endl;
-  out << "MaximumNumberOfIterations = " << 300 << std::endl;
-  out << "Preconditioner = " << preconditioner << std::endl;
-  out << "taille_maille = " << h << std::endl;
-  out << "1/h = " << 1/h << std::endl;
+  out << " SetLinearSolver" << std::endl;
+  out << " VerbosityLevel = " << 0 << std::endl;
+  out << " RelativeTolerance = " << 1e-12 << std::endl;
+  out << " MaximumNumberOfIterations = " << 300 << std::endl;
+  out << " Preconditioner = " << preconditioner << std::endl;
+  out << " taille_maille = " << h << std::endl;
+  out << " 1/h = " << 1/h << std::endl;
   out << " nbr_ref_parallel = " << ref_para << std::endl;
   out << " nbr_ref_sequential = " << ref_seq << std::endl;
   out << " numbers_of_vertices = " << numbers_of_vertices << std::endl;
@@ -157,9 +155,9 @@ int main(int argc, char** argv) {
 
   // vtk export
   problem.addPostProcessing("ParaviewExportResults",
-                            {{"OutputFileName", std::string("ssna303-displacements-CG_HBAMG_1")}});
+                            {{"OutputFileName", std::string("ssna303-displacements-WP_1")}});
   problem.addPostProcessing("ComputeResultantForceOnBoundary",
-                            {{"Boundary", 2}, {"OutputFileName", "force_CG_HBAMG_1.txt"}});
+                            {{"Boundary", 2}, {"OutputFileName", "force_WP_1.txt"}});
   
   // loop over time step
   const auto nsteps = mfem_mgis::size_type{50};
@@ -204,5 +202,4 @@ int main(int argc, char** argv) {
   }
   mfem_mgis::Profiler::getProfiler().print(out);
   return EXIT_SUCCESS;
-  MPI_Finalize();
 }
