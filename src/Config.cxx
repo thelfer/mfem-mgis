@@ -58,7 +58,6 @@ namespace mfem_mgis {
 
   void Finalizer::initialize(int& argc, MainFunctionArguments& argv) {
 #ifdef MFEM_USE_PETSC
-    const char* const petsc_configuration_file_option = "--petsc-configuration-file";
     const char* petscrc_file = nullptr;
 #endif /* MFEM_USE_PETSC */
     for (const auto* a = argv; a != argv + argc; ++a) {
@@ -190,12 +189,13 @@ namespace mfem_mgis {
     static_cast<void>(parser);
 #ifdef MFEM_USE_PETSC
     static bool use_petsc = false;
-    static char* petscrc_file = nullptr;
+    static const char* petscrc_file = nullptr;
 #endif /* MFEM_USE_PETSC */
 #ifdef MFEM_USE_PETSC
-    parser.AddOption(&use_petsc, "--use-petsc",
-                   "Use or not PETSc to solve the nonlinear system.");
-    parser.AddOption(&petscrc_file, Finalizer::petsc_configuration_file_option,
+    parser.AddOption(&use_petsc, "", "--use-petsc", "", "",
+                     "Use or not PETSc to solve the nonlinear system.");
+    parser.AddOption(&petscrc_file, "",
+                     Finalizer::petsc_configuration_file_option,
                      "Path to the PETSc configuration file.");
 #endif /* MFEM_USE_PETSC */
 }

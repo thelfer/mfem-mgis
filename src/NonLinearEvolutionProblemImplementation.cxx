@@ -5,6 +5,10 @@
  * \date   11/12/2020
  */
 
+#ifdef MFEM_USE_PETSC
+#include "mfem/linalg/petsc.hpp"
+#endif MFEM_USE_PETSC
+
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
@@ -65,7 +69,7 @@ namespace mfem_mgis {
     }
 #ifdef MFEM_USE_PETSC
     if (usePETSc()) {
-      this->petsc_solver = std::make_unique<PetscNonlinearSolver>(
+      this->petsc_solver = std::make_unique<mfem::PetscNonlinearSolver>(
           this->getFiniteElementSpace().GetComm(), *this);
     } else {
       this->solver = std::make_unique<NewtonSolver>(*this);
