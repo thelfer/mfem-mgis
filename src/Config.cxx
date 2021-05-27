@@ -5,6 +5,7 @@
  * \date   14/02/2021
  */
 
+#include <cstring>
 #include <iostream>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Config.hxx"
@@ -20,12 +21,19 @@ namespace mfem_mgis {
   struct MGIS_VISIBILITY_LOCAL Finalizer {
     //! \return the unique instance of this class
     static Finalizer& get();
+    //! \brief initialize the execution of the mfem-mgis
+    void initialize(int&, MainFunctionArguments&);
+    //! \return true if PETSc is used
+    bool usePETSc() const;
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
+    //! \brief abort the process
     [[noreturn]] void abort(int error);
 
    private:
-    //! boolean stating if the finalize method has been called
+    //! \brief boolean stating if PETSc shall be used
+    bool use_petsc = false;
+    //! \brief boolean stating if the finalize method has been called
     bool pendingExit = false;
     /*!
      * \brief constructor
@@ -37,17 +45,36 @@ namespace mfem_mgis {
     ~Finalizer();
   };  // end of Finalizer
 
+  Finalizer::Finalizer() = default;
+
+  void Finalizer::initialize(int& argc, MainFunctionArguments& argv) {
+    for (const auto* a = argv; a != argv + argc; ++a) {
+#ifdef MFEM_USE_PETSC
+      if (std::strcmp(*a, "--use-petsc") == 0) {
+        this->use_petsc = true;
+      }
+#endif /* MFEM_USE_PETSC */
+    }
+  }  // end of initialize
+
   Finalizer& Finalizer::get() {
     static Finalizer f;
     return f;
   }  // end of get
 
-  Finalizer::Finalizer() = default;
+  bool Finalizer::usePETSc() const {
+    return this->use_petsc;
+  }  // end of usePETSc
 
   void Finalizer::finalize() {
     if (!this->pendingExit) {
 #ifdef MFEM_USE_MPI
       MPI_Finalize();
+#ifdef MFEM_USE_PETSC
+      if (this->use_petsc) {
+        MFEMFinalizePetsc();
+      }
+#endif /* MFEM_USE_PETSC */
       this->pendingExit = true;
 #endif /* MFEM_USE_MPI */
     }
@@ -90,6 +117,7 @@ namespace mfem_mgis {
     if (first) {
       mgis::setExceptionHandler(exit_on_failure);
       MPI_Init(&argc, &argv);
+
       Finalizer::get();
       first = false;
     }
@@ -115,5 +143,9 @@ namespace mfem_mgis {
     Finalizer::get().abort(error);
     std::exit(error);
   }  // end of abort
+
+  void declareDefaultOptions(mfem::OptionsParser&) {}
+
+  bool usePETSc() { return Finalizer::get().usePETSc(); }  // end of usePETSc
 
 }  // namespace mfem_mgis

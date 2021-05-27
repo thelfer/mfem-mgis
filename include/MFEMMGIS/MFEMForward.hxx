@@ -13,6 +13,7 @@
 
 namespace mfem {
 
+  class OptionsParser;
   class Vector;
   class GridFunction;
   class DenseMatrix;

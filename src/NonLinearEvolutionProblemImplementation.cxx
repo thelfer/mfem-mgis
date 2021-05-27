@@ -63,7 +63,16 @@ namespace mfem_mgis {
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
+#ifdef MFEM_USE_PETSC
+    if (usePETSc()) {
+      this->petsc_solver = std::make_unique<PetscNonlinearSolver>(
+          this->getFiniteElementSpace().GetComm(), *this);
+    } else {
+      this->solver = std::make_unique<NewtonSolver>(*this);
+    }
+#else  /* MFEM_USE_PETSC */
     this->solver = std::make_unique<NewtonSolver>(*this);
+#endif /* MFEM_USE_PETSC */
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
     }

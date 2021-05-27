@@ -208,6 +208,11 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
       std::unique_ptr<LinearSolver> s) {
+    if (usePETSc()) {
+      mgis::raise(
+          "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
+          "call to this method is meaningless if PETSc is used");
+    }
     this->linear_solver_preconditioner.reset();
     this->linear_solver = std::move(s);
     this->solver->setLinearSolver(*(this->linear_solver));
@@ -248,6 +253,12 @@ namespace mfem_mgis {
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     //    this->computePrediction(t, dt);
+#ifdef MFEM_USE_PETSC
+    if (usePETSc()) {
+      this->petsc_solver->Mult(zero, this->u1);
+      return this->petsc_solver->GetConverged();
+    }
+#endif /* MFEM_USE_PETSC */
     this->solver->Mult(zero, this->u1);
     return this->solver->GetConverged();
   }  // end of solve
