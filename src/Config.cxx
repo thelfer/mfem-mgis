@@ -11,6 +11,9 @@
 #include "mpi.h"
 #endif /* MFEM_USE_MPI */
 #include "mfem/general/optparser.hpp"
+#ifdef MFEM_USE_PETSC
+#include "mfem/linalg/petsc.hpp"
+#endif /*MFEM_USE_PETSC */
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Config.hxx"
 
@@ -91,7 +94,7 @@ namespace mfem_mgis {
         mgis::raise("initialize: no PETSc configuration file given");
       }
       //      std::cout << "PETSc file: " << petscrc_file << '\n';
-      MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
+      mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
     }
 #endif /* MFEM_USE_PETSC */
   }  // end of initialize
@@ -111,7 +114,7 @@ namespace mfem_mgis {
       MPI_Finalize();
 #ifdef MFEM_USE_PETSC
       if (this->use_petsc) {
-        MFEMFinalizePetsc();
+        mfem::MFEMFinalizePetsc();
       }
 #endif /* MFEM_USE_PETSC */
       this->pendingExit = true;
@@ -186,8 +189,8 @@ namespace mfem_mgis {
   void declareDefaultOptions(mfem::OptionsParser& parser) {
     static_cast<void>(parser);
 #ifdef MFEM_USE_PETSC
-          static bool use_petsc = false;
-    static char* petscrc_file = false;
+    static bool use_petsc = false;
+    static char* petscrc_file = nullptr;
 #endif /* MFEM_USE_PETSC */
 #ifdef MFEM_USE_PETSC
     parser.AddOption(&use_petsc, "--use-petsc",
