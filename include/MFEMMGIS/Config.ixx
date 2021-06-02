@@ -45,7 +45,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #endif /* MFEM_USE_MPI */
-    return(0);
+    return(rank);
   } //end of getMPIrank
 
   inline int getMPIsize() {
