@@ -103,7 +103,6 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
-  
   void finalize() { Finalizer::get().finalize(); }  // end of finalize
 
   void abort(const int error) {
