@@ -31,15 +31,15 @@ int main(int argc, char** argv) {
   const char* mesh_file = "ssna303_3d.msh";
   const char* behaviour = "Plasticity";
   const char* library = "src/libBehaviour.so";
-  auto solver = "BiCGSTABSolver";
-  auto preconditioner = "HypreParaSails";
-  auto ref_para = 0;
-  auto ref_seq = 0;
+  auto solver = "HypreFGMRES";
+  auto preconditioner = "";
+  auto ref_para = 1;
+  auto ref_seq = 1;
   auto order = 1;
 
 
   //file creation 
-  std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/Test_Ssna303/Petites_Perturbations/HypreParaSails/BiCGSTAB/test.txt");
+  std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/Test_Ssna303/Grandes_Perturbations/Without_Preconditioner/HypreFGMRES/HFGMRES_test.txt");
   std::ofstream out(myFile.c_str());
 
   // options treatment
@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
   }
   if ( preconditioner == ""){
   problem.setLinearSolver(solver,  {{"VerbosityLevel", 0},
-                                   {"AbsoluteTolerance", 1e-12},
+                                   //{"AbsoluteTolerance", 1e-12},
                                    //{"KDim", 3},
                                    {"Tolerance", 1e-12},
                                    {"MaximumNumberOfIterations",300}});
@@ -137,8 +137,8 @@ int main(int argc, char** argv) {
                            {"VerbosityLevel", 0}}}};
 
    problem.setLinearSolver(solver, {{"VerbosityLevel", 0},
-                                          {"AbsoluteTolerance", 1e-12},
-                                          {"RelativeTolerance", 1e-12},
+                                          //{"AbsoluteTolerance", 1e-12},
+                                          //{"RelativeTolerance", 1e-12},
 	  				  //{"Tolerance", 1e-12},
                                           {"MaximumNumberOfIterations", 300},
                                           {"Preconditioner", prec_boomer}});
@@ -158,9 +158,9 @@ int main(int argc, char** argv) {
 
   // vtk export
   problem.addPostProcessing("ParaviewExportResults",
-                            {{"OutputFileName", std::string("ssna303-displacements-BiCGSTAB_HPRS_0")}});
+                            {{"OutputFileName", std::string("ssna303-displacements-HFGMRES_WS_1")}});
   problem.addPostProcessing("ComputeResultantForceOnBoundary",
-                            {{"Boundary", 2}, {"OutputFileName", "force_BiCGSTAB_HPRS_0.txt"}});
+                            {{"Boundary", 2}, {"OutputFileName", "force_HFGMRES_WS_1.txt"}});
   
   // loop over time step
   const auto nsteps = mfem_mgis::size_type{50};
