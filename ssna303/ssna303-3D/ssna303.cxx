@@ -30,10 +30,10 @@ int main(int argc, char** argv) {
   const char* mesh_file = "ssna303_3d.msh";
   const char* behaviour = "Plasticity";
   const char* library = "src/libBehaviour.so";
-  auto solver = "CGSolver";
-  auto preconditioner = "HypreBoomerAMG";
-  auto ref_para = 1;
-  auto ref_seq = 1;
+  auto solver = "HyprePCG";
+  auto preconditioner = "";
+  auto ref_para = 0;
+  auto ref_seq = 0;
   auto order = 1;
   // initialization for the MPI 
   int rank;
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 
 
   //file creation 
-  std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/Test_Ssna303/HypreBoomerAMG/CGSolver/CG_test.txt");
+  std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/Test_Ssna303/Grandes_Perturbations/Without_Preconditioner/HyprePCG/HyprePCG.txt");
   std::ofstream out(myFile.c_str());
 
   // options treatment
@@ -157,9 +157,9 @@ int main(int argc, char** argv) {
 
   // vtk export
   problem.addPostProcessing("ParaviewExportResults",
-                            {{"OutputFileName", std::string("ssna303-displacements-CG_HBAMG_1")}});
+                            {{"OutputFileName", std::string("ssna303-displacements-HPCG_WP_0")}});
   problem.addPostProcessing("ComputeResultantForceOnBoundary",
-                            {{"Boundary", 2}, {"OutputFileName", "force_CG_HBAMG_1.txt"}});
+                            {{"Boundary", 2}, {"OutputFileName", "force_HPCG_WP_0.txt"}});
   
   // loop over time step
   const auto nsteps = mfem_mgis::size_type{50};
