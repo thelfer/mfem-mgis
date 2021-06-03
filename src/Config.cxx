@@ -63,17 +63,7 @@ namespace mfem_mgis {
     for (const auto* a = argv; a != argv + argc; ++a) {
 #ifdef MFEM_USE_PETSC
       if (std::strcmp(*a, "--use-petsc") == 0) {
-        ++a;
-        if (a == argv + argc) {
-          mgis::raise("initialize: option values missing for --use-petsc");
-        }
-        if (std::strcmp(*a, "true") == 0) {
-          this->use_petsc = true;
-        } else if(std::strcmp(*a, "false") == 0) {
-          this->use_petsc = false;
-        } else {
-          mgis::raise("initialize: invalide option values for --use-petsc");
-        }
+       this->use_petsc=true;
       }
       if (std::strcmp(*a, petsc_configuration_file_option) == 0){
         if (petscrc_file != nullptr) {
@@ -158,8 +148,7 @@ namespace mfem_mgis {
     if (first) {
       mgis::setExceptionHandler(exit_on_failure);
       MPI_Init(&argc, &argv);
-
-      Finalizer::get();
+      Finalizer::get().initialize(argc, argv);
       first = false;
     }
   }  // end of initialize
