@@ -175,6 +175,11 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
       const Parameters& params) {
+    if (usePETSc()) {
+      mgis::raise(
+          "NonLinearEvolutionProblemImplementationBase::setSolverParameters: "
+          "call to this method is meaningless if PETSc is used");
+    }
     mfem_mgis::setSolverParameters(*(this->solver), params);
   }  // end of setSolverParameters
 
