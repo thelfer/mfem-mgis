@@ -52,6 +52,8 @@ namespace mfem_mgis {
     FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
     const FiniteElementSpace<true>& getFiniteElementSpace() const;
+    //
+    void Mult(const mfem::Vector &, mfem::Vector &) const override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
