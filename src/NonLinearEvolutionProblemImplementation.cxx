@@ -14,6 +14,7 @@
 #include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -71,6 +72,11 @@ namespace mfem_mgis {
     if (usePETSc()) {
       this->petsc_solver = std::make_unique<mfem::PetscNonlinearSolver>(
           this->getFiniteElementSpace().GetComm(), *this);
+      this->petsc_solver->SetPrintLevel(1); // print Newton iterations
+      this->petsc_solver->SetRelTol(1e-6);
+      this->petsc_solver->SetAbsTol(0.0);
+      this->petsc_solver->SetMaxIter(50);
+      this->petsc_solver->iterative_mode = true;
     } else {
       this->solver = std::make_unique<NewtonSolver>(*this);
     }
@@ -82,6 +88,16 @@ namespace mfem_mgis {
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
+  
+  void NonLinearEvolutionProblemImplementation<true>::Mult(const mfem::Vector & u, mfem::Vector & r) const{
+    if(usePETSc()){
+      const_cast<NonLinearEvolutionProblemImplementation<true>&>(*this).integrate(
+          u, IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR);
+    }
+    return mfem_mgis::NonlinearForm<true>::Mult(u, r);
+  } // end of GetGradient
+
+  
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       std::unique_ptr<PostProcessing<true>> p) {
     this->postprocessings.push_back(std::move(p));
