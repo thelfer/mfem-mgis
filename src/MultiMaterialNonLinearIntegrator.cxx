@@ -7,6 +7,7 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/BehaviourIntegrator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -74,6 +75,10 @@ namespace mfem_mgis {
     const auto m = tr.Attribute;
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementVector", m);
+    if(usePETSc()){
+      bi->integrate(e, tr, U,
+                    IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR);
+    }
     bi->updateResidual(F, e, tr, U);
   }  // end of AssembleElementVector
 
