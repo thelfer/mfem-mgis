@@ -254,17 +254,16 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementationBase::solve(const real t,
                                                           const real dt) {
-    mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     //    this->computePrediction(t, dt);
 #ifdef MFEM_USE_PETSC
     if (usePETSc()) {
-      this->petsc_solver->Mult(zero, this->u1);
+      this->petsc_solver->Mult(this->u0, this->u1);
       return this->petsc_solver->GetConverged();
     }
 #endif /* MFEM_USE_PETSC */
-    this->solver->Mult(zero, this->u1);
+    this->solver->Mult(this->u0, this->u1);
     return this->solver->GetConverged();
   }  // end of solve
 

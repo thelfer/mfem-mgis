@@ -9,7 +9,6 @@
 #define LIB_MFEMMGIS_PARAVIEWEXPORTRESULTS_IXX
 
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
-#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
 
@@ -39,6 +38,7 @@ namespace mfem_mgis {
       const real dt) {
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
+    this->result.SetFromTrueVector();
     this->exporter.Save();
     ++(this->cycle);
   }  // end of execute
@@ -47,7 +47,5 @@ namespace mfem_mgis {
   ParaviewExportResults<parallel>::~ParaviewExportResults() = default;
 
 }  // end of namespace mfem_mgis
-
-#include "MFEMMGIS/ParaviewExportResults.ixx"
 
 #endif /* LIB_MFEMMGIS_PARAVIEWEXPORTRESULTS_IXX */
