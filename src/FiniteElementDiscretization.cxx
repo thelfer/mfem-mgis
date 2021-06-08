@@ -234,7 +234,7 @@ namespace mfem_mgis {
                                                   int refine,
                                                   bool fix_orientation) {
 #ifdef MFEM_USE_MED
-    if (std::string("med").compare(getFileExt(mesh_name)) == 0) {
+    if (getFileExt(mesh_name)=="med") {
       auto medmesh = std::make_shared<Mesh<false>>();
       std::string per_name = mesh_name;
       per_name.replace (per_name.length()-4,4,".per");
