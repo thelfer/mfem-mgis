@@ -91,7 +91,7 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     } else {
       this->sequential_mesh =
-	loadMeshSequential(mesh_file.c_str(),1,1);
+        loadMeshSequential(mesh_file.c_str(),1,1);
       for (size_type i = 0; i != nrefinement; ++i) {
         this->sequential_mesh->UniformRefinement();
       }
@@ -230,9 +230,9 @@ namespace mfem_mgis {
   }  // end of getTrueVSize
 
   std::shared_ptr<Mesh<false>> loadMeshSequential(const std::string& mesh_name,
-						  int generate_edges,
-						  int refine,
-						  bool fix_orientation) {
+                                                  int generate_edges,
+                                                  int refine,
+                                                  bool fix_orientation) {
 #ifdef MFEM_USE_MED
     if (std::string("med").compare(getFileExt(mesh_name)) == 0) {
       auto medmesh = std::make_shared<Mesh<false>>();

@@ -89,8 +89,7 @@ namespace mfem_mgis {
       return *(this->sequential_fe_space);
     }
 
-  }
-  // end of getFiniteElementSpace
+  }  // end of getFiniteElementSpace
 
   inline std::string getFileExt(const std::string& s) {
     size_t i = s.rfind('.', s.length());
@@ -99,8 +98,7 @@ namespace mfem_mgis {
     }
     
     return("");
-  }
-  // end of getFileExt
+  } // end of getFileExt
 
 }  // end of namespace mfem_mgis
 
