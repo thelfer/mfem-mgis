@@ -80,10 +80,10 @@ namespace mfem_mgis {
         params, FiniteElementDiscretization::NumberOfUniformRefinements, 0);
     if (parallel) {
 #ifdef MFEM_USE_MPI
-      auto smesh = loadMeshSequential(mesh_file,1,1);
+      auto smesh = loadMeshSequential(mesh_file, 1, 1);
       this->parallel_mesh =
           std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
-      for (size_type i = 0; i != nrefinement; ++i) {
+      for (size_type i = 0; i < nrefinement; ++i) {
         this->parallel_mesh->UniformRefinement();
       }
 #else  /* MFEM_USE_MPI */
@@ -91,8 +91,8 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     } else {
       this->sequential_mesh =
-        loadMeshSequential(mesh_file,1,1);
-      for (size_type i = 0; i != nrefinement; ++i) {
+          loadMeshSequential(mesh_file, 1, 1);
+      for (size_type i = 0; i < nrefinement; ++i) {
         this->sequential_mesh->UniformRefinement();
       }
     }
@@ -242,7 +242,7 @@ namespace mfem_mgis {
       return medmesh;
     }
 #endif  /* MFEM_USE_MED */
-    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(), generate_edges, refine);
+    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(), generate_edges, refine, fix_orientation);
     return smesh;
     
   }  // end of loadMeshSequential
