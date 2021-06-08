@@ -143,6 +143,28 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT size_type getTrueVSize(const FiniteElementDiscretization&);
 
+
+  /*!
+   * \brief Extract the file extension
+   * \param[in] s: string corresponding to a file name
+   */
+  static std::string getFileExt(const std::string& s); 
+
+  
+  /*!
+   * \brief load a mesh (sequential)
+   * \param[in] s: string corresponding to a file name
+   *
+   * \note MED format is handled in addition to standard MFEM 
+   *       input formats.
+   */
+  MFEM_MGIS_EXPORT std::shared_ptr<Mesh<false>> loadMeshSequential(
+       const std::string& mesh_name,
+       int generate_edges = 0,
+       int refine = 1,
+       bool fix_orientation = true);
+
+  
 }  // end of namespace mfem_mgis
 
 #include "MFEMMGIS/FiniteElementDiscretization.ixx"
