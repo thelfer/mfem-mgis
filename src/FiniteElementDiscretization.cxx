@@ -80,7 +80,7 @@ namespace mfem_mgis {
         params, FiniteElementDiscretization::NumberOfUniformRefinements, 0);
     if (parallel) {
 #ifdef MFEM_USE_MPI
-      auto smesh = std::make_shared<Mesh<false>>(mesh_file.c_str(), 1, 1);
+      auto smesh = loadMeshSequential(mesh_file.c_str(),1,1);
       this->parallel_mesh =
           std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
       for (size_type i = 0; i != nrefinement; ++i) {
@@ -91,7 +91,7 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     } else {
       this->sequential_mesh =
-          std::make_shared<Mesh<false>>(mesh_file.c_str(), 1, 1);
+	loadMeshSequential(mesh_file.c_str(),1,1);
       for (size_type i = 0; i != nrefinement; ++i) {
         this->sequential_mesh->UniformRefinement();
       }
@@ -229,4 +229,22 @@ namespace mfem_mgis {
     return fed.getFiniteElementSpace<false>().GetTrueVSize();
   }  // end of getTrueVSize
 
+  std::shared_ptr<Mesh<false>> loadMeshSequential(const std::string& mesh_name,
+						  int generate_edges,
+						  int refine,
+						  bool fix_orientation) {
+#ifdef MFEM_USE_MED
+    if (std::string("med").compare(getFileExt(mesh_name)) == 0) {
+      auto medmesh = std::make_shared<Mesh<false>>();
+      std::string per_name = mesh_name;
+      per_name.replace (per_name.length()-4,4,".per");
+      medmesh->ImportMED(mesh_name, 0, per_name);
+      return medmesh;
+    }
+#endif  /* MFEM_USE_MED */
+    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(), generate_edges, refine);
+    return smesh;
+    
+  }  // end of loadMeshSequential
+  
 }  // end of namespace mfem_mgis
