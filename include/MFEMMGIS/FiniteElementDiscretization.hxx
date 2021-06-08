@@ -148,9 +148,9 @@ namespace mfem_mgis {
    * \brief Extract the file extension
    * \param[in] s: string corresponding to a file name
    */
-  MFEM_MGIS_EXPORT std::string getFileExt(const std::string& s); 
+  static std::string getFileExt(const std::string& s); 
 
-
+  
   /*!
    * \brief load a mesh (sequential)
    * \param[in] s: string corresponding to a file name

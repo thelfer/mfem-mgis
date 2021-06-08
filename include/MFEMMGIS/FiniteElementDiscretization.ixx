@@ -91,7 +91,7 @@ namespace mfem_mgis {
 
   }  // end of getFiniteElementSpace
 
-  inline std::string getFileExt(const std::string& s) {
+  static inline std::string getFileExt(const std::string& s) {
     size_t i = s.rfind('.', s.length());
     if (i != std::string::npos) {
       return(s.substr(i+1, s.length() - i));
