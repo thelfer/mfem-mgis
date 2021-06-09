@@ -144,7 +144,7 @@ static void setSolverParameters(
 bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& problem,
                    const std::size_t i) {
   const auto b = mfem_mgis::compareToAnalyticalSolution(
-      problem, getSolution(i), {{"CriterionThreshold", 1e-8}});
+      problem, getSolution(i), {{"CriterionThreshold", 1e-7}});
   if (!b) {
     std::cerr << "Error is greater than threshold\n";
     return false;
