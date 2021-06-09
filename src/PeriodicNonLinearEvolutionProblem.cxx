@@ -14,17 +14,21 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
 
   void setPeriodicBoundaryConditions(
-      NonLinearEvolutionProblemImplementation<true>& p) {
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const mgis::span<const real>& corner1,
+      const mgis::span<const real>& corner2) {
+    const FiniteElementSpace<true> & fes = p.getFiniteElementSpace();
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
     mfem::Array<int> ess_tdof_list;
     ess_tdof_list.SetSize(0);
     mfem::GridFunction nodes(&p.getFiniteElementSpace());
     int found = 0;
-    bool reorder_space = true;
+    bool reorder_space = fes.GetOrdering() == mfem::Ordering::byNODES;
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
-    // Traversal of all dofs to detect which one is (0,0,0)
+    
+    // Traversal of all dofs to detect which one is the corner
     for (int i = 0; i < size; ++i) {
       double coord[dim];  // coordinates of a node
       double dist = 0.;
@@ -33,12 +37,13 @@ namespace mfem_mgis {
           coord[j] = (nodes)[j * size + i];
         else
           coord[j] = (nodes)[i * dim + j];
-        // because of periodic BC, 0. is also 1.
-        if (abs(coord[j] - 1.) < 1e-7) coord[j] = 0.;
-        dist += coord[j] * coord[j];
+	double dist1 = (coord[j]-corner1[j]) * (coord[j]-corner1[j]);
+	double dist2 = (coord[j]-corner2[j]) * (coord[j]-corner2[j]);
+        dist += std::min(dist1,dist2);
       }
       // If distance is close to zero, we have our reference point
-      if (dist < 1.e-16) {
+      if (dist < 1.e-12) {
+	
         for (int j = 0; j < dim; ++j) {
           int id_unk;
           if (reorder_space) {
@@ -56,40 +61,77 @@ namespace mfem_mgis {
       }
     }
     MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-    MFEM_VERIFY(found, "Reference point at (0,0) was not found");
+    
+    MFEM_VERIFY(found, "Corner point was not found");
     p.SetEssentialTrueDofs(ess_tdof_list);
   }  // end of setPeriodicBoundaryConditions
-
-#endif
+#endif /* MFEM_USE_MPI */
 
   void setPeriodicBoundaryConditions(
-      NonLinearEvolutionProblemImplementation<false>& p) {
-    const auto mesh = p.getFiniteElementSpace().GetMesh();
+    NonLinearEvolutionProblemImplementation<false>& p,
+    const mgis::span<const real>& corner1,
+    const mgis::span<const real>& corner2) {
+    const FiniteElementSpace<false> & fes = p.getFiniteElementSpace();
+    const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
     mfem::Array<int> ess_tdof_list;
-    const auto nnodes = p.getFiniteElementSpace().GetTrueVSize() / dim;
-    ess_tdof_list.SetSize(dim);
-    for (int k = 0; k < dim; k++) {
-      int tgdof = 0 + k * nnodes;
-      ess_tdof_list[k] = tgdof;
+    ess_tdof_list.SetSize(0);
+    mfem::GridFunction nodes(&p.getFiniteElementSpace());
+    int found = 0;
+    bool reorder_space = fes.GetOrdering() == mfem::Ordering::byNODES;
+    mesh->GetNodes(nodes);
+    const auto size = nodes.Size() / dim;
+    // Traversal of all dofs to detect which one is the corner
+    for (int i = 0; i < size; ++i) {
+      double coord[dim];  // coordinates of a node
+      double dist = 0.;
+      for (int j = 0; j < dim; ++j) {
+        if (reorder_space)
+          coord[j] = (nodes)[j * size + i];
+        else
+          coord[j] = (nodes)[i * dim + j];
+	double dist1 = (coord[j]-corner1[j]) * (coord[j]-corner1[j]);
+	double dist2 = (coord[j]-corner2[j]) * (coord[j]-corner2[j]);
+        dist += std::min(dist1,dist2);
+      }
+      // If distance is close to zero, we have our reference point
+      if (dist < 1.e-16) {
+        for (int j = 0; j < dim; ++j) {
+          int id_unk;
+          if (reorder_space) {
+	    id_unk = (j * size + i);
+          } else {
+	    id_unk = (i * dim + j);
+          }
+          if (id_unk >= 0) {
+            found = 1;
+            ess_tdof_list.Append(id_unk);
+          }
+        }
+      }
     }
+    
+    MFEM_VERIFY(found, "Corner point was not found");
     p.SetEssentialTrueDofs(ess_tdof_list);
   }  // end of setPeriodicBoundaryConditions
 
+  
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
-      std::shared_ptr<FiniteElementDiscretization> fed)
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const mgis::span<const real>& corner1,
+      const mgis::span<const real>& corner2)
       : NonLinearEvolutionProblem(fed,
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      setPeriodicBoundaryConditions(this->getImplementation<true>());
+      setPeriodicBoundaryConditions(this->getImplementation<true>(), corner1, corner2);
 #else
       raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
     } else {
-      setPeriodicBoundaryConditions(this->getImplementation<false>());
+      setPeriodicBoundaryConditions(this->getImplementation<false>(), corner1, corner2);
     }
   }  // end of PeriodicNonLinearEvolutionProblem
 
