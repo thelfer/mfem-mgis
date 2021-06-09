@@ -6,6 +6,7 @@
  */
 
 #include <utility>
+#include <fstream>
 #include <mfem/mesh/mesh.hpp>
 #include <mfem/fem/fespace.hpp>
 #ifdef MFEM_USE_MPI
@@ -80,7 +81,7 @@ namespace mfem_mgis {
         params, FiniteElementDiscretization::NumberOfUniformRefinements, 0);
     if (parallel) {
 #ifdef MFEM_USE_MPI
-      auto smesh = loadMeshSequential(mesh_file, 1, 1);
+      auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
       this->parallel_mesh =
           std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
       for (size_type i = 0; i < nrefinement; ++i) {
@@ -91,7 +92,7 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     } else {
       this->sequential_mesh =
-          loadMeshSequential(mesh_file, 1, 1);
+	loadMeshSequential(mesh_file, 0, 1, true);
       for (size_type i = 0; i < nrefinement; ++i) {
         this->sequential_mesh->UniformRefinement();
       }
@@ -229,20 +230,31 @@ namespace mfem_mgis {
     return fed.getFiniteElementSpace<false>().GetTrueVSize();
   }  // end of getTrueVSize
 
-  std::shared_ptr<Mesh<false>> loadMeshSequential(const std::string& mesh_name,
-                                                  int generate_edges,
-                                                  int refine,
-                                                  bool fix_orientation) {
+  std::shared_ptr<Mesh<false>>
+  loadMeshSequential(
+                     const std::string& mesh_name,
+                     int generate_edges,
+                     int refine,
+		     bool fix_orientation) {
 #ifdef MFEM_USE_MED
-    if (getFileExt(mesh_name)=="med") {
+    auto extension = getFileExt(mesh_name);
+    if (extension == "med") {
       auto medmesh = std::make_shared<Mesh<false>>();
       std::string per_name = mesh_name;
       per_name.replace (per_name.length()-4,4,".per");
-      medmesh->ImportMED(mesh_name, 0, per_name);
+      std::ifstream per_file(per_name.c_str());
+      if (per_file.good()) {
+	medmesh->ImportMED(mesh_name, 0, per_name);
+      } else {
+	medmesh->ImportMED(mesh_name, 0, "");
+      } 
+      //medmesh->CheckElementOrientation(fix_orientation);
+      //medmesh->CheckBdrElementOrientation(fix_orientation);
       return medmesh;
     }
+    std::cout << "extension " << extension << std::endl;
 #endif  /* MFEM_USE_MED */
-    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(), generate_edges, refine, fix_orientation);
+    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(), generate_edges, refine);
     return smesh;
     
   }  // end of loadMeshSequential
