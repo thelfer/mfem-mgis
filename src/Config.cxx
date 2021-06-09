@@ -23,14 +23,16 @@ namespace mfem_mgis {
    * \brief structure in charge of freeing ressources on exit.
    */
   struct MGIS_VISIBILITY_LOCAL Finalizer {
-    //! \brief option used to select the PETSc configuration file
-    static const char* const petsc_configuration_file_option;
     //! \return the unique instance of this class
     static Finalizer& get();
     //! \brief initialize the execution of the mfem-mgis
     void initialize(int&, MainFunctionArguments&);
     //! \return true if PETSc is used
     bool usePETSc() const;
+    //! \brief initiate a parser for command line arguments
+    std::shared_ptr<mfem::OptionsParser>  beginParser();
+    //! \brief close the parser zone
+    void endParser();
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
     //! \brief abort the process
@@ -39,8 +41,12 @@ namespace mfem_mgis {
    private:
     //! \brief boolean stating if PETSc shall be used
     bool use_petsc = false;
+    //! \brief configuration file for PETSc
+    const char* petscrc_file = "";
     //! \brief boolean stating if the finalize method has been called
     bool pendingExit = false;
+    //! \brief all options passed one the command line 
+    std::shared_ptr<mfem::OptionsParser> opt_parser;
     /*!
      * \brief constructor
      * \param[in] argc: number of command line arguments
@@ -51,42 +57,31 @@ namespace mfem_mgis {
     ~Finalizer();
   };  // end of Finalizer
 
-  const char* const Finalizer::petsc_configuration_file_option =
-      "--petsc-configuration-file";
-
   Finalizer::Finalizer() = default;
 
   void Finalizer::initialize(int& argc, MainFunctionArguments& argv) {
+    opt_parser = std::make_shared<mfem::OptionsParser>(argc, argv);
 #ifdef MFEM_USE_PETSC
-    const char* petscrc_file = nullptr;
-#endif /* MFEM_USE_PETSC */
-    for (const auto* a = argv; a != argv + argc; ++a) {
-#ifdef MFEM_USE_PETSC
-      if (std::strcmp(*a, "--use-petsc") == 0) {
-       this->use_petsc=true;
-      }
-      if (std::strcmp(*a, petsc_configuration_file_option) == 0){
-        if (petscrc_file != nullptr) {
-          mgis::raise("initialize: PETSc configuration file already specified");
-        }
-        ++a;
-        if (a == argv + argc) {
-          mgis::raise("initialize: option values missing for --use-petsc");
-        }
-        petscrc_file = *a;
-      }
-#endif /* MFEM_USE_PETSC */
-    }
-#ifdef MFEM_USE_PETSC
-    if (this->use_petsc) {
-      if (petscrc_file== nullptr) {
-        mgis::raise("initialize: no PETSc configuration file given");
-      }
-      //      std::cout << "PETSc file: " << petscrc_file << '\n';
-      mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
-    }
+    opt_parser->AddOption(&this->use_petsc, "-up", "--use-petsc", "-no-up",
+                  "--no-use-petsc", "Activate PETSC support.");
+    opt_parser->AddOption(&this->petscrc_file, "-pcf", "--petsc-configuration-file",
+		   "Petsc configuration file");
 #endif /* MFEM_USE_PETSC */
   }  // end of initialize
+
+  std::shared_ptr<mfem::OptionsParser> Finalizer::beginParser() {
+    return opt_parser;
+  }  // end of beginParser
+
+  void Finalizer::endParser() {
+#ifdef MFEM_USE_PETSC
+    if (this->use_petsc) {
+      MFEM_VERIFY(this->petscrc_file != "", 
+		  "initialize: no PETSc configuration file given");
+      mfem::MFEMInitializePetsc(nullptr, nullptr, this->petscrc_file, nullptr);
+    }
+#endif /* MFEM_USE_PETSC */
+  }  // end of endParser
 
   Finalizer& Finalizer::get() {
     static Finalizer f;
@@ -150,16 +145,30 @@ namespace mfem_mgis {
       MPI_Init(&argc, &argv);
       Finalizer::get().initialize(argc, argv);
       first = false;
-    }
+    }      
   }  // end of initialize
 
 #else /* MFEM_USE_MPI */
 
   void initialize(int&, MainFunctionArguments&) {
-    Finalizer::get();
+    static bool first = true;
+    if (first) {
+      Finalizer::get().initialize(argc, argv);
+      first = false;
+    }      
   }  // end of initialize
 
 #endif /* MFEM_USE_MPI */
+
+  std::shared_ptr<mfem::OptionsParser> beginParser() {
+    auto opt_parser = Finalizer::get().beginParser();
+    MFEM_VERIFY(opt_parser.get() != nullptr, "beginParser called before initialize");
+    return(opt_parser);
+  }
+
+  void endParser() {
+    Finalizer::get().endParser();
+  }
 
   void finalize() { Finalizer::get().finalize(); }  // end of finalize
 
@@ -173,21 +182,6 @@ namespace mfem_mgis {
     Finalizer::get().abort(error);
     std::exit(error);
   }  // end of abort
-
-  void declareDefaultOptions(mfem::OptionsParser& parser) {
-    static_cast<void>(parser);
-#ifdef MFEM_USE_PETSC
-    static bool use_petsc = false;
-    static const char* petscrc_file = nullptr;
-#endif /* MFEM_USE_PETSC */
-#ifdef MFEM_USE_PETSC
-    parser.AddOption(&use_petsc, "", "--use-petsc", "", "",
-                     "Use or not PETSc to solve the nonlinear system.");
-    parser.AddOption(&petscrc_file, "",
-                     Finalizer::petsc_configuration_file_option,
-                     "Path to the PETSc configuration file.");
-#endif /* MFEM_USE_PETSC */
-}
 
   bool usePETSc() { return Finalizer::get().usePETSc(); }  // end of usePETSc
 

@@ -38,7 +38,6 @@ int main(int argc, char** argv) {
   const char* mesh_file = "ssna303_3d.msh";
   const char* behaviour = "Plasticity";
   const char* library = "src/libBehaviour.so";
-  const char* petscrc_file = "";
 #if defined(MFEM_USE_MUMPS) && defined(MFEM_USE_MPI)
   auto parallel = int{1};
 #else
@@ -48,18 +47,19 @@ int main(int argc, char** argv) {
   auto order = 1;
 
   // options treatment
-  mfem::OptionsParser args(argc, argv);
+  auto args = mfem_mgis::beginParser();
 //  mfem_mgis::declareDefaultOptions(args);
-  args.AddOption(&parallel, "-p", "--parallel",
+  args->AddOption(&parallel, "-p", "--parallel",
                  "Perform parallel computations.");
-  args.AddOption(&order, "-o", "--order",
+  args->AddOption(&order, "-o", "--order",
                  "Finite element order (polynomial degree).");
-  args.Parse();
-  if (!args.Good()) {
-    args.PrintUsage(std::cout);
+  args->Parse();
+  if (!args->Good()) {
+    args->PrintUsage(std::cout);
     return EXIT_FAILURE;
   }
-  args.PrintOptions(std::cout);
+  args->PrintOptions(std::cout);
+  mfem_mgis::endParser();
 
   // loading the mesh
   mfem_mgis::NonLinearEvolutionProblem problem(
@@ -106,10 +106,14 @@ int main(int argc, char** argv) {
                                  {"AbsoluteTolerance", 0.},
                                  {"MaximumNumberOfIterations", 10}});
     if (parallel) {
+      std::cout << "MUMPS" << std::endl;
       problem.setLinearSolver("MUMPSSolver", {});
     } else {
+      std::cout << "UMFPack" << std::endl;
       problem.setLinearSolver("UMFPackSolver", {});
     }
+  } else {
+    std::cout << "PETSc" << std::endl;
   }
 
   // vtk export
