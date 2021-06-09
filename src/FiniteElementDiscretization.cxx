@@ -252,7 +252,6 @@ namespace mfem_mgis {
       //medmesh->CheckBdrElementOrientation(fix_orientation);
       return medmesh;
     }
-    std::cout << "extension " << extension << std::endl;
 #endif  /* MFEM_USE_MED */
     auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(), generate_edges, refine);
     return smesh;
