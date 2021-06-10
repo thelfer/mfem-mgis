@@ -16,9 +16,9 @@
 #include "mfem/linalg/petsc.hpp"
 #endif /* MFEM_USE_PETSC */
 
-#ifdef MFEM_USE_MUMPS
-#include "mfem/linalg/mumps.hpp"
-#endif /* MFEM_USE_MUMPS */
+//#ifdef MFEM_USE_MUMPS
+//#include "mfem/linalg/mumps.hpp"
+//#endif /* MFEM_USE_MUMPS */
 
 #include "mfem/fem/datacollection.hpp"
 #include "MGIS/Raise.hxx"
@@ -39,17 +39,12 @@ int main(int argc, char** argv) {
   const char* behaviour = "Plasticity";
   const char* library = "src/libBehaviour.so";
   const char* petscrc_file = "";
-#if defined(MFEM_USE_MUMPS) && defined(MFEM_USE_MPI)
   auto parallel = int{1};
-#else
-  auto parallel = int{};
-#endif
-//  auto parallel = int{1};
   auto order = 1;
 
   // options treatment
   mfem::OptionsParser args(argc, argv);
-//  mfem_mgis::declareDefaultOptions(args);
+  mfem_mgis::declareDefaultOptions(args);
   args.AddOption(&parallel, "-p", "--parallel",
                  "Perform parallel computations.");
   args.AddOption(&order, "-o", "--order",
