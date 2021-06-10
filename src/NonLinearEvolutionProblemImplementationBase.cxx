@@ -262,7 +262,10 @@ namespace mfem_mgis {
     //    this->computePrediction(t, dt);
 #ifdef MFEM_USE_PETSC
     if (usePETSc()) {
-      this->petsc_solver->Mult(this->u0, this->u1);
+      // PETSc requires a vector filled with 0 in first argument.
+      // Thus, PETSc do not consider values nor memory mangement associated to it.
+      mfem::Vector zero({0});
+      this->petsc_solver->Mult(zero, this->u1);
       return this->petsc_solver->GetConverged() == 1;
     }
 #endif /* MFEM_USE_PETSC */
