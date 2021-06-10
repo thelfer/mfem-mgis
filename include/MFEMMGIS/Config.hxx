@@ -75,11 +75,11 @@ namespace mfem_mgis {
    * \return a parser for command line arguments
    * This function should be called only after `initialize` function.
    */
-  MFEM_MGIS_EXPORT std::shared_ptr<mfem::OptionsParser> beginParser();
+  MFEM_MGIS_EXPORT std::shared_ptr<mfem::OptionsParser> beginParser(int&, MainFunctionArguments&);
   /*!
    * \brief function that will end properly the commnd line parse
    */
-  MFEM_MGIS_EXPORT void endParser();
+  MFEM_MGIS_EXPORT void endParser(std::shared_ptr<mfem::OptionsParser>);
   /*!
    * \brief gives MPI rank.
    */

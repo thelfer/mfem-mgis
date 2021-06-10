@@ -47,20 +47,20 @@ int main(int argc, char** argv) {
   auto order = 1;
 
   // options treatment
-  auto args = mfem_mgis::beginParser();
-//  mfem_mgis::declareDefaultOptions(args);
-  args->AddOption(&parallel, "-p", "--parallel",
-                 "Perform parallel computations.");
-  args->AddOption(&order, "-o", "--order",
-                 "Finite element order (polynomial degree).");
-  args->Parse();
-  if (!args->Good()) {
-    args->PrintUsage(std::cout);
-    return EXIT_FAILURE;
+  {
+    auto args = mfem_mgis::beginParser(argc, argv);
+    args->AddOption(&parallel, "-p", "--parallel",
+		    "Perform parallel computations.");
+    args->AddOption(&order, "-o", "--order",
+		    "Finite element order (polynomial degree).");
+    args->Parse();
+    if (!args->Good()) {
+      args->PrintUsage(std::cout);
+      return EXIT_FAILURE;
+    }
+    args->PrintOptions(std::cout);
+    mfem_mgis::endParser(args);
   }
-  args->PrintOptions(std::cout);
-  mfem_mgis::endParser();
-
   // loading the mesh
   mfem_mgis::NonLinearEvolutionProblem problem(
       {{"MeshFileName", mesh_file},

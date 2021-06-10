@@ -30,9 +30,9 @@ namespace mfem_mgis {
     //! \return true if PETSc is used
     bool usePETSc() const;
     //! \brief initiate a parser for command line arguments
-    std::shared_ptr<mfem::OptionsParser>  beginParser();
+    std::shared_ptr<mfem::OptionsParser>  beginParser(int&, MainFunctionArguments&);
     //! \brief close the parser zone
-    void endParser();
+    void endParser(std::shared_ptr<mfem::OptionsParser>);
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
     //! \brief abort the process
@@ -45,12 +45,8 @@ namespace mfem_mgis {
     const char* petscrc_file = "";
     //! \brief boolean stating if the finalize method has been called
     bool pendingExit = false;
-    //! \brief all options passed one the command line 
-    std::shared_ptr<mfem::OptionsParser> opt_parser;
     /*!
      * \brief constructor
-     * \param[in] argc: number of command line arguments
-     * \param[in] argv: command line arguments
      */
     Finalizer();
     //! \brief destructor
@@ -60,20 +56,20 @@ namespace mfem_mgis {
   Finalizer::Finalizer() = default;
 
   void Finalizer::initialize(int& argc, MainFunctionArguments& argv) {
-    opt_parser = std::make_shared<mfem::OptionsParser>(argc, argv);
+  }  // end of initialize
+
+  std::shared_ptr<mfem::OptionsParser> Finalizer::beginParser(int& argc, MainFunctionArguments& argv) {
+    auto opt_parser = std::make_shared<mfem::OptionsParser>(argc, argv);
 #ifdef MFEM_USE_PETSC
     opt_parser->AddOption(&this->use_petsc, "-up", "--use-petsc", "-no-up",
                   "--no-use-petsc", "Activate PETSC support.");
     opt_parser->AddOption(&this->petscrc_file, "-pcf", "--petsc-configuration-file",
 		   "Petsc configuration file");
 #endif /* MFEM_USE_PETSC */
-  }  // end of initialize
-
-  std::shared_ptr<mfem::OptionsParser> Finalizer::beginParser() {
     return opt_parser;
   }  // end of beginParser
 
-  void Finalizer::endParser() {
+  void Finalizer::endParser(std::shared_ptr<mfem::OptionsParser>) {
 #ifdef MFEM_USE_PETSC
     if (this->use_petsc) {
       MFEM_VERIFY(std::strlen(this->petscrc_file) == 0,
@@ -150,7 +146,7 @@ namespace mfem_mgis {
 
 #else /* MFEM_USE_MPI */
 
-  void initialize(int&, MainFunctionArguments&) {
+  void initialize(int& argc, MainFunctionArguments& argv) {
     static bool first = true;
     if (first) {
       Finalizer::get().initialize(argc, argv);
@@ -160,14 +156,12 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
-  std::shared_ptr<mfem::OptionsParser> beginParser() {
-    auto opt_parser = Finalizer::get().beginParser();
-    MFEM_VERIFY(opt_parser.get() != nullptr, "beginParser called before initialize");
-    return(opt_parser);
+  std::shared_ptr<mfem::OptionsParser> beginParser(int& argc, MainFunctionArguments& argv) {
+    return(Finalizer::get().beginParser(argc, argv));
   }
 
-  void endParser() {
-    Finalizer::get().endParser();
+  void endParser(std::shared_ptr<mfem::OptionsParser> opt_parser) {
+    Finalizer::get().endParser(opt_parser);
   }
 
   void finalize() { Finalizer::get().finalize(); }  // end of finalize
