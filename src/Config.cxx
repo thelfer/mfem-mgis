@@ -72,7 +72,7 @@ namespace mfem_mgis {
   void Finalizer::endParser(std::shared_ptr<mfem::OptionsParser>) {
 #ifdef MFEM_USE_PETSC
     if (this->use_petsc) {
-      MFEM_VERIFY(std::strlen(this->petscrc_file) == 0,
+      MFEM_VERIFY(std::strlen(this->petscrc_file) != 0,
                   "initialize: no PETSc configuration file given");
       mfem::MFEMInitializePetsc(nullptr, nullptr, this->petscrc_file, nullptr);
     }
