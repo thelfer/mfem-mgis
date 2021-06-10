@@ -82,7 +82,6 @@ namespace mfem_mgis {
       if (petscrc_file== nullptr) {
         mgis::raise("initialize: no PETSc configuration file given");
       }
-      //      std::cout << "PETSc file: " << petscrc_file << '\n';
       mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
     }
 #endif /* MFEM_USE_PETSC */

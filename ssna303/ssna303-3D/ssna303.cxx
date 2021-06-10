@@ -16,9 +16,9 @@
 #include "mfem/linalg/petsc.hpp"
 #endif /* MFEM_USE_PETSC */
 
-//#ifdef MFEM_USE_MUMPS
-//#include "mfem/linalg/mumps.hpp"
-//#endif /* MFEM_USE_MUMPS */
+#ifdef MFEM_USE_MUMPS
+#include "mfem/linalg/mumps.hpp"
+#endif /* MFEM_USE_MUMPS */
 
 #include "mfem/fem/datacollection.hpp"
 #include "MGIS/Raise.hxx"
@@ -32,7 +32,7 @@
 #define PRINT_DEBUG (std::cout <<  __FILE__ << ":" <<  __LINE__ << std::endl)
 
 int main(int argc, char** argv) {
-	
+
   mfem_mgis::initialize(argc, argv);
   constexpr const auto dim = mfem_mgis::size_type{3};
   const char* mesh_file = "ssna303_3d.msh";
@@ -101,9 +101,11 @@ int main(int argc, char** argv) {
                                  {"AbsoluteTolerance", 0.},
                                  {"MaximumNumberOfIterations", 10}});
     if (parallel) {
+      std::cout << "MUMPS" << std::endl;
       problem.setLinearSolver("MUMPSSolver", {});
     } else {
-      problem.setLinearSolver("UMFPackSolver", {});
+        std::cout << "UMFSolver" << std::endl;
+        problem.setLinearSolver("UMFPackSolver", {});
     }
   }
 
