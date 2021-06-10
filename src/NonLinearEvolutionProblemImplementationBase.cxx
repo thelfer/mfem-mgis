@@ -263,7 +263,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_PETSC
     if (usePETSc()) {
       this->petsc_solver->Mult(this->u0, this->u1);
-      return this->petsc_solver->GetConverged();
+      return this->petsc_solver->GetConverged() == 1;
     }
 #endif /* MFEM_USE_PETSC */
     this->solver->Mult(this->u0, this->u1);
