@@ -204,7 +204,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
                             {"FiniteElementFamily", "H1"},
                             {"FiniteElementOrder", p.order},
                             {"UnknownsSize", dim},
-                            {"NumberOfUniformRefinements", p.parallel ? 0 : 0},
+                            {"NumberOfUniformRefinements", p.parallel ? 2 : 0},
                             {"Parallel", p.parallel}});
 
   {
