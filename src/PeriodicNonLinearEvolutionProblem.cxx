@@ -45,19 +45,19 @@ namespace mfem_mgis {
     ess_tdof_list.SetSize(0);
     mfem::GridFunction nodes(&p.getFiniteElementSpace());
     int found = 0;
-    bool reorder_space = fes.GetOrdering() == mfem::Ordering::byNODES;
+    bool bynodes = fes.GetOrdering() == mfem::Ordering::byNODES;
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
     
     // Traversal of all dofs to detect which one is the corner
     for (int i = 0; i < size; ++i) {
-      real dist = getNodesDistance(nodes, reorder_space, 
+      real dist = getNodesDistance(nodes, bynodes, 
 				   dim, i, size, corner1, corner2);
       // If distance is close to zero, we have our reference point
       if (dist < 1.e-12) {
         for (int j = 0; j < dim; ++j) {
           int id_unk;
-          if (reorder_space) {
+          if (bynodes) {
             // id_unk = (j * size + i);
             id_unk = p.getFiniteElementSpace().GetLocalTDofNumber(j * size + i);
           } else {
@@ -89,18 +89,18 @@ namespace mfem_mgis {
     ess_tdof_list.SetSize(0);
     mfem::GridFunction nodes(&p.getFiniteElementSpace());
     int found = 0;
-    bool reorder_space = fes.GetOrdering() == mfem::Ordering::byNODES;
+    bool bynodes = fes.GetOrdering() == mfem::Ordering::byNODES;
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
     // Traversal of all dofs to detect which one is the corner
     for (int i = 0; i < size; ++i) {
-      real dist = getNodesDistance(nodes, reorder_space,
+      real dist = getNodesDistance(nodes, bynodes,
 				   dim, i, size, corner1, corner2);
       // If distance is close to zero, we have our reference point
       if (dist < 1.e-12) {
         for (int j = 0; j < dim; ++j) {
           int id_unk;
-          if (reorder_space) {
+          if (bynodes) {
 	    id_unk = (j * size + i);
           } else {
 	    id_unk = (i * dim + j);
@@ -117,7 +117,6 @@ namespace mfem_mgis {
     p.SetEssentialTrueDofs(ess_tdof_list);
   }  // end of setPeriodicBoundaryConditions
 
-  
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed,
       const mgis::span<const real>& corner1,

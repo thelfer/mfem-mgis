@@ -63,6 +63,7 @@ namespace mfem_mgis {
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>,
 	const mgis::span<const real>&, const mgis::span<const real>&);
+
     // disable adding boundary conditions
     [[noreturn]] void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
