@@ -11,6 +11,27 @@
 
 namespace mfem_mgis {
 
+  real getNodesDistance(const mfem::GridFunction & nodes,
+			const bool reorder_space,
+			const size_t dim,
+			const int index,
+			const int size, 
+			const mgis::span<const real>& corner1,
+			const mgis::span<const real>& corner2) {
+    real coord[dim];  // coordinates of a node
+    real dist = 0.;
+    for (int j = 0; j < dim; ++j) {
+      if (reorder_space)
+	coord[j] = (nodes)[j * size + index];
+      else
+	coord[j] = (nodes)[index * dim + j];
+      real dist1 = (coord[j]-corner1[j]) * (coord[j]-corner1[j]);
+      real dist2 = (coord[j]-corner2[j]) * (coord[j]-corner2[j]);
+      dist += std::min(dist1,dist2);
+    }
+    return (dist);
+  }
+  
 #ifdef MFEM_USE_MPI
 
   void setPeriodicBoundaryConditions(
@@ -30,20 +51,10 @@ namespace mfem_mgis {
     
     // Traversal of all dofs to detect which one is the corner
     for (int i = 0; i < size; ++i) {
-      double coord[dim];  // coordinates of a node
-      double dist = 0.;
-      for (int j = 0; j < dim; ++j) {
-        if (reorder_space)
-          coord[j] = (nodes)[j * size + i];
-        else
-          coord[j] = (nodes)[i * dim + j];
-	double dist1 = (coord[j]-corner1[j]) * (coord[j]-corner1[j]);
-	double dist2 = (coord[j]-corner2[j]) * (coord[j]-corner2[j]);
-        dist += std::min(dist1,dist2);
-      }
+      real dist = getNodesDistance(nodes, reorder_space, 
+				   dim, i, size, corner1, corner2);
       // If distance is close to zero, we have our reference point
       if (dist < 1.e-12) {
-	
         for (int j = 0; j < dim; ++j) {
           int id_unk;
           if (reorder_space) {
@@ -83,19 +94,10 @@ namespace mfem_mgis {
     const auto size = nodes.Size() / dim;
     // Traversal of all dofs to detect which one is the corner
     for (int i = 0; i < size; ++i) {
-      double coord[dim];  // coordinates of a node
-      double dist = 0.;
-      for (int j = 0; j < dim; ++j) {
-        if (reorder_space)
-          coord[j] = (nodes)[j * size + i];
-        else
-          coord[j] = (nodes)[i * dim + j];
-	double dist1 = (coord[j]-corner1[j]) * (coord[j]-corner1[j]);
-	double dist2 = (coord[j]-corner2[j]) * (coord[j]-corner2[j]);
-        dist += std::min(dist1,dist2);
-      }
+      real dist = getNodesDistance(nodes, reorder_space,
+				   dim, i, size, corner1, corner2);
       // If distance is close to zero, we have our reference point
-      if (dist < 1.e-16) {
+      if (dist < 1.e-12) {
         for (int j = 0; j < dim; ++j) {
           int id_unk;
           if (reorder_space) {

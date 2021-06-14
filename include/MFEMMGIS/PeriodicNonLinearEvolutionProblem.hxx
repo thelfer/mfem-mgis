@@ -38,6 +38,19 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<false>&,
       const mgis::span<const real>&, const mgis::span<const real>&);
 
+    /*!
+   * \brief compute minimal distance from corners to point 
+   *        identified in vector `nodes` at index `index`
+   */
+  real getNodesDistance(const mfem::GridFunction& nodes,
+			const bool reorder_space,
+			const size_t dim,
+			const int index,
+			const int size,
+			const mgis::span<const real>& corner1,
+			const mgis::span<const real>& corner2);
+  
+  
   /*!
    * \brief a base class handling the evolution of the macroscopic gradients
    */
