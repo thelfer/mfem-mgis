@@ -28,6 +28,8 @@ namespace mfem_mgis {
     // comparison to analytical solution
     mfem::VectorFunctionCoefficient sol_coef(dim, f);
     const auto error = x.ComputeL2Error(sol_coef);
+    const auto verbosity = get_if<int>(params, "VerbosityLevel", 0);
+    if (verbosity > 1) std::cout << "L2Error: " << error << " : " << verbosity << "\n";
     return error < get<real>(params, "CriterionThreshold");
   }  // end of checkSolution
 
