@@ -34,6 +34,8 @@ namespace mfem_mgis {
     static const char* const UnknownsSize;
     //! \brief string associated to the `NumberOfUniformRefinements` parameter
     static const char* const NumberOfUniformRefinements;
+    //! \brief string associated to the `VerbosityLevel` parameter
+    static const char* const GeneralVerbosityLevel;
     //!
     [[noreturn]] static void reportInvalidParallelMesh();
     //!
@@ -61,6 +63,7 @@ namespace mfem_mgis {
      * - `UnknownsSize` (int): number of components of the unknows
      * - `NumberOfUniformRefinements` (int): number of uniform refinements
      *   applied to the mesh
+     * - `GeneralVerbosityLevel` (int): with large positive numbers, expect more verbosity
      */
     FiniteElementDiscretization(const Parameters&);
     /*!

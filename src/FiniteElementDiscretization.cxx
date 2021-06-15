@@ -28,6 +28,8 @@ namespace mfem_mgis {
   const char* const FiniteElementDiscretization::UnknownsSize = "UnknownsSize";
   const char* const FiniteElementDiscretization::NumberOfUniformRefinements =
       "NumberOfUniformRefinements";
+  const char* const FiniteElementDiscretization::GeneralVerbosityLevel =
+      "GeneralVerbosityLevel";
 
   void FiniteElementDiscretization::reportInvalidParallelMesh() {
     raise(
@@ -61,7 +63,8 @@ namespace mfem_mgis {
             FiniteElementDiscretization::FiniteElementFamily,
             FiniteElementDiscretization::FiniteElementOrder,
             FiniteElementDiscretization::UnknownsSize,
-            FiniteElementDiscretization::NumberOfUniformRefinements};
+            FiniteElementDiscretization::NumberOfUniformRefinements,
+            FiniteElementDiscretization::GeneralVerbosityLevel};
   }  // end of getParametersList
 
   FiniteElementDiscretization::FiniteElementDiscretization(
@@ -92,7 +95,7 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     } else {
       this->sequential_mesh =
-	loadMeshSequential(mesh_file, 0, 1, true);
+        loadMeshSequential(mesh_file, 0, 1, true);
       for (size_type i = 0; i < nrefinement; ++i) {
         this->sequential_mesh->UniformRefinement();
       }
@@ -235,7 +238,7 @@ namespace mfem_mgis {
                      const std::string& mesh_name,
                      int generate_edges,
                      int refine,
-		     bool fix_orientation) {
+                     bool fix_orientation) {
 #ifdef MFEM_USE_MED
     auto extension = getFileExt(mesh_name);
     if (extension == "med") {
@@ -244,9 +247,9 @@ namespace mfem_mgis {
       per_name.replace (per_name.length()-4,4,".per");
       std::ifstream per_file(per_name.c_str());
       if (per_file.good()) {
-	medmesh->ImportMED(mesh_name, 0, per_name);
+        medmesh->ImportMED(mesh_name, 0, per_name);
       } else {
-	medmesh->ImportMED(mesh_name, 0, "");
+        medmesh->ImportMED(mesh_name, 0, "");
       } 
       //medmesh->CheckElementOrientation(fix_orientation);
       //medmesh->CheckBdrElementOrientation(fix_orientation);
