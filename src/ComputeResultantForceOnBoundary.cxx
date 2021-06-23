@@ -32,7 +32,7 @@ namespace mfem_mgis {
     for (size_type i = 0; i != F.Size(); ++i) {
       out << " " << F[i];
     }
-    out << "\n";
+    out << std::endl;
   }  // end of writeResultantForce
 
   ComputeResultantForceOnBoundaryCommon::ComputeResultantForceOnBoundaryCommon(

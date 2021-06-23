@@ -11,6 +11,10 @@
 #include <memory>
 #include <vector>
 #include "mfem/linalg/vector.hpp"
+#ifdef MFEM_USE_PETSC
+#include "mfem/linalg/petsc.hpp"
+#endif /* MFEM_USE_PETSC */
+
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
@@ -167,6 +171,10 @@ namespace mfem_mgis {
     mfem::Vector u1;
     //! \brief newton solver
     std::unique_ptr<NewtonSolver> solver;
+#ifdef MFEM_USE_PETSC
+    //! \brief newton solver
+    std::unique_ptr<mfem::PetscNonlinearSolver> petsc_solver;
+#endif /* MFEM_USE_PETSC */
     //! \brief linear solver
     std::unique_ptr<LinearSolver> linear_solver;
     //! \brief linear solver preconditioner

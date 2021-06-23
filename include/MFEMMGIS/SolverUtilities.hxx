@@ -37,6 +37,17 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT void setSolverParameters(IterativeSolver&,
                                             const Parameters&);
 
+#ifdef MFEM_USE_PETSC
+  /*!
+   * \brief set the parameters of a PETSc solver
+   * \param[in] s: solver
+   * \param[in] params: parameters
+   */
+  MFEM_MGIS_EXPORT void setSolverParameters(mfem::PetscNonlinearSolver&,
+                                            const Parameters&);
+#endif /* MFEM_USE_PETSC */
+
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_SOLVERUTILITIES_HXX */

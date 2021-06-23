@@ -16,9 +16,7 @@
 
 namespace mfem_mgis {
 
-  /*!
-   * \brief custom implementation of the Newton Solver
-   */
+  //! \brief custom implementation of the Newton Solver
   struct NewtonSolver : public mfem::IterativeSolver {
 #ifdef MFEM_USE_MPI
     //! \brief default constructor

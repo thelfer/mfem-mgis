@@ -5,11 +5,16 @@
  * \date   11/12/2020
  */
 
+#ifdef MFEM_USE_PETSC
+#include "mfem/linalg/petsc.hpp"
+#endif MFEM_USE_PETSC
+
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -63,12 +68,26 @@ namespace mfem_mgis {
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
+#ifdef MFEM_USE_PETSC
+    if (usePETSc()) {
+      this->petsc_solver = std::make_unique<mfem::PetscNonlinearSolver>(
+          this->getFiniteElementSpace().GetComm(), *this);
+      this->petsc_solver->iterative_mode = true;
+    } else {
+      this->solver = std::make_unique<NewtonSolver>(*this);
+    }
+#else  /* MFEM_USE_PETSC */
     this->solver = std::make_unique<NewtonSolver>(*this);
+#endif /* MFEM_USE_PETSC */
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
     }
   }  // end of NonLinearEvolutionProblemImplementation
-
+  
+  void NonLinearEvolutionProblemImplementation<true>::Mult(const mfem::Vector & u, mfem::Vector & r) const{
+    return mfem_mgis::NonlinearForm<true>::Mult(u, r);
+  } // end of Mult
+  
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       std::unique_ptr<PostProcessing<true>> p) {
     this->postprocessings.push_back(std::move(p));
