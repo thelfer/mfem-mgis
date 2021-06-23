@@ -67,6 +67,8 @@ namespace mfem_mgis {
     return bi->integrate(e, tr, U, it);
   }  // end of integrate
 
+
+
   void MultiMaterialNonLinearIntegrator::AssembleElementVector(
       const mfem::FiniteElement& e,
       mfem::ElementTransformation& tr,
@@ -76,8 +78,8 @@ namespace mfem_mgis {
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementVector", m);
     if(usePETSc()){
-      bi->integrate(e, tr, U,
-                    IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR);
+      MFEM_VERIFY(bi->integrate(e, tr, U,
+                    IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),"ERROR Behaviour");
     }
     bi->updateResidual(F, e, tr, U);
   }  // end of AssembleElementVector
