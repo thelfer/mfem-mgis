@@ -142,15 +142,19 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MUMPS
 
   std::function<LinearSolverHandler(
-      NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>
+      NonLinearEvolutionProblemImplementation<true>& , const Parameters&)>
   buildMUMPSSolverGenerator() {
-    return [](NonLinearEvolutionProblemImplementation<true>&,
+    return [](NonLinearEvolutionProblemImplementation<true>& p,
               const Parameters& params) {
       checkParameters(params, {"Symmetric", "PositiveDefinite"});
       auto s = std::make_unique<mfem::MUMPSSolver>();
       const auto symmetric = get_if<bool>(params, "Symmetric", false);
       const auto positive_definite =
           get_if<bool>(params, "PositiveDefinite", false);
+      s->SetPrintLevel(1);
+      if (getMPIrank() == 0) {
+	std::cout << "Global Nbdof" << p.getFiniteElementSpace().GlobalTrueVSize() << "\n";
+      }
       if (symmetric) {
         if (positive_definite) {
           s->SetMatrixSymType(

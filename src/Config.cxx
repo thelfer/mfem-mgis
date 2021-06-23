@@ -178,12 +178,12 @@ namespace mfem_mgis {
     static_cast<void>(parser);
 #ifdef MFEM_USE_PETSC
     static bool use_petsc = false;
-    static const char* petscrc_file = nullptr;
+    static const char* petscrc_file = "";
 #endif /* MFEM_USE_PETSC */
-#ifdef MFEM_USE_PETSC
-    parser.AddOption(&use_petsc, "", "--use-petsc", "", "",
+#ifdef MFEM_USE_PETSC 
+    parser.AddOption(&use_petsc, "-up", "--use-petsc", "-no-up", "--donot-use-petsc",
                      "Use or not PETSc to solve the nonlinear system.");
-    parser.AddOption(&petscrc_file, "",
+    parser.AddOption(&petscrc_file, "petscrc_file",
                      Finalizer::petsc_configuration_file_option,
                      "Path to the PETSc configuration file.");
 #endif /* MFEM_USE_PETSC */
