@@ -150,5 +150,6 @@ int main(int argc, char** argv) {
     ++iteration;
     std::cout << '\n';
   }
+  mfem_mgis::finalize();
   return EXIT_SUCCESS;
 }
