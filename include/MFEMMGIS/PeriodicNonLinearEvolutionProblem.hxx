@@ -25,7 +25,8 @@ namespace mfem_mgis {
    * \param[in] p: problem
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
-      NonLinearEvolutionProblemImplementation<true>&);
+      NonLinearEvolutionProblemImplementation<true>&,
+      const mgis::span<const real>&, const mgis::span<const real>&);
 
 #endif /* MFEM_USE_MPI */
 
@@ -34,8 +35,22 @@ namespace mfem_mgis {
    * \param[in] p: problem
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
-      NonLinearEvolutionProblemImplementation<false>&);
+      NonLinearEvolutionProblemImplementation<false>&,
+      const mgis::span<const real>&, const mgis::span<const real>&);
 
+    /*!
+   * \brief compute minimal distance from corners to point 
+   *        identified in vector `nodes` at index `index`
+   */
+  real getNodesDistance(const mfem::GridFunction& nodes,
+			const bool reorder_space,
+			const size_t dim,
+			const int index,
+			const int size,
+			const mgis::span<const real>& corner1,
+			const mgis::span<const real>& corner2);
+  
+  
   /*!
    * \brief a base class handling the evolution of the macroscopic gradients
    */
@@ -46,7 +61,9 @@ namespace mfem_mgis {
      * \param[in] fed: finite element discretization
      */
     PeriodicNonLinearEvolutionProblem(
-        std::shared_ptr<FiniteElementDiscretization>);
+        std::shared_ptr<FiniteElementDiscretization>,
+	const mgis::span<const real>&, const mgis::span<const real>&);
+
     // disable adding boundary conditions
     [[noreturn]] void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
