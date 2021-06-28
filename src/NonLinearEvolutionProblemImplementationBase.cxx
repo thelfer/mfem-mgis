@@ -261,14 +261,19 @@ namespace mfem_mgis {
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     //    this->computePrediction(t, dt);
-#ifdef MFEM_USE_PETSC
     if (usePETSc()) {
+#ifdef MFEM_USE_PETSC
+      // PETSc solver somehow "requires" zero as a first argument of Mult.
+      // If it is not the case, one should take care of memory management.
       this->petsc_solver->Mult(zero, this->u1);
       return this->petsc_solver->GetConverged();
-    }
+#else  /* MFEM_USE_PETSC */
+      MFEM_VERIFY(0, "Support for PETSc is deactivated");
 #endif /* MFEM_USE_PETSC */
-    this->solver->Mult(this->u0, this->u1);
-    return this->solver->GetConverged();
+    } else {
+      this->solver->Mult(this->u0, this->u1);
+      return this->solver->GetConverged();
+    }
   }  // end of solve
 
   void NonLinearEvolutionProblemImplementationBase::computePrediction(
