@@ -62,8 +62,6 @@ namespace mfem_mgis {
         mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())) {
     if (this->fe_discretization->getMesh<true>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
-      std::cout << "size1 " << std::to_string(this->fe_discretization->getMesh<true>().Dimension());
-      std::cout << " size2 " << std::to_string(mgis::behaviour::getSpaceDimension(h)) << std::endl;
       raise(
           "NonLinearEvolutionProblemImplementationBase::"
           "NonLinearEvolutionProblemImplementationBase: "

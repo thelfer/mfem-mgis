@@ -31,6 +31,8 @@ namespace mfem_mgis {
     void initialize(int&, MainFunctionArguments&);
     //! \return true if PETSc is used
     bool usePETSc() const;
+    //! \brief activate PETSc and provide a configuration file
+    void setPETSc(const char *petscrc_file);
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
     //! \brief abort the process
@@ -55,6 +57,11 @@ namespace mfem_mgis {
       "--petsc-configuration-file";
 
   Finalizer::Finalizer() = default;
+
+  void Finalizer::setPETSc(const char* petscrc_file) {
+    this->use_petsc=true;
+    mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
+  }
 
   void Finalizer::initialize(int& argc, MainFunctionArguments& argv) {
 #ifdef MFEM_USE_PETSC
@@ -190,5 +197,7 @@ namespace mfem_mgis {
 }
 
   bool usePETSc() { return Finalizer::get().usePETSc(); }  // end of usePETSc
+
+  void setPETSc(const char* petscrc_file) { Finalizer::get().setPETSc(petscrc_file); }  // end of setPETSc
 
 }  // namespace mfem_mgis
