@@ -107,12 +107,12 @@ namespace mfem_mgis {
   void Finalizer::finalize() {
     if (!this->pendingExit) {
 #ifdef MFEM_USE_MPI
-      MPI_Finalize();
 #ifdef MFEM_USE_PETSC
       if (this->use_petsc) {
         mfem::MFEMFinalizePetsc();
       }
 #endif /* MFEM_USE_PETSC */
+      MPI_Finalize();
       this->pendingExit = true;
 #endif /* MFEM_USE_MPI */
     }
