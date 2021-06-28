@@ -129,6 +129,12 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[noreturn]] void abort(const char* const,
                                            const int = EXIT_FAILURE);
+  //! \return if the usage of PETSc has been requested by the user.
+  MFEM_MGIS_EXPORT bool usePETSc();
+  //! \brief activate PETSc with the configuration file givien in parameter.
+  MFEM_MGIS_EXPORT void setPETSc(const char*);
+  //! \brief declare default options
+  MFEM_MGIS_EXPORT void declareDefaultOptions(mfem::OptionsParser&);
 
 }  // namespace mfem_mgis
 

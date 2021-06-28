@@ -13,6 +13,7 @@
 
 namespace mfem {
 
+  class OptionsParser;
   class Vector;
   class GridFunction;
   class DenseMatrix;
@@ -31,6 +32,10 @@ namespace mfem {
   class Solver;
   class IterativeSolver;
   class IntegrationPoint;
+
+#ifdef MFEM_USE_PETSC
+  class PetscNonlinearSolver;
+#endif /* MFEM_USE_PETSC */
 
 }  // end of namespace mfem
 

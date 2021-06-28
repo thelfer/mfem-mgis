@@ -175,7 +175,15 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
       const Parameters& params) {
+#ifdef MFEM_USE_PETSC
+    if (usePETSc()) {
+      mfem_mgis::setSolverParameters(*(this->petsc_solver), params);
+    } else {
+      mfem_mgis::setSolverParameters(*(this->solver), params);
+    }
+#else  /* MFEM_USE_PETSC */
     mfem_mgis::setSolverParameters(*(this->solver), params);
+#endif /* MFEM_USE_PETSC */
   }  // end of setSolverParameters
 
   std::vector<size_type>
@@ -208,6 +216,11 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
       std::unique_ptr<LinearSolver> s) {
+    if (usePETSc()) {
+      mgis::raise(
+          "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
+          "call to this method is meaningless if PETSc is used");
+    }
     this->linear_solver_preconditioner.reset();
     this->linear_solver = std::move(s);
     this->solver->setLinearSolver(*(this->linear_solver));
@@ -244,11 +257,23 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementationBase::solve(const real t,
                                                           const real dt) {
+    mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     //    this->computePrediction(t, dt);
-    this->solver->Mult(this->u0, this->u1);
-    return this->solver->GetConverged();
+    if (usePETSc()) {
+#ifdef MFEM_USE_PETSC
+      // PETSc solver somehow "requires" zero as a first argument of Mult.
+      // If it is not the case, one should take care of memory management.
+      this->petsc_solver->Mult(zero, this->u1);
+      return this->petsc_solver->GetConverged();
+#else  /* MFEM_USE_PETSC */
+      MFEM_VERIFY(0, "Support for PETSc is deactivated");
+#endif /* MFEM_USE_PETSC */
+    } else {
+      this->solver->Mult(this->u0, this->u1);
+      return this->solver->GetConverged();
+    }
   }  // end of solve
 
   void NonLinearEvolutionProblemImplementationBase::computePrediction(

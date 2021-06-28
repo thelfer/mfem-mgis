@@ -90,6 +90,8 @@ namespace mfem_mgis {
       for (size_type i = 0; i < nrefinement; ++i) {
         this->parallel_mesh->UniformRefinement();
       }
+//      std::cout << "Info mesh\n";
+//      this->parallel_mesh->PrintInfo();
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
