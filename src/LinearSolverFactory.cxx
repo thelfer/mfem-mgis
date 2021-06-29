@@ -66,17 +66,17 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<true>&,
       const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
-#if (MFEM_VERSION_INT > 402001)
+#ifndef HYPRE_OLD_VERSION
     auto ilu = std::make_unique<mfem::HypreILU>();
     checkParameters(opts, {Problem::SolverVerbosityLevel});
     if (contains(opts, Problem::SolverVerbosityLevel)) {
       ilu->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     }
     return ilu;
-#else /*  (MFEM_VERSION_INT > 402001) */
-    MFEM_VERIFY(1, "Support for HypreILU is notavailable with this version of MFEM");
+#else /*  HYPRE_OLD_VERSION */
+    MFEM_VERIFY(0, "Support for HypreILU is notavailable with this version of MFEM");
     return nullptr;
-#endif /*  (MFEM_VERSION_INT > 402001) */
+#endif /* HYPRE_OLD_VERSION */
   }  // end of setHypreILUPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreParaSailsPreconditioner(
@@ -267,11 +267,11 @@ namespace mfem_mgis {
       s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
     }
     if (contains(params, Problem::SolverAbsoluteTolerance)) {
-#if (MFEM_VERSION_INT > 402001)
+#ifndef HYPRE_OLD_VERSION
       s->SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance));
-#else /* (MFEM_VERSION_INT > 402001) */
-      MFEM_VERIFY(1, "Specifying absolute tolrance for HYpreGMRES is not possible with this version of MFEM");
-#endif  /* (MFEM_VERSION_INT > 402001) */
+#else /* HYPRE_OLD_VERSION */
+      MFEM_VERIFY(0, "Specifying absolute tolrance for HYpreGMRES is not possible with this version of MFEM");
+#endif  /* HYPRE_OLD_VERSION */
     }
     if (contains(params, SolverTolerance)) {
       s->SetTol(get<double>(params, SolverTolerance));

@@ -10,6 +10,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CTest)
 enable_testing()
 
+# HypreILU is not defined for old versions of Hypre
+# Comment this line for newest Hypre librarires
+ADD_DEFINITIONS(-DHYPRE_OLD_VERSION)
+
 # portable-build
 option(enable-portable-build "produce binary that can be shared between various machine (same architecture, same gcc version, different processors" OFF)
 
