@@ -41,7 +41,6 @@ int main(int argc, char** argv) {
   const char* petscrc_file = "";
   auto parallel = int{1};
   auto order = 1;
-  auto refinement = 1;
   
   //file creation 
   std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/data.txt");
@@ -54,8 +53,7 @@ int main(int argc, char** argv) {
                  "Perform parallel computations.");
   args.AddOption(&order, "-o", "--order",
                  "Finite element order (polynomial degree).");
-  args.AddOption(&refinement,"-r", "--refinement",
-                 "Number of Refinement.");
+
   args.Parse();
   if (!args.Good()) {
     args.PrintUsage(std::cout);
@@ -63,22 +61,25 @@ int main(int argc, char** argv) {
   }
   args.PrintOptions(std::cout);
 
+  const auto main_timer = mfem_mgis::getTimer("main_timer");
   {
   // loading the mesh and timer
-  const auto main_timer = mfem_mgis::getTimer("main_timer");
   mfem_mgis::NonLinearEvolutionProblem problem(
       {{"MeshFileName", mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", order},
        {"UnknownsSize", dim},
+       {"NumberOfUniformRefinements", parallel ? 0 : 0},
        {"Hypothesis", "Tridimensional"},
        {"Parallel", true}});
 
   auto mesh = problem.getImplementation<true>().getFiniteElementSpace().GetMesh();
   //get the number of vertices
-  int numbers_of_vertices = mesh->GetNV();
+  //int numbers_of_vertices = mesh->GetNV();
+  printf("vertices %d \n", mesh->GetNV());
   //get the number of elements
-  int numbers_of_elements = mesh->GetNE();
+  //int numbers_of_elements = mesh->GetNE();
+  printf("elements %d \n", mesh->GetNE());
   //get the element size
   double h = mesh->GetElementSize(0);
 
@@ -128,11 +129,10 @@ int main(int argc, char** argv) {
 
   // print on file
   out << " USE_PETSc = " << mfem_mgis::usePETSc() << std::endl;
-  out << " taille_maille = " << h << std::endl;
+  out << " taille_maille h = " << h << std::endl;
   out << " 1/h = " << 1/h << std::endl;
-  out << " nbr_refinement = " << refinement << std::endl;
-  out << " numbers_of_vertices = " << numbers_of_vertices << std::endl;
-  out << " numbers_of_elements = " << numbers_of_elements << std::endl;
+  //out << " numbers_of_vertices = " << numbers_of_vertices << std::endl;
+  //out << " numbers_of_elements = " << numbers_of_elements << std::endl;
 
   // vtk export
   problem.addPostProcessing("ParaviewExportResults",
@@ -175,8 +175,7 @@ int main(int argc, char** argv) {
     ++iteration;
     std::cout << '\n';
   }
-  }
   mfem_mgis::Profiler::getProfiler().print(out);
-  mfem_mgis::finalize();
+  }
   return EXIT_SUCCESS;
 }
