@@ -60,7 +60,9 @@ namespace mfem_mgis {
 
   void Finalizer::setPETSc(const char* petscrc_file) {
     this->use_petsc=true;
+#ifdef MFEM_USE_PETSC
     mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
+#endif /* MFEM_USE_PETSC */
   }
 
   void Finalizer::initialize(int& argc, MainFunctionArguments& argv) {
