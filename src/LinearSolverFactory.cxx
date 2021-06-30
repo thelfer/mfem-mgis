@@ -267,11 +267,7 @@ namespace mfem_mgis {
       s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
     }
     if (contains(params, Problem::SolverAbsoluteTolerance)) {
-#ifndef HYPRE_OLD_VERSION
-      s->SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance));
-#else /* HYPRE_OLD_VERSION */
-      MFEM_VERIFY(0, "Specifying absolute tolrance for HYpreGMRES is not possible with this version of MFEM");
-#endif  /* HYPRE_OLD_VERSION */
+      s->SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance)); 
     }
     if (contains(params, SolverTolerance)) {
       s->SetTol(get<double>(params, SolverTolerance));
