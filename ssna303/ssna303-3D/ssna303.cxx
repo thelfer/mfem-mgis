@@ -61,15 +61,16 @@ int main(int argc, char** argv) {
   }
   args.PrintOptions(std::cout);
 
-  const auto main_timer = mfem_mgis::getTimer("main_timer");
+  
   {
   // loading the mesh and timer
+  const auto main_timer = mfem_mgis::getTimer("main_timer");
   mfem_mgis::NonLinearEvolutionProblem problem(
       {{"MeshFileName", mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", order},
        {"UnknownsSize", dim},
-       {"NumberOfUniformRefinements", parallel ? 0 : 0},
+       {"NumberOfUniformRefinements", parallel ? 1 : 0},
        {"Hypothesis", "Tridimensional"},
        {"Parallel", true}});
 
