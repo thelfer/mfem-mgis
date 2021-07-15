@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
   auto order = 1;
   
   //file creation 
-  std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/rc_ex5p_fieldsplit.txt");
+  std::string const myFile("/home/hc265945/spack_codes/mfem-mgis/ssna303/ssna303-3D/data.txt");
   std::ofstream out(myFile.c_str());
 
   // options treatment
@@ -61,15 +61,16 @@ int main(int argc, char** argv) {
   }
   args.PrintOptions(std::cout);
 
-  // loading the mesh and timer
+  
   {
+  // loading the mesh and timer
   const auto main_timer = mfem_mgis::getTimer("main_timer");
   mfem_mgis::NonLinearEvolutionProblem problem(
       {{"MeshFileName", mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", order},
        {"UnknownsSize", dim},
-       {"NumberOfUniformRefinements", parallel ? 0 : 0},
+       {"NumberOfUniformRefinements", parallel ? 1 : 0},
        {"Hypothesis", "Tridimensional"},
        {"Parallel", true}});
 
@@ -175,7 +176,7 @@ int main(int argc, char** argv) {
     ++iteration;
     std::cout << '\n';
   }
-  }
   mfem_mgis::Profiler::getProfiler().print(out);
+  }
   return EXIT_SUCCESS;
 }
