@@ -31,9 +31,9 @@ int main(int argc, char** argv) {
   const char* mesh_file = "ssna303_3d.msh";
   const char* behaviour = "Plasticity";
   const char* library = "src/libBehaviour.so";
-  auto solver = "HypreFGMRES";
+  auto solver = "BiCGSTABSolver";
   auto preconditioner = "";
-  auto ref_para = 1;
+  auto ref_para = 0;
   auto ref_seq = 1;
   auto order = 1;
 
