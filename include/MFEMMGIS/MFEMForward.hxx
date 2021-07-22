@@ -8,20 +8,12 @@
 #ifndef LIB_MFEM_MGIS_MFEM_FORWARD_HXX
 #define LIB_MFEM_MGIS_MFEM_FORWARD_HXX
 
-
 #include <type_traits>
 #include "mfem/config/config.hpp"
 
-#ifndef MFEM_USE_MPI
-#define MPI_COMM_WORLD 0
-#define MPI_Finalize(args...) {}
-#define MPI_Init(args...) {}
-#define MPI_Comm_rank(comm,rank) {*rank=0;}
-#endif
-
-
 namespace mfem {
 
+  class OptionsParser;
   class Vector;
   class GridFunction;
   class DenseMatrix;
@@ -40,6 +32,11 @@ namespace mfem {
   class Solver;
   class IterativeSolver;
   class Coefficient;
+  class IntegrationPoint;
+
+#ifdef MFEM_USE_PETSC
+  class PetscNonlinearSolver;
+#endif /* MFEM_USE_PETSC */
 
 }  // end of namespace mfem
 
@@ -93,6 +90,8 @@ namespace mfem_mgis {
   using LinearSolver = mfem::Solver;
   //! \brief a simple alias
   using IterativeSolver = mfem::IterativeSolver;
+  //! \brief a simple alias
+  using LinearSolverPreconditioner = mfem::Solver;
 
 }  // namespace mfem_mgis
 

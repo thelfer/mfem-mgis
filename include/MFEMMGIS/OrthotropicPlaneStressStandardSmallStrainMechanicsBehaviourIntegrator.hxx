@@ -4,12 +4,34 @@
 #include <array>
 #include <mfem/linalg/densemat.hpp>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/BehaviourIntegratorTraits.hxx"
 #include "MFEMMGIS/StandardBehaviourIntegratorCRTPBase.hxx"
 
 namespace mfem_mgis {
 
   // forward declaration
   struct FiniteElementDiscretization;
+
+  // forward declaration
+  struct OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator;
+
+  /*!
+   * \brief partial specialisation of the `BehaviourIntegratorTraits`  * class
+   * for the
+   * `OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator`
+   * behaviour integrator */
+  template <>
+  struct BehaviourIntegratorTraits<
+      OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator> {
+    //! \brief size of the unknowns
+    static constexpr size_type unknownsSize = 2;
+    //! \brief
+    static constexpr bool gradientsComputationRequiresShapeFunctions = false;
+    //! \brief
+    static constexpr bool updateExternalStateVariablesFromUnknownsValues =
+        false;
+  };  // end of struct
+      // BehaviourIntegratorTraits<OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>
 
   /*!
    */
@@ -38,9 +60,8 @@ namespace mfem_mgis {
         std::unique_ptr<const Behaviour>);
 
     /*!
-     * \return the rotation matrix associated with the given integration
-     * point
-     * \param[in] i: integration points
+     * \return the rotation matrix associated with the given  * integration
+     * point \param[in] i: integration points
      */
     inline RotationMatrix getRotationMatrix(const size_type) const;
 
@@ -51,6 +72,14 @@ namespace mfem_mgis {
 
     inline void rotateTangentOperatorBlocks(mgis::span<real>,
                                             const RotationMatrix &);
+
+    const mfem::IntegrationRule &getIntegrationRule(
+        const mfem::FiniteElement &,
+        const mfem::ElementTransformation &) const override;
+
+    real getIntegrationPointWeight(mfem::ElementTransformation &,
+                                   const mfem::IntegrationPoint &) const
+        noexcept override;
 
     bool integrate(const mfem::FiniteElement &,
                    mfem::ElementTransformation &,
@@ -94,14 +123,6 @@ namespace mfem_mgis {
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &, const size_type);
     /*!
-     * \return the integration rule for the given element and  * element
-     * transformation. \param[in] e: element \param[in] tr: element
-     * transformation
-     */
-    const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &,
-        const mfem::ElementTransformation &) const override;
-    /*!
      * \brief update the strain with the contribution of the
      * given node
      * \param[in] g: strain
@@ -135,7 +156,7 @@ namespace mfem_mgis {
      *
      * \param[out] Ke: inner forces
      * \param[in] Kip: stress
-     * \param[in] dshape: derivatives of the shape function
+     * \param[in] dN: derivatives of the shape function
      * \param[in] w: weight of the integration point
      * \param[in] n: node index
      */
@@ -145,19 +166,9 @@ namespace mfem_mgis {
                                const real,
                                const size_type) const noexcept;
 
-    /*!
-     * \brief return the weight of the integration point, taking the
-     * modelling hypothesis into account
-     * \param[in] tr: element transformation
-     * \param[in] ip: integration point
-     */
-    real getIntegrationPointWeight(mfem::ElementTransformation &,
-                                   const mfem::IntegrationPoint &) const
-        noexcept;
-
-   protected:
     //! rief the rotation matrix
     RotationMatrix2D rotation_matrix;
+
   };  // end of struct
       // OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator
 

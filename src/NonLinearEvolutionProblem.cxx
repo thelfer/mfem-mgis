@@ -39,12 +39,11 @@ namespace mfem_mgis {
           NonLinearEvolutionProblemImplementation<true>;
       this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
 #else
-      mgis::raise(
+      raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
-    }
-    else {
+    } else {
       this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
     }
   }  // end of NonLinearEvolutionProblem
@@ -61,7 +60,7 @@ namespace mfem_mgis {
           NonLinearEvolutionProblemImplementation<true>;
       this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
 #else
-      mgis::raise(
+      raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
@@ -79,6 +78,25 @@ namespace mfem_mgis {
   NonLinearEvolutionProblem::getFiniteElementDiscretizationPointer() {
     return this->pimpl->getFiniteElementDiscretizationPointer();
   }  // end of getFiniteElementDiscretizationPointer
+
+  mfem::Vector&
+  NonLinearEvolutionProblem::getUnknownsAtBeginningOfTheTimeStep() {
+    return this->pimpl->getUnknownsAtBeginningOfTheTimeStep();
+  }  // end of getUnknownsAtBeginningOfTheTimeStep
+
+  const mfem::Vector&
+  NonLinearEvolutionProblem::getUnknownsAtBeginningOfTheTimeStep() const {
+    return this->pimpl->getUnknownsAtBeginningOfTheTimeStep();
+  }  // end of getUnknownsAtBeginningOfTheTimeStep
+
+  mfem::Vector& NonLinearEvolutionProblem::getUnknownsAtEndOfTheTimeStep() {
+    return this->pimpl->getUnknownsAtEndOfTheTimeStep();
+  }  // end of getUnknownsAtEndOfTheTimeStep
+
+  const mfem::Vector& NonLinearEvolutionProblem::getUnknownsAtEndOfTheTimeStep()
+      const {
+    return this->pimpl->getUnknownsAtEndOfTheTimeStep();
+  }  // end of getUnknownsAtEndOfTheTimeStep
 
   void NonLinearEvolutionProblem::setSolverParameters(
       const Parameters& params) {
@@ -163,7 +181,7 @@ namespace mfem_mgis {
     auto* const pi =
         dynamic_cast<NonLinearEvolutionProblemImplementation<parallel>*>(p);
     if (pi == nullptr) {
-      mgis::raise(
+      raise(
           "NonLinearEvolutionProblem::getImplementation: "
           "invalid call");
     }
@@ -177,7 +195,7 @@ namespace mfem_mgis {
         dynamic_cast<const NonLinearEvolutionProblemImplementation<parallel>*>(
             p);
     if (pi == nullptr) {
-      mgis::raise(
+      raise(
           "NonLinearEvolutionProblem::getImplementation: "
           "invalid call");
     }
@@ -190,7 +208,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     return getImplementationInternal<true>(this->pimpl.get());
 #else  /* MFEM_USE_MPI */
-    mgis::raise(
+    raise(
         "NonLinearEvolutionProblem::getImplementation: "
         "invalid call");
 #endif /* MFEM_USE_MPI */
@@ -202,7 +220,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     return getImplementationInternal<true>(this->pimpl.get());
 #else  /* MFEM_USE_MPI */
-    mgis::raise(
+    raise(
         "NonLinearEvolutionProblem::getImplementation: "
         "invalid call");
 #endif /* MFEM_USE_MPI */
@@ -229,7 +247,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       return buildFacesDescription(p.getImplementation<true>(), bid);
 #else
-      mgis::raise(
+      raise(
           "computeResultantForceOnBoundary: "
           "unsupported parallel computations");
 #endif
@@ -246,7 +264,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       computeResultantForceOnBoundary(F, p.getImplementation<true>(), faces);
 #else
-      mgis::raise(
+      raise(
           "computeResultantForceOnBoundary: "
           "unsupported parallel computations");
 #endif
@@ -255,4 +273,4 @@ namespace mfem_mgis {
     }
   }  // end of computeResultantForceOnBoundary
 
-  }  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

@@ -11,7 +11,7 @@
 namespace mfem_mgis {
 
   void Parameter::raiseUnmatchedParameterType() {
-    mgis::raise(
+    raise(
         "Parameter::raiseUnmatchedParameterType: "
         "the type of parameter is not the expected one");
   }  // end of raiseUnmatchedParameterType

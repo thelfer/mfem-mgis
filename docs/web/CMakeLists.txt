@@ -35,6 +35,8 @@ add_dependencies(doc website)
 
 if(MFEMMGIS_HAVE_PANDOC)
   mfemmgis_pandoc_generate_html_page(index)
+  mfemmgis_pandoc_generate_html_page(contributing)
+  mfemmgis_pandoc_generate_html_page(about)
 else()
 endif(MFEMMGIS_HAVE_PANDOC)
 

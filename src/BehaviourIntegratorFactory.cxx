@@ -20,6 +20,12 @@
 #include "MFEMMGIS/OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
 #include "MFEMMGIS/OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
 #include "MFEMMGIS/OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
@@ -53,69 +59,54 @@ namespace mfem_mgis {
   BehaviourIntegratorFactory buildFactory<Hypothesis::TRIDIMENSIONAL>() {
     BehaviourIntegratorFactory f;
     fillWithDefaultBehaviourIntegrators<Hypothesis::TRIDIMENSIONAL>(f);
-    f.addGenerator("Mechanics",
-                   [](const FiniteElementDiscretization& fed,
-                      const size_type m, std::unique_ptr<const Behaviour> b) -> std::
-                                                                                 unique_ptr<
-                                                                                     BehaviourIntegrator> {
-                                                                                   if (b->btype ==
-                                                                                       Behaviour::
-                                                                                           STANDARDSTRAINBASEDBEHAVIOUR) {
-                                                                                     if (b->symmetry ==
-                                                                                         Behaviour::
-                                                                                             ISOTROPIC) {
-                                                                                       return std::make_unique<
-                                                                                           IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
-                                                                                           fed,
-                                                                                           m,
-                                                                                           std::move(
-                                                                                               b));
-                                                                                     }
-                                                                                     return std::make_unique<
-                                                                                         OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
-                                                                                         fed,
-                                                                                         m,
-                                                                                         std::move(
-                                                                                             b));
-                                                                                   } else if (
-                                                                                       b->btype !=
-                                                                                       Behaviour::
-                                                                                           STANDARDFINITESTRAINBEHAVIOUR) {
-                                                                                     mgis::raise(
-                                                                                         "invalid behaviour type");
-                                                                                   }
-                                                                                   auto bi =
-                                                                                       [&]()
-                                                                                       -> std::unique_ptr<
-                                                                                           BehaviourIntegrator> {
-                                                                                     if (b->symmetry ==
-                                                                                         Behaviour::
-                                                                                             ISOTROPIC) {
-                                                                                       return std::make_unique<
-                                                                                           IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                                                                                           fed,
-                                                                                           m,
-                                                                                           std::move(
-                                                                                               b));
-                                                                                     }
-                                                                                     return std::make_unique<
-                                                                                         OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                                                                                         fed,
-                                                                                         m,
-                                                                                         std::move(
-                                                                                             b));
-                                                                                   }();
-                                                                                   const auto F = std::array<
-                                                                                       real,
-                                                                                       9u>{
-                                                                                       1, 1, 1, 0, 0, 0, 0, 0, 0};
-                                                                                   bi->getMaterial()
-                                                                                       .setMacroscopicGradients(
-                                                                                           F);
-                                                                                   return std::
-                                                                                       move(
-                                                                                           bi);
-                                                                                 });
+    f.addGenerator(
+        "Mechanics",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
+            if (b->symmetry == Behaviour::ISOTROPIC) {
+              return std::make_unique<
+                  IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+                  fed, m, std::move(b));
+            }
+            return std::make_unique<
+                OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+                fed, m, std::move(b));
+          } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+            raise("invalid behaviour type");
+          }
+          auto bi = [&]() -> std::unique_ptr<BehaviourIntegrator> {
+            if (b->symmetry == Behaviour::ISOTROPIC) {
+              return std::make_unique<
+                  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+                  fed, m, std::move(b));
+            }
+            return std::make_unique<
+                OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }();
+          const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
+          bi->getMaterial().setMacroscopicGradients(F);
+          return std::move(bi);
+        });
+    f.addGenerator(
+        "StationaryNonLinearHeatTransfer",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->btype != Behaviour::GENERALBEHAVIOUR) {
+            raise("invalid behaviour type");
+          }
+          if (b->symmetry == Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
+          return std::make_unique<
+              OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
     return f;
   }  // end of buildFactory
 
@@ -141,7 +132,7 @@ namespace mfem_mgis {
                 OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
                 fed, m, std::move(b));
           } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-            mgis::raise("invalid behaviour type");
+            raise("invalid behaviour type");
           }
           auto bi = [&]() -> std::unique_ptr<BehaviourIntegrator> {
             if (b->symmetry == Behaviour::ISOTROPIC) {
@@ -156,6 +147,23 @@ namespace mfem_mgis {
           const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
           bi->getMaterial().setMacroscopicGradients(F);
           return std::move(bi);
+        });
+    f.addGenerator(
+        "StationaryNonLinearHeatTransfer",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->btype != Behaviour::GENERALBEHAVIOUR) {
+            raise("invalid behaviour type");
+          }
+          if (b->symmetry == Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
+          return std::make_unique<
+              OrthotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator>(
+              fed, m, std::move(b));
         });
     return f;
   }  // end of buildFactory
@@ -182,7 +190,7 @@ namespace mfem_mgis {
                 OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
                 fed, m, std::move(b));
           } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-            mgis::raise("invalid behaviour type");
+            raise("invalid behaviour type");
           }
           auto bi = [&]() -> std::unique_ptr<BehaviourIntegrator> {
             if (b->symmetry == Behaviour::ISOTROPIC) {
@@ -197,6 +205,23 @@ namespace mfem_mgis {
           const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
           bi->getMaterial().setMacroscopicGradients(F);
           return std::move(bi);
+        });
+    f.addGenerator(
+        "StationaryNonLinearHeatTransfer",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->btype != Behaviour::GENERALBEHAVIOUR) {
+            raise("invalid behaviour type");
+          }
+          if (b->symmetry == Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
+          return std::make_unique<
+              OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator>(
+              fed, m, std::move(b));
         });
     return f;
   }  // end of buildFactory
@@ -231,8 +256,8 @@ namespace mfem_mgis {
     static auto factories = BehaviourIntegratorFactory::buildFactories();
     const auto p = factories.find(h);
     if (p == factories.end()) {
-      mgis::raise("BehaviourIntegratorFactory::get: unsupported hypothesis '" +
-                  std::string(mgis::behaviour::toString(h)) + "'");
+      raise("BehaviourIntegratorFactory::get: unsupported hypothesis '" +
+            std::string(mgis::behaviour::toString(h)) + "'");
     }
     return p->second;
   }  // end of BehaviourIntegratorFactory::get
@@ -240,7 +265,7 @@ namespace mfem_mgis {
   void BehaviourIntegratorFactory::addGenerator(const std::string& n,
                                                 const Generator g) {
     if (this->generators.count(n) != 0) {
-      mgis::raise(
+      raise(
           "BehaviourIntegratorFactory::addGenerator: "
           "a generator named '" +
           n + "' has already been declared");
@@ -255,7 +280,7 @@ namespace mfem_mgis {
       std::unique_ptr<const Behaviour> b) const {
     const auto p = this->generators.find(n);
     if (p == this->generators.end()) {
-      mgis::raise(
+      raise(
           "BehaviourIntegratorFactory::generate: "
           "no generator named '" +
           n + "' declared");

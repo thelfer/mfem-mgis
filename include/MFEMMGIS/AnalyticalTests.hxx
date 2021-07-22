@@ -17,15 +17,16 @@ namespace mfem_mgis {
   // forward declaration
   struct NonLinearEvolutionProblem;
 
+  /*!
+   * \brief Compare the results to analytical solution with a specified threshold
+   * \param[in] p: considered problem
+   * \param[in] f: reference function to compare with
+   * \param[in] params: set of parameters
+   */
   MFEM_MGIS_EXPORT bool compareToAnalyticalSolution(
-      NonLinearEvolutionProblem &,
-      std::function<void(mfem::Vector &, const mfem::Vector &)>,
-      const Parameters &);
-
-  //   MFEM_MGIS_EXPORT bool compareToAnalyticalSolution(
-  //       NonLinearEvolutionProblem &,
-  //       std::function<void(mfem::Vector &, const mfem::Vector &, const
-  //       double)>, const Parameters);
+      NonLinearEvolutionProblem &p,
+      std::function<void(mfem::Vector &, const mfem::Vector &)> f,
+      const Parameters &params);
 
 }  // end of namespace mfem_mgis
 

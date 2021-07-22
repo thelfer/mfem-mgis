@@ -97,6 +97,8 @@ namespace mfem_mgis {
 
 #ifndef MFEM_THREAD_SAFE
    private:
+    //! \brief vector used to store the value of the shape functions
+    mfem::Vector shape;
     //! \brief matrix used to store the derivatives of the shape functions
     mfem::DenseMatrix dshape;
 #endif

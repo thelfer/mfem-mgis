@@ -15,9 +15,8 @@ namespace mfem_mgis {
       "RelativeTolerance";
   const char *const AbstractNonLinearEvolutionProblem::SolverAbsoluteTolerance =
       "AbsoluteTolerance";
-  const char *const
-      AbstractNonLinearEvolutionProblem::SolverMaximumNumberOfIterations =
-          "MaximumNumberOfIterations";
+  const char *const AbstractNonLinearEvolutionProblem::SolverMaximumNumberOfIterations =
+      "MaximumNumberOfIterations";
 
   AbstractNonLinearEvolutionProblem::~AbstractNonLinearEvolutionProblem() =
       default;

@@ -21,17 +21,6 @@ function(mfem_mgis_buildenv)
   install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh
     DESTINATION share/mfem-mgis/examples/)
-  set(OUTPUT_EX1 ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UniaxialTensileTest.cxx)
-  add_custom_command(
-    OUTPUT  ${OUTPUT_EX1}
-    COMMAND ${PROJECT_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx ${OUTPUT_EX1}
-    DEPENDS ${PROJECT_SOURCE_DIR}/examples/ex1/sed_ex1.sh ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
-    COMMENT "seding the UniaxialTensileTest.cxx")
-  add_custom_target(generate-ex1 ALL
-    DEPENDS ${OUTPUT_EX1})
-  install(FILES
-    ${OUTPUT_EX1}
-    DESTINATION share/mfem-mgis/examples/ex1)
 endfunction(mfem_mgis_buildenv)
 
 function(mfem_mgis_header dir file)

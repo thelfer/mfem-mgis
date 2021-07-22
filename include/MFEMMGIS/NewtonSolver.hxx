@@ -16,11 +16,8 @@
 
 namespace mfem_mgis {
 
-  /*!
-   * \brief custom implementation of the Newton Solver
-   */
+  //! \brief custom implementation of the Newton Solver
   struct NewtonSolver : public mfem::IterativeSolver {
-
 #ifdef MFEM_USE_MPI
     //! \brief default constructor
     NewtonSolver(NonLinearEvolutionProblemImplementation<true> &);
@@ -33,7 +30,7 @@ namespace mfem_mgis {
      * \brief set the linear solver for inverting the Jacobian.
      * \param[in] s: linear solver
      */
-    virtual void setLinearSolver(LinearSolver&);
+    virtual void setLinearSolver(LinearSolver &);
     /*!
      * \brief add a new action called when a new estimate of the unknowns is
      * available.
@@ -56,6 +53,8 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      */
     void computeResidual(mfem::Vector &, const mfem::Vector &) const;
+    //! \return the jacobian of the system
+    mfem::Operator &getJacobian(const mfem::Vector&) const;
     //
     [[noreturn]] void SetPreconditioner(Solver &) override;
     [[noreturn]] void SetOperator(const mfem::Operator &) override;
@@ -75,8 +74,8 @@ namespace mfem_mgis {
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
-    };  // end of struct NewtonSolver
+  };  // end of struct NewtonSolver
 
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
 #endif /* LIB_NEWTONSOLVER_HXX */

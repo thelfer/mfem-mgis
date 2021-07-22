@@ -14,6 +14,14 @@ do
     done
   done
 done
+# non linear heat transfer
+./behaviour-integrator -s isotropic --hypothesis=PlaneStress --generator=StationaryNonLinearHeatTransfer --unknown-name=Temperature --requires-unknowns-values --source-file --header-file
+./behaviour-integrator -s orthotropic --hypothesis=PlaneStress --generator=StationaryNonLinearHeatTransfer --unknown-name=Temperature --requires-unknowns-values --source-file --header-file
+./behaviour-integrator -s isotropic --hypothesis=PlaneStrain --generator=StationaryNonLinearHeatTransfer --unknown-name=Temperature --requires-unknowns-values --source-file --header-file
+./behaviour-integrator -s orthotropic --hypothesis=PlaneStrain --generator=StationaryNonLinearHeatTransfer --unknown-name=Temperature --requires-unknowns-values --source-file --header-file
+./behaviour-integrator -s isotropic --hypothesis=Tridimensional --generator=StationaryNonLinearHeatTransfer --unknown-name=Temperature --requires-unknowns-values --source-file --header-file
+./behaviour-integrator -s orthotropic --hypothesis=Tridimensional --generator=StationaryNonLinearHeatTransfer --unknown-name=Temperature --requires-unknowns-values --source-file --header-file
+
 #
 if command -v clang-format &> /dev/null
 then

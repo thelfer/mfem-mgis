@@ -15,10 +15,11 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static void checkSolverOperator(
-      const NonLinearEvolutionProblemImplementation<parallel> &) {
+      const NonLinearEvolutionProblemImplementation<parallel> &p) {
     MFEM_ASSERT(p.Height() == p.Width(),
                 "checkSolverOperator: "
                 "a square operator is required.");
+    static_cast<void>(p);
   }  // end of checkSolverOperator
 
 #ifdef MFEM_USE_MPI
@@ -51,14 +52,14 @@ namespace mfem_mgis {
   }  // end of NewtonSolver
 
   void NewtonSolver::SetOperator(const mfem::Operator &) {
-    mgis::raise("NewtonSolver::SetOperator: invalid call");
+    raise("NewtonSolver::SetOperator: invalid call");
   }  // end of SetOperator
 
   void NewtonSolver::SetPreconditioner(Solver &) {
-    mgis::raise("NewtonSolver::SetOperator: invalid call");
+    raise("NewtonSolver::SetOperator: invalid call");
   }  // end of SetPreconditioner
 
-  void NewtonSolver::setLinearSolver(LinearSolver& s) {
+  void NewtonSolver::setLinearSolver(LinearSolver &s) {
     this->prec = &s;
     this->prec->iterative_mode = false;
   }  // end of setLinearSolver
@@ -93,14 +94,17 @@ namespace mfem_mgis {
     auto norm = norm0;
 
     while (true) {
-      MFEM_ASSERT(IsFinite(norm), "norm = " << norm);
+      MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
       if (this->print_level >= 0) {
-        mfem::out << "Newton iteration " << std::setw(2) << it
-                  << " : ||r|| = " << norm;
+	if (mfem_mgis::getMPIrank() == 0)
+	  mfem::out << "Newton iteration " << std::setw(2) << it
+		    << " : ||r|| = " << norm;
         if (it > 0) {
-          mfem::out << ", ||r||/||r_0|| = " << norm / norm0;
+	  if (mfem_mgis::getMPIrank() == 0)
+	    mfem::out << ", ||r||/||r_0|| = " << norm / norm0;
         }
-        mfem::out << '\n';
+	if (mfem_mgis::getMPIrank() == 0)
+	  mfem::out << '\n';
       }
       this->Monitor(it, norm, r, x);
       //
@@ -120,7 +124,7 @@ namespace mfem_mgis {
       }
       //
       // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
-//      add(x, -1, c, x);
+      //      add(x, -1, c, x);
       x -= c;
 
       if (!this->processNewUnknownsEstimate(x)) {
@@ -152,7 +156,7 @@ namespace mfem_mgis {
                 "the Solver is not set (use setLinearSolver).");
     const auto usesIterativeLinearSolver =
         dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
-    this->prec->SetOperator(this->oper->GetGradient(u));
+    this->prec->SetOperator(this->getJacobian(u));
     this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
     if (usesIterativeLinearSolver) {
       const auto &iprec =
@@ -161,6 +165,12 @@ namespace mfem_mgis {
     }
     return true;
   }  // end of computeNewtonCorrection
+
+  mfem::Operator &NewtonSolver::getJacobian(const mfem::Vector &u) const {
+    MFEM_ASSERT(this->oper != nullptr,
+                "the Operator is not set (use SetOperator).");
+    return this->oper->GetGradient(u);
+  } // end of getJacobian
 
   void NewtonSolver::addNewUnknownsEstimateActions(
       std::function<bool(const mfem::Vector &)> a) {
@@ -178,4 +188,4 @@ namespace mfem_mgis {
 
   NewtonSolver::~NewtonSolver() = default;
 
-  }  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

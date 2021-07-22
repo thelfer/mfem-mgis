@@ -6,6 +6,14 @@ include(cmake/modules/mfem-mgis.cmake)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# (must be placed *before* any add_subdirectory, cmake bug ?)
+include(CTest)
+enable_testing()
+
+# HypreILU is not defined for old versions of Hypre
+# Comment this line for newest Hypre librarires
+ADD_DEFINITIONS(-DHYPRE_OLD_VERSION)
+
 # portable-build
 option(enable-portable-build "produce binary that can be shared between various machine (same architecture, same gcc version, different processors" OFF)
 
@@ -65,8 +73,7 @@ endif(enable-website)
 
 # testing
 set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
-# (must be placed *before* any add_subdirectory, cmake bug ?)
-enable_testing()
+
 if(CMAKE_CONFIGURATION_TYPES)
    if (NOT TARGET check)
       add_custom_target(check COMMAND 
@@ -91,4 +98,3 @@ add_subdirectory(docs)
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(tests)
-add_subdirectory(examples)

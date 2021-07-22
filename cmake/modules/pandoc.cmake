@@ -15,11 +15,11 @@ else(PANDOC_CROSSREF)
   message(STATUS "pandoc-crossref: not found")
 endif(PANDOC_CROSSREF)
 
-if(PANDOC AND PANDOC_CITEPROC AND PANDOC_CROSSREF)
+if(PANDOC AND PANDOC_CROSSREF)
   message(STATUS "Enabling generation of documentation based on pandoc")
   set(MFEMMGIS_HAVE_PANDOC ON)
 else(PANDOC AND PANDOC_CITEPROC AND PANDOC_CROSSREF)
   message(WARNING "Disabling generation of documentation based on pandoc")
   set(MFEMMGIS_HAVE_PANDOC OFF)
-endif(PANDOC AND PANDOC_CITEPROC AND PANDOC_CROSSREF)
+endif(PANDOC AND PANDOC_CROSSREF)
 

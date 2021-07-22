@@ -51,8 +51,11 @@
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
+
+constexpr double xmax = 1.;
+
 void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
-  constexpr const auto xthr = mfem_mgis::real(1) / 2;
+  constexpr const auto xthr = xmax / 2.;
   std::array<void (*)(mfem::Vector&, const mfem::Vector&), 6u> solutions = {
       +[](mfem::Vector& u, const mfem::Vector& x) {
         constexpr const auto gradx = mfem_mgis::real(1) / 3;
@@ -109,12 +112,12 @@ static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
     p.setLinearSolver("GMRESSolver", {{"VerbosityLevel", 1},
                                       {"AbsoluteTolerance", 1e-12},
                                       {"RelativeTolerance", 1e-12},
-                                      {"MaximumNumberOfIterations", 300}});
+                                      {"MaximumNumberOfIterations", 500}});
   } else if (i == 1) {
     p.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
                                    {"AbsoluteTolerance", 1e-12},
                                    {"RelativeTolerance", 1e-12},
-                                   {"MaximumNumberOfIterations", 300}});
+                                   {"MaximumNumberOfIterations", 500}});
 #ifdef MFEM_USE_SUITESPARSE
   } else if (i == 2) {
     p.setLinearSolver("UMFPackSolver", {});
@@ -141,7 +144,7 @@ static void setSolverParameters(
 bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& problem,
                    const std::size_t i) {
   const auto b = mfem_mgis::compareToAnalyticalSolution(
-      problem, getSolution(i), {{"CriterionThreshold", 1e-10}});
+      problem, getSolution(i), {{"CriterionThreshold", 1e-7}});
   if (!b) {
     std::cerr << "Error is greater than threshold\n";
     return false;
@@ -206,7 +209,9 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
   {
     // building the non linear problem
-    mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);
+    std::vector<mfem_mgis::real> corner1({0.,0.,0.});
+    std::vector<mfem_mgis::real> corner2({xmax,xmax,xmax});
+    mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed, corner1, corner2);
     problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
     problem.addBehaviourIntegrator("Mechanics", 2, p.library, "Elasticity");
     // materials

@@ -10,7 +10,7 @@
 #include "mfem/fem/fespace.hpp"
 #ifdef MFEM_USE_MPI
 #include "mfem/fem/pfespace.hpp"
-#endif MFEM_USE_MPI
+#endif /* MFEM_USE_MPI */
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/DirichletBoundaryConditionBase.hxx"
@@ -41,7 +41,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       return buildDegreesOfFredomList<true>(fed, bid, c);
 #else
-      mgis::raise(
+      raise(
           "DirichletBoundaryConditionBase::DirichletBoundaryConditionBase: "
           "unsupported parallel computations");
 #endif

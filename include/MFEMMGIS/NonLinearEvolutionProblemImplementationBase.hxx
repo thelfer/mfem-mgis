@@ -11,6 +11,10 @@
 #include <memory>
 #include <vector>
 #include "mfem/linalg/vector.hpp"
+#ifdef MFEM_USE_PETSC
+#include "mfem/linalg/petsc.hpp"
+#endif /* MFEM_USE_PETSC */
+
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
@@ -32,6 +36,8 @@ namespace mfem_mgis {
   struct NewtonSolver;
   // forward declaration
   enum struct IntegrationType;
+  // forward declaration
+  struct LinearSolverHandler;
 
   /*!
    * \brief class for solving non linear evolution problems.
@@ -64,23 +70,32 @@ namespace mfem_mgis {
      * \param[in] g: macroscopic gradients
      */
     virtual void setMacroscopicGradients(const std::vector<real>&);
-    //! \return the unknowns at the beginning of the time step
-    virtual mfem::Vector& getUnknownsAtBeginningOfTheTimeStep();
-    //! \return the unknowns at the beginning of the time step
-    virtual const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const;
-    //! \return the unknowns at the end of the time step
-    virtual mfem::Vector& getUnknownsAtEndOfTheTimeStep();
-    //! \return the unknowns at the end of the time step
-    virtual const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const;
     /*!
      * \brief set the linear solver
      * \param[in] s: linear solver
      */
     virtual void updateLinearSolver(std::unique_ptr<LinearSolver>);
+    /*!
+     * \brief set the linear solver
+     * \param[in] s: linear solver
+     * \param[in] p: linear solver preconditioner
+     */
+    virtual void updateLinearSolver(
+        std::unique_ptr<LinearSolver>,
+        std::unique_ptr<LinearSolverPreconditioner>);
+    /*!
+     * \brief set the linear solver
+     * \param[in] s: linear solver handler
+     */
+    virtual void updateLinearSolver(LinearSolverHandler);
     //
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
+    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
+    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
+    mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
+    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
     void setSolverParameters(const Parameters&) override;
     std::vector<size_type> getMaterialIdentifiers() const override;
     const Material& getMaterial(const size_type) const override;
@@ -101,6 +116,11 @@ namespace mfem_mgis {
     virtual ~NonLinearEvolutionProblemImplementationBase();
 
    protected:
+    /*!
+     * \return the list of the degrees of freedom handled by Dirichlet boundary
+     * conditions.
+     */
+    virtual std::vector<size_type> getEssentialDegreesOfFreedom() const;
     /*!
      * \brief declare the degrees of freedom handled by Dirichlet boundary
      * conditions.
@@ -151,13 +171,19 @@ namespace mfem_mgis {
     mfem::Vector u1;
     //! \brief newton solver
     std::unique_ptr<NewtonSolver> solver;
+#ifdef MFEM_USE_PETSC
+    //! \brief newton solver
+    std::unique_ptr<mfem::PetscNonlinearSolver> petsc_solver;
+#endif /* MFEM_USE_PETSC */
     //! \brief linear solver
     std::unique_ptr<LinearSolver> linear_solver;
+    //! \brief linear solver preconditioner
+    std::unique_ptr<LinearSolverPreconditioner> linear_solver_preconditioner;
     /*!
      * \brief pointer to the underlying domain integrator
      * The memory associated with this pointer must be released in derived class
      */
-    MultiMaterialNonLinearIntegrator* const mgis_integrator;
+    MultiMaterialNonLinearIntegrator* const mgis_integrator = nullptr;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
 

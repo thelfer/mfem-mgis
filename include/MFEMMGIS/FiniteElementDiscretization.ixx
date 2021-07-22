@@ -88,7 +88,17 @@ namespace mfem_mgis {
       }
       return *(this->sequential_fe_space);
     }
+
   }  // end of getFiniteElementSpace
+
+  static inline std::string getFileExt(const std::string& s) {
+    size_t i = s.rfind('.', s.length());
+    if (i != std::string::npos) {
+      return(s.substr(i+1, s.length() - i));
+    }
+    
+    return("");
+  } // end of getFileExt
 
 }  // end of namespace mfem_mgis
 

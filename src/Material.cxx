@@ -16,14 +16,14 @@ namespace mfem_mgis {
 
   [[noreturn]] static std::array<real, 9u> raiseInvalidGetRotationMatrixCall(
       const RotationMatrix2D &, const RotationMatrix3D &, const size_type) {
-    mgis::raise(
+    raise(
         "Material::getRotationMatrix: "
         "invalid call for isotropic behaviours");
   }  // end of raiseInvalidGetRotationMatrixCall
 
   [[noreturn]] static std::array<real, 9u> raiseUnsetRotationMatrix(
       const RotationMatrix2D &, const RotationMatrix3D &, const size_type) {
-    mgis::raise(
+    raise(
         "Material::getRotationMatrix: "
         "unset rotation matrix");
   }  // end of raiseInvalidGetRotationMatrixCall
@@ -37,20 +37,22 @@ namespace mfem_mgis {
                                      mgis::behaviour::Behaviour::ORTHOTROPIC
                                  ? &raiseInvalidGetRotationMatrixCall
                                  : &raiseUnsetRotationMatrix),
-        behaviour_ptr(std::move(b_ptr)) {}  // end of Material::Material
+        behaviour_ptr(std::move(b_ptr)) {
+    this->allocateArrayOfTangentOperatorBlocks();
+}  // end of Material::Material
 
   const PartialQuadratureSpace &Material::getPartialQuadratureSpace() const {
     return *(this->quadrature_space);
   }  // end of getPartialQuadratureSpace
 
   std::shared_ptr<const PartialQuadratureSpace>
-  Material::getPartialQuadratureSpacePointer() const{
+  Material::getPartialQuadratureSpacePointer() const {
     return this->quadrature_space;
   }  // end of getPartialQuadratureSpacePointer
 
   void Material::setMacroscopicGradients(mgis::span<const real> g) {
     if (g.size() != this->s1.gradients_stride) {
-      mgis::raise(
+      raise(
           "Material::setMacroscopicGradients: "
           "invalid number of components of the gradients");
     }
@@ -59,7 +61,7 @@ namespace mfem_mgis {
 
   static void checkBehaviourSymmetry(const Behaviour &b) {
     if (b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
-      mgis::raise(
+      raise(
           "Material::setRotationMatrix: "
           "invalid call (behaviour is not orthotropic)");
     }
@@ -68,7 +70,7 @@ namespace mfem_mgis {
   void Material::setRotationMatrix(const RotationMatrix2D &r) {
     checkBehaviourSymmetry(b);
     if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) != 2u) {
-      mgis::raise(
+      raise(
           "Material::setRotationMatrix: "
           "invalid call (behaviour' hypothesis is not 2D)");
     }
@@ -89,7 +91,7 @@ namespace mfem_mgis {
             return m;
           };
     } else {
-      mgis::raise("Material::setRotationMatrix: unimplemented case yet");
+      raise("Material::setRotationMatrix: unimplemented case yet");
     }
     this->r2D = r;
   }  // end of setRotationMatrix
@@ -97,7 +99,7 @@ namespace mfem_mgis {
   void Material::setRotationMatrix(const RotationMatrix3D &r) {
     checkBehaviourSymmetry(b);
     if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) != 3u) {
-      mgis::raise(
+      raise(
           "Material::setRotationMatrix: "
           "invalid call (behaviour hypothesis is not 3D)");
     }
@@ -171,10 +173,10 @@ namespace mfem_mgis {
               f2.getIntegrationPointValues<3>(o));
         };
       } else {
-        mgis::raise("Material::setRotationMatrix: unimplemented case yet");
+        raise("Material::setRotationMatrix: unimplemented case yet");
       }
     } else {
-      mgis::raise("Material::setRotationMatrix: unimplemented case yet");
+      raise("Material::setRotationMatrix: unimplemented case yet");
     }
     this->r3D = r;
   }  // end of setRotationMatrix

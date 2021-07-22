@@ -32,7 +32,7 @@ namespace mfem_mgis {
     for (size_type i = 0; i != F.Size(); ++i) {
       out << " " << F[i];
     }
-    out << "\n";
+    out << std::endl;
   }  // end of writeResultantForce
 
   ComputeResultantForceOnBoundaryCommon::ComputeResultantForceOnBoundaryCommon(
@@ -54,7 +54,7 @@ namespace mfem_mgis {
       const auto& f = get<std::string>(params, "OutputFileName");
       this->out.open(f);
       if (!this->out) {
-        mgis::raise("can't open file '" + f + "'");
+        raise("can't open file '" + f + "'");
       }
       auto& fed = p.getFiniteElementDiscretization();
       auto& fes = fed.template getFiniteElementSpace<true>();
@@ -74,7 +74,7 @@ namespace mfem_mgis {
     mfem::Vector gF;
     gF.SetSize(F.Size());
     MPI_Reduce(F.GetData(), gF.GetData(), F.Size(), MPI_DOUBLE, MPI_SUM, 0,
-                 MPI_COMM_WORLD);
+               MPI_COMM_WORLD);
     if (rank == 0) {
       writeResultantForce(this->out, gF, t + dt);
     }
@@ -94,7 +94,7 @@ namespace mfem_mgis {
     const auto& f = get<std::string>(params, "OutputFileName");
     this->out.open(f);
     if (!this->out) {
-      mgis::raise("can't open file '" + f + "'");
+      raise("can't open file '" + f + "'");
     }
     auto& fed = p.getFiniteElementDiscretization();
     auto& fes = fed.template getFiniteElementSpace<false>();

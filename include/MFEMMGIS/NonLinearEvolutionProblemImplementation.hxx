@@ -52,6 +52,8 @@ namespace mfem_mgis {
     FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
     const FiniteElementSpace<true>& getFiniteElementSpace() const;
+    //
+    void Mult(const mfem::Vector &, mfem::Vector &) const override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
@@ -136,6 +138,18 @@ namespace mfem_mgis {
       mfem::Vector&,
       NonLinearEvolutionProblemImplementation<parallel>&,
       const std::vector<std::pair<size_type, size_type>>&);
+
+  /*!
+   * \return the integral of the thermodynamic forces at the end of the time
+   * step and the volume of each material.
+   * \param[in] p: non linear evolution problem
+   * \note in parallel, the returned value is only the contribution of the given
+   * process
+   */
+  template <bool parallel>
+  std::pair<std::vector<std::vector<real>>, std::vector<real>>
+  computeMeanThermodynamicForcesValues(
+      NonLinearEvolutionProblemImplementation<parallel>&);
 
 }  // end of namespace mfem_mgis
 

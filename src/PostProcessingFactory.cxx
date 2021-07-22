@@ -9,6 +9,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/ParaviewExportResults.hxx"
+#include "MFEMMGIS/MeanThermodynamicForces.hxx"
 #include "MFEMMGIS/ComputeResultantForceOnBoundary.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 
@@ -28,7 +29,7 @@ namespace mfem_mgis {
       msg += "a post-processing called '";
       msg += n;
       msg += "' has already been declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
@@ -43,7 +44,7 @@ namespace mfem_mgis {
       msg += "no post-processing called '";
       msg += n;
       msg += "' declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     const auto& g = pg->second;
     return g(p, params);
@@ -54,6 +55,18 @@ namespace mfem_mgis {
               [](NonLinearEvolutionProblemImplementation<true>& p,
                  const Parameters& params) {
                 return std::make_unique<ParaviewExportResults<true>>(p, params);
+              });
+    this->add("ComputeResultantForceOnBoundary",
+              [](NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) {
+                return std::make_unique<ComputeResultantForceOnBoundary<true>>(
+                    p, params);
+              });
+    this->add("MeanThermodynamicForces",
+              [](NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) {
+                return std::make_unique<MeanThermodynamicForces<true>>(p,
+                                                                       params);
               });
   }  // end of PostProcessingFactory
 
@@ -73,7 +86,7 @@ namespace mfem_mgis {
       msg += "a post-processing called '";
       msg += n;
       msg += "' has already been declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
@@ -88,7 +101,7 @@ namespace mfem_mgis {
       msg += "no post-processing called '";
       msg += n;
       msg += "' declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     const auto& g = pg->second;
     return g(p, params);
@@ -106,6 +119,12 @@ namespace mfem_mgis {
                  const Parameters& params) {
                 return std::make_unique<ComputeResultantForceOnBoundary<false>>(
                     p, params);
+              });
+    this->add("MeanThermodynamicForces",
+              [](NonLinearEvolutionProblemImplementation<false>& p,
+                 const Parameters& params) {
+                return std::make_unique<MeanThermodynamicForces<false>>(p,
+                                                                        params);
               });
   }  // end of PostProcessingFactory
 

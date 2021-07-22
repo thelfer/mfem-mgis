@@ -19,7 +19,7 @@ namespace mfem_mgis {
       std::shared_ptr<const PartialQuadratureSpace> s, const size_type nv)
       : qspace(s), data_stride(data_size), data_begin(0), data_size(nv) {
     if (this->data_size <= 0) {
-      mgis::raise(
+      raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "values size");
     }
@@ -36,25 +36,25 @@ namespace mfem_mgis {
       const size_type ds)
       : qspace(s), values(v), data_begin(db) {
     if (db < 0) {
-      mgis::raise(
+      raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "start of the data");
     }
     if (ds <= 0) {
-      mgis::raise(
+      raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "data size");
     }
     const auto d = std::div(static_cast<size_type>(v.size()),
                             this->qspace->getNumberOfIntegrationPoints());
     if ((d.rem != 0) || (d.quot <= 0)) {
-      mgis::raise(
+      raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "values size");
     }
     this->data_stride = d.quot;
     if (db > this->data_stride) {
-      mgis::raise(
+      raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "start of the data");
     }
@@ -62,7 +62,7 @@ namespace mfem_mgis {
       this->data_size = this->data_stride;
     } else {
       if (db + ds >= this->data_stride) {
-        mgis::raise(
+        raise(
             "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
             "data range is outside the stride size");
       }

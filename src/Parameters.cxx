@@ -24,7 +24,7 @@ namespace mfem_mgis {
     msg += "the type of parameter '";
     msg += n;
     msg += "' is not the expected one";
-    mgis::raise(msg);
+    raise(msg);
   }  // end of raiseUnmatchedParameterType
 
   Parameters::Parameters() = default;
@@ -88,7 +88,7 @@ namespace mfem_mgis {
       std::string msg("Parameters::get: parameter '");
       msg += n;
       msg += "' is not declared";
-      mgis::raise(msg);
+      raise(msg);
     }
     return i->second;
   }
@@ -113,15 +113,15 @@ namespace mfem_mgis {
         } else {
           msg += "No parameters allowed";
         }
-        mgis::raise(msg);
+        raise(msg);
       }
     }
-  } // end of checkParameters
+  }  // end of checkParameters
 
   Parameters extract(const Parameters& parameters,
                      const std::vector<std::string>& names) {
     auto r = Parameters{};
-    for (const auto& n :names) {
+    for (const auto& n : names) {
       if (contains(parameters, n)) {
         r.insert(n, parameters.get(n));
       }

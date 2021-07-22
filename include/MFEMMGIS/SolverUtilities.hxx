@@ -16,9 +16,7 @@ namespace mfem_mgis {
   struct Parameters;
 
   /*!
-   * \brief set the parameters of an iterative solver
-   * \param[in] s: iterative solver
-   * \param[in] params: parameters
+   * \brief return the list of parameters for an interative solver
    * \note the following parameters are available:
    * - `AbstractNonLinearEvolutionProblem::SolverVerbosityLevel`, aka
    *   `"VerbosityLevel"`,
@@ -29,8 +27,26 @@ namespace mfem_mgis {
    * - `AbstractNonLinearEvolutionProblem::SolverMaximumNumberOfIterations`, aka
    *   `"MaximumNumberOfIterations"`,
    */
+  MFEM_MGIS_EXPORT std::vector<std::string> getIterativeSolverParametersList();
+
+  /*!
+   * \brief set the parameters of an iterative solver
+   * \param[in] s: iterative solver
+   * \param[in] params: parameters
+   */
   MFEM_MGIS_EXPORT void setSolverParameters(IterativeSolver&,
                                             const Parameters&);
+
+#ifdef MFEM_USE_PETSC
+  /*!
+   * \brief set the parameters of a PETSc solver
+   * \param[in] s: solver
+   * \param[in] params: parameters
+   */
+  MFEM_MGIS_EXPORT void setSolverParameters(mfem::PetscNonlinearSolver&,
+                                            const Parameters&);
+#endif /* MFEM_USE_PETSC */
+
 
 }  // end of namespace mfem_mgis
 
