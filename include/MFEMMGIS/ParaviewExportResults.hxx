@@ -38,7 +38,7 @@ namespace mfem_mgis {
     //! \brief paraview exporter
     mfem::ParaViewDataCollection exporter;
     //! exported grid function
-    mfem_mgis::GridFunction<parallel> result;
+    mfem_mgis::GridFunction<parallel> displacement;
     //!
     size_type cycle;
   };  // end of struct ParaviewExportResults

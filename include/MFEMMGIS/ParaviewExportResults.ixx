@@ -18,16 +18,16 @@ namespace mfem_mgis {
       const Parameters& params)
       : exporter(get<std::string>(params, "OutputFileName"),
                  p.getFiniteElementSpace().GetMesh()),
-        result(&p.getFiniteElementSpace()),
+        displacement(&p.getFiniteElementSpace()),
         cycle(0) {
     auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
-    this->result.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
-    this->result.SetFromTrueVector();
+    this->displacement.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
+    this->displacement.SetFromTrueVector();
     if (contains(params, "OutputFieldName")) {
       this->exporter.RegisterField(get<std::string>(params, "OutputFieldName"),
-                                   &(this->result));
+                                   &(this->displacement));
     } else {
-      this->exporter.RegisterField("u", &(this->result));
+      this->exporter.RegisterField("u", &(this->displacement));
     }
   }  // end of ParaviewExportResults
 
@@ -38,7 +38,7 @@ namespace mfem_mgis {
       const real dt) {
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
-    this->result.SetFromTrueVector();
+    this->displacement.SetFromTrueVector();
     this->exporter.Save();
     ++(this->cycle);
   }  // end of execute
