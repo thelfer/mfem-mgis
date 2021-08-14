@@ -19,10 +19,16 @@ namespace mfem_mgis {
       : exporter(get<std::string>(params, "OutputFileName"),
                  p.getFiniteElementSpace().GetMesh()),
         displacement(&p.getFiniteElementSpace()),
+	nb_materials(p.getFiniteElementSpace().GetMesh()->attributes.Size()),
+	mgis_materials(nb_materials),
         cycle(0) {
     auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
     this->displacement.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
     this->displacement.SetFromTrueVector();
+    // Set up the list of materials
+    for (mfem_mgis::size_type i = 0; i != nb_materials; ++i) {
+      mgis_materials[i] = &p.getMaterial(i);
+    }
     if (contains(params, "OutputFieldName")) {
       this->exporter.RegisterField(get<std::string>(params, "OutputFieldName"),
                                    &(this->displacement));

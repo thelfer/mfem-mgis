@@ -10,6 +10,7 @@
 
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 
@@ -39,6 +40,10 @@ namespace mfem_mgis {
     mfem::ParaViewDataCollection exporter;
     //! exported grid function
     mfem_mgis::GridFunction<parallel> displacement;
+    //! list of materials
+    std::vector<mfem_mgis::Material *> mgis_materials;
+    //! nb_material
+    int nb_materials;
     //!
     size_type cycle;
   };  // end of struct ParaviewExportResults
