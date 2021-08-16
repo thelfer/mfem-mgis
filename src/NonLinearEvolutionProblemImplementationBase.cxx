@@ -229,6 +229,11 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
       std::unique_ptr<LinearSolver> s,
       std::unique_ptr<LinearSolverPreconditioner> p) {
+    if (usePETSc()) {
+      mgis::raise(
+          "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
+          "call to this method is meaningless if PETSc is used");
+    }
     if (p != nullptr) {
       auto* const isolver = dynamic_cast<IterativeSolver*>(s.get());
       if (isolver == nullptr) {

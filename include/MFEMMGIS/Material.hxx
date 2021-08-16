@@ -16,6 +16,7 @@
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
 #include "MFEMMGIS/RotationMatrix.hxx"
+#include "MFEMMGIS/PartialQuadratureFunction.hxx"
 
 namespace mfem_mgis {
 
@@ -28,6 +29,13 @@ namespace mfem_mgis {
    * \brief a simple structure describing a material an the associated data.
    */
   struct MFEM_MGIS_EXPORT Material : mgis::behaviour::MaterialDataManager {
+    /*!
+     * \brief a small enumeration
+     */
+    enum StateSelection {
+      BEGINNING_OF_TIME_STEP,
+      END_OF_TIME_STEP,
+    };
     /*!
      * \brief constructor
      * \param[in] s: quadrature space
@@ -98,6 +106,37 @@ namespace mfem_mgis {
     const std::unique_ptr<const Behaviour> behaviour_ptr;
 
   };  // end of struct Material
+
+  /*!
+   * \return a partial quadrature function for the given gradient
+   * \param[in] m: material
+   * \param[in] n: name of the gradient
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT PartialQuadratureFunction
+  getGradient(Material &,
+              const mgis::string_view &,
+              const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return a partial quadrature function for the given thermodynamic force
+   * \param[in] m: material
+   * \param[in] n: name of the thermodynamic force
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT PartialQuadratureFunction getThermodynamicForce(
+      Material &,
+      const mgis::string_view &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return a partial quadrature function for the given state variable
+   * \param[in] m: material
+   * \param[in] n: name of the state variable
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT PartialQuadratureFunction getInternalStateVariable(
+      Material &,
+      const mgis::string_view &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
 
 }  // end of namespace mfem_mgis
 

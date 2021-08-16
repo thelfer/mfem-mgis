@@ -58,10 +58,16 @@ namespace mfem_mgis {
 
   Finalizer::Finalizer() = default;
 
+#ifdef MFEM_USE_PETSC
   void Finalizer::setPETSc(const char* petscrc_file) {
-    this->use_petsc=true;
+    this->use_petsc = true;
     mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
   }
+#else
+  void Finalizer::setPETSc(const char*) {
+    mgis::raise("Finalizer::setPETSc: PETSc is not supported");
+  }
+#endif /*MFEM_USE_PETSC*/
 
   void Finalizer::initialize(int& argc, MainFunctionArguments& argv) {
 #ifdef MFEM_USE_PETSC
