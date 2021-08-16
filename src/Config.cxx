@@ -63,7 +63,7 @@ namespace mfem_mgis {
     this->use_petsc = true;
     mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
   }
-#else
+#else /* MFEM_USE_PETSC */
   void Finalizer::setPETSc(const char*) {
     mgis::raise("Finalizer::setPETSc: PETSc is not supported");
   }
@@ -95,7 +95,6 @@ namespace mfem_mgis {
       if (petscrc_file== nullptr) {
         mgis::raise("initialize: no PETSc configuration file given");
       }
-      //      std::cout << "PETSc file: " << petscrc_file << '\n';
       mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
     }
 #endif /* MFEM_USE_PETSC */
