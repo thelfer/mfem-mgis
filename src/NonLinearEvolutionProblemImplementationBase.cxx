@@ -259,56 +259,57 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementationBase::solve(const real t,
                                                           const real dt) {
-    mfem::Vector zero;
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     //    this->computePrediction(t, dt);
+    auto success = false;
     if (usePETSc()) {
 #ifdef MFEM_USE_PETSC
+      mfem::Vector zero;
       // PETSc solver somehow "requires" zero as a first argument of Mult.
       // If it is not the case, one should take care of memory management.
       this->petsc_solver->Mult(zero, this->u1);
-      return this->petsc_solver->GetConverged();
+      success = this->petsc_solver->GetConverged();
 #else  /* MFEM_USE_PETSC */
       MFEM_VERIFY(0, "Support for PETSc is deactivated");
 #endif /* MFEM_USE_PETSC */
     } else {
       this->solver->Mult(this->u0, this->u1);
-      return this->solver->GetConverged();
+      success = this->solver->GetConverged();
     }
+    return success;
   }  // end of solve
 
-  void NonLinearEvolutionProblemImplementationBase::computePrediction(
-      const real t, const real dt) {
-    if (mgis_integrator == nullptr) {
-      return;
-    }
-    constexpr auto it = IntegrationType::PREDICTION_ELASTIC_OPERATOR;
-    if (!this->integrate(this->u0, it)) {
-      return;
-    }
-    mfem::Vector du(this->u1.Size());
-    mfem::Vector r(this->u1.Size());
-    r = 0.;
-    du = 0.;
-    //
-    // unmarked Dirichlet boundary conditions
-    const auto ddofs = this->getEssentialDegreesOfFreedom();
-    this->markDegreesOfFreedomHandledByDirichletBoundaryConditions({});
-    auto& K = this->solver->getJacobian(this->u0);
-    for (const auto& bc : this->dirichlet_boundary_conditions) {
-      bc->setImposedValuesIncrements(du, t, t + dt);
-    }
+  void NonLinearEvolutionProblemImplementationBase::computePrediction(const real /*t*/, const real /*dt*/) {
+    // if (mgis_integrator == nullptr) {
+    //   return;
+    // }
+    // constexpr auto it = IntegrationType::PREDICTION_ELASTIC_OPERATOR;
+    // if (!this->integrate(this->u0, it)) {
+    //   return;
+    // }
+    // mfem::Vector du(this->u1.Size());
+    // mfem::Vector r(this->u1.Size());
+    // r = 0.;
+    // du = 0.;
+    // //
+    // // unmarked Dirichlet boundary conditions
+    // const auto ddofs = this->getEssentialDegreesOfFreedom();
+    // this->markDegreesOfFreedomHandledByDirichletBoundaryConditions({});
+    // auto& K = this->solver->getJacobian(this->u0);
+    // for (const auto& bc : this->dirichlet_boundary_conditions) {
+    //   bc->setImposedValuesIncrements(du, t, t + dt);
+    // }
 
-    // solve the tangent problem
-    this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(ddofs);
-    for (const auto& bc : this->dirichlet_boundary_conditions) {
-      bc->setImposedValuesIncrements(r, t, t + dt);
-    }
-    if (this->solver->computeNewtonCorrection(du, r, this->u0)) {
-      this->u1 = this->u0;
-      this->u1 += du;
-    }
+    // // solve the tangent problem
+    // this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(ddofs);
+    // for (const auto& bc : this->dirichlet_boundary_conditions) {
+    //   bc->setImposedValuesIncrements(r, t, t + dt);
+    // }
+    // if (this->solver->computeNewtonCorrection(du, r, this->u0)) {
+    //   this->u1 = this->u0;
+    //   this->u1 += du;
+    // }
   }  // end of computePrediction
 
   NonLinearEvolutionProblemImplementationBase::
