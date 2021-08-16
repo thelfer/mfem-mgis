@@ -36,14 +36,19 @@ namespace mfem_mgis {
     ~ParaviewExportResults() override;
 
    private:
+    const int dim, sdim;
     //! \brief paraview exporter
     mfem::ParaViewDataCollection exporter;
-    //! exported grid function
+    //! exported displacement grid function
     mfem_mgis::GridFunction<parallel> displacement;
     //! list of materials
     std::vector<mfem_mgis::Material *> mgis_materials;
     //! nb_material
     int nb_materials;
+    //! exported stress grid function
+    std::vector<mfem_mgis::GridFunction<parallel>> stress;
+    //! exported strain grid function
+    std::vector<mfem_mgis::GridFunction<parallel>> strain;
     //!
     size_type cycle;
   };  // end of struct ParaviewExportResults

@@ -21,7 +21,11 @@ namespace mfem_mgis {
         displacement(&p.getFiniteElementSpace()),
 	nb_materials(p.getFiniteElementSpace().GetMesh()->attributes.Size()),
 	mgis_materials(nb_materials),
-        cycle(0) {
+	dim(p.getFiniteElementSpace().GetMesh()->Dimension()),
+	sdim(dim*(dim+1)/2),
+        cycle(0),
+	stress(sdim),
+	strain(sdim) {
     auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
     this->displacement.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
     this->displacement.SetFromTrueVector();
