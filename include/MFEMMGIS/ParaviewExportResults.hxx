@@ -17,6 +17,67 @@
 namespace mfem_mgis {
 
   /*!
+   * \brief Utilitary classes and functions to post-process MFEM Gridfunctions
+   */
+  namespace {
+    class DiagCoefficient : public mfem::Coefficient
+    {
+    protected:
+      //OLD: Coefficient &lambda, &mu;
+      mfem_mgis::Material *mat;
+      mfem::GridFunction *u; // displacement
+      int si, sj; // component to evaluate, 0 <= si,sj < dim
+      
+    public:
+      DiagCoefficient(mfem_mgis::Material* mat_)
+	: mat(mat_), u(NULL), si(0), sj(0) { }
+      
+      void SetDisplacement(mfem::GridFunction &u_) { u = &u_; }
+      
+      virtual double Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip) = 0;
+    };
+    
+    class StressCoefficient : public DiagCoefficient
+    {
+    public:
+      using DiagCoefficient::DiagCoefficient;
+      void SetComponent(int i, int j) { si = i; sj = j; }
+      double Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip) {
+	MFEM_ASSERT(u != NULL, "displacement field is not set");
+	
+	//TODO:      double L = lambda.Eval(T, ip);
+	//TODO:      double M = mu.Eval(T, ip);
+	//TODO:      u->GetVectorGradient(T, grad);
+	//TODO:      if (si == sj)
+	//TODO:	{
+	//TODO:	  double div_u = grad.Trace();
+	//TODO:	  return L*div_u + 2*M*grad(si,si);
+	//TODO:	}
+	//TODO:      else
+	//TODO:	{
+	//TODO:	  return M*(grad(si,sj) + grad(sj,si));
+	//TODO:	}
+      }
+    };
+    
+    class StrainCoefficient : public DiagCoefficient
+    {
+    public:
+      using DiagCoefficient::DiagCoefficient;
+      void SetComponent(int i, int j) { si = i; sj = j; }
+      double Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip)
+      {
+	MFEM_ASSERT(u != NULL, "displacement field is not set");
+	
+	//TODO:      u->GetVectorGradient(T, grad);
+	//TODO:      return (grad(si,sj)+grad(sj,si));
+      }
+    };
+  }
+
+  
+  
+  /*!
    * \brief a post-processing to export the results to paraview
    */
   template <bool parallel>
@@ -42,13 +103,17 @@ namespace mfem_mgis {
     //! exported displacement grid function
     mfem_mgis::GridFunction<parallel> displacement;
     //! list of materials
-    std::vector<mfem_mgis::Material *> mgis_materials;
+    std::vector<mfem_mgis::Material*> mgis_materials;
     //! nb_material
     int nb_materials;
+    //! Temporary storage for stress calculation
+    std::vector<StressCoefficient*> stress_c;
+    //! Temporary storage for strain calculation
+    std::vector<StrainCoefficient*> strain_c;
     //! exported stress grid function
-    std::vector<mfem_mgis::GridFunction<parallel>> stress;
+    std::vector<mfem_mgis::GridFunction<parallel>*> stress;
     //! exported strain grid function
-    std::vector<mfem_mgis::GridFunction<parallel>> strain;
+    std::vector<mfem_mgis::GridFunction<parallel>*> strain;
     //!
     size_type cycle;
   };  // end of struct ParaviewExportResults
