@@ -9,6 +9,7 @@
 #define LIB_MFEMMGIS_PARAVIEWEXPORTRESULTS_IXX
 
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
+#include "mfem/fem/gridfunc.hpp"
 
 namespace mfem_mgis {
 
@@ -91,6 +92,28 @@ namespace mfem_mgis {
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
     this->displacement.SetFromTrueVector();
+
+    // Loop on materials
+    for (mfem_mgis::size_type sm = 0; sm != nb_materials; ++sm) {
+      // Loop over the different components
+      for (int si = 0; si < dim; si++) {
+	for (int sj = si; sj < dim; sj++) {
+	  int index = si+dim*(sj+dim*sm);
+
+	  // Set component to be computed in temporary objects stress_c[m] and strain_c[m]
+	  stress_c[sm]->SetComponent(si, sj);
+	  strain_c[sm]->SetComponent(si, sj);
+	  // Update displacement within temporary objects stress_c[m] and strain_c[m]
+	  stress_c[sm]->SetDisplacement(this->displacement);
+	  strain_c[sm]->SetDisplacement(this->displacement);
+	  // Perform the projection on stress[index] and strain[index]
+	  stress[index]->ProjectDiscCoefficient(*(stress_c[sm]), mfem::GridFunction::ARITHMETIC);
+	  strain[index]->ProjectDiscCoefficient(*(strain_c[sm]), mfem::GridFunction::ARITHMETIC);
+	}
+      }
+    }
+
+    // Export all registered fields
     this->exporter.Save();
     ++(this->cycle);
   }  // end of execute
