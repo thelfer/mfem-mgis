@@ -21,12 +21,9 @@ namespace mfem_mgis {
                  p.getFiniteElementSpace().GetMesh()),
         displacement(&p.getFiniteElementSpace()),
 	nb_materials(p.getFiniteElementSpace().GetMesh()->attributes.Size()),
-	mgis_materials(nb_materials),
 	dim(p.getFiniteElementSpace().GetMesh()->Dimension()),
 	sdim(dim*(dim+1)/2),
-        cycle(0),
-	stress(sdim*nb_materials),
-	strain(sdim*nb_materials) {
+        cycle(0) {
     auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
     this->displacement.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
     this->displacement.SetFromTrueVector();
@@ -52,33 +49,38 @@ namespace mfem_mgis {
     // stress_c and strain_c will be used for temporary calculations for each material
     stress_c.resize(nb_materials);
     strain_c.resize(nb_materials);
-
+    mgis_materials.resize(nb_materials);
+    stress.resize(sdim*nb_materials);
+    strain.resize(sdim*nb_materials);   
     // Loop on materials
     for (mfem_mgis::size_type sm = 0; sm != nb_materials; ++sm) {
       // pointer on the considered material
-      mgis_materials[sm] = &p.getMaterial(sm);
+      mgis_materials[sm] = &p.getMaterial(sm+1);
       stress_c[sm]= new StressCoefficient(mgis_materials[sm]);
       strain_c[sm]= new StrainCoefficient(mgis_materials[sm]);
 
       // Loop over the different components
+      int loc_index = 0;
       for (int si = 0; si < dim; si++) {
-	for (int sj = si; sj < dim; sj++) {
+	for (int sj = si; sj < dim; sj++, loc_index++) {
 	  std::string letters = "xyz";
-	  int index = si+dim*(sj+dim*sm);
+	  int index = sdim*sm + loc_index;
 	  // Build a name for stress diagnostic
 	  std::string stressname = "S" + letters.substr(si,1) +
-	    letters.substr(sj,1) + "_mat_" + std::to_string(sm);
+	    letters.substr(sj,1) + "_mat_" + std::to_string(sm+1);
 	  // Build a name for strain diagnostic
 	  std::string strainname = (si != sj ? "G" : "E") +
 	    letters.substr(si,1) + letters.substr(sj,1) +
-	    "_mat_" + std::to_string(sm);
+	    "_mat_" + std::to_string(sm+1);
+	  // Build GridFunction that will store the diagnostic
+	  std::cout << "index " << index << " max " <<  sdim*nb_materials << std::endl;
+
+	  stress[index] = new mfem_mgis::GridFunction<parallel>(scalarfield);
+	  strain[index] = new mfem_mgis::GridFunction<parallel>(scalarfield);
 	  // Declare strain and stress associated with material mat
 	  // and component (si,sj)
 	  this->exporter.RegisterField(stressname,stress[index]);
-	  this->exporter.RegisterField(strainname,stress[index]);
-	  // Build GridFunction that will store the diagnostic
-	  stress[index] = new mfem_mgis::GridFunction<parallel>(scalarfield);
-	  strain[index] = new mfem_mgis::GridFunction<parallel>(scalarfield);
+	  this->exporter.RegisterField(strainname,strain[index]);
 	}
       }
     }
@@ -96,9 +98,10 @@ namespace mfem_mgis {
     // Loop on materials
     for (mfem_mgis::size_type sm = 0; sm != nb_materials; ++sm) {
       // Loop over the different components
+      int loc_index = 0;
       for (int si = 0; si < dim; si++) {
-	for (int sj = si; sj < dim; sj++) {
-	  int index = si+dim*(sj+dim*sm);
+	for (int sj = si; sj < dim; sj++, loc_index++) {
+	  int index = sdim*sm + loc_index;
 
 	  // Set component to be computed in temporary objects stress_c[m] and strain_c[m]
 	  stress_c[sm]->SetComponent(si, sj);
@@ -106,9 +109,9 @@ namespace mfem_mgis {
 	  // Update displacement within temporary objects stress_c[m] and strain_c[m]
 	  stress_c[sm]->SetDisplacement(this->displacement);
 	  strain_c[sm]->SetDisplacement(this->displacement);
-	  // Perform the projection on stress[index] and strain[index]
-	  stress[index]->ProjectDiscCoefficient(*(stress_c[sm]), mfem::GridFunction::ARITHMETIC);
-	  strain[index]->ProjectDiscCoefficient(*(strain_c[sm]), mfem::GridFunction::ARITHMETIC);
+//	  // Perform the projection on stress[index] and strain[index]
+//	  stress[index]->ProjectDiscCoefficient(*(stress_c[sm]), mfem::GridFunction::ARITHMETIC);
+//	  strain[index]->ProjectDiscCoefficient(*(strain_c[sm]), mfem::GridFunction::ARITHMETIC);
 	}
       }
     }
