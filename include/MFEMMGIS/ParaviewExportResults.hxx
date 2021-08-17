@@ -44,7 +44,7 @@ namespace mfem_mgis {
       void SetComponent(int i, int j) { si = i; sj = j; }
       double Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip) {
 	MFEM_ASSERT(u != NULL, "displacement field is not set");
-	
+	return 0.;
 	//TODO:      double L = lambda.Eval(T, ip);
 	//TODO:      double M = mu.Eval(T, ip);
 	//TODO:      u->GetVectorGradient(T, grad);
@@ -68,7 +68,7 @@ namespace mfem_mgis {
       double Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip)
       {
 	MFEM_ASSERT(u != NULL, "displacement field is not set");
-	
+	return 0.;
 	//TODO:      u->GetVectorGradient(T, grad);
 	//TODO:      return (grad(si,sj)+grad(sj,si));
       }
@@ -98,21 +98,21 @@ namespace mfem_mgis {
 
    private:
     const int dim, sdim;
-    //! \brief paraview exporter
+    //! \brief Paraview exporter
     mfem::ParaViewDataCollection exporter;
-    //! exported displacement grid function
+    //! \brief Exported displacement grid function
     mfem_mgis::GridFunction<parallel> displacement;
-    //! list of materials
+    //!  \brief List of materials
     std::vector<mfem_mgis::Material*> mgis_materials;
-    //! nb_material
+    //!  \brief Number of materials
     int nb_materials;
-    //! Temporary storage for stress calculation
+    //!  \brief Temporary data structure for stress calculation
     std::vector<StressCoefficient*> stress_c;
-    //! Temporary storage for strain calculation
+    //!  \brief Temporary data structure for strain calculation
     std::vector<StrainCoefficient*> strain_c;
-    //! exported stress grid function
+    //!  \brief Exported local stress grid functions
     std::vector<mfem_mgis::GridFunction<parallel>*> stress;
-    //! exported strain grid function
+    //! \brief Exported local strain grid functions
     std::vector<mfem_mgis::GridFunction<parallel>*> strain;
     //!
     size_type cycle;

@@ -46,10 +46,12 @@ namespace mfem_mgis {
     } else {
       scalarfield = new mfem_mgis::FiniteElementSpace<parallel>(fes->GetMesh(),fec,1,ordering);
     }
-    // stress_c and strain_c will be used for temporary calculations for each material
+    // Data structure stress_c and strain_c will be used for temporary calculations for each material
     stress_c.resize(nb_materials);
     strain_c.resize(nb_materials);
     mgis_materials.resize(nb_materials);
+    // The stress and strain vectors contain exported scalar fields,
+    // there are sdim*nb_materials of such scalar fields
     stress.resize(sdim*nb_materials);
     strain.resize(sdim*nb_materials);   
     // Loop on materials
@@ -73,8 +75,6 @@ namespace mfem_mgis {
 	    letters.substr(si,1) + letters.substr(sj,1) +
 	    "_mat_" + std::to_string(sm+1);
 	  // Build GridFunction that will store the diagnostic
-	  std::cout << "index " << index << " max " <<  sdim*nb_materials << std::endl;
-
 	  stress[index] = new mfem_mgis::GridFunction<parallel>(scalarfield);
 	  strain[index] = new mfem_mgis::GridFunction<parallel>(scalarfield);
 	  // Declare strain and stress associated with material mat
@@ -109,9 +109,9 @@ namespace mfem_mgis {
 	  // Update displacement within temporary objects stress_c[m] and strain_c[m]
 	  stress_c[sm]->SetDisplacement(this->displacement);
 	  strain_c[sm]->SetDisplacement(this->displacement);
-//	  // Perform the projection on stress[index] and strain[index]
-//	  stress[index]->ProjectDiscCoefficient(*(stress_c[sm]), mfem::GridFunction::ARITHMETIC);
-//	  strain[index]->ProjectDiscCoefficient(*(strain_c[sm]), mfem::GridFunction::ARITHMETIC);
+	  // Perform the projection on stress[index] and strain[index]
+	  stress[index]->ProjectDiscCoefficient(*(stress_c[sm]), mfem::GridFunction::ARITHMETIC);
+	  strain[index]->ProjectDiscCoefficient(*(strain_c[sm]), mfem::GridFunction::ARITHMETIC);
 	}
       }
     }
