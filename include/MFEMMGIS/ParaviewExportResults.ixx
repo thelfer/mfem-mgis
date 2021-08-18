@@ -22,6 +22,7 @@ namespace mfem_mgis {
         cycle(0) {
     auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
     this->result.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
+    // ??? does not work if not called. Don't know why...
     this->result.SetFromTrueVector();
     if (contains(params, "OutputFieldName")) {
       this->exporter.RegisterField(get<std::string>(params, "OutputFieldName"),
@@ -38,6 +39,7 @@ namespace mfem_mgis {
       const real dt) {
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
+    // ??? does not work if not called. Don't know why...
     this->result.SetFromTrueVector();
     this->exporter.Save();
     ++(this->cycle);

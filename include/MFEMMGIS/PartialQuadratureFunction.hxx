@@ -109,7 +109,8 @@ namespace mfem_mgis {
      */
     mgis::span<const real> getIntegrationPointValues(const size_type,
                                                      const size_type) const;
-
+    //! \return the number of components
+    size_type getNumberOfComponents() const;
     //! \brief destructor
     ~PartialQuadratureFunction();
 

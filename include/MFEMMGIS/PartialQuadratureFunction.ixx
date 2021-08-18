@@ -53,6 +53,10 @@ namespace mfem_mgis {
         this->values.data() + this->getDataOffset(o), this->data_size);
   }  // end of getIntegrationPointValues
 
+  inline size_type PartialQuadratureFunction::getNumberOfComponents() const {
+    return this->data_size;
+  } // end of PartialQuadratureFunction::getNumberOfComponents
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_IXX */

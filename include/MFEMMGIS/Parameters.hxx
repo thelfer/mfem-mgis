@@ -96,6 +96,7 @@ namespace mfem_mgis {
     ~Parameters();
   };  // end of struct Parameters
 
+
   /*!
    * \param[in] parameters: parameters
    * \param[in] names: list of valid parameters names

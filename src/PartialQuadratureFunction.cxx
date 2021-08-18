@@ -35,12 +35,12 @@ namespace mfem_mgis {
       const size_type db,
       const size_type ds)
       : qspace(s), values(v), data_begin(db) {
-    if (db < 0) {
+    if (this->data_begin < 0) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "start of the data");
     }
-    if (ds <= 0) {
+    if (ds < 0) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "data size");
@@ -53,15 +53,15 @@ namespace mfem_mgis {
           "values size");
     }
     this->data_stride = d.quot;
-    if (db > this->data_stride) {
+    if (this->data_begin >= this->data_stride) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "start of the data");
     }
     if (ds == std::numeric_limits<size_type>::max()) {
-      this->data_size = this->data_stride;
+      this->data_size = this->data_stride - this->data_begin;
     } else {
-      if (db + ds >= this->data_stride) {
+      if (this->data_begin + ds > this->data_stride) {
         raise(
             "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
             "data range is outside the stride size");
