@@ -116,24 +116,31 @@ namespace mfem_mgis {
       : exporter(get<std::string>(params, "OutputFileName"),
                  p.getFiniteElementSpace().GetMesh()),
         cycle(0) {
+    checkParameters(params, {"OutputFileName", "Materials", "Results"});
+    //
     if (contains(params, "Materials")) {
-      for (const auto& mid : get<std::vector<Parameter>>(params, "Materials")) {
-        this->materials_identifiers.push_back(get<size_type>(mid));
+      if (is<size_type>(params, "Materials")) {
+        this->materials_identifiers.push_back(
+            get<size_type>(params, "Materials"));
+      } else {
+        for (const auto& mid :
+             get<std::vector<Parameter>>(params, "Materials")) {
+          this->materials_identifiers.push_back(get<size_type>(mid));
+        }
       }
     } else {
       this->materials_identifiers = p.getMaterialIdentifiers();
     }
-    if (!contains(params, "ExportedResults")) {
+    if (!contains(params, "Results")) {
       raise(
           "ParaviewExportIntegrationPointResultsAtNodes::"
           "ParaviewExportIntegrationPointResultsAtNodes: "
           "no results to export declared");
     }
-    // total number of components of the exported field
-    for (const auto& rn :
-         get<std::vector<Parameter>>(params, "ExportedResults")) {
+    // 
+    auto add_result = [this, &p](const std::string& rn) {
       auto r = IntegrationPointResult{};
-      r.name = get<std::string>(rn);
+      r.name = rn;
       this->getResultDescription(r, p);
       // creating the finite element space that will support the result grid
       // function
@@ -153,6 +160,13 @@ namespace mfem_mgis {
       this->exporter.RegisterField(r.name, r.f.get());
       // saving
       this->results.push_back(std::move(r));
+    };
+    if (is<std::string>(params, "Results")) {
+      add_result(get<std::string>(params, "Results"));
+    } else {
+      for (const auto& rn : get<std::vector<Parameter>>(params, "Results")) {
+        add_result(get<std::string>(rn));
+      }
     }
   }  // end of ParaviewExportIntegrationPointResultsAtNodes
 
@@ -167,9 +181,6 @@ namespace mfem_mgis {
     for (auto& r : this->results) {
       this->updateResultGridFunction(r, p);
     }
-
-    // ??? does not work if not called. Don't know why...
-    //     this->result.SetFromTrueVector();
     this->exporter.Save();
     ++(this->cycle);
   }  // end of execute

@@ -96,8 +96,7 @@ namespace mfem_mgis {
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      this->sequential_mesh =
-        loadMeshSequential(mesh_file, 0, 1, true);
+      this->sequential_mesh = loadMeshSequential(mesh_file, 0, 1, true);
       for (size_type i = 0; i < nrefinement; ++i) {
         this->sequential_mesh->UniformRefinement();
       }
@@ -235,32 +234,31 @@ namespace mfem_mgis {
     return fed.getFiniteElementSpace<false>().GetTrueVSize();
   }  // end of getTrueVSize
 
-  std::shared_ptr<Mesh<false>>
-  loadMeshSequential(
-                     const std::string& mesh_name,
-                     int generate_edges,
-                     int refine,
-                     bool fix_orientation) {
+  std::shared_ptr<Mesh<false>> loadMeshSequential(const std::string& mesh_name,
+                                                  int generate_edges,
+                                                  int refine,
+                                                  bool fix_orientation) {
 #ifdef MFEM_USE_MED
     auto extension = getFileExt(mesh_name);
     if (extension == "med") {
       auto medmesh = std::make_shared<Mesh<false>>();
       std::string per_name = mesh_name;
-      per_name.replace (per_name.length()-4,4,".per");
+      per_name.replace(per_name.length() - 4, 4, ".per");
       std::ifstream per_file(per_name.c_str());
       if (per_file.good()) {
         medmesh->ImportMED(mesh_name, 0, per_name);
       } else {
         medmesh->ImportMED(mesh_name, 0, "");
-      } 
-      //medmesh->CheckElementOrientation(fix_orientation);
-      //medmesh->CheckBdrElementOrientation(fix_orientation);
+      }
+      // medmesh->CheckElementOrientation(fix_orientation);
+      // medmesh->CheckBdrElementOrientation(fix_orientation);
       return medmesh;
     }
-#endif  /* MFEM_USE_MED */
-    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(), generate_edges, refine);
+#endif /* MFEM_USE_MED */
+    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(),
+                                               generate_edges, refine);
     return smesh;
-    
+
   }  // end of loadMeshSequential
-  
+
 }  // end of namespace mfem_mgis
