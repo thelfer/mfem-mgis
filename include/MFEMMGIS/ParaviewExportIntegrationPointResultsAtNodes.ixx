@@ -22,6 +22,10 @@ namespace mfem_mgis {
       // creating the partial functions per materials
       for (const auto& mid : mids) {
         auto& m = p.getMaterial(mid);
+        if (m.n == 0) {
+          // empty materials may exists in parallel
+          continue;
+        }
         if (r.category == IntegrationPointResult::GRADIENTS) {
           this->functions.insert({mid, getGradient(m, r.name)});
         } else if (r.category == IntegrationPointResult::THERMODYNAMIC_FORCES) {

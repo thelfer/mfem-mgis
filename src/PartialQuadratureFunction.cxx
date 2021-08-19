@@ -17,16 +17,15 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s, const size_type nv)
-      : qspace(s), data_stride(data_size), data_begin(0), data_size(nv) {
+      : qspace(s), data_stride(nv), data_begin(0), data_size(nv) {
     if (this->data_size <= 0) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "values size");
     }
-    this->values_storage.resize(this->qspace->getNumberOfIntegrationPoints() *
-                                this->data_size);
-    this->values = mgis::span<real>(this->values_storage.data(),
-                                    this->values_storage.size());
+    this->local_values_storage.resize(
+        this->qspace->getNumberOfIntegrationPoints() * this->data_size);
+    this->values = mgis::span<real>(this->local_values_storage);
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 
   PartialQuadratureFunction::PartialQuadratureFunction(
@@ -35,6 +34,13 @@ namespace mfem_mgis {
       const size_type db,
       const size_type ds)
       : qspace(s), values(v), data_begin(db) {
+    if (this->qspace->getNumberOfIntegrationPoints() == 0) {
+      // this may happen due to partionning in parallel
+      this->data_begin = 0;
+      this->data_stride = 0;
+      this->data_size = 0;
+      return;
+    }
     if (this->data_begin < 0) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "

@@ -124,9 +124,11 @@ namespace mfem_mgis {
     std::shared_ptr<const PartialQuadratureSpace> qspace;
     //! \brief underlying values
     mgis::span<real> values;
-    //! \brief storage for the values when the partial function holds the
-    //! values
-    std::vector<real> values_storage;
+    /*!
+     * \brief storage for the values when the partial function holds the
+     * values
+     */
+    std::vector<real> local_values_storage;
     //! \brief data stride
     size_type data_stride;
     //! \brief begin of the data
