@@ -109,7 +109,8 @@ namespace mfem_mgis {
      */
     mgis::span<const real> getIntegrationPointValues(const size_type,
                                                      const size_type) const;
-
+    //! \return the number of components
+    size_type getNumberOfComponents() const;
     //! \brief destructor
     ~PartialQuadratureFunction();
 
@@ -123,9 +124,11 @@ namespace mfem_mgis {
     std::shared_ptr<const PartialQuadratureSpace> qspace;
     //! \brief underlying values
     mgis::span<real> values;
-    //! \brief storage for the values when the partial function holds the
-    //! values
-    std::vector<real> values_storage;
+    /*!
+     * \brief storage for the values when the partial function holds the
+     * values
+     */
+    std::vector<real> local_values_storage;
     //! \brief data stride
     size_type data_stride;
     //! \brief begin of the data

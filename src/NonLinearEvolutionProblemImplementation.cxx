@@ -118,13 +118,23 @@ namespace mfem_mgis {
     }
   }  // end of executePostProcessings
 
-  const FiniteElementSpace<true>&
-  NonLinearEvolutionProblemImplementation<true>::getFiniteElementSpace() const {
-    return this->fe_discretization->getFiniteElementSpace<true>();
-  }  // end of getFiniteElementSpace
+  Mesh<true>&
+  NonLinearEvolutionProblemImplementation<true>::getMesh() {
+    return this->fe_discretization->getMesh<true>();
+  }  // end of getMesh
+
+  const Mesh<true>&
+  NonLinearEvolutionProblemImplementation<true>::getMesh() const {
+    return this->fe_discretization->getMesh<true>();
+  }  // end of getMesh
 
   FiniteElementSpace<true>&
   NonLinearEvolutionProblemImplementation<true>::getFiniteElementSpace() {
+    return this->fe_discretization->getFiniteElementSpace<true>();
+  }  // end of getFiniteElementSpace
+
+  const FiniteElementSpace<true>&
+  NonLinearEvolutionProblemImplementation<true>::getFiniteElementSpace() const {
     return this->fe_discretization->getFiniteElementSpace<true>();
   }  // end of getFiniteElementSpace
 
@@ -206,6 +216,16 @@ namespace mfem_mgis {
       p->execute(*this, t, dt);
     }
   }  // end of executePostProcessings
+
+  Mesh<false>&
+  NonLinearEvolutionProblemImplementation<false>::getMesh() {
+    return this->fe_discretization->getMesh<false>();
+  }  // end of getMesh
+
+  const Mesh<false>&
+  NonLinearEvolutionProblemImplementation<false>::getMesh() const {
+    return this->fe_discretization->getMesh<false>();
+  }  // end of getMesh
 
   const FiniteElementSpace<false>& NonLinearEvolutionProblemImplementation<
       false>::getFiniteElementSpace() const {

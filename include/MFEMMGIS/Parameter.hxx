@@ -23,7 +23,7 @@ namespace mfem_mgis {
   //! \brief a simple alias
   using ParameterVariant = std::variant<std::monostate,
                                         bool,
-                                        int,
+                                        size_type,
                                         real,
                                         std::string,
                                         std::vector<Parameter>,

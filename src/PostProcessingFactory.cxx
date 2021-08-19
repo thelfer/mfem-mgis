@@ -9,6 +9,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/ParaviewExportResults.hxx"
+#include "MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx"
 #include "MFEMMGIS/MeanThermodynamicForces.hxx"
 #include "MFEMMGIS/ComputeResultantForceOnBoundary.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
@@ -55,6 +56,13 @@ namespace mfem_mgis {
               [](NonLinearEvolutionProblemImplementation<true>& p,
                  const Parameters& params) {
                 return std::make_unique<ParaviewExportResults<true>>(p, params);
+              });
+    this->add("ParaviewExportIntegrationPointResultsAtNodes",
+              [](NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) {
+                return std::make_unique<
+                    ParaviewExportIntegrationPointResultsAtNodes<true>>(p,
+                                                                        params);
               });
     this->add("ComputeResultantForceOnBoundary",
               [](NonLinearEvolutionProblemImplementation<true>& p,
@@ -113,6 +121,13 @@ namespace mfem_mgis {
                  const Parameters& params) {
                 return std::make_unique<ParaviewExportResults<false>>(p,
                                                                       params);
+              });
+    this->add("ParaviewExportIntegrationPointResultsAtNodes",
+              [](NonLinearEvolutionProblemImplementation<false>& p,
+                 const Parameters& params) {
+                return std::make_unique<
+                    ParaviewExportIntegrationPointResultsAtNodes<false>>(
+                    p, params);
               });
     this->add("ComputeResultantForceOnBoundary",
               [](NonLinearEvolutionProblemImplementation<false>& p,

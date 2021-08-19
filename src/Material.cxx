@@ -191,7 +191,7 @@ namespace mfem_mgis {
     return m.s0;
   }
 
-  static PartialQuadratureFunction buidPartialQuadratureFunction(
+  static PartialQuadratureFunction buildPartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> qs,
       mgis::span<mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
@@ -201,12 +201,12 @@ namespace mfem_mgis {
     const auto s =
         getVariableSize(mgis::behaviour::getVariable(variables, n), h);
     return PartialQuadratureFunction(qs, values, o, s);
-  }  // end of buidPartialQuadratureFunction
+  }  // end of buildPartialQuadratureFunction
 
   PartialQuadratureFunction getGradient(Material &m,
                                         const mgis::string_view n,
                                         const Material::StateSelection s) {
-    return buidPartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
+    return buildPartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
                                          getStateManager(m, s).gradients,
                                          m.b.gradients, n, m.b.hypothesis);
   }  // end of getGradient
@@ -215,7 +215,7 @@ namespace mfem_mgis {
       Material &m,
       const mgis::string_view n,
       const Material::StateSelection s) {
-    return buidPartialQuadratureFunction(
+    return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
         getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
         m.b.hypothesis);
@@ -223,7 +223,7 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction getInternalStateVariable(
       Material &m, const mgis::string_view n, const Material::StateSelection s) {
-    return buidPartialQuadratureFunction(
+    return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
         getStateManager(m, s).internal_state_variables, m.b.isvs, n,
         m.b.hypothesis);

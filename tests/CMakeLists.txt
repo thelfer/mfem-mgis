@@ -70,6 +70,36 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_uniaxial_tensile_test(Plasticity EquivalentPlasticStrain)
   add_uniaxial_tensile_test(Mazars Damage)
   add_uniaxial_tensile_test(SaintVenantKirchhoffElasticity EquivalentStrain)
+
+  add_executable(PartialQuadratureFunctionTest
+    EXCLUDE_FROM_ALL
+    PartialQuadratureFunctionTest.cxx)
+  target_include_directories(PartialQuadratureFunctionTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(PartialQuadratureFunctionTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check PartialQuadratureFunctionTest)
+  
+  function(add_partial_quadrature_function_test behaviour internal_state_variable)
+    set(test "PartialQuadratureFunctionTest-${behaviour}")
+    add_test(NAME ${test}
+     COMMAND PartialQuadratureFunctionTest
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--behaviour" "${behaviour}"
+     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
+     "--internal-state-variable" "${internal_state_variable}")
+    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest)
+    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+  endfunction(add_partial_quadrature_function_test)
+  
+  add_partial_quadrature_function_test(OrthotropicElasticity EquivalentStrain)
   
   add_executable(StationaryNonLinearHeatTransferTest
     EXCLUDE_FROM_ALL

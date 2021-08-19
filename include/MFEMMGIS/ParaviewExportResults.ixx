@@ -22,7 +22,6 @@ namespace mfem_mgis {
         cycle(0) {
     auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
     this->result.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
-    this->result.SetFromTrueVector();
     if (contains(params, "OutputFieldName")) {
       this->exporter.RegisterField(get<std::string>(params, "OutputFieldName"),
                                    &(this->result));
@@ -38,6 +37,11 @@ namespace mfem_mgis {
       const real dt) {
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
+    // SetFromTrueVector needed here in MFEM for at least two rationales:
+    //    - it applies prolongation matrix (Non-Conforming mesh, BCs, AMR ...)
+    //      to set the values of some unkwown dofs deduced from known dofs
+    //    - exchange data between processes in order to retrieve information 
+    //      needed to perform the previous prolongation step
     this->result.SetFromTrueVector();
     this->exporter.Save();
     ++(this->cycle);

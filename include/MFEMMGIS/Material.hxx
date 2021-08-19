@@ -115,7 +115,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT PartialQuadratureFunction
   getGradient(Material &,
-              const mgis::string_view &,
+              const mgis::string_view,
               const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function for the given thermodynamic force
@@ -125,7 +125,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT PartialQuadratureFunction getThermodynamicForce(
       Material &,
-      const mgis::string_view &,
+      const mgis::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function for the given state variable
@@ -135,7 +135,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT PartialQuadratureFunction getInternalStateVariable(
       Material &,
-      const mgis::string_view &,
+      const mgis::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
 
 }  // end of namespace mfem_mgis

@@ -102,6 +102,16 @@ int main(int argc, char** argv) {
         "ParaviewExportResults",
         {{"OutputFileName",
           "UniaxialTensileTestOutput-" + std::string(parameters.behaviour)}});
+    const auto& b = problem.getMaterial(1).b;
+    if((b.btype==mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR)&&
+       (b.kinematic==mgis::behaviour::Behaviour::SMALLSTRAINKINEMATIC)){
+      problem.addPostProcessing(
+				"ParaviewExportIntegrationPointResultsAtNodes",
+				{{"OutputFileName", "UniaxialTensileTestIntegrationPointOutput-" +
+				  std::string(parameters.behaviour)},
+				 {"Materials", {1}},
+				 {"Results", {"Strain"}}});
+    }
     // solving the problem in 100 time steps
     auto r = mfem_mgis::unit_tests::solve(problem, parameters, 0, 1, 100);
     // save the results curve

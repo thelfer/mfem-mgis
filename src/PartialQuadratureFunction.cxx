@@ -17,16 +17,15 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s, const size_type nv)
-      : qspace(s), data_stride(data_size), data_begin(0), data_size(nv) {
+      : qspace(s), data_stride(nv), data_begin(0), data_size(nv) {
     if (this->data_size <= 0) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "values size");
     }
-    this->values_storage.resize(this->qspace->getNumberOfIntegrationPoints() *
-                                this->data_size);
-    this->values = mgis::span<real>(this->values_storage.data(),
-                                    this->values_storage.size());
+    this->local_values_storage.resize(
+        this->qspace->getNumberOfIntegrationPoints() * this->data_size);
+    this->values = mgis::span<real>(this->local_values_storage);
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 
   PartialQuadratureFunction::PartialQuadratureFunction(
@@ -35,12 +34,19 @@ namespace mfem_mgis {
       const size_type db,
       const size_type ds)
       : qspace(s), values(v), data_begin(db) {
-    if (db < 0) {
+    if (this->qspace->getNumberOfIntegrationPoints() == 0) {
+      // this may happen due to partionning in parallel
+      this->data_begin = 0;
+      this->data_stride = 0;
+      this->data_size = 0;
+      return;
+    }
+    if (this->data_begin < 0) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "start of the data");
     }
-    if (ds <= 0) {
+    if (ds < 0) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "data size");
@@ -53,15 +59,15 @@ namespace mfem_mgis {
           "values size");
     }
     this->data_stride = d.quot;
-    if (db > this->data_stride) {
+    if (this->data_begin >= this->data_stride) {
       raise(
           "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
           "start of the data");
     }
     if (ds == std::numeric_limits<size_type>::max()) {
-      this->data_size = this->data_stride;
+      this->data_size = this->data_stride - this->data_begin;
     } else {
-      if (db + ds >= this->data_stride) {
+      if (this->data_begin + ds > this->data_stride) {
         raise(
             "PartialQuadratureFunction::PartialQuadratureFunction: invalid "
             "data range is outside the stride size");

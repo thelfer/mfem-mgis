@@ -48,6 +48,10 @@ namespace mfem_mgis {
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
         const Parameters&);
+    //! \return the mesh
+    Mesh<true>& getMesh();
+    //! \return the mesh
+    const Mesh<true>& getMesh() const;
     //! \return the finite element space
     FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
@@ -95,6 +99,10 @@ namespace mfem_mgis {
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
         const Parameters&);
+    //! \return the mesh
+    Mesh<false>& getMesh();
+    //! \return the mesh
+    const Mesh<false>& getMesh() const;
     //! \return the finite element space
     FiniteElementSpace<false>& getFiniteElementSpace();
     //! \return the finite element space
