@@ -22,10 +22,6 @@ namespace mfem_mgis {
       // creating the partial functions per materials
       for (const auto& mid : mids) {
         auto& m = p.getMaterial(mid);
-        if (m.n == 0) {
-          // empty materials may exists in parallel
-          continue;
-        }
         if (r.category == IntegrationPointResult::GRADIENTS) {
           this->functions.insert({mid, getGradient(m, r.name)});
         } else if (r.category == IntegrationPointResult::THERMODYNAMIC_FORCES) {
@@ -67,7 +63,7 @@ namespace mfem_mgis {
       const auto mid = tr.Attribute;
       const auto p = this->functions.find(mid);
       if (p == this->functions.end()) {
-        return 0;
+        return 0.;
       }
       return p->second.getIntegrationPointValue(tr.ElementNo, i.index);
     }  // end of Eval
