@@ -149,15 +149,9 @@ namespace mfem_mgis {
       // creating the finite element space that will support the result grid
       // function
       auto fes = p.getFiniteElementSpace();
-      if constexpr (parallel) {
-        r.fespace = std::make_unique<FiniteElementSpace<parallel>>(
-            fes.GetParMesh(), fes.FEColl(), r.number_of_components,
-            fes.GetOrdering());
-      } else {
-        r.fespace = std::make_unique<FiniteElementSpace<parallel>>(
-            fes.GetMesh(), fes.FEColl(), r.number_of_components,
-            fes.GetOrdering());
-      }
+      r.fespace = std::make_unique<FiniteElementSpace<parallel>>(
+          &(p.getMesh()), fes.FEColl(), r.number_of_components,
+          fes.GetOrdering());
       // grid function
       r.f = std::make_unique<GridFunction<parallel>>(r.fespace.get());
       // registring
