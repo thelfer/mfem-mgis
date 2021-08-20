@@ -32,6 +32,9 @@ namespace mfem {
   class Solver;
   class IterativeSolver;
   class IntegrationPoint;
+  //
+  template <class>
+  class Array;
 
 #ifdef MFEM_USE_PETSC
   class PetscNonlinearSolver;

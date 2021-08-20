@@ -8,12 +8,16 @@
 #ifndef LIB_MFEMMGIS_ABSTRACTNONLINEAREVOLUTIONPROBLEM_HXX
 #define LIB_MFEMMGIS_ABSTRACTNONLINEAREVOLUTIONPROBLEM_HXX
 
+#include <map>
+#include <string>
 #include <memory>
 #include <functional>
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct Parameter;
   // forward declaration
   struct Parameters;
   // forward declaration
@@ -35,6 +39,9 @@ namespace mfem_mgis {
     static const char *const SolverMaximumNumberOfIterations;
     //! \return the underlying finite element discretization
     virtual FiniteElementDiscretization &getFiniteElementDiscretization() = 0;
+    //! \return the underlying finite element discretization
+    virtual const FiniteElementDiscretization &getFiniteElementDiscretization()
+        const = 0;
     //! \return the underlying finite element discretization
     virtual std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() = 0;
@@ -83,10 +90,56 @@ namespace mfem_mgis {
                                         const std::string &,
                                         const std::string &) = 0;
     /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    virtual void setMaterialsNames(
+        const std::map<size_type, std::string> &) = 0;
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    virtual void setBoundariesNames(
+        const std::map<size_type, std::string> &) = 0;
+    /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
      */
-    virtual std::vector<size_type> getMaterialIdentifiers() const = 0;
+    virtual std::vector<size_type> getAssignedMaterialsIdentifiers() const = 0;
+    /*!
+     * \return the list of materials identifiers described by the given
+     * parameter.
+     *
+     * \note The parameter may hold:
+     *
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     *
+     * Integers are directly intepreted as materials identifiers.
+     *
+     * Strings are intepreted as regular expressions which allows the selection
+     * of materials by names.
+     */
+    virtual std::vector<size_type> getMaterialsIdentifiers(
+        const Parameter &) const = 0;
+    /*!
+     * \return the list of boundaries identifiers described by the given
+     * parameter.
+     *
+     * \note The parameter may hold:
+     *
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     *
+     * Integers are directly intepreted as boundaries identifiers.
+     *
+     * Strings are intepreted as regular expressions which allows the selection
+     * of boundaries by names.
+     */
+    virtual std::vector<size_type> getBoundariesIdentifiers(
+        const Parameter &) const = 0;
     /*!
      * \return the material with the given id
      * \param[in] m: material id

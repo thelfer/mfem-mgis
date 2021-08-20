@@ -74,6 +74,11 @@ namespace mfem_mgis {
     return this->pimpl->getFiniteElementDiscretization();
   }  // end of getFiniteElementDiscretization
 
+  const FiniteElementDiscretization&
+  NonLinearEvolutionProblem::getFiniteElementDiscretization() const {
+    return this->pimpl->getFiniteElementDiscretization();
+  }  // end of getFiniteElementDiscretization
+
   std::shared_ptr<FiniteElementDiscretization>
   NonLinearEvolutionProblem::getFiniteElementDiscretizationPointer() {
     return this->pimpl->getFiniteElementDiscretizationPointer();
@@ -113,10 +118,30 @@ namespace mfem_mgis {
     return this->pimpl->solve(t, dt);
   }  // end of solve
 
-  std::vector<size_type> NonLinearEvolutionProblem::getMaterialIdentifiers()
+  void NonLinearEvolutionProblem::setMaterialsNames(
+      const std::map<size_type, std::string>& ids) {
+    this->pimpl->setMaterialsNames(ids);
+  }
+
+  void NonLinearEvolutionProblem::setBoundariesNames(
+      const std::map<size_type, std::string>& ids) {
+    this->pimpl->setBoundariesNames(ids);
+  }
+
+  std::vector<size_type> NonLinearEvolutionProblem::getMaterialsIdentifiers(
+      const Parameter& p) const {
+    return this->pimpl->getMaterialsIdentifiers(p);
+  }  // end of getMaterialsIdentifiers
+
+  std::vector<size_type> NonLinearEvolutionProblem::getBoundariesIdentifiers(
+      const Parameter& p) const {
+    return this->pimpl->getBoundariesIdentifiers(p);
+  }  // end of getBoundariesIdentifiers
+
+  std::vector<size_type> NonLinearEvolutionProblem::getAssignedMaterialsIdentifiers()
       const {
-    return this->pimpl->getMaterialIdentifiers();
-  }  // end of getMaterialIdentifiers
+    return this->pimpl->getAssignedMaterialsIdentifiers();
+  }  // end of getAssignedMaterialsIdentifiers
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {

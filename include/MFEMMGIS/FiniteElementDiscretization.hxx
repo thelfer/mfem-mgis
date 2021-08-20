@@ -8,12 +8,15 @@
 #ifndef LIB_MFEM_MGIS_FINITEELEMENTDISCRETIZATION_HXX
 #define LIB_MFEM_MGIS_FINITEELEMENTDISCRETIZATION_HXX
 
+#include <map>
+#include <string>
 #include <memory>
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
 
   // forward declaration
+  struct Parameter;
   struct Parameters;
 
   /*!
@@ -63,7 +66,8 @@ namespace mfem_mgis {
      * - `UnknownsSize` (int): number of components of the unknows
      * - `NumberOfUniformRefinements` (int): number of uniform refinements
      *   applied to the mesh
-     * - `GeneralVerbosityLevel` (int): with large positive numbers, expect more verbosity
+     * - `GeneralVerbosityLevel` (int): with large positive numbers, expect more
+     * verbosity
      */
     FiniteElementDiscretization(const Parameters&);
     /*!
@@ -106,6 +110,52 @@ namespace mfem_mgis {
     FiniteElementDiscretization(std::shared_ptr<Mesh<false>>,
                                 std::shared_ptr<const FiniteElementCollection>,
                                 std::unique_ptr<FiniteElementSpace<false>>);
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    void setMaterialsNames(const std::map<size_type, std::string>&);
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    void setBoundariesNames(const std::map<size_type, std::string>&);
+    /*!
+     * \return the list of materials identifiers described by the given
+     * parameter.
+     *
+     * \note The parameter may hold:
+     *
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     *
+     * Integers are directly intepreted as materials identifiers.
+     *
+     * Strings are intepreted as regular expressions which allows the selection
+     * of materials by names.
+     */
+    std::vector<size_type> getMaterialsIdentifiers(const Parameter&) const;
+    /*!
+     * \return the list of boundaries identifiers described by the given
+     * parameter.
+     *
+     * \note The parameter may hold:
+     *
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     *
+     * Integers are directly intepreted as boundaries identifiers.
+     *
+     * Strings are intepreted as regular expressions which allows the selection
+     * of boundaries by names.
+     */
+    std::vector<size_type> getBoundariesIdentifiers(const Parameter&) const;
+    /*!
+     * \brief set material names
+     * \param[in] m: material names
+     */
     //! \return the mesh
     template <bool parallel>
     Mesh<parallel>& getMesh();
@@ -138,6 +188,10 @@ namespace mfem_mgis {
     std::unique_ptr<FiniteElementSpace<true>> parallel_fe_space;
 #endif /* MFEM_USE_MPI */
     std::unique_ptr<FiniteElementSpace<false>> sequential_fe_space;
+    //! \brief mapping between materials identifiers and names
+    std::map<size_type, std::string> materials_names;
+    //! \brief mapping between materials boundaries and names
+    std::map<size_type, std::string> boundaries_names;
   };  // end of FiniteElementDiscretization
 
   /*!
@@ -146,28 +200,19 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT size_type getTrueVSize(const FiniteElementDiscretization&);
 
-
   /*!
-   * \brief Extract the file extension
-   * \param[in] s: string corresponding to a file name
+   * \brief return the list of materials attributes
+   * \param[in] fed: finite element discretisation
    */
-  static std::string getFileExt(const std::string& s); 
-
-  
+  MFEM_MGIS_EXPORT const mfem::Array<size_type>& getMaterialsAttributes(
+      const FiniteElementDiscretization&);
   /*!
-   * \brief load a mesh (sequential)
-   * \param[in] s: string corresponding to a file name
-   *
-   * \note MED format is handled in addition to standard MFEM 
-   *       input formats.
+   * \brief return the list of boundaries attributes
+   * \param[in] fed: finite element discretisation
    */
-  MFEM_MGIS_EXPORT std::shared_ptr<Mesh<false>> loadMeshSequential(
-       const std::string& mesh_name,
-       int generate_edges = 0,
-       int refine = 1,
-       bool fix_orientation = true);
+  MFEM_MGIS_EXPORT const mfem::Array<size_type>& getBoundariesAttributes(
+      const FiniteElementDiscretization&);
 
-  
 }  // end of namespace mfem_mgis
 
 #include "MFEMMGIS/FiniteElementDiscretization.ixx"

@@ -63,6 +63,12 @@ namespace mfem_mgis {
     return *(this->fe_discretization);
   }  // end of getFiniteElementDiscretization
 
+  const FiniteElementDiscretization&
+  NonLinearEvolutionProblemImplementationBase::getFiniteElementDiscretization()
+      const {
+    return *(this->fe_discretization);
+  }  // end of getFiniteElementDiscretization
+
   std::shared_ptr<FiniteElementDiscretization>
   NonLinearEvolutionProblemImplementationBase::
       getFiniteElementDiscretizationPointer() {
@@ -114,12 +120,34 @@ namespace mfem_mgis {
     }
   }  // end of checkMultiMaterialSupportEnabled
 
+  void NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
+      const std::map<size_type, std::string>& ids) {
+    this->getFiniteElementDiscretization().setMaterialsNames(ids);
+  }
+
+  void NonLinearEvolutionProblemImplementationBase::setBoundariesNames(
+      const std::map<size_type, std::string>& ids){
+    this->getFiniteElementDiscretization().setBoundariesNames(ids);
+  }
+
   std::vector<size_type>
-  NonLinearEvolutionProblemImplementationBase::getMaterialIdentifiers() const {
-    checkMultiMaterialSupportEnabled("getMaterialIdentifiers",
+  NonLinearEvolutionProblemImplementationBase::getMaterialsIdentifiers(
+      const Parameter& p) const {
+    return this->getFiniteElementDiscretization().getMaterialsIdentifiers(p);
+  }  // end of getMaterialsIdentifiers
+
+  std::vector<size_type>
+  NonLinearEvolutionProblemImplementationBase::getAssignedMaterialsIdentifiers() const {
+    checkMultiMaterialSupportEnabled("getAssignedMaterialsIdentifiers",
                                      this->mgis_integrator);
-    return this->mgis_integrator->getMaterialIdentifiers();
-  }  // end of getMaterialIdentifiers
+    return this->mgis_integrator->getAssignedMaterialsIdentifiers();
+  }  // end of getAssignedMaterialsIdentifiers
+
+  std::vector<size_type>
+  NonLinearEvolutionProblemImplementationBase::getBoundariesIdentifiers(
+      const Parameter& p) const {
+    return this->getFiniteElementDiscretization().getBoundariesIdentifiers(p);
+  }  // end of getBoundariesIdentifiers
 
   void NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
       const std::string& n,

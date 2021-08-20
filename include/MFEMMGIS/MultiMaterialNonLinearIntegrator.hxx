@@ -128,7 +128,7 @@ namespace mfem_mgis {
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
      */
-    virtual std::vector<size_type> getMaterialIdentifiers() const;
+    virtual std::vector<size_type> getAssignedMaterialsIdentifiers() const;
 
     //! \brief destructor
     virtual ~MultiMaterialNonLinearIntegrator();

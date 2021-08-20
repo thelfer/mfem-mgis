@@ -48,7 +48,7 @@ namespace mfem_mgis {
       if (rank == 0) {
         this->out << t + dt;
       }
-      for (const auto &mi : p.getMaterialIdentifiers()) {
+      for (const auto &mi : p.getAssignedMaterialsIdentifiers()) {
         real v = 0;
         std::vector<double> tf_integral(tf_integrals[mi].size(), 0);
         MPI_Reduce(tf_integrals[mi].data(), tf_integral.data(),
@@ -68,7 +68,7 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     } else {
       this->out << t + dt;
-      for (const auto &mi : p.getMaterialIdentifiers()) {
+      for (const auto &mi : p.getAssignedMaterialsIdentifiers()) {
         this->writeResults(tf_integrals[mi], volumes[mi]);
       }
       this->out << '\n';
@@ -86,7 +86,7 @@ namespace mfem_mgis {
     }
     out << "# first column: time\n";
     auto c = mfem_mgis::size_type{2};
-    for (const auto &mi : p.getMaterialIdentifiers()) {
+    for (const auto &mi : p.getAssignedMaterialsIdentifiers()) {
       const auto &bi = p.getBehaviourIntegrator(mi);
       const auto &s1 = bi.getMaterial().s1;
       const auto thsize =

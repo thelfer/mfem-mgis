@@ -129,7 +129,7 @@ namespace mfem_mgis {
         }
       }
     } else {
-      this->materials_identifiers = p.getMaterialIdentifiers();
+      this->materials_identifiers = p.getAssignedMaterialsIdentifiers();
     }
     if (!contains(params, "Results")) {
       raise(

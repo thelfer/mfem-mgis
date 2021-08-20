@@ -90,6 +90,8 @@ namespace mfem_mgis {
     virtual void updateLinearSolver(LinearSolverHandler);
     //
     FiniteElementDiscretization& getFiniteElementDiscretization() override;
+    const FiniteElementDiscretization& getFiniteElementDiscretization()
+        const override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
     mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
@@ -97,7 +99,13 @@ namespace mfem_mgis {
     mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
     const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
     void setSolverParameters(const Parameters&) override;
-    std::vector<size_type> getMaterialIdentifiers() const override;
+    void setMaterialsNames(const std::map<size_type, std::string>&) override;
+    void setBoundariesNames(const std::map<size_type, std::string>&) override;
+    std::vector<size_type> getAssignedMaterialsIdentifiers() const override;
+    std::vector<size_type> getMaterialsIdentifiers(
+        const Parameter&) const override;
+    std::vector<size_type> getBoundariesIdentifiers(
+        const Parameter&) const override;
     const Material& getMaterial(const size_type) const override;
     Material& getMaterial(const size_type) override;
     const BehaviourIntegrator& getBehaviourIntegrator(
