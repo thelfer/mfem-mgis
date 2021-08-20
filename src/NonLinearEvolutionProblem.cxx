@@ -128,6 +128,16 @@ namespace mfem_mgis {
     this->pimpl->setBoundariesNames(ids);
   }
 
+  size_type NonLinearEvolutionProblem::getMaterialIdentifier(
+      const Parameter& p) const {
+    return this->pimpl->getMaterialIdentifier(p);
+  }  // end of getMaterialIdentifier
+
+  size_type NonLinearEvolutionProblem::getBoundaryIdentifier(
+      const Parameter& p) const {
+    return this->pimpl->getBoundaryIdentifier(p);
+  }  // end of getBoundariesIdentifier
+
   std::vector<size_type> NonLinearEvolutionProblem::getMaterialsIdentifiers(
       const Parameter& p) const {
     return this->pimpl->getMaterialsIdentifiers(p);
@@ -164,10 +174,10 @@ namespace mfem_mgis {
   }
 
   void NonLinearEvolutionProblem::addBehaviourIntegrator(const std::string& n,
-                                                         const size_type l,
-                                                         const std::string& m,
+                                                         const Parameter& m,
+                                                         const std::string& l,
                                                          const std::string& b) {
-    this->pimpl->addBehaviourIntegrator(n, l, m, b);
+    this->pimpl->addBehaviourIntegrator(n, m, l, b);
   }  // end of addBehaviourIntegrator
 
   const Material& NonLinearEvolutionProblem::getMaterial(

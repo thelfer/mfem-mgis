@@ -40,4 +40,17 @@ namespace mfem_mgis {
 
   Parameter::~Parameter() = default;
 
+  Parameter get(const Parameters& p, std::string_view n) {
+    return p.get(n);
+  }  // end of get
+
+  Parameter get_if(const Parameters& p,
+                   std::string_view n,
+                   const Parameter& v) {
+    if (contains(p, n)) {
+      return p.get(n);
+    }
+    return v;
+  }  // end of get
+
 }  // end of namespace mfem_mgis

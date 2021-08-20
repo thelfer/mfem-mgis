@@ -121,6 +121,16 @@ namespace mfem_mgis {
      */
     void setBoundariesNames(const std::map<size_type, std::string>&);
     /*!
+     * \return the material identifier by the given parameter.
+     * \note The parameter may hold an integer or a string.
+     */
+    size_type getMaterialIdentifier(const Parameter&) const;
+    /*!
+     * \return the material identifier by the given parameter.
+     * \note The parameter may hold an integer or a string.
+     */
+    size_type getBoundaryIdentifier(const Parameter&) const;
+    /*!
      * \return the list of materials identifiers described by the given
      * parameter.
      *

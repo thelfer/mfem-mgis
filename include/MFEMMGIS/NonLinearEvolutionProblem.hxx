@@ -87,12 +87,14 @@ namespace mfem_mgis {
     void addPostProcessing(std::string_view, const Parameters &) override;
     void executePostProcessings(const real, const real) override;
     void addBehaviourIntegrator(const std::string &,
-                                const size_type,
+                                const Parameter&,
                                 const std::string &,
                                 const std::string &) override;
     void setMaterialsNames(const std::map<size_type, std::string>&) override;
     void setBoundariesNames(const std::map<size_type, std::string>&) override;
     std::vector<size_type> getAssignedMaterialsIdentifiers() const override;
+    size_type getMaterialIdentifier(const Parameter &) const override;
+    size_type getBoundaryIdentifier(const Parameter &) const override;
     std::vector<size_type> getMaterialsIdentifiers(
         const Parameter&) const override;
     std::vector<size_type> getBoundariesIdentifiers(

@@ -81,12 +81,12 @@ namespace mfem_mgis {
     /*!
      * \brief add a new behaviour integrator
      * \param[in] n: name of the behaviour integrator
-     * \param[in] m: material id
+     * \param[in] m: material ids
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
     virtual void addBehaviourIntegrator(const std::string &,
-                                        const size_type,
+                                        const Parameter &,
                                         const std::string &,
                                         const std::string &) = 0;
     /*!
@@ -106,6 +106,16 @@ namespace mfem_mgis {
      * integrator has been defined.
      */
     virtual std::vector<size_type> getAssignedMaterialsIdentifiers() const = 0;
+    /*!
+     * \return the material identifier by the given parameter.
+     * \note The parameter may hold an integer or a string.
+     */
+    virtual size_type getMaterialIdentifier(const Parameter &) const = 0;
+    /*!
+     * \return the material identifier by the given parameter.
+     * \note The parameter may hold an integer or a string.
+     */
+    virtual size_type getBoundaryIdentifier(const Parameter &) const = 0;
     /*!
      * \return the list of materials identifiers described by the given
      * parameter.
@@ -191,7 +201,65 @@ namespace mfem_mgis {
     virtual void update() = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblem();
-  };  // end of struct NonLinearEvolutionProblem
+  };  // end of struct AbstractNonLinearEvolutionProblem
+
+  /*!
+   * \return the material identifier from the parameters from the `Material`
+   * parameter.
+   *
+   * The `Material` parameter must be either a string and an integer.
+   *
+   * \param[in] p: non linear problem
+   * \param[in] params: parameters
+   */
+  size_type getMaterialIdentifier(const AbstractNonLinearEvolutionProblem &,
+                                  const Parameters &);
+
+  /*!
+   * \return the boundary identifier from the parameters from the `Boundary`
+   * parameter.
+   *
+   * The `Boundary` parameter must be either a string and an integer.
+   *
+   * \param[in] p: non linear problem
+   * \param[in] params: parameters
+   */
+  size_type getBoundaryIdentifier(const AbstractNonLinearEvolutionProblem &,
+                                  const Parameters &);
+
+  /*!
+   * \return the materials identifiers from the parameters if the one of
+   * `Material` or `Materials` parameters exist, or all the materials
+   * identifiers otherwise.
+   *
+   * The `Material` parameter must be either a string and an integer.
+   * The `Materials` parameter must be either a string, an integer or a vector
+   * of parameters which must be either strings or integers.
+   *
+   * \note `Material` and `Materials` can't be specificed at the same time.
+   *
+   * \param[in] p: non linear problem
+   * \param[in] params: parameters
+   */
+  std::vector<size_type> getMaterialsIdentifiers(
+      const AbstractNonLinearEvolutionProblem &, const Parameters &);
+
+  /*!
+   * \return the boundaries identifiers from the parameters if the one of
+   * `Boundary` or `Boundaries` parameters exist, or all the boundaries
+   * identifiers otherwise.
+   *
+   * The `Boundary` parameter must be either a string and an integer.
+   * The `Boundaries` parameter must be either a string, an integer or a
+   * vector of parameters which must be either strings or integers.
+   *
+   * \note `Boundary` and `Boundaries` can't be specificed at the same time.
+   *
+   * \param[in] p: non linear problem
+   * \param[in] params: parameters
+   */
+  std::vector<size_type> getBoundariesIdentifiers(
+      const AbstractNonLinearEvolutionProblem &, const Parameters &);
 
 }  // end of namespace mfem_mgis
 

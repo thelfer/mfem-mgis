@@ -111,7 +111,7 @@ namespace mfem_mgis {
    * \param[in] p: parameters
    * \param[in] n: name
    */
-  bool contains(const Parameters&, std::string_view);
+  MFEM_MGIS_EXPORT bool contains(const Parameters&, std::string_view);
 
   /*!
    * \return true if the given parameter has the given type
@@ -131,6 +131,13 @@ namespace mfem_mgis {
    */
   template <typename ResultType>
   GetResultType<ResultType> get(const Parameters&, std::string_view);
+  /*!
+   * \return value of the parameter
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \throws if the parameter does not exists
+   */
+  MFEM_MGIS_EXPORT Parameter get(const Parameters&, std::string_view);
 
   /*!
    * \return value of the parameter
@@ -151,6 +158,15 @@ namespace mfem_mgis {
    */
   template <typename ResultType>
   ResultType get_if(const Parameters&, std::string_view, const ResultType&);
+  /*!
+   * \return value of the parameter if present, a default value otherwise
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \param[in] v: default value
+   */
+  MFEM_MGIS_EXPORT Parameter get_if(const Parameters&,
+                                    std::string_view,
+                                    const Parameter&);
 
 }  // end of namespace mfem_mgis
 

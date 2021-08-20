@@ -117,20 +117,8 @@ namespace mfem_mgis {
                  p.getFiniteElementSpace().GetMesh()),
         cycle(0) {
     checkParameters(params, {"OutputFileName", "Materials", "Results"});
-    //
-    if (contains(params, "Materials")) {
-      if (is<size_type>(params, "Materials")) {
-        this->materials_identifiers.push_back(
-            get<size_type>(params, "Materials"));
-      } else {
-        for (const auto& mid :
-             get<std::vector<Parameter>>(params, "Materials")) {
-          this->materials_identifiers.push_back(get<size_type>(mid));
-        }
-      }
-    } else {
-      this->materials_identifiers = p.getAssignedMaterialsIdentifiers();
-    }
+    // if Materials exists, use it, otherwise, take all materials
+    this->materials_identifiers = getMaterialsIdentifiers(p, params);
     if (!contains(params, "Results")) {
       raise(
           "ParaviewExportIntegrationPointResultsAtNodes::"

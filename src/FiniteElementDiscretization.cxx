@@ -458,6 +458,56 @@ namespace mfem_mgis {
                                         "getBoundariesIdentifiers");
   }  // end of getBoundariesIdentifiers
 
+  size_type FiniteElementDiscretization::getMaterialIdentifier(
+      const Parameter& p) const {
+    if (is<size_type>(p)) {
+      const auto id = get<size_type>(p);
+      const auto ids = getMaterialsAttributes(*this);
+      if (ids.Find(id) != -1) {
+        raise(
+            "getMaterialIdentifier: "
+            "no material id for identifier '" +
+            std::to_string(id) + "'");
+      }
+      return id;
+    }
+    if (!is<std::string>(p)) {
+      raise("getMaterialIdentifier: invalid parameter type");
+    }
+    const auto& n = get<std::string>(p);
+    for (const auto& [id, name] : this->materials_names) {
+      if (name == n) {
+        return id;
+      }
+    }
+    raise("getMaterialIdentifier: no material named '" + n + "'");
+  }  // end of getMaterialIdentifier
+
+  size_type FiniteElementDiscretization::getBoundaryIdentifier(
+      const Parameter& p) const {
+    if (is<size_type>(p)) {
+      const auto id = get<size_type>(p);
+      const auto ids = getBoundariesAttributes(*this);
+      if (ids.Find(id) != -1) {
+        raise(
+            "getBoundaryIdentifier: "
+            "no boundary id associated with identifier '" +
+            std::to_string(id) + "'");
+      }
+      return id;
+    }
+    if (!is<std::string>(p)) {
+      raise("getBoundaryIdentifier: invalid parameter type");
+    }
+    const auto& n = get<std::string>(p);
+    for (const auto& [id, name] : this->boundaries_names) {
+      if (name == n) {
+        return id;
+      }
+    }
+    raise("getMaterialIdentifier: no material named '" + n + "'");
+  }  // end of getBoundaryIdentifier
+
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;
 
   size_type getTrueVSize(const FiniteElementDiscretization& fed) {
