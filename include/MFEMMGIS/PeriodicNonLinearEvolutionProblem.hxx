@@ -39,7 +39,7 @@ namespace mfem_mgis {
   /*!
    * \brief set the boundary conditions specific to periodic problems
    * \param[in] p: problem
-   * \param[in] bct: fix the 0 value on displacement field at xmin, or ymin, or zmin
+   * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<true>&,
@@ -58,7 +58,7 @@ namespace mfem_mgis {
   /*!
    * \brief set the boundary conditions specific to periodic problems
    * \param[in] p: problem
-   * \param[in] bct: fix the 0 value on displacement field at xmin, or ymin, or zmin
+   * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<false>&,
@@ -85,11 +85,22 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
+     * \param[in] corner1: one corner of the computation domain
+     * \param[in] corner2: second corner of the computation domain
      */
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>,
 	const mgis::span<const real>&, const mgis::span<const real>&);
 
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization
+     * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
+     */
+    PeriodicNonLinearEvolutionProblem(
+        std::shared_ptr<FiniteElementDiscretization>,
+	const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
+    
     // disable adding boundary conditions
     [[noreturn]] void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
