@@ -108,8 +108,8 @@ namespace mfem_mgis {
         const Parameter&) const override;
     std::vector<size_type> getBoundariesIdentifiers(
         const Parameter&) const override;
-    const Material& getMaterial(const size_type) const override;
-    Material& getMaterial(const size_type) override;
+    const Material& getMaterial(const Parameter&) const override;
+    Material& getMaterial(const Parameter&) override;
     const BehaviourIntegrator& getBehaviourIntegrator(
         const size_type) const override;
     BehaviourIntegrator& getBehaviourIntegrator(const size_type) override;

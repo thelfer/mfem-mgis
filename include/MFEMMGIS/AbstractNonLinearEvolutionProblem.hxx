@@ -154,12 +154,12 @@ namespace mfem_mgis {
      * \return the material with the given id
      * \param[in] m: material id
      */
-    virtual const Material &getMaterial(const size_type) const = 0;
+    virtual const Material &getMaterial(const Parameter &) const = 0;
     /*!
      * \return the material with the given id
      * \param[in] m: material id
      */
-    virtual Material &getMaterial(const size_type) = 0;
+    virtual Material &getMaterial(const Parameter &) = 0;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
@@ -229,8 +229,9 @@ namespace mfem_mgis {
 
   /*!
    * \return the materials identifiers from the parameters if the one of
-   * `Material` or `Materials` parameters exist, or all the materials
-   * identifiers otherwise.
+   * `Material` or `Materials` parameters exist.  If not such parameter exist,
+   * all the materials identifiers are returned if `b` is true, or an error is
+   * raised.
    *
    * The `Material` parameter must be either a string and an integer.
    * The `Materials` parameter must be either a string, an integer or a vector
@@ -240,14 +241,18 @@ namespace mfem_mgis {
    *
    * \param[in] p: non linear problem
    * \param[in] params: parameters
+   * \param[in] b: allowing missing `Material` or `Materials` parameters
    */
   std::vector<size_type> getMaterialsIdentifiers(
-      const AbstractNonLinearEvolutionProblem &, const Parameters &);
+      const AbstractNonLinearEvolutionProblem &,
+      const Parameters &,
+      const bool = true);
 
   /*!
    * \return the boundaries identifiers from the parameters if the one of
-   * `Boundary` or `Boundaries` parameters exist, or all the boundaries
-   * identifiers otherwise.
+   * `Boundary` or `Boundaries` parameters exist. If not such parameter exist,
+   * all the boundaries identifiers are returned if `b` is true, or an error is
+   * raised.
    *
    * The `Boundary` parameter must be either a string and an integer.
    * The `Boundaries` parameter must be either a string, an integer or a
@@ -257,9 +262,12 @@ namespace mfem_mgis {
    *
    * \param[in] p: non linear problem
    * \param[in] params: parameters
+   * \param[in] b: allowing missing `Boundary` or `Boundaries` parameters
    */
   std::vector<size_type> getBoundariesIdentifiers(
-      const AbstractNonLinearEvolutionProblem &, const Parameters &);
+      const AbstractNonLinearEvolutionProblem &,
+      const Parameters &,
+      const bool = true);
 
 }  // end of namespace mfem_mgis
 

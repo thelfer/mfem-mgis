@@ -5,6 +5,7 @@
  * \date 16/12/2020
  */
 
+#include <iostream>
 #include <cctype>
 #include <utility>
 #include <regex>
@@ -463,7 +464,7 @@ namespace mfem_mgis {
     if (is<size_type>(p)) {
       const auto id = get<size_type>(p);
       const auto ids = getMaterialsAttributes(*this);
-      if (ids.Find(id) != -1) {
+      if (ids.Find(id) == -1) {
         raise(
             "getMaterialIdentifier: "
             "no material id for identifier '" +
@@ -488,7 +489,7 @@ namespace mfem_mgis {
     if (is<size_type>(p)) {
       const auto id = get<size_type>(p);
       const auto ids = getBoundariesAttributes(*this);
-      if (ids.Find(id) != -1) {
+      if (ids.Find(id) == -1) {
         raise(
             "getBoundaryIdentifier: "
             "no boundary id associated with identifier '" +

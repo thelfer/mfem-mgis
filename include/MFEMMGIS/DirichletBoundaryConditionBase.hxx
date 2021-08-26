@@ -22,13 +22,13 @@ namespace mfem_mgis {
       : DirichletBoundaryCondition {
     /*!
      * \brief constructor
-     * \param[in] fed: finite element discretiszation
-     * \param[in] bid: id of the boundary
+     * \param[in] fed: finite element discretization
+     * \param[in] bids: ids of the boundary
      * \param[in] c: component of the unknows treated by this boundary
      * condition.
      */
-    DirichletBoundaryConditionBase(std::shared_ptr<FiniteElementDiscretization>,
-                                   const size_type,
+    DirichletBoundaryConditionBase(FiniteElementDiscretization&,
+                                   const std::vector<size_type>&,
                                    const size_type);
     //
     std::vector<size_type> getHandledDegreesOfFreedom() const override;

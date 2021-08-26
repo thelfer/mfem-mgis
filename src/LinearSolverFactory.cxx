@@ -65,8 +65,8 @@ namespace mfem_mgis {
   std::unique_ptr<LinearSolverPreconditioner> setHypreILUPreconditioner(
       NonLinearEvolutionProblemImplementation<true>&,
       const Parameters& opts) {
-    using Problem = AbstractNonLinearEvolutionProblem;
 #ifndef HYPRE_OLD_VERSION
+    using Problem = AbstractNonLinearEvolutionProblem;
     auto ilu = std::make_unique<mfem::HypreILU>();
     checkParameters(opts, {Problem::SolverVerbosityLevel});
     if (contains(opts, Problem::SolverVerbosityLevel)) {
@@ -74,7 +74,8 @@ namespace mfem_mgis {
     }
     return ilu;
 #else /*  HYPRE_OLD_VERSION */
-    MFEM_VERIFY(0, "Support for HypreILU is notavailable with this version of MFEM");
+    MFEM_VERIFY(0, "Support for HypreILU is not available with "
+		"this version of MFEM");
     return nullptr;
 #endif /* HYPRE_OLD_VERSION */
   }  // end of setHypreILUPreconditioner

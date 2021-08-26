@@ -172,15 +172,15 @@ namespace mfem_mgis {
   }  // end of addBehaviourIntegrator
 
   const Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
-      const size_type m) const {
+      const Parameter& m) const {
     checkMultiMaterialSupportEnabled("getMaterial", this->mgis_integrator);
-    return this->mgis_integrator->getMaterial(m);
+    return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
   }  // end of getMaterial
 
   Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
-      const size_type m) {
+      const Parameter& m) {
     checkMultiMaterialSupportEnabled("getMaterial", this->mgis_integrator);
-    return this->mgis_integrator->getMaterial(m);
+    return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
   }  // end of getMaterial
 
   const BehaviourIntegrator&

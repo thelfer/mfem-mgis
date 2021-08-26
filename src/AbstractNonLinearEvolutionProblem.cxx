@@ -5,6 +5,7 @@
  * \date   23/03/2021
  */
 
+#include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
@@ -31,7 +32,9 @@ namespace mfem_mgis {
   }
 
   std::vector<size_type> getMaterialsIdentifiers(
-      const AbstractNonLinearEvolutionProblem &p, const Parameters &params) {
+      const AbstractNonLinearEvolutionProblem &p,
+      const Parameters &params,
+      const bool b) {
     if (contains(params, "Material") && contains(params, "Materials")) {
       raise(
           "getMaterialsIdentifiers: "
@@ -45,11 +48,18 @@ namespace mfem_mgis {
     } else if (contains(params, "Materials")) {
       return p.getMaterialsIdentifiers(get(params, "Materials"));
     }
+    if (!b) {
+      raise(
+          "getMaterialsIdentifiers: no parameter named `Material` nor "
+          "`Materials` given");
+    }
     return p.getMaterialsIdentifiers(".+");
   }  // end of getMaterialsIdentifiers
 
   std::vector<size_type> getBoundariesIdentifiers(
-      const AbstractNonLinearEvolutionProblem &p, const Parameters &params) {
+      const AbstractNonLinearEvolutionProblem &p,
+      const Parameters &params,
+      const bool b) {
     if (contains(params, "Boundary") && contains(params, "Boundaries")) {
       raise(
           "getBoundariesIdentifiers: "
@@ -62,6 +72,11 @@ namespace mfem_mgis {
       return p.getBoundariesIdentifiers(get(params, "Boundary"));
     } else if (contains(params, "Boundaries")) {
       return p.getBoundariesIdentifiers(get(params, "Boundaries"));
+    }
+    if (!b) {
+      raise(
+          "getBoundariesIdentifiers: no parameter named `Boundary` nor "
+          "`Boundaries` given");
     }
     return p.getBoundariesIdentifiers(".+");
   }  // end of getBoundariesIdentifiers

@@ -82,6 +82,11 @@ namespace mfem_mgis {
     void setLinearSolver(std::string_view, const Parameters &) override;
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
+    /*!
+     * \brief add an uniform boundary condition
+     * \param[in] params: parameters defining the boundary condition
+     */
+    void addUniformDirichletBoundaryCondition(const Parameters&);
     void addPostProcessing(
         const std::function<void(const real, const real)> &) override;
     void addPostProcessing(std::string_view, const Parameters &) override;
@@ -99,8 +104,8 @@ namespace mfem_mgis {
         const Parameter&) const override;
     std::vector<size_type> getBoundariesIdentifiers(
         const Parameter&) const override;
-    const Material &getMaterial(const size_type) const override;
-    Material &getMaterial(const size_type) override;
+    const Material &getMaterial(const Parameter&) const override;
+    Material &getMaterial(const Parameter&) override;
     const BehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const override;
     BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
