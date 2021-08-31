@@ -411,7 +411,7 @@ with this copy the datas can be local and global in the loop.
     auto ct = t;
     auto dt2 = dt;
     auto nsteps = mfem_mgis::size_type{1};
-    auto niter  = mfem_mgis::size_type{0};
+    auto nsubsteps  = mfem_mgis::size_type{0};
     while (nsteps != 0) {
 ~~~~
 
@@ -427,20 +427,20 @@ handles the error. Whether the there is an error the variable
 
 Here the tests are made with the `converged` variable difined earlier.
 If converged is true the first test is realiaze otherwise the test is
-made until the `niter`=10.
+made until the `nsubsteps`=10.
 
 ~~~~{.cxx}
       if (converged) {
         --nsteps;
         ct += dt2;
       } else {
-        std::cout << "\nsubstep: " << niter << '\n';
+        std::cout << "\nsubstep: " << nsubsteps << '\n';
         nsteps *= 2;
         dt2 /= 2;
-        ++niter;
+        ++nsubsteps;
         problem.revert();
-        if (niter == 10) {
-          mgis::raise("maximum number of substeps");
+        if (nsubsteps == 10) {
+          mfem_mgis::raise("maximum number of substeps");
         }
       }
     }
