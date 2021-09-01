@@ -399,7 +399,7 @@ namespace mfem_mgis {
           get_if<bool>(params, "PositiveDefinite", false);
       s->SetPrintLevel(1);
 //      if (getMPIrank() == 0) {
-//	std::cout << "Global Nbdof " << p.getFiniteElementSpace().GlobalTrueVSize() << "\n";
+//	mfem_mgis::getOutputStream() << "Global Nbdof " << p.getFiniteElementSpace().GlobalTrueVSize() << "\n";
 //      }
       if (symmetric) {
         if (positive_definite) {

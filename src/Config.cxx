@@ -11,6 +11,7 @@
 #include "mpi.h"
 #endif /* MFEM_USE_MPI */
 #include "mfem/general/optparser.hpp"
+#include "mfem/general/communication.hpp"
 #ifdef MFEM_USE_PETSC
 #include "mfem/linalg/petsc.hpp"
 #endif /*MFEM_USE_PETSC */
@@ -147,9 +148,9 @@ namespace mfem_mgis {
     try {
       throw;
     } catch (std::exception& e) {
-      std::cerr << e.what() << '\n';
+      mfem_mgis::getErrorStream() << e.what() << '\n';
     } catch (...) {
-      std::cerr << "unknown exception thrown";
+      mfem_mgis::getErrorStream() << "unknown exception thrown";
     }
     abort();
     std::abort();
@@ -160,6 +161,7 @@ namespace mfem_mgis {
     if (first) {
       mgis::setExceptionHandler(exit_on_failure);
       MPI_Init(&argc, &argv);
+      if (getMPIrank() != 0) { mfem::out.Disable(); mfem::err.Disable(); } 
       Finalizer::get().initialize(argc, argv);
       first = false;
     }
@@ -181,7 +183,7 @@ namespace mfem_mgis {
   }  // end of abort
 
   void abort(const char* const msg, const int error) {
-    std::cerr << msg << '\n';
+    mfem_mgis::getErrorStream() << msg << '\n';
     Finalizer::get().abort(error);
     std::exit(error);
   }  // end of abort
