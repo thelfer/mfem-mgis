@@ -136,6 +136,11 @@ namespace mfem_mgis {
   //! \brief declare default options
   MFEM_MGIS_EXPORT void declareDefaultOptions(mfem::OptionsParser&);
 
+  //! \brief get Output Stream
+  MFEM_MGIS_EXPORT std::ostream & getOutStream();
+  //! \brief get Error Stream
+  MFEM_MGIS_EXPORT std::ostream & getErrStream();
+  
 }  // namespace mfem_mgis
 
 #include "MFEMMGIS/Config.ixx"

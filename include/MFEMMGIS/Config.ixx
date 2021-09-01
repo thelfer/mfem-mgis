@@ -1,3 +1,4 @@
+
 /*!
  * \file   include/MFEMMGIS/Config.hxx
  * \brief
@@ -10,6 +11,7 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "mfem/general/communication.hpp"
 #ifdef MFEM_USE_MPI
 #include "mpi.h"
 #endif /* MFEM_USE_MPI */
@@ -55,6 +57,10 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     return(size);
   } //end of getMPIsize
+
+  inline std::ostream & getOutStream() { return mfem::out; }
+
+  inline std::ostream & getErrStream() { return mfem::err; }
   
 }  // namespace mfem_mgis
 
