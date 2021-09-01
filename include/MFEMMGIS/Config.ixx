@@ -58,9 +58,9 @@ namespace mfem_mgis {
     return(size);
   } //end of getMPIsize
 
-  inline std::ostream & getOutStream() { return mfem::out; }
+  inline std::ostream & getOutputStream() { return mfem::out; }
 
-  inline std::ostream & getErrStream() { return mfem::err; }
+  inline std::ostream & getErrorStream() { return mfem::err; }
   
 }  // namespace mfem_mgis
 

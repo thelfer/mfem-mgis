@@ -129,7 +129,7 @@ static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
                       {{"Symmetric", true}, {"PositiveDefinite", true}});
 #endif
   } else {
-    mfem_mgis::getErrStream() << "unsupported linear solver\n";
+    mfem_mgis::getErrorStream() << "unsupported linear solver\n";
     mfem_mgis::abort(EXIT_FAILURE);
   }
 }
@@ -147,10 +147,10 @@ bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& problem,
   const auto b = mfem_mgis::compareToAnalyticalSolution(
       problem, getSolution(i), {{"CriterionThreshold", 1e-7}});
   if (!b) {
-    mfem_mgis::getErrStream() << "Error is greater than threshold\n";
+    mfem_mgis::getErrorStream() << "Error is greater than threshold\n";
     return false;
   }
-  mfem_mgis::getErrStream() << "Error is lower than threshold\n";
+  mfem_mgis::getErrorStream() << "Error is lower than threshold\n";
   return true;
 }
 
@@ -185,12 +185,12 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   //                  "if true, perform the computation in parallel");
   args.Parse();
   if ((!args.Good()) || (p.mesh_file == nullptr)) {
-    args.PrintUsage(mfem_mgis::getOutStream());
+    args.PrintUsage(mfem_mgis::getOutputStream());
     mfem_mgis::abort(EXIT_FAILURE);
   }
-  args.PrintOptions(mfem_mgis::getOutStream());
+  args.PrintOptions(mfem_mgis::getOutputStream());
   if ((p.tcase < 0) || (p.tcase > 5)) {
-    mfem_mgis::getErrStream() << "Invalid test case\n";
+    mfem_mgis::getErrorStream() << "Invalid test case\n";
     mfem_mgis::abort(EXIT_FAILURE);
   }
   return p;
