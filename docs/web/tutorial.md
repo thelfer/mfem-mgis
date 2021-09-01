@@ -12,7 +12,7 @@ eqnPrefixTemplate: "($$i$$)"
 ---
 
 This tutorial describes how to describe in `MFEM/MGIS` a tensile test on
-a notched bar made of an isotropic plastic behaviour with linear
+a notched beam made of an isotropic plastic behaviour with linear
 hardening in the logarithmic space. This tutorial highlights the key
 features of this project.
 
@@ -34,49 +34,40 @@ modelled by plastic behaviour at finite strain:
 
 ## Geometry and mesh {#sec:mfem_mgis:ssna303:mesh}
 
-![Mesh used to described the notched beam](img/ssna303-mesh.png){#fig:mfem_mgis:ssna303:mesh width=80%}
+![Mesh used to described the notched beam](img/ssna303-mesh.png){#fig:mfem_mgis:ssna303:mesh width=30%}
 
-We will speak about the objet of the study the `beam`. With the Figure
-@fig:mfem_mgis:ssna303:mesh, we can see the form of the beam is a
-rectangular parallelepiped (l $\times$ L $\times$ h). A circle extrusion
-has been made with a radius `r` in x=L and y=$\frac{l}{2}$.
+For symmetry reasons, only half of the notched beam is represented in
+Figure @fig:mfem_mgis:ssna303:mesh. The height \(h\) of the beam is
+\(30\,mm\). The half-width \(w\) of the beam is \(5.4\,mm\).
 
-$$
-\left\{
-    \begin{array}{l}
-        L,~for~the~length \\
-        l,~for~the~width \\
-        h,~for~the~height \text{(in \(3D\))}
-    \end{array}
-\right.
-$$
+The positions of the points \(p1\) \(p2\) and \(c\) are respectivly
+\(\left(3\,mm, 0\right)\), \(\left(5.4\,mm, 4.8\,mm\right)\) and
+\(\left(9\,mm, 0\right)\).
 
-The `ssna303` project has a goal to numerize the behaviour of a notched
-beam (i.e. Figure @fig:mfem_mgis:ssna303:mesh) with the non linear
-mechanics hypothesis. Numerically we could make a lot of test without
-any risk but the numerical test has to respect the mechanicals
-behaviours to be the most representative of the reality.
+This notched beam has been meshed using
+[`̀Cast3M`](http://www-cast3m.cea.fr/) and exported in the `MED` file
+format used in the [Salomé platform](https://www.salome-platform.org/).
+This file has been converted in the `msh` file format using
+[`gmsh`](https://gmsh.info/).
+
+> **Support of the `MED` file format**
+>
+> Direct support of the `MED` file format is currently under
+> development.
 
 ## Modelling hypothesis
 
-In \(2D\), the beam is treated in plane strain.
+The beam is treated using the plane strain modelling hypothesis. In
+finite strain, this assumes that the axial component of the deformation
+gradient is sete equal to \(1\).
 
 ## Boundary conditions {#sec:mfem_mgis:ssna303:bc}
 
 The problem is also affected by Dirichlet boundary conditions.
 
-The beam is fixed at the origin in y=0 and an displacement \(U\) is
-imposed an the top of the beam, as follows:
+The beam is fixed along the bottom line (\(y=0\)\) and an displacement
+\(U_{y}\) is imposed an the top of the beam (\(y=h\)).
 
-$$
-\left\{
-    \begin{array}{ll}
-        ~0 & for~y~=~0 \\
-        ~U & for~y~=~L
-    \end{array}
-\right.
-$$
-`
 The symmetry axis on the left is blocked in the `x`-direction.
 
 ## Mechanical behaviour {#sec:mfem_mgis:ssna303:behaviour}
@@ -85,7 +76,8 @@ The symmetry axis on the left is blocked in the `x`-direction.
 
 The material of the notched beam is described by a simple isotropic
 elasto-plastic behaviour with isotropic hardening in the logarithmic
-space [@miehe_anisotropic_2002].
+space [@miehe_anisotropic_2002] and is implemented using the [`MFront`
+code generator](http://tfel.sourceforge.net).
 
 This behaviour is characterized by by four parameters:
 
@@ -100,10 +92,9 @@ This behaviour is characterized by by four parameters:
 - The `Strain Hardening Modulus` (H), which defined the slope of the
   stress versus strain curve after the point of yield of a material.
 
-For our example the following values are used:
+In our example the following values are used:
 
 \[
-\label{size}
 \left\{
     \begin{array}{lcl}
         \nu & = & 0.34 \\
@@ -113,6 +104,8 @@ For our example the following values are used:
     \end{array}
 \right.
 \]
+
+Those values are hard-coded in the `MFront` file.
 
 ### Compilation of the `MFront` behaviour
 
@@ -165,10 +158,6 @@ behaviour:
   const char* behaviour = "Plasticity";
 ~~~~
 
-> **Mesh file format**
->
-> The mesh is stored using the `gmsh` format.
-
 ### Command line options
 
 The resolution can be parametrized using command line options by relying
@@ -178,24 +167,32 @@ The proposed implementation allows the following options:
 
 - `--order` which specifies the finite element order (polynomial degree).
 - `--parallel` which specifices if the simulation must be run in parallel.
+
+Those options options are associated with local variables which are
+default initialized as follows:
+
+~~~~{.cxx}
+  auto order = 1;
+#if defined(MFEM_USE_MPI)
+  bool parallel = true;
+#else
+  bool parallel = false;
+#endif
+~~~~
+
+If left unchanged, those default values select:
+
+- a parallel computation if `MFEM` was built with `MPI` support and a
+  sequential computation otherwise.
+- the use of linear elements.
+
+If `MFEM` was built with support of `PETSc` library, the following
+options are added by the `mfem_mgis::declareDefaultOptions` function:
+
 - `--use-petsc` which speficies that linear and non linear solvers of
   the `PETSc` toolkit must be used.
 - `--petsc-configuration-file` which specifies a configuration file for
   the `PETSc` toolkit.
-
-The options `--use-petsc` and `--petsc-configuration-file` are only
-available if `MFEM` is compiled with `PETSc` support.
-
-The other options are associated with local variables which are default
-initialized as follows:
-
-~~~~{.cxx}
-  auto parallel = int{1};
-  auto order = 1;
-~~~~
-
-If left unchanged, those default values select a parallel computation
-with linear elements.
 
 In practice, an object of the class `mfem::OptionsParser` is declared.
 The expected options are declared and the `Parse` method is called:
@@ -214,9 +211,6 @@ The expected options are declared and the `Parse` method is called:
   }
 ~~~~
 
-The `declareDefaultOptions` function declares the options the
-`--use-petsc` and `--petsc-configuration-file` if they are relevant.
-
 ## Declaring the non linear problem
 
 The non linear evolution problem is defined as follows:
@@ -227,7 +221,7 @@ The non linear evolution problem is defined as follows:
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", order},
        {"UnknownsSize", dim},
-       {"Hypothesis", "Tridimensional"},
+       {"Hypothesis", "PlaneStrain"},
        {"Parallel", parallel}});
 ~~~~
 
@@ -237,13 +231,50 @@ hierarchical structure. The valid parameters for the construction of a
 non linear evolution problem are described in the `doxygen`
 documentation of the `NonLinearEvolutionProblem` class.
 
+The `NonLinearEvolutionProblem` class is the main class manipulated by
+the end-users of the `MFEM/MGIS` library. It is meant to handle all the
+aspects of the non linear resolution.
+
+Thanks to the `Parameters` type, which is used almost everywhere in the
+interface of the `NonLinearEvolutionProblem` class, the `MFEM/MGIS`
+exposes a high level API (Application Programming Interface) which hides
+(by default) all the details related to parallelization and memory
+management. For example, the parameter `Parallel` allows to switch from
+a parallel computation to a parallel one at runtime.
+
+> **Input files and `python` wrappers**
+> 
+> This high level API can be used to configure a resolution from an
+> input file or to wrap the library in `python`. Those features are not
+> yet implemented.
+
+Although based on the `MFEM` library, the standard end-user of the
+`MFEM/MGIS` library would barely never used directly the `MFEM`
+data-structures. However, the `MFEM/MGIS` library also has a lower level
+API which allows to directly use the `MFEM` data-structures, built-in
+non linear forms, etc. This lower level API is not described in this
+tutorial.
+
 ## Names boundaries and materials
+
+`MFEM` distinguishes elements of the mesh (materials and boundaries) by
+integers. This may seem unpractical to most users. The `MFEM/MGIS` allows
+to associate names to materials and boundaries as follows:
 
 ~~~~{.cxx}
   problem.setMaterialsNames({{1, "NotchedBeam"}});
   problem.setBoundariesNames(
       {{3, "LowerBoundary"}, {4, "SymmetryAxis"}, {2, "UpperBoundary"}});
 ~~~~
+
+> **Automatic definition of the names of materials and boundaries**
+>
+> Many mesh file formats naturally associate names to mesh elements.
+> This is the case for `MED` file format and the `msh` file format
+> generated by `gmsh`.
+>
+> Future versions of the library may thus automatically define the names
+> of materials and boundaries.
 
 ## Declaring the mechanical behaviour
 
@@ -253,15 +284,37 @@ material:
 ~~~~{.cxx}
   problem.addBehaviourIntegrator("Mechanics", "NotchedBeam",
                                  "src/libBehaviour.so",
-                                 "Plasticity");
+`                                 "Plasticity");
 ~~~~
 
-The four arguments are:
+The four arguments of the `addBehaviourIntegrator` are:
 
-- The type of phenomena described.
-- The material identifier, as defined in the mesh file.
+- The type of physical problem described. Currently two types of
+  physical problems are supported out of the box by the library:
+  `Mechanics` and `HeatTransfer`. Support for other physical problems
+  can be plugged in at runtime if needed.
+- The material identifier, as defined in the mesh file. This identifier
+  may be either an integer or a string. In the later case, the string is
+  interpreted as a regular expression, a feature introduced by the
+  `Licos` fuel performance code and which proved very pratical in many
+  cases [@helfer_licos_2015].
 - The shared library containing the behaviour to be used.
 - The name of the behaviour to be used.
+
+> **Information associated with the behaviour and automatic memory management**
+>
+> Thanks to the [`MGIS`
+> project](https://thelfer.github.io/mgis/web/index.html)
+> [@helfer_mfrontgenericinterfacesupport_2020], all the information
+> related to the mechanical behaviour is retrieved, including:
+>
+> - The type of behaviour (finite strain mechanical behaviour is this case).
+> - The names of material properties, parameters, state variables and
+>   external state variables.
+> - etc.
+>
+> The memory required to store the state of the materials is
+> automatically allocated.
 
 ## Initialisation of the temperature
 
@@ -274,6 +327,8 @@ beginning of the time step and at the end of time step:
   mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
 ~~~~
 
+Defining the temperature is required by all `MFront` behaviours.
+
 The object returned a by the `getMaterial` method returns a thin wrapper
 around the `MaterialDataManager` provided by the [`MGIS`
 project](https://thelfer.github.io/mgis/web/index.html)
@@ -285,17 +340,9 @@ of the time step.
 
 ## Boundary Condition
 
-The problem is base on condition and more precisely on the boundary
-conditions which helps to define the behaviour of the material. 4
-boundary conditions are defined with the name at the top of the line to
-add the boundary condition `addBoundaryCondition`. The `MFEM_MGIS`
-program named `UniformDirichletBoundaryCondition` is called by each
-boundary conditions, and the first number is to define on which side
-this conditions are and the second number is for the direction :
-
-- 0 for the x.
-- 1 for the y. 
-- 2 for the z
+The `NonLinearEvolutionProblem` class allows to define uniform Dirichlet
+boundary conditions (imposed displacement) using the
+`addUniformDirichletBoundaryCondition` method as follows:
 
 ~~~~{.cxx}
   problem.addUniformDirichletBoundaryCondition(
@@ -310,6 +357,12 @@ this conditions are and the second number is for the direction :
           return u;
         }}});
 ~~~~
+
+Again, the code is almost self-explanatory. If the value of the imposed
+displacement is not specified (using the `LoadingEvolution` parameter),
+the selected component is set to zero. The `LoadingEvolution` parameter
+allows to specify the evolution of the imposed displacement using a
+function of time (defined her using a `C++` lambda expression).
 
 ## Non linear solver parameters.
 
@@ -327,7 +380,12 @@ structure:
 ~~~~
 
 Valid parameters for the `setSolverParameters` are described in the
-`doxygen` documentation.
+`doxygen` documentation of the library.
+
+If `PETSc` is used (see the `--use-petcs` command line option), the
+parameters associated with the choice of the non linear solver must be
+provided by an external configuration file (see the
+`--petsc-configuration-file` command line option).
 
 ## Selection of the linear solver
 
@@ -360,8 +418,6 @@ In this example, we export the displacements for visualization in
 on the boundary where the displacement as follows:
 
 ~~~~{.cxx}
-  problem.addPostProcessing("ComputeResultantForceOnBoundary",
-                            {{"Boundary", 2}, {"OutputFileName", "force.txt"}});
   problem.addPostProcessing("ParaviewExportResults",
                             {{"OutputFileName", "ssna303-displacements"}});
   problem.addPostProcessing("ParaviewExportIntegrationPointResultsAtNodes",
@@ -371,26 +427,27 @@ on the boundary where the displacement as follows:
       "ParaviewExportIntegrationPointResultsAtNodes",
       {{{"Results", "EquivalentPlasticStrain"},
         {"OutputFileName", "ssna303-equivalent-plastic-strain"}}});
+  problem.addPostProcessing("ComputeResultantForceOnBoundary",
+                            {{"Boundary", 2}, {"OutputFileName", "force.txt"}});
 ~~~~
 
 These post-processings are called using the `executePostProcessings`
 method during the resolution using the state at the end of time step.
+The user may also plugged in their own post-processings.
 
-The user may also provide their own post-processings. In particular, the
+## Resolution
 
-## Resolution initialization
+The `NonLinearEvolutionProblem` class is meant to solve the problem on
+one time step only. This allows to easily built weakly coupled non
+linear resolutions (for example, thermo-mechanical resolutions where the
+heat tranfer and mechanical problems are solved using a staggered
+scheme) or set-up couplings with external solvers.
 
-It's time to make the loop which will execute the test, for that some
-initialization have to be made:
+In this tutorial, a local time-substepping scheme is set up to handle
+resolution failures.
 
-- the number of steps.
-- the step timer.
-- the time variable.
-- the number of iteration.
-
-Once all is done, the timer loop can be made with the `for` condition
-between the counter `i` and the `nsteps`. A print is made to follow the
-steps.
+The loading starts at time \(0\) and ends at time \(1\). This range is
+divided in \(50\) time steps.
 
 ~~~~{.cxx}
   const auto nsteps = mfem_mgis::size_type{50};
@@ -402,10 +459,7 @@ steps.
               << '\n';
 ~~~~
 
-## Resolution
-
-The resolution part starts with a copy of the parameters defined above,
-with this copy the datas can be local and global in the loop.
+The local time substepping scheme is simply set up as follows:
 
 ~~~~{.cxx}
     auto ct = t;
@@ -413,28 +467,12 @@ with this copy the datas can be local and global in the loop.
     auto nsteps = mfem_mgis::size_type{1};
     auto nsubsteps  = mfem_mgis::size_type{0};
     while (nsteps != 0) {
-~~~~
-
-The `while` loop is used to realize all the step of the process. The
-`try` indicates a portion of code where an error may occur and after the
-`catch` introduces the portion of code that retrieves the object and
-handles the error. Whether the there is an error the variable
-`converged` is defined as `false`.
-
-~~~~{.cxx}
       auto converged = problem.solve(ct, dt2);
-~~~~
-
-Here the tests are made with the `converged` variable difined earlier.
-If converged is true the first test is realiaze otherwise the test is
-made until the `nsubsteps`=10.
-
-~~~~{.cxx}
       if (converged) {
         --nsteps;
         ct += dt2;
+        problem.update();
       } else {
-        std::cout << "\nsubstep: " << nsubsteps << '\n';
         nsteps *= 2;
         dt2 /= 2;
         ++nsubsteps;
@@ -446,20 +484,26 @@ made until the `nsubsteps`=10.
     }
 ~~~~
 
-This lines are to execute the postprocessing diffined in the `VTK
-Export`, the variables are steped up. The `return` line to close the
-`ssna303` programm.
+Every time a resolution is sucessful, the material state is updated
+using the `update` method, the current time is incremented and the
+number of the remaining substeps is decreased. The loop stops when the
+remaining number of sub-steps goes to zero.
+
+If the resolution failed, the local time step is divided by \(2\), the
+number of remaining substeps is multiplied by \(2\) and the state of the
+material is reverted to the beginning of the time step using the
+`revert` method. The resolution stops if more than \(10\) substeps are
+requested.
+
+Once a time step has been successful, the post-processings are executed
+and the time is incremented.
 
 ~~~~{.cxx}
       problem.executePostProcessings(t, dt);
-      problem.update();
       t += dt;
       ++iteration;
-      std::cout << '\n';
     }
   }
-  return EXIT_SUCCESS;
-}
 ~~~~  
 
 # References
