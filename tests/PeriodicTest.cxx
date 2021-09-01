@@ -43,7 +43,6 @@
 #include <cstdlib>
 #include <iostream>
 #include "mfem/general/optparser.hpp"
-#include "mfem/general/communication.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/MFEMForward.hxx"

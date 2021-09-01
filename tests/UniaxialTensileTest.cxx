@@ -123,6 +123,6 @@ int main(int argc, char** argv) {
     success =
         mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E * eps);
   }
-  //  mfem_mgis::Profiler::getProfiler().print(std::cout);
+  //  mfem_mgis::Profiler::getProfiler().print(mfem_mgis::getOutputStream());
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

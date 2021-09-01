@@ -148,9 +148,9 @@ namespace mfem_mgis {
     try {
       throw;
     } catch (std::exception& e) {
-      std::cerr << e.what() << '\n';
+      mfem_mgis::getErrorStream() << e.what() << '\n';
     } catch (...) {
-      std::cerr << "unknown exception thrown";
+      mfem_mgis::getErrorStream() << "unknown exception thrown";
     }
     abort();
     std::abort();
@@ -183,7 +183,7 @@ namespace mfem_mgis {
   }  // end of abort
 
   void abort(const char* const msg, const int error) {
-    std::cerr << msg << '\n';
+    mfem_mgis::getErrorStream() << msg << '\n';
     Finalizer::get().abort(error);
     std::exit(error);
   }  // end of abort

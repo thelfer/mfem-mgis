@@ -68,10 +68,10 @@ namespace mfem_mgis::unit_tests {
     args.Parse();
     if ((!args.Good()) || (params.mesh_file == nullptr) ||
         (params.library == nullptr) || (params.behaviour == nullptr)) {
-      args.PrintUsage(std::cout);
+      args.PrintUsage(mfem_mgis::getOutputStream());
       mfem_mgis::abort(EXIT_FAILURE);
     }
-    args.PrintOptions(std::cout);
+    args.PrintOptions(mfem_mgis::getOutputStream());
   }  // end of parseCommandLineOptions
 
   static void setLinearSolver(mfem_mgis::NonLinearEvolutionProblem& problem,
@@ -96,7 +96,7 @@ namespace mfem_mgis::unit_tests {
       problem.setLinearSolver("MUMPSSolver", {{"Symmetric", true}});
 #endif
     } else {
-      std::cerr << "unsupported linear solver\n";
+      mfem_mgis::getErrorStream() << "unsupported linear solver\n";
       mfem_mgis::abort(EXIT_FAILURE);
     }
   }  // end of setLinearSolver
@@ -146,8 +146,8 @@ namespace mfem_mgis::unit_tests {
                                 const auto ev, const auto msg) {
           const auto e = std::abs(cv - rv);
           if (e > ev) {
-            std::cerr << "test failed (" << msg << ", " << cv << " vs " << rv
-                      << ", error " << e << ")\n";
+            mfem_mgis::getErrorStream() << "test failed (" << msg << ", " << cv << " vs " << rv
+					<< ", error " << e << ")\n";
             success = false;
           }
         };

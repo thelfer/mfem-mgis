@@ -63,10 +63,10 @@ int main(int argc, char *argv[]) {
                  "Enable or disable GLVis visualization.");
   args.Parse();
   if (!args.Good()) {
-    args.PrintUsage(cout);
+    args.PrintUsage(mfem_mgis::getOutputStream());
     return 1;
   }
-  args.PrintOptions(cout);
+  args.PrintOptions(mfem_mgis::getOutputStream());
 
   // 2. Read the mesh from the given mesh file. We can handle triangular,
   //    quadrilateral, tetrahedral or hexahedral elements with the same code.
@@ -74,9 +74,9 @@ int main(int argc, char *argv[]) {
   int dim = mesh->Dimension();
 
   if (mesh->attributes.Max() < 2 || mesh->bdr_attributes.Max() < 2) {
-    cerr << "\nInput mesh should have at least two materials and "
-         << "two boundary attributes! (See schematic in ex2.cpp)\n"
-         << endl;
+    mfem_mgis::getErrorStream() << "\nInput mesh should have at least two materials and "
+				<< "two boundary attributes! (See schematic in ex2.cpp)\n"
+				<< endl;
     return 3;
   }
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
     fec = new H1_FECollection(order, dim);
     fespace = new FiniteElementSpace(mesh, fec, dim);
   }
-  cout << "Number of finite element unknowns: " << fespace->GetTrueVSize()
+  mfem_mgis::getOutputStream() << "Number of finite element unknowns: " << fespace->GetTrueVSize()
        << endl
        << "Assembling: " << flush;
 
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 
   LinearForm *b = new LinearForm(fespace);
   b->AddBoundaryIntegrator(new VectorBoundaryLFIntegrator(f));
-  cout << "r.h.s. ... " << flush;
+  mfem_mgis::getOutputStream() << "r.h.s. ... " << flush;
   b->Assemble();
 
   // 8. Define the solution vector x as a finite element grid function
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
   //     applying any necessary transformations such as: eliminating boundary
   //     conditions, applying conforming constraints for non-conforming AMR,
   //     static condensation, etc.
-  cout << "matrix ... " << flush;
+  mfem_mgis::getOutputStream() << "matrix ... " << flush;
   if (static_cond) {
     a->EnableStaticCondensation();
   }
@@ -177,9 +177,9 @@ int main(int argc, char *argv[]) {
   SparseMatrix A;
   Vector B, X;
   a->FormLinearSystem(ess_tdof_list, x, *b, A, X, B);
-  cout << "done." << endl;
+  mfem_mgis::getOutputStream() << "done." << endl;
 
-  cout << "Size of linear system: " << A.Height() << endl;
+  mfem_mgis::getOutputStream() << "Size of linear system: " << A.Height() << endl;
 
 #ifndef MFEM_USE_SUITESPARSE
   // 11. Define a simple symmetric Gauss-Seidel preconditioner and use it to
