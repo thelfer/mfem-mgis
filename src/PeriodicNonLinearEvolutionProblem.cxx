@@ -67,13 +67,89 @@ namespace mfem_mgis {
           if (id_unk >= 0) {
             found = 1;
             ess_tdof_list.Append(id_unk);
-          }
+	  }
         }
       }
     }
     MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
     
     MFEM_VERIFY(found, "Corner point was not found");
+    p.SetEssentialTrueDofs(ess_tdof_list);
+  }  // end of setPeriodicBoundaryConditions
+
+  void setPeriodicBoundaryConditions(
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const mfem_mgis::BoundaryConditionType bct) {
+    const FiniteElementSpace<true> & fes = p.getFiniteElementSpace();
+    const auto* const mesh = p.getFiniteElementSpace().GetMesh();
+    const auto dim = mesh->Dimension();
+    mfem::Array<int> ess_tdof_list;
+    ess_tdof_list.SetSize(0);
+    mfem::GridFunction nodes(&p.getFiniteElementSpace());
+    int found = 0;
+    bool bynodes = fes.GetOrdering() == mfem::Ordering::byNODES;
+    mesh->GetNodes(nodes);
+    const auto size = nodes.Size() / dim;
+
+    // Initialize reference values to largest possible numbers
+    real refcoord[dim];
+    int id_unk[dim];
+    for (int j = 0; j < dim; ++j) {
+      refcoord[j] = std::numeric_limits<double>::max();
+      id_unk[j] = -1;
+    }
+    // Traversal of all dofs to detect which one is minimal in X, Y or Z direction
+    // depending on the `bct` variable.
+    for (int i = 0; i < size; ++i) {
+      real curcoord[dim];
+      for (int j = 0; j < dim; ++j) {
+	if (bynodes)
+	  curcoord[j] = (nodes)[j * size + i];
+	else
+	  curcoord[j] = (nodes)[i * dim + j];
+      }
+      if (((bct == FIX_XMIN) && (curcoord[0] < refcoord[0])) ||
+	  ((bct == FIX_YMIN) && (curcoord[1] < refcoord[1])) ||
+	  ((bct == FIX_ZMIN) && (curcoord[2] < refcoord[2]))) {
+	for (int j = 0; j < dim; ++j) {
+	  refcoord[j] = curcoord[j];
+	  if (bynodes) {
+	    // id_unk = (j * size + i);
+	    id_unk[j] = p.getFiniteElementSpace().GetLocalTDofNumber(j * size + i);
+	  } else {
+	    // id_unk = (i * dim + j);
+	    id_unk[j] = p.getFiniteElementSpace().GetLocalTDofNumber(i * dim + j);
+	  }
+	}
+      }
+    }
+    // MPI communications to identify where is the minimum among all processes
+    {
+      int nbranks, myrank;
+      MPI_Comm_size(MPI_COMM_WORLD, &nbranks);
+      MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+      std::vector<double> recv_buf(nbranks,-1);
+      double mymin = -1;
+      if (bct == FIX_XMIN) mymin = refcoord[0];
+      if (bct == FIX_YMIN) mymin = refcoord[1];
+      if (bct == FIX_ZMIN) mymin = refcoord[2];
+      // gathering all minimum values overs all processes
+      MPI_Allgather(&mymin, 1, MPI_DOUBLE, recv_buf.data(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
+      // locate the minimum among the mimum values
+      auto result = std::min_element(recv_buf.begin(),recv_buf.end());
+      // locate on which process we have the minimum
+      int target_pid = result-recv_buf.begin();
+      // if the min value belongs to my process, I register the associated unknowns
+      if (target_pid == myrank) {
+	for (int j = 0; j < dim; ++j) {
+	  ess_tdof_list.Append(id_unk[j]);
+	}
+	found = 1;
+      }
+    }
+    MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    
+    MFEM_VERIFY(found == 1, "Not able to define proper periodic boundary conditions");
     p.SetEssentialTrueDofs(ess_tdof_list);
   }  // end of setPeriodicBoundaryConditions
 #endif /* MFEM_USE_MPI */
@@ -117,6 +193,59 @@ namespace mfem_mgis {
     p.SetEssentialTrueDofs(ess_tdof_list);
   }  // end of setPeriodicBoundaryConditions
 
+  void setPeriodicBoundaryConditions(
+    NonLinearEvolutionProblemImplementation<false>& p,
+    const mfem_mgis::BoundaryConditionType bct) {
+    const FiniteElementSpace<false> & fes = p.getFiniteElementSpace();
+    const auto* const mesh = p.getFiniteElementSpace().GetMesh();
+    const auto dim = mesh->Dimension();
+    mfem::Array<int> ess_tdof_list;
+    ess_tdof_list.SetSize(0);
+    mfem::GridFunction nodes(&p.getFiniteElementSpace());
+    int found = 0;
+    bool bynodes = fes.GetOrdering() == mfem::Ordering::byNODES;
+    mesh->GetNodes(nodes);
+    const auto size = nodes.Size() / dim;
+
+    // Initialize reference values to largest possible numbers
+    real refcoord[dim];
+    int id_unk[dim];
+    for (int j = 0; j < dim; ++j) {
+      refcoord[j] = std::numeric_limits<double>::max();
+      id_unk[j] = -1;
+    }
+
+    // Traversal of all dofs to detect which one is minimal in X, Y or Z direction
+    // depending on the `bct` variable.
+    for (int i = 0; i < size; ++i) {
+      real curcoord[dim];
+      for (int j = 0; j < dim; ++j) {
+	if (bynodes)
+	  curcoord[j] = (nodes)[j * size + i];
+	else
+	  curcoord[j] = (nodes)[i * dim + j];
+      }
+      if (((bct == FIX_XMIN) && (curcoord[0] < refcoord[0])) ||
+	  ((bct == FIX_YMIN) && (curcoord[1] < refcoord[1])) ||
+	  ((bct == FIX_ZMIN) && (curcoord[2] < refcoord[2]))) {
+	for (int j = 0; j < dim; ++j) {
+	  found = 1;
+	  refcoord[j] = curcoord[j];
+	  if (bynodes) {
+	    id_unk[j] = (j * size + i);
+	  } else {
+	    id_unk[j] = (i * dim + j);
+	  }
+	}
+      }
+    }
+    MFEM_VERIFY(found == 1, "Not able to define proper periodic boundary conditions");
+    for (int j = 0; j < dim; ++j) {
+      ess_tdof_list.Append(id_unk[j]);
+    }
+    p.SetEssentialTrueDofs(ess_tdof_list);
+  }  // end of setPeriodicBoundaryConditions
+  
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed,
       const mgis::span<const real>& corner1,
@@ -133,6 +262,24 @@ namespace mfem_mgis {
 #endif
     } else {
       setPeriodicBoundaryConditions(this->getImplementation<false>(), corner1, corner2);
+    }
+  }  // end of PeriodicNonLinearEvolutionProblem
+
+  PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const mfem_mgis::BoundaryConditionType bct)
+      : NonLinearEvolutionProblem(fed,
+                                  mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
+    if (fed->describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      setPeriodicBoundaryConditions(this->getImplementation<true>(), bct);
+#else
+      raise(
+          "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
+          "unsupported parallel computations");
+#endif
+    } else {
+      setPeriodicBoundaryConditions(this->getImplementation<false>(), bct);
     }
   }  // end of PeriodicNonLinearEvolutionProblem
 

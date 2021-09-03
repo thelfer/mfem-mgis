@@ -65,15 +65,17 @@ namespace mfem_mgis {
   std::unique_ptr<LinearSolverPreconditioner> setHypreILUPreconditioner(
       NonLinearEvolutionProblemImplementation<true>&,
       const Parameters& opts) {
-#ifndef HYPRE_OLD_VERSION
     using Problem = AbstractNonLinearEvolutionProblem;
+    bool verbose = contains(opts, Problem::SolverVerbosityLevel);
+#ifndef HYPRE_OLD_VERSION
     auto ilu = std::make_unique<mfem::HypreILU>();
     checkParameters(opts, {Problem::SolverVerbosityLevel});
-    if (contains(opts, Problem::SolverVerbosityLevel)) {
+    if (verbose) {
       ilu->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     }
     return ilu;
 #else /*  HYPRE_OLD_VERSION */
+    if(verbose){}; // fake command to avoid compiler warning
     MFEM_VERIFY(0, "Support for HypreILU is not available with "
 		"this version of MFEM");
     return nullptr;
@@ -390,7 +392,7 @@ namespace mfem_mgis {
   std::function<LinearSolverHandler(
       NonLinearEvolutionProblemImplementation<true>& , const Parameters&)>
   buildMUMPSSolverGenerator() {
-    return [](NonLinearEvolutionProblemImplementation<true>& p,
+    return [](NonLinearEvolutionProblemImplementation<true>&,
               const Parameters& params) {
       checkParameters(params, {"Symmetric", "PositiveDefinite"});
       auto s = std::make_unique<mfem::MUMPSSolver>();
