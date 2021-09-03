@@ -96,15 +96,14 @@ namespace mfem_mgis {
     while (true) {
       MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
       if (this->print_level >= 0) {
-	if (mfem_mgis::getMPIrank() == 0)
-	  mfem::out << "Newton iteration " << std::setw(2) << it
-		    << " : ||r|| = " << norm;
+        if (mfem_mgis::getMPIrank() == 0)
+          mfem::out << "Newton iteration " << std::setw(2) << it
+                    << " : ||r|| = " << norm;
         if (it > 0) {
-	  if (mfem_mgis::getMPIrank() == 0)
-	    mfem::out << ", ||r||/||r_0|| = " << norm / norm0;
+          if (mfem_mgis::getMPIrank() == 0)
+            mfem::out << ", ||r||/||r_0|| = " << norm / norm0;
         }
-	if (mfem_mgis::getMPIrank() == 0)
-	  mfem::out << '\n';
+        if (mfem_mgis::getMPIrank() == 0) mfem::out << '\n';
       }
       this->Monitor(it, norm, r, x);
       //
@@ -170,7 +169,7 @@ namespace mfem_mgis {
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     return this->oper->GetGradient(u);
-  } // end of getJacobian
+  }  // end of getJacobian
 
   void NewtonSolver::addNewUnknownsEstimateActions(
       std::function<bool(const mfem::Vector &)> a) {

@@ -14,12 +14,23 @@
 
 namespace mfem_mgis {
 
+  // forwar declaration
+  struct AbstractNonLinearEvolutionProblem;
+  struct Parameters;
+
   /*!
    * \brief class used to simplify the definition of Dirichlet boundary
    * conditions.
    */
   struct MFEM_MGIS_EXPORT UniformDirichletBoundaryCondition
       : DirichletBoundaryConditionBase {
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear evolution problem
+     * \param[in] params: parameters defining the boundary condition
+     */
+    UniformDirichletBoundaryCondition(AbstractNonLinearEvolutionProblem&,
+                                      const Parameters&);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretiszation

@@ -5,7 +5,6 @@
  * \date   10/03/2021
  */
 
-#include <limits>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
@@ -92,7 +91,8 @@ namespace mfem_mgis {
     bool bynodes = fes.GetOrdering() == mfem::Ordering::byNODES;
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
-    
+
+    // Initialize reference values to largest possible numbers
     real refcoord[dim];
     int id_unk[dim];
     for (int j = 0; j < dim; ++j) {
@@ -100,6 +100,7 @@ namespace mfem_mgis {
       id_unk[j] = -1;
     }
     // Traversal of all dofs to detect which one is minimal in X, Y or Z direction
+    // depending on the `bct` variable.
     for (int i = 0; i < size; ++i) {
       real curcoord[dim];
       for (int j = 0; j < dim; ++j) {
@@ -123,6 +124,7 @@ namespace mfem_mgis {
 	}
       }
     }
+    // MPI communications to identify where is the minimum among all processes
     {
       int nbranks, myrank;
       MPI_Comm_size(MPI_COMM_WORLD, &nbranks);
@@ -141,14 +143,12 @@ namespace mfem_mgis {
       // if the min value belongs to my process, I register the associated unknowns
       if (target_pid == myrank) {
 	for (int j = 0; j < dim; ++j) {
-	  std::cout << "unknown " << id_unk[j] << std::endl;
 	  ess_tdof_list.Append(id_unk[j]);
 	}
 	found = 1;
       }
     }
     MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    std::cout << "pipolopar" << std::endl;
     
     MFEM_VERIFY(found == 1, "Not able to define proper periodic boundary conditions");
     p.SetEssentialTrueDofs(ess_tdof_list);
@@ -207,13 +207,17 @@ namespace mfem_mgis {
     bool bynodes = fes.GetOrdering() == mfem::Ordering::byNODES;
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
+
+    // Initialize reference values to largest possible numbers
     real refcoord[dim];
     int id_unk[dim];
     for (int j = 0; j < dim; ++j) {
       refcoord[j] = std::numeric_limits<double>::max();
       id_unk[j] = -1;
     }
+
     // Traversal of all dofs to detect which one is minimal in X, Y or Z direction
+    // depending on the `bct` variable.
     for (int i = 0; i < size; ++i) {
       real curcoord[dim];
       for (int j = 0; j < dim; ++j) {
@@ -237,9 +241,7 @@ namespace mfem_mgis {
       }
     }
     MFEM_VERIFY(found == 1, "Not able to define proper periodic boundary conditions");
-    std::cout << "pipoloseq" << std::endl;
     for (int j = 0; j < dim; ++j) {
-      std::cout << "unkown " << id_unk[j] << std::endl;
       ess_tdof_list.Append(id_unk[j]);
     }
     p.SetEssentialTrueDofs(ess_tdof_list);

@@ -64,7 +64,7 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel>& p) {
     auto nmax = p.getFiniteElementSpace().GetMesh()->attributes.Max() + 1;
     std::vector<std::vector<mfem_mgis::real>> stress_integrals(nmax);
-    const auto& mis = p.getMaterialIdentifiers();
+    const auto& mis = p.getAssignedMaterialsIdentifiers();
     for (const auto& mi : mis) {
       const auto& bi = p.getBehaviourIntegrator(mi);
       const auto& s1 = bi.getMaterial().s1;

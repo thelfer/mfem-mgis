@@ -29,7 +29,7 @@ namespace mfem_mgis {
     mfem::VectorFunctionCoefficient sol_coef(dim, f);
     const auto error = x.ComputeL2Error(sol_coef);
     const auto verbosity = get_if<int>(params, "GeneralVerbosityLevel", 0);
-    if (verbosity > 1) std::cout << "L2Error: " << error << "\n";
+    if (verbosity > 1) mfem_mgis::getOutputStream() << "L2Error: " << error << "\n";
     return error < get<real>(params, "CriterionThreshold");
   }  // end of checkSolution
 

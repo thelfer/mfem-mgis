@@ -182,7 +182,7 @@ namespace mfem_mgis {
   }  // end of update
 
   std::vector<size_type>
-  MultiMaterialNonLinearIntegrator::getMaterialIdentifiers() const {
+  MultiMaterialNonLinearIntegrator::getAssignedMaterialsIdentifiers() const {
     std::vector<size_type> mids;
     for (size_type i = 0; i != this->behaviour_integrators.size(); ++i) {
       if (this->behaviour_integrators[i] != nullptr) {
@@ -190,7 +190,7 @@ namespace mfem_mgis {
       }
     }
     return mids;
-  }  // end of getMaterialIdentifiers
+  }  // end of getAssignedMaterialsIdentifiers
 
   MultiMaterialNonLinearIntegrator::~MultiMaterialNonLinearIntegrator() =
       default;

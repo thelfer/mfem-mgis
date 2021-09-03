@@ -9,6 +9,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/BoundaryUtilities.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
@@ -74,6 +75,11 @@ namespace mfem_mgis {
     return this->pimpl->getFiniteElementDiscretization();
   }  // end of getFiniteElementDiscretization
 
+  const FiniteElementDiscretization&
+  NonLinearEvolutionProblem::getFiniteElementDiscretization() const {
+    return this->pimpl->getFiniteElementDiscretization();
+  }  // end of getFiniteElementDiscretization
+
   std::shared_ptr<FiniteElementDiscretization>
   NonLinearEvolutionProblem::getFiniteElementDiscretizationPointer() {
     return this->pimpl->getFiniteElementDiscretizationPointer();
@@ -113,15 +119,51 @@ namespace mfem_mgis {
     return this->pimpl->solve(t, dt);
   }  // end of solve
 
-  std::vector<size_type> NonLinearEvolutionProblem::getMaterialIdentifiers()
+  void NonLinearEvolutionProblem::setMaterialsNames(
+      const std::map<size_type, std::string>& ids) {
+    this->pimpl->setMaterialsNames(ids);
+  }
+
+  void NonLinearEvolutionProblem::setBoundariesNames(
+      const std::map<size_type, std::string>& ids) {
+    this->pimpl->setBoundariesNames(ids);
+  }
+
+  size_type NonLinearEvolutionProblem::getMaterialIdentifier(
+      const Parameter& p) const {
+    return this->pimpl->getMaterialIdentifier(p);
+  }  // end of getMaterialIdentifier
+
+  size_type NonLinearEvolutionProblem::getBoundaryIdentifier(
+      const Parameter& p) const {
+    return this->pimpl->getBoundaryIdentifier(p);
+  }  // end of getBoundariesIdentifier
+
+  std::vector<size_type> NonLinearEvolutionProblem::getMaterialsIdentifiers(
+      const Parameter& p) const {
+    return this->pimpl->getMaterialsIdentifiers(p);
+  }  // end of getMaterialsIdentifiers
+
+  std::vector<size_type> NonLinearEvolutionProblem::getBoundariesIdentifiers(
+      const Parameter& p) const {
+    return this->pimpl->getBoundariesIdentifiers(p);
+  }  // end of getBoundariesIdentifiers
+
+  std::vector<size_type> NonLinearEvolutionProblem::getAssignedMaterialsIdentifiers()
       const {
-    return this->pimpl->getMaterialIdentifiers();
-  }  // end of getMaterialIdentifiers
+    return this->pimpl->getAssignedMaterialsIdentifiers();
+  }  // end of getAssignedMaterialsIdentifiers
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {
     this->pimpl->addBoundaryCondition(std::move(bc));
   }  // end of NonLinearEvolutionProblem::addBoundaryCondition
+
+  void NonLinearEvolutionProblem::addUniformDirichletBoundaryCondition(
+      const Parameters& params) {
+    this->addBoundaryCondition(
+        std::make_unique<UniformDirichletBoundaryCondition>(*this, params));
+  }  // end of addUniformBoundaryCondition
 
   void NonLinearEvolutionProblem::addPostProcessing(
       const std::function<void(const real, const real)>& p) {
@@ -139,18 +181,18 @@ namespace mfem_mgis {
   }
 
   void NonLinearEvolutionProblem::addBehaviourIntegrator(const std::string& n,
-                                                         const size_type l,
-                                                         const std::string& m,
+                                                         const Parameter& m,
+                                                         const std::string& l,
                                                          const std::string& b) {
-    this->pimpl->addBehaviourIntegrator(n, l, m, b);
+    this->pimpl->addBehaviourIntegrator(n, m, l, b);
   }  // end of addBehaviourIntegrator
 
   const Material& NonLinearEvolutionProblem::getMaterial(
-      const size_type m) const {
+      const Parameter& m) const {
     return this->pimpl->getMaterial(m);
   }  // end of getMaterial
 
-  Material& NonLinearEvolutionProblem::getMaterial(const size_type m) {
+  Material& NonLinearEvolutionProblem::getMaterial(const Parameter& m) {
     return this->pimpl->getMaterial(m);
   }  // end of getMaterial
 

@@ -70,6 +70,8 @@ namespace mfem_mgis {
         const;
     //
     FiniteElementDiscretization &getFiniteElementDiscretization() override;
+    const FiniteElementDiscretization &getFiniteElementDiscretization()
+        const override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
     mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() override;
@@ -80,17 +82,30 @@ namespace mfem_mgis {
     void setLinearSolver(std::string_view, const Parameters &) override;
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
+    /*!
+     * \brief add an uniform boundary condition
+     * \param[in] params: parameters defining the boundary condition
+     */
+    void addUniformDirichletBoundaryCondition(const Parameters&);
     void addPostProcessing(
         const std::function<void(const real, const real)> &) override;
     void addPostProcessing(std::string_view, const Parameters &) override;
     void executePostProcessings(const real, const real) override;
     void addBehaviourIntegrator(const std::string &,
-                                const size_type,
+                                const Parameter&,
                                 const std::string &,
                                 const std::string &) override;
-    std::vector<size_type> getMaterialIdentifiers() const override;
-    const Material &getMaterial(const size_type) const override;
-    Material &getMaterial(const size_type) override;
+    void setMaterialsNames(const std::map<size_type, std::string>&) override;
+    void setBoundariesNames(const std::map<size_type, std::string>&) override;
+    std::vector<size_type> getAssignedMaterialsIdentifiers() const override;
+    size_type getMaterialIdentifier(const Parameter &) const override;
+    size_type getBoundaryIdentifier(const Parameter &) const override;
+    std::vector<size_type> getMaterialsIdentifiers(
+        const Parameter&) const override;
+    std::vector<size_type> getBoundariesIdentifiers(
+        const Parameter&) const override;
+    const Material &getMaterial(const Parameter&) const override;
+    Material &getMaterial(const Parameter&) override;
     const BehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const override;
     BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;

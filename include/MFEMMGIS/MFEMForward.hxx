@@ -10,6 +10,7 @@
 
 #include <type_traits>
 #include "mfem/config/config.hpp"
+#include "mfem/general/globals.hpp"
 
 namespace mfem {
 
@@ -32,6 +33,9 @@ namespace mfem {
   class Solver;
   class IterativeSolver;
   class IntegrationPoint;
+  //
+  template <class>
+  class Array;
 
 #ifdef MFEM_USE_PETSC
   class PetscNonlinearSolver;

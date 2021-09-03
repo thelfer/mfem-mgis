@@ -46,8 +46,8 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<true>& p,
       const Parameters& params)
       : ComputeResultantForceOnBoundaryCommon(
-            buildFacesDescription<true>(p, get<int>(params, "Boundary")),
-            get<int>(params, "Boundary")) {
+            buildFacesDescription<true>(p, getBoundaryIdentifier(p, params)),
+            getBoundaryIdentifier(p, params)) {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
@@ -89,8 +89,8 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<false>& p,
       const Parameters& params)
       : ComputeResultantForceOnBoundaryCommon(
-            buildFacesDescription<false>(p, get<int>(params, "Boundary")),
-            get<int>(params, "Boundary")) {
+            buildFacesDescription<false>(p, getBoundaryIdentifier(p, params)),
+            getBoundaryIdentifier(p, params)) {
     const auto& f = get<std::string>(params, "OutputFileName");
     this->out.open(f);
     if (!this->out) {

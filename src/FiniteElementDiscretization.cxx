@@ -5,7 +5,10 @@
  * \date 16/12/2020
  */
 
+#include <iostream>
+#include <cctype>
 #include <utility>
+#include <regex>
 #include <fstream>
 #include <mfem/mesh/mesh.hpp>
 #include <mfem/fem/fespace.hpp>
@@ -19,6 +22,57 @@
 
 namespace mfem_mgis {
 
+#ifdef MFEM_USE_MED
+
+  /*!
+   * \brief Extract the file extension
+   * \param[in] s: string corresponding to a file name
+   */
+  static std::string getFileExt(const std::string& s) {
+    size_t i = s.rfind('.', s.length());
+    if (i != std::string::npos) {
+      return(s.substr(i+1, s.length() - i));
+    }
+    
+    return("");
+  }  // end of getFileExt
+
+#endif /* MFEM_USE_MED */
+
+  /*!
+   * \brief load a mesh (sequential)
+   * \param[in] s: string corresponding to a file name
+   *
+   * \note MED format is handled in addition to standard MFEM
+   *       input formats.
+   */
+  static std::shared_ptr<Mesh<false>> loadMeshSequential(
+      const std::string& mesh_name,
+      int generate_edges = 0,
+      int refine = 1,
+      bool /* fix_orientation */ = true) {
+#ifdef MFEM_USE_MED
+    const auto extension = getFileExt(mesh_name);
+    if (extension == "med") {
+      auto medmesh = std::make_shared<Mesh<false>>();
+      std::string per_name = mesh_name;
+      per_name.replace(per_name.length() - 4, 4, ".per");
+      std::ifstream per_file(per_name.c_str());
+      if (per_file.good()) {
+        medmesh->ImportMED(mesh_name, 0, per_name);
+      } else {
+        medmesh->ImportMED(mesh_name, 0, "");
+      }
+      // medmesh->CheckElementOrientation(fix_orientation);
+      // medmesh->CheckBdrElementOrientation(fix_orientation);
+      return medmesh;
+    }
+#endif /* MFEM_USE_MED */
+    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(),
+                                               generate_edges, refine);
+    return smesh;
+  }  // end of loadMeshSequential
+
   const char* const FiniteElementDiscretization::Parallel = "Parallel";
   const char* const FiniteElementDiscretization::MeshFileName = "MeshFileName";
   const char* const FiniteElementDiscretization::FiniteElementFamily =
@@ -30,6 +84,34 @@ namespace mfem_mgis {
       "NumberOfUniformRefinements";
   const char* const FiniteElementDiscretization::GeneralVerbosityLevel =
       "GeneralVerbosityLevel";
+
+  const mfem::Array<size_type>& getMaterialsAttributes(
+      const FiniteElementDiscretization& fed) {
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto& mesh = fed.getMesh<true>();
+      return mesh.attributes;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto& mesh = fed.getMesh<false>();
+    return mesh.attributes;
+  }  // end of getMaterialsAttributes
+
+  const mfem::Array<size_type>& getBoundariesAttributes(
+      const FiniteElementDiscretization& fed) {
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto& mesh = fed.getMesh<true>();
+      return mesh.bdr_attributes;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto& mesh = fed.getMesh<false>();
+    return mesh.bdr_attributes;
+  }  // end of getBoundariesAttributes
 
   void FiniteElementDiscretization::reportInvalidParallelMesh() {
     raise(
@@ -90,8 +172,6 @@ namespace mfem_mgis {
       for (size_type i = 0; i < nrefinement; ++i) {
         this->parallel_mesh->UniformRefinement();
       }
-//      std::cout << "Info mesh\n";
-//      this->parallel_mesh->PrintInfo();
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
@@ -221,6 +301,214 @@ namespace mfem_mgis {
     return *(this->fec);
   }  // end of getFiniteElementCollection
 
+  static bool isValidMeshObjectName(const std::string& n) {
+    if (n.empty()) {
+      return false;
+    }
+    auto p = n.begin();
+    if (std::isdigit(*p)) {
+      return false;
+    }
+    for (; p != n.end(); ++p) {
+      if ((!std::isalpha(*p)) && (!(std::isdigit(*p))) && (*p != '_')) {
+        return false;
+      }
+      if (std::isspace(*p)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of isValidMeshObjectName
+
+  static void setMeshObjectNames(std::map<size_type, std::string>& ids,
+                                 const std::map<size_type, std::string>& nids,
+                                 const mfem::Array<size_type>& attributes,
+                                 const std::string& m,
+                                 const std::string& t) {
+    // checks that the given identifiers are ok
+    for (const auto& [a, n] : nids) {
+      if (attributes.Find(a) == -1) {
+        raise(m + ": no " + t + " associated with attribute '" +
+              std::to_string(a) + "'");
+      }
+      if (!isValidMeshObjectName(n)) {
+        raise(m + ": " + n + " is not a valid " + t + " identifier");
+      }
+      const auto p = ids.find(a);
+      if (p != ids.end()) {
+        raise(m + ": a name has already been associated with " + t + " " +
+              std::to_string(a) + " ('" + p->second + "') ");
+      }
+    }
+    // declaring attributes
+    ids.insert(nids.begin(), nids.end());
+  }  // end of setMeshObjectNames
+
+  void FiniteElementDiscretization::setMaterialsNames(
+      const std::map<size_type, std::string>& ids) {
+    setMeshObjectNames(this->materials_names, ids,
+                       getMaterialsAttributes(*this), "setMaterialsNames",
+                       "material");
+  }  // end of setMaterialsNames
+
+  void FiniteElementDiscretization::setBoundariesNames(
+      const std::map<size_type, std::string>& ids) {
+    setMeshObjectNames(this->boundaries_names, ids,
+                       getBoundariesAttributes(*this), "setBoundariesNames",
+                       "boundary");
+  }  // end of setBoundariesNames
+
+  static std::vector<size_type> selectMeshObjectsIdentifiers(
+      const mfem::Array<size_type>& attributes,
+      const size_type id,
+      const std::string& t,
+      const std::string& m) {
+    if (attributes.Find(id) == -1) {
+      raise(m + ": no " + t + " associated with attribute '" +
+            std::to_string(id) + "'");
+    }
+    return {id};
+  }  // end of selectMeshObjectsIdentifiers
+
+  std::vector<size_type> selectMeshObjectsIdentifiers(
+      const std::map<size_type, std::string>& names,
+      const std::string& id,
+      const std::string& t,
+      const std::string& m) {
+    auto r = std::vector<size_type>{};
+    try {
+      std::regex e(id);
+      for (const auto& [a, n] : names) {
+        if (std::regex_match(n, e)) {
+          r.push_back(a);
+        }
+      }
+      if (r.empty()) {
+        raise(m + ": no " + t + " matching regular expression '" + id + "'");
+      }
+    } catch (std::exception& e) {
+        raise(m + ": invalid regular expression '" + id + "'");
+    }
+    return r;
+  }  // end of selectMeshObjectsIdentifiers
+
+  std::vector<size_type> selectMeshObjectsIdentifiers(
+      const mfem::Array<size_type>& attributes,
+      const std::map<size_type, std::string>& names,
+      const std::vector<Parameter>& ids,
+      const std::string& t,
+      const std::string& m) {
+    if (ids.empty()) {
+      raise(m + ": empty list of identifiers");
+    }
+    auto r = std::vector<size_type>{};
+    auto append = [&r, &m](const auto& nids) {
+      for (const auto& id : nids) {
+        if (std::find(std::cbegin(r), std::cend(r), id) != std::cend(r)) {
+          raise(m + ": identifier '" + std::to_string(id) +
+                "' multiply selected");
+        }
+        r.push_back(id);
+      }
+    };
+    for (const auto& id : ids) {
+      if (is<size_type>(id)) {
+        const auto i = get<size_type>(id);
+        append(selectMeshObjectsIdentifiers(attributes, i, t, m));
+      } else if (is<std::string>(id)) {
+        const auto& n = get<std::string>(id);
+        append(selectMeshObjectsIdentifiers(names, n, t, m));
+      } else {
+        raise(m + ": invalid parameter");
+      }
+    }
+    return r;
+  }  // end of selectMeshObjectsIdentifiers
+
+  std::vector<size_type> selectMeshObjectsIdentifiers(
+      const mfem::Array<size_type>& attributes,
+      const std::map<size_type, std::string>& names,
+      const Parameter& p,
+      const std::string& t,
+      const std::string& m) {
+    if (is<size_type>(p)) {
+      const auto id = get<size_type>(p);
+      return selectMeshObjectsIdentifiers(attributes, id, t, m);
+    } else if (is<std::string>(p)) {
+      const auto& id = get<std::string>(p);
+      return selectMeshObjectsIdentifiers(names, id, t, m);
+    }
+    if (!is<std::vector<Parameter>>(p)) {
+      raise(m + ": invalid parameter type");
+    }
+    const auto& ids = get<std::vector<Parameter>>(p);
+    return selectMeshObjectsIdentifiers(attributes, names, ids, t, m);
+  }  // end of selectMeshObjectsIdentifiers
+
+  std::vector<size_type> FiniteElementDiscretization::getMaterialsIdentifiers(
+      const Parameter& p) const {
+    return selectMeshObjectsIdentifiers(getMaterialsAttributes(*this),
+                                        this->materials_names, p, "material",
+                                        "getMaterialsIdentifiers");
+  }  // end of getMaterialsIdentifiers
+
+  std::vector<size_type> FiniteElementDiscretization::getBoundariesIdentifiers(
+      const Parameter& p) const {
+    return selectMeshObjectsIdentifiers(getBoundariesAttributes(*this),
+                                        this->boundaries_names, p, "boundary",
+                                        "getBoundariesIdentifiers");
+  }  // end of getBoundariesIdentifiers
+
+  size_type FiniteElementDiscretization::getMaterialIdentifier(
+      const Parameter& p) const {
+    if (is<size_type>(p)) {
+      const auto id = get<size_type>(p);
+      const auto ids = getMaterialsAttributes(*this);
+      if (ids.Find(id) == -1) {
+        raise(
+            "getMaterialIdentifier: "
+            "no material id for identifier '" +
+            std::to_string(id) + "'");
+      }
+      return id;
+    }
+    if (!is<std::string>(p)) {
+      raise("getMaterialIdentifier: invalid parameter type");
+    }
+    const auto& n = get<std::string>(p);
+    for (const auto& [id, name] : this->materials_names) {
+      if (name == n) {
+        return id;
+      }
+    }
+    raise("getMaterialIdentifier: no material named '" + n + "'");
+  }  // end of getMaterialIdentifier
+
+  size_type FiniteElementDiscretization::getBoundaryIdentifier(
+      const Parameter& p) const {
+    if (is<size_type>(p)) {
+      const auto id = get<size_type>(p);
+      const auto ids = getBoundariesAttributes(*this);
+      if (ids.Find(id) == -1) {
+        raise(
+            "getBoundaryIdentifier: "
+            "no boundary id associated with identifier '" +
+            std::to_string(id) + "'");
+      }
+      return id;
+    }
+    if (!is<std::string>(p)) {
+      raise("getBoundaryIdentifier: invalid parameter type");
+    }
+    const auto& n = get<std::string>(p);
+    for (const auto& [id, name] : this->boundaries_names) {
+      if (name == n) {
+        return id;
+      }
+    }
+    raise("getMaterialIdentifier: no material named '" + n + "'");
+  }  // end of getBoundaryIdentifier
+
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;
 
   size_type getTrueVSize(const FiniteElementDiscretization& fed) {
@@ -233,32 +521,5 @@ namespace mfem_mgis {
     }
     return fed.getFiniteElementSpace<false>().GetTrueVSize();
   }  // end of getTrueVSize
-
-  std::shared_ptr<Mesh<false>> loadMeshSequential(const std::string& mesh_name,
-                                                  int generate_edges,
-                                                  int refine,
-                                                  bool fix_orientation) {
-#ifdef MFEM_USE_MED
-    auto extension = getFileExt(mesh_name);
-    if (extension == "med") {
-      auto medmesh = std::make_shared<Mesh<false>>();
-      std::string per_name = mesh_name;
-      per_name.replace(per_name.length() - 4, 4, ".per");
-      std::ifstream per_file(per_name.c_str());
-      if (per_file.good()) {
-        medmesh->ImportMED(mesh_name, 0, per_name);
-      } else {
-        medmesh->ImportMED(mesh_name, 0, "");
-      }
-      // medmesh->CheckElementOrientation(fix_orientation);
-      // medmesh->CheckBdrElementOrientation(fix_orientation);
-      return medmesh;
-    }
-#endif /* MFEM_USE_MED */
-    auto smesh = std::make_shared<Mesh<false>>(mesh_name.c_str(),
-                                               generate_edges, refine);
-    return smesh;
-
-  }  // end of loadMeshSequential
 
 }  // end of namespace mfem_mgis

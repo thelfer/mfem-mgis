@@ -63,6 +63,12 @@ namespace mfem_mgis {
     return *(this->fe_discretization);
   }  // end of getFiniteElementDiscretization
 
+  const FiniteElementDiscretization&
+  NonLinearEvolutionProblemImplementationBase::getFiniteElementDiscretization()
+      const {
+    return *(this->fe_discretization);
+  }  // end of getFiniteElementDiscretization
+
   std::shared_ptr<FiniteElementDiscretization>
   NonLinearEvolutionProblemImplementationBase::
       getFiniteElementDiscretizationPointer() {
@@ -114,33 +120,67 @@ namespace mfem_mgis {
     }
   }  // end of checkMultiMaterialSupportEnabled
 
+  void NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
+      const std::map<size_type, std::string>& ids) {
+    this->getFiniteElementDiscretization().setMaterialsNames(ids);
+  }
+
+  void NonLinearEvolutionProblemImplementationBase::setBoundariesNames(
+      const std::map<size_type, std::string>& ids){
+    this->getFiniteElementDiscretization().setBoundariesNames(ids);
+  }
+
+  size_type NonLinearEvolutionProblemImplementationBase::getMaterialIdentifier(
+      const Parameter& p) const {
+    return this->getFiniteElementDiscretization().getMaterialIdentifier(p);
+  }  // end of getMaterialIdentifier
+
+  size_type NonLinearEvolutionProblemImplementationBase::getBoundaryIdentifier(
+      const Parameter& p) const {
+    return this->getFiniteElementDiscretization().getBoundaryIdentifier(p);
+  }  // end of getBoundaryIdentifier
+
   std::vector<size_type>
-  NonLinearEvolutionProblemImplementationBase::getMaterialIdentifiers() const {
-    checkMultiMaterialSupportEnabled("getMaterialIdentifiers",
+  NonLinearEvolutionProblemImplementationBase::getMaterialsIdentifiers(
+      const Parameter& p) const {
+    return this->getFiniteElementDiscretization().getMaterialsIdentifiers(p);
+  }  // end of getMaterialsIdentifiers
+
+  std::vector<size_type>
+  NonLinearEvolutionProblemImplementationBase::getAssignedMaterialsIdentifiers() const {
+    checkMultiMaterialSupportEnabled("getAssignedMaterialsIdentifiers",
                                      this->mgis_integrator);
-    return this->mgis_integrator->getMaterialIdentifiers();
-  }  // end of getMaterialIdentifiers
+    return this->mgis_integrator->getAssignedMaterialsIdentifiers();
+  }  // end of getAssignedMaterialsIdentifiers
+
+  std::vector<size_type>
+  NonLinearEvolutionProblemImplementationBase::getBoundariesIdentifiers(
+      const Parameter& p) const {
+    return this->getFiniteElementDiscretization().getBoundariesIdentifiers(p);
+  }  // end of getBoundariesIdentifiers
 
   void NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
       const std::string& n,
-      const size_type m,
+      const Parameter& m,
       const std::string& l,
       const std::string& b) {
     checkMultiMaterialSupportEnabled("addBehaviourIntegrator",
                                      this->mgis_integrator);
-    this->mgis_integrator->addBehaviourIntegrator(n, m, l, b);
+    for (const auto& id : this->getMaterialsIdentifiers(m)) {
+      this->mgis_integrator->addBehaviourIntegrator(n, id, l, b);
+    }
   }  // end of addBehaviourIntegrator
 
   const Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
-      const size_type m) const {
+      const Parameter& m) const {
     checkMultiMaterialSupportEnabled("getMaterial", this->mgis_integrator);
-    return this->mgis_integrator->getMaterial(m);
+    return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
   }  // end of getMaterial
 
   Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
-      const size_type m) {
+      const Parameter& m) {
     checkMultiMaterialSupportEnabled("getMaterial", this->mgis_integrator);
-    return this->mgis_integrator->getMaterial(m);
+    return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
   }  // end of getMaterial
 
   const BehaviourIntegrator&
