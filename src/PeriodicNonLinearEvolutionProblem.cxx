@@ -225,9 +225,9 @@ namespace mfem_mgis {
 	else
 	  curcoord[j] = (nodes)[i * dim + j];
       }
-      if ((bct == FIX_XMIN) && (curcoord[0] < refcoord[0]) ||
-	  (bct == FIX_YMIN) && (curcoord[1] < refcoord[1]) ||
-	  (bct == FIX_ZMIN) && (curcoord[2] < refcoord[2])) {
+      if (((bct == FIX_XMIN) && (curcoord[0] < refcoord[0])) ||
+	  ((bct == FIX_YMIN) && (curcoord[1] < refcoord[1])) ||
+	  ((bct == FIX_ZMIN) && (curcoord[2] < refcoord[2]))) {
 	for (int j = 0; j < dim; ++j) {
 	  found = 1;
 	  refcoord[j] = curcoord[j];
