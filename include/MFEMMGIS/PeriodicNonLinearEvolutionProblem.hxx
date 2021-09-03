@@ -18,6 +18,12 @@ namespace mfem_mgis {
   template <bool parallel>
   struct NonLinearEvolutionProblemImplementation;
 
+  enum BoundaryConditionType {
+    FIX_XMIN = 0,
+    FIX_YMIN = 1,
+    FIX_ZMIN = 2
+  };
+  
 #ifdef MFEM_USE_MPI
 
   /*!
