@@ -67,7 +67,6 @@ namespace mfem_mgis {
           if (id_unk >= 0) {
             found = 1;
             ess_tdof_list.Append(id_unk);
-	    std::cout << "unknown " << id_unk << std::endl;
 	  }
         }
       }
