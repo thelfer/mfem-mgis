@@ -84,15 +84,16 @@ code generator](http://tfel.sourceforge.net).
 
 This behaviour is characterized by four parameters:
 
-- The `Young Modulus` ($E$), which is the constant relating tensile
-  stress and strain for an isotropic elastic material.
-- The `Poisson Ratio` ($\nu$), is the coefficient to characterise the
-  contraction of the material perpendicular at the direction of the
+- The `Young Modulus` ($E$) is the slope of the linear part of the
+  stress-strain curve for a material under tension or compression
+  (isotropic elastic material).
+- The `Poisson Ratio` ($\nu$) is the coefficient to characterize the
+  contraction of the material perpendicular to the direction of the
   force applied.
-- The `Yield Strength` ($\sigma_{0}$), which defines the point on the
+- The `Yield Strength` ($\sigma_{0}$) defines the point on the
   stress versus strain curve where the material initially starts to go
   into plastic strain.
-- The `Strain Hardening Modulus` (H), which defined the slope of the
+- The `Strain Hardening Modulus` (H) defines the slope of the
   stress versus strain curve after the point of yield of a material.
 
 In our example the following values are used:
@@ -108,14 +109,14 @@ In our example the following values are used:
 \right.
 \]
 
-Those values are hard-coded in the `MFront` file.
 
 ### Compilation of the `MFront` behaviour
 
+The previous values are hard-coded in the `MFront` file.
 The `MFront` implementation is stored in a source file called
 `Plasticity.mfront`. This file must be compiled before the execution of
-our `MFEM/MGIS` `C++` example which will be detailled in depth in
-Section @sec:mfem_mgis:ssna303 as follows:
+our `MFEM/MGIS` `C++` example which will be detailed in depth in
+Section @sec:mfem_mgis:ssna303. Compilation is performed as follows:
 
 ~~~~{.cxx}
 $ mfront --obuild --interface=generic Plasticity.mfront
@@ -142,7 +143,7 @@ mfem_mgis::initialize(argc, argv);
 > All the classes and funtions of the `MFEM/MGIS` project are place in
 > the `mfem_mgis` namespace.
 
-This call is mostly useful in parallel and handle:
+This call is mostly useful in parallel and handles:
 
 - The initialization of interprocess communications handled by the
   [`MPI` framework](https://www.mpi-forum.org/docs/).
@@ -163,8 +164,9 @@ behaviour:
 
 ### Command line options
 
-The resolution can be parametrized using command line options by relying
-on the `MFEM` facilities provided by the `OptionsParser` class.
+The numerical resolution can be parametrized using command line
+options by relying on the `MFEM` facilities provided by the
+`OptionsParser` class.
 
 The proposed implementation allows the following options:
 
@@ -238,7 +240,7 @@ The `NonLinearEvolutionProblem` class is the main class manipulated by
 the end-users of the `MFEM/MGIS` library. It is meant to handle all the
 aspects of the non linear resolution.
 
-Thanks to the `Parameters` type, which is used almost everywhere in the
+Thanks to the `Parameters` type, which is used at different locations in the
 interface of the `NonLinearEvolutionProblem` class, the `MFEM/MGIS`
 exposes a high level API (Application Programming Interface) which hides
 (by default) all the details related to parallelization and memory
@@ -253,8 +255,8 @@ a parallel computation to a parallel one at runtime.
 
 Although based on the `MFEM` library, the standard end-user of the
 `MFEM/MGIS` library would barely never used directly the `MFEM`
-data-structures. However, the `MFEM/MGIS` library also has a lower level
-API which allows to directly use the `MFEM` data-structures, built-in
+data-structures. However, the `MFEM/MGIS` library does not preclude
+to directly use the `MFEM` data-structures, built-in
 non linear forms, etc. This lower level API is not described in this
 tutorial.
 
@@ -435,8 +437,8 @@ on the boundary where the displacement as follows:
 ~~~~
 
 These post-processings are called using the `executePostProcessings`
-method during the resolution using the state at the end of time step.
-The user may also plugged in their own post-processings.
+method during the runtime using the state at the end of time step.
+The user may also plugged in its own post-processing.
 
 ## Resolution
 
@@ -495,8 +497,8 @@ remaining number of sub-steps goes to zero.
 If the resolution failed, the local time step is divided by \(2\), the
 number of remaining substeps is multiplied by \(2\) and the state of the
 material is reverted to the beginning of the time step using the
-`revert` method. The resolution stops if more than \(10\) substeps are
-requested.
+`revert` method. The resolution stops if more than \(10\) nested reverts
+are generated.
 
 Once a time step has been successful, the post-processings are executed
 and the time is incremented.
@@ -509,4 +511,3 @@ and the time is incremented.
   }
 ~~~~  
 
-# References
