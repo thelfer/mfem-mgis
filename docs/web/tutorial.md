@@ -16,7 +16,7 @@ a notched beam made of an isotropic plastic behaviour with linear
 hardening in the logarithmic space. This tutorial highlights the key
 features of this project.
 
-The full code is available in the `mfem-mgis-examples` repository in `ex3` directory:
+The full code is available in the `mfem-mgis-examples` repository in `ex2` directory:
 
 <https://github.com/latug0/mfem-mgis-examples>
 
@@ -52,7 +52,7 @@ This notched beam has been meshed using
 [`̀Cast3M`](http://www-cast3m.cea.fr/) and exported in the `MED` file
 format proposed and used by [Salomé platform](https://www.salome-platform.org/).
 This file has been converted in the `msh` file format using
-[`gmsh`](https://gmsh.info/) tool in order to import easily in MFEM.
+[`gmsh`](https://gmsh.info/) tool in order to import it easily in MFEM.
 
 > **Support of the `MED` file format**
 >
@@ -257,8 +257,8 @@ Although based on the `MFEM` library, the standard end-user of the
 `MFEM/MGIS` library would barely never used directly the `MFEM`
 data-structures. However, the `MFEM/MGIS` library does not preclude
 to directly use the `MFEM` data-structures, built-in
-non linear forms, etc. This lower level API is not described in this
-tutorial.
+non linear forms, etc. This lower level API is however
+not described in this tutorial.
 
 ## Names boundaries and materials
 
