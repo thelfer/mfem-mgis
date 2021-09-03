@@ -1,7 +1,7 @@
 ---
 title: A tutorial introduction to `MFEM/MGIS`
 author: Thomas Helfer, Guillaume Latu
-date: 2020
+date: 2021
 lang: en-EN
 link-citations: true
 colorlinks: true
@@ -16,7 +16,7 @@ a notched beam made of an isotropic plastic behaviour with linear
 hardening in the logarithmic space. This tutorial highlights the key
 features of this project.
 
-The full code is available in the `mgis-examples` repository:
+The full code is available in the `mfem-mgis-examples` repository in `ex3` directory:
 
 <https://github.com/latug0/mfem-mgis-examples>
 
@@ -32,6 +32,10 @@ modelled by plastic behaviour at finite strain:
 - The mechanical behaviour is described in Section
   @sec:mfem_mgis:ssna303:behaviour.
 
+This case is a variant of another one available on `code-aster`web site:
+
+<https://www.code-aster.org/V2/doc/v10/fr/man_v/v6/v6.01.303.pdf>
+
 ## Geometry and mesh {#sec:mfem_mgis:ssna303:mesh}
 
 ![Mesh used to described the notched beam](img/ssna303-mesh.png){#fig:mfem_mgis:ssna303:mesh width=30%}
@@ -46,9 +50,9 @@ The positions of the points \(p1\) \(p2\) and \(c\) are respectivly
 
 This notched beam has been meshed using
 [`̀Cast3M`](http://www-cast3m.cea.fr/) and exported in the `MED` file
-format used in the [Salomé platform](https://www.salome-platform.org/).
+format proposed and used by [Salomé platform](https://www.salome-platform.org/).
 This file has been converted in the `msh` file format using
-[`gmsh`](https://gmsh.info/).
+[`gmsh`](https://gmsh.info/) tool in order to import easily in MFEM.
 
 > **Support of the `MED` file format**
 >
@@ -59,13 +63,12 @@ This file has been converted in the `msh` file format using
 
 The beam is treated using the plane strain modelling hypothesis. In
 finite strain, this assumes that the axial component of the deformation
-gradient is sete equal to \(1\).
+gradient is set equal to \(1\).
 
 ## Boundary conditions {#sec:mfem_mgis:ssna303:bc}
 
-The problem is also affected by Dirichlet boundary conditions.
-
-The beam is fixed along the bottom line (\(y=0\)\) and an displacement
+Dirichlet boundary conditions force the solution to attain certain a priori prescribed values on some boundaries.
+The beam is fixed along the bottom line (\(y=0\)\) and a displacement
 \(U_{y}\) is imposed an the top of the beam (\(y=h\)).
 
 The symmetry axis on the left is blocked in the `x`-direction.
@@ -79,7 +82,7 @@ elasto-plastic behaviour with isotropic hardening in the logarithmic
 space [@miehe_anisotropic_2002] and is implemented using the [`MFront`
 code generator](http://tfel.sourceforge.net).
 
-This behaviour is characterized by by four parameters:
+This behaviour is characterized by four parameters:
 
 - The `Young Modulus` ($E$), which is the constant relating tensile
   stress and strain for an isotropic elastic material.
