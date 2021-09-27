@@ -59,8 +59,10 @@ namespace mfem_mgis {
       per_name.replace(per_name.length() - 4, 4, ".per");
       std::ifstream per_file(per_name.c_str());
       if (per_file.good()) {
+	mfem::out << "Reading periodic file: " << per_name << std::endl;
         medmesh->ImportMED(mesh_name, 0, per_name);
       } else {
+	mfem::out << "No periodic file" << std::endl;
         medmesh->ImportMED(mesh_name, 0, "");
       }
       // medmesh->CheckElementOrientation(fix_orientation);

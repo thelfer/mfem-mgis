@@ -21,7 +21,10 @@ namespace mfem_mgis {
   enum BoundaryConditionType {
     FIX_XMIN = 0,
     FIX_YMIN = 1,
-    FIX_ZMIN = 2
+    FIX_ZMIN = 2,
+    FIX_XMAX = 3,
+    FIX_YMAX = 4,
+    FIX_ZMAX = 5
   };
   
 #ifdef MFEM_USE_MPI
