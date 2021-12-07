@@ -111,36 +111,7 @@ namespace mfem_mgis {
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
       const mfem::Vector &) {
-    using Traits = BehaviourIntegratorTraits<Child>;
-    auto &child = static_cast<Child &>(*this);
-#ifdef MFEM_THREAD_SAFE
-    mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
-#else
-    this->dshape.SetSize(e.GetDof(), e.GetDim());
-#endif
-    const auto nnodes = e.GetDof();
-    const auto thsize = this->s1.thermodynamic_forces_stride;
-    // element offset
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    Fe.SetSize(e.GetDof() * Traits::unknownsSize);
-    Fe = 0.;
-    const auto &ir = child.getIntegrationRule(e, tr);
-    for (size_type i = 0; i != ir.GetNPoints(); ++i) {
-      const auto &ip = ir.IntPoint(i);
-      tr.SetIntPoint(&ip);
-      // get the gradients of the shape functions
-      e.CalcPhysDShape(tr, dshape);
-      // get the weights associated to point ip
-      const auto w = child.getIntegrationPointWeight(tr, ip);
-      const auto o = eoffset + i;
-      const auto r = child.getRotationMatrix(o);
-      const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
-      const auto &rs = child.rotateThermodynamicForces(s, r);
-      // assembly of the inner forces
-      for (size_type ni = 0; ni != nnodes; ++ni) {
-        child.updateInnerForces(Fe, rs, dshape, w, ni);
-      }
-    }
+    this->implementComputeInnerForces(Fe, e, tr);
   }  // end of implementUpdateResidual
 
   template <typename Child>

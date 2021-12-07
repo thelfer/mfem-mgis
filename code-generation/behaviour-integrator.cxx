@@ -50,7 +50,8 @@ struct BehaviourIntegratorDescription {
   std::string hypothesis;
   std::string unknown_name;
   BMatrixGenerator generator;
-  bool requires_unknowns_value = false;
+  //! \brief
+  bool requires_unknown_value_as_external_state_variable = false;
   bool isotropic = true;
 };  // end of struct BehaviourIntegratorDescription
 
@@ -229,7 +230,7 @@ void generateUpdateInnerForces(std::ostream& os,
 
 void generateUpdateStiffnessMatrix(std::ostream& os,
                                    const BehaviourIntegratorDescription& d) {
-  if (d.requires_unknowns_value) {
+  if (d.requires_unknown_value_as_external_state_variable) {
     os << "inline void\n"
        << d.name << "::updateStiffnessMatrix(mfem::DenseMatrix &Ke,\n"
        << "const mgis::span<const real> &Kip,\n"
@@ -253,7 +254,7 @@ void generateUpdateStiffnessMatrix(std::ostream& os,
   const auto [bj, Bj] = d.generator(os, "j", true);
   const auto Ke = transpose(Bi).mul(K).mul(Bj);
   generateUnknownOffsets(os, "nj", Bj.cols());
-  if (d.requires_unknowns_value) {
+  if (d.requires_unknown_value_as_external_state_variable) {
     if (Bi.cols() != 1) {
       raise("generateUpdateStiffnessMatrix: invalid call");
     }
@@ -413,7 +414,7 @@ void generateHeaderFile(std::ostream& os,
      << "static constexpr bool gradientsComputationRequiresShapeFunctions"
      << " = false;\n"
      << "//! \\brief\n";
-  if (d.requires_unknowns_value) {
+  if (d.requires_unknown_value_as_external_state_variable) {
     os << "static constexpr bool "
           "updateExternalStateVariablesFromUnknownsValues = true;\n";
   } else {
@@ -449,7 +450,7 @@ void generateHeaderFile(std::ostream& os,
      << "             const size_type,\n"
      << "             std::unique_ptr<const Behaviour>);\n"
      << '\n';
-  if (d.requires_unknowns_value) {
+  if (d.requires_unknown_value_as_external_state_variable) {
     os << "void setup(const real, const real) override;\n"
        << "/*!\n"
        << " * \\brief update the external state variable\n"
@@ -566,7 +567,7 @@ void generateHeaderFile(std::ostream& os,
      << "                       const real,\n"
      << "                       const size_type) const noexcept;\n";
 
-  if (d.requires_unknowns_value) {
+  if (d.requires_unknown_value_as_external_state_variable) {
     os << "/*!\n"
        << " * \\brief update the stiffness matrix of the given node\n"
        << " * with the contribution of the consistent tangent operator of "
@@ -613,7 +614,7 @@ void generateHeaderFile(std::ostream& os,
          << "RotationMatrix3D rotation_matrix;\n\n";
     }
   }
-  if (d.requires_unknowns_value) {
+  if (d.requires_unknown_value_as_external_state_variable) {
     if (B.cols() == 1) {
       os << "/*!\n"
          << " * \\brief pointer to the external state variable\n"
@@ -693,7 +694,7 @@ void generateSourceFile(std::ostream& os,
      << "const mfem::ElementTransformation &t)const  {\n"
      << "return " << d.name << "::selectIntegrationRule(e, t);\n"
      << "}\n";
-  if (d.requires_unknowns_value) {
+  if (d.requires_unknown_value_as_external_state_variable) {
     os << "void " << d.name << "::setup(const real t, const real dt) {\n"
        << "BehaviourIntegratorBase::setup(t, dt);\n";
     if (B.cols() == 1) {
@@ -1120,9 +1121,10 @@ int main(const int argc, const char* const* const argv) {
                                      }
                                      d.unknown_name = n;
                                    })
-      .registerCommandLineArgument("requires-unknowns-values", [&d]() {
-        d.requires_unknowns_value = true;
-      });
+      .registerCommandLineArgument(
+          "requires-unknown-values-as-external-state-variable", [&d]() {
+            d.requires_unknown_value_as_external_state_variable = true;
+          });
   args_parser.parse(argc, argv);
   //
   if (generator.empty()) {
@@ -1149,7 +1151,7 @@ int main(const int argc, const char* const* const argv) {
       d.isotropic
           ? "Isotropic" + d.hypothesis + generator + "BehaviourIntegrator"
           : "Orthotropic" + d.hypothesis + generator + "BehaviourIntegrator";
-  if (d.requires_unknowns_value) {
+  if (d.requires_unknown_value_as_external_state_variable) {
     if (d.unknown_name.empty()) {
       raise("unknown name must be specified\n");
     }

@@ -121,7 +121,7 @@ namespace mfem_mgis {
     const auto dNi_2 = dN(ni, 2);
     const auto u_0 = u[ni];
     g[0] += u_0 * dNi_0;
-    g[1] += dNi_1 * u_0;
+    g[1] += u_0 * dNi_1;
     g[2] += dNi_2 * u_0;
   }  // end of updateGradients
 
@@ -135,7 +135,7 @@ namespace mfem_mgis {
     const auto dNi_0 = dN(ni, 0);
     const auto dNi_1 = dN(ni, 1);
     const auto dNi_2 = dN(ni, 2);
-    Fe[ni] += w * (s[2] * dNi_2 + s[1] * dNi_1 + s[0] * dNi_0);
+    Fe[ni] += w * (s[0] * dNi_0 + s[2] * dNi_2 + s[1] * dNi_1);
   }  // end of updateInnerForces
 
   inline void
@@ -155,12 +155,12 @@ namespace mfem_mgis {
       const auto dNj_1 = dN(nj, 1);
       const auto dNj_2 = dN(nj, 2);
       Ke(ni, nj) +=
-          w * (Kip[2] * dNj_2 * dNi_0 + Kip[8] * dNj_2 * dNi_2 +
-               dNi_1 * Kip[5] * dNj_2 + dNj_0 * Kip[0] * dNi_0 +
-               dNi_1 * dNj_1 * Kip[4] + dNi_2 * dNj_0 * Kip[6] +
-               dNi_1 * dNj_0 * Kip[3] + Kip[1] * dNi_0 * dNj_1 +
-               dNi_2 * dNj_1 * Kip[7] +
-               (Kip[9] * dNi_0 + dNi_1 * Kip[10] + Kip[11] * dNi_2) * N[nj]);
+          w * (dNi_1 * dNj_0 * Kip[3] + dNi_1 * dNj_1 * Kip[4] +
+               Kip[2] * dNj_2 * dNi_0 + dNi_2 * dNj_1 * Kip[7] +
+               dNj_0 * Kip[0] * dNi_0 + Kip[1] * dNi_0 * dNj_1 +
+               dNi_1 * Kip[5] * dNj_2 + Kip[8] * dNj_2 * dNi_2 +
+               dNi_2 * dNj_0 * Kip[6] +
+               (dNi_1 * Kip[10] + Kip[11] * dNi_2 + Kip[9] * dNi_0) * N[nj]);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 

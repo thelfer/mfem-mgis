@@ -51,20 +51,18 @@ namespace mfem_mgis {
   }  // end of setHypreBoomerAMGPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreEuclidPreconditioner(
-      NonLinearEvolutionProblemImplementation<true>&,
-      const Parameters& opts) {
+      NonLinearEvolutionProblemImplementation<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     auto euclid = std::make_unique<mfem::HypreEuclid>(MPI_COMM_WORLD);
     checkParameters(opts, {Problem::SolverVerbosityLevel});
-    //if (contains(opts, Problem::SolverVerbosityLevel)) {
-      //euclid->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
+    // if (contains(opts, Problem::SolverVerbosityLevel)) {
+    // euclid->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     //}
     return euclid;
   }  // end of setHypreEuclidPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreILUPreconditioner(
-      NonLinearEvolutionProblemImplementation<true>&,
-      const Parameters& opts) {
+      NonLinearEvolutionProblemImplementation<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     bool verbose = contains(opts, Problem::SolverVerbosityLevel);
 #ifndef HYPRE_OLD_VERSION
@@ -74,21 +72,22 @@ namespace mfem_mgis {
       ilu->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     }
     return ilu;
-#else /*  HYPRE_OLD_VERSION */
-    if(verbose){}; // fake command to avoid compiler warning
-    MFEM_VERIFY(0, "Support for HypreILU is not available with "
-		"this version of MFEM");
+#else  /*  HYPRE_OLD_VERSION */
+    if (verbose) {
+    };  // fake command to avoid compiler warning
+    MFEM_VERIFY(0,
+                "Support for HypreILU is not available with "
+                "this version of MFEM");
     return nullptr;
 #endif /* HYPRE_OLD_VERSION */
-  }  // end of setHypreILUPreconditioner
+  }    // end of setHypreILUPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreParaSailsPreconditioner(
-      NonLinearEvolutionProblemImplementation<true>&,
-      const Parameters& opts) {
+      NonLinearEvolutionProblemImplementation<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     auto ps = std::make_unique<mfem::HypreParaSails>(MPI_COMM_WORLD);
     checkParameters(opts, {Problem::SolverVerbosityLevel});
-    //if (contains(opts, Problem::SolverVerbosityLevel)) {
+    // if (contains(opts, Problem::SolverVerbosityLevel)) {
     //  ps->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     //}
     return ps;
@@ -98,29 +97,25 @@ namespace mfem_mgis {
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
   setHypreBoomerAMGPreconditioner(
-      NonLinearEvolutionProblemImplementation<true>&,
-      const Parameters&) {
+      NonLinearEvolutionProblemImplementation<true>&, const Parameters&) {
     reportUnsupportedParallelComputations();
   }  // end of setHypreBoomerAMGPreconditioner
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
-  setHypreEuclidPreconditioner(
-      NonLinearEvolutionProblemImplementation<true>&,
-      const Parameters&) {
+  setHypreEuclidPreconditioner(NonLinearEvolutionProblemImplementation<true>&,
+                               const Parameters&) {
     reportUnsupportedParallelComputations();
   }  // end of setHypreEuclidPreconditioner
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
-  setHypreILUPreconditioner(
-      NonLinearEvolutionProblemImplementation<true>&,
-      const Parameters&) {
+  setHypreILUPreconditioner(NonLinearEvolutionProblemImplementation<true>&,
+                            const Parameters&) {
     reportUnsupportedParallelComputations();
   }  // end of setHypreILUPreconditioner
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
   setHypreParaSailsPreconditioner(
-      NonLinearEvolutionProblemImplementation<true>&,
-      const Parameters&) {
+      NonLinearEvolutionProblemImplementation<true>&, const Parameters&) {
     reportUnsupportedParallelComputations();
   }  // end of setHypreParaSailsPreconditioner
 
@@ -176,15 +171,14 @@ namespace mfem_mgis {
             "setLinearSolverPreconditioner: "
             "the 'HypreParaSails' is only available in parallel");
       }
-    }
-      else {
+    } else {
       raise(
           "setLinearSolverPreconditioner: "
           "unsupported preconditioner '" +
           name + "'");
-    } 
+    }
     return {};
-  } // end of getLinearSolverPreconditioner
+  }  // end of getLinearSolverPreconditioner
 
   template <bool parallel>
   std::unique_ptr<LinearSolverPreconditioner> setLinearSolverParameters(
@@ -207,144 +201,146 @@ namespace mfem_mgis {
   }  // end of setLinearSolverParameters
 
 #ifdef MFEM_USE_MPI
-  
+
   std::function<LinearSolverHandler(
       NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>
   buildHyprePCGSolverGenerator() {
-  return [](NonLinearEvolutionProblemImplementation<true>& p,
-	    const Parameters& params) {
-    using Problem = AbstractNonLinearEvolutionProblem;
-    const char* const SolverTolerance = "Tolerance";
-    const char* const Preconditioner = "Preconditioner";
-    const auto allowed_parameters =
-      std::vector<std::string>{Problem::SolverVerbosityLevel,
-			       SolverTolerance,
-			       Problem::SolverMaximumNumberOfIterations,
-			       Preconditioner};
-    auto s = std::make_unique<mfem::HyprePCG>(MPI_COMM_WORLD);
-    s->iterative_mode = false;
-    checkParameters(params, allowed_parameters);
-    if (contains(params, Problem::SolverVerbosityLevel)) {
-      s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
-    }
-    if (contains(params, SolverTolerance)) {
-      s->SetTol(get<double>(params, SolverTolerance));
-    }
-    if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-      s->SetMaxIter(
-		    get<int>(params, Problem::SolverMaximumNumberOfIterations));
-    }
-    auto prec = std::unique_ptr<mfem::Solver>{};
-    if (contains(params, Preconditioner)) {
-      const auto pr = get<Parameters>(params, Preconditioner);
-      prec = getLinearSolverPreconditioner(p, pr);
-      auto *const hypre_prec = dynamic_cast<mfem::HypreSolver * const>(prec.get());
-      if(hypre_prec == nullptr){
-	mgis::raise("buildHyprePCGSolverGenerator: only Hypre preconditioners allowed with "
-		    "the HyprePCG linear solver");
+    return [](NonLinearEvolutionProblemImplementation<true>& p,
+              const Parameters& params) {
+      using Problem = AbstractNonLinearEvolutionProblem;
+      const char* const SolverTolerance = "Tolerance";
+      const char* const Preconditioner = "Preconditioner";
+      const auto allowed_parameters = std::vector<std::string>{
+          Problem::SolverVerbosityLevel, SolverTolerance,
+          Problem::SolverMaximumNumberOfIterations, Preconditioner};
+      auto s = std::make_unique<mfem::HyprePCG>(MPI_COMM_WORLD);
+      s->iterative_mode = false;
+      checkParameters(params, allowed_parameters);
+      if (contains(params, Problem::SolverVerbosityLevel)) {
+        s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
       }
-      s->SetPreconditioner(*hypre_prec);
-    }
-    return LinearSolverHandler{std::move(s), std::move(prec)};
-  };
+      if (contains(params, SolverTolerance)) {
+        s->SetTol(get<double>(params, SolverTolerance));
+      }
+      if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
+        s->SetMaxIter(
+            get<int>(params, Problem::SolverMaximumNumberOfIterations));
+      }
+      auto prec = std::unique_ptr<mfem::Solver>{};
+      if (contains(params, Preconditioner)) {
+        const auto pr = get<Parameters>(params, Preconditioner);
+        prec = getLinearSolverPreconditioner(p, pr);
+        auto* const hypre_prec =
+            dynamic_cast<mfem::HypreSolver* const>(prec.get());
+        if (hypre_prec == nullptr) {
+          mgis::raise(
+              "buildHyprePCGSolverGenerator: only Hypre preconditioners "
+              "allowed with "
+              "the HyprePCG linear solver");
+        }
+        s->SetPreconditioner(*hypre_prec);
+      }
+      return LinearSolverHandler{std::move(s), std::move(prec)};
+    };
   }  // end of buildHyprePCGSolverGenerator
 
   std::function<LinearSolverHandler(
       NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>
   buildHypreGMRESSolverGenerator() {
-  return [](NonLinearEvolutionProblemImplementation<true>& p,
-	    const Parameters& params) {
-    using Problem = AbstractNonLinearEvolutionProblem;
-    const char* const SolverTolerance = "Tolerance";
-    const char* const Preconditioner = "Preconditioner";
-    const char* const Krylov_Dimension = "KDim";
-    const auto allowed_parameters =
-      std::vector<std::string>{Problem::SolverVerbosityLevel,
-			       SolverTolerance,
-			       Problem::SolverMaximumNumberOfIterations,
-			       Preconditioner};
-    auto s = std::make_unique<mfem::HypreGMRES>(MPI_COMM_WORLD);
-    s->iterative_mode = false;
-    checkParameters(params, allowed_parameters);
-    if (contains(params, Problem::SolverVerbosityLevel)) {
-      s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
-    }
-    if (contains(params, Problem::SolverAbsoluteTolerance)) {
-      s->SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance)); 
-    }
-    if (contains(params, SolverTolerance)) {
-      s->SetTol(get<double>(params, SolverTolerance));
-    }
-    if (contains(params, Krylov_Dimension)) {
-      s->SetTol(get<double>(params, Krylov_Dimension));
-    }
-    if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-      s->SetMaxIter(
-		    get<int>(params, Problem::SolverMaximumNumberOfIterations));
-    }
-    auto prec = std::unique_ptr<mfem::Solver>{};
-    if (contains(params, Preconditioner)) {
-      const auto pr = get<Parameters>(params, Preconditioner);
-      prec = getLinearSolverPreconditioner(p, pr);
-      auto *const hypre_prec = dynamic_cast<mfem::HypreSolver * const>(prec.get());
-      if(hypre_prec == nullptr){
-	mgis::raise("buildHypreGMRESSolverGenerator: only Hypre preconditioners allowed with "
-		    "the HypreGMRES linear solver");
+    return [](NonLinearEvolutionProblemImplementation<true>& p,
+              const Parameters& params) {
+      using Problem = AbstractNonLinearEvolutionProblem;
+      const char* const SolverTolerance = "Tolerance";
+      const char* const Preconditioner = "Preconditioner";
+      const char* const Krylov_Dimension = "KDim";
+      const auto allowed_parameters = std::vector<std::string>{
+          Problem::SolverVerbosityLevel, SolverTolerance,
+          Problem::SolverMaximumNumberOfIterations, Preconditioner};
+      auto s = std::make_unique<mfem::HypreGMRES>(MPI_COMM_WORLD);
+      s->iterative_mode = false;
+      checkParameters(params, allowed_parameters);
+      if (contains(params, Problem::SolverVerbosityLevel)) {
+        s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
       }
-      s->SetPreconditioner(*hypre_prec);
-    }
-    return LinearSolverHandler{std::move(s), std::move(prec)};
-  };
+      if (contains(params, Problem::SolverAbsoluteTolerance)) {
+        s->SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance));
+      }
+      if (contains(params, SolverTolerance)) {
+        s->SetTol(get<double>(params, SolverTolerance));
+      }
+      if (contains(params, Krylov_Dimension)) {
+        s->SetTol(get<double>(params, Krylov_Dimension));
+      }
+      if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
+        s->SetMaxIter(
+            get<int>(params, Problem::SolverMaximumNumberOfIterations));
+      }
+      auto prec = std::unique_ptr<mfem::Solver>{};
+      if (contains(params, Preconditioner)) {
+        const auto pr = get<Parameters>(params, Preconditioner);
+        prec = getLinearSolverPreconditioner(p, pr);
+        auto* const hypre_prec =
+            dynamic_cast<mfem::HypreSolver* const>(prec.get());
+        if (hypre_prec == nullptr) {
+          mgis::raise(
+              "buildHypreGMRESSolverGenerator: only Hypre preconditioners "
+              "allowed with "
+              "the HypreGMRES linear solver");
+        }
+        s->SetPreconditioner(*hypre_prec);
+      }
+      return LinearSolverHandler{std::move(s), std::move(prec)};
+    };
   }  // end of buildHypreGMRESSolverGenerator
 
   std::function<LinearSolverHandler(
       NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>
   buildHypreFGMRESSolverGenerator() {
-  return [](NonLinearEvolutionProblemImplementation<true>& p,
-	    const Parameters& params) {
-    using Problem = AbstractNonLinearEvolutionProblem;
-    const char* const SolverTolerance = "Tolerance";
-    const char* const Preconditioner = "Preconditioner";
-    const char* const Krylov_Dimension = "KDim";
-    const auto allowed_parameters =
-      std::vector<std::string>{Problem::SolverVerbosityLevel,
-			       SolverTolerance,
-			       Problem::SolverMaximumNumberOfIterations,
-			       Preconditioner};
-    auto s = std::make_unique<mfem::HypreFGMRES>(MPI_COMM_WORLD);
-    s->iterative_mode = false;
-    checkParameters(params, allowed_parameters);
-    if (contains(params, Problem::SolverVerbosityLevel)) {
-      s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
-    }
-    if (contains(params, Problem::SolverAbsoluteTolerance)) {
-      s->SetTol(get<double>(params, Problem::SolverAbsoluteTolerance));
-    }
-    if (contains(params, SolverTolerance)) {
-      s->SetTol(get<double>(params, SolverTolerance));
-    }
-    if (contains(params, Krylov_Dimension)) {
-      s->SetTol(get<double>(params, Krylov_Dimension));
-    }
-    if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-      s->SetMaxIter(
-		    get<int>(params, Problem::SolverMaximumNumberOfIterations));
-    }
-    auto prec = std::unique_ptr<mfem::Solver>{};
-    if (contains(params, Preconditioner)) {
-      const auto pr = get<Parameters>(params, Preconditioner);
-      prec = getLinearSolverPreconditioner(p, pr);
-      auto *const hypre_prec = dynamic_cast<mfem::HypreSolver * const>(prec.get());
-      if(hypre_prec == nullptr){
-	mgis::raise("buildHypreFGMRESSolverGenerator: only Hypre preconditioners allowed with "
-		    "the HypreFGMRES linear solver");
+    return [](NonLinearEvolutionProblemImplementation<true>& p,
+              const Parameters& params) {
+      using Problem = AbstractNonLinearEvolutionProblem;
+      const char* const SolverTolerance = "Tolerance";
+      const char* const Preconditioner = "Preconditioner";
+      const char* const Krylov_Dimension = "KDim";
+      const auto allowed_parameters = std::vector<std::string>{
+          Problem::SolverVerbosityLevel, SolverTolerance,
+          Problem::SolverMaximumNumberOfIterations, Preconditioner};
+      auto s = std::make_unique<mfem::HypreFGMRES>(MPI_COMM_WORLD);
+      s->iterative_mode = false;
+      checkParameters(params, allowed_parameters);
+      if (contains(params, Problem::SolverVerbosityLevel)) {
+        s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
       }
-      s->SetPreconditioner(*hypre_prec);
-    }
-    return LinearSolverHandler{std::move(s), std::move(prec)};
-  };
+      if (contains(params, Problem::SolverAbsoluteTolerance)) {
+        s->SetTol(get<double>(params, Problem::SolverAbsoluteTolerance));
+      }
+      if (contains(params, SolverTolerance)) {
+        s->SetTol(get<double>(params, SolverTolerance));
+      }
+      if (contains(params, Krylov_Dimension)) {
+        s->SetTol(get<double>(params, Krylov_Dimension));
+      }
+      if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
+        s->SetMaxIter(
+            get<int>(params, Problem::SolverMaximumNumberOfIterations));
+      }
+      auto prec = std::unique_ptr<mfem::Solver>{};
+      if (contains(params, Preconditioner)) {
+        const auto pr = get<Parameters>(params, Preconditioner);
+        prec = getLinearSolverPreconditioner(p, pr);
+        auto* const hypre_prec =
+            dynamic_cast<mfem::HypreSolver* const>(prec.get());
+        if (hypre_prec == nullptr) {
+          mgis::raise(
+              "buildHypreFGMRESSolverGenerator: only Hypre preconditioners "
+              "allowed with "
+              "the HypreFGMRES linear solver");
+        }
+        s->SetPreconditioner(*hypre_prec);
+      }
+      return LinearSolverHandler{std::move(s), std::move(prec)};
+    };
   }  // end of buildHypreFGMRESSolverGenerator
-
 
 #else
 
@@ -359,9 +355,9 @@ namespace mfem_mgis {
   std::function<LinearSolverHandler(
       NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>
   buildHypreFGMRESSolverGenerator();
-  
+
 #endif
-  
+
   template <bool parallel, typename LinearSolverType>
   std::function<LinearSolverHandler(
       NonLinearEvolutionProblemImplementation<parallel>&, const Parameters&)>
@@ -390,7 +386,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MUMPS
 
   std::function<LinearSolverHandler(
-      NonLinearEvolutionProblemImplementation<true>& , const Parameters&)>
+      NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>
   buildMUMPSSolverGenerator() {
     return [](NonLinearEvolutionProblemImplementation<true>&,
               const Parameters& params) {
@@ -400,9 +396,10 @@ namespace mfem_mgis {
       const auto positive_definite =
           get_if<bool>(params, "PositiveDefinite", false);
       s->SetPrintLevel(1);
-//      if (getMPIrank() == 0) {
-//	mfem_mgis::getOutputStream() << "Global Nbdof " << p.getFiniteElementSpace().GlobalTrueVSize() << "\n";
-//      }
+      //      if (getMPIrank() == 0) {
+      //	mfem_mgis::getOutputStream() << "Global Nbdof " <<
+      //p.getFiniteElementSpace().GlobalTrueVSize() << "\n";
+      //      }
       if (symmetric) {
         if (positive_definite) {
           s->SetMatrixSymType(
@@ -413,7 +410,8 @@ namespace mfem_mgis {
       } else {
         s->SetMatrixSymType(mfem::MUMPSSolver::MatType::UNSYMMETRIC);
       }
-      return LinearSolverHandler{std::move(s), std::unique_ptr<LinearSolverPreconditioner>{}};
+      return LinearSolverHandler{std::move(s),
+                                 std::unique_ptr<LinearSolverPreconditioner>{}};
     };
   }  // end of builMUMPSGenerator
 

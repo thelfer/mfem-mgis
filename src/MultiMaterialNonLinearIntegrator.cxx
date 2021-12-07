@@ -67,8 +67,6 @@ namespace mfem_mgis {
     return bi->integrate(e, tr, U, it);
   }  // end of integrate
 
-
-
   void MultiMaterialNonLinearIntegrator::AssembleElementVector(
       const mfem::FiniteElement& e,
       mfem::ElementTransformation& tr,

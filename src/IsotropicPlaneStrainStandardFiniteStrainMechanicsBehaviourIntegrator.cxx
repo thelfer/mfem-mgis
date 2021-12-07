@@ -123,14 +123,14 @@ namespace mfem_mgis {
       const auto dNj_1 = dN(nj, 1);
       const auto nj_0 = nj;
       const auto nj_1 = nj + nnodes;
-      Ke(ni_0, nj_0) += w * (dNj_0 * Kip[0] * dNi_0 + Kip[3] * dNj_1 * dNi_0 +
-                             dNi_1 * Kip[15] * dNj_0 + dNi_1 * Kip[18] * dNj_1);
-      Ke(ni_0, nj_1) += w * (dNj_0 * Kip[4] * dNi_0 + dNi_1 * Kip[16] * dNj_1 +
-                             dNj_1 * Kip[1] * dNi_0 + dNi_1 * dNj_0 * Kip[19]);
-      Ke(ni_1, nj_0) += w * (dNj_1 * Kip[23] * dNi_0 + dNj_0 * dNi_0 * Kip[20] +
-                             dNi_1 * dNj_0 * Kip[5] + dNi_1 * dNj_1 * Kip[8]);
-      Ke(ni_1, nj_1) += w * (Kip[21] * dNj_1 * dNi_0 + dNj_0 * dNi_0 * Kip[24] +
-                             dNi_1 * Kip[9] * dNj_0 + dNi_1 * Kip[6] * dNj_1);
+      Ke(ni_0, nj_0) += w * (dNj_0 * Kip[0] * dNi_0 + dNi_1 * Kip[18] * dNj_1 +
+                             dNi_1 * Kip[15] * dNj_0 + Kip[3] * dNj_1 * dNi_0);
+      Ke(ni_0, nj_1) += w * (dNj_0 * Kip[4] * dNi_0 + dNi_1 * dNj_0 * Kip[19] +
+                             dNj_1 * Kip[1] * dNi_0 + dNi_1 * Kip[16] * dNj_1);
+      Ke(ni_1, nj_0) += w * (dNi_1 * dNj_1 * Kip[8] + dNi_1 * dNj_0 * Kip[5] +
+                             dNj_0 * dNi_0 * Kip[20] + dNj_1 * Kip[23] * dNi_0);
+      Ke(ni_1, nj_1) += w * (dNi_1 * Kip[6] * dNj_1 + Kip[21] * dNj_1 * dNi_0 +
+                             Kip[24] * dNj_0 * dNi_0 + dNi_1 * Kip[9] * dNj_0);
     }  // end of for (size_type nj = 0; nj != nnodes; ++nj)
   }    // end of updateStiffnessMatrix
 
