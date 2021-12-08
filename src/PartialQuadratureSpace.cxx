@@ -52,15 +52,14 @@ namespace mfem_mgis {
       const FiniteElementDiscretization& fed,
       const size_type m,
       const std::function<const mfem::IntegrationRule&(
-          const mfem::FiniteElement&, const mfem::ElementTransformation&)>&
-          integration_rule_selector)
-      : fe_discretization(fed), id(m) {
+          const mfem::FiniteElement&, const mfem::ElementTransformation&)>& irs)
+      : fe_discretization(fed), integration_rule_selector(irs), id(m) {
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       const auto& fespace =
           this->fe_discretization.getFiniteElementSpace<true>();
       this->ng = buildPartialQuadratureSpaceOffsets<true>(
-          this->offsets, fespace, this->id, integration_rule_selector);
+          this->offsets, fespace, this->id, this->integration_rule_selector);
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
@@ -68,9 +67,20 @@ namespace mfem_mgis {
       const auto& fespace =
           this->fe_discretization.getFiniteElementSpace<false>();
       this->ng = buildPartialQuadratureSpaceOffsets<false>(
-          this->offsets, fespace, this->id, integration_rule_selector);
+          this->offsets, fespace, this->id, this->integration_rule_selector);
     }
   }  // end of PartialQuadratureSpace
+
+  const mfem::IntegrationRule& PartialQuadratureSpace::getIntegrationRule(
+      const mfem::FiniteElement& e,
+      const mfem::ElementTransformation& tr) const {
+    return this->integration_rule_selector(e, tr);
+  }
+
+  const FiniteElementDiscretization&
+  PartialQuadratureSpace::getFiniteElementDiscretization() const {
+    return this->fe_discretization;
+  }  // end of getFiniteElementDiscretization
 
   PartialQuadratureSpace::~PartialQuadratureSpace() = default;
 

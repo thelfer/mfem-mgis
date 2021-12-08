@@ -48,9 +48,9 @@ namespace mfem_mgis::unit_tests {
     std::vector<mfem_mgis::real> v;
   };  // end of struct UniaxialTestResults
 
-  static void parseCommandLineOptions(TestParameters& params,
-                                      int argc,
-                                      char** argv) {
+  [[maybe_unused]] static void parseCommandLineOptions(TestParameters& params,
+                                                       int argc,
+                                                       char** argv) {
     mfem::OptionsParser args(argc, argv);
     args.AddOption(&params.mesh_file, "-m", "--mesh", "Mesh file to use.");
     args.AddOption(&params.reference_file, "-r", "--reference-file",
@@ -71,11 +71,12 @@ namespace mfem_mgis::unit_tests {
       args.PrintUsage(mfem_mgis::getOutputStream());
       mfem_mgis::abort(EXIT_FAILURE);
     }
-    args.PrintOptions(mfem_mgis::getOutputStream());
+    // args.PrintOptions(mfem_mgis::getOutputStream());
   }  // end of parseCommandLineOptions
 
-  static void setLinearSolver(mfem_mgis::NonLinearEvolutionProblem& problem,
-                              const TestParameters& parameters) {
+  [[maybe_unused]] static void setLinearSolver(
+      mfem_mgis::NonLinearEvolutionProblem& problem,
+      const TestParameters& parameters) {
     if (parameters.linearsolver == 0) {
       problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
                                            {"AbsoluteTolerance", 1e-12},
@@ -101,10 +102,11 @@ namespace mfem_mgis::unit_tests {
     }
   }  // end of setLinearSolver
 
-  static void extractResults(UniaxialTestResults& r,
-                             const mfem_mgis::Material& m,
-                             const mgis::behaviour::MaterialStateManager& s,
-                             const TestParameters& parameters) {
+  [[maybe_unused]] static void extractResults(
+      UniaxialTestResults& r,
+      const mfem_mgis::Material& m,
+      const mgis::behaviour::MaterialStateManager& s,
+      const TestParameters& parameters) {
     if (m.n != 0) {
       r.g0.push_back(s.gradients[0]);
       r.g1.push_back(s.gradients[1]);
@@ -119,23 +121,25 @@ namespace mfem_mgis::unit_tests {
     }
   }  // end of extractResults
 
-  static void extractInitialResults(UniaxialTestResults& r,
-                                    const mfem_mgis::Material& m,
-                                    const TestParameters& parameters) {
+  [[maybe_unused]] static void extractInitialResults(
+      UniaxialTestResults& r,
+      const mfem_mgis::Material& m,
+      const TestParameters& parameters) {
     extractResults(r, m, m.s0, parameters);
   }  // end of extractInitialResults
 
-  static void extractResults(UniaxialTestResults& r,
-                             const mfem_mgis::Material& m,
-                             const TestParameters& parameters) {
+  [[maybe_unused]] static void extractResults(
+      UniaxialTestResults& r,
+      const mfem_mgis::Material& m,
+      const TestParameters& parameters) {
     extractResults(r, m, m.s1, parameters);
   }  // end of extractResults
 
-  static bool checkResults(UniaxialTestResults& r,
-                           const mfem_mgis::Material& m,
-                           const TestParameters& parameters,
-                           const real eeps,
-                           const real seps) {
+  [[maybe_unused]] static bool checkResults(UniaxialTestResults& r,
+                                            const mfem_mgis::Material& m,
+                                            const TestParameters& parameters,
+                                            const real eeps,
+                                            const real seps) {
     // comparison to reference results
     bool success = true;
     if ((m.n != 0) && (parameters.reference_file != nullptr)) {
@@ -146,8 +150,9 @@ namespace mfem_mgis::unit_tests {
                                 const auto ev, const auto msg) {
           const auto e = std::abs(cv - rv);
           if (e > ev) {
-            mfem_mgis::getErrorStream() << "test failed (" << msg << ", " << cv << " vs " << rv
-					<< ", error " << e << ")\n";
+            mfem_mgis::getErrorStream()
+                << "test failed (" << msg << ", " << cv << " vs " << rv
+                << ", error " << e << ")\n";
             success = false;
           }
         };
@@ -171,7 +176,8 @@ namespace mfem_mgis::unit_tests {
     return success;
   }  // end of checkResults
 
-  static void saveResults(const std::string& f, const UniaxialTestResults& r) {
+  [[maybe_unused]] static void saveResults(const std::string& f,
+                                           const UniaxialTestResults& r) {
     std::ofstream out(f);
     out.precision(14);
     for (std::vector<mfem_mgis::real>::size_type i = 0; i != r.g0.size(); ++i) {
@@ -180,7 +186,7 @@ namespace mfem_mgis::unit_tests {
     }
   }
 
-  static UniaxialTestResults solve(
+  [[maybe_unused]] static UniaxialTestResults solve(
       mfem_mgis::NonLinearEvolutionProblem& problem,
       const TestParameters& parameters,
       const mfem_mgis::real t0,

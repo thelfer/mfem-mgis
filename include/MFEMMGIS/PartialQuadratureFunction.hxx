@@ -11,8 +11,10 @@
 #include <memory>
 #include <vector>
 #include <limits>
+#include <functional>
 #include "MGIS/Span.hxx"
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/MFEMForward.hxx"
 
 namespace mfem_mgis {
 
@@ -23,6 +25,33 @@ namespace mfem_mgis {
    * \brief quadrature function defined on a partial quadrature space.
    */
   struct MFEM_MGIS_EXPORT PartialQuadratureFunction {
+    /*!
+     * \brief evaluate a partial quadrature function at each integration point
+     * \note if required, the current integration point can be retrieved using
+     * the `GetIntPoint` of the element transformation
+     * \param[in] s: partial quadrature space
+     * \param[in] f: function to be evaluated
+     */
+    static std::shared_ptr<PartialQuadratureFunction> evaluate(
+        std::shared_ptr<const PartialQuadratureSpace>,
+        std::function<real(const mfem::FiniteElement&,
+                           mfem::ElementTransformation&)>);
+    /*!
+     * \brief evaluate a spatial function in 2D
+     * \param[in] s: partial quadrature space
+     * \param[in] f: function to be evaluated
+     */
+    static std::shared_ptr<PartialQuadratureFunction> evaluate(
+        std::shared_ptr<const PartialQuadratureSpace>,
+        std::function<real(real, real)>);
+    /*!
+     * \brief evaluate a spatial function in 3D
+     * \param[in] s: partial quadrature space
+     * \param[in] f: function to be evaluated
+     */
+    static std::shared_ptr<PartialQuadratureFunction> evaluate(
+        std::shared_ptr<const PartialQuadratureSpace>,
+        std::function<real(real, real, real)>);
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
@@ -42,6 +71,8 @@ namespace mfem_mgis {
         mgis::span<real>,
         const size_type = 0,
         const size_type = std::numeric_limits<size_type>::max());
+    //! \return the underlying quadrature space
+    const PartialQuadratureSpace& getPartialQuadratureSpace() const; 
     /*!
      * \brief return the value associated with an integration point
      * \param[in] o: offset associated with the integration point
@@ -109,6 +140,10 @@ namespace mfem_mgis {
      */
     mgis::span<const real> getIntegrationPointValues(const size_type,
                                                      const size_type) const;
+    //! \return a view to the function values
+    mgis::span<real> getValues();
+    //! \return a view to the function values
+    mgis::span<const real> getValues() const;
     //! \return the number of components
     size_type getNumberOfComponents() const;
     //! \brief destructor

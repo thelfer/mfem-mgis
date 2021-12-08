@@ -35,6 +35,10 @@ namespace mfem_mgis {
     static const char* const FiniteElementOrder;
     //! \brief string associated to the `UnknownsSize` parameter
     static const char* const UnknownsSize;
+    //! \brief string associated to the `Materials` parameter
+    static const char* const Materials;
+    //! \brief string associated to the `Boundaries` parameter
+    static const char* const Boundaries;
     //! \brief string associated to the `NumberOfUniformRefinements` parameter
     static const char* const NumberOfUniformRefinements;
     //! \brief string associated to the `VerbosityLevel` parameter
@@ -203,6 +207,12 @@ namespace mfem_mgis {
     //! \brief mapping between materials boundaries and names
     std::map<size_type, std::string> boundaries_names;
   };  // end of FiniteElementDiscretization
+
+  /*!
+   * \brief return the space dimension
+   * \param[in] fed: finite element discretization
+   */
+  MFEM_MGIS_EXPORT size_type getSpaceDimension(const FiniteElementDiscretization&);
 
   /*!
    * \brief return the total number of unknowns

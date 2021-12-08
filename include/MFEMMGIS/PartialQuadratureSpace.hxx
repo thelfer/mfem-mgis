@@ -34,14 +34,24 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
-     * \param[in] integration_rule_selector: function returning the order of
-     * quadrature for the considered finite element.
+     * \param[in] irs: function returning the order of quadrature for the
+     * considered finite element.
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &,
                            const size_type,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
                                const mfem::ElementTransformation &)> &);
+    //! \return the finite element discretization
+    const FiniteElementDiscretization &getFiniteElementDiscretization() const;
+    /*!
+     * \return the integration ruel associated with the given finite element and
+     * element transformation
+     * \param[in] e: finite element
+     * \param[in] tr: element transformation
+     */
+    const mfem::IntegrationRule &getIntegrationRule(
+        const mfem::FiniteElement &, const mfem::ElementTransformation &) const;
     /*!
      * \brief return the number of element associated with this material
      * identifier
@@ -49,16 +59,31 @@ namespace mfem_mgis {
     size_type getNumberOfElements() const;
     //! \brief return the number of integration points
     size_type getNumberOfIntegrationPoints() const;
-    //! \brief return the offset associated with an element
+    /*!
+     * \brief return the offset associated with an element
+     * \param[in] i: element number (global numbering)
+     */
     size_type getOffset(const size_type) const;
+    /*!
+     * \brief return the offset associated with an element
+     * \param[in] i: element number (global numbering)
+     */
+    size_type getId() const;
     //! \brief destructor
     ~PartialQuadratureSpace();
 
    private:
     //! \brief underlying finite element discretization
     const FiniteElementDiscretization &fe_discretization;
+    /*!
+     * \brief function returning the order of quadrature for the
+     * considered finite element.
+     */
+    std::function<const mfem::IntegrationRule &(
+        const mfem::FiniteElement &, const mfem::ElementTransformation &)>
+        integration_rule_selector;
     //! \brief offsets associated with elements
-    std::unordered_map<size_type,  // element number
+    std::unordered_map<size_type,  // element number (global numbering)
                        size_type>  // offset
         offsets;
     //! \brief material identifier

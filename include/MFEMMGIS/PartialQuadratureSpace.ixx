@@ -12,12 +12,16 @@ namespace mfem_mgis {
 
   inline size_type PartialQuadratureSpace::getNumberOfElements() const {
     return this->offsets.size();
-  }  // end of PartialQuadratureSpace::getNumberOfElements
+  }  // end of getNumberOfElements
 
   inline size_type PartialQuadratureSpace::getNumberOfIntegrationPoints()
       const {
     return this->ng;
-  }  // end of PartialQuadratureSpace::getNumberOfIntegrationPoints
+  }  // end of getNumberOfIntegrationPoints
+
+  inline size_type PartialQuadratureSpace::getId() const {
+    return this->id;
+  }  // end of getId
 
   inline size_type PartialQuadratureSpace::getOffset(const size_type i) const {
     const auto p = this->offsets.find(i);
@@ -25,7 +29,7 @@ namespace mfem_mgis {
       PartialQuadratureSpace::treatInvalidOffset(this->id, i);
     }
     return p->second;
-  }  // end of PartialQuadratureSpace::getOffset
+  }  // end of getOffset
 
 }  // namespace mfem_mgis
 

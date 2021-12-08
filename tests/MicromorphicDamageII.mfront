@@ -1,0 +1,83 @@
+@DSL DefaultGenericBehaviour;
+@Behaviour MicromorphicDamageII;
+@Author Thomas Helfer, Jérémy Bleyer;
+@Date 21 / 09 / 2021;
+
+@Gradient real dχ;
+dχ.setEntryName("MicromorphicDamage");
+@ThermodynamicForce real a;
+a.setEntryName("MicromorphicDamageDualForce");
+
+@Gradient TVector ∇dχ;
+∇dχ.setEntryName("MicromorphicDamageGradient");
+@ThermodynamicForce TVector b;
+b.setEntryName("MicromorphicDamageGradientDualForce");
+
+@TangentOperatorBlocks{∂a∕∂Δdχ, ∂b∕∂Δ∇dχ};
+
+@MaterialProperty real Gc;
+Gc.setEntryName("FractureEnergy");
+@MaterialProperty real l;
+l.setEntryName("CharacteristicLength");
+@MaterialProperty real beta;
+beta.setEntryName("PenalisationFactor");
+
+@StateVariable real d;
+d.setGlossaryName("Damage");
+
+@StateVariable stress Yd;
+Yd.setEntryName("DamageDissipatedEnergy");
+@StateVariable stress Yχ;
+Yχ.setEntryName("PenalisationEnergy");
+@StateVariable stress Y∇dχ;
+Y∇dχ.setEntryName("MicromorphicDamageGradientEnergy");
+
+@ExternalStateVariable stress Y;
+Y.setEntryName("EnergyReleaseRate");
+
+@AuxiliaryStateVariable stress Yv;
+Yv.setEntryName("EnergyReleaseRateValue");
+
+@LocalVariable real Aχ;
+@LocalVariable real Hχ;
+@LocalVariable real dd_ddχ;
+
+@InitLocalVariables {
+  Aχ = Gc * l;
+  Hχ = beta * Gc / l;
+}
+
+@Integrator {
+  const auto Y_ets = Y + dY;
+  Yv = Y_ets;
+  const auto r = 1 / (Hχ + 2 * Y_ets + (Gc / l));
+  // estimate of the damage
+  const auto d_tr = (2 * Y_ets + Hχ * (dχ + ddχ)) * r;
+  if (d_tr > d) {
+    if (d_tr > 1) {
+      d = 1;
+      dd_ddχ = real{};
+    } else {
+      d = d_tr;
+      dd_ddχ = r * Hχ;
+    }
+  } else {
+    dd_ddχ = real{};
+  }
+  a = -Hχ * (d - dχ - Δdχ);
+  b = Aχ * (∇dχ + Δ∇dχ);
+  //
+  Yd = (Gc / (2 * l)) * power<2>(d);
+  Yχ = (Hχ / 2) * power<2>(d - dχ - Δdχ);
+  Y∇dχ = (Aχ / 2) * ((∇dχ + Δ∇dχ) | (∇dχ + Δ∇dχ));
+}
+
+@TangentOperator {
+  static_cast<void>(smt);
+  ∂a∕∂Δdχ = Hχ * (1 - dd_ddχ);
+  ∂b∕∂Δ∇dχ = Aχ * tmatrix<N, N, real>::Id();
+}
+
+@DissipatedEnergy {
+  Psi_d = Yd + Yχ + Y∇dχ;
+}

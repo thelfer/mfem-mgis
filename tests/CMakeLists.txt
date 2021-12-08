@@ -5,6 +5,9 @@ if(MFEM_MGIS_HAVE_TFEL)
     Plasticity
     Mazars
     SaintVenantKirchhoffElasticity
+    MiehePhaseFieldDamage
+    MicromorphicDamageI_SpectralSplit
+    MicromorphicDamageII
     StationaryNonLinearHeatTransfer)
   
   add_executable(PeriodicTest
@@ -129,10 +132,76 @@ if(MFEM_MGIS_HAVE_TFEL)
         PROPERTY DEPENDS BehaviourTest)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_stationary_non_linear_heat_transfer_test)
-  
+
   add_stationary_non_linear_heat_transfer_test(1)
   if(MFEM_USE_SUITESPARSE)
 	add_stationary_non_linear_heat_transfer_test(2)
+  endif(MFEM_USE_SUITESPARSE)
+
+  add_executable(MicromorphicDamage2DTest
+    EXCLUDE_FROM_ALL
+    MicromorphicDamage2DTest.cxx)
+  target_include_directories(MicromorphicDamage2DTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(MicromorphicDamage2DTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check MicromorphicDamage2DTest)
+  
+  function(add_micromorphic_damage_2d_test nsolver)
+    set(test "MicromorphicDamage2DTest-${nsolver}")
+    add_test(NAME ${test}
+     COMMAND MicromorphicDamage2DTest
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--behaviour" "MiehePhaseFieldDamage"
+     "--linearsolver" "${nsolver}"
+#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
+	)
+    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest)
+    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+  endfunction(add_micromorphic_damage_2d_test)
+
+  if(MFEM_USE_SUITESPARSE)
+	add_micromorphic_damage_2d_test(2)
+  endif(MFEM_USE_SUITESPARSE)
+
+  add_executable(MicromorphicDamage2DTest2
+    EXCLUDE_FROM_ALL
+    MicromorphicDamage2DTest2.cxx)
+  target_include_directories(MicromorphicDamage2DTest2
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(MicromorphicDamage2DTest2
+    PRIVATE MFEMMGIS)
+  add_dependencies(check MicromorphicDamage2DTest2)
+
+  function(add_micromorphic_damage_2d_test2 nsolver)
+    set(test "MicromorphicDamage2DTest2-${nsolver}")
+    add_test(NAME ${test}
+     COMMAND MicromorphicDamage2DTest2
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--behaviour" "MicromorphicDamageII"
+     "--linearsolver" "${nsolver}"
+#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
+	)
+    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest)
+    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+  endfunction(add_micromorphic_damage_2d_test2)
+
+  if(MFEM_USE_SUITESPARSE)
+	add_micromorphic_damage_2d_test2(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)

@@ -79,6 +79,8 @@ namespace mfem_mgis {
       "FiniteElementFamily";
   const char* const FiniteElementDiscretization::FiniteElementOrder =
       "FiniteElementOrder";
+  const char* const FiniteElementDiscretization::Materials = "Materials";
+  const char* const FiniteElementDiscretization::Boundaries = "Boundaries";
   const char* const FiniteElementDiscretization::UnknownsSize = "UnknownsSize";
   const char* const FiniteElementDiscretization::NumberOfUniformRefinements =
       "NumberOfUniformRefinements";
@@ -146,11 +148,20 @@ namespace mfem_mgis {
             FiniteElementDiscretization::FiniteElementOrder,
             FiniteElementDiscretization::UnknownsSize,
             FiniteElementDiscretization::NumberOfUniformRefinements,
+            FiniteElementDiscretization::Materials,
+            FiniteElementDiscretization::Boundaries,
             FiniteElementDiscretization::GeneralVerbosityLevel};
   }  // end of getParametersList
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       const Parameters& params) {
+    auto extractMap = [](const Parameters& parameters) {
+      auto m = std::map<size_type, std::string>{};
+      for (const auto& p : parameters) {
+        m[get<int>(p.second)] = p.first;
+      }
+      return m;
+    };
     checkParameters(params, FiniteElementDiscretization::getParametersList());
     const auto parallel =
         get_if<bool>(params, FiniteElementDiscretization::Parallel, false);
@@ -211,6 +222,15 @@ namespace mfem_mgis {
     } else {
       this->sequential_fe_space = std::make_unique<FiniteElementSpace<false>>(
           this->sequential_mesh.get(), this->fec.get(), u_size);
+    }
+    // declaring materials and boundaries
+    if (contains(params, FiniteElementDiscretization::Materials)) {
+      this->setMaterialsNames(extractMap(
+          get<Parameters>(params, FiniteElementDiscretization::Materials)));
+    }
+    if (contains(params, FiniteElementDiscretization::Boundaries)) {
+      this->setBoundariesNames(extractMap(
+          get<Parameters>(params, FiniteElementDiscretization::Boundaries)));
     }
   }  // end of FiniteElementDiscretization
 
@@ -521,5 +541,17 @@ namespace mfem_mgis {
     }
     return fed.getFiniteElementSpace<false>().GetTrueVSize();
   }  // end of getTrueVSize
+
+  size_type getSpaceDimension(const FiniteElementDiscretization& fed) {
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      return fed.getMesh<true>().SpaceDimension();
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    return fed.getMesh<false>().SpaceDimension();
+  }  // end of getSpaceDimension
+
 
 }  // end of namespace mfem_mgis

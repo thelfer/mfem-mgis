@@ -10,6 +10,11 @@
 
 namespace mfem_mgis {
 
+  inline const PartialQuadratureSpace&
+  PartialQuadratureFunction::getPartialQuadratureSpace() const {
+    return *(this->qspace);
+  }  // end of getPartialQuadratureSpace
+
   inline size_type PartialQuadratureFunction::getDataOffset(
       const size_type o) const {
     return o * (this->data_stride) + this->data_begin;
@@ -56,6 +61,14 @@ namespace mfem_mgis {
   inline size_type PartialQuadratureFunction::getNumberOfComponents() const {
     return this->data_size;
   } // end of PartialQuadratureFunction::getNumberOfComponents
+
+  inline mgis::span<real> PartialQuadratureFunction::getValues(){
+    return this->values;
+  }
+
+  inline mgis::span<const real> PartialQuadratureFunction::getValues() const{
+    return this->values;
+  }
 
 }  // end of namespace mfem_mgis
 

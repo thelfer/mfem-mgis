@@ -45,6 +45,7 @@ mfem_mgis_library(MFEMMGIS
   OrthotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator.cxx
   IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.cxx
   OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.cxx
+  MicromorphicDamage2DBehaviourIntegrator.cxx
 )
 
 if(OpenMP_FOUND)
