@@ -526,7 +526,7 @@ namespace mfem_mgis {
         return id;
       }
     }
-    raise("getMaterialIdentifier: no material named '" + n + "'");
+    raise("getMaterialIdentifier: no boundary named '" + n + "'");
   }  // end of getBoundaryIdentifier
 
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;

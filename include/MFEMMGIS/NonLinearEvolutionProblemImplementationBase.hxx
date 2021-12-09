@@ -1,5 +1,5 @@
 /*!
- * \file   NonLinearEvolutionProblemImplementationBase.hxx
+ * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx
  * \brief
  * \author Thomas Helfer
  * \date   15/02/2021
@@ -121,7 +121,7 @@ namespace mfem_mgis {
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void revert() override;
     void update() override;
-    bool solve(const real, const real) override;
+    NonLinearResolutionOutput solve(const real, const real) override;
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 

@@ -297,27 +297,33 @@ namespace mfem_mgis {
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
   }  // end of addBoundaryCondition
 
-  bool NonLinearEvolutionProblemImplementationBase::solve(const real t,
-                                                          const real dt) {
+  NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
+      const real t, const real dt) {
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     //    this->computePrediction(t, dt);
-    auto success = false;
+    NonLinearResolutionOutput output;
+    auto file_output = [&output](const auto& s) {
+      output.status = s.GetConverged();
+      output.iterations = s.GetNumIterations();
+      output.final_residual_norm = s.GetFinalNorm();
+    };
     if (usePETSc()) {
 #ifdef MFEM_USE_PETSC
       mfem::Vector zero;
       // PETSc solver somehow "requires" zero as a first argument of Mult.
       // If it is not the case, one should take care of memory management.
       this->petsc_solver->Mult(zero, this->u1);
-      success = this->petsc_solver->GetConverged();
+      file_output(*(this->petsc_solver));
 #else  /* MFEM_USE_PETSC */
-      MFEM_VERIFY(0, "Support for PETSc is deactivated");
+      raise("Support for PETSc is deactivated");
 #endif /* MFEM_USE_PETSC */
     } else {
       this->solver->Mult(this->u0, this->u1);
-      success = this->solver->GetConverged();
+      file_output(*(this->solver));
+      output.initial_residual_norm = this->solver->GetInitialNorm();
     }
-    return success;
+    return output;
   }  // end of solve
 
   void NonLinearEvolutionProblemImplementationBase::computePrediction(const real /*t*/, const real /*dt*/) {

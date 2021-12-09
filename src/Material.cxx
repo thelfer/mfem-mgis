@@ -39,7 +39,7 @@ namespace mfem_mgis {
                                  : &raiseUnsetRotationMatrix),
         behaviour_ptr(std::move(b_ptr)) {
     this->allocateArrayOfTangentOperatorBlocks();
-}  // end of Material::Material
+  }  // end of Material::Material
 
   const PartialQuadratureSpace &Material::getPartialQuadratureSpace() const {
     return *(this->quadrature_space);
@@ -207,8 +207,8 @@ namespace mfem_mgis {
                                         const mgis::string_view n,
                                         const Material::StateSelection s) {
     return buildPartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
-                                         getStateManager(m, s).gradients,
-                                         m.b.gradients, n, m.b.hypothesis);
+                                          getStateManager(m, s).gradients,
+                                          m.b.gradients, n, m.b.hypothesis);
   }  // end of getGradient
 
   PartialQuadratureFunction getThermodynamicForce(
@@ -222,7 +222,9 @@ namespace mfem_mgis {
   }  // end of getThermodynamicForce
 
   PartialQuadratureFunction getInternalStateVariable(
-      Material &m, const mgis::string_view n, const Material::StateSelection s) {
+      Material &m,
+      const mgis::string_view n,
+      const Material::StateSelection s) {
     return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
         getStateManager(m, s).internal_state_variables, m.b.isvs, n,

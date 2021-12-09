@@ -55,6 +55,8 @@ namespace mfem_mgis {
     void computeResidual(mfem::Vector &, const mfem::Vector &) const;
     //! \return the jacobian of the system
     mfem::Operator &getJacobian(const mfem::Vector&) const;
+    //! \brief get initial norm
+    virtual real GetInitialNorm() const;
     //
     [[noreturn]] void SetPreconditioner(Solver &) override;
     [[noreturn]] void SetOperator(const mfem::Operator &) override;
@@ -74,6 +76,8 @@ namespace mfem_mgis {
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
+    //! \brief norm of the first estimation of the residual
+    mutable real initial_norm;
   };  // end of struct NewtonSolver
 
 }  // end of namespace mfem_mgis

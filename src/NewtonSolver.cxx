@@ -64,6 +64,10 @@ namespace mfem_mgis {
     this->prec->iterative_mode = false;
   }  // end of setLinearSolver
 
+  real NewtonSolver::GetInitialNorm() const {
+    return this->initial_norm;
+  }  // end of GetInitialNorm
+
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
@@ -86,12 +90,12 @@ namespace mfem_mgis {
       this->converged = 0;
       return;
     }
-    const auto norm0 = updateResidual();
+    this->initial_norm = updateResidual();
 
     //
-    const auto norm_goal = std::max(rel_tol * norm0, abs_tol);
+    const auto norm_goal = std::max(rel_tol * (this->initial_norm), abs_tol);
     auto it = size_type{};
-    auto norm = norm0;
+    auto norm = this->initial_norm;
 
     while (true) {
       MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
@@ -101,7 +105,7 @@ namespace mfem_mgis {
                     << " : ||r|| = " << norm;
         if (it > 0) {
           if (mfem_mgis::getMPIrank() == 0)
-            mfem::out << ", ||r||/||r_0|| = " << norm / norm0;
+            mfem::out << ", ||r||/||r_0|| = " << norm / (this->initial_norm);
         }
         if (mfem_mgis::getMPIrank() == 0) mfem::out << '\n';
       }

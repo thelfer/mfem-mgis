@@ -111,7 +111,7 @@ namespace mfem_mgis {
     BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
     void revert() override;
     void update() override;
-    bool solve(const real, const real) override;
+    NonLinearResolutionOutput solve(const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 

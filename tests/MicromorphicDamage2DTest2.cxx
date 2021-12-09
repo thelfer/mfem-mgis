@@ -47,26 +47,25 @@ buildMechanicalProblem(
   // boundary conditions
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), 3 /*"left"*/, 0));
+          problem->getFiniteElementDiscretizationPointer(), "left", 0));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), 6 /* "upper" */,
+          problem->getFiniteElementDiscretizationPointer(), "upper",
           1));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), 7 /* "lower" */,
+          problem->getFiniteElementDiscretizationPointer(), "lower",
           1));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), 1 /* "right" */, 0,
+          problem->getFiniteElementDiscretizationPointer(), "right", 0,
           [](const mfem_mgis::real t) { return umax * t; }));
   // linear solver, convergence critera
   mfem_mgis::unit_tests::setLinearSolver(*problem, test_parameters);
-  problem->setSolverParameters(
-      {{"VerbosityLevel", 0},
-       {"RelativeTolerance", 1e-4},
-       {"AbsoluteTolerance", 1e-10},  // 7.69207e+11 * 1.e-18},
-       {"MaximumNumberOfIterations", 10}});
+  problem->setSolverParameters({{"VerbosityLevel", 0},
+                                {"RelativeTolerance", 1e-4},
+                                {"AbsoluteTolerance", 0},
+                                {"MaximumNumberOfIterations", 10}});
   // post-processings
   problem->addPostProcessing(
       "ParaviewExportResults",
@@ -121,15 +120,15 @@ buildMicromorphicProblem(
   mfem_mgis::unit_tests::setLinearSolver(*problem, test_parameters);
   problem->setSolverParameters({{"VerbosityLevel", 0},
                                 {"RelativeTolerance", 1e-6},
-                                {"AbsoluteTolerance", 1e-14},  // 16.3348 * 1e-12},
+                                {"AbsoluteTolerance", 0},
                                 {"MaximumNumberOfIterations", 50}});
+  // boundary conditions
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), 3 /*"left"*/, 0));
+          problem->getFiniteElementDiscretizationPointer(), "left", 0));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), 1 /* "right" */,
-          0));
+          problem->getFiniteElementDiscretizationPointer(), "right", 0));
   // post-processings
   problem->addPostProcessing(
       "ParaviewExportIntegrationPointResultsAtNodes",
@@ -207,8 +206,7 @@ int main(int argc, char** argv) {
       buildMechanicalProblem(test_parameters, common_problem_parameters);
   auto micromorphic_problem =
       buildMicromorphicProblem(test_parameters, common_problem_parameters);
-
-  // solving the problem in 10 time steps
+  // solving the problem in 100 time steps
   const auto t0 = mfem_mgis::real{0};
   const auto t1 = mfem_mgis::real{1};
   const auto nsteps = mfem_mgis::size_type{100};
@@ -236,25 +234,53 @@ int main(int argc, char** argv) {
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
     auto converged = false;
     auto iter = mfem_mgis::size_type{};
+    auto mechanical_problem_initial_residual = mfem_mgis::real{};
+    auto micromorphic_problem_initial_residual = mfem_mgis::real{};
+    std::cout << "\ntime step " << i  //
+              << " from " << t << " to " << t + dt << "\n";
     // alternate miminisation algorithm
     while (!converged) {
+      std::cout << "time step " << i  //
+                << ", alternate minimisation iteration, " << iter << '\n';
+      if (iter == 0) {
+        mechanical_problem->setSolverParameters({{"AbsoluteTolerance", 1e-10}});
+        micromorphic_problem->setSolverParameters(
+            {{"AbsoluteTolerance", 1e-10}});
+      } else {
+        mechanical_problem->setSolverParameters(
+            {{"AbsoluteTolerance",
+              mechanical_problem_initial_residual * 1e-6}});
+        micromorphic_problem->setSolverParameters(
+            {{"AbsoluteTolerance",
+              micromorphic_problem_initial_residual * 1e-6}});
+      }
       // solving the mechanical problem
-      if (!mechanical_problem->solve(t, dt)) {
+      auto mechanical_output = mechanical_problem->solve(t, dt);
+      if (!mechanical_output.status) {
         mfem_mgis::raise("non convergence of the mechanical problem");
       }
       // passing the energy release rate to the micromorphic problem
       extractInternalStateVariable(
           Y, mechanical_problem->getMaterial("beam").s1, "EnergyReleaseRate");
       // solving the micromorphic problem
-      if (!micromorphic_problem->solve(t, dt)) {
+      auto micromorphic_output = micromorphic_problem->solve(t, dt);
+      if (!micromorphic_output.status) {
         mfem_mgis::raise("non convergence of the micromorphic problem");
       }
       // passing the damage to the mechanical problem
       extractInternalStateVariable(
           d, micromorphic_problem->getMaterial("beam").s1, "Damage");
+      if (iter == 0) {
+        mechanical_problem_initial_residual =
+            mechanical_output.initial_residual_norm;
+        micromorphic_problem_initial_residual =
+            micromorphic_output.initial_residual_norm;
+      } else {
+        converged = (mechanical_output.iterations == 0) &&
+                    (micromorphic_output.iterations == 0);
+      }
       ++iter;
       // check convergence
-      converged = iter == iter_max;
       if ((iter == iter_max) && (!converged)) {
         mfem_mgis::raise("non convergence of the fixed-point problem");
       }

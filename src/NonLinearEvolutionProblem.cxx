@@ -114,7 +114,8 @@ namespace mfem_mgis {
     this->pimpl->setLinearSolver(n, params);
   }  // end of setLinearSolver
 
-  bool NonLinearEvolutionProblem::solve(const real t, const real dt) {
+  NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
+                                                             const real dt) {
     this->setup(t, dt);
     return this->pimpl->solve(t, dt);
   }  // end of solve
