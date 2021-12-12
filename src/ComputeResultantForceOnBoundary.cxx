@@ -36,8 +36,9 @@ namespace mfem_mgis {
   }  // end of writeResultantForce
 
   ComputeResultantForceOnBoundaryCommon::ComputeResultantForceOnBoundaryCommon(
-      std::vector<std::pair<size_type, size_type>> fd, const size_type i)
-      : faces(std::move(fd)),
+      std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>> edofs,
+      const size_type i)
+      : elts_dofs(std::move(edofs)),
         bid(i) {}  // end of ComputeResultantForceOnBoundaryCommon
 
 #ifdef MFEM_USE_MPI
@@ -46,7 +47,8 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<true>& p,
       const Parameters& params)
       : ComputeResultantForceOnBoundaryCommon(
-            buildFacesDescription<true>(p, getBoundaryIdentifier(p, params)),
+            getElementsDegreesOfFreedomOnBoundary<true>(
+                p, getBoundaryIdentifier(p, params)),
             getBoundaryIdentifier(p, params)) {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -67,7 +69,7 @@ namespace mfem_mgis {
       const real t,
       const real dt) {
     mfem::Vector F;
-    computeResultantForceOnBoundary(F, p, this->faces);
+    computeResultantForceOnBoundary(F, p, this->elts_dofs);
     //
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -89,7 +91,8 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<false>& p,
       const Parameters& params)
       : ComputeResultantForceOnBoundaryCommon(
-            buildFacesDescription<false>(p, getBoundaryIdentifier(p, params)),
+            getElementsDegreesOfFreedomOnBoundary<false>(
+                p, getBoundaryIdentifier(p, params)),
             getBoundaryIdentifier(p, params)) {
     const auto& f = get<std::string>(params, "OutputFileName");
     this->out.open(f);
@@ -106,7 +109,7 @@ namespace mfem_mgis {
       const real t,
       const real dt) {
     mfem::Vector F;
-    computeResultantForceOnBoundary(F, p, this->faces);
+    computeResultantForceOnBoundary(F, p, this->elts_dofs);
     writeResultantForce(this->out, F, t + dt);
   }  // end of execute
 

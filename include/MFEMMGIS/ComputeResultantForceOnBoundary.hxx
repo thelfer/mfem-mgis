@@ -31,13 +31,20 @@ namespace mfem_mgis {
   struct ComputeResultantForceOnBoundaryCommon {
     /*!
      * \brief constructor
-     * \param[in] fd: faces description
+     * \param[in] edofs: elements degrees of freedom
      * \param[in] i: boundary identifier
      */
     ComputeResultantForceOnBoundaryCommon(
-        std::vector<std::pair<size_type, size_type>>, const size_type);
-    //! \brief list of boundary element and associated volume element
-    const std::vector<std::pair<size_type, size_type>> faces;
+        std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>,
+        const size_type);
+    /*!
+     * \brief return a structure which associates the global number of the
+     * selected elements to the local indexes of its degrees of freedom sorted
+     * by components.
+     */
+    const std::vector<std::pair<size_type,  // element number
+                                std::vector<std::vector<size_type>>>>
+        elts_dofs;
     //! \brief boundary identifier
     const size_type bid;
     //! \brief output file

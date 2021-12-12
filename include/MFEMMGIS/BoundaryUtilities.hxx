@@ -30,6 +30,24 @@ namespace mfem_mgis {
   std::vector<std::pair<size_type, size_type>> buildFacesDescription(
       NonLinearEvolutionProblemImplementation<parallel>&, const size_type);
 
+  /*!
+   * \brief return a structure which associates the global number of the selected
+   * elements to the local indexes of its degrees of freedom sorted by
+   * components.
+   * \tparam parallel: boolean stating if the computation is done in parallel.
+   * \param[in] p: non linear evolution problem
+   * \param[in] bid: boundary identifier
+   */
+  template <bool parallel>
+  std::vector<std::pair<size_type,                  //< element number
+                        std::vector<                //< storage per components
+                            std::vector<size_type>  //< local index of
+                                                    // the degree of
+                                                    //  freedoms
+                            >>>
+  getElementsDegreesOfFreedomOnBoundary(
+      NonLinearEvolutionProblemImplementation<parallel>&, const size_type);
+
 }  // end of namespace mfem_mgis
 
 #include "MFEMMGIS/BoundaryUtilities.ixx"

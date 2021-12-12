@@ -291,28 +291,44 @@ namespace mfem_mgis {
       return buildFacesDescription(p.getImplementation<true>(), bid);
 #else
       raise(
-          "computeResultantForceOnBoundary: "
+          "buildFacesDescription: "
           "unsupported parallel computations");
 #endif
     }
     return buildFacesDescription(p.getImplementation<false>(), bid);
   }  // end of buildFacesDescription
 
-  void computeResultantForceOnBoundary(
-      mfem::Vector& F,
-      NonLinearEvolutionProblem& p,
-      const std::vector<std::pair<size_type, size_type>>& faces) {
+  std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>
+  getElementsDegreesOfFreedomOnBoundary(NonLinearEvolutionProblem& p,
+                                        const size_type bid) {
     auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      computeResultantForceOnBoundary(F, p.getImplementation<true>(), faces);
+      return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<true>(), bid);
+#else
+      raise(
+          "getElementsDegreesOfFreedomOnBoundary: "
+          "unsupported parallel computations");
+#endif
+    }
+    return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<false>(), bid);
+  }  // end of getElementsDegreesOfFreedomOnBoundary
+
+  void computeResultantForceOnBoundary(
+      mfem::Vector& F,
+      NonLinearEvolutionProblem& p,
+      const std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>& elts_dofs) {
+    auto& fed = p.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      computeResultantForceOnBoundary(F, p.getImplementation<true>(), elts_dofs);
 #else
       raise(
           "computeResultantForceOnBoundary: "
           "unsupported parallel computations");
 #endif
     } else {
-      computeResultantForceOnBoundary(F, p.getImplementation<false>(), faces);
+      computeResultantForceOnBoundary(F, p.getImplementation<false>(), elts_dofs);
     }
   }  // end of computeResultantForceOnBoundary
 

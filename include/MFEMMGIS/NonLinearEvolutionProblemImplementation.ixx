@@ -18,41 +18,26 @@ namespace mfem_mgis {
   void computeResultantForceOnBoundary(
       mfem::Vector& F,
       NonLinearEvolutionProblemImplementation<parallel>& p,
-      const std::vector<std::pair<size_type, size_type>>& faces) {
+      const std::vector<
+          std::pair<size_type, std::vector<std::vector<size_type>>>>&
+          elements) {
     auto& fed = p.getFiniteElementDiscretization();
     auto& fes = fed.template getFiniteElementSpace<parallel>();
     const auto nc = fes.GetVDim();
-    mfem::Array<int> cell_dofs;
-    mfem::Array<int> face_dofs;
-    mfem::Vector cell_forces;
-    mfem::Vector face_forces;
+    mfem::Vector elt_forces;
     F.SetSize(nc);
     F = real{0};
-    for (const auto& f : faces) {
-      const auto& fe = *(fes.GetFE(std::get<1>(f)));
-      auto& tr = *(fes.GetElementTransformation(std::get<1>(f)));
-      fes.GetElementVDofs(std::get<1>(f), cell_dofs);
+    for (const auto& e : elements) {
+      const auto& fe = *(fes.GetFE(e.first));
+      auto& tr = *(fes.GetElementTransformation(e.first));
+      const auto nnodes = fe.GetDof();
       // compute the inner forces
       auto& bi = p.getBehaviourIntegrator(tr.Attribute);
-      bi.computeInnerForces(cell_forces, fe, tr);
-      // computation of the resultant by summing the contributions on the
-      // considered boundary
-      fes.GetBdrElementVDofs(std::get<0>(f), face_dofs);
-      face_forces.SetSize(face_dofs.Size());
-      const auto n_cell_nodes = fe.GetDof();
-      const auto n_face_nodes = face_dofs.Size() / fe.GetDim();
-      const auto cell_dofs_begin = cell_dofs.GetData();
-      // here we take into account the fact that that the components are stored
-      // contiguously
+      bi.computeInnerForces(elt_forces, fe, tr);
       for (size_type c = 0; c != nc; ++c) {
-        const auto cell_dofs_c_begin = cell_dofs_begin + c * n_cell_nodes;
-        const auto cell_dofs_c_end = cell_dofs_c_begin + n_cell_nodes;
-        for (size_type i = 0; i != n_face_nodes; ++i) {
-          const auto fid = i + c * n_face_nodes;
-          const auto face_dof = face_dofs[fid];
-          const auto pc =
-              std::find(cell_dofs_c_begin, cell_dofs_c_end, face_dof);
-          F[c] += cell_forces[pc - cell_dofs_begin];
+        const auto* const Fe = elt_forces.GetData() + c * nnodes;
+        for (const auto& i : e.second[c]) {
+          F[c] += Fe[i];
         }
       }
     }

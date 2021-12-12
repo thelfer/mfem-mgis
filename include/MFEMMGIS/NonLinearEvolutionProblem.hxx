@@ -86,26 +86,26 @@ namespace mfem_mgis {
      * \brief add an uniform boundary condition
      * \param[in] params: parameters defining the boundary condition
      */
-    void addUniformDirichletBoundaryCondition(const Parameters&);
+    void addUniformDirichletBoundaryCondition(const Parameters &);
     void addPostProcessing(
         const std::function<void(const real, const real)> &) override;
     void addPostProcessing(std::string_view, const Parameters &) override;
     void executePostProcessings(const real, const real) override;
     void addBehaviourIntegrator(const std::string &,
-                                const Parameter&,
+                                const Parameter &,
                                 const std::string &,
                                 const std::string &) override;
-    void setMaterialsNames(const std::map<size_type, std::string>&) override;
-    void setBoundariesNames(const std::map<size_type, std::string>&) override;
+    void setMaterialsNames(const std::map<size_type, std::string> &) override;
+    void setBoundariesNames(const std::map<size_type, std::string> &) override;
     std::vector<size_type> getAssignedMaterialsIdentifiers() const override;
     size_type getMaterialIdentifier(const Parameter &) const override;
     size_type getBoundaryIdentifier(const Parameter &) const override;
     std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter&) const override;
+        const Parameter &) const override;
     std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter&) const override;
-    const Material &getMaterial(const Parameter&) const override;
-    Material &getMaterial(const Parameter&) override;
+        const Parameter &) const override;
+    const Material &getMaterial(const Parameter &) const override;
+    Material &getMaterial(const Parameter &) override;
     const BehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const override;
     BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
@@ -165,13 +165,27 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT std::vector<std::pair<size_type, size_type>>
   buildFacesDescription(NonLinearEvolutionProblem &, const size_type);
+
+  /*!
+   * \brief return a structure which associates the global number of the selected
+   * elements to the local indexes of its degrees of freedom sorted by
+   * components.
+   * \tparam parallel: boolean stating if the computation is done in parallel.
+   * \param[in] p: non linear evolution problem
+   * \param[in] bid: boundary identifier
+   */
+  MFEM_MGIS_EXPORT
+  std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>
+  getElementsDegreesOfFreedomOnBoundary(NonLinearEvolutionProblem &,
+                                        const size_type);
+
   /*!
    * \return the resultant of the inner forces on the given boundary
    * \param[out] F: resultant
    * \param[in] p: non linear evolution problem
-   * \param[in] faces: description of the boundary by a vector of pair
-   * associating for each face its identifier and the identifier of the
-   * adjacent element.
+   * \param[in] elts: a structure which gives for each element having a
+   * least one node on the boundary the list of the nodes of this element on the
+   * boundary.
    *
    * \note in parallel, the resultant is only the contribution of the given
    * process
@@ -179,7 +193,7 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT void computeResultantForceOnBoundary(
       mfem::Vector &,
       NonLinearEvolutionProblem &,
-      const std::vector<std::pair<size_type, size_type>> &);
+      const std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>> &);
 
 }  // end of namespace mfem_mgis
 

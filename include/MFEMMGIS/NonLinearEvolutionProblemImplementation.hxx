@@ -57,7 +57,7 @@ namespace mfem_mgis {
     //! \return the finite element space
     const FiniteElementSpace<true>& getFiniteElementSpace() const;
     //
-    void Mult(const mfem::Vector &, mfem::Vector &) const override;
+    void Mult(const mfem::Vector&, mfem::Vector&) const override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
@@ -134,9 +134,9 @@ namespace mfem_mgis {
    * \brief return the resultant of the inner forces on the given boundary
    * \param[out] F: resultant
    * \param[in] p: non linear evolution problem
-   * \param[in] faces: description of the boundary by a vector of pair
-   * associating for each face its identifier and the identifier of the adjacent
-   * element.
+   * \param[in] elements: a structure which gives for each element having a
+   * least one node on the boundary the list of the nodes of this element on the
+   * boundary.
    *
    * \note in parallel, the resultant is only the contribution of the given
    * process
@@ -145,7 +145,7 @@ namespace mfem_mgis {
   void computeResultantForceOnBoundary(
       mfem::Vector&,
       NonLinearEvolutionProblemImplementation<parallel>&,
-      const std::vector<std::pair<size_type, size_type>>&);
+      const std::vector<std::pair<size_type, std::vector<size_type>>>&);
 
   /*!
    * \return the integral of the thermodynamic forces at the end of the time
