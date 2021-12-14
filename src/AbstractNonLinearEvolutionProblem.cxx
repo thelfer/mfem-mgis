@@ -53,7 +53,7 @@ namespace mfem_mgis {
           "getMaterialsIdentifiers: no parameter named `Material` nor "
           "`Materials` given");
     }
-    return p.getMaterialsIdentifiers(".+");
+    return p.getAssignedMaterialsIdentifiers();
   }  // end of getMaterialsIdentifiers
 
   std::vector<size_type> getBoundariesIdentifiers(

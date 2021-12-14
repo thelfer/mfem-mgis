@@ -11,6 +11,7 @@
 #include <array>
 #include <vector>
 #include <memory>
+#include <optional>
 #include "MGIS/Span.hxx"
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
@@ -20,10 +21,9 @@
 
 namespace mfem_mgis {
 
-  /*!
-   * \brief PartialQuadratureSpace
-   */
+  // forward declarations
   struct PartialQuadratureSpace;
+  struct BehaviourIntegrator;
 
   /*!
    * \brief a simple structure describing a material an the associated data.
@@ -118,6 +118,16 @@ namespace mfem_mgis {
               const mgis::string_view,
               const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
+   * \return a partial quadrature function for the given gradient
+   * \param[in] m: material
+   * \param[in] n: name of the gradient
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView
+  getGradient(const Material &,
+              const mgis::string_view,
+              const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
    * \return a partial quadrature function for the given thermodynamic force
    * \param[in] m: material
    * \param[in] n: name of the thermodynamic force
@@ -125,6 +135,16 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT PartialQuadratureFunction getThermodynamicForce(
       Material &,
+      const mgis::string_view,
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return a partial quadrature function for the given thermodynamic force
+   * \param[in] m: material
+   * \param[in] n: name of the thermodynamic force
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView getThermodynamicForce(
+      const Material &,
       const mgis::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
@@ -137,6 +157,65 @@ namespace mfem_mgis {
       Material &,
       const mgis::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return a partial quadrature function for the given state variable
+   * \param[in] m: material
+   * \param[in] n: name of the state variable
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView
+  getInternalStateVariable(
+      const Material &,
+      const mgis::string_view,
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return a partial quadrature function holding the stored energy
+   * \param[in] m: material
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction> getStoredEnergy(
+      Material &, const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return a partial quadrature function holding the stored energy
+   * \param[in] m: material
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT std::optional<ImmutablePartialQuadratureFunctionView>
+  getStoredEnergy(const Material &,
+                  const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return a partial quadrature function holding the dissipated energy
+   * \param[in] m: material
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction> getDissipatedEnergy(
+      Material &, const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return a partial quadrature function holding the dissipated energy
+   * \param[in] m: material
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT std::optional<ImmutablePartialQuadratureFunctionView>
+  getDissipatedEnergy(
+      const Material &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
+  /*!
+   * \return the stored energy by the whole material if the behaviour computes
+   * it, zero otherwise
+   * \param[in] bi: behaviour integrator
+   * \param[in] s: selection of the state
+   */
+  MFEM_MGIS_EXPORT real computeStoredEnergy(
+      const BehaviourIntegrator &,
+      const Material::StateSelection & = Material::END_OF_TIME_STEP);
+  /*!
+   * \return the stored energy if the behaviour computes it, zero otherwise
+   * \param[in] bi: behaviour integrator
+   * \param[in] s: selection of the state
+   */
+  MFEM_MGIS_EXPORT real computeDissipatedEnergy(
+      const BehaviourIntegrator &,
+      const Material::StateSelection & = Material::END_OF_TIME_STEP);
 
 }  // end of namespace mfem_mgis
 

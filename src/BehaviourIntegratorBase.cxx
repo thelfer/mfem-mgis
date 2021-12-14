@@ -42,6 +42,11 @@ namespace mfem_mgis {
     raise(msg);
   }  // end of throwInvalidBehaviourType
 
+  const PartialQuadratureSpace&
+  BehaviourIntegratorBase::getPartialQuadratureSpace() const {
+    return this->getMaterial().getPartialQuadratureSpace();
+  }  // end of getPartialQuadratureSpace
+
   void BehaviourIntegratorBase::setTimeIncrement(const real dt) {
     this->time_increment = dt;
   }  // end of setTimeIncrement

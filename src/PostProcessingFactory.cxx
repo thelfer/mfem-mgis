@@ -11,6 +11,7 @@
 #include "MFEMMGIS/ParaviewExportResults.hxx"
 #include "MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx"
 #include "MFEMMGIS/MeanThermodynamicForces.hxx"
+#include "MFEMMGIS/EnergyPostProcessings.hxx"
 #include "MFEMMGIS/ComputeResultantForceOnBoundary.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 
@@ -76,6 +77,16 @@ namespace mfem_mgis {
                 return std::make_unique<MeanThermodynamicForces<true>>(p,
                                                                        params);
               });
+    this->add(
+        "StoredEnergy", [](NonLinearEvolutionProblemImplementation<true>& p,
+                           const Parameters& params) {
+          return std::make_unique<StoredEnergyPostProcessing<true>>(p, params);
+        });
+    this->add(
+        "DissipatedEnergy", [](NonLinearEvolutionProblemImplementation<true>& p,
+                           const Parameters& params) {
+          return std::make_unique<DissipatedEnergyPostProcessing<true>>(p, params);
+        });
   }  // end of PostProcessingFactory
 
   PostProcessingFactory<true>::~PostProcessingFactory() = default;
@@ -141,6 +152,16 @@ namespace mfem_mgis {
                 return std::make_unique<MeanThermodynamicForces<false>>(p,
                                                                         params);
               });
+    this->add(
+        "StoredEnergy", [](NonLinearEvolutionProblemImplementation<false>& p,
+                           const Parameters& params) {
+          return std::make_unique<StoredEnergyPostProcessing<false>>(p, params);
+        });
+    this->add(
+        "DissipatedEnergy", [](NonLinearEvolutionProblemImplementation<false>& p,
+                           const Parameters& params) {
+          return std::make_unique<DissipatedEnergyPostProcessing<false>>(p, params);
+        });
   }  // end of PostProcessingFactory
 
   PostProcessingFactory<false>::~PostProcessingFactory() = default;

@@ -64,10 +64,7 @@ namespace mfem_mgis {
      * \param[in] i: element number (global numbering)
      */
     size_type getOffset(const size_type) const;
-    /*!
-     * \brief return the offset associated with an element
-     * \param[in] i: element number (global numbering)
-     */
+    //! \return the material id
     size_type getId() const;
     //! \brief destructor
     ~PartialQuadratureSpace();

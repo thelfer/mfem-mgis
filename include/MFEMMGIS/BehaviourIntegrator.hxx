@@ -8,15 +8,17 @@
 #ifndef LIB_MFEM_MGIS_BEHAVIOURINTEGRATOR_HXX
 #define LIB_MFEM_MGIS_BEHAVIOURINTEGRATOR_HXX
 
+#include <array>
 #include <memory>
 #include "MGIS/Span.hxx"
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
 
-  // forward declaration
+  // forward declarations
   struct Material;
-  // forward declaration
+  struct PartialQuadratureSpace;
+  struct ImmutablePartialQuadratureFunctionView;
   enum struct IntegrationType;
 
   /*!
@@ -35,6 +37,8 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     virtual void setTimeIncrement(const real) = 0;
+    //! \return the partial quadrature space
+    virtual const PartialQuadratureSpace &getPartialQuadratureSpace() const = 0;
     /*!
      * \return the integration rule for the given element and element
      * transformation
@@ -132,6 +136,22 @@ namespace mfem_mgis {
     //! \brief destructor
     virtual ~BehaviourIntegrator();
   };  // end of struct BehaviourIntegrator
+
+  /*!
+   * \return the integral of a partial quadrature function
+   * \param[in] f: function
+   */
+  template <typename ValueType>
+  ValueType computeIntegral(const BehaviourIntegrator &,
+                            const ImmutablePartialQuadratureFunctionView &);
+  /*!
+   * \return the integral of a partial quadrature function
+   * \param[in] bi: behaviour integrator
+   * \param[in] f: function
+   */
+  template <>
+  MFEM_MGIS_EXPORT real computeIntegral(
+      const BehaviourIntegrator &, const ImmutablePartialQuadratureFunctionView &);
 
 }  // end of namespace mfem_mgis
 

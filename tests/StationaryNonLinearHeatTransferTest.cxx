@@ -25,7 +25,6 @@ int main(int argc, char** argv) {
 #else
   static constexpr const auto parallel = false;
 #endif
-  constexpr const auto dim = mfem_mgis::size_type{3};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
   mfem_mgis::initialize(argc, argv);
