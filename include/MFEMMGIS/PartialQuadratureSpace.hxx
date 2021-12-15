@@ -60,6 +60,11 @@ namespace mfem_mgis {
     //! \brief return the number of integration points
     size_type getNumberOfIntegrationPoints() const;
     /*!
+     * \brief return the hash table associating global element numbers and local
+     * offsets.
+     */
+    const std::unordered_map<size_type, size_type> &getOffsets() const;
+    /*!
      * \brief return the offset associated with an element
      * \param[in] i: element number (global numbering)
      */

@@ -26,9 +26,9 @@ namespace mfem_mgis {
   }  // end of getDataStride
 
   inline size_type
-  ImmutablePartialQuadratureFunctionView::getInitialDataOffset() const {
+  ImmutablePartialQuadratureFunctionView::getDataOffset() const {
     return this->data_begin;
-  }  // end of getInitialDataOffset
+  }  // end of getDataOffset
 
   inline size_type
   ImmutablePartialQuadratureFunctionView::getNumberOfComponents() const {

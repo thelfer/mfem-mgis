@@ -110,7 +110,7 @@ namespace mfem_mgis {
      */
     size_type getDataStride() const;
     //! \return the offset of the first element
-    size_type getInitialDataOffset() const;
+    size_type getDataOffset() const;
     //! \brief destructor
     ~ImmutablePartialQuadratureFunctionView();
 

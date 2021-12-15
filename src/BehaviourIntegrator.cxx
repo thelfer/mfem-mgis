@@ -27,32 +27,56 @@ namespace mfem_mgis {
     const auto& qspace = bi.getPartialQuadratureSpace();
     const auto& fespace = qspace.getFiniteElementDiscretization()
                               .getFiniteElementSpace<parallel>();
-    const auto m = qspace.getId();
-    for (size_type i = 0; i != fespace.GetNBE(); ++i) {
-      if (fespace.GetAttribute(i) != m) {
-        continue;
-      }
-      const auto& fe = *(fespace.GetFE(i));
-      auto& tr = *(fespace.GetElementTransformation(i));
+    for (const auto [e, eo] : qspace.getOffsets()) {
+      const auto& fe = *(fespace.GetFE(e));
+      auto& tr = *(fespace.GetElementTransformation(e));
       const auto& ir = bi.getIntegrationRule(fe, tr);
-      // element offset
-      const auto eoffset = qspace.getOffset(i);
-      for (size_type j = 0; j != ir.GetNPoints(); ++j) {
-        const auto& ip = ir.IntPoint(j);
+      for (size_type i = 0; i != ir.GetNPoints(); ++i) {
+        const auto& ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
-        f(fe, tr, ip, eoffset + i);
+        f(fe, tr, ip, eo + i);
       }
     }
   }  // end of performLoopOverIntegrationPoints
 
+
   template <bool parallel>
-  real BehaviourIntegrator_computeScalarIntegral(
+  static real BehaviourIntegrator_computeMeasure(const BehaviourIntegrator& bi) {
+    auto r = real{};
+    auto integrate =
+        [&r, &bi](const mfem::FiniteElement&, mfem::ElementTransformation& tr,
+                  const mfem::IntegrationPoint& ip, const size_type) {
+          r += bi.getIntegrationPointWeight(tr, ip);
+        };
+    performLoopOverIntegrationPoints<parallel>(integrate, bi);
+    return r;
+  }  // end of BehaviourIntegrator_computeMeasure
+
+  real computeMeasure(const BehaviourIntegrator& bi) {
+    const auto& qspace = bi.getPartialQuadratureSpace();
+    const auto& fed = qspace.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto lv = BehaviourIntegrator_computeMeasure<true>(bi);
+      auto r = real{};
+      MPI_Reduce(&lv, &r, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+      return r;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    return BehaviourIntegrator_computeMeasure<false>(bi);
+  }  // end of computeIntegral
+
+
+  template <bool parallel>
+  static real BehaviourIntegrator_computeScalarIntegral(
       const BehaviourIntegrator& bi,
       const ImmutablePartialQuadratureFunctionView& f) {
+    const auto* const values = f.getValues().data() + f.getDataOffset();
     auto r = real{};
-    const auto* const values = f.getValues().data() + f.getInitialDataOffset();
-    if (f.getDataStride() == 0) {
-      auto integrate = [&bi, &r, values](const mfem::FiniteElement&,
+    if (f.getDataStride() == 1) {
+      auto integrate = [&r, &bi, values](const mfem::FiniteElement&,
                                          mfem::ElementTransformation& tr,
                                          const mfem::IntegrationPoint& ip,
                                          const size_type o) {
@@ -61,11 +85,12 @@ namespace mfem_mgis {
       };
       performLoopOverIntegrationPoints<parallel>(integrate, bi);
     } else {
-      auto integrate = [&bi, &r, values](const mfem::FiniteElement&,
-                                         mfem::ElementTransformation& tr,
-                                         const mfem::IntegrationPoint& ip,
-                                         const size_type o) {
-        const auto v = values[o];
+      const auto s = f.getDataStride();
+      auto integrate = [&r, &bi, &s, values](const mfem::FiniteElement&,
+                                             mfem::ElementTransformation& tr,
+                                             const mfem::IntegrationPoint& ip,
+                                             const size_type o) {
+        const auto v = values[o * s];
         r += v * bi.getIntegrationPointWeight(tr, ip);
       };
       performLoopOverIntegrationPoints<parallel>(integrate, bi);
@@ -81,6 +106,11 @@ namespace mfem_mgis {
       raise(
           "computeIntegral: the partial quadrature space of the behaviour "
           "integrator don't match the one of the partial quadrature function");
+    }
+    if (f.getNumberOfComponents() != 1u) {
+      raise(
+          "computeIntegral: the partial quadrature function is not scalar "
+          "valuated");
     }
     const auto& fed = qspace.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {

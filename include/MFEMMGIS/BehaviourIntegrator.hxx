@@ -138,6 +138,13 @@ namespace mfem_mgis {
   };  // end of struct BehaviourIntegrator
 
   /*!
+   * \return the measure of the mesh (volume in 3D and axisymmetrical
+   * hypotheses, surface in other bidimensional hypotheses) on which is built
+   * the behaviour integrator. \param[in] bi: behaviour integrator
+   */
+  MFEM_MGIS_EXPORT real computeMeasure(const BehaviourIntegrator &);
+
+  /*!
    * \return the integral of a partial quadrature function
    * \param[in] f: function
    */
@@ -150,8 +157,9 @@ namespace mfem_mgis {
    * \param[in] f: function
    */
   template <>
-  MFEM_MGIS_EXPORT real computeIntegral(
-      const BehaviourIntegrator &, const ImmutablePartialQuadratureFunctionView &);
+  MFEM_MGIS_EXPORT real
+  computeIntegral(const BehaviourIntegrator &,
+                  const ImmutablePartialQuadratureFunctionView &);
 
 }  // end of namespace mfem_mgis
 
