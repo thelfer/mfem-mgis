@@ -303,7 +303,7 @@ namespace mfem_mgis {
     this->setup(t, dt);
     //    this->computePrediction(t, dt);
     NonLinearResolutionOutput output;
-    auto file_output = [&output](const auto& s) {
+    auto file_output = [&output](auto& s) {
       output.status = s.GetConverged();
       output.iterations = s.GetNumIterations();
       output.final_residual_norm = s.GetFinalNorm();
