@@ -207,7 +207,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT real computeStoredEnergy(
       const BehaviourIntegrator &,
-      const Material::StateSelection & = Material::END_OF_TIME_STEP);
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return the stored energy if the behaviour computes it, zero otherwise
    * \param[in] bi: behaviour integrator
@@ -215,7 +215,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT real computeDissipatedEnergy(
       const BehaviourIntegrator &,
-      const Material::StateSelection & = Material::END_OF_TIME_STEP);
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
 
 }  // end of namespace mfem_mgis
 

@@ -22,6 +22,54 @@ namespace mfem_mgis {
   struct PartialQuadratureSpace;
 
   /*!
+   * \brief a simple data structure describing how the data of a partial
+   * quadrature function is mapped in memory
+   */
+  struct PartialQuadratureFunctionDataLayout {
+    // \brief default constructor
+    PartialQuadratureFunctionDataLayout() = default;
+    // \brief move constructor
+    PartialQuadratureFunctionDataLayout(PartialQuadratureFunctionDataLayout&&) =
+        default;
+    // \brief copy constructor
+    PartialQuadratureFunctionDataLayout(
+        const PartialQuadratureFunctionDataLayout&) = default;
+    // \brief move assignement
+    PartialQuadratureFunctionDataLayout& operator=(
+        PartialQuadratureFunctionDataLayout&&) = default;
+    // \brief standard assignement
+    PartialQuadratureFunctionDataLayout& operator=(
+        const PartialQuadratureFunctionDataLayout&) = default;
+    //! \return the number of components
+    size_type getNumberOfComponents() const;
+    /*!
+     * \return the stride of data, i.e. the distance between the values of two
+     * successive integration points.
+     */
+    size_type getDataStride() const;
+    //! \return the offset of the first element
+    size_type getDataOffset() const;
+    //! \brief destructor
+    ~PartialQuadratureFunctionDataLayout() = default;
+
+   protected:
+    /*!
+     * \return the data offset associated with the given integration point.
+     * \param[in] o: offset associated with the integration point
+     */
+    size_type getDataOffset(const size_type) const;
+    //! \brief data stride
+    size_type data_stride = size_type{};
+    /*!
+     * \brief begin of the data (offset of the function with respect to the
+     * beginning of data values)
+     */
+    size_type data_begin = size_type{};
+    //! \brief data size
+    size_type data_size = size_type{};
+  };  // end of struct PartialQuadratureFunctionDataLayout
+
+  /*!
    * \brief quadrature function defined on a partial quadrature space.
    *
    * The `ImmutablePartialQuadratureFunctionView` defines an immutable view
@@ -51,7 +99,8 @@ namespace mfem_mgis {
    * The size of the data hold by the function per integration point, i.e. th
    * number of components of the function is given by `data_size`.
    */
-  struct MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView {
+  struct MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView
+      : PartialQuadratureFunctionDataLayout {
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
@@ -66,6 +115,9 @@ namespace mfem_mgis {
         const size_type = std::numeric_limits<size_type>::max());
     //! \return the underlying quadrature space
     const PartialQuadratureSpace& getPartialQuadratureSpace() const;
+    //! \return the underlying quadrature space
+    std::shared_ptr<const PartialQuadratureSpace>
+    getPartialQuadratureSpacePointer() const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
@@ -102,19 +154,19 @@ namespace mfem_mgis {
                                                      const size_type) const;
     //! \return a view to the function values
     mgis::span<const real> getValues() const;
-    //! \return the number of components
-    size_type getNumberOfComponents() const;
     /*!
-     * \return the stride of data, i.e. the distance between the values of two
-     * successive integration points.
+     * \return if the current function has the same quadrature space and the
+     * same number of components than the given view
+     * \param[in] v: view
      */
-    size_type getDataStride() const;
-    //! \return the offset of the first element
-    size_type getDataOffset() const;
+    bool checkCompatibility(
+        const ImmutablePartialQuadratureFunctionView&) const;
     //! \brief destructor
     ~ImmutablePartialQuadratureFunctionView();
 
    protected:
+    //! \brief default constructor
+    ImmutablePartialQuadratureFunctionView();
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
@@ -124,27 +176,13 @@ namespace mfem_mgis {
      */
     ImmutablePartialQuadratureFunctionView(
         std::shared_ptr<const PartialQuadratureSpace>,
-        const size_type ds,
+        const size_type,
         const size_type,
         const size_type);
     //! \brief underlying finite element space
     std::shared_ptr<const PartialQuadratureSpace> qspace;
-    /*!
-     * \return the data offset associated with the given integration point.
-     * \param[in] o: offset associated with the integration point
-     */
-    size_type getDataOffset(const size_type) const;
     //! \brief underlying values
     mgis::span<const real> immutable_values;
-    //! \brief data stride
-    size_type data_stride;
-    /*!
-     * \brief begin of the data (offset of the function with respect to the
-     * beginning of data values)
-     */
-    size_type data_begin;
-    //! \brief data size
-    size_type data_size;
   };  // end of ImmutablePartialQuadratureFunctionView
 
   /*!
@@ -198,6 +236,31 @@ namespace mfem_mgis {
         mgis::span<real>,
         const size_type = 0,
         const size_type = std::numeric_limits<size_type>::max());
+    /*!
+     * \brief move constructor
+     * \param[in] f: moved function
+     * \param[in] local_copy: copy locally the function values if the moved
+     * function does not holds them, i.e. is a view.
+     * \note if the moved function holds the memory, the move constructor will
+     * take ownership of the memory
+     */
+    PartialQuadratureFunction(PartialQuadratureFunction&&, const bool = false);
+    //! \brief copy constructor
+    PartialQuadratureFunction(const PartialQuadratureFunction&);
+    /*!
+     * \brief constructor from an immutable view
+     *
+     * \note: data are copied in a local array
+     * \param[in] v: view
+     */
+    explicit PartialQuadratureFunction(
+        const ImmutablePartialQuadratureFunctionView&);
+    //! \brief assignement operator
+    void operator=(const ImmutablePartialQuadratureFunctionView&);
+    //! \brief standard assignement operator
+    void operator=(const PartialQuadratureFunction&);
+    //! \brief move assignement operator
+    void operator=(PartialQuadratureFunction&&);
     //
     using ImmutablePartialQuadratureFunctionView::getIntegrationPointValue;
     using ImmutablePartialQuadratureFunctionView::getIntegrationPointValues;
@@ -241,6 +304,22 @@ namespace mfem_mgis {
     ~PartialQuadratureFunction();
 
    protected:
+    /*!
+     * \brief turns this function into a view to the given function
+     * \param[in] f: function
+     */
+    void makeView(PartialQuadratureFunction&);
+    /*!
+     * \brief turns this function into a view to the given function
+     * \param[in] f: function
+     */
+    void copy(const ImmutablePartialQuadratureFunctionView&);
+    /*!
+     * \brief copy values for an immutable view
+     * \param[in] v: view
+     * \note: no compatibility checks are perfomed
+     */
+    void copyValues(const ImmutablePartialQuadratureFunctionView&);
     //! \brief underlying values
     mgis::span<real> values;
     /*!

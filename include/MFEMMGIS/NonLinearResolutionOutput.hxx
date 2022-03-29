@@ -34,7 +34,7 @@ namespace mfem_mgis {
     //! \brief number of iterations
     size_type iterations = size_type{};
     //! \brief convertion operator to a boolean
-    inline operator bool() { return this->status; }
+    inline operator bool() const { return this->status; }
   };  // end of struct NonLinearResolutionOutput
 
 }  // end of namespace mfem_mgis

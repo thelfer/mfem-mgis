@@ -25,6 +25,7 @@ namespace mfem_mgis {
     void setup(const real, const real) override;
     void revert() override;
     void update() override;
+    bool hasMaterial() const override;
     Material& getMaterial() override;
     const Material& getMaterial() const override;
     void setMacroscopicGradients(mgis::span<const real>) override;

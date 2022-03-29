@@ -6,7 +6,6 @@
  */
 
 #include <algorithm>
-#include "MGIS/Raise.hxx"
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MGIS/Behaviour/RotationMatrix.hxx"
 #include "MFEMMGIS/BehaviourIntegrator.hxx"
@@ -323,7 +322,10 @@ namespace mfem_mgis {
   }  // end of getDissipatedEnergy
 
   real computeStoredEnergy(const BehaviourIntegrator &bi,
-                           const Material::StateSelection &s) {
+                           const Material::StateSelection s) {
+    if (!bi.hasMaterial()) {
+      raise("computeStoredEnergy: behaviour integrator has no material");
+    }
     const auto e = getStoredEnergy(bi.getMaterial(), s);
     if (e.has_value()) {
       return computeIntegral<real>(bi, *e);
@@ -332,7 +334,10 @@ namespace mfem_mgis {
   }
 
   real computeDissipatedEnergy(const BehaviourIntegrator &bi,
-                               const Material::StateSelection &s) {
+                               const Material::StateSelection s) {
+    if (!bi.hasMaterial()) {
+      raise("computeDissipatedEnergy: behaviour integrator has no material");
+    }
     const auto e = getDissipatedEnergy(bi.getMaterial(), s);
     if (e.has_value()) {
       return computeIntegral<real>(bi, *e);

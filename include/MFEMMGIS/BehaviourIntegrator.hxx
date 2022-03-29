@@ -124,6 +124,13 @@ namespace mfem_mgis {
      * the time step.
      */
     virtual void update() = 0;
+    /*!
+     * \return if the call to getMaterial is valid
+     *
+     * This has been introduced to be able to build behaviour integrators not
+     * built on MGIS and MFront.
+     */
+    virtual bool hasMaterial() const = 0;
     //! \return the underlying material
     virtual Material &getMaterial() = 0;
     //! \return the underlying material

@@ -10,35 +10,40 @@
 
 namespace mfem_mgis {
 
-  inline const PartialQuadratureSpace&
-  ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpace() const {
-    return *(this->qspace);
-  }  // end of getPartialQuadratureSpace
-
-  inline mgis::span<const real>
-  ImmutablePartialQuadratureFunctionView::getValues() const {
-    return this->immutable_values;
-  }
-
-  inline size_type ImmutablePartialQuadratureFunctionView::getDataStride()
+  inline size_type PartialQuadratureFunctionDataLayout::getDataStride()
       const {
     return this->data_stride;
   }  // end of getDataStride
 
   inline size_type
-  ImmutablePartialQuadratureFunctionView::getDataOffset() const {
+  PartialQuadratureFunctionDataLayout::getDataOffset() const {
     return this->data_begin;
   }  // end of getDataOffset
 
   inline size_type
-  ImmutablePartialQuadratureFunctionView::getNumberOfComponents() const {
+  PartialQuadratureFunctionDataLayout::getNumberOfComponents() const {
     return this->data_size;
-  }  // end of ImmutablePartialQuadratureFunctionView::getNumberOfComponents
+  }  // end of PartialQuadratureFunctionDataLayout::getNumberOfComponents
 
-  inline size_type ImmutablePartialQuadratureFunctionView::getDataOffset(
+  inline size_type PartialQuadratureFunctionDataLayout::getDataOffset(
       const size_type o) const {
     return o * (this->data_stride) + this->data_begin;
   }  // end of getDataOffset
+
+  inline const PartialQuadratureSpace&
+  ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpace() const {
+    return *(this->qspace);
+  }  // end of getPartialQuadratureSpace
+
+  inline std::shared_ptr<const PartialQuadratureSpace>
+  ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpacePointer() const {
+    return this->qspace;
+  }  // end of getPartialQuadratureSpacePointer
+
+  inline mgis::span<const real>
+  ImmutablePartialQuadratureFunctionView::getValues() const {
+    return this->immutable_values;
+  }
 
   inline const real&
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValue(
