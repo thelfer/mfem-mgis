@@ -10,6 +10,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include <memory>
 #include "MFEMMGIS/Config.hxx"
 

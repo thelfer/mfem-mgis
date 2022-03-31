@@ -92,7 +92,7 @@ namespace mfem_mgis {
     ~UniformDirichletBoundaryCondition() override;
 
    protected:
-    //! \brief function returning
+    //! \brief function returning the value of the imposed displacement
     std::function<real(const real)> ufct;
   };  // end of struct UniformDirichletBoundaryCondition
 

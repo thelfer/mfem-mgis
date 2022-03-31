@@ -15,6 +15,7 @@ mfem_mgis_library(MFEMMGIS
   DirichletBoundaryCondition.cxx
   DirichletBoundaryConditionBase.cxx
   UniformDirichletBoundaryCondition.cxx
+  ImposedDirichletBoundaryConditionAtClosestNode.cxx
   PostProcessing.cxx
   PostProcessingFactory.cxx
   ComputeResultantForceOnBoundary.cxx

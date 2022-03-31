@@ -17,11 +17,11 @@ namespace mfem_mgis {
       parallel>::ResultCoefficientBase {
     //
     ResultCoefficientBase(const IntegrationPointResult& r,
-                          NonLinearEvolutionProblemImplementation<parallel>& p,
+                          const NonLinearEvolutionProblemImplementation<parallel>& p,
                           const std::vector<size_type>& mids) {
       // creating the partial functions per materials
       for (const auto& mid : mids) {
-        auto& m = p.getMaterial(mid);
+        const auto& m = p.getMaterial(mid);
         if (r.category == IntegrationPointResult::GRADIENTS) {
           this->functions.insert({mid, getGradient(m, r.name)});
         } else if (r.category == IntegrationPointResult::THERMODYNAMIC_FORCES) {
@@ -38,7 +38,7 @@ namespace mfem_mgis {
     ResultCoefficientBase& operator=(const ResultCoefficientBase&) = default;
 
    protected:
-    std::map<size_type, PartialQuadratureFunction> functions;
+    std::map<size_type, ImmutablePartialQuadratureFunctionView> functions;
   };  // end of ResultCoefficientBase
 
   template <bool parallel>
