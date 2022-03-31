@@ -477,7 +477,10 @@ namespace mfem_mgis {
       std::string msg("LinearSolverFactory<true>::generate: ");
       msg += "no linear solver called '";
       msg += n;
-      msg += "' declared";
+      msg += "' declared. Here is the list of avaible linear solvers:";
+      for (const auto& g : this->generators) {
+        msg += " " + g.first;
+      }
       raise(msg);
     }
     const auto& g = pg->second;
@@ -529,7 +532,10 @@ namespace mfem_mgis {
       std::string msg("LinearSolverFactory<false>::generate: ");
       msg += "no linear solver called '";
       msg += n;
-      msg += "' declared";
+      msg += "' declared. Here is the list of avaible linear solvers:";
+      for (const auto& g : this->generators) {
+        msg += " " + g.first;
+      }
       raise(msg);
     }
     const auto& g = pg->second;

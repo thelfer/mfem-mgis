@@ -81,7 +81,7 @@ namespace mfem_mgis {
       int target_pid = result - recv_buf.begin();
       // if the min value belongs to my process, I register the associated unknowns
       if (target_pid != myrank) {
-        dof_id.clear();
+        dof_id.reset();
       }
     }
 #endif MFEM_USE_MPI
