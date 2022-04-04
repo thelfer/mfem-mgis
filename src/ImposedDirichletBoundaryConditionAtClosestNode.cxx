@@ -5,6 +5,10 @@
  * \date   31/03/2022
  */
 
+#ifdef MFEM_MGIS_DEBUG
+#include <iostream>
+#endif /* MFEM_MGIS_DEBUG */
+
 #include "mfem/mesh/mesh.hpp"
 #include "mfem/fem/fespace.hpp"
 #include "mfem/fem/gridfunc.hpp"
@@ -37,6 +41,16 @@ namespace mfem_mgis {
     // Traversal of all dofs to detect which one is the corner
     std::optional<size_type> dof_id = size_type{};
     auto min_distance = std::numeric_limits<real>::max();
+#ifdef MFEM_MGIS_DEBUG
+    std::array<real, space_dimension> pt_min;
+    auto print_node_position = [&pt_min] {
+      std::cout << "node position:";
+      for (size_type j = 0; j < space_dimension; ++j) {
+        std::cout << " " << pt_min[j];
+      }
+      std::cout << '\n';
+    };
+#endif /* MFEM_MGIS_DEBUG */
     for (size_type i = 0; i < size; ++i) {
       auto d2 = real{};
       for (size_type j = 0; j < space_dimension; ++j) {
@@ -56,12 +70,22 @@ namespace mfem_mgis {
           } else {
             dof_id = c * size + i;
           }
+#ifdef MFEM_MGIS_DEBUG
+          for (size_type j = 0; j < space_dimension; ++j) {
+            pt_min[j] = nodes[j * size + i];
+          }
+#endif /* MFEM_MGIS_DEBUG */
         } else {
           if constexpr (parallel) {
             dof_id = fes.GetLocalTDofNumber(i * space_dimension + c);
           } else {
             dof_id = i * space_dimension + c;
           }
+#ifdef MFEM_MGIS_DEBUG
+          for (size_type j = 0; j < space_dimension; ++j) {
+            pt_min[j] = nodes[i * space_dimension + j];
+          }
+#endif /* MFEM_MGIS_DEBUG */
         }
         min_distance = d;
       }
@@ -75,16 +99,38 @@ namespace mfem_mgis {
       double d_min = min_distance;
       // gathering all minimum values overs all processes
       MPI_Allgather(&d_min, 1, MPI_DOUBLE, recv_buf.data(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
+#ifdef MFEM_MGIS_DEBUG
+      if (myrank == 0) {
+        std::cout << "minimal distance per proc:";
+        for (const auto& d : recv_buf) {
+          std::cout << " " << d;
+        }
+        std::cout << '\n';
+      }
+#endif /* MFEM_MGIS_DEBUG */
       // locate the minimum among the mimum values
       auto result = std::min_element(recv_buf.begin(),recv_buf.end());
       // locate on which process we have the minimum
-      int target_pid = result - recv_buf.begin();
+      const auto target_pid = result - recv_buf.begin();
       // if the min value belongs to my process, I register the associated unknowns
       if (target_pid != myrank) {
         dof_id.reset();
+      } else {
+#ifdef MFEM_MGIS_DEBUG
+        std::cout << "target_pid: " << target_pid << '\n';
+print_node_position();
+#endif /* MFEM_MGIS_DEBUG */
       }
+    } else {
+#ifdef MFEM_MGIS_DEBUG
+      print_node_position();
+#endif /* MFEM_MGIS_DEBUG */
     }
-#endif MFEM_USE_MPI
+#else /* MFEM_USE_MPI */
+#ifdef MFEM_MGIS_DEBUG
+    print_node_position();
+#endif /* MFEM_MGIS_DEBUG */
+#endif /* MFEM_USE_MPI */
     return dof_id;
   }  // end of getDegreeOfFreedomForClosestNode
 

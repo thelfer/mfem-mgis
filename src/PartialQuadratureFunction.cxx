@@ -264,6 +264,22 @@ namespace mfem_mgis {
     this->immutable_values = f.immutable_values;
   }
 
+  PartialQuadratureFunction& PartialQuadratureFunction::operator=(
+      const PartialQuadratureFunction& src) {
+    if (&src != this) {
+      this->copy(src);
+    }
+    return *this;
+  }
+
+  PartialQuadratureFunction& PartialQuadratureFunction::operator=(
+      const ImmutablePartialQuadratureFunctionView& src) {
+    if (&src != this) {
+      this->copy(src);
+    }
+    return *this;
+  }
+
   void PartialQuadratureFunction::copy(
       const ImmutablePartialQuadratureFunctionView& v) {
     this->qspace = v.getPartialQuadratureSpacePointer();

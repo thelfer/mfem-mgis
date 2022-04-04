@@ -256,11 +256,12 @@ namespace mfem_mgis {
     explicit PartialQuadratureFunction(
         const ImmutablePartialQuadratureFunctionView&);
     //! \brief assignement operator
-    void operator=(const ImmutablePartialQuadratureFunctionView&);
+    PartialQuadratureFunction& operator=(
+        const ImmutablePartialQuadratureFunctionView&);
     //! \brief standard assignement operator
-    void operator=(const PartialQuadratureFunction&);
-    //! \brief move assignement operator
-    void operator=(PartialQuadratureFunction&&);
+    PartialQuadratureFunction& operator=(const PartialQuadratureFunction&);
+    //     //! \brief move assignement operator
+    //     PartialQuadratureFunction& operator=(PartialQuadratureFunction&&);
     //
     using ImmutablePartialQuadratureFunctionView::getIntegrationPointValue;
     using ImmutablePartialQuadratureFunctionView::getIntegrationPointValues;

@@ -26,7 +26,8 @@
 #include "MFEMMGIS/OrthotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 #include "MFEMMGIS/IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 #include "MFEMMGIS/OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
-#include "MFEMMGIS/MicromorphicDamage2DBehaviourIntegrator.hxx"
+#include "MFEMMGIS/BidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
+#include "MFEMMGIS/TridimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
@@ -108,6 +109,13 @@ namespace mfem_mgis {
               OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator>(
               fed, m, std::move(b));
         });
+    f.addGenerator(
+        "MicromorphicDamage",  //
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b) {
+          return std::make_unique<TridimensionalMicromorphicDamageBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
     return f;
   }  // end of buildFactory
 
@@ -170,7 +178,7 @@ namespace mfem_mgis {
         "MicromorphicDamage",  //
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b) {
-          return std::make_unique<MicromorphicDamage2DBehaviourIntegrator>(
+          return std::make_unique<BidimensionalMicromorphicDamageBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     return f;

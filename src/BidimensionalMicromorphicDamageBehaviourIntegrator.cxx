@@ -1,5 +1,5 @@
 /*!
- * \file   MicromorphicDamage2DBehaviourIntegrator.cxx
+ * \file   BidimensionalMicromorphicDamageBehaviourIntegrator.cxx
  * \brief    
  * \author Thomas Helfer
  * \date   07/12/2021
@@ -9,19 +9,19 @@
 #include "mfem/fem/eltrans.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
-#include "MFEMMGIS/MicromorphicDamage2DBehaviourIntegrator.hxx"
+#include "MFEMMGIS/BidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
   const mfem::IntegrationRule &
-  MicromorphicDamage2DBehaviourIntegrator::selectIntegrationRule(
+  BidimensionalMicromorphicDamageBehaviourIntegrator::selectIntegrationRule(
       const mfem::FiniteElement &e, const mfem::ElementTransformation &t) {
     const auto order = 2 * t.OrderGrad(&e);
     return mfem::IntRules.Get(e.GetGeomType(), order);
   }
 
   std::shared_ptr<const PartialQuadratureSpace>
-  MicromorphicDamage2DBehaviourIntegrator::buildQuadratureSpace(
+  BidimensionalMicromorphicDamageBehaviourIntegrator::buildQuadratureSpace(
       const FiniteElementDiscretization &fed, const size_type m) {
     auto selector = [](const mfem::FiniteElement &e,
                        const mfem::ElementTransformation &tr)
@@ -31,8 +31,8 @@ namespace mfem_mgis {
     return std::make_shared<PartialQuadratureSpace>(fed, m, selector);
   }  // end of buildQuadratureSpace
 
-  MicromorphicDamage2DBehaviourIntegrator::
-      MicromorphicDamage2DBehaviourIntegrator(
+  BidimensionalMicromorphicDamageBehaviourIntegrator::
+      BidimensionalMicromorphicDamageBehaviourIntegrator(
           const FiniteElementDiscretization &fed,
           const size_type m,
           std::unique_ptr<const Behaviour> b_ptr)
@@ -41,22 +41,22 @@ namespace mfem_mgis {
     if (this->b.symmetry != Behaviour::ISOTROPIC) {
       raise("invalid behaviour symmetry");
     }
-  }  // end of MicromorphicDamage2DBehaviourIntegrator
+  }  // end of BidimensionalMicromorphicDamageBehaviourIntegrator
 
-  real MicromorphicDamage2DBehaviourIntegrator::getIntegrationPointWeight(
+  real BidimensionalMicromorphicDamageBehaviourIntegrator::getIntegrationPointWeight(
       mfem::ElementTransformation &tr, const mfem::IntegrationPoint &ip) const
       noexcept {
     return ip.weight * tr.Weight();
   } // end of getIntegrationPointWeight
 
   const mfem::IntegrationRule &
-  MicromorphicDamage2DBehaviourIntegrator::getIntegrationRule(
+  BidimensionalMicromorphicDamageBehaviourIntegrator::getIntegrationRule(
       const mfem::FiniteElement &e,
       const mfem::ElementTransformation &t) const {
-    return MicromorphicDamage2DBehaviourIntegrator::selectIntegrationRule(e, t);
+    return BidimensionalMicromorphicDamageBehaviourIntegrator::selectIntegrationRule(e, t);
   }  // end of getIntegrationRule
 
-  bool MicromorphicDamage2DBehaviourIntegrator::integrate(
+  bool BidimensionalMicromorphicDamageBehaviourIntegrator::integrate(
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
       const mfem::Vector &d_chi,
@@ -103,7 +103,7 @@ namespace mfem_mgis {
     return true;
   }  // end of integrate
 
-  void MicromorphicDamage2DBehaviourIntegrator::updateResidual(
+  void BidimensionalMicromorphicDamageBehaviourIntegrator::updateResidual(
       mfem::Vector &Fe,
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
@@ -147,7 +147,7 @@ namespace mfem_mgis {
     }
   }  // end of updateResidual
 
-  void MicromorphicDamage2DBehaviourIntegrator::updateJacobian(
+  void BidimensionalMicromorphicDamageBehaviourIntegrator::updateJacobian(
       mfem::DenseMatrix & Ke,
       const mfem::FiniteElement & e,
       mfem::ElementTransformation & tr,
@@ -198,7 +198,7 @@ namespace mfem_mgis {
     }
   }  // end of updateJacobian
 
-  void MicromorphicDamage2DBehaviourIntegrator::computeInnerForces(
+  void BidimensionalMicromorphicDamageBehaviourIntegrator::computeInnerForces(
       mfem::Vector &Fe,
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr) {
@@ -240,7 +240,7 @@ namespace mfem_mgis {
     }
   }  // end of computeInnerForces
 
-  MicromorphicDamage2DBehaviourIntegrator::
-      ~MicromorphicDamage2DBehaviourIntegrator() = default;
+  BidimensionalMicromorphicDamageBehaviourIntegrator::
+      ~BidimensionalMicromorphicDamageBehaviourIntegrator() = default;
 
 }  // end of namespace mfem_mgis

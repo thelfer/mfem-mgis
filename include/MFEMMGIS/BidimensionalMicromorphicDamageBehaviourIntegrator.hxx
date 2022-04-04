@@ -1,14 +1,14 @@
 /*!
- * \file   include/MFEMMGIS/MicromorphicDamage2DBehaviourIntegrator.hxx
+ * \file   include/MFEMMGIS/BidimensionalMicromorphicDamageBehaviourIntegrator.hxx
  * \brief
  * \author Thomas Helfer
  * \date   07/12/2021
- * \brief header file declaring the MicromorphicDamage2DBehaviourIntegrator
+ * \brief header file declaring the BidimensionalMicromorphicDamageBehaviourIntegrator
  * class
  */
 
-#ifndef LIB_MFEM_MGIS_MICROMORPHICDAMAGE2DBEHAVIOURINTEGRATOR_HXX
-#define LIB_MFEM_MGIS_MICROMORPHICDAMAGE2DBEHAVIOURINTEGRATOR_HXX
+#ifndef LIB_MFEM_MGIS_BIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX
+#define LIB_MFEM_MGIS_BIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX
 
 #include "MFEMMGIS/BehaviourIntegratorBase.hxx"
 
@@ -23,7 +23,7 @@ namespace mfem_mgis {
    * effect on this specific behaviour as out of plane damage gradients are
    * assumed to be zero).
    */
-  struct MFEM_MGIS_EXPORT MicromorphicDamage2DBehaviourIntegrator
+  struct MFEM_MGIS_EXPORT BidimensionalMicromorphicDamageBehaviourIntegrator
       : BehaviourIntegratorBase {
     /*!
      * \brief constructor
@@ -31,7 +31,7 @@ namespace mfem_mgis {
      * \param[in] m: material attribute.
      * \param[in] b_ptr: behaviour
      */
-    MicromorphicDamage2DBehaviourIntegrator(
+    BidimensionalMicromorphicDamageBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
         std::unique_ptr<const Behaviour>);
@@ -61,7 +61,7 @@ namespace mfem_mgis {
                             const mfem::FiniteElement &,
                             mfem::ElementTransformation &) override;
     //! \brief destructor
-    ~MicromorphicDamage2DBehaviourIntegrator() override;
+    ~BidimensionalMicromorphicDamageBehaviourIntegrator() override;
 
    private:
     /*!
@@ -85,8 +85,8 @@ namespace mfem_mgis {
     //! \brief matrix used to store the derivatives of the shape functions
     mfem::DenseMatrix dshape;
 #endif
-  };  // end of struct MicromorphicDamage2DBehaviourIntegrator
+  };  // end of struct BidimensionalMicromorphicDamageBehaviourIntegrator
 
 } // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_MICROMORPHICDAMAGE2DBEHAVIOURINTEGRATOR_HXX */
+#endif /* LIB_MFEM_MGIS_BIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX */
