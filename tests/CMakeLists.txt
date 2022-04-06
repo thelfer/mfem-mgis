@@ -200,8 +200,37 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_micromorphic_damage_2d_test2)
 
+  add_executable(MicromorphicDamage3DTest
+    EXCLUDE_FROM_ALL
+    MicromorphicDamage3DTest.cxx)
+  target_include_directories(MicromorphicDamage3DTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(MicromorphicDamage3DTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check MicromorphicDamage3DTest)
+
+  function(add_micromorphic_damage_3d_test nsolver)
+    set(test "MicromorphicDamage3DTest-${nsolver}")
+    add_test(NAME ${test}
+     COMMAND MicromorphicDamage3DTest
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--behaviour" "MicromorphicDamageII"
+     "--linearsolver" "${nsolver}"
+	)
+    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest)
+    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+  endfunction(add_micromorphic_damage_3d_test)
+
   if(MFEM_USE_SUITESPARSE)
 	add_micromorphic_damage_2d_test2(2)
+	add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)

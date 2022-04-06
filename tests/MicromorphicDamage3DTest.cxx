@@ -1,5 +1,5 @@
 /*!
- * \file   tests/tests/MicromorphicDamage2DTest2.cxx
+ * \file   tests/tests/MicromorphicDamage3DTest2.cxx
  * \brief
  * \author Thomas Helfer
  * \date   07/12/2021
@@ -26,7 +26,7 @@ buildMechanicalProblem(
   constexpr auto nu = mfem_mgis::real{0.};
   constexpr auto umax = mfem_mgis::real{0.2};
   auto lparameters = common_problem_parameters;
-  lparameters.insert({{"UnknownsSize", 2}});
+  lparameters.insert({{"UnknownsSize", 3}});
   auto problem =
       std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(lparameters);
   problem->addBehaviourIntegrator("Mechanics", "beam", test_parameters.library,
@@ -50,12 +50,20 @@ buildMechanicalProblem(
           problem->getFiniteElementDiscretizationPointer(), "left", 0));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "upper",
+          problem->getFiniteElementDiscretizationPointer(), "front",
           1));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "lower",
+          problem->getFiniteElementDiscretizationPointer(), "rear",
           1));
+  problem->addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          problem->getFiniteElementDiscretizationPointer(), "upper",
+          2));
+  problem->addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          problem->getFiniteElementDiscretizationPointer(), "lower",
+          2));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
           problem->getFiniteElementDiscretizationPointer(), "right", 0,
@@ -70,16 +78,16 @@ buildMechanicalProblem(
   problem->addPostProcessing(
       "ParaviewExportResults",
       {{"OutputFileName",
-        "MicromorphicDamage2D2TestOutput-MicromorphicDamageI_SpectralSplit"}});
+        "MicromorphicDamage3D2TestOutput-MicromorphicDamageI_SpectralSplit"}});
   problem->addPostProcessing("ComputeResultantForceOnBoundary",
                              {{"Boundary", "right"},
                               {"OutputFileName",
-                               "MicromorphicDamage2D2TestOutput-"
+                               "MicromorphicDamage3D2TestOutput-"
                                "MicromorphicDamageI_SpectralSplit-force.txt"}});
   problem->addPostProcessing(
       "ParaviewExportIntegrationPointResultsAtNodes",
       {{"OutputFileName",
-        "MicromorphicDamage2D2TestIntegrationPointOutput"
+        "MicromorphicDamage3D2TestIntegrationPointOutput"
         "-MicromorphicDamageI_SpectralSplit"},
        {"Materials", "beam"},
        {"Results",
@@ -132,7 +140,7 @@ buildMicromorphicProblem(
   // post-processings
   problem->addPostProcessing(
       "ParaviewExportIntegrationPointResultsAtNodes",
-      {{"OutputFileName", "MicromorphicDamage2D2TestIntegrationPointOutput-" +
+      {{"OutputFileName", "MicromorphicDamage3D2TestIntegrationPointOutput-" +
                               std::string(test_parameters.behaviour)},
        {"Materials", "beam"},
        {"Results",
@@ -155,17 +163,20 @@ int main(int argc, char** argv) {
     mfem_mgis::abort("no internal state variable expected");
   }
   //
-  const auto common_problem_parameters = mfem_mgis::Parameters{
-      {"MeshFileName", test_parameters.mesh_file},
-      {"FiniteElementFamily", "H1"},
-      {"FiniteElementOrder", test_parameters.order},
-      {"Hypothesis", "PlaneStrain"},
-      {"NumberOfUniformRefinements", parallel ? 2 : 0},
-      {"Materials", mfem_mgis::Parameters{{"beam", 5}}},
-      {"Boundaries",
-       mfem_mgis::Parameters{
-           {"left", 3}, {"right", 1}, {"upper", 6}, {"lower", 7}}},
-      {"Parallel", parallel}};
+  const auto common_problem_parameters =
+      mfem_mgis::Parameters{{"MeshFileName", test_parameters.mesh_file},
+                            {"FiniteElementFamily", "H1"},
+                            {"FiniteElementOrder", test_parameters.order},
+                            {"Hypothesis", "Tridimensional"},
+                            {"NumberOfUniformRefinements", parallel ? 2 : 0},
+                            {"Materials", mfem_mgis::Parameters{{"beam", 12}}},
+                            {"Boundaries", mfem_mgis::Parameters{{"left", 9},
+                                                                 {"right", 7},
+                                                                 {"upper", 1},
+                                                                 {"lower", 13},
+                                                                 {"front", 5},
+                                                                 {"rear", 3}}},
+                            {"Parallel", parallel}};
   auto mechanical_problem =
       buildMechanicalProblem(test_parameters, common_problem_parameters);
   auto micromorphic_problem =
