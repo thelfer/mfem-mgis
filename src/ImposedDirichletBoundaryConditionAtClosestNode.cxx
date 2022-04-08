@@ -48,10 +48,14 @@ namespace mfem_mgis {
     // Traversal of all nodes to detect the closest vertice
     auto min_distance = std::numeric_limits<real>::max();
     // global dof id associated with the closest vertice
+    auto local_dof_id = size_type{};
+#ifdef MFEM_USE_MPI
+    auto global_dof_id = HYPRE_BigInt{};
+#else /* MFEM_USE_MPI */
     auto global_dof_id = size_type{};
+#endif /* MFEM_USE_MPI */
     // local dof id associated with the closest vertice, if handled by the
     // current process
-    auto dof_id = std::optional<size_type>{};
 #ifdef MFEM_MGIS_DEBUG
     auto i_min = size_type{};
     auto pt_min = std::array<real, space_dimension>{};
@@ -64,9 +68,11 @@ namespace mfem_mgis {
     };
 #endif /* MFEM_MGIS_DEBUG */
     if (size == 0) {
-      // honestly, don't know if this case may happen.
-      // does not harm
-      return dof_id;
+      if constexpr (!parallel) {
+        // honestly, don't know if this case may happen.
+        // does not harm
+        return std::optional<size_type>{};
+      }
     }
     for (size_type i = 0; i != size; ++i) {
       auto d2 = real{};
@@ -77,9 +83,10 @@ namespace mfem_mgis {
       const auto d = std::sqrt(d2);
       if (d < min_distance) {
         if constexpr (parallel) {
+          local_dof_id = fes.GetLocalTDofNumber(index(i, c));
           global_dof_id = fes.GetGlobalTDofNumber(index(i, c));
         } else {
-          global_dof_id = index(i, c);
+          local_dof_id = index(i, c);
         }
 #ifdef MFEM_MGIS_DEBUG
         i_min = i;
@@ -90,39 +97,37 @@ namespace mfem_mgis {
         min_distance = d;
       }
     }
+    auto dof_id = std::optional<size_type>{};
 #ifdef MFEM_USE_MPI
     if constexpr (parallel) {
       static_assert(std::is_same_v<size_type, int>, "invalid integer types");
+      static_assert(std::is_same_v<HYPRE_BigInt, int>, "invalid integer types");
       int nbranks, myrank;
       MPI_Comm_size(MPI_COMM_WORLD, &nbranks);
       MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-      std::vector<double> d_min_buf(nbranks, -1);
-      std::vector<size_type> global_dof_ids_buf(nbranks, -1);
+      std::vector<double> d_min_buffer(nbranks, -1);
+      std::vector<HYPRE_BigInt> global_dof_id_buffer(nbranks, -1);
       double d_min = min_distance;
       // gathering all minimum values and global ides overs all processes
-      MPI_Allgather(&d_min, 1, MPI_DOUBLE, d_min_buf.data(), 1, MPI_DOUBLE,
+      MPI_Allgather(&d_min, 1, MPI_DOUBLE, d_min_buffer.data(), 1, MPI_DOUBLE,
                     MPI_COMM_WORLD);
-      MPI_Allgather(&global_dof_id, 1, MPI_INT, global_dof_ids_buf.data(), 1,
-                    MPI_INT, MPI_COMM_WORLD);
+      MPI_Allgather(&global_dof_id, 1, MPI_INT, global_dof_id_buffer.data(),
+                    1, MPI_INT, MPI_COMM_WORLD);
 #ifdef MFEM_MGIS_DEBUG
       if (myrank == 0) {
         std::cout << "minimal distance per proc:";
-        for (const auto& d : d_min_buf) {
+        for (const auto& d : d_min_buffer) {
           std::cout << " " << d;
         }
         std::cout << '\n';
       }
 #endif /* MFEM_MGIS_DEBUG */
       // locate the minimum among the mimum values
-      auto result = std::min_element(d_min_buf.begin(), d_min_buf.end());
+      auto result = std::min_element(d_min_buffer.begin(), d_min_buffer.end());
       // locate on which process we have the minimum
-      const auto target_pid = result - d_min_buf.begin();
-      // get the global dof id
-      const auto gdof_id = global_dof_ids_buf[target_pid];
-      // get the local dof id
-      const auto ldof = fes.GetLocalTDofNumber(gdof_id);
-      if (ldof != -1) {
-        dof_id = ldof;
+      const auto target_pid = result - d_min_buffer.begin();
+      if (global_dof_id == global_dof_id_buffer[target_pid]) {
+        dof_id = local_dof_id;
       }
 #ifdef MFEM_MGIS_DEBUG
       if (target_pid == myrank) {
@@ -131,13 +136,13 @@ namespace mfem_mgis {
       }
 #endif /* MFEM_MGIS_DEBUG */
     } else {
-      dof_id = global_dof_id;
+      dof_id = local_dof_id;
 #ifdef MFEM_MGIS_DEBUG
       print_node_position(*dof_id);
 #endif /* MFEM_MGIS_DEBUG */
     }
 #else /* MFEM_USE_MPI */
-    dof_id = global_dof_id;
+    dof_id = local_dof_id;
 #ifdef MFEM_MGIS_DEBUG
     print_node_position(*dof_id);
 #endif /* MFEM_MGIS_DEBUG */
