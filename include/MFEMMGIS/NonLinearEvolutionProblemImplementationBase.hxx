@@ -125,7 +125,23 @@ namespace mfem_mgis {
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 
+    /*!
+     * \return the number of iterations.
+     */
+    virtual int getNumIterations() const;
+
+    /*!
+     * \return the norm of the final residu.
+     */
+    virtual real getFinalNorm() const;
+
+    /*!
+     * \return return if the solve routine has converged.
+     */
+    virtual bool getConverged() const;
+
    protected:
+
     /*!
      * \return the list of the degrees of freedom handled by Dirichlet boundary
      * conditions.

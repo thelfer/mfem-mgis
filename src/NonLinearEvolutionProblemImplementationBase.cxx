@@ -226,6 +226,23 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_PETSC */
   }  // end of setSolverParameters
 
+
+  // Solver statistics 
+  int NonLinearEvolutionProblemImplementationBase::getNumIterations() const
+  {
+    return (*solver).GetNumIterations();
+  }
+
+  real NonLinearEvolutionProblemImplementationBase::getFinalNorm() const
+  {
+    return (*solver).GetFinalNorm();
+  }
+
+  bool NonLinearEvolutionProblemImplementationBase::getConverged() const
+  {
+    return (*solver).GetConverged();
+  }
+
   std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getEssentialDegreesOfFreedom()
       const {
