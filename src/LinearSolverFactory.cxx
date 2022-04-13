@@ -93,6 +93,14 @@ namespace mfem_mgis {
     return ps;
   }  // end of setHypreParaSailsPreconditioner
 
+  std::unique_ptr<LinearSolverPreconditioner> setHypreDiagScalePreconditioner(
+      NonLinearEvolutionProblemImplementation<true>&, const Parameters& opts) {
+    using Problem = AbstractNonLinearEvolutionProblem;
+    //auto ps = std::make_unique<mfem::HypreDiagScale>(MPI_COMM_WORLD);
+    auto ps = std::make_unique<mfem::HypreDiagScale>();
+    checkParameters(opts, {Problem::SolverVerbosityLevel});
+    return ps;
+  }  // end of setHypreDiagScalePreconditioner
 #else /* MFEM_USE_MPI */
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
@@ -170,6 +178,15 @@ namespace mfem_mgis {
         raise(
             "setLinearSolverPreconditioner: "
             "the 'HypreParaSails' is only available in parallel");
+      }
+    } else if (name == "HypreDiagScale") {
+      if constexpr (parallel) {
+        return setHypreDiagScalePreconditioner(
+            p, get_if<Parameters>(pr, "Options", Parameters{}));
+      } else {
+        raise(
+            "setLinearSolverPreconditioner: "
+            "the 'HypreDiagScale' is only available in parallel");
       }
     } else {
       raise(
