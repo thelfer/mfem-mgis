@@ -67,6 +67,7 @@ namespace mfem_mgis {
           if (id_unk >= 0) {
             found = 1;
             ess_tdof_list.Append(id_unk);
+	    //	    std::cout << "Unkwown Corner" << id_unk << std::endl;
 	  }
         }
       }
@@ -95,7 +96,13 @@ namespace mfem_mgis {
     real refcoord[dim];
     int id_unk[dim];
     for (int j = 0; j < dim; ++j) {
-      refcoord[j] = std::numeric_limits<double>::max();
+      if (bct == FIX_XMIN || bct == FIX_YMIN || bct == FIX_ZMIN) {
+	refcoord[j] = std::numeric_limits<double>::max();
+      } else if (bct == FIX_XMAX || bct == FIX_YMAX || bct == FIX_ZMAX) {
+	refcoord[j] = std::numeric_limits<double>::min();
+      } else {
+	MFEM_VERIFY(0, "Fatal error given the boundary conditions");
+      }
       id_unk[j] = -1;
     }
     // Traversal of all dofs to detect which one is minimal in X, Y or Z direction
@@ -110,7 +117,10 @@ namespace mfem_mgis {
       }
       if (((bct == FIX_XMIN) && (curcoord[0] < refcoord[0])) ||
 	  ((bct == FIX_YMIN) && (curcoord[1] < refcoord[1])) ||
-	  ((bct == FIX_ZMIN) && (curcoord[2] < refcoord[2]))) {
+	  ((bct == FIX_ZMIN) && (curcoord[2] < refcoord[2])) ||
+	  ((bct == FIX_XMAX) && (curcoord[0] > refcoord[0])) ||
+	  ((bct == FIX_YMAX) && (curcoord[1] > refcoord[1])) ||
+	  ((bct == FIX_ZMAX) && (curcoord[2] > refcoord[2]))) {
 	for (int j = 0; j < dim; ++j) {
 	  refcoord[j] = curcoord[j];
 	  if (bynodes) {
@@ -129,20 +139,29 @@ namespace mfem_mgis {
       MPI_Comm_size(MPI_COMM_WORLD, &nbranks);
       MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
       std::vector<double> recv_buf(nbranks,-1);
-      double mymin = -1;
-      if (bct == FIX_XMIN) mymin = refcoord[0];
-      if (bct == FIX_YMIN) mymin = refcoord[1];
-      if (bct == FIX_ZMIN) mymin = refcoord[2];
+      double myref = -1;
+      if (bct == FIX_XMIN || bct == FIX_XMAX) myref = refcoord[0];
+      if (bct == FIX_YMIN || bct == FIX_YMAX) myref = refcoord[1];
+      if (bct == FIX_ZMIN || bct == FIX_ZMAX) myref = refcoord[2];
+      std::cout << myrank << " My ref " << myref << std::endl;
       // gathering all minimum values overs all processes
-      MPI_Allgather(&mymin, 1, MPI_DOUBLE, recv_buf.data(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
-      // locate the minimum among the mimum values
-      auto result = std::min_element(recv_buf.begin(),recv_buf.end());
+      MPI_Allgather(&myref, 1, MPI_DOUBLE, recv_buf.data(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
+      // locate the minimum/maximum among the values
+      std::vector<double>::iterator result;
+      if (bct == FIX_XMIN || bct == FIX_YMIN || bct == FIX_ZMIN) {
+	result = std::min_element(recv_buf.begin(),recv_buf.end());
+      } else if (bct == FIX_XMAX || bct == FIX_YMAX || bct == FIX_ZMAX) {
+	result = std::max_element(recv_buf.begin(),recv_buf.end());
+      } else {
+	MFEM_VERIFY(0, "Fatal error given the boundary conditions");
+      }
       // locate on which process we have the minimum
       int target_pid = result-recv_buf.begin();
       // if the min value belongs to my process, I register the associated unknowns
       if (target_pid == myrank) {
 	for (int j = 0; j < dim; ++j) {
 	  ess_tdof_list.Append(id_unk[j]);
+	  //	  std::cout << myrank << " Unkwown XMIN/MAX " << id_unk[j] << std::endl;
 	}
 	found = 1;
       }
@@ -211,7 +230,13 @@ namespace mfem_mgis {
     real refcoord[dim];
     int id_unk[dim];
     for (int j = 0; j < dim; ++j) {
-      refcoord[j] = std::numeric_limits<double>::max();
+      if (bct == FIX_XMIN || bct == FIX_YMIN || bct == FIX_ZMIN) {
+	refcoord[j] = std::numeric_limits<double>::max();
+      } else if (bct == FIX_XMAX || bct == FIX_YMAX || bct == FIX_ZMAX) {
+	refcoord[j] = std::numeric_limits<double>::min();
+      } else {
+	MFEM_VERIFY(0, "Fatal error given the boundary conditions");
+      }
       id_unk[j] = -1;
     }
 
@@ -227,7 +252,10 @@ namespace mfem_mgis {
       }
       if (((bct == FIX_XMIN) && (curcoord[0] < refcoord[0])) ||
 	  ((bct == FIX_YMIN) && (curcoord[1] < refcoord[1])) ||
-	  ((bct == FIX_ZMIN) && (curcoord[2] < refcoord[2]))) {
+	  ((bct == FIX_ZMIN) && (curcoord[2] < refcoord[2])) ||
+	  ((bct == FIX_XMAX) && (curcoord[0] > refcoord[0])) ||
+	  ((bct == FIX_YMAX) && (curcoord[1] > refcoord[1])) ||
+	  ((bct == FIX_ZMAX) && (curcoord[2] > refcoord[2]))) {
 	for (int j = 0; j < dim; ++j) {
 	  found = 1;
 	  refcoord[j] = curcoord[j];
