@@ -65,21 +65,18 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     bool verbose = contains(opts, Problem::SolverVerbosityLevel);
-#ifndef HYPRE_OLD_VERSION
     auto ilu = std::make_unique<mfem::HypreILU>();
-    checkParameters(opts, {Problem::SolverVerbosityLevel});
+    bool levelOfFill = contains(opts, "LevelOfFill");
+    checkParameters(opts, {Problem::SolverVerbosityLevel,"LevelOfFill"});
     if (verbose) {
       ilu->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     }
+    if(levelOfFill)
+    {
+      auto level = get<int>(opts, "LevelOfFill");
+      HYPRE_ILUSetLevelOfFill(*ilu,level);
+    }
     return ilu;
-#else  /*  HYPRE_OLD_VERSION */
-    if (verbose) {
-    };  // fake command to avoid compiler warning
-    MFEM_VERIFY(0,
-                "Support for HypreILU is not available with "
-                "this version of MFEM");
-    return nullptr;
-#endif /* HYPRE_OLD_VERSION */
   }    // end of setHypreILUPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreParaSailsPreconditioner(
