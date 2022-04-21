@@ -66,14 +66,14 @@ namespace mfem_mgis {
     using Problem = AbstractNonLinearEvolutionProblem;
     bool verbose = contains(opts, Problem::SolverVerbosityLevel);
     auto ilu = std::make_unique<mfem::HypreILU>();
-    bool levelOfFill = contains(opts, "LevelOfFill");
-    checkParameters(opts, {Problem::SolverVerbosityLevel,"LevelOfFill"});
+    bool levelOfFill = contains(opts, "HypreILULevelOfFill");
+    checkParameters(opts, {Problem::SolverVerbosityLevel,"HypreILULevelOfFill"});
     if (verbose) {
       ilu->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     }
     if(levelOfFill)
     {
-      auto level = get<int>(opts, "LevelOfFill");
+      auto level = get<int>(opts, "HypreILULevelOfFill");
       HYPRE_ILUSetLevelOfFill(*ilu,level);
     }
     return ilu;
