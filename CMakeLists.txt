@@ -6,13 +6,10 @@ include(cmake/modules/mfem-mgis.cmake)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
 # (must be placed *before* any add_subdirectory, cmake bug ?)
 include(CTest)
 enable_testing()
-
-# HypreILU is not defined for old versions of Hypre
-# Comment this line for newest Hypre librarires
-ADD_DEFINITIONS(-DHYPRE_OLD_VERSION)
 
 # portable-build
 option(enable-portable-build "produce binary that can be shared between various machine (same architecture, same gcc version, different processors" OFF)
@@ -91,6 +88,12 @@ else(CMAKE_CONFIGURATION_TYPES)
       ${CMAKE_CTEST_COMMAND} -T test )
    endif(NOT TARGET check)
 endif(CMAKE_CONFIGURATION_TYPES)
+
+# HYPRE version
+include(cmake/modules/hypre.cmake)  
+set(MFEM_HYPRE_VERSION ${HYPRE_VERSION})
+add_compile_definitions(MFEM_HYPRE_VERSION=${MFEM_HYPRE_VERSION})
+
 
 mfem_mgis_buildenv()
 
