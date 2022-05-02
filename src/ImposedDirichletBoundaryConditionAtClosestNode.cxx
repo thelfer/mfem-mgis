@@ -51,8 +51,6 @@ namespace mfem_mgis {
     auto local_dof_id = size_type{};
 #ifdef MFEM_USE_MPI
     auto global_dof_id = HYPRE_BigInt{};
-#else /* MFEM_USE_MPI */
-    auto global_dof_id = size_type{};
 #endif /* MFEM_USE_MPI */
     // local dof id associated with the closest vertice, if handled by the
     // current process
@@ -67,11 +65,12 @@ namespace mfem_mgis {
       std::cout << '\n';
     };
 #endif /* MFEM_MGIS_DEBUG */
+    auto dof_id = std::optional<size_type>{};
     if (size == 0) {
       if constexpr (!parallel) {
         // honestly, don't know if this case may happen.
         // does not harm
-        return std::optional<size_type>{};
+        return dof_id;
       }
     }
     for (size_type i = 0; i != size; ++i) {
@@ -84,7 +83,9 @@ namespace mfem_mgis {
       if (d < min_distance) {
         if constexpr (parallel) {
           local_dof_id = fes.GetLocalTDofNumber(index(i, c));
+#ifdef MFEM_MGIS_DEBUG
           global_dof_id = fes.GetGlobalTDofNumber(index(i, c));
+#endif /* MFEM_MGIS_DEBUG */
         } else {
           local_dof_id = index(i, c);
         }
@@ -97,7 +98,6 @@ namespace mfem_mgis {
         min_distance = d;
       }
     }
-    auto dof_id = std::optional<size_type>{};
 #ifdef MFEM_USE_MPI
     if constexpr (parallel) {
       static_assert(std::is_same_v<size_type, int>, "invalid integer types");
@@ -147,6 +147,9 @@ namespace mfem_mgis {
     print_node_position(*dof_id);
 #endif /* MFEM_MGIS_DEBUG */
 #endif /* MFEM_USE_MPI */
+    if (*dof_id == -1) {
+      dof_id.reset();
+    }
     return dof_id;
   }  // end of getDegreeOfFreedomForClosestNode
 
