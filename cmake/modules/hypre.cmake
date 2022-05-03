@@ -16,14 +16,8 @@
 #   - HYPRE_VERSION
 #   - HYPRE_USING_HIP (internal)
 
-if (HYPRE_FOUND)
-  if (HYPRE_USING_HIP)
-    find_package(rocsparse REQUIRED)
-    find_package(rocrand REQUIRED)
-  endif()
-  return()
-endif()
 
+  set(HYPRE_INCLUDE_DIRS "$ENV{HYPRE_DIR}/include")
   try_run(HYPRE_VERSION_RUN_RESULT HYPRE_VERSION_COMPILE_RESULT
           ${CMAKE_CURRENT_BINARY_DIR}/cmake/modules/
           ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/get_hypre_version.cpp
