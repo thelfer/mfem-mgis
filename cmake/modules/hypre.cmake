@@ -16,7 +16,7 @@
 #   - HYPRE_VERSION
 #   - HYPRE_USING_HIP (internal)
 
-
+if(MFEM_USE_MPI)
   set(HYPRE_INCLUDE_DIRS "$ENV{HYPRE_DIR}/include")
   try_run(HYPRE_VERSION_RUN_RESULT HYPRE_VERSION_COMPILE_RESULT
           ${CMAKE_CURRENT_BINARY_DIR}/cmake/modules/
@@ -30,3 +30,4 @@
   else()
     message(FATAL_ERROR "Unable to determine HYPRE version.")
   endif()
+endif(MFEM_USE_MPI)
