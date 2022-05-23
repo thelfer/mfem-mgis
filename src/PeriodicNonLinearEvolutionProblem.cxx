@@ -108,6 +108,9 @@ namespace mfem_mgis {
 	else
 	  curcoord[j] = (nodes)[i * dim + j];
       }
+
+      if(p.getFiniteElementSpace().GetLocalTDofNumber(i) == -1) break; // ghost dof
+
       if (((bct == FIX_XMIN) && (curcoord[0] < refcoord[0])) ||
 	  ((bct == FIX_YMIN) && (curcoord[1] < refcoord[1])) ||
 	  ((bct == FIX_ZMIN) && (curcoord[2] < refcoord[2]))) {
@@ -143,6 +146,7 @@ namespace mfem_mgis {
       if (target_pid == myrank) {
 	for (int j = 0; j < dim; ++j) {
 	  ess_tdof_list.Append(id_unk[j]);
+    	  MFEM_VERIFY(id_unk[j] != -1, "Not able to define proper periodic boundary conditions, this point is not defined for this mpi process");
 	}
 	found = 1;
       }
