@@ -8,6 +8,7 @@
 #include <iostream>
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
@@ -288,6 +289,8 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
       LinearSolverHandler s) {
+
+    CatchTimeSection("NonLinearEvolutionProblemImplementationBase::updateLinearSolver");
     this->updateLinearSolver(std::move(s.linear_solver),
                              std::move(s.preconditioner));
   }  // end of updateLinearSolver
@@ -299,6 +302,7 @@ namespace mfem_mgis {
 
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {
+    CatchTimeSection("NonLinearEvolutionProblemImplementationBase::solve");
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     //    this->computePrediction(t, dt);

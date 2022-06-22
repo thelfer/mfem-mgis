@@ -7,6 +7,7 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/BoundaryUtilities.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
@@ -116,6 +117,7 @@ namespace mfem_mgis {
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
+    CatchTimeSection("NonLinearEvolutionProblem::solve");
     this->setup(t, dt);
     return this->pimpl->solve(t, dt);
   }  // end of solve

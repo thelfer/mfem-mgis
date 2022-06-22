@@ -16,6 +16,7 @@
 #include "mfem/linalg/petsc.hpp"
 #endif /*MFEM_USE_PETSC */
 #include "MGIS/Raise.hxx"
+#include <MFEMMGIS/Profiler.hxx>
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
@@ -164,6 +165,7 @@ namespace mfem_mgis {
       if (getMPIrank() != 0) { mfem::out.Disable(); mfem::err.Disable(); } 
       Finalizer::get().initialize(argc, argv);
       first = false;
+      Profiler::timers::init_timers();
     }
   }  // end of initialize
 
