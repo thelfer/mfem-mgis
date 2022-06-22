@@ -6,6 +6,7 @@
  */
 
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
@@ -200,6 +201,7 @@ namespace mfem_mgis {
   void setPeriodicBoundaryConditions(
     NonLinearEvolutionProblemImplementation<false>& p,
     const mfem_mgis::BoundaryConditionType bct) {
+    CatchTimeSection("PeriodicNonLinEvPB::set_bc");
     const FiniteElementSpace<false> & fes = p.getFiniteElementSpace();
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -256,6 +258,7 @@ namespace mfem_mgis {
       const mgis::span<const real>& corner2)
       : NonLinearEvolutionProblem(fed,
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
+    CatchTimeSection("PeriodicNonLinEvPB::constructor_with_corners");
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       setPeriodicBoundaryConditions(this->getImplementation<true>(), corner1, corner2);
@@ -274,6 +277,7 @@ namespace mfem_mgis {
       const mfem_mgis::BoundaryConditionType bct)
       : NonLinearEvolutionProblem(fed,
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
+    CatchTimeSection("PeriodicNonLinEvPB::constructor_with_bct");
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       setPeriodicBoundaryConditions(this->getImplementation<true>(), bct);

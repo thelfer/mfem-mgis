@@ -17,6 +17,7 @@
 #include <mfem/fem/pfespace.hpp>
 #endif
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 
@@ -51,6 +52,7 @@ namespace mfem_mgis {
       int generate_edges = 0,
       int refine = 1,
       bool /* fix_orientation */ = true) {
+    CatchTimeSection("loadMesh");
 #ifdef MFEM_USE_MED
     const auto extension = getFileExt(mesh_name);
     if (extension == "med") {
@@ -155,6 +157,8 @@ namespace mfem_mgis {
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       const Parameters& params) {
+    
+    CatchTimeSection("FiniteElementDiscretization::constructor");
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};
       for (const auto& p : parameters) {
@@ -181,6 +185,7 @@ namespace mfem_mgis {
       this->parallel_mesh =
           std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
       for (size_type i = 0; i < nrefinement; ++i) {
+        CatchNestedTimeSection("run_ParUniformRefinement");
         this->parallel_mesh->UniformRefinement();
       }
 #else  /* MFEM_USE_MPI */
@@ -189,6 +194,7 @@ namespace mfem_mgis {
     } else {
       this->sequential_mesh = loadMeshSequential(mesh_file, 0, 1, true);
       for (size_type i = 0; i < nrefinement; ++i) {
+        CatchNestedTimeSection("run_SeqUniformRefinement");
         this->sequential_mesh->UniformRefinement();
       }
     }

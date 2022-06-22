@@ -1,111 +1,213 @@
-/*!
- * \file   Profiler.hxx
- * \brief
- * \author Thomas Helfer
- * \date   02/04/2021
- */
+#pragma once
 
-#ifndef LIB_MFEM_MGIS_PROFILER_HXX
-#define LIB_MFEM_MGIS_PROFILER_HXX
+#include <iostream>
+#include <chrono>
+#include <vector>
+#include <omp.h>
+#include <fstream>
+#include <algorithm>
+#include <cassert>
 
-#include <map>
-#include <memory>
-#include <atomic>
-#include <string>
-#include <iosfwd>
-#include <cstdint>
-#include <string_view>
-#include "MFEMMGIS/Config.hxx"
+#include <mfem.hpp>
+// variables 
+#ifdef MFEM_USE_MPI
+#include<mpi.h>
+const size_t cWidth =20;
+const size_t nColumns=6;
+const std::string cName[nColumns]={"number Of Calls","min(s)", "mean(s)", "max(s)" ,"part(%)", "imb(%)"}; // [1-Imax/Imean]% 
+#else
+const size_t cWidth =20;
+const size_t nColumns=3;
+const std::string cName[nColumns]={"number Of Calls", "max(s)," ,"part(%)"};
+#endif
 
-namespace mfem_mgis {
+enum enumTimeSection
+{
+	CURRENT,
+	ROOT
+};
 
-  /*!
-   * \brief structure used to profile the execution
-   */
-  struct MFEM_MGIS_EXPORT Profiler {
-    // foward declaration
-    struct TimeSection;
-    /*!
-     * \brief class used to measure the time spent in a given portion of the
-     * code.
-     */
-    struct Timer {
-      //! \brief constructor
-      Timer(TimeSection&);
-      //! \brief move constructor
-      Timer(Timer&&);
-      //! \brief destructor
-      ~Timer();
+namespace Profiler
+{
+	namespace Utils
+	{
+		bool is_master();
+		double reduce_max(double a_duration);
 
-     private:
-      //! \brief time section
-      TimeSection& ts;
-      //! \brief start
-      timespec start;
-      //! \brief end
-      timespec end;
-    };  // end of struct Timer
-    /*!
-     * \brief structure handling the measurement of a portion of the code
-     */
-    struct TimeSection {
-      /*!
-       * \brief constructor of a time section
-       * \param[in] p: pointer to the time section
-       */
-      TimeSection(TimeSection* const = nullptr);
-      //! \brief move constructor
-      TimeSection(TimeSection&&) = default;
-      //! \brief print the results
-      void print(std::ostream&, const std::string&, const std::string&) const;
-      //! \brief close the section
-      void close(const uint64_t);
-      /*!
-       * \return a new timer for the given subsection
-       * \param[in] n: name of the subsection
-       */
-      Timer getTimer(std::string_view);
-      //! \brief paren section
-      TimeSection* const parent;
-      //! \brief total time spend in this region
-      std::atomic<uint64_t> measure;
-      //! \brief child sections
-      std::map<std::string, std::unique_ptr<TimeSection>, std::less<>>
-          subsections;
-    };  // end of struct TimeSection
+		double sum(double in);
+		int sum(int in);
+		int64_t sum(int64_t in);
+		
+		template<typename Arg>
+			void Message(Arg a_msg)
+			{
+				if(is_master())
+				{
+					mfem::out << a_msg << std::endl;
+				}
+			}
 
-    //! \return the unique instance of this class
-    static Profiler& getProfiler();
-    //! \brief display the results
-    void print(std::ostream&) const;
-    /*!
-     * \brief start measuring the time spend in a given portion of the code.
-     * \param[in] name of the section
-     *
-     * \note the measurement
-     */
-    Timer getTimer(std::string_view);
+		template<typename Arg, typename... Args>
+			void Message(Arg a_msg, Args... a_msgs)
+			{
+				if(is_master())
+				{
+					mfem::out << a_msg << " ";
+					Message(a_msgs...);
+				}
+			}
+	};
 
-   private:
-    //! \brief default constructor
-    Profiler();
-    // explicitly deleted constructors and assignement operators
-    Profiler(Profiler&&) = delete;
-    Profiler(const Profiler&) = delete;
-    Profiler& operator=(Profiler&&) = delete;
-    Profiler& operator=(const Profiler&) = delete;
-    //! \brief top level section
-    TimeSection main;
-    //! \brief current section
-    TimeSection* current;
-  };  // end of struct Profiler
+	namespace timers
+	{
+		class ProfilerTimeSection
+		{
+			using duration = std::chrono::duration<double>;
 
-  /*!
-   * \brief return a timer for the given code section
-   * \param[in] n: name
-   */
-  MFEM_MGIS_EXPORT Profiler::Timer getTimer(std::string_view);
+			public:
 
-}  // end of namespace mfem_mgis
+			ProfilerTimeSection();
+			ProfilerTimeSection(std::string name, ProfilerTimeSection* mother);
+			ProfilerTimeSection* find(std::string name);
 
-#endif /* LIB_MFEM_MGIS_PROFILER_HXX */
+			// printer functions
+			//
+			void printReplicate(size_t begin, size_t end, std::string motif);
+			void space();
+			void column();
+			void endline();
+			void printBanner(size_t shift);
+			void printEnding(size_t shift);
+			duration* get_ptr_duration();
+			void print(size_t shift, double runtime);
+
+			// accessor
+			//
+			std::string getName();
+			std::size_t get_iteration();
+			std::size_t get_level();
+			std::vector<ProfilerTimeSection*>& get_daughter();
+			ProfilerTimeSection* get_mother();
+			double get_duration();
+
+
+			private:
+
+			std::string m_name;
+			std::size_t m_iteration;
+			std::size_t m_level;
+			std::vector<ProfilerTimeSection*> m_daughter;
+			ProfilerTimeSection* m_mother;
+			duration m_duration;
+		};
+
+		void init_timers();
+		void print_and_write_timers();
+
+		template<enumTimeSection T>
+			ProfilerTimeSection*& get_timer()
+			{
+				static ProfilerTimeSection* __current;
+				return __current;
+			}
+
+		template<typename Lambda>
+			double chrono_section(Lambda&& lambda)
+			{
+				using steady_clock = std::chrono::steady_clock;
+				using time_point = std::chrono::time_point<steady_clock>;
+				time_point tic, toc;
+				tic = steady_clock::now();
+				lambda();
+				toc = steady_clock::now();
+				auto measure = toc - tic;
+				return measure.count();	
+			}
+	};
+
+	namespace timer
+	{
+		using duration = std::chrono::duration<double>;
+		using steady_clock = std::chrono::steady_clock;
+		using time_point = std::chrono::time_point<steady_clock>;
+		class TimeSection
+		{
+			public:
+				TimeSection(duration * acc);
+				void start();
+				void end();
+				~TimeSection(); 
+
+			private:
+				time_point m_start;
+				time_point m_stop;
+				duration * m_duration; 
+		};
+
+		template<enumTimeSection T>
+			TimeSection*& get_timer()
+			{
+				static TimeSection* __timer;
+				return __timer;
+			}
+
+		template<enumTimeSection T>
+			void start_global_timer()
+			{
+				assert(T == enumTimeSection::ROOT);
+				auto& timer = get_timer<T>(); 
+				timer = new TimeSection(Profiler::timers::get_timer<T>()->get_ptr_duration());
+				timer->start(); // reset start
+			}
+
+		template<enumTimeSection T>
+			void end_global_timer()
+			{
+				assert(T == enumTimeSection::ROOT);
+				auto timer = get_timer<T>();
+				timer->end();
+			}
+	}
+
+	namespace OutputManager
+	{
+		using Profiler::timers::ProfilerTimeSection;
+
+		std::string build_name();
+		void printTimeTable();
+		void writeFile();
+		void writeFile(std::string a_name);
+
+		template<typename Func, typename... Args>
+			void recursive_call(Func& func, ProfilerTimeSection* ptr, Args&... arg)
+			{
+				func(ptr, arg...);
+				auto& daughters = ptr->get_daughter();
+				for(auto& it: daughters)
+					recursive_call(func,it,arg...);
+			}
+
+		template<typename Func, typename Sort, typename... Args>
+			void recursive_sorted_call(Func& func, Sort mySort, ProfilerTimeSection* ptr, Args&... arg)
+			{
+				func(ptr, arg...);
+				auto& daughters = ptr->get_daughter();
+				std::sort(daughters.begin(),daughters.end(),mySort);
+				for(auto& it:daughters)
+					recursive_sorted_call(func, mySort, it,arg...);
+			}
+
+
+	};
+};
+
+
+#define CatchTimeSection(X) Profiler::timers::ProfilerTimeSection*& current = Profiler::timers::get_timer<CURRENT>();\
+								     assert(current != nullptr && "do not use an undefined ProfilerTimeSection"); \
+								     current = current->find(X); \
+								     Profiler::timer::TimeSection non_generic_name(current->get_ptr_duration());
+
+#define CatchNestedTimeSection(X) current = Profiler::timers::get_timer<CURRENT>();\
+					    assert(current != nullptr && "do not use an undefined ProfilerTimeSection"); \
+					    current = current->find(X); \
+					    Profiler::timer::TimeSection non_nested_generic_name(current->get_ptr_duration());
