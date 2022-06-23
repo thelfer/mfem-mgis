@@ -31,7 +31,6 @@ int main(int argc, char** argv) {
   mfem_mgis::unit_tests::parseCommandLineOptions(parameters, argc, argv);
   auto success = true;
   {
-    const auto main_timer = mfem_mgis::getTimer("main");
     // building the non linear problem
     mfem_mgis::NonLinearEvolutionProblem problem(
         {{"MeshFileName", parameters.mesh_file},
@@ -124,5 +123,6 @@ int main(int argc, char** argv) {
         mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E * eps);
   }
   //  mfem_mgis::Profiler::getProfiler().print(mfem_mgis::getOutputStream());
+  Profiler::timers::print_timers();
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

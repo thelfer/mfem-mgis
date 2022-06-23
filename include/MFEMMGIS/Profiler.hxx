@@ -103,6 +103,8 @@ namespace Profiler
 
 		void init_timers();
 		void print_and_write_timers();
+		void print_timers();
+		void write_timers();
 
 		template<enumTimeSection T>
 			ProfilerTimeSection*& get_timer()

@@ -200,20 +200,22 @@ namespace mfem_mgis::unit_tests {
     auto t = t0;
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
       // resolution
-      const auto step_timer = mfem_mgis::getTimer("step" + std::to_string(i));
+
+      // timers are not used here
+      //const auto step_name = "step" + std::to_string(i);
+      //CatchTimeSection(step_name);
       {
-        const auto solve_timer = mfem_mgis::getTimer("solve");
-        if (!problem.solve(t, dt)) {
+        //CatchNestedTimeSection("solve");
+	if (!problem.solve(t, dt)) {
           mfem_mgis::abort("non convergence");
         }
       }
       {
-        const auto post_processing_timer =
-            mfem_mgis::getTimer("post_processing");
+        //CatchNestedTimeSection("post_processing_timer");
         problem.executePostProcessings(t, dt);
       }
       {
-        const auto update_timer = mfem_mgis::getTimer("update");
+        //CatchNestedTimeSection("update");
         problem.update();
       }
       t += dt;

@@ -309,7 +309,18 @@ namespace Profiler
 			Profiler::OutputManager::printTimeTable();
 		}
 
+		void print_timers()
+		{
+			Profiler::timer::end_global_timer<ROOT>(); 
+			Profiler::OutputManager::printTimeTable();
+		}
 
+		void write_timers()
+		{
+			Profiler::timer::end_global_timer<ROOT>(); 
+			Profiler::OutputManager::writeFile(); 
+			Profiler::OutputManager::printTimeTable();
+		}
 	};
 
 	namespace timer
