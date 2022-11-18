@@ -30,7 +30,7 @@ namespace mfem_mgis {
 
   template <>
   inline GetResultType<double> get<double>(const Parameter& p) {
-    if (!is<double>(p)) {
+    if ((!is<double>(p)) && (!is<int>(p))) {
       Parameter::raiseUnmatchedParameterType();
     }
     if (std::holds_alternative<int>(p)) {
