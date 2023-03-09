@@ -50,20 +50,16 @@ buildMechanicalProblem(
           problem->getFiniteElementDiscretizationPointer(), "left", 0));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "front",
-          1));
+          problem->getFiniteElementDiscretizationPointer(), "front", 1));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "rear",
-          1));
+          problem->getFiniteElementDiscretizationPointer(), "rear", 1));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "upper",
-          2));
+          problem->getFiniteElementDiscretizationPointer(), "upper", 2));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "lower",
-          2));
+          problem->getFiniteElementDiscretizationPointer(), "lower", 2));
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
           problem->getFiniteElementDiscretizationPointer(), "right", 0,
@@ -143,8 +139,8 @@ buildMicromorphicProblem(
       {{"OutputFileName", "MicromorphicDamage3D2TestIntegrationPointOutput-" +
                               std::string(test_parameters.behaviour)},
        {"Materials", "beam"},
-       {"Results",
-        std::vector<mfem_mgis::Parameter>{"Damage", "EnergyReleaseRateValue"}}});
+       {"Results", std::vector<mfem_mgis::Parameter>{
+                       "Damage", "EnergyReleaseRateValue"}}});
   return problem;
 }
 

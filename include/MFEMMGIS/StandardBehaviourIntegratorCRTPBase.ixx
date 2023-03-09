@@ -158,54 +158,54 @@ namespace mfem_mgis {
       mfem::ElementTransformation &tr) {
     using Traits = BehaviourIntegratorTraits<Child>;
     auto &child = static_cast<Child &>(*this);
-    constexpr const bool updateExt = Traits::updateExternalStateVariablesFromUnknownsValues;
+    constexpr const bool updateExt =
+        Traits::updateExternalStateVariablesFromUnknownsValues;
 #ifdef MFEM_THREAD_SAFE
     mfem::Vector shape;
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
-    if (updateExt)
-      shape.SetSize(e.GetDof());
-    } 
+    if (updateExt) shape.SetSize(e.GetDof());
+  }
 #else
     if constexpr (updateExt) {
       this->shape.SetSize(e.GetDof());
-    } 
+    }
     this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
-    // element offset
-    const auto nnodes = e.GetDof();
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
-    Ke.SetSize(e.GetDof() * Traits::unknownsSize,
-               e.GetDof() * Traits::unknownsSize);
-    Ke = 0.;
-    const auto &ir = child.getIntegrationRule(e, tr);
-    for (size_type i = 0; i != ir.GetNPoints(); ++i) {
+  // element offset
+  const auto nnodes = e.GetDof();
+  const auto eoffset = this -> quadrature_space -> getOffset(tr.ElementNo);
+  Ke.SetSize(e.GetDof() * Traits::unknownsSize,
+             e.GetDof() * Traits::unknownsSize);
+  Ke = 0.;
+  const auto &ir = child.getIntegrationRule(e, tr);
+  for (size_type i = 0; i != ir.GetNPoints(); ++i) {
+    // get the gradients of the shape functions
+    const auto &ip = ir.IntPoint(i);
+    tr.SetIntPoint(&ip);
+    if constexpr (updateExt) {
       // get the gradients of the shape functions
-      const auto &ip = ir.IntPoint(i);
-      tr.SetIntPoint(&ip);
+      e.CalcPhysShape(tr, shape);
+    }
+    e.CalcPhysDShape(tr, dshape);
+    // get the weights associated to point ip
+    const auto w = child.getIntegrationPointWeight(tr, ip);
+    // offset of the integration point
+    const auto o = eoffset + i;
+    const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
+    // assembly of the stiffness matrix
+    for (size_type ni = 0; ni != nnodes; ++ni) {
       if constexpr (updateExt) {
-        // get the gradients of the shape functions
-        e.CalcPhysShape(tr, shape);
-      }
-      e.CalcPhysDShape(tr, dshape);
-      // get the weights associated to point ip
-      const auto w = child.getIntegrationPointWeight(tr, ip);
-      // offset of the integration point
-      const auto o = eoffset + i;
-      const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
-      // assembly of the stiffness matrix
-      for (size_type ni = 0; ni != nnodes; ++ni) {
-        if constexpr (updateExt) {
-          child.updateStiffnessMatrix(Ke, Kip, shape, dshape, w, ni);
-        } else {
-          child.updateStiffnessMatrix(Ke, Kip, dshape, w, ni);
-        }
+        child.updateStiffnessMatrix(Ke, Kip, shape, dshape, w, ni);
+      } else {
+        child.updateStiffnessMatrix(Ke, Kip, dshape, w, ni);
       }
     }
-  }  // end of implementUpdateJacobian
+  }
+}  // namespace mfem_mgis
 
-  template <typename Child>
-  StandardBehaviourIntegratorCRTPBase<
-      Child>::~StandardBehaviourIntegratorCRTPBase() = default;
+template <typename Child>
+StandardBehaviourIntegratorCRTPBase<
+    Child>::~StandardBehaviourIntegratorCRTPBase() = default;
 
 }  // end of namespace mfem_mgis
 

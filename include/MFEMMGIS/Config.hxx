@@ -22,7 +22,6 @@
 #error "Incompatible version of MGIS"
 #endif /* MGIS_BEHAVIOUR_API_VERSION */
 
-
 #define MFEM_MGIS_VISIBILITY_LOCAL MGIS_VISIBILITY_LOCAL
 
 #if defined _WIN32 || defined _WIN64 || defined __CYGWIN__
@@ -78,7 +77,7 @@ namespace mfem_mgis {
    * \brief gives MPI global communicator size.
    */
   MFEM_MGIS_EXPORT int getMPIsize();
-  
+
   /*!
    * \brief a small wrapper used to build the exception outside the
    * `throw` statement. As most exception's classes constructors may
@@ -137,10 +136,10 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT void declareDefaultOptions(mfem::OptionsParser&);
 
   //! \brief get Output Stream
-  MFEM_MGIS_EXPORT std::ostream & getOutputStream();
+  MFEM_MGIS_EXPORT std::ostream& getOutputStream();
   //! \brief get Error Stream
-  MFEM_MGIS_EXPORT std::ostream & getErrorStream();
-  
+  MFEM_MGIS_EXPORT std::ostream& getErrorStream();
+
 }  // namespace mfem_mgis
 
 #include "MFEMMGIS/Config.ixx"

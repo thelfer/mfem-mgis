@@ -51,7 +51,6 @@
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
-
 constexpr double xmax = 1.;
 
 void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
@@ -209,8 +208,8 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
   {
     // building the non linear problem
-    std::vector<mfem_mgis::real> corner1({0.,0.,0.});
-    std::vector<mfem_mgis::real> corner2({xmax,xmax,xmax});
+    std::vector<mfem_mgis::real> corner1({0., 0., 0.});
+    std::vector<mfem_mgis::real> corner2({xmax, xmax, xmax});
     mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed, corner1, corner2);
     problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
     problem.addBehaviourIntegrator("Mechanics", 2, p.library, "Elasticity");
@@ -248,19 +247,17 @@ void executeMFEMMGISTest(const TestParameters& p) {
     problem.addPostProcessing(
         "ParaviewExportResults",
         {{"OutputFileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
-    std::vector<mfem_mgis::Parameter> materials_out{1,2};
-    problem.addPostProcessing(
-        "ParaviewExportIntegrationPointResultsAtNodes",
-        {{"OutputFileName", "PeriodicTestOutput-Strain-" 
-	      + std::to_string(p.tcase)},
-	    {"Materials", {materials_out}},
-	    {"Results", "Strain"}});
-    problem.addPostProcessing(
-        "ParaviewExportIntegrationPointResultsAtNodes",
-        {{"OutputFileName", "PeriodicTestOutput-Stress-" 
-	      + std::to_string(p.tcase)},
-	    {"Materials", {materials_out}},
-	    {"Results", "Stress"}});
+    std::vector<mfem_mgis::Parameter> materials_out{1, 2};
+    problem.addPostProcessing("ParaviewExportIntegrationPointResultsAtNodes",
+                              {{"OutputFileName", "PeriodicTestOutput-Strain-" +
+                                                      std::to_string(p.tcase)},
+                               {"Materials", {materials_out}},
+                               {"Results", "Strain"}});
+    problem.addPostProcessing("ParaviewExportIntegrationPointResultsAtNodes",
+                              {{"OutputFileName", "PeriodicTestOutput-Stress-" +
+                                                      std::to_string(p.tcase)},
+                               {"Materials", {materials_out}},
+                               {"Results", "Stress"}});
     // solving the problem
     if (!problem.solve(0, 1)) {
       mfem_mgis::abort(EXIT_FAILURE);

@@ -83,7 +83,7 @@ namespace mfem_mgis {
         }
       }
       for (size_type c = 0; c != nc; ++c) {
-        if(!elts_dofs[c].empty()){
+        if (!elts_dofs[c].empty()) {
           r.push_back({i, elts_dofs});
           break;
         }

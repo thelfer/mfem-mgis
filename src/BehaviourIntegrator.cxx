@@ -39,9 +39,9 @@ namespace mfem_mgis {
     }
   }  // end of performLoopOverIntegrationPoints
 
-
   template <bool parallel>
-  static real BehaviourIntegrator_computeMeasure(const BehaviourIntegrator& bi) {
+  static real BehaviourIntegrator_computeMeasure(
+      const BehaviourIntegrator& bi) {
     auto r = real{};
     auto integrate =
         [&r, &bi](const mfem::FiniteElement&, mfem::ElementTransformation& tr,
@@ -67,7 +67,6 @@ namespace mfem_mgis {
     }
     return BehaviourIntegrator_computeMeasure<false>(bi);
   }  // end of computeIntegral
-
 
   template <bool parallel>
   static real BehaviourIntegrator_computeScalarIntegral(

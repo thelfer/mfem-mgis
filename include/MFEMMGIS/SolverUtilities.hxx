@@ -47,7 +47,6 @@ namespace mfem_mgis {
                                             const Parameters&);
 #endif /* MFEM_USE_PETSC */
 
-
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_SOLVERUTILITIES_HXX */

@@ -1,14 +1,15 @@
 /*!
- * \file include/MFEMMGIS/BidimensionalMicromorphicDamageBehaviourIntegrator.hxx
+ * \file
+ * include/MFEMMGIS/OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.hxx
  * \brief
  * \author Thomas Helfer
  * \date   07/12/2021
  * \brief header file declaring the
- * BidimensionalMicromorphicDamageBehaviourIntegrator class
+ * OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator class
  */
 
-#ifndef LIB_MFEM_MGIS_BIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX
-#define LIB_MFEM_MGIS_BIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX
+#ifndef LIB_MFEM_MGIS_ORTHOTROPICBIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX
+#define LIB_MFEM_MGIS_ORTHOTROPICBIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX
 
 #include "MFEMMGIS/BehaviourIntegratorBase.hxx"
 
@@ -23,15 +24,18 @@ namespace mfem_mgis {
    * effect on this specific behaviour as out of plane damage gradients are
    * assumed to be zero).
    */
-  struct MFEM_MGIS_EXPORT BidimensionalMicromorphicDamageBehaviourIntegrator
+  struct MFEM_MGIS_EXPORT
+      OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator
       : BehaviourIntegratorBase {
+    //! \brief a simple alias
+    using RotationMatrix = std::array<real, 9u>;
     /*!
      * \brief constructor
      * \param[in] s: quadrature space
      * \param[in] m: material attribute.
      * \param[in] b_ptr: behaviour
      */
-    BidimensionalMicromorphicDamageBehaviourIntegrator(
+    OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
         std::unique_ptr<const Behaviour>);
@@ -61,7 +65,7 @@ namespace mfem_mgis {
                             const mfem::FiniteElement &,
                             mfem::ElementTransformation &) override;
     //! \brief destructor
-    ~BidimensionalMicromorphicDamageBehaviourIntegrator() override;
+    ~OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator() override;
 
    private:
     /*!
@@ -78,6 +82,8 @@ namespace mfem_mgis {
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &, const size_type);
+    //! \brief the rotation matrix
+    RotationMatrix2D rotation_matrix;
 
 #ifndef MFEM_THREAD_SAFE
     //! \brief vector used to store the value of the shape functions
@@ -85,9 +91,10 @@ namespace mfem_mgis {
     //! \brief matrix used to store the derivatives of the shape functions
     mfem::DenseMatrix dshape;
 #endif
-  };  // end of struct BidimensionalMicromorphicDamageBehaviourIntegrator
+  };  // end of struct
+      // OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_BIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX \
+#endif /* LIB_MFEM_MGIS_ORTHOTROPICBIDIMENSIONALMICROMORPHICDAMAGEBEHAVIOURINTEGRATOR_HXX \
         */

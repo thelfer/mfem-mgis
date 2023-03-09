@@ -1,5 +1,5 @@
 /*!
- * \file   BidimensionalMicromorphicDamageBehaviourIntegrator.cxx
+ * \file   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
  * \brief
  * \author Thomas Helfer
  * \date   07/12/2021
@@ -9,20 +9,22 @@
 #include "mfem/fem/eltrans.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
-#include "MFEMMGIS/BidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
   const mfem::IntegrationRule &
-  BidimensionalMicromorphicDamageBehaviourIntegrator::selectIntegrationRule(
-      const mfem::FiniteElement &e, const mfem::ElementTransformation &t) {
+  OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
+      selectIntegrationRule(const mfem::FiniteElement &e,
+                            const mfem::ElementTransformation &t) {
     const auto order = 2 * t.OrderGrad(&e);
     return mfem::IntRules.Get(e.GetGeomType(), order);
   }
 
   std::shared_ptr<const PartialQuadratureSpace>
-  BidimensionalMicromorphicDamageBehaviourIntegrator::buildQuadratureSpace(
-      const FiniteElementDiscretization &fed, const size_type m) {
+  OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
+      buildQuadratureSpace(const FiniteElementDiscretization &fed,
+                           const size_type m) {
     auto selector = [](const mfem::FiniteElement &e,
                        const mfem::ElementTransformation &tr)
         -> const mfem::IntegrationRule & {
@@ -31,34 +33,34 @@ namespace mfem_mgis {
     return std::make_shared<PartialQuadratureSpace>(fed, m, selector);
   }  // end of buildQuadratureSpace
 
-  BidimensionalMicromorphicDamageBehaviourIntegrator::
-      BidimensionalMicromorphicDamageBehaviourIntegrator(
+  OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
+      OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator(
           const FiniteElementDiscretization &fed,
           const size_type m,
           std::unique_ptr<const Behaviour> b_ptr)
       : BehaviourIntegratorBase(buildQuadratureSpace(fed, m),
                                 std::move(b_ptr)) {
-    if (this->b.symmetry != Behaviour::ISOTROPIC) {
+    if (this->b.symmetry != Behaviour::ORTHOTROPIC) {
       raise("invalid behaviour symmetry");
     }
-  }  // end of BidimensionalMicromorphicDamageBehaviourIntegrator
+  }  // end of OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator
 
-  real
-  BidimensionalMicromorphicDamageBehaviourIntegrator::getIntegrationPointWeight(
-      mfem::ElementTransformation &tr, const mfem::IntegrationPoint &ip) const
+  real OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
+      getIntegrationPointWeight(mfem::ElementTransformation &tr,
+                                const mfem::IntegrationPoint &ip) const
       noexcept {
     return ip.weight * tr.Weight();
   }  // end of getIntegrationPointWeight
 
   const mfem::IntegrationRule &
-  BidimensionalMicromorphicDamageBehaviourIntegrator::getIntegrationRule(
-      const mfem::FiniteElement &e,
-      const mfem::ElementTransformation &t) const {
-    return BidimensionalMicromorphicDamageBehaviourIntegrator::
+  OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
+      getIntegrationRule(const mfem::FiniteElement &e,
+                         const mfem::ElementTransformation &t) const {
+    return OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
         selectIntegrationRule(e, t);
   }  // end of getIntegrationRule
 
-  bool BidimensionalMicromorphicDamageBehaviourIntegrator::integrate(
+  bool OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::integrate(
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
       const mfem::Vector &d_chi,
@@ -98,6 +100,8 @@ namespace mfem_mgis {
         g[1] += d_chi[ni] * dshape(ni, 0);
         g[2] += d_chi[ni] * dshape(ni, 1);
       }
+      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
+      this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());
       if (!this->performsLocalBehaviourIntegration(o, it)) {
         return false;
       }
@@ -105,7 +109,8 @@ namespace mfem_mgis {
     return true;
   }  // end of integrate
 
-  void BidimensionalMicromorphicDamageBehaviourIntegrator::updateResidual(
+  void
+  OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::updateResidual(
       mfem::Vector &Fe,
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
@@ -137,19 +142,24 @@ namespace mfem_mgis {
       // offset of the integration point
       const auto o = eoffset + i;
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
+      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
+      std::array<real, 2> rs;
+      std::copy(s.begin(), s.end(), rs.begin());
+      this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), r.data());
       for (size_type ni = 0; ni != nnodes; ++ni) {
         // s contains:
         // - a_chi, the dual force conjugated with d_chi (scalar)
         // - b_chi, the dual force conjugated with the gradient of d_chi
         // (vector)
-        Fe[ni] += w * (s[0] * shape[ni] +      //
-                       s[1] * dshape(ni, 0) +  //
-                       s[2] * dshape(ni, 1));
+        Fe[ni] += w * (rs[0] * shape[ni] +      //
+                       rs[1] * dshape(ni, 0) +  //
+                       rs[2] * dshape(ni, 1));
       }
     }
   }  // end of updateResidual
 
-  void BidimensionalMicromorphicDamageBehaviourIntegrator::updateJacobian(
+  void
+  OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::updateJacobian(
       mfem::DenseMatrix &Ke,
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr,
@@ -178,6 +188,9 @@ namespace mfem_mgis {
       // offset of the integration point
       const auto o = eoffset + i;
       const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
+      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
+      this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
+                                                 r.data());
       // assembly of the stiffness matrix
       for (size_type ni = 0; ni != nnodes; ++ni) {
         // Kip contains:
@@ -201,10 +214,10 @@ namespace mfem_mgis {
     }
   }  // end of updateJacobian
 
-  void BidimensionalMicromorphicDamageBehaviourIntegrator::computeInnerForces(
-      mfem::Vector &Fe,
-      const mfem::FiniteElement &e,
-      mfem::ElementTransformation &tr) {
+  void OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
+      computeInnerForces(mfem::Vector &Fe,
+                         const mfem::FiniteElement &e,
+                         mfem::ElementTransformation &tr) {
 #ifdef MFEM_THREAD_SAFE
     mfem::Vector shape;
     shape.SetSize(e.GetDof());
@@ -232,18 +245,23 @@ namespace mfem_mgis {
       // offset of the integration point
       const auto o = eoffset + i;
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
+      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
+      std::array<real, 2> rs;
+      std::copy(s.begin(), s.end(), rs.begin());
+      this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), r.data());
       for (size_type ni = 0; ni != nnodes; ++ni) {
         // s contains:
         // - a_chi, the dual force conjugated with d_chi (scalar)
         // - b_chi, the dual force conjugated with the gradient of d_chi
         // (vector)
-        Fe[ni] += w * (s[1] * dshape(ni, 0) +  //
-                       s[2] * dshape(ni, 1));
+        Fe[ni] += w * (rs[1] * dshape(ni, 0) +  //
+                       rs[2] * dshape(ni, 1));
       }
     }
   }  // end of computeInnerForces
 
-  BidimensionalMicromorphicDamageBehaviourIntegrator::
-      ~BidimensionalMicromorphicDamageBehaviourIntegrator() = default;
+  OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
+      ~OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator() =
+          default;
 
 }  // end of namespace mfem_mgis

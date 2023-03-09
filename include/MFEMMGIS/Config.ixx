@@ -47,21 +47,21 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #endif /* MFEM_USE_MPI */
-    return(rank);
-  } //end of getMPIrank
+    return (rank);
+  }  // end of getMPIrank
 
   inline int getMPIsize() {
-    int size=1;
+    int size = 1;
 #ifdef MFEM_USE_MPI
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 #endif /* MFEM_USE_MPI */
-    return(size);
-  } //end of getMPIsize
+    return (size);
+  }  // end of getMPIsize
 
-  inline std::ostream & getOutputStream() { return mfem::out; }
+  inline std::ostream& getOutputStream() { return mfem::out; }
 
-  inline std::ostream & getErrorStream() { return mfem::err; }
-  
+  inline std::ostream& getErrorStream() { return mfem::err; }
+
 }  // namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_CONFIG_IXX */

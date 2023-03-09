@@ -26,7 +26,7 @@ namespace mfem_mgis {
   inline const std::unordered_map<size_type, size_type>&
   PartialQuadratureSpace::getOffsets() const {
     return this->offsets;
-  } // end of getOffsets
+  }  // end of getOffsets
 
   inline size_type PartialQuadratureSpace::getOffset(const size_type i) const {
     const auto p = this->offsets.find(i);

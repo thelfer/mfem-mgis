@@ -36,7 +36,8 @@ namespace mfem_mgis {
   }  // end of writeResultantForce
 
   ComputeResultantForceOnBoundaryCommon::ComputeResultantForceOnBoundaryCommon(
-      std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>> edofs,
+      std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>
+          edofs,
       const size_type i)
       : elts_dofs(std::move(edofs)),
         bid(i) {}  // end of ComputeResultantForceOnBoundaryCommon

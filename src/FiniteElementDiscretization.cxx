@@ -32,10 +32,10 @@ namespace mfem_mgis {
   static std::string getFileExt(const std::string& s) {
     size_t i = s.rfind('.', s.length());
     if (i != std::string::npos) {
-      return(s.substr(i+1, s.length() - i));
+      return (s.substr(i + 1, s.length() - i));
     }
-    
-    return("");
+
+    return ("");
   }  // end of getFileExt
 
 #endif /* MFEM_USE_MED */
@@ -157,7 +157,6 @@ namespace mfem_mgis {
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       const Parameters& params) {
-    
     CatchTimeSection("FiniteElementDiscretization::constructor");
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};
@@ -413,7 +412,7 @@ namespace mfem_mgis {
         raise(m + ": no " + t + " matching regular expression '" + id + "'");
       }
     } catch (std::exception& e) {
-        raise(m + ": invalid regular expression '" + id + "'");
+      raise(m + ": invalid regular expression '" + id + "'");
     }
     return r;
   }  // end of selectMeshObjectsIdentifiers
@@ -558,6 +557,5 @@ namespace mfem_mgis {
     }
     return fed.getMesh<false>().SpaceDimension();
   }  // end of getSpaceDimension
-
 
 }  // end of namespace mfem_mgis

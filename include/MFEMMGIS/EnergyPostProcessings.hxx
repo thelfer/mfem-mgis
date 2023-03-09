@@ -84,7 +84,8 @@ namespace mfem_mgis {
    * \brief a post-processing which exported the stored energies in a file.
    */
   template <bool parallel>
-  struct DissipatedEnergyPostProcessing final : EnergyPostProcessingBase<parallel> {
+  struct DissipatedEnergyPostProcessing final
+      : EnergyPostProcessingBase<parallel> {
     /*!
      * \brief constructor
      * \param[in] p: non linear problem

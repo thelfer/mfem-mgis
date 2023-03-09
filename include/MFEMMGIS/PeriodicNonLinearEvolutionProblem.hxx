@@ -18,12 +18,8 @@ namespace mfem_mgis {
   template <bool parallel>
   struct NonLinearEvolutionProblemImplementation;
 
-  enum BoundaryConditionType {
-    FIX_XMIN = 0,
-    FIX_YMIN = 1,
-    FIX_ZMIN = 2
-  };
-  
+  enum BoundaryConditionType { FIX_XMIN = 0, FIX_YMIN = 1, FIX_ZMIN = 2 };
+
 #ifdef MFEM_USE_MPI
 
   /*!
@@ -32,12 +28,14 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<true>&,
-      const mgis::span<const real>&, const mgis::span<const real>&);
+      const mgis::span<const real>&,
+      const mgis::span<const real>&);
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
    * \param[in] p: problem
-   * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
+   * \param[in] bct: impose the zero value on displacement field at xmin, or
+   * ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<true>&,
@@ -50,30 +48,31 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<false>&,
-      const mgis::span<const real>&, const mgis::span<const real>&);
+      const mgis::span<const real>&,
+      const mgis::span<const real>&);
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
    * \param[in] p: problem
-   * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
+   * \param[in] bct: impose the zero value on displacement field at xmin, or
+   * ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<false>&,
       const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
 
   /*!
-   * \brief compute minimal distance from corners to point 
+   * \brief compute minimal distance from corners to point
    *        identified in vector `nodes` at index `index`
    */
   real getNodesDistance(const mfem::GridFunction& nodes,
-			const bool reorder_space,
-			const size_t dim,
-			const int index,
-			const int size,
-			const mgis::span<const real>& corner1,
-			const mgis::span<const real>& corner2);
-  
-  
+                        const bool reorder_space,
+                        const size_t dim,
+                        const int index,
+                        const int size,
+                        const mgis::span<const real>& corner1,
+                        const mgis::span<const real>& corner2);
+
   /*!
    * \brief a base class handling the evolution of the macroscopic gradients
    */
@@ -87,17 +86,19 @@ namespace mfem_mgis {
      */
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>,
-	const mgis::span<const real>&, const mgis::span<const real>&);
+        const mgis::span<const real>&,
+        const mgis::span<const real>&);
 
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
-     * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
+     * \param[in] bct: impose the zero value on displacement field at xmin, or
+     * ymin, or zmin
      */
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>,
-	const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
-    
+        const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
+
     // disable adding boundary conditions
     [[noreturn]] void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;

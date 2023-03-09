@@ -52,8 +52,8 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     auto global_dof_id = HYPRE_BigInt{};
 #endif /* MFEM_USE_MPI */
-    // local dof id associated with the closest vertice, if handled by the
-    // current process
+       // local dof id associated with the closest vertice, if handled by the
+       // current process
 #ifdef MFEM_MGIS_DEBUG
     auto i_min = size_type{};
     auto pt_min = std::array<real, space_dimension>{};
@@ -111,8 +111,8 @@ namespace mfem_mgis {
       // gathering all minimum values and global ides overs all processes
       MPI_Allgather(&d_min, 1, MPI_DOUBLE, d_min_buffer.data(), 1, MPI_DOUBLE,
                     MPI_COMM_WORLD);
-      MPI_Allgather(&global_dof_id, 1, MPI_INT, global_dof_id_buffer.data(),
-                    1, MPI_INT, MPI_COMM_WORLD);
+      MPI_Allgather(&global_dof_id, 1, MPI_INT, global_dof_id_buffer.data(), 1,
+                    MPI_INT, MPI_COMM_WORLD);
 #ifdef MFEM_MGIS_DEBUG
       if (myrank == 0) {
         std::cout << "minimal distance per proc:";

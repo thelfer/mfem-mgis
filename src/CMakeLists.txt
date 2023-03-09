@@ -47,6 +47,7 @@ mfem_mgis_library(MFEMMGIS
   IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.cxx
   OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.cxx
   BidimensionalMicromorphicDamageBehaviourIntegrator.cxx
+  OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
 )
 
