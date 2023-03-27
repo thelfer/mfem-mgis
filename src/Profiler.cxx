@@ -308,8 +308,10 @@ namespace mfem_mgis {
           base_name + "." + std::to_string(mpiSize) + ".perf";
 #else
           std::size_t nthreads = 0;
+#if defined(_OPENMP)
 #pragma omp parallel
           { nthreads = omp_get_num_threads(); }
+#endif
           std::string file_name =
               base_name + "." + std::to_string(nthreads) + ".perf";
 #endif
