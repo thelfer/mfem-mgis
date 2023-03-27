@@ -108,6 +108,6 @@ int main(int argc, char** argv) {
     //         mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E *
     //         eps);
   }
-  Profiler::timers::print_timers();
+  mfem_mgis::Profiler::timers::print_timers();
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
