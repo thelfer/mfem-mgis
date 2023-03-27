@@ -31,7 +31,7 @@ namespace mfem_mgis {
 
   real computeL2ErrorAgainstAnalyticalSolution(
       NonLinearEvolutionProblem &p,
-      std::function<void(mfem::Vector &, const mfem::Vector &)> f){
+      std::function<void(mfem::Vector &, const mfem::Vector &)> f) {
     std::function<void(const mfem::Vector &, mfem::Vector &)> mf =
         [f](const mfem::Vector &x, mfem::Vector &v) { f(v, x); };
     const auto &fed = p.getFiniteElementDiscretization();

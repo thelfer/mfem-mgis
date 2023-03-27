@@ -54,7 +54,7 @@ namespace mfem_mgis {
      */
     void computeResidual(mfem::Vector &, const mfem::Vector &) const;
     //! \return the jacobian of the system
-    mfem::Operator &getJacobian(const mfem::Vector&) const;
+    mfem::Operator &getJacobian(const mfem::Vector &) const;
     //! \brief get initial norm
     virtual real GetInitialNorm() const;
     //

@@ -213,7 +213,8 @@ namespace mfem_mgis {
    * \brief return the space dimension
    * \param[in] fed: finite element discretization
    */
-  MFEM_MGIS_EXPORT size_type getSpaceDimension(const FiniteElementDiscretization&);
+  MFEM_MGIS_EXPORT size_type
+  getSpaceDimension(const FiniteElementDiscretization&);
 
   /*!
    * \brief return the total number of unknowns

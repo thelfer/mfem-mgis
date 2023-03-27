@@ -312,7 +312,7 @@ namespace mfem_mgis {
         auto pv = this->values.begin();
         for (size_type i = 0; i != n; ++i) {
           const auto b = v_values + i * vs;
-          const auto e = b+this->data_size;
+          const auto e = b + this->data_size;
           std::copy(b, e, pv);
           pv += this->data_size;
         }

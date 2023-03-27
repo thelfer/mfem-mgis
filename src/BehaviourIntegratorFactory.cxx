@@ -27,6 +27,7 @@
 #include "MFEMMGIS/IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 #include "MFEMMGIS/OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 #include "MFEMMGIS/BidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
+#include "MFEMMGIS/OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 #include "MFEMMGIS/TridimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
@@ -109,13 +110,13 @@ namespace mfem_mgis {
               OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator>(
               fed, m, std::move(b));
         });
-    f.addGenerator(
-        "MicromorphicDamage",  //
-        [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
-          return std::make_unique<TridimensionalMicromorphicDamageBehaviourIntegrator>(
-              fed, m, std::move(b));
-        });
+    f.addGenerator("MicromorphicDamage",  //
+                   [](const FiniteElementDiscretization& fed, const size_type m,
+                      std::unique_ptr<const Behaviour> b) {
+                     return std::make_unique<
+                         TridimensionalMicromorphicDamageBehaviourIntegrator>(
+                         fed, m, std::move(b));
+                   });
     return f;
   }  // end of buildFactory
 
@@ -177,8 +178,15 @@ namespace mfem_mgis {
     f.addGenerator(
         "MicromorphicDamage",  //
         [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b) {
-          return std::make_unique<BidimensionalMicromorphicDamageBehaviourIntegrator>(
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->symmetry == Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                BidimensionalMicromorphicDamageBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
+          return std::make_unique<
+              OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     return f;

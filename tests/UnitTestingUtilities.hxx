@@ -202,20 +202,20 @@ namespace mfem_mgis::unit_tests {
       // resolution
 
       // timers are not used here
-      //const auto step_name = "step" + std::to_string(i);
-      //CatchTimeSection(step_name);
+      // const auto step_name = "step" + std::to_string(i);
+      // CatchTimeSection(step_name);
       {
-        //CatchNestedTimeSection("solve");
-	if (!problem.solve(t, dt)) {
+        // CatchNestedTimeSection("solve");
+        if (!problem.solve(t, dt)) {
           mfem_mgis::abort("non convergence");
         }
       }
       {
-        //CatchNestedTimeSection("post_processing_timer");
+        // CatchNestedTimeSection("post_processing_timer");
         problem.executePostProcessings(t, dt);
       }
       {
-        //CatchNestedTimeSection("update");
+        // CatchNestedTimeSection("update");
         problem.update();
       }
       t += dt;

@@ -40,7 +40,7 @@ namespace mfem_mgis {
     // SetFromTrueVector needed here in MFEM for at least two rationales:
     //    - it applies prolongation matrix (Non-Conforming mesh, BCs, AMR ...)
     //      to set the values of some unkwown dofs deduced from known dofs
-    //    - exchange data between processes in order to retrieve information 
+    //    - exchange data between processes in order to retrieve information
     //      needed to perform the previous prolongation step
     this->result.SetFromTrueVector();
     this->exporter.Save();

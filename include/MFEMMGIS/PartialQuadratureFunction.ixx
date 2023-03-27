@@ -10,18 +10,16 @@
 
 namespace mfem_mgis {
 
-  inline size_type PartialQuadratureFunctionDataLayout::getDataStride()
-      const {
+  inline size_type PartialQuadratureFunctionDataLayout::getDataStride() const {
     return this->data_stride;
   }  // end of getDataStride
 
-  inline size_type
-  PartialQuadratureFunctionDataLayout::getDataOffset() const {
+  inline size_type PartialQuadratureFunctionDataLayout::getDataOffset() const {
     return this->data_begin;
   }  // end of getDataOffset
 
-  inline size_type
-  PartialQuadratureFunctionDataLayout::getNumberOfComponents() const {
+  inline size_type PartialQuadratureFunctionDataLayout::getNumberOfComponents()
+      const {
     return this->data_size;
   }  // end of PartialQuadratureFunctionDataLayout::getNumberOfComponents
 
@@ -36,7 +34,8 @@ namespace mfem_mgis {
   }  // end of getPartialQuadratureSpace
 
   inline std::shared_ptr<const PartialQuadratureSpace>
-  ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpacePointer() const {
+  ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpacePointer()
+      const {
     return this->qspace;
   }  // end of getPartialQuadratureSpacePointer
 

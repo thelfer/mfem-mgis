@@ -75,9 +75,11 @@ namespace mfem_mgis {
     const auto m = tr.Attribute;
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementVector", m);
-    if(usePETSc()){
-      MFEM_VERIFY(bi->integrate(e, tr, U,
-                    IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),"ERROR Behaviour");
+    if (usePETSc()) {
+      MFEM_VERIFY(bi->integrate(
+                      e, tr, U,
+                      IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),
+                  "ERROR Behaviour");
     }
     bi->updateResidual(F, e, tr, U);
   }  // end of AssembleElementVector

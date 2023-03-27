@@ -167,8 +167,8 @@ namespace mfem_mgis {
   buildFacesDescription(NonLinearEvolutionProblem &, const size_type);
 
   /*!
-   * \brief return a structure which associates the global number of the selected
-   * elements to the local indexes of its degrees of freedom sorted by
+   * \brief return a structure which associates the global number of the
+   * selected elements to the local indexes of its degrees of freedom sorted by
    * components.
    * \tparam parallel: boolean stating if the computation is done in parallel.
    * \param[in] p: non linear evolution problem
@@ -193,7 +193,8 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT void computeResultantForceOnBoundary(
       mfem::Vector &,
       NonLinearEvolutionProblem &,
-      const std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>> &);
+      const std::vector<
+          std::pair<size_type, std::vector<std::vector<size_type>>>> &);
 
 }  // end of namespace mfem_mgis
 

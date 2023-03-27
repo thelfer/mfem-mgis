@@ -152,8 +152,8 @@ namespace mfem_mgis {
     return this->pimpl->getBoundariesIdentifiers(p);
   }  // end of getBoundariesIdentifiers
 
-  std::vector<size_type> NonLinearEvolutionProblem::getAssignedMaterialsIdentifiers()
-      const {
+  std::vector<size_type>
+  NonLinearEvolutionProblem::getAssignedMaterialsIdentifiers() const {
     return this->pimpl->getAssignedMaterialsIdentifiers();
   }  // end of getAssignedMaterialsIdentifiers
 
@@ -306,31 +306,37 @@ namespace mfem_mgis {
     auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<true>(), bid);
+      return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<true>(),
+                                                   bid);
 #else
       raise(
           "getElementsDegreesOfFreedomOnBoundary: "
           "unsupported parallel computations");
 #endif
     }
-    return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<false>(), bid);
+    return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<false>(),
+                                                 bid);
   }  // end of getElementsDegreesOfFreedomOnBoundary
 
   void computeResultantForceOnBoundary(
       mfem::Vector& F,
       NonLinearEvolutionProblem& p,
-      const std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>& elts_dofs) {
+      const std::vector<
+          std::pair<size_type, std::vector<std::vector<size_type>>>>&
+          elts_dofs) {
     auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      computeResultantForceOnBoundary(F, p.getImplementation<true>(), elts_dofs);
+      computeResultantForceOnBoundary(F, p.getImplementation<true>(),
+                                      elts_dofs);
 #else
       raise(
           "computeResultantForceOnBoundary: "
           "unsupported parallel computations");
 #endif
     } else {
-      computeResultantForceOnBoundary(F, p.getImplementation<false>(), elts_dofs);
+      computeResultantForceOnBoundary(F, p.getImplementation<false>(),
+                                      elts_dofs);
     }
   }  // end of computeResultantForceOnBoundary
 

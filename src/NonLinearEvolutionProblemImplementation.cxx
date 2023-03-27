@@ -83,11 +83,12 @@ namespace mfem_mgis {
       this->AddDomainIntegrator(this->mgis_integrator);
     }
   }  // end of NonLinearEvolutionProblemImplementation
-  
-  void NonLinearEvolutionProblemImplementation<true>::Mult(const mfem::Vector & u, mfem::Vector & r) const{
+
+  void NonLinearEvolutionProblemImplementation<true>::Mult(
+      const mfem::Vector& u, mfem::Vector& r) const {
     return mfem_mgis::NonlinearForm<true>::Mult(u, r);
-  } // end of Mult
-  
+  }  // end of Mult
+
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       std::unique_ptr<PostProcessing<true>> p) {
     this->postprocessings.push_back(std::move(p));
@@ -118,13 +119,12 @@ namespace mfem_mgis {
     }
   }  // end of executePostProcessings
 
-  Mesh<true>&
-  NonLinearEvolutionProblemImplementation<true>::getMesh() {
+  Mesh<true>& NonLinearEvolutionProblemImplementation<true>::getMesh() {
     return this->fe_discretization->getMesh<true>();
   }  // end of getMesh
 
-  const Mesh<true>&
-  NonLinearEvolutionProblemImplementation<true>::getMesh() const {
+  const Mesh<true>& NonLinearEvolutionProblemImplementation<true>::getMesh()
+      const {
     return this->fe_discretization->getMesh<true>();
   }  // end of getMesh
 
@@ -217,13 +217,12 @@ namespace mfem_mgis {
     }
   }  // end of executePostProcessings
 
-  Mesh<false>&
-  NonLinearEvolutionProblemImplementation<false>::getMesh() {
+  Mesh<false>& NonLinearEvolutionProblemImplementation<false>::getMesh() {
     return this->fe_discretization->getMesh<false>();
   }  // end of getMesh
 
-  const Mesh<false>&
-  NonLinearEvolutionProblemImplementation<false>::getMesh() const {
+  const Mesh<false>& NonLinearEvolutionProblemImplementation<false>::getMesh()
+      const {
     return this->fe_discretization->getMesh<false>();
   }  // end of getMesh
 

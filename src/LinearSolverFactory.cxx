@@ -68,18 +68,19 @@ namespace mfem_mgis {
     bool verbose = contains(opts, Problem::SolverVerbosityLevel);
     auto ilu = std::make_unique<mfem::HypreILU>();
     bool levelOfFill = contains(opts, "HypreILULevelOfFill");
-    checkParameters(opts, {Problem::SolverVerbosityLevel,"HypreILULevelOfFill"});
+    checkParameters(opts,
+                    {Problem::SolverVerbosityLevel, "HypreILULevelOfFill"});
     if (verbose) {
       ilu->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
     }
-    if(levelOfFill)
-    {
+    if (levelOfFill) {
       auto level = get<int>(opts, "HypreILULevelOfFill");
-      HYPRE_ILUSetLevelOfFill(*ilu,level);
+      HYPRE_ILUSetLevelOfFill(*ilu, level);
     }
     return ilu;
-#else /*  HYPRE_OLD_VERSION */
-    MFEM_VERIFY(0, "Support for HypreILU is notavailable with this version of MFEM");
+#else  /*  HYPRE_OLD_VERSION */
+    MFEM_VERIFY(
+        0, "Support for HypreILU is notavailable with this version of MFEM");
     return nullptr;
 #endif /* HYPRE_OLD_VERSION */
   }    // end of setHypreILUPreconditioner
@@ -98,11 +99,11 @@ namespace mfem_mgis {
   std::unique_ptr<LinearSolverPreconditioner> setHypreDiagScalePreconditioner(
       NonLinearEvolutionProblemImplementation<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
-    //auto ps = std::make_unique<mfem::HypreDiagScale>(MPI_COMM_WORLD);
+    // auto ps = std::make_unique<mfem::HypreDiagScale>(MPI_COMM_WORLD);
     auto ps = std::make_unique<mfem::HypreDiagScale>();
     checkParameters(opts, {Problem::SolverVerbosityLevel});
     return ps;
-  }  // end of setHypreDiagScalePreconditioner
+  }   // end of setHypreDiagScalePreconditioner
 #else /* MFEM_USE_MPI */
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
@@ -417,7 +418,7 @@ namespace mfem_mgis {
       s->SetPrintLevel(1);
       //      if (getMPIrank() == 0) {
       //	mfem_mgis::getOutputStream() << "Global Nbdof " <<
-      //p.getFiniteElementSpace().GlobalTrueVSize() << "\n";
+      // p.getFiniteElementSpace().GlobalTrueVSize() << "\n";
       //      }
       if (symmetric) {
         if (positive_definite) {

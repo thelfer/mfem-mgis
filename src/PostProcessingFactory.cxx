@@ -82,11 +82,12 @@ namespace mfem_mgis {
                            const Parameters& params) {
           return std::make_unique<StoredEnergyPostProcessing<true>>(p, params);
         });
-    this->add(
-        "DissipatedEnergy", [](NonLinearEvolutionProblemImplementation<true>& p,
-                           const Parameters& params) {
-          return std::make_unique<DissipatedEnergyPostProcessing<true>>(p, params);
-        });
+    this->add("DissipatedEnergy",
+              [](NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) {
+                return std::make_unique<DissipatedEnergyPostProcessing<true>>(
+                    p, params);
+              });
   }  // end of PostProcessingFactory
 
   PostProcessingFactory<true>::~PostProcessingFactory() = default;
@@ -157,11 +158,12 @@ namespace mfem_mgis {
                            const Parameters& params) {
           return std::make_unique<StoredEnergyPostProcessing<false>>(p, params);
         });
-    this->add(
-        "DissipatedEnergy", [](NonLinearEvolutionProblemImplementation<false>& p,
-                           const Parameters& params) {
-          return std::make_unique<DissipatedEnergyPostProcessing<false>>(p, params);
-        });
+    this->add("DissipatedEnergy",
+              [](NonLinearEvolutionProblemImplementation<false>& p,
+                 const Parameters& params) {
+                return std::make_unique<DissipatedEnergyPostProcessing<false>>(
+                    p, params);
+              });
   }  // end of PostProcessingFactory
 
   PostProcessingFactory<false>::~PostProcessingFactory() = default;

@@ -34,7 +34,7 @@ namespace mfem_mgis {
     //! \return true if PETSc is used
     bool usePETSc() const;
     //! \brief activate PETSc and provide a configuration file
-    void setPETSc(const char *petscrc_file);
+    void setPETSc(const char* petscrc_file);
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
     //! \brief abort the process
@@ -65,7 +65,7 @@ namespace mfem_mgis {
     this->use_petsc = true;
     mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
   }
-#else /* MFEM_USE_PETSC */
+#else  /* MFEM_USE_PETSC */
   void Finalizer::setPETSc(const char*) {
     mgis::raise("Finalizer::setPETSc: PETSc is not supported");
   }
@@ -78,9 +78,9 @@ namespace mfem_mgis {
     for (const auto* a = argv; a != argv + argc; ++a) {
 #ifdef MFEM_USE_PETSC
       if (std::strcmp(*a, "--use-petsc") == 0) {
-       this->use_petsc=true;
+        this->use_petsc = true;
       }
-      if (std::strcmp(*a, petsc_configuration_file_option) == 0){
+      if (std::strcmp(*a, petsc_configuration_file_option) == 0) {
         if (petscrc_file != nullptr) {
           mgis::raise("initialize: PETSc configuration file already specified");
         }
@@ -94,13 +94,13 @@ namespace mfem_mgis {
     }
 #ifdef MFEM_USE_PETSC
     if (this->use_petsc) {
-      if (petscrc_file== nullptr) {
+      if (petscrc_file == nullptr) {
         mgis::raise("initialize: no PETSc configuration file given");
       }
       mfem::MFEMInitializePetsc(nullptr, nullptr, petscrc_file, nullptr);
     }
 #endif /* MFEM_USE_PETSC */
-  }  // end of initialize
+  }    // end of initialize
 
   Finalizer& Finalizer::get() {
     static Finalizer f;
@@ -162,7 +162,10 @@ namespace mfem_mgis {
     if (first) {
       mgis::setExceptionHandler(exit_on_failure);
       MPI_Init(&argc, &argv);
-      if (getMPIrank() != 0) { mfem::out.Disable(); mfem::err.Disable(); } 
+      if (getMPIrank() != 0) {
+        mfem::out.Disable();
+        mfem::err.Disable();
+      }
       Finalizer::get().initialize(argc, argv);
       first = false;
       Profiler::timers::init_timers();
@@ -196,17 +199,20 @@ namespace mfem_mgis {
     static bool use_petsc = false;
     static const char* petscrc_file = "";
 #endif /* MFEM_USE_PETSC */
-#ifdef MFEM_USE_PETSC 
-    parser.AddOption(&use_petsc, "-up", "--use-petsc", "-no-up", "--donot-use-petsc",
+#ifdef MFEM_USE_PETSC
+    parser.AddOption(&use_petsc, "-up", "--use-petsc", "-no-up",
+                     "--donot-use-petsc",
                      "Use or not PETSc to solve the nonlinear system.");
     parser.AddOption(&petscrc_file, "petscrc_file",
                      Finalizer::petsc_configuration_file_option,
                      "Path to the PETSc configuration file.");
 #endif /* MFEM_USE_PETSC */
-}
+  }
 
   bool usePETSc() { return Finalizer::get().usePETSc(); }  // end of usePETSc
 
-  void setPETSc(const char* petscrc_file) { Finalizer::get().setPETSc(petscrc_file); }  // end of setPETSc
+  void setPETSc(const char* petscrc_file) {
+    Finalizer::get().setPETSc(petscrc_file);
+  }  // end of setPETSc
 
 }  // namespace mfem_mgis

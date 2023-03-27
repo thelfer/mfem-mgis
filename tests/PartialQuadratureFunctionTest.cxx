@@ -49,7 +49,9 @@ int main(int argc, char** argv) {
   auto e = getGradient(m1, "Strain");
   auto s = getThermodynamicForce(m1, "Stress");
   auto p = getInternalStateVariable(m1, "EquivalentStrain");
-  success = e.getNumberOfComponents() >= 0 && s.getNumberOfComponents() >= 0 && p.getNumberOfComponents() >= 0;;
-  
+  success = e.getNumberOfComponents() >= 0 && s.getNumberOfComponents() >= 0 &&
+            p.getNumberOfComponents() >= 0;
+  ;
+
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

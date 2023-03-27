@@ -1,6 +1,6 @@
 /*!
  * \file   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   31/03/2023
  */
@@ -43,17 +43,19 @@ namespace mfem_mgis {
     }
   }  // end of TridimensionalMicromorphicDamageBehaviourIntegrator
 
-  real TridimensionalMicromorphicDamageBehaviourIntegrator::getIntegrationPointWeight(
-      mfem::ElementTransformation &tr, const mfem::IntegrationPoint &ip) const
+  real TridimensionalMicromorphicDamageBehaviourIntegrator::
+      getIntegrationPointWeight(mfem::ElementTransformation &tr,
+                                const mfem::IntegrationPoint &ip) const
       noexcept {
     return ip.weight * tr.Weight();
-  } // end of getIntegrationPointWeight
+  }  // end of getIntegrationPointWeight
 
   const mfem::IntegrationRule &
   TridimensionalMicromorphicDamageBehaviourIntegrator::getIntegrationRule(
       const mfem::FiniteElement &e,
       const mfem::ElementTransformation &t) const {
-    return TridimensionalMicromorphicDamageBehaviourIntegrator::selectIntegrationRule(e, t);
+    return TridimensionalMicromorphicDamageBehaviourIntegrator::
+        selectIntegrationRule(e, t);
   }  // end of getIntegrationRule
 
   bool TridimensionalMicromorphicDamageBehaviourIntegrator::integrate(
@@ -150,9 +152,9 @@ namespace mfem_mgis {
   }  // end of updateResidual
 
   void TridimensionalMicromorphicDamageBehaviourIntegrator::updateJacobian(
-      mfem::DenseMatrix & Ke,
-      const mfem::FiniteElement & e,
-      mfem::ElementTransformation & tr,
+      mfem::DenseMatrix &Ke,
+      const mfem::FiniteElement &e,
+      mfem::ElementTransformation &tr,
       const mfem::Vector &) {
 #ifdef MFEM_THREAD_SAFE
     mfem::Vector shape;
@@ -182,7 +184,8 @@ namespace mfem_mgis {
       for (size_type ni = 0; ni != nnodes; ++ni) {
         // Kip contains:
         // - the derivative of a_chi with respect to d_chi (scalar)
-        // - the derivative of b_chi with respect to the gradient of d_chi (3 * 3 matrix)
+        // - the derivative of b_chi with respect to the gradient of d_chi (3 *
+        // 3 matrix)
         const auto Ni = shape[ni];
         const auto dNi_0 = dshape(ni, 0);
         const auto dNi_1 = dshape(ni, 1);

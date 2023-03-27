@@ -127,7 +127,7 @@ namespace mfem_mgis {
   }
 
   void NonLinearEvolutionProblemImplementationBase::setBoundariesNames(
-      const std::map<size_type, std::string>& ids){
+      const std::map<size_type, std::string>& ids) {
     this->getFiniteElementDiscretization().setBoundariesNames(ids);
   }
 
@@ -148,7 +148,8 @@ namespace mfem_mgis {
   }  // end of getMaterialsIdentifiers
 
   std::vector<size_type>
-  NonLinearEvolutionProblemImplementationBase::getAssignedMaterialsIdentifiers() const {
+  NonLinearEvolutionProblemImplementationBase::getAssignedMaterialsIdentifiers()
+      const {
     checkMultiMaterialSupportEnabled("getAssignedMaterialsIdentifiers",
                                      this->mgis_integrator);
     return this->mgis_integrator->getAssignedMaterialsIdentifiers();
@@ -225,7 +226,7 @@ namespace mfem_mgis {
 #else  /* MFEM_USE_PETSC */
     mfem_mgis::setSolverParameters(*(this->solver), params);
 #endif /* MFEM_USE_PETSC */
-  }  // end of setSolverParameters
+  }    // end of setSolverParameters
 
   std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getEssentialDegreesOfFreedom()
@@ -278,7 +279,7 @@ namespace mfem_mgis {
     if (p != nullptr) {
       auto* const isolver = dynamic_cast<IterativeSolver*>(s.get());
       if (isolver != nullptr) {
-	isolver->SetPreconditioner(*p);
+        isolver->SetPreconditioner(*p);
       }
       this->updateLinearSolver(std::move(s));
       this->linear_solver_preconditioner = std::move(p);
@@ -289,8 +290,8 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
       LinearSolverHandler s) {
-
-    CatchTimeSection("NonLinearEvolutionProblemImplementationBase::updateLinearSolver");
+    CatchTimeSection(
+        "NonLinearEvolutionProblemImplementationBase::updateLinearSolver");
     this->updateLinearSolver(std::move(s.linear_solver),
                              std::move(s.preconditioner));
   }  // end of updateLinearSolver
@@ -330,7 +331,8 @@ namespace mfem_mgis {
     return output;
   }  // end of solve
 
-  void NonLinearEvolutionProblemImplementationBase::computePrediction(const real /*t*/, const real /*dt*/) {
+  void NonLinearEvolutionProblemImplementationBase::computePrediction(
+      const real /*t*/, const real /*dt*/) {
     // if (mgis_integrator == nullptr) {
     //   return;
     // }

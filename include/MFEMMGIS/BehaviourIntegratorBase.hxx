@@ -21,7 +21,7 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : BehaviourIntegrator,
                                                     Material {
     void setTimeIncrement(const real) override;
-    const PartialQuadratureSpace &getPartialQuadratureSpace() const override;
+    const PartialQuadratureSpace& getPartialQuadratureSpace() const override;
     void setup(const real, const real) override;
     void revert() override;
     void update() override;

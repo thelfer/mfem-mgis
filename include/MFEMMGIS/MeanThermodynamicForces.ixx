@@ -26,7 +26,7 @@ namespace mfem_mgis {
       if (rank == 0) {
         this->openFile(p, get<std::string>(params, "OutputFileName"));
       }
-#else /* MFEM_USE_MPI */
+#else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
@@ -54,8 +54,7 @@ namespace mfem_mgis {
         MPI_Reduce(tf_integrals[mi].data(), tf_integral.data(),
                    tf_integrals[mi].size(), MPI_DOUBLE, MPI_SUM, 0,
                    MPI_COMM_WORLD);
-        MPI_Reduce(&volumes[mi], &v, 1, MPI_DOUBLE, MPI_SUM, 0,
-                   MPI_COMM_WORLD);
+        MPI_Reduce(&volumes[mi], &v, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         if (rank == 0) {
           this->writeResults(tf_integral, v);
         }

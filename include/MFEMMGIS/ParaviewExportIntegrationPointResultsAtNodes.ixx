@@ -16,9 +16,10 @@ namespace mfem_mgis {
   struct ParaviewExportIntegrationPointResultsAtNodes<
       parallel>::ResultCoefficientBase {
     //
-    ResultCoefficientBase(const IntegrationPointResult& r,
-                          const NonLinearEvolutionProblemImplementation<parallel>& p,
-                          const std::vector<size_type>& mids) {
+    ResultCoefficientBase(
+        const IntegrationPointResult& r,
+        const NonLinearEvolutionProblemImplementation<parallel>& p,
+        const std::vector<size_type>& mids) {
       // creating the partial functions per materials
       for (const auto& mid : mids) {
         const auto& m = p.getMaterial(mid);
@@ -125,7 +126,7 @@ namespace mfem_mgis {
           "ParaviewExportIntegrationPointResultsAtNodes: "
           "no results to export declared");
     }
-    // 
+    //
     auto add_result = [this, &p](const std::string& rn) {
       auto r = IntegrationPointResult{};
       r.name = rn;

@@ -74,9 +74,10 @@ int main(int argc, char *argv[]) {
   int dim = mesh->Dimension();
 
   if (mesh->attributes.Max() < 2 || mesh->bdr_attributes.Max() < 2) {
-    mfem_mgis::getErrorStream() << "\nInput mesh should have at least two materials and "
-				<< "two boundary attributes! (See schematic in ex2.cpp)\n"
-				<< endl;
+    mfem_mgis::getErrorStream()
+        << "\nInput mesh should have at least two materials and "
+        << "two boundary attributes! (See schematic in ex2.cpp)\n"
+        << endl;
     return 3;
   }
 
@@ -111,9 +112,10 @@ int main(int argc, char *argv[]) {
     fec = new H1_FECollection(order, dim);
     fespace = new FiniteElementSpace(mesh, fec, dim);
   }
-  mfem_mgis::getOutputStream() << "Number of finite element unknowns: " << fespace->GetTrueVSize()
-       << endl
-       << "Assembling: " << flush;
+  mfem_mgis::getOutputStream()
+      << "Number of finite element unknowns: " << fespace->GetTrueVSize()
+      << endl
+      << "Assembling: " << flush;
 
   // 6. Determine the list of true (i.e. conforming) essential boundary dofs.
   //    In this example, the boundary conditions are defined by marking only
@@ -179,7 +181,8 @@ int main(int argc, char *argv[]) {
   a->FormLinearSystem(ess_tdof_list, x, *b, A, X, B);
   mfem_mgis::getOutputStream() << "done." << endl;
 
-  mfem_mgis::getOutputStream() << "Size of linear system: " << A.Height() << endl;
+  mfem_mgis::getOutputStream()
+      << "Size of linear system: " << A.Height() << endl;
 
 #ifndef MFEM_USE_SUITESPARSE
   // 11. Define a simple symmetric Gauss-Seidel preconditioner and use it to

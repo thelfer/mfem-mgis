@@ -54,8 +54,8 @@ int main(int argc, char** argv) {
   problem.addBehaviourIntegrator("MicromorphicDamage", 5, parameters.library,
                                  parameters.behaviour);
   auto& m = problem.getMaterial(5);
-  for (const auto& ev : std::map<std::string, double>{
-           {"Temperature", 293.15}, {"HistoryFunction", 0}}) {
+  for (const auto& ev : std::map<std::string, double>{{"Temperature", 293.15},
+                                                      {"HistoryFunction", 0}}) {
     mgis::behaviour::setExternalStateVariable(m.s0, ev.first, ev.second);
     mgis::behaviour::setExternalStateVariable(m.s1, ev.first, ev.second);
   }
@@ -70,9 +70,8 @@ int main(int argc, char** argv) {
       m.s1, "HistoryFunction", H->getValues(),
       mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE);
   // material properties
-  for (const auto& mp :
-       std::map<std::string, double>{{"FractureEnergy", Gc},
-                                     {"RegularizationLength", l0}}) {
+  for (const auto& mp : std::map<std::string, double>{
+           {"FractureEnergy", Gc}, {"RegularizationLength", l0}}) {
     mgis::behaviour::setMaterialProperty(m.s0, mp.first, mp.second);
     mgis::behaviour::setMaterialProperty(m.s1, mp.first, mp.second);
   }
