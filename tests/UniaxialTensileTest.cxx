@@ -122,7 +122,6 @@ int main(int argc, char** argv) {
     success =
         mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E * eps);
   }
-  //  mfem_mgis::Profiler::getProfiler().print(mfem_mgis::getOutputStream());
-  Profiler::timers::print_timers();
+  mfem_mgis::Profiler::timers::print_timers();
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
