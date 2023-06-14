@@ -247,6 +247,20 @@ namespace mfem_mgis {
               OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator>(
               fed, m, std::move(b));
         });
+    f.addGenerator(
+        "MicromorphicDamage",  //
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->symmetry == Behaviour::ISOTROPIC) {
+            return std::make_unique<
+                BidimensionalMicromorphicDamageBehaviourIntegrator>(
+                fed, m, std::move(b));
+          }
+          return std::make_unique<
+              OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
     return f;
   }  // end of buildFactory
 
