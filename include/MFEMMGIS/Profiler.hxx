@@ -183,17 +183,18 @@ namespace mfem_mgis {
     };  // namespace OutputManager
   };    // namespace Profiler
 
+};  // namespace mfem_mgis
+
 #define CatchTimeSection(X)                                                    \
-  Profiler::timers::ProfilerTimeSection*& current =                            \
-      Profiler::timers::get_timer<CURRENT>();                                  \
+  mfem_mgis::Profiler::timers::ProfilerTimeSection*& current =                            \
+      mfem_mgis::Profiler::timers::get_timer<CURRENT>();                                  \
   assert(current != nullptr && "do not use an undefined ProfilerTimeSection"); \
   current = current->find(X);                                                  \
-  Profiler::timer::TimeSection non_generic_name(current->get_ptr_duration());
+  mfem_mgis::Profiler::timer::TimeSection non_generic_name(current->get_ptr_duration());
 
 #define CatchNestedTimeSection(X)                                              \
-  current = Profiler::timers::get_timer<CURRENT>();                            \
+  current = mfem_mgis::Profiler::timers::get_timer<CURRENT>();                            \
   assert(current != nullptr && "do not use an undefined ProfilerTimeSection"); \
   current = current->find(X);                                                  \
-  Profiler::timer::TimeSection non_nested_generic_name(                        \
+  mfem_mgis::Profiler::timer::TimeSection non_nested_generic_name(                        \
       current->get_ptr_duration());
-};  // namespace mfem_mgis
