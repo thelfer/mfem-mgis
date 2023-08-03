@@ -411,7 +411,7 @@ namespace mfem_mgis {
     return [](NonLinearEvolutionProblemImplementation<true>&,
               const Parameters& params) {
       checkParameters(params, {"Symmetric", "PositiveDefinite"});
-      auto s = std::make_unique<mfem::MUMPSSolver>();
+      auto s = std::make_unique<mfem::MUMPSSolver>(MPI_COMM_WORLD);
       const auto symmetric = get_if<bool>(params, "Symmetric", false);
       const auto positive_definite =
           get_if<bool>(params, "PositiveDefinite", false);
