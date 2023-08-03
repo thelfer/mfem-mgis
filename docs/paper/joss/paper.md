@@ -1,8 +1,51 @@
-#MFEM-MGIS-MFRONT, a HPC mini-application targeting nonlinear thermo-mechanical simulations of nuclear fuels at mesoscale
+---
+title: 'MFEM-MGIS-MFRONT, a HPC mini-application targeting nonlinear thermo-mechanical simulations of nuclear fuels at mesoscale'
+tags:
+  - thermo-mechanical
+  - HPC
+  - mfem
+  - nuclear fuel
+authors:
+  - name: Thomas Helfer
+    orcid: 0000-0000-0000-0000
+    equal-contrib: true
+    affiliation: 1
+  - name: Guillaume Latu
+    orcid: 0000-0000-0000-0000
+    equal-contrib: true
+    affiliation: 1
+  - name: Maxence Wangermez
+    orcid: 0000-0000-0000-0000
+    equal-contrib: true
+    affiliation: 1
+  - name: Raphaël Prat
+    orcid: 0000-0000-0000-0000
+    equal-contrib: true
+    affiliation: 1
+affiliations:
+ - name: DES/IRESNE/DEC/SESC, CEA, France
+   index: 1
+date: 3 August 2023
+bibliography: paper.bib
+---
+
+
+# Summary
+
+# Statement of need
+
+# Mechnanics
+
+# HPC
+
+# Citations
 
 
 
-##Objectives of MFEM-MGIS-MFRONT mini-application
+# help
+
+
+## Objectives of MFEM-MGIS-MFRONT mini-application
 
 The MFEM-MGIS-MFRONT mini-application (abbreviated version MMM), aims at
 efficiently use supercomputers in the field of implicit nonlinear
