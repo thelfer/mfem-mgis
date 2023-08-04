@@ -141,10 +141,10 @@ These features are described in the tutorial: https://thelfer.github.io/mfem-mgi
 
 Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`. Below is a non-exhaustive list of examples running on supercomputers.
 
-- 
 - Representative Elementary Volume (REV) of MOX3 for nuclear simulations:
-	- Periodic boundaries conditions
- 	- Impose evolution gradient for different materials 
+	- Periodic boundaries conditions.
+ 	- Impose evolution gradient for different materials.
+  	- Mesh is generated using `MEROPE` and `GMSH`.
 - Modelling fuel pellet fragmentation during reactor start-up
 	- MicromorphicDamageII mechanical behavior MFront law
 - Viscoplastic behavior of a UO2 polycrystal subjected to uniaxial compression loading
@@ -160,7 +160,6 @@ Some examples are available in the open-source github: `https://github.com/latug
 
 - Computations related to the behavior law at Gauss points are independent of each other, and although some behavior laws can be costly, the majority of parallel computation time is concentrated on solving linear systems at each time step. 
 - This is why the parallel performance of our library is closely linked to MFEM performance, and by extension, the choice of solver and preconditioner.
-
 
 
 Performance analysis framework:
