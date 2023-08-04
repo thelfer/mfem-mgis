@@ -36,7 +36,7 @@ bibliography: paper.bib
 
 # Statement of need
 
-The MFEM-MGIS-MFRONT mini-application (abbreviated version MMM), aims at
+The MFEM-MGIS-MFRONT application (abbreviated version MMM), aims at
 efficiently use supercomputers in the field of implicit nonlinear
 thermomechanics. This open-source library is based on several components as
 prerequisites. The first component, MFEM [1,6], is a finite element library
@@ -62,39 +62,61 @@ encompasses arbitrary complex behaviours that can describe damage, plasticity,
 viscoplasticity, phase change in small and finite strain analyses. Generalised
 behaviours such as strongly coupled thermomechanical behaviours, variational
 approaches to fracture, Cosserat media are supported by MGIS and will be
-considered in future versions of MMM.  Thanks to the coupling with MGIS and
+considered in future versions of MMM. Thanks to the coupling with MGIS and
 MFront and specific developments made, MMM has added the following mechanical
-features compared to pure MFEM approach: – Ability to handle several materials
-which distinct constitutive equations.  – Support for internal state variables
-(defined at quadrature points).  – Support for complex boundary conditions
-specific to nonlinear mechanics.  – Support for post-processing specific to
-nonlinear mechanics.  – Integration with the Salomé platform, support of the
-MED mesh [12] file format on input and export of results in the same format on
-output.  The implementation of high order meshes or finite elements is easy.
+features compared to pure MFEM approach described in section Mechanics features.
+The implementation of high order meshes or finite elements is easy.
 The library tackles some peculiarities of nonlinear mechanics. In particular,
 the support of complex constitutive laws and the management of advanced
 boundary conditions.  The MMM library [7] is written in C++-17 language and
 provides a very high level of abstraction based on a very declarative
-text-based Application Programming Interface. In the future, python bindings
-will be also considered to improve the user experience.
+text-based Application Programming Interface. 
+
+Note : 
+- J'ai enlevé la lecture des fichiers MED du texte. (à rajouter si j'ai tord)
 
 
-# Mechnanics Features
+# MFEM-MGIS features
 
-- Periodic evolution problems
-	- .
-- Post Processings
-	- .
+MMM has added the following mechanical features compared to pure MFEM approach: 
 
-# High Performance Computing (HPC)
+– Ability to handle several materials which distinct constitutive equations.  
+– Support for internal state variables (defined at quadrature points).  
+	- MGIS data structures
+	- Use mechanical behavior laws from MFront 
+– Support for complex boundary conditions specific to nonlinear mechanics.  
+	- Periodic evolution problems
+– Support for post-processing specific to nonlinear mechanic
+	- Compute stress and strain for each materials
+	- Paraview post processing files with internal state variables
+
+Tutorial: https://thelfer.github.io/mfem-mgis/web/tutorial.html
 
 # Numerical results
 
 Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`
 
-- Snass
+- Snass3
 - REV of MOX3 for nuclear simulations
-- Polycristal
+- Modelling fuel pellet fragmentation during reactor start-up
+- Viscoplastic behavior of a UO2 polycrystal subjected to uniaxial compression loading
+
+# High Performance Computing (HPC)
+
+
+- Strong scaling benchmark (CEA/CCRT) AMD Milan architecture.
+- 80 degrees of freedoms (DoFs).
+- REV 3D with an elasticity behavior law. 
+- Not enough load per sub-domain with 65k cores (less than 2k finite elements)
+
+
+
+<figure>
+  <img
+  src="HPC_REV_Elasticity.png"
+  label="HPCREVElasticity">
+  <figcaption>Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner/solver chosen.</figcaption>
+</figure>
 
 
 # Conclusion
