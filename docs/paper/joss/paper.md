@@ -12,15 +12,15 @@ authors:
     affiliation: 1
   - name: Guillaume Latu
     orcid: 0000-0000-0000-0000
-    equal-contrib: true
+    equal-contrib: false
     affiliation: 1
   - name: Maxence Wangermez
     orcid: 0000-0000-0000-0000
-    equal-contrib: true
+    equal-contrib: false
     affiliation: 1
   - name: Raphaël Prat
     orcid: 0000-0000-0000-0000
-    equal-contrib: true
+    equal-contrib: false
     affiliation: 1
 affiliations:
  - name: DES/IRESNE/DEC/SESC, CEA, France
@@ -32,20 +32,9 @@ bibliography: paper.bib
 
 # Summary
 
+
+
 # Statement of need
-
-# Mechnanics
-
-# HPC
-
-# Citations
-
-
-
-# help
-
-
-## Objectives of MFEM-MGIS-MFRONT mini-application
 
 The MFEM-MGIS-MFRONT mini-application (abbreviated version MMM), aims at
 efficiently use supercomputers in the field of implicit nonlinear
@@ -88,6 +77,46 @@ boundary conditions.  The MMM library [7] is written in C++-17 language and
 provides a very high level of abstraction based on a very declarative
 text-based Application Programming Interface. In the future, python bindings
 will be also considered to improve the user experience.
+
+
+# Mechnanics Features
+
+- Periodic evolution problems
+	- .
+- Post Processings
+	- .
+
+# High Performance Computing (HPC)
+
+# Numerical results
+
+Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`
+
+- Snass
+- REV of MOX3 for nuclear simulations
+- Polycristal
+
+
+# Conclusion
+
+The MMM mini-app is a new HPC modelling software. Based on an open-source
+software stack, it allows for the fine representation of microstructure in full
+3D in the field of fuel modelling. On the one hand, MGIS and MFRONT bring
+nonlinear mechanics features such as damage, plasticity, viscoplasticity
+capabilities. On the other hand, MFEM provides advanced finite elements schemes
+and parallel performance (tested on several thousands of cores until now).
+Open-source approach was chosen mainly to: promote collaboration, improve
+reproducibility, and reduce costs for development and maintenance.
+
+# Citations
+
+
+
+# help
+
+
+## Objectives of MFEM-MGIS-MFRONT mini-application
+
 
 ## Motivations for an open-source framework
 
@@ -190,15 +219,6 @@ are able dealing with complex microstructure in full 3D. MMM has been designed
 recently to reach exactly this goal and to tackle large systems with several
 million unknowns or even a few billion.
 
-## Conclusion
-The MMM mini-app is a new HPC modelling software. Based on an open-source
-software stack, it allows for the fine representation of microstructure in full
-3D in the field of fuel modelling. On the one hand, MGIS and MFRONT bring
-nonlinear mechanics features such as damage, plasticity, viscoplasticity
-capabilities. On the other hand, MFEM provides advanced finite elements schemes
-and parallel performance (tested on several thousands of cores until now).
-Open-source approach was chosen mainly to: promote collaboration, improve
-reproducibility, and reduce costs for development and maintenance.
 References
 [1] ANDERSON R. & al. “MFEM : A modular finite element methods library”. Computers and Mathematics with Applications (2021) 81:42–74. URL: http://www.sciencedirect.com/science/article/pii/S0898122120302583 
 [2] CEA and EDF. TFEL/MFront. URL: https://tfel.sourceforge.net/
