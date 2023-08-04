@@ -74,7 +74,7 @@ text-based Application Programming Interface.
 Note : 
 - J'ai enlevé la lecture des fichiers MED du texte. (à rajouter si j'ai tord)
 
-## Open source motivations
+## Integrate MMM in an open source ecosystem
 
 MMM application takes full advantage of an open-source software (OSS) stack. It
 benefits from the increasing maturity of many communities and tools working
@@ -93,6 +93,7 @@ and cheap access to advanced features embedded in the underlying libraries.
 # Statement of needs
 
 Minimal MMM requirements:
+- C++17
 - MFEM
 - MGIS
 - TFEL
@@ -118,17 +119,19 @@ Optionals, depeding of MFEM installation:
 MMM has added the following mechanical features compared to pure MFEM approach: 
 
 - Ability to handle several materials which distinct constitutive equations.  
-- Support for internal state variables (defined at quadrature points).  
+- Support for internal state variables (defined at quadrature points):
 	- MGIS data structures
 	- Use mechanical behavior laws from MFront 
-- Support for complex boundary conditions specific to nonlinear mechanics.  
+- Support for complex boundary conditions specific to nonlinear mechanics:
 	- Periodic evolution problems
-- Support for post-processing specific to nonlinear mechanic
-	- Compute stress and strain for each materials
-	- Paraview post processing files with internal state variables
+ 	- Dirichlet boundaries conditions 
+- Support for post-processing specific to nonlinear mechanic:
+	- computeMeanThermodynamicForcesValues: Compute the macroscopic stress and strain for each materials:
+	- ParaviewExportIntegrationPointResultsAtNodes: Paraview post processing files with internal state variables according to MGIS
+ 	- ComputeResultantForceOnBoundary: TODO
 - Flexible support to easily customize your problem:
 	- Number of level of uniform refinement
-   	- Element type and order
+   	- Element family and order
    	- Boundary conditions
    	- Solver and Preconditionner used
 
@@ -136,14 +139,22 @@ These features are described in the tutorial: https://thelfer.github.io/mfem-mgi
 
 # Numerical results
 
-Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`
+Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`. Below is a non-exhaustive list of examples running on supercomputers.
 
+- 
 - Representative Elementary Volume (REV) of MOX3 for nuclear simulations:
 	- Periodic boundaries conditions
  	- Impose evolution gradient for different materials 
 - Modelling fuel pellet fragmentation during reactor start-up
 	- MicromorphicDamageII mechanical behavior MFront law
 - Viscoplastic behavior of a UO2 polycrystal subjected to uniaxial compression loading
+
+<p align="center">
+  <img
+  src="pellet.png"
+  label="pellet" alt="Modelling fuel pellet fragmentation during reactor start-up">
+  <figcaption>Modelling fuel pellet fragmentation during reactor start-up</figcaption>
+</p>
 
 # A HPC thermo-mechanical libraries, performance results on a supercomputer.
 
