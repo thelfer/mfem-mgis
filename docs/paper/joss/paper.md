@@ -8,19 +8,15 @@ tags:
 authors:
   - name: Thomas Helfer
     orcid: 0000-0000-0000-0000
-    equal-contrib: true
     affiliation: 1
   - name: Guillaume Latu
     orcid: 0000-0000-0000-0000
-    equal-contrib: false
     affiliation: 1
   - name: Maxence Wangermez
     orcid: 0000-0000-0000-0000
-    equal-contrib: false
     affiliation: 1
   - name: Raphaël Prat
     orcid: 0000-0000-0000-0000
-    equal-contrib: false
     affiliation: 1
 affiliations:
  - name: DES/IRESNE/DEC/SESC, CEA, France
@@ -75,7 +71,6 @@ text-based Application Programming Interface.
 Note : 
 - J'ai enlevé la lecture des fichiers MED du texte. (à rajouter si j'ai tord)
 
-
 # MFEM-MGIS features
 
 MMM has added the following mechanical features compared to pure MFEM approach: 
@@ -89,6 +84,11 @@ MMM has added the following mechanical features compared to pure MFEM approach:
 – Support for post-processing specific to nonlinear mechanic
 	- Compute stress and strain for each materials
 	- Paraview post processing files with internal state variables
+- Flexible support to easily customize your problem:
+	- Number of level of uniform refinement
+   	- Element type and order
+   	- Boundary conditions
+   	- Solver and Preconditionner used
 
 Tutorial: https://thelfer.github.io/mfem-mgis/web/tutorial.html
 
@@ -96,20 +96,25 @@ Tutorial: https://thelfer.github.io/mfem-mgis/web/tutorial.html
 
 Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`
 
-- Snass3
-- REV of MOX3 for nuclear simulations
+- Representative Elementary Volume (REV) of MOX3 for nuclear simulations
+	- Periodic boundaries conditions
+ 	- Impose evolution gradient for different materials 
 - Modelling fuel pellet fragmentation during reactor start-up
+	- MicromorphicDamageII mechanical behavior MFront law
 - Viscoplastic behavior of a UO2 polycrystal subjected to uniaxial compression loading
 
 # High Performance Computing (HPC)
 
+- Computations related to the behavior law at Gauss points are independent of each other, and although some behavior laws can be costly, the majority of parallel computation time is concentrated on solving linear systems at each time step. 
+- This is why the parallel performance of our library is closely linked to MFEM performance, and by extension, the choice of solver and preconditioner.  
 
-- Strong scaling benchmark (CEA/CCRT) AMD Milan architecture.
-- 80 degrees of freedoms (DoFs).
-- REV 3D with an elasticity behavior law. 
+
+Performance analysis framework/
+- Strong scaling benchmark (CEA/CCRT) AMD Milan architecture until 65,000 cores.
+- Only MPI.
+- 80.10^6 degrees of freedoms (DoFs).
+- REV 3D with an elasticity behavior law. Source code is available on the mfem-mgis-example github repository.
 - Not enough load per sub-domain with 65k cores (less than 2k finite elements)
-
-
 
 <figure>
   <img
