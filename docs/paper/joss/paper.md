@@ -138,11 +138,12 @@ These features are described in the tutorial: `https://thelfer.github.io/mfem-mg
 
 Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`. Below is a non-exhaustive list of examples running on supercomputers.
 
-- Representative Elementary Volume (REV) of Mixed Oxided  for nuclear simulations:
+- Representative Elementary Volume (REV) of combustible Mixed Oxides for nuclear applications:
 	- Periodic boundaries conditions.
  	- Impose evolution gradient for different materials.
   	- Mesh is generated using `MEROPE` and `GMSH`.
   	- Elasto-viscoplastic behavior law
+  	- 17% of inclusions
   	- Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES" 
  <figure>
 <p align="center">
