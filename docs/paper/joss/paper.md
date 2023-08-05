@@ -96,7 +96,7 @@ Minimal `MMM` requirements:
 - `TFEL`
 - `MPI`
   
-Optionals, depeding of MFEM installation:
+Optionals, depending on your MFEM installation:
 - Solver or preconditionner: 
 	- `Hypre`
  	- `PETSc`
