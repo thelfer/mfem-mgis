@@ -138,20 +138,33 @@ These features are described in the tutorial: `https://thelfer.github.io/mfem-mg
 
 Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`. Below is a non-exhaustive list of examples running on supercomputers.
 
-- Representative Elementary Volume (REV) of MOX3 for nuclear simulations:
+- Representative Elementary Volume (REV) of Mixed Oxided  for nuclear simulations:
 	- Periodic boundaries conditions.
  	- Impose evolution gradient for different materials.
   	- Mesh is generated using `MEROPE` and `GMSH`.
+  	- Elasto-viscoplastic behavior law
+  	- Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES" 
+ <figure>
+<p align="center">
+  <img
+  src="verification-mox.png"
+  label="verification-mox" alt="Evolution of macroscopic strain as a function of time for a simulation of a MOX containing 17% inclusion and using an elasto-viscoplastic law.">
+  <figcaption>Evolution of macroscopic strain as a function of time for a simulation of a MOX containing 17% inclusion and using an elasto-viscoplastic law. </figcaption>
+</p>
+ </figure>
+
 - Modelling fuel pellet fragmentation during reactor start-up
 	- MicromorphicDamageII mechanical behavior MFront law
 - Viscoplastic behavior of a UO2 polycrystal subjected to uniaxial compression loading
 
+ <figure>
 <p align="center">
   <img
   src="pellet.png"
   label="pellet" alt="Modelling fuel pellet fragmentation during reactor start-up">
   <figcaption>Modelling fuel pellet fragmentation during reactor start-up</figcaption>
 </p>
+ </figure>
 
 # A HPC thermo-mechanical libraries, performance results on a supercomputer.
 
