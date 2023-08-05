@@ -7,16 +7,16 @@ tags:
   - nuclear fuel
 authors:
   - name: Thomas Helfer
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0003-2460-5816
     affiliation: 1
   - name: Guillaume Latu
     orcid: 0000-0000-0000-0000
     affiliation: 1
-  - name: Maxence Wangermez
-    orcid: 0000-0000-0000-0000
-    affiliation: 1
   - name: Raphaël Prat
-    orcid: 0000-0000-0000-0000
+    orcid: 0009-0002-3808-5401
+    affiliation: 1
+  - name: Maxence Wangermez
+    orcid: 0000-0002-3431-5081
     affiliation: 1
 affiliations:
  - name: DES/IRESNE/DEC/SESC, CEA, France
@@ -38,7 +38,7 @@ and different families of finite elements, interfaces to several types of
 parallel solvers (including matrix-free ones), preconditioners, and native
 support for adaptive non-conforming mesh refinement (AMR).  
 
-## MFEM-based thermo-mechanical solver for nuclear fuel simulations
+## MFEM-based Thermo-Mechanical Solver for Nuclear Fuel Simulations
 
 Originating from the applied mathematics and parallel computing communities, `MFEM` offers both
 performance and a large panel of advanced mathematical features. In particular,
@@ -71,7 +71,7 @@ boundary conditions.  The `MMM` library [7] is written in `C++-17` language and
 provides a very high level of abstraction based on a very declarative
 text-based Application Programming Interface. 
 
-## Integrate MMM in an open source ecosystem
+## Integrate MMM in an Open Source Ecosystem
 
 The `MMM` library takes full advantage of an open-source software (OSS) stack. It
 benefits from the increasing maturity of many communities and tools working
@@ -93,7 +93,7 @@ Minimal `MMM` requirements:
 - `C++-17`
 - `MFEM`
 - `MGIS`
-- `TFEL`
+- `TFEL`(MFront)
 - `MPI`
   
 Optionals, depending on your MFEM installation:
@@ -134,22 +134,32 @@ Optionals, depending on your MFEM installation:
 
 These features are described in the tutorial: `https://thelfer.github.io/mfem-mgis/web/tutorial.html`
 
-# Numerical results
+# Numerical Results
 
-Some examples are available in the open-source github: `https://github.com/latug0/mfem-mgis-examples`. Below is a non-exhaustive list of examples running on supercomputers.
+Installation and deployment on desktop or large computers is based on the Spack
+package manager [10]. With MMM, we were able to carry out a multi-material
+elastic modelling on computing clusters. Scalability performance is good on a
+few thousands of CPU cores. Despite the very high level of abstraction and the
+genericness of MMM (multi-material and arbitrary behaviours), the overhead
+appears reasonably limited, roughly 30% compared to a pure MFEM version which
+provides very optimised and specialised kernels (this was tested on an elastic
+setting with 2 materials). Several examples can be found on the open-source GitHub 
+repository: `https://github.com/latug0/mfem-mgis-examples`. Below is a non-exhaustive 
+list of examples running on supercomputers.
 
-- Representative Elementary Volume (REV) of combustible Mixed Oxides for nuclear applications:
-	- Periodic boundaries conditions.
- 	- Impose evolution gradient for different materials.
-  	- Mesh is generated using `MEROPE` and `GMSH`.
-  	- Elasto-viscoplastic behavior law
-  	- 17% of inclusions.
-  	- Simulation details :
-  		- Around 10M of DoFs
-  		- 1,024 `MPI` processes.
-  	 	- 5 seconds (40 timesteps)
-  	 	- Runtime : 1h32
-  	- Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES" 
+## Representative Elementary Volume (REV) of Combustible Mixed Oxides for Nuclear Applications:
+
+ - Periodic boundaries conditions.
+ - Impose evolution gradient for different materials.
+ - Mesh is generated using `MEROPE` and `GMSH`.
+ - Elasto-viscoplastic behavior law
+ - 17% of inclusions.
+ - Simulation details :
+ 	- Around 10M of DoFs
+ 	- 1,024 `MPI` processes.
+  	- 5 seconds (40 timesteps)
+  	- Runtime : 1h32
+ - Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES" 
  <figure>
 <p align="center">
   <img
@@ -159,10 +169,9 @@ Some examples are available in the open-source github: `https://github.com/latug
 </p>
  </figure>
 
-- Modelling fuel pellet fragmentation during reactor start-up
-	- MicromorphicDamageII mechanical behavior MFront law
-- Viscoplastic behavior of a UO2 polycrystal subjected to uniaxial compression loading
+## Modelling Fuel Pellet Fragmentation during Reactor start-up
 
+- MicromorphicDamageII mechanical behavior MFront law
  <figure>
 <p align="center">
   <img
@@ -171,12 +180,16 @@ Some examples are available in the open-source github: `https://github.com/latug
   <figcaption>Modelling fuel pellet fragmentation during reactor start-up</figcaption>
 </p>
  </figure>
+ 
+## Viscoplastic behavior of a UO2 Polycrystal subjected to Uniaxial Compression Loading
 
-# A HPC thermo-mechanical libraries, performance results on a supercomputer.
+- The mesh has been generated using `MEROPE`.
+- 
 
-- Computations related to the behavior law at Gauss points are independent of each other, and although some behavior laws can be costly, the majority of parallel computation time is concentrated on solving linear systems at each time step. 
-- This is why the parallel performance of our library is closely linked to MFEM performance, and by extension, the choice of solver and preconditioner.
 
+# Performance Results of Thermo-Mechanical Libraries on HPC plateforms"
+
+Computation related to the behavior law at Gauss points is independent for each other, and while some behavior laws can be computationally expensive, the primary focus of parallel computation time is on solving linear systems at each time step. As a result, the parallel performance of our library is strongly influenced by the performance of MFEM (Finite Element Library) and, by extension, the selection of appropriate solvers and preconditioners.
 
 Performance analysis framework:
 - Strong scaling benchmark (`CEA/CCRT`) AMD Milan architecture until 65,000 cores.
@@ -268,52 +281,9 @@ favour external contributions and promote collaborations focusing on grain and
 subgrain-resolved microstructure for nuclear fuel modelling.
 
 ## Numerical results
-Installation and deployment on desktop or large computers is based on the Spack
-package manager [10]. With MMM, we were able to carry out a multi-material
-elastic modelling on computing clusters. Scalability performance is good on a
-few thousands of CPU cores. Despite the very high level of abstraction and the
-genericness of MMM (multi-material and arbitrary behaviours), the overhead
-appears reasonably limited, roughly 30% compared to a pure MFEM version which
-provides very optimised and specialised kernels (this was tested on an elastic
-setting with 2 materials). The presentation will show some of the current
+The presentation will show some of the current
 capabilities of the software.
 
-
-FIG. 1. Periodic mesh generated by the GMSH mesher, model of 544 inclusions (polydisperse) within a periodic Representative Volume Element.
-
-FIG. 2. Elastic modelling of two materials with different characteristics: a large matrix containing many inclusions. Displacements in x direction (from left to right direction) are shown.
-
-For several use cases, MMM has good strong scaling performance.We have
-canducted benchmarks on two testbeds: Marseille supercomputing center (up to
-512 cores) and CEA/CCRT center (up to 2000 cores). Up to now we have been
-considering calculations of periodic micro-structures dedicated to the study of
-the behavior of nuclear fuels [3, 9]. Presently, grain and subgrain-resolved
-microstructure models are the main targets of the code, see Fig. 1 and 2 for a
-result of a simulation conducted with MMM on a Representative Volume Element.
-This require to be able to handle periodic boundary conditions at reasonable
-cost, which is achieved thanks to MFEM that embeds a customized elimination
-methods (modification of the global stiffness matrix). Simulation approaches
-that explicitly take all relevant microstructural details into account are the
-only modelling approaches that have sufficient predictive capability for
-several applications related to the nuclear fuel field at mesoscale. For such
-requirements, we need computationally fast and robust numerical algorithm to
-handle 3D volumes. But we require also physics-based constitutive models that
-are able dealing with complex microstructure in full 3D. MMM has been designed
-recently to reach exactly this goal and to tackle large systems with several
-million unknowns or even a few billion.
-
-References
-[1] ANDERSON R. & al. “MFEM : A modular finite element methods library”. Computers and Mathematics with Applications (2021) 81:42–74. URL: http://www.sciencedirect.com/science/article/pii/S0898122120302583 
-[2] CEA and EDF. TFEL/MFront. URL: https://tfel.sourceforge.net/
-[3] ESNOUL C., LARGENTON R. & al. “Studying fuel failure behavior with a micromechanical approach”. The 12th World Congress on Computational Mechanics (Proc. WCCM 12, 2016). URL: https://hal.archives-ouvertes.fr/hal-01474287
-[4] HELFER T., BLEYER J. & al.. The ‘MFrontGenericInterfaceSupport‘ project. The Open Journal (2003) 5-48. URL: https://doi.org/10.21105/joss.02003 
-[5] HELFER T., BRUNO M. & al. “Introducing the open-source MFront code generator : Application to mechanical behaviours and material knowledge management within the PLEIADES fuel element modelling platform”.Computers and Mathematics with Applications  (2015) 70-5:994–1023. URL: http://www.sciencedirect.com/science/article/pii/S0898122115003132
-[6] MFEM : Modular finite element methods [Software]. URL: https://mfem.org
-[7] The MFEM-MGIS project [Software]. URL: https://github.com/thelfer/mfem-mgis
-[8] The MFrontGenericInterfaceSupport project [Software]. URL: https://github.com/thelfer/MFrontGenericInterfaceSupport
-[9] PORTELETTE L. & al. “Athermal dislocation strengthening in UO2”. Journal of Nuclear Materials (2020). URL: https://hal. archives-ouvertes.fr/hal-02938715.
-[10] Spack package manager [Software]. URL: https://spack.io/
-[11] BIGOT J., LATU G. et al. “An approach to increase reliability of HPC simulation, application to the Gysela5D code” Esaim: Proceedings (2016) 53:248-270.URL: https://www.esaim-proc.org/articles/proc/pdf/2016/01/proc165315.pdf 
 [12] CEA and EDF. Salomé platform [Software]. URL: https://www.salome-platform.org/user-section/about/med 
 
 
