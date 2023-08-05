@@ -143,14 +143,19 @@ Some examples are available in the open-source github: `https://github.com/latug
  	- Impose evolution gradient for different materials.
   	- Mesh is generated using `MEROPE` and `GMSH`.
   	- Elasto-viscoplastic behavior law
-  	- 17% of inclusions
+  	- 17% of inclusions.
+  	- Simulation details :
+  		- Around 10M of DoFs
+  		- 1,024 `MPI` processes.
+  	 	- 5 seconds (40 timesteps)
+  	 	- Runtime : 1h32
   	- Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES" 
  <figure>
 <p align="center">
   <img
-  src="verification-mox.png"
-  label="verification-mox" alt="Evolution of macroscopic strain as a function of time for a simulation of a MOX containing 17% inclusion and using an elasto-viscoplastic law.">
-  <figcaption>Evolution of macroscopic strain as a function of time for a simulation of a MOX containing 17% inclusion and using an elasto-viscoplastic law. </figcaption>
+  src="Mox-picture.png"
+  label="Mox-picture" alt="Evolution of macroscopic strain as a function of time for a simulation of a MOX containing 17% inclusion and using an elasto-viscoplastic law.">
+  <figcaption> Visualization of a MOX containing 17% inclusion and using an elasto-viscoplastic law coloried in function of the magnitude of the displacement noted "u". (1) View of a REV of MOX. (2) View of a slide of the REV. (3) View of inclusions whithout the matix. (4) Evolution of macroscopic strain toward ZZ as a function of time with MMM and the reference result acquired by FFT. </figcaption>
 </p>
  </figure>
 
