@@ -155,7 +155,7 @@ Some examples are available in the open-source github: `https://github.com/latug
   <img
   src="Mox-picture.png"
   label="Mox-picture" alt="Evolution of macroscopic strain as a function of time for a simulation of a MOX containing 17% inclusion and using an elasto-viscoplastic law.">
-  <figcaption> Visualization of a MOX containing 17% inclusion and using an elasto-viscoplastic law coloried in function of the magnitude of the displacement noted "u". (1) View of a REV of MOX. (2) View of a slide of the REV. (3) View of inclusions whithout the matix. (4) Evolution of macroscopic strain toward ZZ as a function of time with MMM and the reference result acquired by FFT. </figcaption>
+  <figcaption> Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as "u." The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT. </figcaption>
 </p>
  </figure>
 
