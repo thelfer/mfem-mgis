@@ -190,15 +190,20 @@ list of examples running on supercomputers.
 
 ## Viscoplastic behaviour of a polycrystalline microstructure for UO2
 
-  A model simulation of UO2 with polycrystalline microstructure has been proposed in ([ex8](https://github.com/latug0/mfem-mgis-examples/tree/master/ex8)) from [MMM-examples](https://github.com/latug0/mfem-mgis-examples).
+  A model simulation of UO2 with polycrystalline microstructure has been proposed in ([ex8](https://github.com/latug0/mfem-mgis-examples/tree/master/ex8)) from [MMM-examples](https://github.com/latug0/mfem-mgis-examples). The polycrystalline geometrical model is based on a Voronoi diagram and has been generated using [MEROPE](https://github.com/MarcJos/Merope) library.
 
-  The polycrystalline geometrical model is based on a Voronoi diagram and has been generated using [MEROPE](https://github.com/MarcJos/Merope) library.
-
-  The mechanical behaviour is implemented with the MFront tools and provided by a single crystal plasticity model proposed for UO2. The mechanical loading conditions corresponds to a uniaxial compression test with periodic conditions of the microstructure :
+  Mechanical behavior is implemented with MFront tools. It is provided by a unique single-crystal plasticity model proposed for UO2, which is modified according to the orthotropy directions of the polycrystal.
+  
+  The mechanical loading conditions corresponds to a uniaxial compression test with periodic conditions of the microstructure :
 
     - periodic boundaries conditions in all directions,
     - imposed uniform strain in z-axis direction,
     - null macroscopic stresses in x and y directions.
+
+  ![polycristalUO2.png](./polycristalUO2.png "Modelling viscoplastic behaviour of a polycrystalline microstructure for UO2")
+
+  - Results
+  - Computation
 
 # Performance Results of Thermo-Mechanical Libraries on HPC plateforms"
 
