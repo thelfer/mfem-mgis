@@ -161,13 +161,13 @@ list of examples running on supercomputers.
   	- Runtime : 1h32
  - Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES"
    
-  ![Mox-picture.png](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.")
+  ![Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.")
 
 ## Modelling Fuel Pellet Fragmentation during Reactor start-up
 
 - MicromorphicDamageII mechanical behavior MFront law
   
-![pellet.png](./pellet.png "Modelling fuel pellet fragmentation during reactor start-up.")
+![Modelling fuel pellet fragmentation during reactor start-up.](./pellet.png "Modelling fuel pellet fragmentation during reactor start-up.")
 
 ## Tensile test on a elastoplastic notched bar with large strain - SSNA303
 
@@ -188,7 +188,7 @@ list of examples running on supercomputers.
     - imposed uniform strain in z-axis direction,
     - null macroscopic stresses in x and y directions.
 
-  ![polycristalUO2.png](./polycristalUO2.png "Modelling viscoplastic behaviour of a polycrystalline microstructure for UO2")
+  ![Modelling viscoplastic behaviour of a polycrystalline microstructure for UO2](./polycristalUO2.png "Modelling viscoplastic behaviour of a polycrystalline microstructure for UO2")
 
   - Results
   - Computation
@@ -204,7 +204,7 @@ Performance analysis framework:
 - REV 3D with an elasticity behavior law. Source code is available on the mfem-mgis-example github repository.
 - Not enough load per sub-domain with 65k cores (less than 2k finite elements)
 
-![HPC_REV_Elasticity.png](./HPC_REV_Elasticity.png "Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner")
+![Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner](./HPC_REV_Elasticity.png "Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner")
 
 # Conclusion
 
