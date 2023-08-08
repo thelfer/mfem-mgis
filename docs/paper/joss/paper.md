@@ -159,27 +159,15 @@ list of examples running on supercomputers.
  	- 1,024 `MPI` processes.
   	- 5 seconds (40 timesteps)
   	- Runtime : 1h32
- - Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES" 
- <figure>
-<p align="center">
-  <img
-  src="Mox-picture.png"
-  label="Mox-picture" alt="Evolution of macroscopic strain as a function of time for a simulation of a MOX containing 17% inclusion and using an elasto-viscoplastic law.">
-  <figcaption> Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as "u." The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT. </figcaption>
-</p>
- </figure>
+ - Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES"
+   
+  ![Mox-picture.png](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.")
 
 ## Modelling Fuel Pellet Fragmentation during Reactor start-up
 
 - MicromorphicDamageII mechanical behavior MFront law
- <figure>
-<p align="center">
-  <img
-  src="pellet.png"
-  label="pellet" alt="Modelling fuel pellet fragmentation during reactor start-up">
-  <figcaption>Modelling fuel pellet fragmentation during reactor start-up</figcaption>
-</p>
- </figure>
+  
+![pellet.png](./pellet.png "Modelling fuel pellet fragmentation during reactor start-up.")
 
 ## Tensile test on a elastoplastic notched bar with large strain - SSNA303
 
@@ -216,12 +204,7 @@ Performance analysis framework:
 - REV 3D with an elasticity behavior law. Source code is available on the mfem-mgis-example github repository.
 - Not enough load per sub-domain with 65k cores (less than 2k finite elements)
 
-<figure>
-  <img
-  src="HPC_REV_Elasticity.png"
-  label="HPCREVElasticity">
-  <figcaption>Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner/solver chosen.</figcaption>
-</figure>
+![HPC_REV_Elasticity.png](./HPC_REV_Elasticity.png "Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner")
 
 # Conclusion
 
@@ -239,69 +222,5 @@ reproducibility, and reduce costs for development and maintenance.
 
 
 # help
-
-
-## Objectives of MFEM-MGIS-MFRONT mini-application
-
-
-## Motivations for an open-source framework
-
- At
-the beginning of MMM mini-app, a preliminary study considering several
-potential finite element libraries leads us to the conclusion that choosing the
-right open-source stack was a key point. For example, to achieve both
-performance and keep low maintenance/development costs, one should ensure that
-components of the software stack can connect well with each other, and offer a
-high degree of controllability. One must also looks at the maturity of each
-library and the quality of technical support proposed. The responsiveness of
-the support is important and is often related to the size of the community
-behind each software. Coding practices, documentation and expected durability
-of the libraries have also to be considered. Then, pondering all these points
-in our analysis, assessing the risks and in estimating the potential gains, we
-chose the most suitable software stack serving our purpose.  Compared to closed
-source development that we might have considered, OSS brings regular bug
-fixing, peer review of code by many developers, a community that tests and
-improves the software frequently. The proposed services such as error
-reporting, bug tracker, forum for user requests and offered support help a lot
-for speeding up the development process and shortening maintenance actions.
-High-performance simulations suffer from difficulties for ensuring exact
-numerical reproducibility. Numerical results that are not reproducible make it
-difficult to assess the methods and novelties a given software produces. In
-addition to that, the available publications typically lack the level of detail
-that is required to reproduce simulations. Also, with prototype realizations
-often remaining private, other people are unable to track the code. Then, one
-should find ways to improve this issue. Several reasons explains why
-reproducibility is difficult: floating-point arithmetic peculiarities,
-non-determinism of parallel calculations, complex software stacks, closed
-source software. The two first points are well beyond the scope of this
-contribution. However, the last two points can be partially solved with
-open-source solutions. Hence, assembling software, connecting tools together
-into pipelines, and specifying parameters can be handled. Existing tools can
-automate a series of processes. For MMM, we choose to rely on Spack to
-completely organize and setup the versions of the different libraries composing
-the stack. Furthermore, the CMake tool helped us to achieve reproducible builds
-across multiple computers and systems. A set of reference solutions has also
-been designed. Then, we can check on any new target machine if MMM gives
-correct results using Spack and CMake. Verification through defined standard
-examples ensure quite fast deployment, these examples also serve as
-documentation for users of the code. It is also foreseen that we supplement the
-current strategy with a continuous integration platform to further improve the
-robustness of the mini-app.
-
-Open-source approach enable transparency, accessibility, and replicability
-among contributors of a single code. Modelling effort can include participants
-with different domain expertise. This diversity of contributions really helps
-building up software that combine state-of-the-art numerical methods.  Our goal
-is to establish international collaborations with privileged partners and with
-academics around MMM. In this context, open-source approach is fostering a
-greater adoption of the software product. We also expect that this solution can
-favour external contributions and promote collaborations focusing on grain and
-subgrain-resolved microstructure for nuclear fuel modelling.
-
-## Numerical results
-The presentation will show some of the current
-capabilities of the software.
-
-[12] CEA and EDF. Salomé platform [Software]. URL: https://www.salome-platform.org/user-section/about/med 
 
 
