@@ -97,17 +97,17 @@ Minimal `MMM` requirements:
 - `MPI`
   
 Optionals, depending on your MFEM installation:
-- Solver or preconditionner: 
+- Solver or preconditionner:
 	- `Hypre`
  	- `PETSc`
   	- `MUMPS`
   	- `SuperLU`
-  	- `UMFPACK` 		
+  	- `UMFPACK`
 - Installation:
 	- `Cmake`
 	- `Spack`
  - Load Balancing:
- 	- `Zoltan` 
+ 	- `Zoltan`
  	- `Metis`
     
 
@@ -151,7 +151,7 @@ list of examples running on supercomputers.
 
  - Periodic boundaries conditions.
  - Impose evolution gradient for different materials.
- - Mesh is generated using `MEROPE` and `GMSH`.
+ - Mesh is generated using `MEROPE` (https://github.com/MarcJos/Merope) and `GMSH`.
  - Elasto-viscoplastic behavior law
  - 17% of inclusions.
  - Simulation details :
@@ -184,7 +184,6 @@ list of examples running on supercomputers.
 ## Viscoplastic behavior of a UO2 Polycrystal subjected to Uniaxial Compression Loading
 
 - The mesh has been generated using `MEROPE`.
-- 
 
 
 # Performance Results of Thermo-Mechanical Libraries on HPC plateforms"
