@@ -183,9 +183,9 @@ list of examples running on supercomputers.
 
 ## Tensile test on a elastoplastic notched bar with large strain - SSNA303
 
-This test models a notched specimen under axisymmetric hypotheses. The behavior is a simple isotropic plasticity behaviour with von-Mises isotropic linear hardening.
+  A notched specimen under axisymmetric hypotheses so-called [SSNA303](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4) is given in the set examples [MMM-examples](https://github.com/latug0/mfem-mgis-examples) (ex4). The behavior is a simple isotropic plasticity behaviour with von-Mises isotropic linear hardening.
 
-This case ([SSNA303](https://github.com/latug0/mfem-mgis-examples/blob/master/ex4/Plasticity.mfront)) is adapted from a non-regression test of the `Code_Aster` finite element solver, see @edf_ssna303_2011 for details.
+  This case ([SSNA303](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4)) is adapted from a non-regression test of the `Code_Aster` finite element solver, see @edf_ssna303_2011 for details.
 
 
 ## Viscoplastic behavior of a UO2 Polycrystal subjected to Uniaxial Compression Loading
