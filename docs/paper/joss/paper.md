@@ -183,15 +183,22 @@ list of examples running on supercomputers.
 
 ## Tensile test on a elastoplastic notched bar with large strain - SSNA303
 
-  A notched specimen under axisymmetric hypotheses so-called [SSNA303](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4) is given in the set examples [MMM-examples](https://github.com/latug0/mfem-mgis-examples) (ex4). The behavior is a simple isotropic plasticity behaviour with von-Mises isotropic linear hardening.
+  A notched specimen under axisymmetric hypotheses so-called [SSNA303](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4) is given in ([ex4](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4)) of [MMM-examples](https://github.com/latug0/mfem-mgis-examples) a collection of use cases for MMM library. The behavior is a simple isotropic plasticity behaviour with von-Mises isotropic linear hardening.
 
   This case ([SSNA303](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4)) is adapted from a non-regression test of the `Code_Aster` finite element solver, see @edf_ssna303_2011 for details.
 
 
-## Viscoplastic behavior of a UO2 Polycrystal subjected to Uniaxial Compression Loading
+## Viscoplastic behaviour of a polycrystalline microstructure for UO2
 
-- The mesh has been generated using `MEROPE`.
+  A model simulation of UO2 with polycrystalline microstructure has been proposed in ([ex8](https://github.com/latug0/mfem-mgis-examples/tree/master/ex8)) from [MMM-examples](https://github.com/latug0/mfem-mgis-examples).
 
+  The polycrystalline geometrical model is based on a Voronoi diagram and has been generated using [MEROPE](https://github.com/MarcJos/Merope) library.
+
+  The mechanical behaviour is implemented with the MFront tools and provided by a single crystal plasticity model proposed for UO2. The mechanical loading conditions corresponds to a uniaxial compression test with periodic conditions of the microstructure :
+
+    - periodic boundaries conditions in all directions,
+    - imposed uniform strain in z-axis direction,
+    - null macroscopic stresses in x and y directions.
 
 # Performance Results of Thermo-Mechanical Libraries on HPC plateforms"
 
