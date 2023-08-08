@@ -10,7 +10,7 @@ authors:
     orcid: 0000-0003-2460-5816
     affiliation: 1
   - name: Guillaume Latu
-    orcid: 0000-0000-0000-0000
+    orcid: 0009-0001-7274-1305
     affiliation: 1
   - name: Raphaël Prat
     orcid: 0009-0002-3808-5401
