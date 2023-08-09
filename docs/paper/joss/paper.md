@@ -169,13 +169,6 @@ list of examples running on supercomputers.
   
 ![Modelling fuel pellet fragmentation during reactor start-up.](./pellet.png "Modelling fuel pellet fragmentation during reactor start-up.")
 
-## Tensile test on a elastoplastic notched bar with large strain - SSNA303
-
-  A notched specimen under axisymmetric hypotheses so-called [SSNA303](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4) is given in ([ex4](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4)) of [MMM-examples](https://github.com/latug0/mfem-mgis-examples) a collection of use cases for MMM library. The behavior is a simple isotropic plasticity behaviour with von-Mises isotropic linear hardening.
-
-  This case ([SSNA303](https://github.com/latug0/mfem-mgis-examples/tree/master/ex4)) is adapted from a non-regression test of the `Code_Aster` finite element solver, see @edf_ssna303_2011 for details.
-
-
 ## Viscoplastic behaviour of a polycrystalline microstructure for UO2
 
   A model simulation of UO2 with polycrystalline microstructure has been proposed in ([ex8](https://github.com/latug0/mfem-mgis-examples/tree/master/ex8)) from [MMM-examples](https://github.com/latug0/mfem-mgis-examples). The polycrystalline geometrical model is based on a Voronoi diagram and has been generated using [MEROPE](https://github.com/MarcJos/Merope) library.
