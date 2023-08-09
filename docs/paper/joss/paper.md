@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 # Summary
 
-The MFEM-MGIS-MFRONT application (abbreviated version MMM), aims at
+The MFEM-MGIS-MFRONT (MMM) application, aims at
 efficiently use supercomputers in the field of implicit nonlinear
 thermomechanics. This open-source library is based on several components as
 prerequisites. The first component, `MFEM` [@mfem, @mfem-web], is a finite element library
@@ -90,6 +90,7 @@ and cheap access to advanced features embedded in the underlying libraries.
 # Statement of needs
 
 Minimal `MMM` requirements:
+
 - `C++-17`
 - `MFEM`
 - `MGIS`
@@ -97,40 +98,40 @@ Minimal `MMM` requirements:
 - `MPI`
   
 Optionals, depending on your MFEM installation:
-- Solver or preconditionner:
-	- `Hypre`
- 	- `PETSc`
-  	- `MUMPS`
-  	- `SuperLU`
-  	- `UMFPACK`
-- Installation:
-	- `Cmake`
-	- `Spack`
- - Load Balancing:
- 	- `Zoltan` [@devine2000design]
- 	- `Metis` [@karypis1997parmetis]
-    
 
-# MFEM-MGIS in a nutshell
+- Solver or preconditionner:
+  - `Hypre`
+  - `PETSc`
+    - `MUMPS`
+    - `SuperLU`
+    - `UMFPACK`
+- Installation:
+  - `Cmake`
+  - `Spack`
+- Load Balancing:
+  - `Zoltan` [@devine2000design]
+  - `Metis` [@karypis1997parmetis]
+
+# MFEM-MGIS-MFRONT in a nutshell
 
 `MMM` has added the following mechanical features compared to pure `MFEM` approach: 
 
 - Ability to handle several materials which distinct constitutive equations.  
 - Support for internal state variables (defined at quadrature points):
-	- Use of `MGIS` data structures
-	- Use mechanical behavior laws genarated by MFront (DSL) 
+  - Use of `MGIS` data structures
+  - Use mechanical behavior laws genarated by MFront (DSL) 
 - Support for complex boundary conditions specific to nonlinear mechanics:
-	- Periodic evolution problems
- 	- Dirichlet boundaries conditions 
+  - Periodic evolution problems
+  - Dirichlet boundaries conditions 
 - Support for post-processing specific to nonlinear mechanic:
-	- computeMeanThermodynamicForcesValues: Compute the macroscopic stress and strain for each materials:
-	- ParaviewExportIntegrationPointResultsAtNodes: Paraview post processing files with internal state variables according to `MGIS`
- 	- ComputeResultantForceOnBoundary: TODO
+  - computeMeanThermodynamicForcesValues: Compute the macroscopic stress and strain for each materials:
+  - ParaviewExportIntegrationPointResultsAtNodes: Paraview post processing files with internal state variables according to `MGIS`
+  - ComputeResultantForceOnBoundary: TODO
 - Flexible support to easily customize your problem:
-	- Number of level of uniform refinement
-   	- Element family and order
-   	- Boundary conditions
-   	- Solver and Preconditionner used
+  - Number of level of uniform refinement
+    - Element family and order
+    - Boundary conditions
+    - Solver and Preconditionner used
 
 These features are described in the tutorial: `https://thelfer.github.io/mfem-mgis/web/tutorial.html`
 
@@ -149,18 +150,18 @@ list of examples running on supercomputers.
 
 ## Representative Elementary Volume (REV) of Combustible Mixed Oxides for Nuclear Applications:
 
- - Periodic boundaries conditions.
- - Impose evolution gradient for different materials.
- - Mesh is generated using `MEROPE` (https://github.com/MarcJos/Merope) and `GMSH`.
- - Elasto-viscoplastic behavior law
- - 17% of inclusions.
- - Simulation details :
- 	- Around 10M of DoFs
- 	- 1,024 `MPI` processes.
-  	- 5 seconds (40 timesteps)
-  	- Runtime : 1h32
- - Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES"
-   
+- Periodic boundaries conditions.
+- Impose evolution gradient for different materials.
+- Mesh is generated using `MEROPE` (https://github.com/MarcJos/Merope) and `GMSH`.
+- Elasto-viscoplastic behavior law
+- 17% of inclusions.
+- Simulation details :
+  - Around 10M of DoFs
+  - 1,024 `MPI` processes.
+    - 5 seconds (40 timesteps)
+    - Runtime : 1h32
+- Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES"
+
   ![Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.")
 
 ## Modelling Fuel Pellet Fragmentation during Reactor start-up
@@ -183,14 +184,16 @@ list of examples running on supercomputers.
 
   ![Modelling viscoplastic behaviour of a polycrystalline microstructure for UO2](./polycristalUO2.png "Modelling viscoplastic behaviour of a polycrystalline microstructure for UO2")
 
-  - Results
-  - Computation
+- Computation
+- Results
+
 
 # Performance Results of Thermo-Mechanical Libraries on HPC plateforms"
 
 Computation related to the behavior law at Gauss points is independent for each other, and while some behavior laws can be computationally expensive, the primary focus of parallel computation time is on solving linear systems at each time step. As a result, the parallel performance of our library is strongly influenced by the performance of MFEM (Finite Element Library) and, by extension, the selection of appropriate solvers and preconditioners.
 
 Performance analysis framework:
+
 - Strong scaling benchmark (`CEA/CCRT`) AMD Milan architecture until 65,000 cores.
 - Only `MPI`.
 - 80.10^6 degrees of freedoms (DoFs).
@@ -212,8 +215,4 @@ reproducibility, and reduce costs for development and maintenance.
 
 # Citations
 
-
-
 # help
-
-
