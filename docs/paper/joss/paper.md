@@ -109,25 +109,17 @@ and cheap access to advanced features embedded in the underlying libraries.
 
 # Statement of needs
 
-Minimal `MMM` requirements:
 
-- `C++-17`
-- `MFEM`
-- `MGIS`
-- `TFEL`(MFront)
-- `MPI`
-  
-Optionals, depending on your MFEM installation:
+![MFEM-MGIS-MFront Stack. Every libraries are Open Sources.](./MMM-stack-v0.png "MFEM-MGIS-MFront Stack. Every libraries are Open Sources.")
 
-- Solver or preconditionner:
+The MMM software stack is presented in Figure YY. Most of low-level extern libraries are required by `MFEM` and can be disbled. This is the minimal package requirements to build MMM on a HPC plateform:`C++-17`, `MFEM, `MGIS`, `TFEL`(MFront) and `MPI`. As described before, installation process is made easier by using `Spack` and `cmake`, some installation scrips are available in the MMM GitHub repository. Note that other HPC libraries will be used in future, such as `CUDA`, `RAJA` or `OCCA` for performance portability on GPU. To complete the installation, you can enable the following options while compiling `MFEM`.
+
+- Solver or preconditionner libraries:
   - `Hypre`
   - `PETSc`
     - `MUMPS`
     - `SuperLU`
     - `UMFPACK`
-- Installation:
-  - `Cmake`
-  - `Spack`
 - Load Balancing:
   - `Zoltan` [@devine2000design]
   - `Metis` [@karypis1997parmetis]
@@ -147,7 +139,7 @@ list of examples running on supercomputers.
 
 ## Representative Elementary Volume (REV) of Combustible Mixed Oxides for Nuclear Applications:
 
-This simulation consists of a Representative Elementary Volume of MOX (Mixed Oxide) material over atime, while applying a deformation gradient. The objective of this work is to replicate and compare the outcomes of these papers and compare them against results obtained using the FFT method [@masson2020modified, @fauque2021homogenization]. The mesh has been generated using `MEROPE` (https://github.com/MarcJos/Merope) in combination with `GMSH`, constructing a periodic mesh featuring 100 spheres or inclusions, which represents a volume fraction of 17%. Periodic conditions are applied using the `PeriodicNonEvolutionProblem` class, blocking a point, while establishing periodic relationships for nodes within the periodic mesh. The applied stress loading matrix is defined as follows, with a strain rate $\alpha=0.012$:
+This simulation consists of a Representative Elementary Volume of MOX (Mixed Oxide) material over atime, while applying a deformation gradient. The objective of this work is to replicate and compare the outcomes of these papers and compare them against results obtained using the FFT method [@masson2020modified, @fauque2021homogenization]. The mesh has been generated using `MEROPE` (https://github.com/MarcJos/Merope) in combination with `GMSH`, constructing a periodic mesh with 100 spheres / inclusions, which represents a volume fraction of 17%. Periodic conditions are applied using the `PeriodicNonEvolutionProblem` class, blocking a point, while establishing periodic relationships for nodes within the periodic mesh. The applied stress loading matrix is defined as follows, with a strain rate $\alpha=0.012$:
 
 
 Bon là je te laisse mettre les bonnes notations ...
@@ -164,7 +156,7 @@ For modelling the mechanical responses of the matrix and inclusions, an elasto-v
 |Matrix |  8.182e9 | 0.364 | 100.0e6 | 3.333333 | 293.15|
 |Inclusions | 16.364e9 | 0.364 | 100.0e12 | 3.333333 | 293.15|
 
-The figure XX illustrates this simulation, involving approximately 10 million Degrees Of Freedom (DOF), conducted over a total simulation time of 5 seconds across 40 timesteps ($\Delta_t=0.125s$). A Newton algorithm is applied during each timestep, converging within 2 to 4 Newton iterations. This simulation was performed using 1,024 `MPI` processes on the CCRT/Topaze HPC platform, resulting in an execution time of 1 hour and 32 minutes. This simulation could not be reach on a single laptop (memory footprint and duration). This example is available here: `https://github.com/latug0/mfem-mgis-examples/tree/master/ex7` with the elasto-viscoplastic behavior law: `matrixlaw.mfront` and a periodic mesh with one inlucion: `inclusions.msh`.
+The figure XX illustrates this simulation, involving approximately 10 million Degrees Of Freedom (DOF), conducted over a total simulation time of 5 seconds across 40 timesteps ($\Delta_t=0.125s$). A Newton algorithm is applied during each timestep, converging within 2 to 4 Newton iterations. The solver used is `HyprePCG` and the preconditioner is `HypreBoomerAMG`.  This simulation was performed using 1,024 `MPI` processes on the CCRT/Topaze HPC platform, resulting in an execution time of 1 hour and 32 minutes. This simulation could not be reach on a single laptop (memory footprint and duration). This example is available here: `https://github.com/latug0/mfem-mgis-examples/tree/master/ex7` with the elasto-viscoplastic behavior law: `matrixlaw.mfront` and a periodic mesh with one inclucion: `inclusions.msh`.
 
   ![Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.")
 
