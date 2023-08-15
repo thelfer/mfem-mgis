@@ -135,7 +135,7 @@ Optionals, depending on your MFEM installation:
 # Numerical Results {#sec:numerical_results}
 
 Installation and deployment on desktop or large computers is based on the Spack
-package manager [10]. With MMM, we were able to carry out a multi-material
+package manager. With MMM, we were able to carry out a multi-material
 elastic modelling on computing clusters. Scalability performance is good on a
 few thousands of CPU cores. Despite the very high level of abstraction and the
 genericness of MMM (multi-material and arbitrary behaviours), the overhead
@@ -147,17 +147,23 @@ list of examples running on supercomputers.
 
 ## Representative Elementary Volume (REV) of Combustible Mixed Oxides for Nuclear Applications:
 
-- Periodic boundaries conditions.
-- Impose evolution gradient for different materials.
-- Mesh is generated using `MEROPE` (https://github.com/MarcJos/Merope) and `GMSH`.
-- Elasto-viscoplastic behavior law
-- 17% of inclusions.
-- Simulation details :
-  - Around 10M of DoFs
-  - 1,024 `MPI` processes.
-    - 5 seconds (40 timesteps)
-    - Runtime : 1h32
-- Comparisons with results on FFT from paper "HOMOGENIZATION OF NONLINEAR VISCOELASTIC THREE-PHASE PARTICULATE COMPOSITES"
+This simulation consists of simulating a representative volume of MOX over time, imposing a gradient of deformation along the (Oz) axis. This work aims to reproduce results from these papers and compare them to results with simulation using `FFT`: [@masson2020modified,@fauque2021homogenization]. The mesh has been generated using `MEROPE` (https://github.com/MarcJos/Merope) and `GMSH` to build a periodic mesh with 100 spheres/inclusions those represent a volume fraction equal to 17%. The periodic conditions are applied using the `PeriodicNonEvolutionProblem` class that blocks a point to {0,0,0} and makes the periodic relation nodes defined in the periodic mesh. The imposed stress loading matrix is defined as below, with a strain rates \alpha = 0.012: 
+
+Bon là je te laisse mettre les notations !
+
+$$Symbol strain gradient matrix = \begin{pmatrix} -\alpha/2 & 0 & 0\\
+0 & -\alpha/2 & 0\\
+0 & 0 & \alpha\\
+\end{pmatrix}$$
+
+To model the mechanical behavior of the matrix and inclusions, a elasto-viscoplatic law is used with the following parameters:
+
+$$\begin{array}{ccc} $Mesh set$ & $Young Modulus$ \epsilon & $Poisson Ratio$ \nu & $Stress Threshold$ \sigma & $Norton Exponent$ n  & Temperature$  \\
+$Matrix$ &  8.182e9 & 0.364 & 100.0e6 & 3.333333 & 293.15\\
+$Inclusions$ & 16.364e9 & 0.364 & 100.0e12 & 3.333333 & 293.15 \\
+\end{array}$$
+
+The figure XX illustrate this simulation with about 10 millions of Degrees Of Freedom (DOF) for a total simulation time of 5 seconds over 40 timesteps ($$\Delta_t=0.125s$$). A Newton algorithm is used for every timesteps and converge between 2 and 4 Newton iterations. This simulation has been done over 1,024 `MPI` processes on a current HPC plateform CCRT/Topaze for an execution time of 1 hour an 32 minutes. 
 
   ![Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.")
 
