@@ -147,23 +147,24 @@ list of examples running on supercomputers.
 
 ## Representative Elementary Volume (REV) of Combustible Mixed Oxides for Nuclear Applications:
 
-This simulation consists of simulating a representative volume of MOX over time, imposing a gradient of deformation along the (Oz) axis. This work aims to reproduce results from these papers and compare them to results with simulation using `FFT`: [@masson2020modified,@fauque2021homogenization]. The mesh has been generated using `MEROPE` (https://github.com/MarcJos/Merope) and `GMSH` to build a periodic mesh with 100 spheres/inclusions those represent a volume fraction equal to 17%. The periodic conditions are applied using the `PeriodicNonEvolutionProblem` class that blocks a point to {0,0,0} and makes the periodic relation nodes defined in the periodic mesh. The imposed stress loading matrix is defined as below, with a strain rates \alpha = 0.012: 
+This simulation consists of a Representative Elementary Volume of MOX (Mixed Oxide) material over atime, while applying a deformation gradient. The objective of this work is to replicate and compare the outcomes of these papers and compare them against results obtained using the FFT method [@masson2020modified, @fauque2021homogenization]. The mesh has been generated using `MEROPE` (https://github.com/MarcJos/Merope) in combination with `GMSH`, constructing a periodic mesh featuring 100 spheres or inclusions, which represents a volume fraction of 17%. Periodic conditions are applied using the `PeriodicNonEvolutionProblem` class, blocking a point, while establishing periodic relationships for nodes within the periodic mesh. The applied stress loading matrix is defined as follows, with a strain rate $\alpha=0.012$:
 
-Bon là je te laisse mettre les notations !
+
+Bon là je te laisse mettre les bonnes notations ...
 
 $$Symbol strain gradient matrix = \begin{pmatrix} -\alpha/2 & 0 & 0\\
 0 & -\alpha/2 & 0\\
 0 & 0 & \alpha\\
 \end{pmatrix}$$
 
-To model the mechanical behavior of the matrix and inclusions, a elasto-viscoplatic law is used with the following parameters:
+For modelling the mechanical responses of the matrix and inclusions, an elasto-viscoplatic law is used with the following parameters:
 
-$$\begin{array}{ccc} $Mesh set$ & $Young Modulus$ \epsilon & $Poisson Ratio$ \nu & $Stress Threshold$ \sigma & $Norton Exponent$ n  & Temperature$  \\
-$Matrix$ &  8.182e9 & 0.364 & 100.0e6 & 3.333333 & 293.15\\
-$Inclusions$ & 16.364e9 & 0.364 & 100.0e12 & 3.333333 & 293.15 \\
-\end{array}$$
+|Mesh set | Young Modulus ($\epsilon$) | Poisson Ratio ($\nu$) | Stress Threshold ($\sigma$) | Norton Exponent ($n$) | Temperature|
+|--|--|--|--|--|--|
+|Matrix |  8.182e9 | 0.364 | 100.0e6 | 3.333333 | 293.15|
+|Inclusions | 16.364e9 | 0.364 | 100.0e12 | 3.333333 | 293.15|
 
-The figure XX illustrate this simulation with about 10 millions of Degrees Of Freedom (DOF) for a total simulation time of 5 seconds over 40 timesteps ($$\Delta_t=0.125s$$). A Newton algorithm is used for every timesteps and converge between 2 and 4 Newton iterations. This simulation has been done over 1,024 `MPI` processes on a current HPC plateform CCRT/Topaze for an execution time of 1 hour an 32 minutes. 
+The figure XX illustrates this simulation, involving approximately 10 million Degrees Of Freedom (DOF), conducted over a total simulation time of 5 seconds across 40 timesteps ($\Delta_t=0.125s$). A Newton algorithm is applied during each timestep, converging within 2 to 4 Newton iterations. This simulation was performed using 1,024 MPI processes on the CCRT/Topaze HPC platform, resulting in an execution time of 1 hour and 32 minutes. This simulation could not be reach on a single laptop (memory footprint and duration).
 
   ![Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Elementary Volume (REV) of the MOX material. [2] A close-up view of a slide within the REV. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT.")
 
@@ -203,7 +204,13 @@ Performance analysis framework:
 - REV 3D with an elasticity behavior law. Source code is available on the mfem-mgis-example github repository.
 - Not enough load per sub-domain with 65k cores (less than 2k finite elements)
 
-![Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner](./HPC_REV_Elasticity.png "Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner")
+![Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the num@inproceedings{fauque2021homogenization,
+  title={Homogenization of Nonlinear Viscoelastic Three-Phase Particulate Composites},
+  author={Fauque, J and Masson, Renaud and Gȃrȃjeu, M},
+  booktitle={8th ECCOMAS Thematic Conference on the Mechanical Response of Composites},
+  year={2021}
+}
+ber of core (one core per MPI process) according to the couple preconditioner](./HPC_REV_Elasticity.png "Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner")
 
 # Conclusion
 
