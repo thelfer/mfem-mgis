@@ -46,7 +46,7 @@ one can easily switch from one linear solver to another (direct or iterative),
 which is essential for the targeted application: microstructure and mesoscale
 modelling for nuclear fuel. However, applications to solid mechanics in `MFEM`
 are mostly limited to simple constitutive equations such as elasticity and
-hyperelasticity, which is insufficient.
+hyperelasticity, which is insufficient to adress complex nuclear fuel simulations such as a REV of MOX or a pellet fissuration.
 
 ## Objectives
 
@@ -55,13 +55,13 @@ The aim of `MMM` project is to combine `MFEM` with the `MFrontGenericInterfaceSu
 behaviour supported by the open-source `MFront` code generator [@helfer2015introducing].
 In the field of nonlinear mechanics, this encompasses arbitrary complex behaviours that
 can describe damage, plasticity, viscoplasticity, phase change in both small or finite
-strain analyses. Generalised behaviours such as strongly coupled thermomechanical
-behaviours, variational approaches to fracture, Cosserat media are supported by `MGIS`
+strain analyses. Generalised behaviours such as strongly coupled thermo-mechanical
+behaviours, variational approaches to fracture, cosserat media are supported by `MGIS`
 and will be considered in future versions of `MMM`.
 
 Through its integration with `MGIS` and `MFront`, along with dedicated advancements,
 `MMM` has incorporated the subsequent mechanical attributes in contrast to the pure
-`MFEM` approach:
+`MFEM` approach while maintening parallel performance:
 
 - Ability to handle several materials which distinct constitutive equations.  
 - Support for internal state variables (defined at quadrature points):
@@ -210,6 +210,6 @@ and parallel performance (tested on several thousands of cores until now).
 Open-source approach was chosen mainly to: promote collaboration, improve
 reproducibility, and reduce costs for development and maintenance.
 
-# Citations
+Regarding performance portability on GPUs, MFEM already offers numerous algorithms such as partial assembly on GPUs, but MMM does not exploit these features yet. Work is underway to port behavior laws to the GPU (MFront) and associated data structures (MGIS). 
 
-# help
+
