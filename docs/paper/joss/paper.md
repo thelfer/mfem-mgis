@@ -38,7 +38,7 @@ and different families of finite elements, interfaces to several types of
 parallel solvers (including matrix-free ones), preconditioners, and native
 support for adaptive non-conforming mesh refinement (AMR).  
 
-## MFEM-based Thermo-Mechanical Solver for Nuclear Fuel Simulations
+# MFEM-based Thermo-Mechanical Solver for Nuclear Fuel Simulations
 
 Originating from the applied mathematics and parallel computing communities, `MFEM` offers both
 performance and a large panel of advanced mathematical features. In particular,
@@ -48,7 +48,7 @@ modelling for nuclear fuel. However, applications to solid mechanics in `MFEM`
 are mostly limited to simple constitutive equations such as elasticity and
 hyperelasticity, which is insufficient to adress complex nuclear fuel simulations such as a REV of MOX or a pellet fissuration.
 
-## Objectives
+# Statement of needs
 
 The aim of `MMM` project is to combine `MFEM` with the `MFrontGenericInterfaceSupport`
 (`MGIS`) project [@Helfer2020], an open-source `C++` library handles all the kinds of
@@ -91,7 +91,7 @@ The `MMM` library [7] is written in `C++-17` language and
 provides a very high level of abstraction based on a very declarative
 text-based Application Programming Interface.
 
-## Integrate MMM in an Open Source Ecosystem
+# Integrate MMM in an Open Source Ecosystem
 
 The `MMM` library takes full advantage of an open-source software (OSS) stack. It
 benefits from the increasing maturity of many communities and tools working
@@ -107,22 +107,15 @@ dependencies. `Spack` is an open-source package manager developed and maintained
 by community of HPC developers. Our setup that combines OSS allows for a fast
 and cheap access to advanced features embedded in the underlying libraries.
 
-# Statement of needs
+# Software stack
 
+![MFEM-MGIS-MFront Stack. Every libraries are Open Sources.](./MMM-stack-v0.png "MFEM-MGIS-MFront software stack. MMM is the convergence between two open sources ecosytem.")
 
-![MFEM-MGIS-MFront Stack. Every libraries are Open Sources.](./MMM-stack-v0.png "MFEM-MGIS-MFront Stack. Every libraries are Open Sources.")
+The MMM software stack is presented in Figure YY. Most of low-level extern libraries are required by `MFEM` and can be disbled. This is the minimal package requirements to build MMM on a HPC plateform:`C++-17`, `MFEM`, `MGIS`, `TFEL`(MFront) and `MPI`. 
 
-The MMM software stack is presented in Figure YY. Most of low-level extern libraries are required by `MFEM` and can be disbled. This is the minimal package requirements to build MMM on a HPC plateform:`C++-17`, `MFEM, `MGIS`, `TFEL`(MFront) and `MPI`. As described before, installation process is made easier by using `Spack` and `cmake`, some installation scrips are available in the MMM GitHub repository. Note that other HPC libraries will be used in future, such as `CUDA`, `RAJA` or `OCCA` for performance portability on GPU. To complete the installation, you can enable the following options while compiling `MFEM`.
+As described before, installation process is made easier by using `Spack` and `Cmake`, some installation scrips are available in the MMM GitHub repository. Note that other HPC libraries will be used in future, such as `CUDA`, `RAJA` or `OCCA` for performance portability on GPU. 
 
-- Solver or preconditionner libraries:
-  - `Hypre`
-  - `PETSc`
-    - `MUMPS`
-    - `SuperLU`
-    - `UMFPACK`
-- Load Balancing:
-  - `Zoltan` [@devine2000design]
-  - `Metis` [@karypis1997parmetis]
+To complete the installation, you can enable the following options while compiling `MFEM`. The most interesting are the solver or preconditionner packages such as `Hypre`,`MUMPS`, and `PETSc` (including `SuperLU`, `UMFPACK`), and the load balancing packages `Zoltan` [@devine2000design] and `Metis` [@karypis1997parmetis].
 
 # Numerical Results {#sec:numerical_results}
 
