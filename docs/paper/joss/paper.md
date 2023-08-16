@@ -176,26 +176,16 @@ The figure XX illustrates this simulation, involving approximately 10 million De
 - Computation
 - Results
 
+# Performance Results MMM on a HPC plateform
 
-# Performance Results of Thermo-Mechanical Libraries on HPC plateforms"
+Computation related to the behavior law at Gauss points is independent for each other, and while some behavior laws might be computationally expensive, the primary focus of parallel computation time is on solving linear systems at each timestep. As a result, the parallel performance of our library is strongly influenced by the performance of `MFEM` (Finite Element Library) and, by extension, the selection of suitable solvers and preconditioners.
 
-Computation related to the behavior law at Gauss points is independent for each other, and while some behavior laws can be computationally expensive, the primary focus of parallel computation time is on solving linear systems at each time step. As a result, the parallel performance of our library is strongly influenced by the performance of MFEM (Finite Element Library) and, by extension, the selection of appropriate solvers and preconditioners.
+To highlight MMM performances, we conducted a strong scaling benchmark at CEA/CCRT up to 65,536 cores, using AMD EPYC Milan processor. We simulated a REV 3D (49 inclusions) with an elastic behavior law for both the matrix and inclusions, resulting in convergence within a signle timestep. The strong scaling was done with the `MPI` version, i.e. one `MPI` process per core (~1.8GB per core). We have tested several pairs of solver/preconditionner and eliminated pairs did not converge within 5,000 Krylov iterations or reach memory limits (in the case of direct solver) over 65,384 cores. 
 
-Performance analysis framework:
+![Simulation runtime and speedup of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the pair of solver/preconditioner used.](./HPC_REV_Elasticity.png "Runtime")
 
-- Strong scaling benchmark (`CEA/CCRT`) AMD Milan architecture until 65,000 cores.
-- Only `MPI`.
-- 80.10^6 degrees of freedoms (DoFs).
-- REV 3D with an elasticity behavior law. Source code is available on the mfem-mgis-example github repository.
-- Not enough load per sub-domain with 65k cores (less than 2k finite elements)
+The simulation involves approximately 80 million of Degrees Of Freedom. The results are presented in Figure [@Runtime] and exhibit a quas-linear speed-upn as expected when combining `MFEM` and `MFront`-`MGIS`. Note that the most scalable "pairs" are not necessarily the fastest, as their runtimes are longer on few cores. In addition, performances decrease between 32,768 to 65,536 is attributed to the low workload per `MPI` process (less than 2,000 DOFs per `MPI` process), while `MPI` comunications per process increases.   
 
-![Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the num@inproceedings{fauque2021homogenization,
-  title={Homogenization of Nonlinear Viscoelastic Three-Phase Particulate Composites},
-  author={Fauque, J and Masson, Renaud and Gȃrȃjeu, M},
-  booktitle={8th ECCOMAS Thematic Conference on the Mechanical Response of Composites},
-  year={2021}
-}
-ber of core (one core per MPI process) according to the couple preconditioner](./HPC_REV_Elasticity.png "Runtime of a simulation of a REV with an elasticity behvior law in 3D in function of the number of core (one core per MPI process) according to the couple preconditioner")
 
 # Conclusion
 
