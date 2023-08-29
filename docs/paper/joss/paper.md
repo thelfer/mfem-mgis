@@ -97,7 +97,7 @@ text-based Application Programming Interface.
 The `MMM` library takes full advantage of an open-source software (OSS) stack. It
 benefits from the increasing maturity of many communities and tools working
 together. Thus, within `MFEM`, one has many available choices to set the linear
-solver, such as: `Hypre`[@hypre], `PETSc`[@petsc-web-page], `MUMPS`[@mumps], `SuperLU`, `UMFPACK`[@davis2004algorithm] or other ones. Likewise,
+solver, such as: `Hypre`[@hypre2002], `PETSc`[@petsc-web-page], `MUMPS`[@mumps], `SuperLU`, `UMFPACK`[@davis2004algorithm] or other ones. Likewise,
 several preconditioners, partitioning libraries, or input mesh formats can be
 activated and used. Combinations are highly configurable and almost all
 external libraries are switchable. To handle the numerous accessible
