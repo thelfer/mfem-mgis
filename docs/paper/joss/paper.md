@@ -27,18 +27,21 @@ bibliography: paper.bib
 
 # Summary
 
-The `MFEM-MGIS-MFRONT` (MMM) application, aims at
-efficiently use supercomputers in the field of implicit nonlinear
-thermo-mechanics. This open-source library is based on several components as
-prerequisites. The first component, `MFEM` [@mfem; @mfem-web], is a finite element library
+The `MFEM-MGIS-MFRONT` (MMM) application, aims at efficiently use supercomputers
+in the field of implicit nonlinear thermo-mechanics. This open-source library is
+based on several components as prerequisites: the `MFEM` (Modular Finite Element
+Methods) library, the `MGIS` (MFront Generic Interface Support) library and the
+`MFront` code generator.
+
+# MFEM-based Thermo-Mechanical Solver for Nuclear Fuel Simulations
+
+`MFEM` [@mfem; @mfem-web], is a finite element library
 designed for current supercomputers but also for the upcoming exascale
 supercomputers. It provides many useful features for carrying out realistic
 simulations: support for curvilinear meshes, high order approximation spaces
 and different families of finite elements, interfaces to several types of
 parallel solvers (including matrix-free ones), preconditioners, and native
 support for adaptive non-conforming mesh refinement (AMR).  
-
-# MFEM-based Thermo-Mechanical Solver for Nuclear Fuel Simulations
 
 Originating from the applied mathematics and parallel computing communities, `MFEM` offers both
 performance and a large panel of advanced mathematical features. In particular,
@@ -112,9 +115,9 @@ and cheap access to advanced features embedded in the underlying libraries.
 
 ![MFEM-MGIS-MFront Stack. Every libraries are Open Sources.\label{fig:SoftStack}](./MMM-stack-v0.png "MFEM-MGIS-MFront software stack. MMM is the convergence between two open sources ecosytem."){width=75%}
 
-The MMM software stack is presented on Figure \autoref{fig:SoftStack}. Most of low-level external libraries are required by `MFEM` and can be disabled. This is the minimal package requirements to build MMM on a HPC platform:`C++17`, `MFEM`, `MGIS`, `TFEL`(MFront) and `MPI`. 
+The MMM software stack is presented on Figure \autoref{fig:SoftStack}. Most of low-level external libraries are required by `MFEM` and can be disabled. This is the minimal package requirements to build MMM on a HPC platform:`C++17`, `MFEM`, `MGIS`, `TFEL`(MFront) and `MPI`.
 
-As described before, installation process is made easier by using `Spack` and `Cmake`, some installation scrips are available in the MMM GitHub repository. Note that other HPC libraries will be used in future, such as `CUDA`, `RAJA` or `OCCA` for performance portability on GPU. 
+As described before, installation process is made easier by using `Spack` and `Cmake`, some installation scrips are available in the MMM GitHub repository. Note that other HPC libraries will be used in future, such as `CUDA`, `RAJA` or `OCCA` for performance portability on GPU.
 
 To complete the installation, you can enable the following options while compiling `MFEM`. The most interesting are the solver or preconditioner packages such as `Hypre`,`MUMPS`, and `PETSc` (including `SuperLU`, `UMFPACK`), and the load balancing packages `Zoltan` [@devine2000design] and `Metis` [@karypis1997parmetis].
 
@@ -133,7 +136,7 @@ running on supercomputers.
 
 ## Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications
 
-This simulation represents an RVE of MOx (Mixed Oxide) material under uniform macroscopic deformation. The aim of this simulation is to reproduce and compare the results obtained by [@masson2020modified; @fauque2021homogenization] who used an FFT method. The mesh used is a periodic mesh containing 100 spheres/inclusions, representing a volume fraction of 17%. It was generated using `MEROPE` (https://github.com/MarcJos/Merope) in combination with `GMSH` (https://gmsh.info/). Periodic conditions are applied using the `PeriodicNonEvolutionProblem` class, which defines periodicity relations for the boundary nodes of the periodic mesh, while blocking one mesh point to eliminate rigid body motion. The applied strain is defined as follows, with a strain rate $\alpha=0.012$:
+This simulation represents an RVE of MOx (Mixed Oxide) material under uniform macroscopic deformation. The aim of this simulation is to reproduce and compare the results obtained by [@masson2020modified; @fauque2021homogenization] who used an FFT method. The mesh used is a periodic mesh containing 100 spheres/inclusions, representing a volume fraction of 17%. It was generated using `MEROPE` (<https://github.com/MarcJos/Merope>) in combination with `GMSH` (<https://gmsh.info/>). Periodic conditions are applied using the `PeriodicNonEvolutionProblem` class, which defines periodicity relations for the boundary nodes of the periodic mesh, while blocking one mesh point to eliminate rigid body motion. The applied strain is defined as follows, with a strain rate $\alpha=0.012$:
 
 $$\varepsilon = \begin{pmatrix} -\alpha/2 & 0 & 0\\
 0 & -\alpha/2 & 0\\
@@ -147,7 +150,7 @@ For modeling the mechanical responses of the matrix and inclusions, an elasto-vi
 |Matrix |  8.182e9 | 0.364 | 100.0e6 | 3.333333 | 293.15|
 |Inclusions | 16.364e9 | 0.364 | 100.0e12 | 3.333333 | 293.15|
 
-The figure \autoref{fig:MOX} illustrates this simulation, involving approximately 10 million Degrees Of Freedom (DOF), conducted over a total simulation time of 5 seconds across 40 time steps ($\Delta_t=0.125s$). A Newton algorithm is applied during each time step, converging within 2 to 4 Newton iterations. The solver used is `HyprePCG` and the preconditioner is `HypreBoomerAMG`.  This simulation was performed using 1,024 `MPI` processes on the CCRT/Topaze HPC platform (https://www.top500.org/system/180014), resulting in an execution time of 1 hour and 32 minutes. This simulation could not be reach on a single laptop (memory requirements and duration). This example is available here: `https://github.com/latug0/mfem-mgis-examples/tree/master/ex7` with the elasto-viscoplastic behavior law: `matrixlaw.mfront` and a periodic mesh with one inclusion: `inclusions.msh`.
+The figure \autoref{fig:MOX} illustrates this simulation, involving approximately 10 million Degrees Of Freedom (DOF), conducted over a total simulation time of 5 seconds across 40 time steps ($\Delta_t=0.125s$). A Newton algorithm is applied during each time step, converging within 2 to 4 Newton iterations. The solver used is `HyprePCG` and the preconditioner is `HypreBoomerAMG`.  This simulation was performed using 1,024 `MPI` processes on the CCRT/Topaze HPC platform (<https://www.top500.org/system/180014>), resulting in an execution time of 1 hour and 32 minutes. This simulation could not be reach on a single laptop (memory requirements and duration). This example is available here: `https://github.com/latug0/mfem-mgis-examples/tree/master/ex7` with the elasto-viscoplastic behavior law: `matrixlaw.mfront` and a periodic mesh with one inclusion: `inclusions.msh`.
 
 ![Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Volume Element (RVE) of the MOX material. [2] A close-up view of a slide within the RVE. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic stress along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT [@masson2020modified; @fauque2021homogenization].\label{fig:MOX}](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Volume Element (RVE) of the MOX material. [2] A close-up view of a slide within the RVE. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT [@masson2020modified; @fauque2021homogenization].")
 
@@ -155,7 +158,7 @@ The figure \autoref{fig:MOX} illustrates this simulation, involving approximatel
 
 Computation related to the behavior law at Gauss points is independent for each other, and while some behavior laws might be computationally expensive, the primary focus of parallel computation time is on solving linear systems at each time step. As a result, the parallel performance of our library is strongly influenced by the performance of `MFEM` (Finite Element Library) and, by extension, the selection of suitable solvers and preconditioners.
 
-To highlight MMM performances, a strong scaling benchmark was conducted at CEA/CCRT up to 65,536 cores, using AMD EPIC Milan processor. A 3D RVE with 49 inclusions was simulated with a heterogeneity ratio of 2 between inclusions and matrix. Elastic behavior laws were used for both material types, giving convergence in a single iteration. The strong scaling was done with the `MPI` version, i.e. one `MPI` process per core (~1.8GB per core). Several solver/preconditioner pairs were tested without fine tuning of the solver parameters. 
+To highlight MMM performances, a strong scaling benchmark was conducted at CEA/CCRT up to 65,536 cores, using AMD EPIC Milan processor. A 3D RVE with 49 inclusions was simulated with a heterogeneity ratio of 2 between inclusions and matrix. Elastic behavior laws were used for both material types, giving convergence in a single iteration. The strong scaling was done with the `MPI` version, i.e. one `MPI` process per core (~1.8GB per core). Several solver/preconditioner pairs were tested without fine tuning of the solver parameters.
 
 ![Simulation runtime and speedup of a RVE with an elasticity behavior law in 3D in function of the number of core (one core per MPI process) according to the pair of solver/preconditioner used.\label{fig:ScalBench}](./HPC_REV_Elasticity.png "Runtime"){width=75%}
 
@@ -163,7 +166,8 @@ The simulation involves approximately 80 million of Degrees Of Freedom. The resu
 
 # Conclusion
 
-This paper presents the `MMM` HPC application designed to address large scale thermo-mechanical simulation and recent supercomputers. Based on an open-source
+This paper presents the `MMM` HPC application designed to address large scale
+thermo-mechanical simulation and recent supercomputers. Based on an open-source
 software stack, it allows for the fine representation of microstructure in full
 3D in the field of fuel modeling. On the one hand, `MGIS` and `MFRONT` bring
 nonlinear mechanics features such as damage, plasticity, viscoplasticity
@@ -172,4 +176,4 @@ and parallel performance (tested on several thousands of cores until now).
 Open-source approach was chosen mainly to: promote collaboration, improve
 reproducibility, and reduce costs for development and maintenance.
 
-Regarding performance portability on GPUs, MFEM already offers numerous algorithms such as partial assembly on GPUs, but MMM does not exploit these features yet. Work is underway to port behavior laws to the GPU (MFront) and associated data structures (MGIS).
+Regarding performance portability on GPUs, MFEM already offers numerous algorithms such as partial assembly on GPUs, but MMM does not exploit these features yet. Work is underway to port behavior laws to the GPU (`MFront`) and associated data structures (`MGIS`).
