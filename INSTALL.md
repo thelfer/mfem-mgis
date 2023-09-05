@@ -40,16 +40,9 @@ $ git clone https://github.com/spack/spack.git
 $ export SPACK_ROOT=$PWD/spack
 $ source ${SPACK_ROOT}/share/spack/setup-env.sh
 $ spack compiler find
-$ spack external find mpi
-$ spack external find m4
-$ spack external find openssl
-$ spack external find automake 
-$ spack external find autoconf
-$ spack external find libtool
-$ spack external find xz
-$ spack external find tar
-$ spack external find tcl
-$ spack external find perl
+$ spack external find m4 openssl automake cmake
+$ spack external find autoconf libtool xz gmake
+$ spack external find tar tcl perl curl zlib
 $ spack install mfem~mpi # MFEM without MPI
 $ spack repo add spack_repo
 $ spack install --only dependencies mmm
