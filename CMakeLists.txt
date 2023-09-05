@@ -3,7 +3,6 @@ project(mfem-mgis)
 
 include(cmake/modules/mfem-mgis.cmake)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
-message(STATUS "Search: ${PROJECT_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,7 +13,6 @@ include(CTest)
 enable_testing()
 
 # MFEM
-message(STATUS "Search: ${PROJECT_SOURCE_DIR}/cmake/modules")
 find_package(MFEM REQUIRED)
 
 # portable-build

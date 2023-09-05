@@ -20,12 +20,14 @@
 
 ## We require parallel MFEM, which has explicit dependency on METIS and HYPRE
 
+message(STATUS "PREFIXPATH $ENV{CMAKE_PREFIX_PATH}")
 
 # Start by finding the MFEM config.mk file
-find_file(MFEM_CONFIG_FILE config.mk
-  HINTS ${MFEM_DIR} $ENV{MFEM_DIR} $ENV{CMAKE_PREFIX_PATH} 
-  HINTS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build ${MFEM_DIR} $ENV{MFEM_DIR} 
-  PATH_SUFFIXES config share/mfem
+find_file(MFEM_CONFIG_FILE
+  NAMES config.mk
+  PATHS ${MFEM_DIR} $ENV{MFEM_DIR} ${CMAKE_PREFIX_PATH} $ENV{CMAKE_PREFIX_PATH} 
+  PATHS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build ${MFEM_DIR} $ENV{MFEM_DIR} 
+  PATH_SUFFIXES share/mfem
   NO_DEFAULT_PATH
   DOC "The MFEM configuration file")
 find_file(MFEM_CONFIG_FILE config.mk)
