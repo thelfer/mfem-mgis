@@ -21,17 +21,17 @@
 
 ## We require parallel MFEM, which has explicit dependency on METIS and HYPRE
 
-message(STATUS "PREFIXPATH $ENV{CMAKE_PREFIX_PATH}")
-
 # Start by finding the MFEM config.mk file
-find_file(MFEM_CONFIG_FILE
-  NAMES config.mk
-  PATHS ${MFEM_DIR} $ENV{MFEM_DIR} ${CMAKE_PREFIX_PATH} $ENV{CMAKE_PREFIX_PATH} 
+STRING(REPLACE ":" ";" MYSEARCH_PATH $ENV{CMAKE_PREFIX_PATH})
+find_file(MFEM_CONFIG_FILE config.mk
+  PATHS ${MYSEARCH_PATH} 
   PATHS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build ${MFEM_DIR} $ENV{MFEM_DIR} 
   PATH_SUFFIXES share/mfem
   NO_DEFAULT_PATH
   DOC "The MFEM configuration file")
-find_file(MFEM_CONFIG_FILE config.mk)
+
+message(STATUS "PREFIXPATH $ENV{CMAKE_PREFIX_PATH}")
+message(STATUS "CFILE ${MFEM_CONFIG_FILE}")
 
 if (MFEM_CONFIG_FILE)
   # Extract the directory name
@@ -39,7 +39,6 @@ if (MFEM_CONFIG_FILE)
 
   # Extract the relevant list of lines
   file(STRINGS ${MFEM_CONFIG_FILE} MFEM_CONFIG_STRINGS REGEX " = ")
-  
   # Now I need to parse this file; it's not pretty. Mayber there's a better way?
   foreach(MY_LINE IN LISTS MFEM_CONFIG_STRINGS)
     # Make the equals sign the list separator
@@ -55,6 +54,7 @@ if (MFEM_CONFIG_FILE)
     
     set(${MY_VAR_NAME} ${MY_VAR_VALUE})
   endforeach(MY_LINE)
+  set(MFEM_DIR ${MFEM_INSTALL_DIR})
   
 else(MFEM_CONFIG_FILE)
   message(FATAL_ERROR "MFEM configuration file not found!")
@@ -75,14 +75,10 @@ find_library(MFEM_LIBRARY mfem
   NO_DEFAULT_PATH
   DOC "The MFEM library.")
 
-# Setup the imported target
-if (NOT TARGET MFEM::mfem)
-  # Check if we have shared or static libraries
-  include(ParELAGCMakeUtilities)
-  parelag_determine_library_type(${MFEM_LIBRARY} MFEM_LIB_TYPE)
-
-  add_library(MFEM::mfem ${MFEM_LIB_TYPE} IMPORTED)
-endif (NOT TARGET MFEM::mfem)
+# Check if we have shared or static libraries
+include(ParELAGCMakeUtilities)
+parelag_determine_library_type(${MFEM_LIBRARY} MFEM_LIB_TYPE)
+add_library(MFEM::mfem ${MFEM_LIB_TYPE} IMPORTED)
  
 # Set the library location
 set_property(TARGET MFEM::mfem

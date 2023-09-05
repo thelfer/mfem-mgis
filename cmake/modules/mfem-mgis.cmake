@@ -1,8 +1,6 @@
 set(EXPORT_INSTALL_PATH "share/mfem-mgis/cmake")
 
 function(mfem_mgis_buildenv)
-  set(METIS_DIR "$ENV{METIS_DIR}")
-  set(HYPRE_DIR "$ENV{HYPRE_DIR}")
   if (MFEM_USE_MPI)
     include_directories(SYSTEM ${MPI_INCLUDE_PATH})
     set(MFEMMGIS_CXX "${MPI_CXX_COMPILER}")

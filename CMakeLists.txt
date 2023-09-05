@@ -12,9 +12,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CTest)
 enable_testing()
 
-# MFEM
-find_package(MFEM REQUIRED)
-
 # portable-build
 option(enable-portable-build "produce binary that can be shared between various machine (same architecture, same gcc version, different processors" OFF)
 
@@ -25,6 +22,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   SETUP_TARGET_FOR_COVERAGE(coverage ctest coverage)
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
+# MFEM
+find_package(MFEM REQUIRED)
 
 if (MFEM_USE_MPI)
   message(STATUS "MFEM: using MPI, so mfem_mgis will use MPI")
