@@ -33,6 +33,38 @@ software. It will allow you to install recent versions of compilers
 get `python`, `cmake` and other tools that are required for this project
 to be installed.
 
+
+A simple way to install via spack MFEM-MGIS-MFront is the following:
+~~~~{.bash}
+$ git clone https://github.com/spack/spack.git
+$ export SPACK_ROOT=$PWD/spack
+$ source ${SPACK_ROOT}/share/spack/setup-env.sh
+$ spack compiler find
+$ spack external find mpi
+$ spack external find m4
+$ spack external find openssl
+$ spack external find automake 
+$ spack external find autoconf
+$ spack external find libtool
+$ spack external find xz
+$ spack external find tar
+$ spack external find tcl
+$ spack external find perl
+$ spack install mfem~mpi # MFEM without MPI
+$ spack repo add spack_repo
+$ spack install --only dependencies mmm
+$ export MFEM_DIR=`spack location -i mfem`
+$ export MGIS_DIR=`spack location -i mgis`
+$ spack build-env mmm
+$ mkdir build && cd build
+$ cmake .. 
+$ make -j 4 check
+~~~~
+
+Alternatively, if one wants to install and fine tune MFEM,
+it is also possible to have a different procedure given hereafter: 
+A simple way to install via spack MFEM-MGIS-MFront is the following:
+
 ~~~~{.bash}
 $ git clone https://github.com/spack/spack.git
 $ export SPACK_ROOT=$PWD/spack
@@ -50,6 +82,7 @@ $ make -j 4 install
 $ make check
 $ export MFEM_DIR=$PWD/mfem/lib/cmake/mfem
 ~~~~
+
 
 ## Optional dependencies
 
@@ -164,3 +197,5 @@ by changing the call to make as follows:
 ~~~~{.bash}
 $ make DEBUG=1
 ~~~~
+
+
