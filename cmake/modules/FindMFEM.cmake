@@ -8,6 +8,7 @@
 # ParElag is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License (as published by the Free
 # Software Foundation) version 2.1 dated February 1999.
+# Modified version 2023, CEA, France
 
 # Defines the following variables
 #   - MFEM_FOUND
@@ -73,15 +74,6 @@ find_library(MFEM_LIBRARY mfem
   PATH_SUFFIXES lib
   NO_DEFAULT_PATH
   DOC "The MFEM library.")
-find_library(MFEM_LIBRARY mfem
-  DOC "The MFEM library.")
-
-if(MFEM_USE_MPI)
-  find_package(MPI REQUIRED)
-  find_package(METIS REQUIRED)
-  find_package(HYPRE REQUIRED)
-endif(MFEM_USE_MPI)
-  
 
 # Setup the imported target
 if (NOT TARGET MFEM::mfem)
@@ -104,9 +96,12 @@ set_property(TARGET MFEM::mfem APPEND
     PROPERTY INTERFACE_LINK_LIBRARIES ${MFEM_EXT_LIBS})
 
 # Set MPI library
-set_property(TARGET MFEM::mfem APPEND
-  PROPERTY INTERFACE_LINK_LIBRARIES
-  ${MPI_CXX_LIBRARIES})
+if(MFEM_USE_MPI)
+  find_package(MPI REQUIRED)
+  set_property(TARGET MFEM::mfem APPEND
+    PROPERTY INTERFACE_LINK_LIBRARIES
+    ${MPI_CXX_LIBRARIES})
+endif(MFEM_USE_MPI)
 
 # Set the include directories
 set(MFEM_INCLUDE_DIRS ${MFEM_INCLUDE_DIRS}
