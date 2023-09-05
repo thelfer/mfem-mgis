@@ -14,7 +14,7 @@ STRING(REPLACE ":" ";" MYSEARCH_PATH $ENV{CMAKE_PREFIX_PATH})
 message(STATUS "SPATH ${MYSEARCH_PATH}")
 find_file(MFrontGenericInterface_CONFIG_FILE MFrontGenericInterfaceConfig.cmake
   PATHS ${MYSEARCH_PATH} 
-#  PATHS ${MGIS_DIR}/build $ENV{MGIS_DIR}/build ${MGIS_DIR} $ENV{MGIS_DIR} 
+  PATHS ${MGIS_DIR}/build $ENV{MGIS_DIR}/build ${MGIS_DIR} $ENV{MGIS_DIR} $ENV{MFrontGenericInterface_DIR} ${MFrontGenericInterface_DIR}
   PATH_SUFFIXES share/mgis/cmake
   NO_DEFAULT_PATH
   DOC "The MFrontGenericInterface configuration file")
