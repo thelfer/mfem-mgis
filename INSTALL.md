@@ -40,15 +40,16 @@ $ git clone https://github.com/spack/spack.git
 $ export SPACK_ROOT=$PWD/spack
 $ source ${SPACK_ROOT}/share/spack/setup-env.sh
 $ spack compiler find
-$ spack external find m4 openssl automake cmake ncurses
-$ spack external find autoconf libtool xz gmake
-$ spack external find tar tcl perl curl zlib
-$ spack install mfem~mpi # MFEM without MPI
+    # with "spack compiler remove <XXX>" one can remove unwanted compiler
+$ spack external find m4 openssl automake ncurses
+$ spack external find autoconf libtool xz gmake cmake
+$ spack external find tar tcl perl curl zlib openblas
 $ spack repo add spack_repo
-$ spack install -j 8 --only dependencies mmm
-$ export MFEM_DIR=`spack location -i mfem`
-$ export MGIS_DIR=`spack location -i mgis`
-$ spack build-env mmm
+$ spack install -j 8 --only dependencies mmm^mfem~mpi
+   # or with MPI : spack install -j 8 --only dependencies mmm^mfem+mpi
+$ export MFEM_DIR=`spack location -i mfem~mpi`
+$ export MFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake
+$ spack build-env mmm^mfem~mpi
 $ mkdir build && cd build
 $ cmake .. 
 $ make -j 4 check
