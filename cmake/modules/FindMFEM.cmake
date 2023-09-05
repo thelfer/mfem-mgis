@@ -23,9 +23,9 @@
 
 # Start by finding the MFEM config.mk file
 find_file(MFEM_CONFIG_FILE config.mk
-  HINTS ${MFEM_DIR} $ENV{MFEM_DIR} 
-  HINTS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build ${MFEM_DIR} $ENV{MFEM_DIR} ${MFEM_DIR}/share/mfem $ENV{MFEM_DIR}/share/mfem
-  PATH_SUFFIXES config
+  HINTS ${MFEM_DIR} $ENV{MFEM_DIR} $ENV{CMAKE_PREFIX_PATH} 
+  HINTS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build ${MFEM_DIR} $ENV{MFEM_DIR} 
+  PATH_SUFFIXES config share/mfem
   NO_DEFAULT_PATH
   DOC "The MFEM configuration file")
 find_file(MFEM_CONFIG_FILE config.mk)

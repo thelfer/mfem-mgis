@@ -15,7 +15,7 @@ class Mmm(CMakePackage):
     url      = "https://github.com/thelfer/mfem-mgis.git"
 
     version('develop', git='https://github.com/thelfer/mfem-mgis.git',
-        branch='master', submodules='True')
+        branch='latug0_spack_cmake', submodules='True')
 
     variant('static'      , default=True   , description='Build static library')
     variant('shared'      , default=False  , description='Build shared library')
