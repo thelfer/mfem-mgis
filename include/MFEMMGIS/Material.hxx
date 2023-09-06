@@ -66,6 +66,12 @@ namespace mfem_mgis {
     //! \return the quadrature space
     std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const;
+    /*!
+     * \return the rotation matrix for the given integration point
+     * \param[in] o: offset of the integration point
+     * \note this method is only valid for orthotropic behaviours
+     */
+    std::array<real, 9u> getRotationMatrixAtIntegrationPoint(const size_type) const;
     //! \brief destructor
     ~Material();
 

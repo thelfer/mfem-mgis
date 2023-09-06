@@ -68,7 +68,7 @@ namespace mfem_mgis {
   }  // end of checkBehaviourSymmetry
 
   void Material::setRotationMatrix(const RotationMatrix2D &r) {
-    checkBehaviourSymmetry(b);
+    checkBehaviourSymmetry(this->b);
     if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) != 2u) {
       raise(
           "Material::setRotationMatrix: "
@@ -97,7 +97,7 @@ namespace mfem_mgis {
   }  // end of setRotationMatrix
 
   void Material::setRotationMatrix(const RotationMatrix3D &r) {
-    checkBehaviourSymmetry(b);
+    checkBehaviourSymmetry(this->b);
     if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) != 3u) {
       raise(
           "Material::setRotationMatrix: "
@@ -180,6 +180,12 @@ namespace mfem_mgis {
     }
     this->r3D = r;
   }  // end of setRotationMatrix
+
+  std::array<real, 9u> Material::getRotationMatrixAtIntegrationPoint(
+      const size_type o) const {
+    checkBehaviourSymmetry(this->b);
+    return this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
+  } // end of getRotationMatrixAtIntegrationPoint
 
   Material::~Material() = default;
 

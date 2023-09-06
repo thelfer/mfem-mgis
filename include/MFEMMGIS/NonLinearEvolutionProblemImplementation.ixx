@@ -78,8 +78,18 @@ namespace mfem_mgis {
         tr.SetIntPoint(&ip);
         const auto thf = s1.thermodynamic_forces.subspan(o * thsize, thsize);
         const auto w = bi.getIntegrationPointWeight(tr, ip);
-        for (mfem_mgis::size_type k = 0; k != thsize; ++k) {
-          s[k] += w * thf[k];
+        if (m.b.symmetry == mgis::behaviour::Behaviour::ORTHOTROPIC) {
+          const auto r = m.getRotationMatrixAtIntegrationPoint(o);
+          std::vector<real> rthf(thf.begin(), thf.end());
+          m.b.rotate_thermodynamic_forces_ptr(rthf.data(), rthf.data(),
+                                              r.data());
+          for (mfem_mgis::size_type k = 0; k != thsize; ++k) {
+            s[k] += w * rthf[k];
+          }
+        } else {
+          for (mfem_mgis::size_type k = 0; k != thsize; ++k) {
+            s[k] += w * thf[k];
+          }
         }
         v += w;
       }
