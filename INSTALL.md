@@ -39,12 +39,14 @@ A simple way to install via spack MFEM-MGIS-MFront is the following:
 $ git clone https://github.com/spack/spack.git
 $ export SPACK_ROOT=$PWD/spack
 $ source ${SPACK_ROOT}/share/spack/setup-env.sh
-$ spack compiler find
+$ spack compiler find # Detect accessible compilers
     # at this stage one can remove unwanted compiler with "spack compiler remove <XXX>" 
 $ spack external find m4 openssl automake ncurses
+    # "external find" command tells spack machinery to detect already installed 
+    # libraries/program. If such libraries/program are found they are not reinstalled.
 $ spack external find autoconf libtool xz gmake cmake
 $ spack external find tar tcl perl curl zlib openblas
-$ spack repo add spack_repo
+$ spack repo add spack_repo 
 $ spack install -j 8 --only dependencies mmm^mfem~mpi
 $ spack build-env mmm^mfem~mpi -- bash
 $ mkdir build && cd build
