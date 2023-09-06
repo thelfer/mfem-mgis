@@ -30,11 +30,9 @@ find_file(MFEM_CONFIG_FILE config.mk
   NO_DEFAULT_PATH
   DOC "The MFEM configuration file")
 
-message(STATUS "PREFIXPATH $ENV{CMAKE_PREFIX_PATH}")
-message(STATUS "CFILE ${MFEM_CONFIG_FILE}")
-
 if (MFEM_CONFIG_FILE)
   # Extract the directory name
+  message(STATUS "Found ${MFEM_CONFIG_FILE}")
   get_filename_component(MFEM_CONFIG_PATH ${MFEM_CONFIG_FILE} DIRECTORY)
 
   # Extract the relevant list of lines
