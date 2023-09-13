@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(mfem-mgis)
 
 include(cmake/modules/mfem-mgis.cmake)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,16 +23,14 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # MFEM
-if (NOT TARGET mfem)
-  message(STATUS "Searching for MFEM")
-  find_package(MFEM REQUIRED)
-else(NOT TARGET mfem)
-  message(STATUS "MFEM target already set")
-endif(NOT TARGET mfem)
+find_package(MFEM REQUIRED)
 
 if (MFEM_USE_MPI)
   message(STATUS "MFEM: using MPI, so mfem_mgis will use MPI")
   find_package(MPI REQUIRED)
+  # The following include directories are automatically filled within FindMFEM.cmake
+  include_directories(SYSTEM ${HYPRE_INCLUDE_DIRS})
+  include_directories(SYSTEM ${METIS_INCLUDE_DIRS})
 endif(MFEM_USE_MPI)
 
 # MFontGenericInterface

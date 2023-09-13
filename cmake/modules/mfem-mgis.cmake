@@ -1,9 +1,8 @@
 set(EXPORT_INSTALL_PATH "share/mfem-mgis/cmake")
 
 function(mfem_mgis_buildenv)
-  set(METIS_DIR "$ENV{METIS_DIR}")
-  set(HYPRE_DIR "$ENV{HYPRE_DIR}")
   if (MFEM_USE_MPI)
+    include_directories(SYSTEM ${MPI_INCLUDE_PATH})
     set(MFEMMGIS_CXX "${MPI_CXX_COMPILER}")
   else()
     set(MFEMMGIS_CXX "${CMAKE_CXX_COMPILER}")
@@ -15,7 +14,8 @@ function(mfem_mgis_buildenv)
     message( FATAL_ERROR  "Program cmake not found")
   endif()
   string(REGEX REPLACE "/cmake\n$" "" CMAKE_CP_PATH "${CMAKE_CP_PATH}")
-  get_target_property(MFEM_LIB_LIST mfem INTERFACE_LINK_LIBRARIES)
+  get_target_property(MFEM_LIB_LIST MFEM::mfem INTERFACE_LINK_LIBRARIES)
+  get_target_property(MFEM_INCLUDE_DIRS MFEM::mfem INTERFACE_INCLUDE_DIRECTORIES)
   configure_file(cmake/env.sh.in
     ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env.sh  @ONLY)
   install(FILES
@@ -43,7 +43,7 @@ function(mfem_mgis_library name)
     PUBLIC "$<INSTALL_INTERFACE:${MFEM_INCLUDE_DIRS}>")
   target_link_libraries(${name} 
     PUBLIC mgis::MFrontGenericInterface
-    PUBLIC mfem)
+    PUBLIC MFEM::mfem)
   if(WIN32)
     install(TARGETS ${name} EXPORT ${name}
             DESTINATION bin)
