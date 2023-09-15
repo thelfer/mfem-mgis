@@ -53,5 +53,9 @@ function(mfem_mgis_library name)
   endif(WIN32)
   install(EXPORT ${name} DESTINATION ${EXPORT_INSTALL_PATH}
     NAMESPACE mfem-mgis:: FILE ${name}Config.cmake)
-  
+  install(FILES
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/cmake/modules/FindMFEM.cmake>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/cmake/modules/FindMFrontGenericInterface.cmake>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/cmake/modules/ParELAGCMakeUtilities.cmake>
+    DESTINATION share/mfem-mgis/cmake)
 endfunction(mfem_mgis_library)

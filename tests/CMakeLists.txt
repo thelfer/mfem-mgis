@@ -317,8 +317,12 @@ endif(MFEM_MGIS_HAVE_TFEL)
 # This example is based on UniaxialTensileTest from the unit tests
 
 set(EX1_DIR "share/mfem-mgis/examples/ex1")
-install(FILES Plasticity.mfront cube.mesh
+install(FILES Plasticity.mfront cube.mesh 
   DESTINATION ${EX1_DIR})
+
+install(FILES ex1CMakeLists.txt
+  DESTINATION ${EX1_DIR}
+  RENAME CMakeLists.txt)
 
 set(UTILITY_FILE ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UnitTestingUtilities.hxx)
 add_custom_command(
@@ -335,6 +339,6 @@ install(FILES
   ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
   DESTINATION ${EX1_DIR})
 
-set(EX3_DIR "share/mfem-mgis/examples/ex3")
-install(FILES Elasticity.mfront cube_2mat_per.mesh
-  DESTINATION ${EX3_DIR})
+set(EX2_DIR "share/mfem-mgis/examples/ex2")
+install(FILES PeriodicTest.cxx Elasticity.mfront cube_2mat_per.mesh
+  DESTINATION ${EX2_DIR})
