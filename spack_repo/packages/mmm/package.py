@@ -54,6 +54,8 @@ class Mmm(CMakePackage):
     depends_on('metis@5.1.0:')
     depends_on('mfem@4.5.2:')
     depends_on('mfem@4.5.2:+mpi', when='+mpi')
+    depends_on('mfem@4.5.2:+suite-sparse', when='+suite-sparse')
+    depends_on('mfem@4.5.2:+petsc', when='+petsc')
     depends_on('mgis@master:+c~fortran~python')
     depends_on('tfel@master:~python~python_bindings')
     depends_on('blas', when='+lapack')
