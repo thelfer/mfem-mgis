@@ -342,3 +342,7 @@ install(FILES
 set(EX2_DIR "share/mfem-mgis/examples/ex2")
 install(FILES PeriodicTest.cxx Elasticity.mfront cube_2mat_per.mesh
   DESTINATION ${EX2_DIR})
+
+install(FILES ex2CMakeLists.txt
+  DESTINATION ${EX2_DIR}
+  RENAME CMakeLists.txt)
