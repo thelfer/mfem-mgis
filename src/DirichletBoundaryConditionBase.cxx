@@ -5,6 +5,7 @@
  * \date   18/03/2021
  */
 
+#include <cstdint>
 #include "mfem/general/array.hpp"
 #include "mfem/mesh/mesh.hpp"
 #include "mfem/fem/fespace.hpp"

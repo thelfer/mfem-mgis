@@ -9,6 +9,7 @@
 #include "mfem/linalg/petsc.hpp"
 #endif MFEM_USE_PETSC
 
+#include <cstdint>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"

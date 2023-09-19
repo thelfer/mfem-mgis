@@ -5,6 +5,7 @@
  * \date   24/03/2021
  */
 
+#include <cstdint>
 #include <utility>
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"

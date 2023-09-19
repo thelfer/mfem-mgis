@@ -6,6 +6,7 @@
  */
 
 #include <cmath>
+#include <cstdint>
 #include <iterator>
 #include <algorithm>
 #include "mfem/fem/fespace.hpp"

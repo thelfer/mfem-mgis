@@ -10,6 +10,7 @@
 #include <utility>
 #include <regex>
 #include <fstream>
+#include <cstdint>
 #include <mfem/mesh/mesh.hpp>
 #include <mfem/fem/fespace.hpp>
 #ifdef MFEM_USE_MPI

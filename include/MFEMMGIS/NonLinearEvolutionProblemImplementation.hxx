@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <cstdint>
 #include "mfem/fem/nonlinearform.hpp"
 #ifdef MFEM_USE_MPI
 #include "mfem/fem/pnonlinearform.hpp"

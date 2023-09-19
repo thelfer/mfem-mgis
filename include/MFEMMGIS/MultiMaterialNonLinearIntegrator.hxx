@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <cstdint>
 #include "mfem/fem/nonlininteg.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Material.hxx"

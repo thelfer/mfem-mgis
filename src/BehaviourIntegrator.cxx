@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <cstdint>
 #include <algorithm>
 #include "mfem/fem/fespace.hpp"
 #ifdef MFEM_USE_MPI
