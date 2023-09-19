@@ -48,8 +48,8 @@ $ spack external find m4 openssl automake ncurses
 $ spack external find autoconf libtool xz gmake cmake
 $ spack external find tar tcl perl curl zlib openblas
 $ spack repo add spack_repo 
-$ spack install -j 8 --only dependencies mmm^mfem~mpi
-$ spack build-env mmm^mfem~mpi -- bash
+$ spack install -j 8 mmm^mfem~mpi
+$ spack load mmm^mfem~mpi
 $ mkdir build && cd build
 $ cmake .. -DCMAKE_INSTALL_PREFIX=../install
 $ make -j 4 check
@@ -68,8 +68,6 @@ can be compiled either using the build systems `cmake` or`make`.
 
 ~~~~{.bash}
 $ export INSTALLDIR=<your_mfemmgis_install_directory>
-$ export TGDIR=<your_work_directory>
-$ cd ${TGDIR}
 $ cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
 $ cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
 $ cd ex1
