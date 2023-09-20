@@ -39,9 +39,7 @@ if (NOT TARGET mfem-mgis::MFEMMGIS)
 endif(NOT TARGET mfem-mgis::MFEMMGIS)
 
 # Define the executable to build for this example
-add_executable(PeriodicTest
-  EXCLUDE_FROM_ALL
-  PeriodicTest.cxx)
+add_executable(PeriodicTest  PeriodicTest.cxx)
 target_link_libraries(PeriodicTest mfem-mgis::MFEMMGIS)
 target_include_directories(PeriodicTest
     SYSTEM
@@ -67,6 +65,7 @@ add_custom_target(generate-libBehaviour-ex2 ALL
   DEPENDS "src/libBehaviour.so")
 
 add_dependencies(check PeriodicTest generate-libBehaviour-ex2)
+
 # Define a test that will be called during the "make check"
 function(add_periodic_test ncase nsolver)
   set(test "PeriodicTest-${ncase}-${nsolver}")

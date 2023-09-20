@@ -22,7 +22,9 @@
 ## We require parallel MFEM, which has explicit dependency on METIS and HYPRE
 
 # Start by finding the MFEM config.mk file
-STRING(REPLACE ":" ";" MYSEARCH_PATH $ENV{CMAKE_PREFIX_PATH})
+
+set(INPUT_PREFIX_PATH "$ENV{CMAKE_PREFIX_PATH}")
+STRING(REPLACE ":" ";" MYSEARCH_PATH "${INPUT_PREFIX_PATH}")
 find_file(MFEM_CONFIG_FILE config.mk
   PATHS ${MYSEARCH_PATH} 
   PATHS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build ${MFEM_DIR} $ENV{MFEM_DIR} 
@@ -66,6 +68,13 @@ find_path(MFEM_INCLUDE_DIRS mfem.hpp
   DOC "MFEM header location.")
 find_path(MFEM_INCLUDE_DIRS mfem.hpp)
 
+set(DISCOVER_EXTRA_INC_DIRS ${MFEM_TPLFLAGS})
+string(REPLACE " " ";" MFEM_EXTRA_INC_DIRS ${DISCOVER_EXTRA_INC_DIRS})
+foreach(FLAG IN LISTS MFEM_EXTRA_INC_DIRS)
+  add_compile_options(${FLAG})
+endforeach(FLAG)
+
+
 # Find the library
 find_library(MFEM_LIBRARY mfem
   HINTS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build ${MFEM_CONFIG_DIR} ${MFEM_DIR} $ENV{MFEM_DIR}
@@ -101,19 +110,9 @@ if(MFEM_USE_MPI)
     include_directories(${MPI_INCLUDE_PATH})
 endif(MFEM_USE_MPI)
 
-#if(MFEM_USE_SUITESPARSE)
-	find_package(SuiteSparse)
-  #include_directories(${SUITESPARSE_INCLUDE_DIRS})
-	set(ICNL_FLAGS ${MFEM_TPLFLAGS})
-#	separate_arguments(ICNL_FLAGS)
-	string(REPLACE " " ";" SEXY_LIST ${ICNL_FLAGS})
-	list(LENGTH SEXY_LIST len)
-#	include_directories(${ICNL_FLAGS})
-	foreach(FLAG IN LISTS SEXY_LIST)
- 		add_compile_options(${FLAG})
-	endforeach(FLAG)
-  #include_directories(SYSTEM ${METIS_INCLUDE_DIRS})
-#endif()
+if (NOT MFEM_USE_SUITESPARSE)
+  message(FATAL_ERROR "You shall have SUITESPARSE support activated in MFEM.CMake will exit.\n" )
+endif()
 
 # Set the include directories
 set(MFEM_INCLUDE_DIRS ${MFEM_INCLUDE_DIRS}

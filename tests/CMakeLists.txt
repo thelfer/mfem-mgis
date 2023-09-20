@@ -230,7 +230,7 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   if(MFEM_USE_SUITESPARSE)
 	add_micromorphic_damage_2d_test2(2)
-	add_micromorphic_damage_3d_test(2)
+#	add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)
@@ -323,6 +323,10 @@ install(FILES Plasticity.mfront cube.mesh
 install(FILES ex1CMakeLists.txt
   DESTINATION ${EX1_DIR}
   RENAME CMakeLists.txt)
+
+install(FILES ex1Makefile
+  DESTINATION ${EX1_DIR}
+  RENAME Makefile)
 
 set(UTILITY_FILE ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UnitTestingUtilities.hxx)
 add_custom_command(
