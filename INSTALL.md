@@ -48,8 +48,8 @@ $ spack external find m4 openssl automake ncurses
 $ spack external find autoconf libtool xz gmake cmake
 $ spack external find tar tcl perl curl zlib openblas
 $ spack repo add spack_repo 
-$ spack install -j 8 mmm^mfem~mpi
-$ spack load mmm^mfem~mpi
+$ spack install -j 8 mmm^mfem~mpi+suite-sparse
+$ spack load mmm^mfem~mpi+suite-sparse
 $ mkdir build && cd build
 $ cmake .. -DCMAKE_INSTALL_PREFIX=../install
 $ make -j 4 check
@@ -75,10 +75,10 @@ $ source env.sh
 $ mkdir build
 $ cd build
 $ cmake ..
-$ make
+$ make; make check
 ~~~~
 
-The example may then be run as follows:
+The example may also be run as follows:
 
 ~~~~{.bash}
 $ ./UniaxialTensileTest 
@@ -91,22 +91,19 @@ own case of study.
 
 ~~~~{.bash}
 $ export INSTALLDIR=<your_mfemmgis_install_directory>
-$ export TGDIR=<your_work_directory>
-$ cd ${TGDIR}
 $ cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
 $ cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
 $ cd ex1
 $ source env.sh
 $ make
+$ ./UniaxialTensileTest 
 ~~~~
 
 ### Building in debug mode
 
-The example and the `MFront` behaviour may be compiled in `debug` mode
+The example and the `MFront` behaviour can be compiled in `debug` mode
 by changing the call to make as follows:
 
 ~~~~{.bash}
-$ make DEBUG=1
+$ make clean; make DEBUG=1
 ~~~~
-
-
