@@ -37,6 +37,8 @@ available in INSTALL_ALTERNATIVES.md.
 A simple way to install via spack MFEM-MGIS-MFront is the following:
 ~~~~{.bash}
 $ git clone https://github.com/spack/spack.git
+    # Please install spack outside the source directory of mfem-mgis,
+    # because it can lead to some caveats using CMake
 $ export SPACK_ROOT=$PWD/spack
 $ source ${SPACK_ROOT}/share/spack/setup-env.sh
 $ spack compiler find # Detect the available compilers on the system.
@@ -47,6 +49,7 @@ $ spack external find m4 openssl automake ncurses
     # libraries/program. If such libraries/program are found they are not reinstalled.
 $ spack external find autoconf libtool xz gmake cmake
 $ spack external find tar tcl perl curl zlib openblas
+$ cd mfem-mgis
 $ spack repo add spack_repo 
 $ spack install -j 8 mmm^mfem~mpi+suite-sparse
 $ spack load mmm^mfem~mpi+suite-sparse
