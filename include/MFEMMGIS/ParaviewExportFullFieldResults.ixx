@@ -71,24 +71,36 @@ namespace mfem_mgis {
   }  // end of execute
 
   template <bool parallel>
-  void ParaviewExportFullFieldResults<parallel>::
-      computeFullFieldResult(real& r, const real& t, const real& dt) {
-      std::cout << "computeFullFieldResult from: " << t << " to: " << dt << "\n";
-      
-      // --- gradient Macro F ou E
-      // auto& mGrad = p.getMacroscopicGradients(t, dt);
-      
-      // --- coordonnees 
-      // coord = p.getcoord
+  void ParaviewExportFullFieldResults<parallel>::computeFullFieldResult(
+      real& r,
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const real& t,
+      const real& dt) {
+    std::cout << "computeFullFieldResult from: " << t << " to: " << dt << "\n";
 
-      // --- solution macro
-      // if size(mGrad)
-      // auto& uM = (F-1)*coord;
-      // else
-      // auto& uM = (E)*coord;
+    const auto mids = p.getMaterialsIdentifiers();
+    const auto& m = p.getMaterial(mids[0]);
+    const auto& b = m.b;
+    if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
+    } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+    } else {
+      // mas la merde
+    }
 
-      // --- calculer le nouveau champs total
-      // r += uM
+    // --- gradient Macro F ou E
+    // auto& mGrad = p.getMacroscopicGradients(t, dt);
+
+    // --- coordonnees
+    // coord = p.getcoord
+
+    // --- solution macro
+    // if size(mGrad)
+    // auto& uM = (F-1)*coord;
+    // else
+    // auto& uM = (E)*coord;
+
+    // --- calculer le nouveau champs total
+    // r += uM
 
   }  // end of computeFullFieldResult
 
@@ -110,6 +122,6 @@ namespace mfem_mgis {
   template <bool parallel>
   ParaviewExportFullFieldResults<parallel>::~ParaviewExportFullFieldResults() = default;
 
-}  // end of namespace mfem_mgis
+  }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEMMGIS_PARAVIEWEXPORTFULLFIELDRESULTS_IXX */

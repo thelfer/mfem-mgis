@@ -48,6 +48,8 @@ namespace mfem_mgis {
      * \param[in] g: macroscopic gradients
      */
     void setMacroscopicGradients(mgis::span<const real>);
+    //! \return the macroscopic gradients
+    const std::vector<real> &getMacroscopicGradients() const;
     /*!
      * \brief set the rotation matrix
      * \param[in] r: rotation matrix
