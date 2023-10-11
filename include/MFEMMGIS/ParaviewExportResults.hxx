@@ -27,7 +27,7 @@ namespace mfem_mgis {
      */
     ParaviewExportResults(NonLinearEvolutionProblemImplementation<parallel>&,
                           const Parameters&);
-    //
+    
     void execute(NonLinearEvolutionProblemImplementation<parallel>&,
                  const real,
                  const real) override;

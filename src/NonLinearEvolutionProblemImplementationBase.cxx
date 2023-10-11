@@ -215,6 +215,20 @@ namespace mfem_mgis {
     this->mgis_integrator->setMacroscopicGradients(g);
   }  // end of setMacroscopicGradients
 
+
+  // // MW : ajout d'une méthode getMacroscopicGradients
+  // std::vector<real> NonLinearEvolutionProblemImplementationBase::getMacroscopicGradients(
+  //     const real t, const real dt) const {
+  //   if (!this->macroscopic_gradients_evolution) {
+  //     raise(
+  //         "PeriodicNonLinearEvolutionProblem::getMacroscopicGradients: "
+  //         "the evolution of the macroscopic gradients has not been set");
+  //   }
+  //   return this->macroscopic_gradients_evolution(t + dt);
+  // }  // end of getMacroscopicGradients
+
+
+
   void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
       const Parameters& params) {
 #ifdef MFEM_USE_PETSC

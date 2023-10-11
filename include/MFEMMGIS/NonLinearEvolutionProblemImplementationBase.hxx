@@ -70,6 +70,19 @@ namespace mfem_mgis {
      * \param[in] g: macroscopic gradients
      */
     virtual void setMacroscopicGradients(const std::vector<real>&);
+
+
+    // // MW : ajout d'une methode getMacroscopicGradients
+    // /*!
+    //  * \return the value of the macroscopic gradients at the end of the time
+    //  * step.
+    //  * \param[in] t: time at the beginning of the time step
+    //  * \param[in] dt: time increment
+    //  */
+    // virtual std::vector<real> getMacroscopicGradients(const real,
+    //                                                   const real) const;
+
+
     /*!
      * \brief set the linear solver
      * \param[in] s: linear solver
