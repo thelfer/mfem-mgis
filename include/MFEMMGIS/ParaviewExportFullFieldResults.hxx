@@ -33,11 +33,11 @@ namespace mfem_mgis {
                  const real) override;
 
     // mfem_mgis::real* getCoordinates(const mfem::GridFunction&,
-    //                     const bool,
-    //                     const size_t,
-    //                     const int,
-    //                     const int);
-    
+    //                                 const bool,
+    //                                 const size_t,
+    //                                 const int,
+    //                                 const int);
+
     //! \brief destructor
     ~ParaviewExportFullFieldResults() override;
 
@@ -48,8 +48,10 @@ namespace mfem_mgis {
     mfem_mgis::GridFunction<parallel> result;
     //! \brief number of records
     size_type cycle;
-    //! \brief compute the fullfield solution
-    void computeFullFieldResult(real&, const real&, const real&);
+    //! \brief list of material' identifiers
+    std::vector<size_type> materials_identifiers;
+    //! \brief list of full field solution
+    mfem::Vector uTot;
   };  // end of struct ParaviewExportFullFieldResults
 
 }  // end of namespace mfem_mgis
