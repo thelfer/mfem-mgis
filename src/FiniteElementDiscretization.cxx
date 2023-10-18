@@ -75,8 +75,30 @@ namespace mfem_mgis {
     return smesh;
   }  // end of loadMeshSequential
 
+  static std::shared_ptr<Mesh<true>> loadMeshParallel(const std::string& mesh_name) {
+    CatchTimeSection("loadMeshParallel");
+#ifdef MFEM_USE_MED
+    const auto extension = getFileExt(mesh_name);
+    if (extension == "med") {
+			std::cout << "Do not use this option (--restart) with a file .med" << std::endl;
+			std::abort();
+    }
+#endif /* MFEM_USE_MED */
+		int myid;
+		MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+
+		std::string fname(mfem::MakeParFilename(mesh_name, myid));
+    std::ifstream ifs(fname);
+    MFEM_VERIFY(ifs.good(), "Checkpoint file " << fname << " not found.");
+    auto smesh = std::make_shared<Mesh<true>>(Mesh<true>(MPI_COMM_WORLD, ifs));
+//    auto smesh = std::make_shared<Mesh<true>>(mesh_name.c_str(),
+//                                               generate_edges, refine);
+    return smesh;
+  }  // end of loadMeshParallel
+
   const char* const FiniteElementDiscretization::Parallel = "Parallel";
   const char* const FiniteElementDiscretization::MeshFileName = "MeshFileName";
+  const char* const FiniteElementDiscretization::MeshReadMode = "MeshReadMode";
   const char* const FiniteElementDiscretization::FiniteElementFamily =
       "FiniteElementFamily";
   const char* const FiniteElementDiscretization::FiniteElementOrder =
@@ -146,6 +168,7 @@ namespace mfem_mgis {
   std::vector<std::string> FiniteElementDiscretization::getParametersList() {
     return {FiniteElementDiscretization::Parallel,
             FiniteElementDiscretization::MeshFileName,
+            FiniteElementDiscretization::MeshReadMode,
             FiniteElementDiscretization::FiniteElementFamily,
             FiniteElementDiscretization::FiniteElementOrder,
             FiniteElementDiscretization::UnknownsSize,
@@ -180,9 +203,19 @@ namespace mfem_mgis {
         params, FiniteElementDiscretization::NumberOfUniformRefinements, 0);
     if (parallel) {
 #ifdef MFEM_USE_MPI
-      auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
-      this->parallel_mesh =
+    	const auto mesh_mode = get_if<std::string>(
+        params, FiniteElementDiscretization::MeshReadMode, "FromScratch");
+			if(mesh_mode == "FromScratch") {
+      	auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
+      	this->parallel_mesh =
           std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
+			}
+			else if(mesh_mode == "Restart") {
+      	this->parallel_mesh = loadMeshParallel(mesh_file);
+			}
+			else 	{	
+				raise( "Wrong MeshReadMode value" );
+			}
       for (size_type i = 0; i < nrefinement; ++i) {
         CatchNestedTimeSection("run_ParUniformRefinement");
         this->parallel_mesh->UniformRefinement();
