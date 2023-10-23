@@ -30,6 +30,8 @@ namespace mfem_mgis {
     static const char* const Parallel;
     //! \brief string associated to the `MeshFileName` parameter
     static const char* const MeshFileName;
+    //! \brief string associated to the `MeshReadMode` parameter
+    static const char* const MeshReadMode;
     //! \brief string associated to the `FiniteElementFamily` parameter
     static const char* const FiniteElementFamily;
     //! \brief string associated to the `FiniteElementOrder` parameter

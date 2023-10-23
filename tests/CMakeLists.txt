@@ -40,7 +40,7 @@ if(MFEM_MGIS_HAVE_TFEL)
       add_periodic_test(${ncase} ${nsolver})
     endforeach(nsolver)
   endforeach(ncase)
-      
+
   add_executable(UniaxialTensileTest
     EXCLUDE_FROM_ALL
     UniaxialTensileTest.cxx)
@@ -228,13 +228,27 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_micromorphic_damage_3d_test)
 
+
+  
   if(MFEM_USE_SUITESPARSE)
 	add_micromorphic_damage_2d_test2(2)
 #	add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)
-    
+
+    add_executable(ParallelReadMode
+      EXCLUDE_FROM_ALL
+      ParallelReadMode.cxx)
+    set_target_properties(ParallelReadMode PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
+    target_link_libraries(ParallelReadMode
+      PRIVATE MFEMMGIS)
+    add_dependencies(check ParallelReadMode)
+  
+    add_test(NAME Restart_Parallel_Read_Mode_MPI_4
+      COMMAND mpirun -n 4 ./ParallelReadMode --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-explorer.mesh. --library "$<TARGET_FILE:BehaviourTest>" --read-mesh-mode Restart)
+      
+
     add_executable(PeriodicTestP
       EXCLUDE_FROM_ALL
       PeriodicTest.cxx)
