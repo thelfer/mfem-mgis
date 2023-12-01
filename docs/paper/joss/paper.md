@@ -176,3 +176,7 @@ Open-source approach was chosen mainly to: promote collaboration, improve
 reproducibility, and reduce costs for development and maintenance.
 
 Regarding performance portability on GPUs, MFEM already offers numerous algorithms such as partial assembly on GPUs, but MMM does not exploit these features yet. Work is underway to port behavior laws to the GPU (`MFront`) and associated data structures (`MGIS`).
+
+# Acknowledgement
+
+This work was performed using HPC resources from CCRT funded by the CEA/DEs simulation programme.
