@@ -27,11 +27,20 @@ bibliography: paper.bib
 
 # Summary
 
-The `MFEM-MGIS-MFRONT` (MMM) application, aims at efficiently use supercomputers
-in to describe coupled multiphysics phenomena implicits with a particular focus on thermo-mechanics. This open-source library is
-based on several components as prerequisites: the `MFEM` (Modular Finite Element
-Methods)  [@mfem; @mfem-web] library, the `MGIS` (MFront Generic Interface Support) [@Helfer2020] library and the
-`MFront` [@helfer2015introducing] DSL code generator.
+The `MFEM-MGIS-MFRONT` (MMM) application, aims at efficiently use
+supercomputers in order to describe coupled multiphysics phenomena
+with a particular focus on thermo-mechanics. This open-source library
+is based on several components as prerequisites: the `MFEM` (Modular
+Finite Element Methods) [@mfem; @mfem-web] library, the `MGIS` (MFront
+Generic Interface Support) [@Helfer2020] library and the `MFront`
+[@helfer2015introducing] DSL code generator.  Thanks to the features
+embedded within MGIS and MFront and thanks to specific developments,
+MMM adds several mechanical features compared to a pure MFEM approach.
+The library tackles some peculiarities of nonlinear
+mechanics. In particular, the support of complex constitutive laws and
+the management of advanced boundary conditions. It provides a 
+high level of abstraction based on a declarative text-based
+Application Programming Interface.
 
 # MFEM-based Thermo-Mechanical Solver for Nuclear Fuel Simulations
 
@@ -91,24 +100,24 @@ the support of complex constitutive laws and the management of advanced
 boundary conditions.  
 
 The `MMM` library is written in `C++17` language and
-provides a very high level of abstraction based on a very declarative
+provides a high level of abstraction based on a declarative
 text-based Application Programming Interface.
 
 # Integrate MMM in an Open Source Ecosystem
 
 The `MMM` library takes full advantage of an open-source software (OSS) stack. It
-benefits from the increasing maturity of many communities and tools working
-together. Thus, within `MFEM`, one has many available choices to set the linear
+benefits from the increasing maturity of several scientific tools that are combined.
+Thus, within `MFEM`, one has many available choices to set the linear
 solver, such as: `Hypre`[@hypre2002], `PETSc`[@petsc-web-page], `MUMPS`[@mumps], `SuperLU`, `UMFPACK`[@davis2004algorithm] or other ones. Likewise,
 several preconditioners, partitioning libraries, or input mesh formats can be
 activated and used. Combinations are highly configurable and almost all
-external libraries are switchable. 
+external libraries that relates to linear solvers are switchable. 
 
 # Software stack
 
-![MFEM-MGIS-MFront Stack. Every libraries are Open Sources.\label{fig:SoftStack}](./MMM-stack-v0.png "MFEM-MGIS-MFront software stack. MMM is the convergence between two open sources ecosytem."){width=75%}
+![MFEM-MGIS-MFront Stack. Each library is open source.\label{fig:SoftStack}](./MMM-stack-v0.png "MFEM-MGIS-MFront software stack. MMM is the convergence between two open sources ecosytem."){width=75%}
 
-The MMM software stack is presented on \autoref{fig:SoftStack}. Most of low-level external libraries are required by `MFEM` and can be disabled. This is the minimal package requirements to build MMM on a HPC platform:`C++17`, `MFEM`, `MGIS`, `TFEL`(MFront) and `MPI`.
+The MMM software stack is presented on \autoref{fig:SoftStack}. Most of low-level external libraries are required by `MFEM` and can be disabled. Hence, the minimal package requirements to build MMM on a HPC platform is typically:`C++17`, `MFEM`, `MGIS`, `TFEL`(MFront), CMake and `MPI`.
 
 To handle the numerous accessible
 combinations, Spack [@gamblin2015spack] is really a cornerstone. This package manager simplifies
@@ -116,22 +125,23 @@ building, installing, customizing, and sharing HPC software stacks. It provides
 a simple way for installing packages with cumbersome structures and lots of
 dependencies. `Spack` is an open-source package manager developed and maintained
 by community of HPC developers. Our setup that combines OSS allows for a fast
-and cheap access to advanced features embedded in the underlying libraries. Note that other HPC libraries will be used in future, such as `CUDA`, `RAJA` or `OCCA` for performance portability on GPU.
+and cheap access to advanced features embedded in the underlying libraries.
 
-To complete the installation, you can enable the following options while compiling `MFEM`. The most interesting are the solver or preconditioner packages such as `Hypre`,`MUMPS`, and `PETSc` (including `SuperLU`, `UMFPACK`), and the load balancing packages `Zoltan` [@devine2000design] and `Metis` [@karypis1997parmetis].
+
+To complete the installation, you can enable the following options while compiling `MFEM`. The most interesting are the solver or preconditioner packages such as `Hypre`, `MUMPS`, and `PETSc` (including `SuperLU`, `UMFPACK`), and the load balancing packages `Zoltan` [@devine2000design] and `Metis` [@karypis1997parmetis].
 
 # Numerical Results {#sec:numerical_results}
 
-Installation and deployment on desktop or large computers is based on the Spack
+Installation and deployment on desktop or large computers is shortened using the Spack
 package manager. Multi-material elastic modelling on computational clusters has
-been carried out with MMM. Scalability performance is good on a
+been carried out with MMM. The observed scalability performance is good on a
 few thousands of CPU cores. Despite the very high level of abstraction and the
 genericness of MMM (multi-material and arbitrary behaviors), the overhead
-appears reasonably limited. In the worst-case for `MMM`, this overhead is up to 30% (TODO: vérifier si ce n'est pas 15) compared to a pure `MFEM` version which
-provides very optimized and specialized kernels (This was tested on a simulation
-with 2 elastic materials). Several examples can be found on the open-source GitHub
-repository: `https://github.com/latug0/mfem-mgis-examples`. Below is an example
-running on supercomputers.
+appears reasonably limited. In the worst-case for `MMM`, an overhead of up to 30% has been observed  compared to a pure `MFEM` version which
+provides very optimized and specialized kernels (the test was performed on a simulation
+with only two elastic materials). Several examples can be found on the open-source GitHub
+repository: `https://github.com/latug0/mfem-mgis-examples`. An illustrative example
+of MMM in the field of fuel modelling is presented hereafter.
 
 ## Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications
 
@@ -155,27 +165,28 @@ The figure \autoref{fig:MOX} illustrates this simulation, involving approximatel
 
 # Performance Results MMM on a HPC platform
 
-Computation related to the behavior law at Gauss points is independent for each other, and while some behavior laws might be computationally expensive, the primary focus of parallel computation time is on solving linear systems at each time step. As a result, the parallel performance of our library is strongly influenced by the performance of `MFEM` and, by extension, the selection of suitable solvers and preconditioners.
+Computation related to the behavior law at quadrature points is independent for each other, and while some behavior laws may exhibit large costs, the primary hotspot is commonly on solving linear systems at each time step. As a result, the parallel performance of our library is strongly influenced by the performance of `MFEM` and, by extension, the selection of the most suitable solvers and preconditioners.
 
 To highlight MMM performances, a strong scaling benchmark was conducted at CEA/CCRT up to 65,536 cores, using AMD EPIC Milan processor. A 3D RVE with 49 inclusions was simulated with a heterogeneity ratio of 2 between inclusions and matrix. Elastic behavior laws were used for both material types, giving convergence in a single iteration. The strong scaling was done with the `MPI` version, i.e. one `MPI` process per core (~1.8GB per core). Several solver/preconditioner pairs were tested without fine tuning of the solver parameters.
 
 ![Simulation runtime and speedup of a RVE with an elasticity behavior law in 3D in function of the number of core (one core per MPI process) according to the pair of solver/preconditioner used.\label{fig:ScalBench}](./HPC_REV_Elasticity.png "Runtime"){width=95%}
 
-The simulation involves approximately 80 million of Degrees Of Freedom. The results are presented in \autoref{fig:ScalBench} and exhibit a quasi-linear speed-up as expected when combining `MFEM` and `MFront`-`MGIS`. Solver/preconditioner pairs that failed to converge in less than 5,000 Krylov iterations or reach memory limits (in the case of direct solvers) on 65,384 cores are not shown in Figure \autoref{fig:ScalBench}. Note that the most scalable "pairs" are not necessarily the fastest, as their runtimes are longer on few cores. In addition, performances decrease between 32,768 to 65,536 is attributed to the low workload per `MPI` process (less than 2,000 DOFs per `MPI` process), while `MPI` communications per process increases.
+The simulation involves approximately 80 million of Degrees Of Freedom. The results are presented in \autoref{fig:ScalBench} and exhibit a quasi-linear speed-up as expected when combining `MFEM` and `MFront`-`MGIS`. Solver/preconditioner pairs that failed to converge in less than 5,000 Krylov iterations or reach memory limits (in the case of direct solvers) on 65,384 cores are not shown in Figure \autoref{fig:ScalBench}. Note that the most scalable "pairs" are not necessarily the fastest, as their runtimes are longer on few cores. In addition, the scalabilty decrease between 32,768 and 65,536 is attributed to the very low workload per `MPI` process (less than 2,000 DOFs per `MPI` process), while `MPI` communications per process increases.
 
 # Conclusion
 
 This paper presents the `MMM` HPC application designed to address large scale
-thermo-mechanical simulation and recent supercomputers. Based on an open-source
+thermo-mechanical simulation and recent supercomputers. Based on an open source
 software stack, it allows for the fine representation of microstructure in full
 3D in the field of fuel modeling. On the one hand, `MGIS` and `MFRONT` bring
 nonlinear mechanics features such as damage, plasticity, viscoplasticity
 capabilities. On the other hand, `MFEM` provides advanced finite elements schemes
 and parallel performance (tested on several thousands of cores until now).
-Open-source approach was chosen mainly to: promote collaboration, improve
+Open source approach was chosen mainly to: promote collaboration, improve
 reproducibility, and reduce costs for development and maintenance.
 
 Regarding performance portability on GPUs, MFEM already offers numerous algorithms such as partial assembly on GPUs, but MMM does not exploit these features yet. Work is underway to port behavior laws to the GPU (`MFront`) and associated data structures (`MGIS`).
+Note that other HPC libraries is considered for the future, such as `CUDA`, `RAJA` or `OCCA` for performance portability of MMM on GPU.
 
 # Acknowledgement
 
