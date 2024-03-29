@@ -59,6 +59,19 @@ $ make -j 4 check
 $ make install
 ~~~~
 
+Alternative way if you have already installed mfem, tfel, and mgis with SPACK.
+
+~~~~{.bash}
+spack load mfem
+spack load tfel
+spack load mgis
+spack load hypre
+export HYPRE_DIR=`spack location -i hypre`
+mkdir build && cd build
+cmake ..
+make -j 4 check
+~~~~
+
 # Creating a simple example based on `mfem-mgis`
 
 Through the `make install` command, a simple example has been created in
