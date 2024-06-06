@@ -55,7 +55,7 @@ support for adaptive non-conforming mesh refinement (AMR).
 Originating from the applied mathematics and parallel computing communities, `MFEM` offers both
 performance and a large panel of advanced mathematical features. In particular,
 one can easily switch from one linear solver to another (direct or iterative),
-which is essential for the targeted application: microstructure and mesoscale
+which is essential for the targeted application [@bernaud2024pleiades]: microstructure and mesoscale
 modeling for nuclear fuel. 
 
 
@@ -145,7 +145,7 @@ of MMM in the field of fuel modelling is presented hereafter.
 
 ## Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications
 
-This simulation represents an RVE of material under uniform macroscopic deformation. The aim of this simulation is to reproduce and compare the results obtained by [@masson2020modified; @fauque2021homogenization] who used an FFT method to represent a simplified MOx (Mixed Oxide) setting. The mesh used is a periodic mesh containing 100 spheres/inclusions, representing a volume fraction of 17%. It was generated using `MEROPE` (<https://github.com/MarcJos/Merope>) in combination with `GMSH` (<https://gmsh.info/>). Periodic conditions are applied using the `PeriodicNonEvolutionProblem` class, which defines periodicity relations for the boundary nodes of the periodic mesh, while blocking one mesh point to eliminate rigid body motion. The applied strain stensor is defined as follows, with a strain rates $\alpha=0.012$, with t the time:
+This simulation represents an RVE of material under uniform macroscopic deformation. The aim of this simulation is to reproduce and compare the results obtained by [@masson2020modified; @fauque2021homogenization] who used an FFT method to represent a simplified MOx (Mixed Oxide) setting. The mesh used is a periodic mesh containing 100 spheres/inclusions, representing a volume fraction of 17%. It was generated using `MEROPE` [@josien2024merope]in combination with `GMSH` (<https://gmsh.info/>). Periodic conditions are applied using the `PeriodicNonEvolutionProblem` class, which defines periodicity relations for the boundary nodes of the periodic mesh, while blocking one mesh point to eliminate rigid body motion. The applied strain stensor is defined as follows, with a strain rates $\alpha=0.012$, with t the time:
 
 $$\varepsilon = \begin{pmatrix} -t*\alpha/2 & 0 & 0\\
 0 & -t*\alpha /2 & 0\\
