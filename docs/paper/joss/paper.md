@@ -143,26 +143,6 @@ with only two elastic materials). Several examples can be found on the open-sour
 repository: `https://github.com/latug0/mfem-mgis-examples`. An illustrative example
 of MMM in the field of fuel modelling is presented hereafter.
 
-## Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications
-
-This simulation represents an RVE of material under uniform macroscopic deformation. The aim of this simulation is to reproduce and compare the results obtained by [@masson2020modified; @fauque2021homogenization] who used an FFT method to represent a simplified MOx (Mixed Oxide) setting. The mesh used is a periodic mesh containing 100 spheres/inclusions, representing a volume fraction of 17%. It was generated using `MEROPE` [@josien2024merope]in combination with `GMSH` (<https://gmsh.info/>). Periodic conditions are applied using the `PeriodicNonEvolutionProblem` class, which defines periodicity relations for the boundary nodes of the periodic mesh, while blocking one mesh point to eliminate rigid body motion. The applied strain stensor is defined as follows, with a strain rates $\alpha=0.012$, with t the time:
-
-$$\varepsilon = \begin{pmatrix} -t*\alpha/2 & 0 & 0\\
-0 & -t*\alpha /2 & 0\\
-0 & 0 & t*\alpha\\
-\end{pmatrix}$$
-
-For modeling the mechanical responses of the matrix and inclusions, an elasto-viscoplastic law is used with the following parameters:
-
-|Mesh set | Young Modulus (Pa) | Poisson Ratio | Stress Threshold (Pa) | Norton Exponent ($n$) |
-|--|--|--|--|--|
-| Inclusions |  8.182e9 | 0.364 | 100.0e6 | 3.333333 |
-| Matrix | 16.364e9 | 0.364 | 100.0e12 | 3.333333 |
-
-The figure \autoref{fig:MOX} illustrates this simulation, involving approximately 10 million Degrees Of Freedom (DOF), conducted over a total simulation time of 5 seconds across 40 time steps ($\Delta_t=0.125s$). A Newton algorithm is applied during each time step, converging within 2 to 4 Newton iterations. The solver used is `HyprePCG` and the preconditioner is `HypreBoomerAMG`.  This simulation was performed using 1,024 `MPI` processes on the CCRT/Topaze HPC platform (<https://www.top500.org/system/180014>), resulting in an execution time of 1 hour and 32 minutes. This example is available here: `https://github.com/latug0/mfem-mgis-examples/tree/master/ex7` with the elasto-viscoplastic behavior law: `matrixlaw.mfront` and a periodic mesh with one inclusion: `inclusions.msh`.
-
-![Visualization of a material (close to MOx) with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. The figure includes the following: [1] A view of the Representative Volume Element (RVE) of the MOX material. [2] A close-up view of a slide within the RVE. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic stress along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by FFT [@masson2020modified; @fauque2021homogenization].\label{fig:MOX}](./Mox-picture.png "Visualization of a MOX with 17% inclusions, using an elasto-viscoplastic behavior law with color representation based on the magnitude of displacement denoted as u. This figure includes : [1] A view of the Representative Volume Element (RVE) of the MOX material. [2] A close-up view of a slide within the RVE. [3] A view of the inclusions isolated from the matrix. [4] The evolution of macroscopic strain along the ZZ direction over time, comparing the results obtained with MMM and the reference data acquired by by using the FFT method [@masson2020modified; @fauque2021homogenization].")
-
 # Performance Results MMM on a HPC platform
 
 Computation related to the behavior law at quadrature points is independent for each other, and while some behavior laws may exhibit large costs, the primary hotspot is commonly on solving linear systems at each time step. As a result, the parallel performance of our library is strongly influenced by the performance of `MFEM` and, by extension, the selection of the most suitable solvers and preconditioners.
