@@ -63,8 +63,8 @@ namespace mfem_mgis {
           "ator::setup: "
           "external state variable 'Temperature' is not defined");
     }
-    if (std::holds_alternative<mgis::span<real>>(pev->second)) {
-      this->uesv = std::get<mgis::span<real>>(pev->second).data();
+    if (std::holds_alternative<std::span<real>>(pev->second)) {
+      this->uesv = std::get<std::span<real>>(pev->second).data();
     } else if (std::holds_alternative<std::vector<real>>(pev->second)) {
       this->uesv = std::get<std::vector<real>>(pev->second).data();
     } else {
@@ -96,13 +96,13 @@ namespace mfem_mgis {
 
   void
   OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
-      rotateGradients(mgis::span<real> g, const RotationMatrix &r) {
+      rotateGradients(std::span<real> g, const RotationMatrix &r) {
     this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());
   }  // end of rotateGradients
 
   std::array<real, 2>
   OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
-      rotateThermodynamicForces(mgis::span<const real> s,
+      rotateThermodynamicForces(std::span<const real> s,
                                 const RotationMatrix &r) {
     std::array<real, 2> rs;
     std::copy(s.begin(), s.end(), rs.begin());
@@ -112,7 +112,7 @@ namespace mfem_mgis {
 
   void
   OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
-      rotateTangentOperatorBlocks(mgis::span<real> Kip,
+      rotateTangentOperatorBlocks(std::span<real> Kip,
                                   const RotationMatrix &r) {
     this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
                                                r.data());
@@ -120,7 +120,7 @@ namespace mfem_mgis {
 
   inline void
   OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
-      updateGradients(mgis::span<real> &g,
+      updateGradients(std::span<real> &g,
                       const mfem::Vector &u,
                       const mfem::DenseMatrix &dN,
                       const size_type ni) noexcept {
@@ -134,7 +134,7 @@ namespace mfem_mgis {
   inline void
   OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateInnerForces(mfem::Vector &Fe,
-                        const mgis::span<const real> &s,
+                        const std::span<const real> &s,
                         const mfem::DenseMatrix &dN,
                         const real w,
                         const size_type ni) const noexcept {
@@ -146,7 +146,7 @@ namespace mfem_mgis {
   inline void
   OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
-                            const mgis::span<const real> &Kip,
+                            const std::span<const real> &Kip,
                             const mfem::Vector &N,
                             const mfem::DenseMatrix &dN,
                             const real w,

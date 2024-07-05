@@ -10,7 +10,7 @@
 
 #include <array>
 #include <memory>
-#include "MGIS/Span.hxx"
+#include <span>
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
@@ -139,7 +139,7 @@ namespace mfem_mgis {
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    virtual void setMacroscopicGradients(mgis::span<const real>) = 0;
+    virtual void setMacroscopicGradients(std::span<const real>) = 0;
     //! \brief destructor
     virtual ~BehaviourIntegrator();
   };  // end of struct BehaviourIntegrator

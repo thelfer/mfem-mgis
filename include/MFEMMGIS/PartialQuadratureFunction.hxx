@@ -12,7 +12,7 @@
 #include <vector>
 #include <limits>
 #include <functional>
-#include "MGIS/Span.hxx"
+#include <span>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 
@@ -110,7 +110,7 @@ namespace mfem_mgis {
      */
     ImmutablePartialQuadratureFunctionView(
         std::shared_ptr<const PartialQuadratureSpace>,
-        mgis::span<const real>,
+        std::span<const real>,
         const size_type = 0,
         const size_type = std::numeric_limits<size_type>::max());
     //! \return the underlying quadrature space
@@ -139,21 +139,21 @@ namespace mfem_mgis {
      * \param[in] o: offset associated with the integration point
      */
     template <size_type N>
-    mgis::span<const real, N> getIntegrationPointValues(const size_type) const;
+    std::span<const real, N> getIntegrationPointValues(const size_type) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
      */
-    mgis::span<const real> getIntegrationPointValues(const size_type) const;
+    std::span<const real> getIntegrationPointValues(const size_type) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
      */
-    mgis::span<const real> getIntegrationPointValues(const size_type,
+    std::span<const real> getIntegrationPointValues(const size_type,
                                                      const size_type) const;
     //! \return a view to the function values
-    mgis::span<const real> getValues() const;
+    std::span<const real> getValues() const;
     /*!
      * \return if the current function has the same quadrature space and the
      * same number of components than the given view
@@ -182,7 +182,7 @@ namespace mfem_mgis {
     //! \brief underlying finite element space
     std::shared_ptr<const PartialQuadratureSpace> qspace;
     //! \brief underlying values
-    mgis::span<const real> immutable_values;
+    std::span<const real> immutable_values;
   };  // end of ImmutablePartialQuadratureFunctionView
 
   /*!
@@ -233,7 +233,7 @@ namespace mfem_mgis {
      */
     PartialQuadratureFunction(
         std::shared_ptr<const PartialQuadratureSpace>,
-        mgis::span<real>,
+        std::span<real>,
         const size_type = 0,
         const size_type = std::numeric_limits<size_type>::max());
     /*!
@@ -286,21 +286,21 @@ namespace mfem_mgis {
      * \param[in] o: offset associated with the integration point
      */
     template <size_type N>
-    mgis::span<real, N> getIntegrationPointValues(const size_type);
+    std::span<real, N> getIntegrationPointValues(const size_type);
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
      */
-    mgis::span<real> getIntegrationPointValues(const size_type);
+    std::span<real> getIntegrationPointValues(const size_type);
     /*!
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
      */
-    mgis::span<real> getIntegrationPointValues(const size_type,
+    std::span<real> getIntegrationPointValues(const size_type,
                                                const size_type);
     //! \return a view to the function values
-    mgis::span<real> getValues();
+    std::span<real> getValues();
     //! \brief destructor
     ~PartialQuadratureFunction();
 
@@ -322,7 +322,7 @@ namespace mfem_mgis {
      */
     void copyValues(const ImmutablePartialQuadratureFunctionView&);
     //! \brief underlying values
-    mgis::span<real> values;
+    std::span<real> values;
     /*!
      * \brief storage for the values when the partial function holds the
      * values

@@ -71,7 +71,7 @@ namespace mfem_mgis {
     auto dispatch =
         [](std::vector<real>& v,
            std::map<std::string,
-                    std::variant<real, mgis::span<real>, std::vector<real>>>&
+                    std::variant<real, std::span<real>, std::vector<real>>>&
                values,
            const std::vector<mgis::behaviour::Variable>& ds) {
           raise_if(ds.size() != v.size(), "integrate: ill allocated memory");
@@ -102,10 +102,10 @@ namespace mfem_mgis {
               // if uniform field, copy p->second into v[i]
               // `evs` will be untouched.
               v[i] = std::get<real>(p->second);
-            } else if (std::holds_alternative<mgis::span<real>>(p->second)) {
+            } else if (std::holds_alternative<std::span<real>>(p->second)) {
               // if we have a span, we store in evs this span for future use
               evs.push_back(std::make_tuple(
-                  i, std::get<mgis::span<real>>(p->second).data()));
+                  i, std::get<std::span<real>>(p->second).data()));
             } else {
               // if we have a vector, we store in evs this vector for future
               // use
@@ -206,7 +206,7 @@ namespace mfem_mgis {
   }  // end of update
 
   void BehaviourIntegratorBase::setMacroscopicGradients(
-      mgis::span<const real> g) {
+      std::span<const real> g) {
     Material::setMacroscopicGradients(g);
   }  // end of setMacroscopicGradients
 

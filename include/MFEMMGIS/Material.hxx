@@ -12,7 +12,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
-#include "MGIS/Span.hxx"
+//#include "MGIS/Span.hxx"
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
@@ -47,7 +47,7 @@ namespace mfem_mgis {
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    void setMacroscopicGradients(mgis::span<const real>);
+    void setMacroscopicGradients(std::span<const real>);
     /*!
      * \brief set the rotation matrix
      * \param[in] r: rotation matrix

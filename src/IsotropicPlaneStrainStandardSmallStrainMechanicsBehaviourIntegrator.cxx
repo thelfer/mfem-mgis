@@ -59,22 +59,22 @@ namespace mfem_mgis {
   }  // end of getRotationMatrix
 
   void IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
-      rotateGradients(mgis::span<real>, const RotationMatrix &) {
+      rotateGradients(std::span<real>, const RotationMatrix &) {
   }  // end of rotateGradients
 
-  mgis::span<const real>
+  std::span<const real>
   IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
-      rotateThermodynamicForces(mgis::span<const real> s,
+      rotateThermodynamicForces(std::span<const real> s,
                                 const RotationMatrix &) {
     return s;
   }
 
   void IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
-      rotateTangentOperatorBlocks(mgis::span<real>, const RotationMatrix &) {}
+      rotateTangentOperatorBlocks(std::span<real>, const RotationMatrix &) {}
 
   inline void
   IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
-      updateGradients(mgis::span<real> &g,
+      updateGradients(std::span<real> &g,
                       const mfem::Vector &u,
                       const mfem::DenseMatrix &dN,
                       const size_type ni) noexcept {
@@ -94,7 +94,7 @@ namespace mfem_mgis {
   inline void
   IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
       updateInnerForces(mfem::Vector &Fe,
-                        const mgis::span<const real> &s,
+                        const std::span<const real> &s,
                         const mfem::DenseMatrix &dN,
                         const real w,
                         const size_type ni) const noexcept {
@@ -112,7 +112,7 @@ namespace mfem_mgis {
   inline void
   IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
-                            const mgis::span<const real> &Kip,
+                            const std::span<const real> &Kip,
                             const mfem::DenseMatrix &dN,
                             const real w,
                             const size_type ni) const noexcept {

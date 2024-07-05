@@ -59,13 +59,13 @@ namespace mfem_mgis {
   }  // end of getRotationMatrix
 
   void OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      rotateGradients(mgis::span<real> g, const RotationMatrix &r) {
+      rotateGradients(std::span<real> g, const RotationMatrix &r) {
     this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());
   }  // end of rotateGradients
 
   std::array<real, 5>
   OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      rotateThermodynamicForces(mgis::span<const real> s,
+      rotateThermodynamicForces(std::span<const real> s,
                                 const RotationMatrix &r) {
     std::array<real, 5> rs;
     std::copy(s.begin(), s.end(), rs.begin());
@@ -74,7 +74,7 @@ namespace mfem_mgis {
   }
 
   void OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      rotateTangentOperatorBlocks(mgis::span<real> Kip,
+      rotateTangentOperatorBlocks(std::span<real> Kip,
                                   const RotationMatrix &r) {
     this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
                                                r.data());
@@ -82,7 +82,7 @@ namespace mfem_mgis {
 
   inline void
   OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      updateGradients(mgis::span<real> &g,
+      updateGradients(std::span<real> &g,
                       const mfem::Vector &u,
                       const mfem::DenseMatrix &dN,
                       const size_type ni) noexcept {
@@ -101,7 +101,7 @@ namespace mfem_mgis {
   inline void
   OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
       updateInnerForces(mfem::Vector &Fe,
-                        const mgis::span<const real> &s,
+                        const std::span<const real> &s,
                         const mfem::DenseMatrix &dN,
                         const real w,
                         const size_type ni) const noexcept {
@@ -117,7 +117,7 @@ namespace mfem_mgis {
   inline void
   OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
-                            const mgis::span<const real> &Kip,
+                            const std::span<const real> &Kip,
                             const mfem::DenseMatrix &dN,
                             const real w,
                             const size_type ni) const noexcept {

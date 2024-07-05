@@ -28,8 +28,8 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<true>&,
-      const mgis::span<const real>&,
-      const mgis::span<const real>&);
+      const std::span<const real>&,
+      const std::span<const real>&);
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
@@ -48,8 +48,8 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<false>&,
-      const mgis::span<const real>&,
-      const mgis::span<const real>&);
+      const std::span<const real>&,
+      const std::span<const real>&);
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
@@ -70,8 +70,8 @@ namespace mfem_mgis {
                         const size_t dim,
                         const int index,
                         const int size,
-                        const mgis::span<const real>& corner1,
-                        const mgis::span<const real>& corner2);
+                        const std::span<const real>& corner1,
+                        const std::span<const real>& corner2);
 
   /*!
    * \brief a base class handling the evolution of the macroscopic gradients
@@ -86,8 +86,8 @@ namespace mfem_mgis {
      */
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>,
-        const mgis::span<const real>&,
-        const mgis::span<const real>&);
+        const std::span<const real>&,
+        const std::span<const real>&);
 
     /*!
      * \brief constructor
