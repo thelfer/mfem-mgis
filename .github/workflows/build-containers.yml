@@ -58,7 +58,7 @@ jobs:
       - name: Build Container
         run: |
            container=$uri:latest
-           docker build -f ${dockerfile} -t ${container} .
+           sudo docker build -f ${dockerfile} -t ${container} .
            echo "container=$container" >> $GITHUB_ENV
         
       - name: GHCR Login
