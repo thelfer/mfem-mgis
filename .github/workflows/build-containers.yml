@@ -1,4 +1,3 @@
-
 name: "Docker"
 
 on:
@@ -27,8 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         # Dockerfiles to build, a matrix supports future expanded builds
-        container: [["config/docker/Dockerfile.base", "ghcr.io/mfem/mfem-ubuntu-base"],
-                    ["config/docker/Dockerfile", "ghcr.io/mfem/mfem-ubuntu"]]
+        container: [["config/docker/Dockerfile.base", "ghcr.io/mfem/mfem-ubuntu-base"], ["config/docker/Dockerfile", "ghcr.io/mfem/mfem-ubuntu"]]
 
     runs-on: ubuntu-latest
     name: Build
