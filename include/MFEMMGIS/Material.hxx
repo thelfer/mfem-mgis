@@ -12,7 +12,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
-//#include "MGIS/Span.hxx"
+#include <span>
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
