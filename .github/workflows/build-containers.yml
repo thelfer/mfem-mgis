@@ -82,5 +82,13 @@ jobs:
             docker tag ${uri}:latest ${uri}:${tag}
             docker push ${uri}:${tag}
 
-      - name: CompileMFEMMGIS
+      - name: Config MFEMMGIS
         run: cmake -B ${{github.workspace}}/build
+
+      - name: Build MFEMMGIS
+        # Build your program with the given configuration
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+      - name: Ctest
+        working-directory: ${{github.workspace}}/build
+        run: make examples && ctest -C --rerun-failed --output-on-failure ${{env.BUILD_TYPE}}
