@@ -19,9 +19,6 @@ on:
 
 jobs:
   build:
-    if: github.repository == 'mfem/mfem' # Don't run in forks
-    permissions:
-      packages: write
     strategy:
       fail-fast: false
       matrix:
