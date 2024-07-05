@@ -60,7 +60,7 @@ modeling for nuclear fuel.
 
 
 
-# Statement of needs
+# Statement of need
 
 The solid mechanic applications in `MFEM`
 are mostly limited to simple constitutive equations such as elasticity and
@@ -134,24 +134,13 @@ To complete the installation, you can enable the following options while compili
 
 Installation and deployment on desktop or large computers is shortened using the Spack
 package manager. Multi-material elastic modelling on computational clusters has
-been carried out with MMM. The observed scalability performance is good on a
+been carried out with `MMM`. The observed scalability performance is good on a
 few thousands of CPU cores. Despite the very high level of abstraction and the
-genericness of MMM (multi-material and arbitrary behaviors), the overhead
+genericness of `MMM` (multi-material and arbitrary behaviors), the overhead
 appears reasonably limited. In the worst-case for `MMM`, an overhead of up to 30% has been observed  compared to a pure `MFEM` version which
 provides very optimized and specialized kernels (the test was performed on a simulation
 with only two elastic materials). Several examples can be found on the open-source GitHub
-repository: `https://github.com/latug0/mfem-mgis-examples`. An illustrative example
-of MMM in the field of fuel modelling is presented hereafter.
-
-# Performance Results MMM on a HPC platform
-
-Computation related to the behavior law at quadrature points is independent for each other, and while some behavior laws may exhibit large costs, the primary hotspot is commonly on solving linear systems at each time step. As a result, the parallel performance of our library is strongly influenced by the performance of `MFEM` and, by extension, the selection of the most suitable solvers and preconditioners.
-
-To highlight MMM performances, a strong scaling benchmark was conducted at CEA/CCRT up to 65,536 cores, using AMD EPIC Milan processor. A 3D RVE with 49 inclusions was simulated with a heterogeneity ratio of 2 between inclusions and matrix. Elastic behavior laws were used for both material types, giving convergence in a single iteration. The strong scaling was done with the `MPI` version, i.e. one `MPI` process per core (~1.8GB per core). Several solver/preconditioner pairs were tested without fine tuning of the solver parameters.
-
-![Simulation runtime and speedup of a RVE with an elasticity behavior law in 3D in function of the number of core (one core per MPI process) according to the pair of solver/preconditioner used.\label{fig:ScalBench}](./HPC_REV_Elasticity.png "Runtime"){width=95%}
-
-The simulation involves approximately 80 million of Degrees Of Freedom. The results are presented in \autoref{fig:ScalBench} and exhibit a quasi-linear speed-up as expected when combining `MFEM` and `MFront`-`MGIS`. Solver/preconditioner pairs that failed to converge in less than 5,000 Krylov iterations or reach memory limits (in the case of direct solvers) on 65,384 cores are not shown in Figure \autoref{fig:ScalBench}. Note that the most scalable "pairs" are not necessarily the fastest, as their runtimes are longer on few cores. In addition, the scalabilty decrease between 32,768 and 65,536 is attributed to the very low workload per `MPI` process (less than 2,000 DOFs per `MPI` process), while `MPI` communications per process increases.
+repository: `https://github.com/latug0/mfem-mgis-examples`.
 
 # Conclusion
 
