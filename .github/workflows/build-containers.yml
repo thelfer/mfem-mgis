@@ -20,12 +20,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Dockerfiles to build, a matrix supports future expanded builds
-        container: [["config/docker/Dockerfile.base", "ghcr.io/mfem/mfem-ubuntu-base"], ["config/docker/Dockerfile", "ghcr.io/mfem/mfem-ubuntu"]]
-
 
     name: Build
     steps:
@@ -43,43 +37,13 @@ jobs:
         uses: actions/checkout@v4
 
       # It's easier to reference named variables than indexes of the matrix
-      - name: Set Environment
-        env:
-          dockerfile: ${{ matrix.container[0] }}
-          uri: ${{ matrix.container[1] }}
-        run: |
-          echo "dockerfile=$dockerfile" >> $GITHUB_ENV
-          echo "uri=$uri" >> $GITHUB_ENV
+      - name: pull docker
+        run: docker pull ghcr.io/mfem/containers/developer-cpu:latest
+        working-directory:  ${{github.workspace}}
 
-      - name: Pull previous layers for cache
-        run: docker pull ${uri}:latest || echo "No container to pull"
-
-      - name: Build Container
-        run: |
-           container=$uri:latest
-           docker build -f ${dockerfile} -t ${container} .
-           echo "container=$container" >> $GITHUB_ENV
-
-      - name: GHCR Login
-        if: (github.event_name != 'pull_request')
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy
-        if: (github.event_name != 'pull_request')
-        run: |
-            docker push ${container}
-
-      - name: Tag and Push Release
-        if: (github.event_name == 'release')
-        run: |
-            tag=${GITHUB_REF#refs/tags/}
-            echo "Tagging and releasing ${uri}:${tag}"
-            docker tag ${uri}:latest ${uri}:${tag}
-            docker push ${uri}:${tag}
+      - name: pull docker
+        run: docker run --cap-add=SYS_PTRACE -p 3000:3000 -p 8000:8000 -p 8080:8080 ghcr.io/mfem/containers/developer-cpu:latest
+        working-directory:  ${{github.workspace}}
             
       - name: Config MFEMMGIS
         run: cmake -B ${{github.workspace}}/build
