@@ -35,7 +35,7 @@ jobs:
       - name: Get MFEM
         run: git clone https://github.com/mfem/mfem.git
       - name: Config MFEM
-        run:  cmake -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=mfem-install -S mfem -B ${{github.workspace}}/build-mfem
+        run:  cmake -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/mfem-install -S mfem -B ${{github.workspace}}/build-mfem
       - name: Build MFEM
         run: cmake --build ${{github.workspace}}/build-mfem --config Release
       - name: Install MFEM
