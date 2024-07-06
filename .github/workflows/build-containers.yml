@@ -31,8 +31,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: test
-        run: echo "$LD_LIBRARY_PATH"
+      - name: Get MFEM
+        run: git clone https://github.com/mfem/mfem.git
+      - name: Config MFEM
+        run:  cmake -S ${{github.workspace}}/mfem -B ${{github.workspace}}/build-mfem
+      - name: Build MFEM
+        run: cmake --build ${{github.workspace}}/build-mfem --config Release
             
 #      - name: Config MFEMMGIS
 #        run: cmake -B ${{github.workspace}}/build
