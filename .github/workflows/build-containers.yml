@@ -33,6 +33,7 @@ jobs:
 
       - name: Get MFEM
         run: git clone https://github.com/mfem/mfem.git
+        working-directory: ${{github.workspace}}
       - name: Config MFEM
         run:  cmake -S ${{github.workspace}}/mfem -B ${{github.workspace}}/build-mfem
       - name: Build MFEM
