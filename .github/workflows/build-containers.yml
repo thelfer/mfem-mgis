@@ -26,8 +26,8 @@ jobs:
       - name: Check for dockerenv file
         run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
 
-    name: Build
-      steps:
+#    name: Build
+#      steps:
       - name: Checkout
         uses: actions/checkout@v4
 
