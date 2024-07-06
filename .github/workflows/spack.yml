@@ -1,4 +1,4 @@
-name: "Docker"
+name: "Spack"
 
 on:
   # Always have a base image ready to go - this is a nightly build
