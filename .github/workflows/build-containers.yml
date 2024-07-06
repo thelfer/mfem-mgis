@@ -36,12 +36,11 @@ jobs:
         run: |
           git clone https://github.com/spack/spack.git ${{github.workspace}}/spack
           ls ${{github.workspace}}
-      - name: Load Env
-        run: /bin/sh ${{github.workspace}}/spack/share/spack/setup-env.sh
-      - name: Add repo
-        run: spack repo add spack_repo
-      - name: Install MFEM-MGIS
-        run: spack install mmm+mpi+suite-sparse
+      - name: Install MFEM MGIS
+        run: |
+          /bin/sh ${{github.workspace}}/spack/share/spack/setup-env.sh
+          spack repo add spack_repo
+          spack install mmm+mpi+suite-sparse
 
 
 #      - name: Get MFEM
