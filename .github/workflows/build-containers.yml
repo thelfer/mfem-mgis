@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: test
-        run: which mfem && echo "$LD_LIBRARY_PATH"
+        run: echo "$LD_LIBRARY_PATH"
             
 #      - name: Config MFEMMGIS
 #        run: cmake -B ${{github.workspace}}/build
