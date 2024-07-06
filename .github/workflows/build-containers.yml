@@ -20,6 +20,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/mfem/containers/developer-cpu:latest
 
     name: Build
     steps:
@@ -37,13 +39,13 @@ jobs:
         uses: actions/checkout@v4
 
       # It's easier to reference named variables than indexes of the matrix
-      - name: pull docker
-        run: docker pull ghcr.io/mfem/containers/developer-cpu:latest
-        working-directory:  ${{github.workspace}}
+#      - name: pull docker
+#        run: docker pull ghcr.io/mfem/containers/developer-cpu:latest
+#        working-directory:  ${{github.workspace}}
 
-      - name: pull docker
-        run: docker run --cap-add=SYS_PTRACE -p 3000:3000 -p 8000:8000 -p 8080:8080 ghcr.io/mfem/containers/developer-cpu:latest
-        working-directory:  ${{github.workspace}}
+#      - name: pull docker
+#        run: docker run --cap-add=SYS_PTRACE -p 3000:3000 -p 8000:8000 -p 8080:8080 ghcr.io/mfem/containers/developer-cpu:latest
+#        working-directory:  ${{github.workspace}}
             
       - name: Config MFEMMGIS
         run: cmake -B ${{github.workspace}}/build
