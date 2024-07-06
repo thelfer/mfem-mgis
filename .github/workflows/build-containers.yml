@@ -25,18 +25,11 @@ jobs:
 
     name: Build
     steps:
-      - name: Run Actions Cleaner
-        uses: easimon/maximize-build-space@v8
-        with:
-          overprovision-lvm: 'true'
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
-
       - name: Checkout
         uses: actions/checkout@v4
+        
+      - name: Check for dockerenv file
+        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
 
       # It's easier to reference named variables than indexes of the matrix
 #      - name: pull docker
