@@ -34,7 +34,7 @@ jobs:
 
       - name: Get Spack
         run: |
-          git clone https://github.com/spack/spack.git ${{github.workspace}}
+          git clone https://github.com/spack/spack.git ${{github.workspace}}/spack
           ls ${{github.workspace}}
       - name: Load Env
         run: /bin/sh ${{github.workspace}}/spack/share/spack/setup-env.sh
