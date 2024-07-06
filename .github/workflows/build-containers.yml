@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: some tests
-        run: ls ..
+        run: pwd
       - name: some tests
         run: ls ../hypre
       - name: some tests
