@@ -21,7 +21,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/mfem/containers/developer-cpu-tpls:latest
+      image: ghcr.io/mfem/containers/cpu-tpls:latest
     steps:
       - name: Check for dockerenv file
         run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
