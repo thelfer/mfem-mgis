@@ -34,7 +34,7 @@ jobs:
       - name: Get MFEM
         run: git clone https://github.com/mfem/mfem.git
       - name: Config MFEM
-        run:  cmake -S mfem -B build-mfem
+        run:  cmake -S mfem -B ${{github.workspace}}/build-mfem
       - name: Build MFEM
         run: cmake --build ${{github.workspace}}/build-mfem --config Release
             
