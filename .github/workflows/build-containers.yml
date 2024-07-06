@@ -38,8 +38,7 @@ jobs:
       - name: Build MFEM
         run: cmake --build ${{github.workspace}}/build-mfem --config Release
       - name: Install MFEM
-        working-directory: ${{github.workspace}}//build-mfem
-        run: make install
+        run: cmake --install  ${{github.workspace}}/build-mfem
       - name: Config MFEMMGIS
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ 
 
