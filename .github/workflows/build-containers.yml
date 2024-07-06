@@ -32,20 +32,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get MFEM
-        run: git clone https://github.com/mfem/mfem.git
-      - name: Config MFEM
-        run:  cmake -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/mfem-install -S mfem -B ${{github.workspace}}/build-mfem
-      - name: Build MFEM
-        run: cmake --build ${{github.workspace}}/build-mfem --config Release
-      - name: Install MFEM
-        run: cmake --install  ${{github.workspace}}/build-mfem
-      - name: Config MFEMMGIS
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=${{github.workspace}}/mfem-install -DHYPRE_DIR=../hypre/src/hypre
+      - name: some tests
+        run: ls ..
+      - name: some tests
+        run: ls ../hypre
+      - name: some tests
+        run: ls ../mfem
 
-      - name: Build MFEMMGIS
-        # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} 
+#      - name: Get MFEM
+#        run: git clone https://github.com/mfem/mfem.git
+#      - name: Config MFEM
+#        run:  cmake -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/mfem-install -S mfem -B ${{github.workspace}}/build-mfem
+#      - name: Build MFEM
+#        run: cmake --build ${{github.workspace}}/build-mfem --config Release
+#      - name: Install MFEM
+#        run: cmake --install  ${{github.workspace}}/build-mfem
+#      - name: Config MFEMMGIS
+#        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=${{github.workspace}}/mfem-install -DHYPRE_DIR=../hypre/src/hypre
+
+#      - name: Build MFEMMGIS
+#        # Build your program with the given configuration
+#        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} 
+        
 #      - name: Ctest
 #        working-directory: ${{github.workspace}}/build
 #        run: make examples && ctest -C --rerun-failed --output-on-failure ${{env.BUILD_TYPE}}
