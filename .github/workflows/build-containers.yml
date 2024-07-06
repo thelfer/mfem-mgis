@@ -33,9 +33,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get Spack
-        run: git clone https://github.com/spack/spack.git
+        run: git clone https://github.com/spack/spack.git ${{github.workspace}}
       - name: Load Env
-        run: source spack/share/spack/setup-env.sh
+        run: source ${{github.workspace}}/spack/share/spack/setup-env.sh
       - name: Add repo
         run: spack repo add spack_repo
       - name: Install MFEM-MGIS
