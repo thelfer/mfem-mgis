@@ -35,7 +35,7 @@ jobs:
       - name: some tests
         run: pwd
       - name: some tests
-        run: ls ../../
+        run: ls /usr/local
 
 
 #      - name: Get MFEM
