@@ -20,8 +20,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-#    container:
-#      image: ghcr.io/mfem/containers/developer-cpu:latest
+    container:
+      image: ghcr.io/mfem/containers/developer-cpu:latest
 
     name: Build
     steps:
