@@ -20,16 +20,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/mfem/containers/developer-cpu:latest
+#    container:
+#      image: ghcr.io/mfem/containers/developer-cpu:latest
 
     name: Build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Check for dockerenv file
-        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
+#      - name: Check for dockerenv file
+#        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
 
       # It's easier to reference named variables than indexes of the matrix
 #      - name: pull docker
