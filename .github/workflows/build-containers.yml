@@ -35,6 +35,7 @@ jobs:
           buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
           color: true       # Force color output (SPACK_COLOR=always)
           path: spack       # Where to clone Spack
+      - name: Install MFEM MGIS
         run: |
           spack repo add spack_repo
           spack install mmm+mpi+suite-sparse
