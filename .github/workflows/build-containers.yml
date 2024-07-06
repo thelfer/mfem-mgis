@@ -34,10 +34,11 @@ jobs:
       - name: Get MFEM
         run: git clone https://github.com/mfem/mfem.git
       - name: Config MFEM
-        run:  cmake -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=mfem-install -S mfem -B ${{github.workspace}}/build-mfem
+        run:  cmake -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=mfem-install -S mfem -B ${{github.workspace}}/build-mfem && export MFEM_DIR=$PWD/mfem-install
       - name: Build MFEM
         run: cmake --build ${{github.workspace}}/build-mfem --config Release
-            
+      - name: Install MFEM
+        run: make install
       - name: Config MFEMMGIS
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ 
 
