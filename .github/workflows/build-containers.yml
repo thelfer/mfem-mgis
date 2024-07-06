@@ -35,7 +35,7 @@ jobs:
       - name: Get MFEM
         run: git clone https://github.com/mfem/mfem.git
       - name: Config MFEM
-        run:  cmake -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=mfem-install -S mfem -B ${{github.workspace}}/build-mfem && export MFEM_DIR=$PWD/mfem-install/share/mfem/
+        run:  cmake -DMFEM_USE_MPI=ON -DMFEM_USE_METIS_5=ON -DCMAKE_INSTALL_PREFIX=mfem-install -S mfem -B ${{github.workspace}}/build-mfem
       - name: Build MFEM
         run: cmake --build ${{github.workspace}}/build-mfem --config Release
       - name: Install MFEM
@@ -45,7 +45,7 @@ jobs:
 
       - name: Build MFEMMGIS
         # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -DMFEM_DIR=${{github.workspace}}/mfem-install
 
 #      - name: Ctest
 #        working-directory: ${{github.workspace}}/build
