@@ -33,7 +33,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get Spack
-        run: git clone https://github.com/spack/spack.git ${{github.workspace}}
+        run: |
+          git clone https://github.com/spack/spack.git ${{github.workspace}}
+          ls ${{github.workspace}}
       - name: Load Env
         run: /bin/sh ${{github.workspace}}/spack/share/spack/setup-env.sh
       - name: Add repo
