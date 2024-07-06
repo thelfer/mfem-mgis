@@ -41,7 +41,7 @@ jobs:
       - name: Install MFEM
         run: cmake --install  ${{github.workspace}}/build-mfem
       - name: Config MFEMMGIS
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=${{github.workspace}}/mfem-install
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=${{github.workspace}}/mfem-install -DHYPRE_DIR=../hypre/src/hypre
 
       - name: Build MFEMMGIS
         # Build your program with the given configuration
