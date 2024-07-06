@@ -32,12 +32,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: some tests
-        run: pwd
-      - name: some tests
-        run: ls /usr/local/share
-      - name: some tests
-        run: ls /usr/local/lib
+      - name: Get Spack
+        run: git clone https://github.com/spack/spack.git
+      - name: Load Env
+        run: source spack/share/spack/setup-env.sh
+      - name: Add repo
+        run: spack repo add spack_repo
+      - name: Install MFEM-MGIS
+        run: spack install mmm+mpi+suite-sparse
 
 
 #      - name: Get MFEM
