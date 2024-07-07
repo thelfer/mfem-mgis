@@ -32,7 +32,7 @@ jobs:
     - name: Config MFEM-MGIS
       run: |
         spack load --sh hypre
-        echo "$(`spack location -i hypre)"
+        spack location -i hypre
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake -DTFEL_DIR=`spack location -i tfel`
 
     - name: Build MFEM-MGIS
