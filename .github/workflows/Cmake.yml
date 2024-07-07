@@ -13,4 +13,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Spack
+      uses: spack/setup-spack@v2
+      with:
+        ref: develop      # Spack version (examples: develop, releases/v0.21)
+        buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
+        color: true       # Force color output (SPACK_COLOR=always)
+        path: spack       # Where to clone Spack
 
+    - name: Install Packages
+      run: |
+        spack install mfem+mpi+suite-sparse
+        spack install tfel@5.0.0:~python~python_binding
+        spack install mgis@5.0.0:+c~fortran~python
+        
+    - name: Config MFEM-MGIS
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem`/share -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`(spack location -i mgis`/share/mgis/cmake
+
+    - name: Build MFEM-MGIS
+      run: cmake --build ${{github.workspace}}/build --config Release
+
+    - name: Run examples
+      working-directory: ${{github.workspace}}/build
+      run: make check
