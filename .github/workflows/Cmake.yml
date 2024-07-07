@@ -24,7 +24,7 @@ jobs:
     - name: Install Packages
       run: |
         spack install mfem+mpi+suite-sparse
-        spack install tfel@master:~python~python_binding
+        spack install tfel@master:~python~python_bindings
         spack install mgis@master:+c~fortran~python
         
     - name: Config MFEM-MGIS
