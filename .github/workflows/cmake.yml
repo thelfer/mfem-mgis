@@ -19,7 +19,7 @@ jobs:
         ref: develop      # Spack version (examples: develop, releases/v0.21)
         buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
         color: true       # Force color output (SPACK_COLOR=always)
-        path: ${{github.workspace}}/spack       # Where to clone Spack
+        path: ${{github.workspace}}/../spack       # Where to clone Spack
 
     - uses: mpi4py/setup-mpi@v1
 
@@ -32,7 +32,6 @@ jobs:
     - name: Config MFEM-MGIS
       run: |
         spack load --sh hypre
-        spack location -i hypre
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake
 
     - name: Build MFEM-MGIS
