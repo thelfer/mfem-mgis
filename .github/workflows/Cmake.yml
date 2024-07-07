@@ -24,8 +24,8 @@ jobs:
     - name: Install Packages
       run: |
         spack install mfem+mpi+suite-sparse
-        spack install tfel@5.0.0:~python~python_binding
-        spack install mgis@5.0.0:+c~fortran~python
+        spack install tfel@master:~python~python_binding
+        spack install mgis@master:+c~fortran~python
         
     - name: Config MFEM-MGIS
       run: |
@@ -33,6 +33,7 @@ jobs:
         spack load hypre
         spack load mfem
         spack load mgis
+        export HYPRE_DIR=`spack location -i hypre`
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`(spack location -i mgis`/share/mgis/cmake
 
     - name: Build MFEM-MGIS
