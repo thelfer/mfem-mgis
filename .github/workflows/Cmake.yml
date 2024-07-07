@@ -23,12 +23,14 @@ jobs:
 
     - name: Install Packages
       run: |
+        spack install openmpi
         spack install mfem+mpi+suite-sparse
         spack install tfel@master:~python~python_bindings
         spack install mgis@master:+c~fortran~python
         
     - name: Config MFEM-MGIS
       run: |
+        spack load --sh openmpi
         spack load --sh suite-sparse
         spack load --sh hypre
         spack load --sh mfem
