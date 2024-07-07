@@ -35,6 +35,7 @@ jobs:
         spack load --sh hypre
         spack load --sh mfem
         spack load --sh mgis
+        export MPI_CXX=$MPICXX 
         export HYPRE_DIR=`spack location -i hypre`
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`(spack location -i mgis`/share/mgis/cmake
 
