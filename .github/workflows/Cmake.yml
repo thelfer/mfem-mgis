@@ -28,7 +28,12 @@ jobs:
         spack install mgis@5.0.0:+c~fortran~python
         
     - name: Config MFEM-MGIS
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem`/share -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`(spack location -i mgis`/share/mgis/cmake
+      run: |
+        spack load suite-sparse
+        spack load hypre
+        spack load mfem
+        spack load mgis
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`(spack location -i mgis`/share/mgis/cmake
 
     - name: Build MFEM-MGIS
       run: cmake --build ${{github.workspace}}/build --config Release
