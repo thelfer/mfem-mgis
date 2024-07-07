@@ -1,6 +1,6 @@
 ---
 title: Installation guide
-author: Guillaume Latu, Thomas Helfer
+author: Guillaume Latu, Thomas Helfer, Raphaël Prat
 date: 30/03/2021
 lang: en-EN
 link-citations: true
@@ -34,34 +34,38 @@ available in INSTALL_ALTERNATIVES.md.
 
 # Installing with SPACK
 
-A simple way to install via spack MFEM-MGIS-MFront is the following:
-~~~~{.bash}
-$ git clone https://github.com/spack/spack.git
-    # Please install spack outside the source directory of mfem-mgis,
-    # because it can lead to some caveats using CMake
-$ export SPACK_ROOT=$PWD/spack
-$ source ${SPACK_ROOT}/share/spack/setup-env.sh
-$ spack compiler find # Detect the available compilers on the system.
+A simple way to install via spack `MFEM-MGIS-MFront` is the following:
+
+```
+git clone https://github.com/spack/spack.git
+# Please install spack outside the source directory of mfem-mgis,
+# because it can lead to some caveats using CMake
+export SPACK_ROOT=$PWD/spack
+source ${SPACK_ROOT}/share/spack/setup-env.sh
+spack compiler find # Detect the available compilers on the system.
     # Please select a version that provides C and C++ and fortran compilers.
     # At this stage one can remove unwanted compiler with "spack compiler remove <XXX>".
-$ spack external find m4 openssl automake ncurses
+spack external find m4 openssl automake ncurses
     # "external find" command tells spack machinery to detect already installed 
     # libraries/program. If such libraries/program are found they are not reinstalled.
-$ spack external find autoconf libtool xz gmake cmake
-$ spack external find tar tcl perl curl zlib openblas
-$ cd mfem-mgis
-$ spack repo add spack_repo 
-$ spack install -j 8 mmm^mfem~mpi+suite-sparse
-$ spack load mmm^mfem~mpi+suite-sparse
-$ mkdir build && cd build
-$ cmake .. -DCMAKE_INSTALL_PREFIX=../install
-$ make -j 4 check
-$ make install
-~~~~
+spack external find autoconf libtool xz gmake cmake
+spack external find tar tcl perl curl zlib openblas
+cd mfem-mgis
+spack repo add spack_repo 
+spack install -j 8 mmm^mfem+mpi+suite-sparse
+spack load mmm^mfem~mpi+suite-sparse
+mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=../install
+make -j 4 check
+make install
+```
 
-Alternative way if you have already installed mfem, tfel, and mgis with SPACK.
+Alternative way if you have already installed `mfem`, `tfel`, and mgis with `SPACK`.
 
-~~~~{.bash}
+```
+spack install mfem+mpi+suite-sparse
+spack install tfel@master:~python~python_bindings
+spack install mgis@master:+c~fortran~python
 spack load mfem
 spack load tfel
 spack load mgis
@@ -70,7 +74,7 @@ export HYPRE_DIR=`spack location -i hypre`
 mkdir build && cd build
 cmake ..
 make -j 4 check
-~~~~
+```
 
 # Creating a simple example based on `mfem-mgis`
 
@@ -82,44 +86,45 @@ can be compiled either using the build systems `cmake` or`make`.
 
 ## Building the example using the `cmake` build-system
 
-~~~~{.bash}
-$ export INSTALLDIR=<your_mfemmgis_install_directory>
-$ cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
-$ cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
-$ cd ex1
-$ source env.sh
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make; make check
-~~~~
+```
+export INSTALLDIR=<your_mfemmgis_install_directory>
+cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
+cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
+cd ex1
+source env.sh
+mkdir build
+cd build
+cmake ..
+make; make check
+```
 
 The example may also be run as follows:
 
-~~~~{.bash}
-$ ./UniaxialTensileTest 
-~~~~
+
+```
+./UniaxialTensileTest 
+```
 
 You can then modify the source file and design your
 own case of study.
 
 ## Building the example using the `make` build-system
 
-~~~~{.bash}
-$ export INSTALLDIR=<your_mfemmgis_install_directory>
-$ cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
-$ cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
-$ cd ex1
-$ source env.sh
-$ make
-$ ./UniaxialTensileTest 
-~~~~
+```
+export INSTALLDIR=<your_mfemmgis_install_directory>
+cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
+cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
+cd ex1
+source env.sh
+make
+./UniaxialTensileTest 
+```
 
 ### Building in debug mode
 
 The example and the `MFront` behaviour can be compiled in `debug` mode
 by changing the call to make as follows:
 
-~~~~{.bash}
-$ make clean; make DEBUG=1
-~~~~
+```
+make clean; make DEBUG=1
+```
