@@ -10,7 +10,7 @@ if (MGIS_DIR OR MFrontGenericInterface_DIR)
   SET(MFrontGenericInterface_FIND_QUIETLY TRUE)
 endif (MGIS_DIR OR MFrontGenericInterface_DIR)
 
-STRING(REPLACE ":" ";" MYSEARCH_PATH $ENV{CMAKE_PREFIX_PATH})
+STRING(REPLACE ":" ";" MYSEARCH_PATH "$ENV{CMAKE_PREFIX_PATH}")
 find_file(MFrontGenericInterface_CONFIG_FILE MFrontGenericInterfaceConfig.cmake
   PATHS ${MYSEARCH_PATH} 
   PATHS ${MGIS_DIR}/build $ENV{MGIS_DIR}/build ${MGIS_DIR} $ENV{MGIS_DIR} $ENV{MFrontGenericInterface_DIR} ${MFrontGenericInterface_DIR}
