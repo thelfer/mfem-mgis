@@ -27,6 +27,8 @@ jobs:
 #        mpi: openmpi
     - name: Install mpich
       run: sudo apt-get install mpich
+    - name: Install libfabric
+      run: sudo apt-get install libfabric-dev
 
     - name: Install Packages
       run: |
