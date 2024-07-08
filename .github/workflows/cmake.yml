@@ -23,7 +23,8 @@ jobs:
 
     - uses: mpi4py/setup-mpi@v1
       with:
-        mpi: openmpi
+        mpi: mpich
+#        mpi: openmpi
 
     - name: Install Packages
       run: |
