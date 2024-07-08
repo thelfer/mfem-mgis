@@ -22,9 +22,12 @@ jobs:
         path: ${{github.workspace}}/spack       # Where to clone Spack
 
     - uses: mpi4py/setup-mpi@v1
+      with:
+        mpi: openmpi
 
     - name: Install Packages
       run: |
+        spack external find openmpi
         spack install mfem+mpi+suite-sparse
         spack install tfel@master:~python~python_bindings
         spack install mgis@master:+c~fortran~python
