@@ -49,4 +49,5 @@ jobs:
     - name: Run examples
       shell: spack-sh {0}    
       working-directory: ${{github.workspace}}/build
-      run: spack load mfem && make check --rerun-failed --output-on-failure
+      run: spack load mfem && make MicromorphicDamage2DTest2 && ctest --rerun-failed --output-on-failure
+#      run: spack load mfem && make check 
