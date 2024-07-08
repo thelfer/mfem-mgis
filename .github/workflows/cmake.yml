@@ -21,10 +21,12 @@ jobs:
         color: true       # Force color output (SPACK_COLOR=always)
         path: ${{github.workspace}}/spack       # Where to clone Spack
 
-    - uses: mpi4py/setup-mpi@v1
-      with:
-        mpi: mpich
+#    - uses: mpi4py/setup-mpi@v1
+#      with:
+#        mpi: mpich
 #        mpi: openmpi
+    - name: Install mpich
+      run: sudo apt-get install mpich
 
     - name: Install Packages
       run: |
