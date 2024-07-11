@@ -227,8 +227,10 @@ if(MFEM_MGIS_HAVE_TFEL)
         PROPERTY DEPENDS BehaviourTest)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_micromorphic_damage_3d_test)
-
-
+	add_micromorphic_damage_2d_test2(0)
+	add_micromorphic_damage_3d_test(0)
+	add_micromorphic_damage_2d_test2(1)
+	add_micromorphic_damage_3d_test(1)
   
   if(MFEM_USE_SUITESPARSE)
 	add_micromorphic_damage_2d_test2(2)
