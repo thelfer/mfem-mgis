@@ -21,29 +21,21 @@ jobs:
         color: true       # Force color output (SPACK_COLOR=always)
         path: ${{github.workspace}}/spack       # Where to clone Spack
 
-#    - uses: mpi4py/setup-mpi@v1
-#      with:
-#        mpi: mpich
-#        mpi: openmpi
     - name: Install mpich
       run: sudo apt-get install mpich
     - name: Install libfabric
       run: sudo apt-get install libfabric-dev
-    - name: Install Suite sparse
-      run: sudo apt-get install -y libsuitesparse-dev
 
     - name: Install Packages
       run: |
-        spack external find openmpi mpich libfabric suite-sparse
+        spack external find openmpi mpich libfabric
         spack install mfem+mpi+suite-sparse
         spack install tfel@master:~python~python_bindings
         spack install mgis@master:+c~fortran~python
         
     - name: Config MFEM-MGIS
       shell: spack-sh {0}    
-      run: |
-        spack load mfem
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake -DCMAKE_PREFIX_PATH=`spack location -i tfel`        
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake -DCMAKE_PREFIX_PATH=`spack location -i tfel`        
 
     - name: Build MFEM-MGIS
       run: cmake --build ${{github.workspace}}/build --config Release
@@ -51,5 +43,4 @@ jobs:
     - name: Run examples
       shell: spack-sh {0}    
       working-directory: ${{github.workspace}}/build
-#      run: spack load mfem && make BehaviourTest && ctest -R MicromorphicDamage2DTest2-2 --output-on-failure
       run: spack load tfel && make check 
