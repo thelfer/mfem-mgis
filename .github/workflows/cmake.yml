@@ -35,7 +35,7 @@ jobs:
         
     - name: Config MFEM-MGIS
       shell: spack-sh {0}    
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake -DCMAKE_PREFIX_PATH=`spack location -i tfel`        
+      run: spack load mfem && cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DMFEM_DIR=`spack location -i mfem` -DHYPRE_DIR=`spack location -i hypre` -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake -DCMAKE_PREFIX_PATH=`spack location -i tfel`        
 
     - name: Build MFEM-MGIS
       run: cmake --build ${{github.workspace}}/build --config Release
@@ -43,4 +43,4 @@ jobs:
     - name: Run examples
       shell: spack-sh {0}    
       working-directory: ${{github.workspace}}/build
-      run: spack load tfel && make check 
+      run: spack load mfem && spack load tfel && make check 
