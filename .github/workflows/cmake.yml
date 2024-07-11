@@ -29,10 +29,12 @@ jobs:
       run: sudo apt-get install mpich
     - name: Install libfabric
       run: sudo apt-get install libfabric-dev
+    - name: Install Suite sparse
+      run: sudo apt-get install -y libsuitesparse-dev
 
     - name: Install Packages
       run: |
-        spack external find openmpi mpich libfabric
+        spack external find openmpi mpich libfabric suite-sparse
         spack install mfem+mpi+suite-sparse
         spack install tfel@master:~python~python_bindings
         spack install mgis@master:+c~fortran~python
