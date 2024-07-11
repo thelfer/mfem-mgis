@@ -168,7 +168,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   endfunction(add_micromorphic_damage_2d_test)
 
   if(MFEM_USE_SUITESPARSE)
-	add_micromorphic_damage_2d_test(2)
+#	add_micromorphic_damage_2d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   add_executable(MicromorphicDamage2DTest2
@@ -232,7 +232,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   if(MFEM_USE_SUITESPARSE)
 	add_micromorphic_damage_2d_test2(2)
-#	add_micromorphic_damage_3d_test(2)
+	add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)
