@@ -68,7 +68,7 @@ jobs:
 
     - name: Generate a code coverage report part2
       working-directory: ${{github.workspace}}/
-      run: gcovr --exclude='build/*' --exclude='tests/*' --html-details coverage.html
+      run: gcovr --exclude='build/*' --exclude='tests/*'  --exclude='spack/*'  --exclude='coverage/*' --html-details coverage.html
 
     - name: Archive code coverage results
       uses: actions/upload-artifact@v4
