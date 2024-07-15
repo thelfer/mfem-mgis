@@ -63,7 +63,7 @@ jobs:
 
     - name: Run examples 
       shell: spack-sh {0}    
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}/coverage
       run: spack load mfem && spack load tfel && make check 
 
     - name: Generate a code coverage report part2
