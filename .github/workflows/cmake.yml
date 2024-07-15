@@ -21,6 +21,11 @@ jobs:
         color: true       # Force color output (SPACK_COLOR=always)
         path: ${{github.workspace}}/spack       # Where to clone Spack
 
+    - name: Generate a code coverage repor part1
+      uses: threeal/gcovr-action@v1.0.0
+      with:
+        root: ${{github.workspace}}
+
     - name: Install mpich
       run: sudo apt-get install mpich
     - name: Install libfabric
@@ -57,11 +62,6 @@ jobs:
       shell: spack-sh {0}    
       working-directory: ${{github.workspace}}/build
       run: spack load mfem && spack load tfel && make check 
-
-    - name: Generate a code coverage repor part1
-      uses: threeal/gcovr-action@v1.0.0
-      with:
-        root: ${{github.workspace}}
 
     - name: Generate a code coverage report part2
       working-directory: ${{github.workspace}}/
