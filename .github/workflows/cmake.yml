@@ -26,6 +26,9 @@ jobs:
       with:
         root: ${{github.workspace}}
 
+    - name: Setup LCOV
+      uses: hrishikesh-kadam/setup-lcov@v1
+
     - name: Install mpich
       run: sudo apt-get install mpich
     - name: Install libfabric
