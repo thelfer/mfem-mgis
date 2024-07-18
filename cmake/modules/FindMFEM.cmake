@@ -102,7 +102,6 @@ set_property(TARGET MFEM::mfem APPEND
 if(MFEM_USE_MPI)
   # The following include directories are automatically filled within FindMFEM.cmake
   find_package(MPI REQUIRED)
-#	find_package(HYPRE)
   set_property(TARGET MFEM::mfem APPEND
     PROPERTY INTERFACE_LINK_LIBRARIES
     ${MPI_CXX_LIBRARIES})
