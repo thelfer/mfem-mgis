@@ -100,7 +100,7 @@ By following these steps, you can install and fine-tune MFEM using Spack and CMa
 
 This guide provides a step-by-step approach to installing MFEM-MGIS with explicit dependencies using CMake and Spack. The process involves setting relevant variables and compiling the project with specific configurations.
 
-#### Relevant Variables
+## Relevant Variables
 - `CMAKE_BUILD_TYPE`: Type of build (e.g., Release, Debug).
 - `CMAKE_INSTALL_PREFIX`: Directory where the project will be installed.
 - `MFEM_DIR`: Directory where `MFEMConfig.cmake` is installed. This file is generated when MFEM is compiled and installed using CMake.
