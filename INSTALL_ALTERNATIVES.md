@@ -108,7 +108,7 @@ This guide provides a step-by-step approach to installing MFEM-MGIS with explici
 
 # Example of Usage
 
-#### Step 1: Install `mgis` Using Spack
+## Step 1: Install `mgis` Using Spack
 First, install `mgis` using Spack.
 
 ```sh
