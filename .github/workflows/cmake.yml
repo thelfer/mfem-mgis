@@ -54,5 +54,5 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: | 
         spack load mfem
-        spack load tfel
+        spack load tfel@4.2.1
         make check 
