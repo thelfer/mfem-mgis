@@ -30,7 +30,7 @@ jobs:
       run: |
         spack external find openmpi mpich libfabric
         spack install mfem+mpi+suite-sparse
-        spack install tfel@4.2.1:~python~python_bindings
+        spack install tfel@master:~python~python_bindings
         spack install mgis@2.2:+c~fortran~python
         
     - name: Config MFEM-MGIS
