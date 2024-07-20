@@ -80,18 +80,18 @@ set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
 if(CMAKE_CONFIGURATION_TYPES)
    if (NOT TARGET check)
       add_custom_target(check COMMAND 
-         ${CMAKE_CTEST_COMMAND} -T test -C $<CONFIGURATION>)
+         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>)
    else(NOT TARGET check)
       add_custom_target(mgis_check COMMAND 
-         ${CMAKE_CTEST_COMMAND} -T test -C $<CONFIGURATION>)
+         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>)
    endif(NOT TARGET check)
 else(CMAKE_CONFIGURATION_TYPES)
    if (NOT TARGET check)
       add_custom_target(check COMMAND 
-      ${CMAKE_CTEST_COMMAND} -T test )
+      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure )
    else(NOT TARGET check)
       add_custom_target(mgis_check COMMAND 
-      ${CMAKE_CTEST_COMMAND} -T test )
+      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure )
    endif(NOT TARGET check)
 endif(CMAKE_CONFIGURATION_TYPES)
 

@@ -150,7 +150,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   function(add_micromorphic_damage_2d_test nsolver)
     set(test "MicromorphicDamage2DTest-${nsolver}")
     add_test(NAME ${test}
-     COMMAND MicromorphicDamage2DTest
+     COMMAND ./MicromorphicDamage2DTest
      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
      "--library" "$<TARGET_FILE:BehaviourTest>"
      "--behaviour" "MiehePhaseFieldDamage"
@@ -168,7 +168,8 @@ if(MFEM_MGIS_HAVE_TFEL)
   endfunction(add_micromorphic_damage_2d_test)
 
   if(MFEM_USE_SUITESPARSE)
-	add_micromorphic_damage_2d_test(2)
+          message(STATUS "micromorphic_damage_2d has been disabled with SUITE SPARSE")
+          #add_micromorphic_damage_2d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   add_executable(MicromorphicDamage2DTest2
@@ -183,7 +184,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   function(add_micromorphic_damage_2d_test2 nsolver)
     set(test "MicromorphicDamage2DTest2-${nsolver}")
     add_test(NAME ${test}
-     COMMAND MicromorphicDamage2DTest2
+     COMMAND ./MicromorphicDamage2DTest2
      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
      "--library" "$<TARGET_FILE:BehaviourTest>"
      "--behaviour" "MicromorphicDamageII"
@@ -227,12 +228,12 @@ if(MFEM_MGIS_HAVE_TFEL)
         PROPERTY DEPENDS BehaviourTest)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_micromorphic_damage_3d_test)
-
-
   
   if(MFEM_USE_SUITESPARSE)
-	add_micromorphic_damage_2d_test2(2)
-#	add_micromorphic_damage_3d_test(2)
+  	message(STATUS "micromorphic_damage_2d_test2 has been disabled with SUITE SPARSE")
+        #add_micromorphic_damage_2d_test2(2)
+        message(STATUS "micromorphic_damage_3d has been disabled with SUITE SPARSE")
+	#add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)
@@ -260,7 +261,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     function(add_periodic_testp ncase nsolver nbprocs)
       set(test "PeriodicTestP-${ncase}-${nsolver}-${nbprocs}")
       add_test(NAME ${test}
-       COMMAND mpirun -n ${nbprocs} PeriodicTestP 
+       COMMAND mpirun -n ${nbprocs} ./PeriodicTestP 
        "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
        "--library" "$<TARGET_FILE:BehaviourTest>"
        "--test-case" "${ncase}"

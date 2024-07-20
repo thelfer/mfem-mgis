@@ -1,0 +1,58 @@
+name: Cmake
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Spack
+      uses: spack/setup-spack@v2
+      with:
+        ref: develop      # Spack version (examples: develop, releases/v0.21)
+        buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
+        color: true       # Force color output (SPACK_COLOR=always)
+        path: ${{github.workspace}}/spack       # Where to clone Spack
+
+    - name: Install mpich
+      run: sudo apt-get install mpich
+    - name: Install libfabric
+      run: sudo apt-get install libfabric-dev
+
+    - name: Install Packages
+      run: |
+        spack external find openmpi mpich libfabric
+        spack install mfem+mpi+suite-sparse
+        spack install tfel@master:~python~python_bindings
+        spack install mgis@master:+c~fortran~python
+        
+    - name: Config MFEM-MGIS
+      shell: spack-sh {0}    
+      run: | 
+        spack load mfem 
+        cmake -B ${{github.workspace}}/build \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_C_COMPILER=gcc \
+              -DCMAKE_CXX_COMPILER=g++ \
+              -DMFEM_DIR=`spack location -i mfem` \
+              -DHYPRE_DIR=`spack location -i hypre` \
+              -DMFrontGenericInterface_DIR=`spack location -i mgis@master`/share/mgis/cmake \
+              -DCMAKE_PREFIX_PATH=`spack location -i tfel`
+
+    - name: Build MFEM-MGIS
+      run: cmake --build ${{github.workspace}}/build --config Release
+
+    - name: Run examples
+      shell: spack-sh {0}    
+      working-directory: ${{github.workspace}}/build
+      run: | 
+        spack load mfem
+        spack load tfel
+        make check 
