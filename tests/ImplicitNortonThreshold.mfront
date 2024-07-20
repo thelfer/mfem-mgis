@@ -1,0 +1,57 @@
+@DSL       Implicit;
+@Behaviour ImplicitNortonThreshold;
+@Author    Renaud Masson from Thomas Helfer (simple Norton);
+@Date      06/05/2021;
+@Description{
+  This file implements the Norton law with a threshold, described as:
+  "$$"
+  "\left\{"
+  "  \begin{aligned}"
+  "    \tepsilonto   &= \tepsilonel+\tepsilonvis \\"
+  "    \tsigma       &= \tenseurq{D}\,:\,\tepsilonel\\"
+  "    \tdepsilonvis &= \dot{p}\,\tenseur{n} \\"
+  "    \dot{p}       &= A\,(|\sigmaeq-\sigma_0|^+/\sigma_0)^{E}"
+  "  \end{aligned}"
+  "\right."
+  "$$"
+}
+
+@ModellingHypotheses {".+"};
+@Epsilon 1.e-16;
+@Brick StandardElasticity;
+@MaterialProperty stress young;           /* mandatory for castem */
+young.setGlossaryName("YoungModulus");
+@MaterialProperty real nu;                /* mandatory for castem */
+nu.setGlossaryName("PoissonRatio");
+@StateVariable strain p;
+p.setGlossaryName("EquivalentViscoplasticStrain");
+@MaterialProperty real sig0;
+sig0.setEntryName("StressThreshold");
+@Parameter A = 1.0;
+A.setEntryName("NortonCoefficient");
+@MaterialProperty real E;
+E.setEntryName("NortonExponent");
+@LocalVariable stress mu;    /* elastic shear modulus */
+
+@InitLocalVariables{ 
+/* Elastic shear modulus */
+  mu = young/(2.*(1.+nu));
+}
+
+@Integrator{
+  const real eps = 1.e-12;
+  const auto seq = sigmaeq(sig);
+  real seq_th=0.0;
+  if (seq>sig0) seq_th = (seq-sig0)/sig0; 
+  const auto tmp = A*pow(seq_th,E-1.);
+  const auto df_dseq = E*tmp/sig0;
+  const auto iseq = 1/max(seq,eps*young);
+  const Stensor n = 3*deviator(sig)*iseq/2;
+  // implicit system
+  feel += dp*n;
+  fp   -= tmp*seq_th*dt;
+  // jacobian
+  dfeel_ddeel += 2.*mu*theta*dp*iseq*(Stensor4::M()-(n^n));
+  dfeel_ddp    = n;
+  dfp_ddeel    = -2*mu*theta*df_dseq*dt*n;
+} // end of @Integrator
