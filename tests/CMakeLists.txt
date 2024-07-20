@@ -231,6 +231,10 @@ if(MFEM_MGIS_HAVE_TFEL)
 
 
   
+	add_micromorphic_damage_2d_test2(0)
+	add_micromorphic_damage_2d_test2(1)
+	add_micromorphic_damage_3d_test(0)
+	add_micromorphic_damage_3d_test(1)
   if(MFEM_USE_SUITESPARSE)
 	add_micromorphic_damage_2d_test2(2)
 	add_micromorphic_damage_3d_test(2)
