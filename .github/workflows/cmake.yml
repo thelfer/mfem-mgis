@@ -21,7 +21,7 @@ jobs:
         color: true       # Force color output (SPACK_COLOR=always)
         path: ${{github.workspace}}/spack       # Where to clone Spack
 
-    - name: Generate a code coverage repor part1
+    - name: Generate a code coverage report part1
       uses: threeal/gcovr-action@v1.0.0
       with:
         root: ${{github.workspace}}
