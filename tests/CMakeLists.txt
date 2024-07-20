@@ -8,7 +8,8 @@ if(MFEM_MGIS_HAVE_TFEL)
     MiehePhaseFieldDamage
     MicromorphicDamageI_SpectralSplit
     MicromorphicDamageII
-    StationaryNonLinearHeatTransfer)
+    StationaryNonLinearHeatTransfer
+    ImplicitNortonThreshold)
   
   add_executable(PeriodicTest
     EXCLUDE_FROM_ALL
@@ -232,7 +233,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   if(MFEM_USE_SUITESPARSE)
 	add_micromorphic_damage_2d_test2(2)
-#	add_micromorphic_damage_3d_test(2)
+	add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)
@@ -330,11 +331,15 @@ endif(MFEM_MGIS_HAVE_TFEL)
 ## REV examples
 
 if (MFEM_USE_MPI)
-  add_executable(rev RevNonLinearElastic.cxx)
-  target_link_libraries(rev PRIVATE MFEMMGIS)
-  add_dependencies(check rev) 
+  add_executable(revElastic RevNonLinearElastic.cxx)
+  add_executable(revMox2 MixedOxideFuels.cxx)
+  target_link_libraries(revElastic PRIVATE MFEMMGIS)
+  target_link_libraries(revMox2 PRIVATE MFEMMGIS)
+  add_dependencies(check revElastic revMox2) 
   set(test "RevNonLinearElasticTest")
-  add_test(NAME ${test} COMMAND rev --postprocessings 0)
+  add_test(NAME ${test} COMMAND revElastic --postprocessings 1)
+  set(test "RevMixedOxideFuels2")
+  add_test(NAME ${test} COMMAND revMox2 ---postprocessings 1 --order 1)
 endif(MFEM_USE_MPI)
 
 
