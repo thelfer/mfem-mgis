@@ -4,6 +4,7 @@ on:
   # Always have a base image ready to go - this is a nightly build
   schedule:
     - cron: 0 3 * * *
+
   # Allow manual trigger of a build
   workflow_dispatch:
 

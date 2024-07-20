@@ -187,6 +187,7 @@ You can then modify the source file to design your own case study.
 # Building the Example Using the `make` Build-System
 
 ## Step 1: Set Up and Compile the Example
+
 Navigate to the example directory, source the environment setup file, and compile the example using `make`.
 
 ```sh
