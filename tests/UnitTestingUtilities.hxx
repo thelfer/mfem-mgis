@@ -81,13 +81,13 @@ namespace mfem_mgis::unit_tests {
       problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
                                            {"AbsoluteTolerance", 1e-12},
                                            {"RelativeTolerance", 1e-12},
-                                           {"MaximumNumberOfIterations", 300}});
+                                           {"MaximumNumberOfIterations", 1000}});
     } else if (parameters.linearsolver == 1) {
       problem.setLinearSolver("GMRESSolver",
                               {{"VerbosityLevel", 1},
                                {"AbsoluteTolerance", 1e-12},
                                {"RelativeTolerance", 1e-12},
-                               {"MaximumNumberOfIterations", 300}});
+                               {"MaximumNumberOfIterations", 100000}});
 #ifdef MFEM_USE_SUITESPARSE
     } else if (parameters.linearsolver == 2) {
       problem.setLinearSolver("UMFPackSolver", {});
