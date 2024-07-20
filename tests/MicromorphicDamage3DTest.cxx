@@ -177,10 +177,10 @@ int main(int argc, char** argv) {
       buildMechanicalProblem(test_parameters, common_problem_parameters);
   auto micromorphic_problem =
       buildMicromorphicProblem(test_parameters, common_problem_parameters);
-  // solving the problem in 100 time steps
+  // solving the problem in 5 time steps -> put t1 to  1 and nsteps to 100. 
   const auto t0 = mfem_mgis::real{0};
-  const auto t1 = mfem_mgis::real{1};
-  const auto nsteps = mfem_mgis::size_type{100};
+  const auto t1 = mfem_mgis::real{0.05};
+  const auto nsteps = mfem_mgis::size_type{5};
   const auto dt = (t1 - t0) / nsteps;
   auto t = mfem_mgis::real{0};
   // quadrature functions used to transfer information from one problem to the
