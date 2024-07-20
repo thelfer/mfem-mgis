@@ -327,6 +327,17 @@ if(MFEM_MGIS_HAVE_TFEL)
 else(MFEM_MGIS_HAVE_TFEL)
 endif(MFEM_MGIS_HAVE_TFEL)
 
+## REV examples
+
+if (MFEM_USE_MPI)
+  add_executable(rev RevNonLinearElastic.cxx)
+  target_link_libraries(rev PRIVATE MFEMMGIS)
+  add_dependencies(check rev) 
+  set(test "RevNonLinearElasticTest")
+  add_test(NAME ${test} COMMAND rev --postprocessings 0)
+endif(MFEM_USE_MPI)
+
+
 # Configure and export example 1
 # This example is based on UniaxialTensileTest from the unit tests
 
