@@ -1,0 +1,106 @@
+name: Cmake
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Spack
+      uses: spack/setup-spack@v2
+      with:
+        ref: develop      # Spack version (examples: develop, releases/v0.21)
+        buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
+        color: true       # Force color output (SPACK_COLOR=always)
+        path: ${{github.workspace}}/spack       # Where to clone Spack
+
+    - name: Generate a code coverage report part1
+      uses: threeal/gcovr-action@v1.0.0
+      with:
+        root: ${{github.workspace}}
+
+    - name: Setup LCOV
+      uses: hrishikesh-kadam/setup-lcov@v1
+
+    - name: Install mpich
+      run: sudo apt-get install mpich
+    - name: Install libfabric
+      run: sudo apt-get install libfabric-dev
+
+    - name: Install Packages
+      run: |
+        spack external find openmpi mpich libfabric
+        spack install mfem+mpi+suite-sparse
+        spack install tfel@master:~python~python_bindings
+        spack install mgis@master:+c~fortran~python
+        
+    - name: Config MFEM-MGIS [release]
+      shell: spack-sh {0}    
+      run: | 
+        spack load mfem 
+        cmake -B ${{github.workspace}}/build \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_C_COMPILER=gcc \
+              -DCMAKE_CXX_COMPILER=g++ \
+              -DMFEM_DIR=`spack location -i mfem` \
+              -DHYPRE_DIR=`spack location -i hypre` \
+              -DMFrontGenericInterface_DIR=`spack location -i mgis@master`/share/mgis/cmake \
+              -DCMAKE_PREFIX_PATH=`spack location -i tfel`
+
+    - name: Build MFEM-MGIS
+      run: cmake --build ${{github.workspace}}/build --config Release
+
+    - name: Run examples
+      shell: spack-sh {0}    
+      working-directory: ${{github.workspace}}/build
+      run: | 
+        spack load mfem
+        spack load tfel
+        make check       
+
+    - name: Config MFEM-MGIS [coverage]
+      shell: spack-sh {0}    
+      run: |
+        spack load mfem 
+        cmake -B ${{github.workspace}}/coverage \
+              -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
+              -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_C_COMPILER=gcc \
+              -DCMAKE_CXX_COMPILER=g++ \
+              -DMFEM_DIR=`spack location -i mfem` \
+              -DHYPRE_DIR=`spack location -i hypre` \
+              -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+              -DCMAKE_PREFIX_PATH=`spack location -i tfel`        
+
+    - name: Build MFEM-MGIS [coverage]
+      run: cmake --build ${{github.workspace}}/coverage --config Coverage
+
+    - name: Run examples 
+      shell: spack-sh {0}    
+      working-directory: ${{github.workspace}}/coverage
+      run: | 
+        spack load mfem
+        spack load tfel
+        make check 
+
+    - name: Generate a code coverage report part2
+      working-directory: ${{github.workspace}}/
+      run: |
+        gcovr --exclude='build/*'     \
+              --exclude='tests/*'     \
+              --exclude='spack/*'     \
+              --exclude='coverage/*'  \
+              --html-details          \
+              coverage.html
+
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: ${{github.workspace}}/coverage.html
