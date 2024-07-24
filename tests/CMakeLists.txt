@@ -1,9 +1,23 @@
-add_executable(UnitTestParameters UnitTestParameters.cxx)
-target_include_directories(UnitTestParameters  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(UnitTestParameters PRIVATE MFEMMGIS)
-add_test(NAME UnitTestParameters COMMAND UnitTestParameters)
-add_dependencies(check UnitTestParameters)
+function(add_test_case name)
+  add_executable(${name} ${name}.cxx)
+  target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(${name} PRIVATE MFEMMGIS)
+  add_test(NAME ${name} COMMAND ${name})
+  add_dependencies(check ${name})
+endfunction()
 
+
+function(add_test_case_mpi name parameters)
+  add_executable(${name} ${name}.cxx)
+  target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(${name} PRIVATE MFEMMGIS)
+  add_test(NAME ${name} COMMAND ${name} ${${parameters}} "--parallel" "0")
+  add_test(NAME ${name}P COMMAND mpirun -n 2 ./${name} ${${parameters}} "--parallel" "1")
+  add_dependencies(check ${name})
+endfunction()
+
+
+add_test_case(UnitTestParameters)
 
 if(MFEM_MGIS_HAVE_TFEL)
   mfront_behaviours_check_library(BehaviourTest
@@ -17,25 +31,18 @@ if(MFEM_MGIS_HAVE_TFEL)
     MicromorphicDamageI_SpectralSplit
     MicromorphicDamageII
     StationaryNonLinearHeatTransfer
-    ImplicitNortonThreshold)
+    ImplicitNortonThreshold
+    ElasticitySatohTest)
 
+
+  set(SatohTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh" "--library" "$<TARGET_FILE:BehaviourTest>")
+  add_test_case_mpi(SatohTest SatohTestParameters)
 
   if(MFEM_USE_PETSC)
-    add_executable(ssna303_petsc ssna303_petsc.cxx)
-    target_include_directories(ssna303_petsc  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(ssna303_petsc PRIVATE MFEMMGIS)
-    add_test(NAME ssna303_petsc COMMAND ssna303_petsc
-       "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/ssna303_3d.msh"
-       "--library" "$<TARGET_FILE:BehaviourTest>"
-       "--petsc-file" "${CMAKE_CURRENT_SOURCE_DIR}/rc_ex10p"
-       "--parallel" "0")
-    add_test(NAME ssna303_petscP COMMAND mpirun -n 2 ssna303_petsc
-       "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/ssna303_3d.msh"
-       "--library" "$<TARGET_FILE:BehaviourTest>"
-		   "--petsc-file" "${CMAKE_CURRENT_SOURCE_DIR}/rc_ex10p"
-       "--parallel" "1")
-    add_dependencies(check ssna303_petsc)
+    set(ssna303_petsc_parameters ""--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/ssna303_3d.msh" "--library" "$<TARGET_FILE:BehaviourTest>"")
+    add_test_case_mpi(ssna303_petsc ssna303_petsc_parameters)
   endif()  
+
 
   add_executable(PeriodicTest
     EXCLUDE_FROM_ALL
