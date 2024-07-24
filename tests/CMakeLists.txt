@@ -18,7 +18,25 @@ if(MFEM_MGIS_HAVE_TFEL)
     MicromorphicDamageII
     StationaryNonLinearHeatTransfer
     ImplicitNortonThreshold)
-  
+
+
+  if(MFEM_USE_PETSC)
+    add_executable(ssna303_petsc ssna303_petsc.cxx)
+    target_include_directories(ssna303_petsc  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(ssna303_petsc PRIVATE MFEMMGIS)
+    add_test(NAME ssna303_petsc COMMAND ssna303_petsc
+       "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/ssna303_3d.msh"
+       "--library" "$<TARGET_FILE:BehaviourTest>"
+       "--petsc-file" "${CMAKE_CURRENT_SOURCE_DIR}/rc_ex10p"
+       "--parallel" "0")
+    add_test(NAME ssna303_petscP COMMAND mpirun -n 2 ssna303_petsc
+       "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/ssna303_3d.msh"
+       "--library" "$<TARGET_FILE:BehaviourTest>"
+		   "--petsc-file" "${CMAKE_CURRENT_SOURCE_DIR}/rc_ex10p"
+       "--parallel" "1")
+    add_dependencies(check ssna303_petsc)
+  endif()  
+
   add_executable(PeriodicTest
     EXCLUDE_FROM_ALL
     PeriodicTest.cxx)

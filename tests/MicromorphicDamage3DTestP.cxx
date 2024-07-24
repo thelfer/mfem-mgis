@@ -74,11 +74,6 @@ buildMechanicalProblem(
     mgis::behaviour::setExternalStateVariable(m.s1, ev.first, ev.second);
   }
 
-  // check
-  bool ok;
-  auto ids = getBoundariesIdentifiers(*problem, , ok);
-	if(ids.size() != 6) mfem_mgis::raise( "Wrong number of boundaries" );
-
   // boundary conditions
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
