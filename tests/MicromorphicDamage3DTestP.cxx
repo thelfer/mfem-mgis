@@ -73,6 +73,12 @@ buildMechanicalProblem(
     mgis::behaviour::setExternalStateVariable(m.s0, ev.first, ev.second);
     mgis::behaviour::setExternalStateVariable(m.s1, ev.first, ev.second);
   }
+
+  // check
+  bool ok;
+  auto ids = getBoundariesIdentifiers(*problem, , ok);
+	if(ids.size() != 6) mfem_mgis::raise( "Wrong number of boundaries" );
+
   // boundary conditions
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
@@ -93,6 +99,8 @@ buildMechanicalProblem(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
         problem->getFiniteElementDiscretizationPointer(), "right", 0,
         [](const mfem_mgis::real t) { return umax * t; }));
+
+
   // linear solver, convergence critera
   setLinearSolverMicromorphicDamage3D(*problem, test_parameters);
   problem->setSolverParameters({{"VerbosityLevel", 0},
@@ -175,7 +183,7 @@ buildMicromorphicProblem(
 
 int main(int argc, char** argv) {
   constexpr auto iter_max = mfem_mgis::size_type{200};
-  static constexpr const auto parallel = false;
+  static constexpr const auto parallel = true;
   auto test_parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
   mfem_mgis::initialize(argc, argv);

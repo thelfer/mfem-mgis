@@ -45,6 +45,7 @@
 #include "mfem/general/optparser.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/AnalyticalTests.hxx"
@@ -272,7 +273,9 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
 int main(int argc, char* argv[]) {
   mfem_mgis::initialize(argc, argv);
+	mfem_mgis::Profiler::timers::init_timers();
   const auto p = parseCommandLineOptions(argc, argv);
   executeMFEMMGISTest(p);
+	mfem_mgis::Profiler::timers::print_and_write_timers();
   return EXIT_SUCCESS;
 }

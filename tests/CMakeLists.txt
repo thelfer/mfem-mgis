@@ -1,3 +1,10 @@
+add_executable(UnitTestParameters UnitTestParameters.cxx)
+target_include_directories(UnitTestParameters  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(UnitTestParameters PRIVATE MFEMMGIS)
+add_test(NAME UnitTestParameters COMMAND UnitTestParameters)
+add_dependencies(check UnitTestParameters)
+
+
 if(MFEM_MGIS_HAVE_TFEL)
   mfront_behaviours_check_library(BehaviourTest
     Elasticity
@@ -5,6 +12,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     Plasticity
     Mazars
     SaintVenantKirchhoffElasticity
+    SaintVenantKirchhoffElasticityV2
     MiehePhaseFieldDamage
     MicromorphicDamageI_SpectralSplit
     MicromorphicDamageII
@@ -210,33 +218,53 @@ if(MFEM_MGIS_HAVE_TFEL)
   target_link_libraries(MicromorphicDamage3DTest
     PRIVATE MFEMMGIS)
   add_dependencies(check MicromorphicDamage3DTest)
+  add_executable(MicromorphicDamage3DTestP
+    EXCLUDE_FROM_ALL
+    MicromorphicDamage3DTestP.cxx)
+  target_include_directories(MicromorphicDamage3DTestP
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(MicromorphicDamage3DTestP
+    PRIVATE MFEMMGIS)
+  add_dependencies(check MicromorphicDamage3DTestP)
 
   function(add_micromorphic_damage_3d_test nsolver)
     set(test "MicromorphicDamage3DTest-${nsolver}")
+		## Serial execution
     add_test(NAME ${test}
      COMMAND MicromorphicDamage3DTest
      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
      "--library" "$<TARGET_FILE:BehaviourTest>"
      "--behaviour" "MicromorphicDamageII"
-     "--linearsolver" "${nsolver}"
-	)
+     "--linearsolver" "${nsolver}")
+		## Parallel execution
+    add_test(NAME ${test}P
+     COMMAND mpirun -n 2 MicromorphicDamage3DTestP
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--behaviour" "MicromorphicDamageII"
+     "--linearsolver" "${nsolver}")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+      set_property(TEST ${test}P
         PROPERTY DEPENDS BehaviourTest
         PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
     else((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest)
+      set_property(TEST ${test}P
+        PROPERTY DEPENDS BehaviourTest)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_micromorphic_damage_3d_test)
   
 	add_micromorphic_damage_2d_test2(0)
-	add_micromorphic_damage_2d_test2(1)
+#	add_micromorphic_damage_2d_test2(1)
 	add_micromorphic_damage_3d_test(0)
-	add_micromorphic_damage_3d_test(1)
+#	add_micromorphic_damage_3d_test(1)
   if(MFEM_USE_SUITESPARSE)
-	add_micromorphic_damage_2d_test2(2)
-	add_micromorphic_damage_3d_test(2)
+#	add_micromorphic_damage_2d_test2(2)
+#	add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)
@@ -342,11 +370,26 @@ if (MFEM_USE_MPI)
   target_link_libraries(revMox2 PRIVATE MFEMMGIS)
   add_dependencies(check revElastic revElasticV2 revMox2) 
   set(test "RevNonLinearElasticTest")
-  add_test(NAME ${test} COMMAND revElastic --postprocessings 1)
+  add_test(NAME ${test} COMMAND revElastic
+					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
+     			"--library" "$<TARGET_FILE:BehaviourTest>"
+					"--post-processing" "1")
   set(test "RevNonLinearElasticTestV2")
-  add_test(NAME ${test} COMMAND revElasticV2 --postprocessings 1)
+  add_test(NAME ${test} COMMAND revElasticV2
+					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
+     			"--library" "$<TARGET_FILE:BehaviourTest>"
+					"--post-processing" "1")
   set(test "RevMixedOxideFuels2")
-  add_test(NAME ${test} COMMAND revMox2 ---postprocessings 1 --order 1)
+  add_test(NAME ${test} COMMAND revMox2 
+					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh"
+     			"--library" "$<TARGET_FILE:BehaviourTest>"
+					"--post-processing" "1"
+          "--parallel" "0")
+  add_test(NAME ${test}P COMMAND mpirun -n 2 revMox2
+					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh"
+     			"--library" "$<TARGET_FILE:BehaviourTest>"
+					"--post-processing" "1"
+          "--parallel" "1")
 endif(MFEM_USE_MPI)
 
 

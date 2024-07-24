@@ -32,8 +32,8 @@
 // We need this class for test case sources
 struct TestParameters {
 	const char* mesh_file = "cube_2mat_per.mesh";
-	const char* behaviour = "SaintVenantKirchhoffElasticity";
-	const char* library = "src/libBehaviour.so";
+	const char* behaviour = "SaintVenantKirchhoffElasticityV2";
+	const char* library = "null";
 	int order = 1;
 	double xmax = 1.;
 	double ymax = 1.;
@@ -116,8 +116,6 @@ void setup_properties(const TestParameters& p, mfem_mgis::PeriodicNonLinearEvolu
 	set_temperature(m1);
 	set_temperature(m2);
 
-
-
 	// macroscopic strain
 	std::vector<real> e(9, real{0});
 	e[0] = 1.1;
@@ -136,7 +134,6 @@ static void setLinearSolver(Problem& p,
 	CatchTimeSection("set_linear_solver");
 	// pilote
 	constexpr int defaultMaxNumOfIt	 	= 5000; 		// MaximumNumberOfIterations
-	constexpr int adjustMaxNumOfIt 		= 500000; 		// MaximumNumberOfIterations
 	auto solverParameters = mfem_mgis::Parameters{};
 	solverParameters.insert(mfem_mgis::Parameters{{"VerbosityLevel", verbosity}});
 	solverParameters.insert(mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
@@ -156,7 +153,7 @@ void run_solve(Problem& p, double start, double end)
 {
 	CatchTimeSection("Solve");
 	// solving the problem
-	auto statistics = p.solve(0, 1);
+	auto statistics = p.solve(start, end);
 
 	// check status
 	if (statistics.status) {

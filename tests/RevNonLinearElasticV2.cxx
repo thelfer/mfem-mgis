@@ -32,7 +32,7 @@
 // We need this class for test case sources
 struct TestParameters {
 	const char* mesh_file = "cube_2mat_per.mesh";
-	const char* behaviour = "SaintVenantKirchhoffElasticity";
+	const char* behaviour = "SaintVenantKirchhoffElasticityV2";
 	const char* library = "src/libBehaviour.so";
 	int order = 1;
 	double xmax = 1.;

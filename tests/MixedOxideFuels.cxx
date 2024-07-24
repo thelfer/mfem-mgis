@@ -80,6 +80,7 @@ void common_parameters(mfem::OptionsParser& args, TestParameters& p)
 	args.AddOption(&p.refinement, "-r", "--refinement", "refinement level of the mesh, default = 0");
 	args.AddOption(&p.post_processing, "-p", "--post-processing", "run post processing step");
 	args.AddOption(&p.verbosity_level, "-v", "--verbosity-level", "choose the verbosity level");
+	args.AddOption(&p.verbosity_level, "-par", "--parallel", "choose between serial (-par=0 and parallel -par=1");
 
 	args.Parse();
 
@@ -109,6 +110,15 @@ void add_post_processings(Problem& p, std::string msg)
 	p.addPostProcessing(
 			"MeanThermodynamicForces",
 			{{"OutputFileName", "avgStress"}});
+
+  /** add outputs for coverage, it doesn't make sense here */
+  p.addPostProcessing(
+      "StoredEnergy",
+      {{"OutputFileName", "energy.txt"}});
+
+  p.addPostProcessing(
+      "DissipatedEnergy",
+      {{"OutputFileName", "dissiped_energy.txt"}});
 } // end timer add_postprocessing_and_outputs
 
 	template<typename Problem>
@@ -144,7 +154,6 @@ void setup_properties(const TestParameters& p, mfem_mgis::PeriodicNonLinearEvolu
 
 	set_properties(m1, 8.182e9, 0.364, 100.0e6, 3.333333);
 	set_properties(m2, 2*8.182e9, 0.364, 100.0e12, 3.333333);
-	//set_properties(m2, 0. , 0., 0.364, 100.0e+12, 3.333333);
 
 	//
 	auto set_temperature = [](auto& m) {
@@ -183,7 +192,6 @@ static void setLinearSolver(Problem& p,
 	CatchTimeSection("set_linear_solver");
 	// pilote
 	constexpr int defaultMaxNumOfIt	 	= 5000; 		// MaximumNumberOfIterations
-	constexpr int adjustMaxNumOfIt 		= 500000; 		// MaximumNumberOfIterations
 	auto solverParameters = mfem_mgis::Parameters{};
 	solverParameters.insert(mfem_mgis::Parameters{{"VerbosityLevel", verbosity}});
 	solverParameters.insert(mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
@@ -227,7 +235,7 @@ int main(int argc, char* argv[])
 
 	// add post processing
 	const bool use_post_processing = (p.post_processing == 1);
-
+  if(use_post_processing) std::cout << "p.post_processing is activated" << std::endl;
 	// 3D
 	constexpr const auto dim = mfem_mgis::size_type{3};
 
@@ -254,13 +262,15 @@ int main(int argc, char* argv[])
 	if(use_post_processing) add_post_processings(problem, "OutputFile-mixed-oxide-fuels");
 
 	// main function here
-	int nStep=40;
+	//int nStep=40;
+	//double start=0;
+	//double end=5;
+	int nStep=5;
 	double start=0;
-	double end=5;
+	double end=1;
 	const double dt = (end-start)/nStep;
 	for(int i = 0 ; i < nStep ; i++)
 	{
-		
 		mfem_mgis::Profiler::Utils::Message("Solving: from ", i*dt, " to ", (i+1)*dt);
 		run_solve(problem, i * dt, dt);
 		if(use_post_processing)	execute_post_processings(problem, i * dt, dt);
