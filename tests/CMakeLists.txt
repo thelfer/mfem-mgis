@@ -263,7 +263,7 @@ if(MFEM_MGIS_HAVE_TFEL)
      "--linearsolver" "${nsolver}")
 		## Parallel execution
     add_test(NAME ${test}P
-     COMMAND mpirun -n 2 MicromorphicDamage3DTestP
+     COMMAND mpirun -n 2 ./MicromorphicDamage3DTestP
      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
      "--library" "$<TARGET_FILE:BehaviourTest>"
      "--behaviour" "MicromorphicDamageII"
@@ -410,7 +410,7 @@ if (MFEM_USE_MPI)
      			"--library" "$<TARGET_FILE:BehaviourTest>"
 					"--post-processing" "1"
           "--parallel" "0")
-  add_test(NAME ${test}P COMMAND mpirun -n 2 revMox2
+  add_test(NAME ${test}P COMMAND mpirun -n 2 ./revMox2
 					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh"
      			"--library" "$<TARGET_FILE:BehaviourTest>"
 					"--post-processing" "1"
