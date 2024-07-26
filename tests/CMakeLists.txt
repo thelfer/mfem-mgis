@@ -149,14 +149,9 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   function(add_stationary_non_linear_heat_transfer_test nsolver)
     set(test "StationaryNonLinearHeatTransferTest-${nsolver}")
-    add_test(NAME ${test}
-     COMMAND StationaryNonLinearHeatTransferTest
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "StationaryNonLinearHeatTransfer"
-     "--linearsolver" "${nsolver}"
-#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-	)
+    set(StationaryNonLinearHeatTransferTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"  "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "StationaryNonLinearHeatTransfer" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test} COMMAND ./StationaryNonLinearHeatTransferTest ${StationaryNonLinearHeatTransferTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P COMMAND mpirun -n 2 ./StationaryNonLinearHeatTransferTest ${StationaryNonLinearHeatTransferTestParameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest

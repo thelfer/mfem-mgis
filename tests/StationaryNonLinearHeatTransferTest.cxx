@@ -20,11 +20,6 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
-#ifdef DO_USE_MPI
-  static constexpr const auto parallel = true;
-#else
-  static constexpr const auto parallel = false;
-#endif
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
   mfem_mgis::initialize(argc, argv);
@@ -40,9 +35,9 @@ int main(int argc, char** argv) {
          {"FiniteElementFamily", "H1"},
          {"FiniteElementOrder", parameters.order},
          {"UnknownsSize", 1},
-         {"NumberOfUniformRefinements", parallel ? 2 : 0},
+         {"NumberOfUniformRefinements", parameters.parallel ? 2 : 0},
          {"Hypothesis", "Tridimensional"},
-         {"Parallel", parallel}});
+         {"Parallel", bool(parameters.parallel)}});
     //
     problem.getUnknownsAtBeginningOfTheTimeStep() = 293.15;
     problem.getUnknownsAtEndOfTheTimeStep() = 293.15;
