@@ -178,14 +178,9 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   function(add_micromorphic_damage_2d_test nsolver)
     set(test "MicromorphicDamage2DTest-${nsolver}")
-    add_test(NAME ${test}
-     COMMAND ./MicromorphicDamage2DTest
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "MiehePhaseFieldDamage"
-     "--linearsolver" "${nsolver}"
-#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-	)
+    set(MicromorphicDamage2DTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MiehePhaseFieldDamage" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test}  COMMAND ./MicromorphicDamage2DTest ${MicromorphicDamage2DTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./MicromorphicDamage2DTest ${MicromorphicDamage2DTestParameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest
@@ -212,14 +207,9 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   function(add_micromorphic_damage_2d_test2 nsolver)
     set(test "MicromorphicDamage2DTest2-${nsolver}")
-    add_test(NAME ${test}
-     COMMAND ./MicromorphicDamage2DTest2
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "MicromorphicDamageII"
-     "--linearsolver" "${nsolver}"
-#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-	)
+    set(MicromorphicDamage2DTest2Parameteres "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MicromorphicDamageII" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameteres} "--parallel" "0")
+    add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameteres} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest
@@ -261,6 +251,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   endfunction(add_micromorphic_damage_3d_test)
   
 	add_micromorphic_damage_2d_test2(0)
+	add_micromorphic_damage_2d_test(0)
 #	add_micromorphic_damage_2d_test2(1)
 	add_micromorphic_damage_3d_test(0)
 #	add_micromorphic_damage_3d_test(1)

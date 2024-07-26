@@ -140,11 +140,6 @@ buildMicromorphicProblem(
 
 int main(int argc, char** argv) {
   constexpr auto iter_max = mfem_mgis::size_type{200};
-#ifdef DO_USE_MPI
-  static constexpr const auto parallel = true;
-#else
-  static constexpr const auto parallel = false;
-#endif
   auto test_parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
   mfem_mgis::initialize(argc, argv);
@@ -158,12 +153,12 @@ int main(int argc, char** argv) {
       {"FiniteElementFamily", "H1"},
       {"FiniteElementOrder", test_parameters.order},
       {"Hypothesis", "PlaneStrain"},
-      {"NumberOfUniformRefinements", parallel ? 2 : 0},
+      {"NumberOfUniformRefinements", test_parameters.parallel ? 1 : 0},
       {"Materials", mfem_mgis::Parameters{{"beam", 5}}},
       {"Boundaries",
        mfem_mgis::Parameters{
            {"left", 3}, {"right", 1}, {"upper", 6}, {"lower", 7}}},
-      {"Parallel", parallel}};
+      {"Parallel", bool(test_parameters.parallel)}};
   auto mechanical_problem =
       buildMechanicalProblem(test_parameters, common_problem_parameters);
   auto micromorphic_problem =
