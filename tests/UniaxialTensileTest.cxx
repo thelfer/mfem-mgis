@@ -19,13 +19,9 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
-#ifdef DO_USE_MPI
-  static constexpr const auto parallel = true;
-#else
-  static constexpr const auto parallel = false;
-#endif
   constexpr const auto dim = mfem_mgis::size_type{3};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
+  parameters.linearsolver = 2;
   // options treatment
   mfem_mgis::initialize(argc, argv);
   mfem_mgis::unit_tests::parseCommandLineOptions(parameters, argc, argv);
@@ -37,9 +33,10 @@ int main(int argc, char** argv) {
          {"FiniteElementFamily", "H1"},
          {"FiniteElementOrder", parameters.order},
          {"UnknownsSize", dim},
-         {"NumberOfUniformRefinements", parallel ? 2 : 0},
+         {"NumberOfUniformRefinements", 0}, // faster for testing
+         //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
          {"Hypothesis", "Tridimensional"},
-         {"Parallel", parallel}});
+         {"Parallel", bool(parameters.parallel)}});
     // materials
     problem.addBehaviourIntegrator("Mechanics", 1, parameters.library,
                                    parameters.behaviour);
@@ -119,8 +116,7 @@ int main(int argc, char** argv) {
     // compare to reference files
     constexpr const auto eps = mfem_mgis::real(1.e-10);
     constexpr const auto E = mfem_mgis::real(70.e9);
-    success =
-        mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E * eps);
+    success = mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E * eps);
   }
   mfem_mgis::Profiler::timers::print_timers();
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

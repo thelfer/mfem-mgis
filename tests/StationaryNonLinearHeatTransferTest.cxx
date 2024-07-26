@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
          {"FiniteElementFamily", "H1"},
          {"FiniteElementOrder", parameters.order},
          {"UnknownsSize", 1},
-         {"NumberOfUniformRefinements", parameters.parallel ? 2 : 0},
+         {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
          {"Hypothesis", "Tridimensional"},
          {"Parallel", bool(parameters.parallel)}});
     //
