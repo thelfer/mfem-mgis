@@ -175,7 +175,6 @@ buildMicromorphicProblem(
 
 int main(int argc, char** argv) {
   constexpr auto iter_max = mfem_mgis::size_type{200};
-  static constexpr const auto parallel = false;
   auto test_parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
   mfem_mgis::initialize(argc, argv);
@@ -197,7 +196,7 @@ int main(int argc, char** argv) {
                                             {"lower", 13},
                                             {"front", 5},
                                             {"rear", 3}}},
-      {"Parallel", parallel}};
+      {"Parallel", bool(test_parameters.parallel)}};
   auto mechanical_problem =
     buildMechanicalProblem(test_parameters, common_problem_parameters);
   auto micromorphic_problem =

@@ -243,31 +243,13 @@ if(MFEM_MGIS_HAVE_TFEL)
   target_link_libraries(MicromorphicDamage3DTest
     PRIVATE MFEMMGIS)
   add_dependencies(check MicromorphicDamage3DTest)
-  add_executable(MicromorphicDamage3DTestP
-    EXCLUDE_FROM_ALL
-    MicromorphicDamage3DTestP.cxx)
-  target_include_directories(MicromorphicDamage3DTestP
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-  target_link_libraries(MicromorphicDamage3DTestP
-    PRIVATE MFEMMGIS)
-  add_dependencies(check MicromorphicDamage3DTestP)
 
   function(add_micromorphic_damage_3d_test nsolver)
     set(test "MicromorphicDamage3DTest-${nsolver}")
-		## Serial execution
-    add_test(NAME ${test}
-     COMMAND MicromorphicDamage3DTest
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "MicromorphicDamageII"
-     "--linearsolver" "${nsolver}")
-		## Parallel execution
-    add_test(NAME ${test}P
-     COMMAND mpirun -n 2 ./MicromorphicDamage3DTestP
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "MicromorphicDamageII"
-     "--linearsolver" "${nsolver}")
+    set(${test}Parameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MicromorphicDamageII" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage3DTest ${${test}Parameters} "--parallel" "0")
+    add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage3DTest ${${test}Parameters} "--parallel" "1")
+
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest

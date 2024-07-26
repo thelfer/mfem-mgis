@@ -26,6 +26,7 @@ namespace mfem_mgis::unit_tests {
     const char* isv_name = nullptr;
     int linearsolver = 0;
     int order = 1;
+    int parallel = 0; 
   };  // end of struct TestParameters
 
   struct UniaxialTestResults {
@@ -65,6 +66,7 @@ namespace mfem_mgis::unit_tests {
         "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
     args.AddOption(&params.order, "-o", "--order",
                    "Finite element order (polynomial degree).");
+	  args.AddOption(&params.parallel, "-p", "--parallel", "choose between serial (-p 0) and parallel (-p 1)");
     args.Parse();
     if ((!args.Good()) || (params.mesh_file == nullptr) ||
         (params.library == nullptr) || (params.behaviour == nullptr)) {
