@@ -76,9 +76,10 @@ namespace mfem_mgis::unit_tests {
 		// args.PrintOptions(mfem_mgis::getOutputStream());
 	}  // end of parseCommandLineOptions
 
+  template <typename TestParametersT>
 	[[maybe_unused]] static void setLinearSolver(
 			mfem_mgis::NonLinearEvolutionProblem& problem,
-			const TestParameters& parameters) {
+			const TestParametersT& parameters) {
 
 		// preconditionner hypreBoomerAMG
 		auto options = mfem_mgis::Parameters{{"VerbosityLevel", 0}};
@@ -91,16 +92,16 @@ namespace mfem_mgis::unit_tests {
 
     bool is_default_test_case = parameters.linearsolver == 0;
 #ifndef MFEM_USE_SUITESPARSE
-		is_default_test_case |= parameters.parallel && parameters.linearsolver == 2;
+		is_default_test_case |= (parameters.parallel == 0 && parameters.linearsolver == 2);
 #endif
 #ifndef MFEM_USE_MUMPS
-		is_default_test_case |= parameters.parallel && parameters.linearsolver == 3;
+		is_default_test_case |= (parameters.parallel == 0 && parameters.linearsolver == 3);
 #endif
-    is_default_test_case |= parameters.parallel && parameters.linearsolver == 4;
+    is_default_test_case |= (parameters.parallel == 0 && parameters.linearsolver == 4);
 
 		// default solver
 		if ( is_default_test_case ) {
-			if( parameters.linearsolver == 0 ) 
+			if( parameters.parallel == 0 ) 
 			{
 				problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
 						{"AbsoluteTolerance", 1e-12},
@@ -113,8 +114,8 @@ namespace mfem_mgis::unit_tests {
 				problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
 						{"AbsoluteTolerance", 1e-12},
 						{"RelativeTolerance", 1e-12},
-						{"MaximumNumberOfIterations", 5000},
-						{"Preconditioner",amg}
+						{"MaximumNumberOfIterations", 5000}//,
+//						{"Preconditioner",amg}
 						}); 
 			}
 		} else if (parameters.linearsolver == 1) {
@@ -140,7 +141,7 @@ namespace mfem_mgis::unit_tests {
 					{"MaximumNumberOfIterations", 5000}});
 		} else if (parameters.linearsolver == 3)
 		{
-			problem.setLinearSolver("PCG", {{"VerbosityLevel", 1},
+			problem.setLinearSolver("HyprePCG", {{"VerbosityLevel", 1},
 					{"Tolerance", 1e-12},
 					{"Preconditioner", diagscale},
 					{"MaximumNumberOfIterations", 5000}});

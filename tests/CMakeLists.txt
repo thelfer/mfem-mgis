@@ -70,7 +70,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   endfunction(add_periodic_test)
   
   foreach(ncase RANGE 0 5)
-    foreach(nsolver RANGE 0 1)
+    foreach(nsolver RANGE 0 3)
       add_periodic_test(${ncase} ${nsolver})
     endforeach(nsolver)
   endforeach(ncase)

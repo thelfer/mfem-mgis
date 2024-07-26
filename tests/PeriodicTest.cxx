@@ -51,6 +51,8 @@
 #include "MFEMMGIS/AnalyticalTests.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
+#include "UnitTestingUtilities.hxx"
+
 
 constexpr double xmax = 1.;
 
@@ -108,6 +110,7 @@ void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
 
 static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
                             const std::size_t i) {
+
   if (i == 0) {
     p.setLinearSolver("GMRESSolver", {{"VerbosityLevel", 1},
                                       {"AbsoluteTolerance", 1e-12},
@@ -242,7 +245,8 @@ void executeMFEMMGISTest(const TestParameters& p) {
     }
     problem.setMacroscopicGradientsEvolution([e](const double) { return e; });
     //
-    setLinearSolver(problem, p.linearsolver);
+    //setLinearSolver(problem, p.linearsolver);
+    mfem_mgis::unit_tests::setLinearSolver(problem, p);
     setSolverParameters(problem);
     // Add postprocessing and outputs
     problem.addPostProcessing(
