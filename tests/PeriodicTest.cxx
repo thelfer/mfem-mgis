@@ -162,11 +162,7 @@ struct TestParameters {
   int order = 1;
   int tcase = 0;
   int linearsolver = 0;
-#ifdef DO_USE_MPI
-  bool parallel = true;
-#else  /* DO_USE_MPI */
-  bool parallel = false;
-#endif /* DO_USE_MPI */
+  int parallel = false;
 };
 
 TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
@@ -183,8 +179,8 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   args.AddOption(
       &p.linearsolver, "-ls", "--linearsolver",
       "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
-  //   args.AddOption(&p.parallel, "-p", "--parallel",
-  //                  "if true, perform the computation in parallel");
+  args.AddOption(&p.parallel, "-p", "--parallel", "choose between serial (-p 0) and parallel (-p 1)");
+
   args.Parse();
   if ((!args.Good()) || (p.mesh_file == nullptr)) {
     args.PrintUsage(mfem_mgis::getOutputStream());
@@ -207,8 +203,8 @@ void executeMFEMMGISTest(const TestParameters& p) {
                             {"FiniteElementFamily", "H1"},
                             {"FiniteElementOrder", p.order},
                             {"UnknownsSize", dim},
-                            {"NumberOfUniformRefinements", p.parallel ? 2 : 0},
-                            {"Parallel", p.parallel}});
+                            {"NumberOfUniformRefinements", p.parallel ? 1 : 0},
+                            {"Parallel", bool(p.parallel)}});
 
   {
     // building the non linear problem
