@@ -21,7 +21,6 @@
 int main(int argc, char** argv) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
-  parameters.linearsolver = 2;
   // options treatment
   mfem_mgis::initialize(argc, argv);
   mfem_mgis::unit_tests::parseCommandLineOptions(parameters, argc, argv);
