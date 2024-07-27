@@ -119,12 +119,19 @@ if(MFEM_MGIS_HAVE_TFEL)
   function(add_partial_quadrature_function_test behaviour internal_state_variable)
     set(test "PartialQuadratureFunctionTest-${behaviour}")
     add_test(NAME ${test}
-     COMMAND PartialQuadratureFunctionTest
+     COMMAND ./PartialQuadratureFunctionTest
      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
      "--library" "$<TARGET_FILE:BehaviourTest>"
      "--behaviour" "${behaviour}"
      "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-     "--internal-state-variable" "${internal_state_variable}")
+     "--internal-state-variable" "${internal_state_variable}" "--parallel" 0)
+    add_test(NAME ${test}P
+     COMMAND mpirun -n 2 ./PartialQuadratureFunctionTest
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--behaviour" "${behaviour}"
+     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
+     "--internal-state-variable" "${internal_state_variable}" "--parallel" 0)
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest
