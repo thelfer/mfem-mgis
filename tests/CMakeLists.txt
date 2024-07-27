@@ -279,34 +279,11 @@ endif(MFEM_MGIS_HAVE_TFEL)
 ## REV examples
 
 if (MFEM_USE_MPI)
-  add_executable(revElastic RevNonLinearElastic.cxx)
-  add_executable(revElasticV2 RevNonLinearElasticV2.cxx)
-  add_executable(revMox2 MixedOxideFuels.cxx)
-  target_link_libraries(revElastic PRIVATE MFEMMGIS)
-  target_link_libraries(revElasticV2 PRIVATE MFEMMGIS)
-  target_link_libraries(revMox2 PRIVATE MFEMMGIS)
-  add_dependencies(check revElastic revElasticV2 revMox2) 
-  set(test "RevNonLinearElasticTest")
-  add_test(NAME ${test} COMMAND revElastic
-					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
-     			"--library" "$<TARGET_FILE:BehaviourTest>"
-					"--post-processing" "1")
-  set(test "RevNonLinearElasticTestV2")
-  add_test(NAME ${test} COMMAND revElasticV2
-					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
-     			"--library" "$<TARGET_FILE:BehaviourTest>"
-					"--post-processing" "1")
-  set(test "RevMixedOxideFuels2")
-  add_test(NAME ${test} COMMAND revMox2 
-					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh"
-     			"--library" "$<TARGET_FILE:BehaviourTest>"
-					"--post-processing" "1"
-          "--parallel" "0")
-  add_test(NAME ${test}P COMMAND mpirun -n 2 ./revMox2
-					"--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh"
-     			"--library" "$<TARGET_FILE:BehaviourTest>"
-					"--post-processing" "1"
-          "--parallel" "1")
+  set(REVParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
+  add_test_case_mpi(RevNonLinearElastic REVParameters)
+  add_test_case_mpi(RevNonLinearElasticV2 REVParameters)
+  set(MixedOxideFuelsParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh" "--order" "1" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
+  add_test_case_mpi(MixedOxideFuels MixedOxideFuelsParameters)
 endif(MFEM_USE_MPI)
 
 

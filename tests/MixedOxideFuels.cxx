@@ -66,7 +66,7 @@ struct TestParameters {
 	const char* behaviour = "ImplicitNortonThreshold";
 	const char* library = "src/libBehaviour.so";
 	int order = 2;
-	bool parallel = true;
+	int parallel = 1;
 	int refinement = 0;
 	int post_processing = 1; // default value : disabled
 	int verbosity_level = 0; // default value : lower level
@@ -78,9 +78,9 @@ void common_parameters(mfem::OptionsParser& args, TestParameters& p)
 	args.AddOption(&p.library, "-l", "--library", "Material library.");
 	args.AddOption(&p.order, "-o", "--order", "Finite element order (polynomial degree).");
 	args.AddOption(&p.refinement, "-r", "--refinement", "refinement level of the mesh, default = 0");
-	args.AddOption(&p.post_processing, "-p", "--post-processing", "run post processing step");
+	args.AddOption(&p.post_processing, "-pp", "--post-processing", "run post processing step");
 	args.AddOption(&p.verbosity_level, "-v", "--verbosity-level", "choose the verbosity level");
-	args.AddOption(&p.verbosity_level, "-par", "--parallel", "choose between serial (-par=0 and parallel -par=1");
+	args.AddOption(&p.parallel, "-p", "--parallel", "choose between serial (-p=0 and parallel -p=1");
 
 	args.Parse();
 
@@ -182,31 +182,45 @@ void setup_properties(const TestParameters& p, mfem_mgis::PeriodicNonLinearEvolu
 	});
 } 
 
-
-	template<typename Problem>		
+  template<typename Problem>    
 static void setLinearSolver(Problem& p,
-		const int verbosity = 0,
-		const mfem_mgis::real Tol = 1e-12
-		)
+    bool parallel,
+    const int verbosity = 0,
+    const mfem_mgis::real Tol = 1e-12
+    )
 {
-	CatchTimeSection("set_linear_solver");
-	// pilote
-	constexpr int defaultMaxNumOfIt	 	= 5000; 		// MaximumNumberOfIterations
-	auto solverParameters = mfem_mgis::Parameters{};
-	solverParameters.insert(mfem_mgis::Parameters{{"VerbosityLevel", verbosity}});
-	solverParameters.insert(mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
-	//solverParameters.insert(mfem_mgis::Parameters{{"AbsoluteTolerance", Tol}});
-	//solverParameters.insert(mfem_mgis::Parameters{{"RelativeTolerance", Tol}});
-	solverParameters.insert(mfem_mgis::Parameters{{"Tolerance", Tol}});
+  CatchTimeSection("set_linear_solver");
+  // pilote
+  constexpr int defaultMaxNumOfIt     = 5000;     // MaximumNumberOfIterations
+  auto solverParameters = mfem_mgis::Parameters{};
+  solverParameters.insert(mfem_mgis::Parameters{{"VerbosityLevel", verbosity}});
+  solverParameters.insert(mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
 
+  if(parallel)
+  {
+    solverParameters.insert(mfem_mgis::Parameters{{"Tolerance", Tol}});
+  }
+  else
+  {
+    solverParameters.insert(mfem_mgis::Parameters{{"AbsoluteTolerance", Tol},  {"RelativeTolerance", Tol}});
+  }
 
-	// preconditionner hypreBoomerAMG
-	auto options = mfem_mgis::Parameters{{"VerbosityLevel", verbosity}};
-	auto preconditionner = mfem_mgis::Parameters{{"Name","HypreBoomerAMG"}, {"Options",options}};
-	solverParameters.insert(mfem_mgis::Parameters{{"Preconditioner",preconditionner}});
-	// solver HyprePCG
-	p.setLinearSolver("HyprePCG", solverParameters);
+  // preconditionner hypreBoomerAMG
+  if(parallel)
+  {
+    auto options = mfem_mgis::Parameters{{"VerbosityLevel", verbosity}};
+    auto preconditionner = mfem_mgis::Parameters{{"Name","HypreBoomerAMG"}, {"Options",options}};
+    solverParameters.insert(mfem_mgis::Parameters{{"Preconditioner",preconditionner}});
+    // solver HyprePCG
+    p.setLinearSolver("HyprePCG", solverParameters);
+  }
+  else
+  {
+    // solver CGSolver
+    p.setLinearSolver("CGSolver", solverParameters);
+  }
 }
+
 
 	template<typename Problem>
 void run_solve(Problem& p, double start, double dt)
@@ -246,12 +260,12 @@ int main(int argc, char* argv[])
 			{"FiniteElementOrder", p.order},
 			{"UnknownsSize", dim},
 			{"NumberOfUniformRefinements", p.parallel ? p.refinement : 0},
-			{"Parallel", p.parallel}});
+			{"Parallel", bool(p.parallel)}});
 	mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);
 
 	// set problem
 	setup_properties(p, problem);
-	setLinearSolver(problem, p.verbosity_level);
+	setLinearSolver(problem, p.parallel, p.verbosity_level);
 
 	problem.setSolverParameters({{"VerbosityLevel", 1},
 			{"RelativeTolerance", 1e-6},
