@@ -153,7 +153,7 @@ static void setLinearSolver(Problem& p,
   // preconditionner hypreBoomerAMG
   if(parallel)
   {
-    auto options = mfem_mgis::Parameters{{"VerbosityLevel", verbosity}};
+    auto options = mfem_mgis::Parameters{{"VerbosityLevel", verbosity}, {"Strategy","Elasticity"}};
     auto preconditionner = mfem_mgis::Parameters{{"Name","HypreBoomerAMG"}, {"Options",options}};
     solverParameters.insert(mfem_mgis::Parameters{{"Preconditioner",preconditionner}});
     // solver HyprePCG

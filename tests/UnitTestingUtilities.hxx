@@ -63,7 +63,7 @@ namespace mfem_mgis::unit_tests {
 		args.AddOption(&params.library, "-l", "--library", "Material library.");
 		args.AddOption(
 				&params.linearsolver, "-ls", "--linearsolver",
-				"identifier of the linear solver: 0 -> CG, 1 -> GMRES, 2 -> UMFPack (serial), 3-> MUMPS(serial), 2 -> HypreFGMRES (//), 3 -> HyprePCG (//), 4 -> ");
+				"identifier of the linear solver: 0 -> CG, 1 -> GMRES, 2 -> UMFPack (serial), 3-> MUMPS(serial), 2 -> HypreFGMRES (//), 3 -> HyprePCG (//), 4 -> HypreGMRES (//)");
 		args.AddOption(&params.order, "-o", "--order",
 				"Finite element order (polynomial degree).");
 		args.AddOption(&params.parallel, "-p", "--parallel", "choose between serial (-p 0) and parallel (-p 1)");
@@ -84,7 +84,7 @@ namespace mfem_mgis::unit_tests {
 		// preconditionner hypreBoomerAMG
 		auto options = mfem_mgis::Parameters{{"VerbosityLevel", 0}};
 		auto amg = mfem_mgis::Parameters{{"Name","HypreBoomerAMG"}, {"Options",options}};
-		auto ilu = mfem_mgis::Parameters{{"Name","HypreILU"}, {"Options",options}};
+		auto ilu = mfem_mgis::Parameters{{"Name","HypreILU"}, {"Options", mfem_mgis::Parameters{{"HypreILULevelOfFill", 1}}}};
 		auto diagscale = mfem_mgis::Parameters{{"Name","HypreDiagScale"}, {"Options",options}};
 		auto parasail = mfem_mgis::Parameters{{"Name","HypreParaSails"}, {"Options",options}};
 		auto euclid = mfem_mgis::Parameters{{"Name","HypreEuclid"}, {"Options",options}};
@@ -97,7 +97,7 @@ namespace mfem_mgis::unit_tests {
 #ifndef MFEM_USE_MUMPS
 		is_default_test_case |= (parameters.parallel == 0 && parameters.linearsolver == 3);
 #endif
-    is_default_test_case |= (parameters.parallel == 0 && parameters.linearsolver == 4);
+    is_default_test_case |= (parameters.parallel == 0 && parameters.linearsolver > 3);
 
 		// default solver
 		if ( is_default_test_case ) {
@@ -144,6 +144,17 @@ namespace mfem_mgis::unit_tests {
 			problem.setLinearSolver("HyprePCG", {{"VerbosityLevel", 1},
 					{"Tolerance", 1e-12},
 					{"Preconditioner", diagscale},
+					{"MaximumNumberOfIterations", 5000}});
+		} else if (parameters.linearsolver == 4)
+		{
+			problem.setLinearSolver("HypreGMRES", {{"VerbosityLevel", 1},
+					{"Tolerance", 1e-12},
+					{"Preconditioner", parasail},
+					{"MaximumNumberOfIterations", 5000}});
+		} else if (parameters.linearsolver == 5)
+		{
+			problem.setLinearSolver("HypreGMRES", {{"VerbosityLevel", 1},
+					{"Tolerance", 1e-12},
 					{"MaximumNumberOfIterations", 5000}});
 		} else {
 			mfem_mgis::getErrorStream() << "unsupported linear solver\n";

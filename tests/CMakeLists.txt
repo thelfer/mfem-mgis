@@ -54,26 +54,22 @@ if(MFEM_MGIS_HAVE_TFEL)
   function(add_periodic_test ncase nsolver)
     set(test "PeriodicTest-${ncase}-${nsolver}")
     set(PeriodicTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--test-case" "${ncase}" "--linearsolver" "${nsolver}")
-    if(NOT "2" STREQUAL ${nsolver})
+    if("1" STREQUAL ${nsolver} OR "0" STREQUAL ${nsolver})
     	add_test(NAME ${test}  COMMAND ./PeriodicTest ${PeriodicTestParameters} "--parallel" "0")
 		endif()
     add_test(NAME ${test}P  COMMAND mpirun -n 2 ./PeriodicTest ${PeriodicTestParameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
-      if(NOT "2" STREQUAL ${nsolver})
-        set_property(TEST ${test}
+        set_property(TEST ${test}P
           PROPERTY DEPENDS BehaviourTest
           PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
-      endif()
     else((CMAKE_HOST_WIN32) AND (NOT MSYS))
-      if(NOT "2" STREQUAL ${nsolver})
-        set_property(TEST ${test}
+        set_property(TEST ${test}P
         PROPERTY DEPENDS BehaviourTest)
-      endif()
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_periodic_test)
   
   foreach(ncase RANGE 0 5)
-    foreach(nsolver RANGE 0 3)
+    foreach(nsolver RANGE 0 5)
       add_periodic_test(${ncase} ${nsolver})
     endforeach(nsolver)
   endforeach(ncase)
