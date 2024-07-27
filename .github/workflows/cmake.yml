@@ -26,9 +26,6 @@ jobs:
       with:
         root: ${{github.workspace}}
 
-    - name: Add Suite-sparse
-      run: sudo apt-get install -y libsuitesparse-dev
-
     - name: Setup LCOV
       uses: hrishikesh-kadam/setup-lcov@v1
 
@@ -39,7 +36,7 @@ jobs:
 
     - name: Install Packages
       run: |
-        spack external find openmpi mpich libfabric suite-sparse
+        spack external find openmpi mpich libfabric
         spack install mfem+mpi+suite-sparse
         spack install tfel@master:~python~python_bindings
         spack install mgis@master:+c~fortran~python
