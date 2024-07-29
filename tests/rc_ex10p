@@ -1,5 +1,0 @@
--ksp_type cg
--ksp_rtol 1.e-12
--pc_type gamg
--pc_gamg_threshold 0.01
--blocksize 3

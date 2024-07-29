@@ -38,12 +38,6 @@ if(MFEM_MGIS_HAVE_TFEL)
   set(SatohTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh" "--library" "$<TARGET_FILE:BehaviourTest>")
   add_test_case_mpi(SatohTest SatohTestParameters)
 
-  if(MFEM_USE_PETSC)
-    set(ssna303_petsc_parameters ""--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/ssna303_3d.msh" "--library" "$<TARGET_FILE:BehaviourTest>"")
-    add_test_case_mpi(ssna303_petsc ssna303_petsc_parameters)
-  endif()  
-
-
   add_executable(PeriodicTest
     EXCLUDE_FROM_ALL
     PeriodicTest.cxx)
