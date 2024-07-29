@@ -37,33 +37,9 @@ jobs:
     - name: Install Packages
       run: |
         spack external find openmpi mpich libfabric
-        spack install mfem+mpi+suite-sparse
+        spack install mfem+mpi+suite-sparse+petsc+mumps@4.7.0
         spack install tfel@master:~python~python_bindings
         spack install mgis@master:+c~fortran~python
-        
-    - name: Config MFEM-MGIS [release]
-      shell: spack-sh {0}    
-      run: | 
-        spack load mfem 
-        cmake -B ${{github.workspace}}/build \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_C_COMPILER=gcc \
-              -DCMAKE_CXX_COMPILER=g++ \
-              -DMFEM_DIR=`spack location -i mfem` \
-              -DHYPRE_DIR=`spack location -i hypre` \
-              -DMFrontGenericInterface_DIR=`spack location -i mgis@master`/share/mgis/cmake \
-              -DCMAKE_PREFIX_PATH=`spack location -i tfel`
-
-    - name: Build MFEM-MGIS
-      run: cmake --build ${{github.workspace}}/build --config Release
-
-    - name: Run examples
-      shell: spack-sh {0}    
-      working-directory: ${{github.workspace}}/build
-      run: | 
-        spack load mfem
-        spack load tfel
-        make check       
 
     - name: Config MFEM-MGIS [coverage]
       shell: spack-sh {0}    
