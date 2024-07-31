@@ -136,7 +136,6 @@ namespace mfem_mgis::unit_tests {
 		{
 			problem.setLinearSolver("HypreFGMRES", {{"VerbosityLevel", 1},
 					{"Tolerance", 1e-12},
-					//{"Preconditioner", parasail},
 					{"Preconditioner", ilu},
 					{"MaximumNumberOfIterations", 5000}});
 		} else if (parameters.linearsolver == 3)
@@ -149,7 +148,7 @@ namespace mfem_mgis::unit_tests {
 		{
 			problem.setLinearSolver("HypreGMRES", {{"VerbosityLevel", 1},
 					{"Tolerance", 1e-12},
-					{"Preconditioner", parasail},
+					//{"Preconditioner", parasail},
 					{"MaximumNumberOfIterations", 5000}});
 		} else if (parameters.linearsolver == 5)
 		{

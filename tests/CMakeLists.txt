@@ -1,5 +1,5 @@
 function(add_test_case name)
-  add_executable(${name} ${name}.cxx)
+  add_executable(${name} EXCLUDE_FROM_ALL ${name}.cxx)
   target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(${name} PRIVATE MFEMMGIS)
   add_test(NAME ${name} COMMAND ${name})
@@ -8,7 +8,7 @@ endfunction()
 
 
 function(add_test_case_mpi name parameters)
-  add_executable(${name} ${name}.cxx)
+  add_executable(${name} EXCLUDE_FROM_ALL ${name}.cxx)
   target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(${name} PRIVATE MFEMMGIS)
   add_test(NAME ${name} COMMAND ${name} ${${parameters}} "--parallel" "0")
