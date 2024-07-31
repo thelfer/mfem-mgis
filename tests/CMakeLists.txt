@@ -273,12 +273,12 @@ if(MFEM_MGIS_HAVE_TFEL)
 else(MFEM_MGIS_HAVE_TFEL)
 endif(MFEM_MGIS_HAVE_TFEL)
 
-## REV examples
+## RVE examples
 
 if (MFEM_USE_MPI)
-  set(REVParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
-  add_test_case_mpi(RevNonLinearElastic REVParameters)
-  add_test_case_mpi(RevNonLinearElasticV2 REVParameters)
+  set(RVEParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
+  add_test_case_mpi(RveNonLinearElastic RVEParameters)
+  add_test_case_mpi(RveNonLinearElasticV2 RVEParameters)
   set(MixedOxideFuelsParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh" "--order" "1" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
   add_test_case_mpi(MixedOxideFuels MixedOxideFuelsParameters)
 endif(MFEM_USE_MPI)
