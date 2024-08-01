@@ -52,8 +52,8 @@ $ spack external find tar tcl perl curl zlib openblas
 $ cd mfem-mgis
 $ git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
 $ spack repo add spack-repo-mfem-mgis
-$ spack install -j 8 mmm^mfem~mpi+suite-sparse
-$ spack load mmm^mfem~mpi+suite-sparse
+$ spack install -j 8 mfem-mgis^mfem~mpi+suite-sparse
+$ spack load mfem-mgis^mfem~mpi+suite-sparse
 $ mkdir build && cd build
 $ cmake .. -DCMAKE_INSTALL_PREFIX=../install
 $ make -j 4 check

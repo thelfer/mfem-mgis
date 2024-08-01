@@ -36,4 +36,4 @@ jobs:
         run: |
           git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
           spack repo add spack-repo-mfem-mgis
-          spack install mmm+mpi+suite-sparse
+          spack install mfem-mgis+mpi+suite-sparse
