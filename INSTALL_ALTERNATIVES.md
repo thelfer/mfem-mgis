@@ -47,14 +47,14 @@ spack compiler find
 Install the required packages using Spack.
 
 ```sh
-spack install hypre metis mgis@master cmake
+spack install hypre metis mgis@2.2 cmake
 ```
 
 ## Step 4: Load the Installed Packages
 Load the installed packages.
 
 ```sh
-spack load hypre metis mgis@master cmake
+spack load hypre metis mgis@2.2 cmake
 ```
 
 ## Step 5: Clone the MFEM Repository
@@ -114,7 +114,7 @@ This guide provides a step-by-step approach to installing MFEM-MGIS with explici
 First, install `mgis` using Spack.
 
 ```sh
-spack install mgis@master
+spack install mgis@2.2
 ```
 
 ## Step 2: Clone the MFEM Repository and Install MFEM
@@ -148,7 +148,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release \
          -DCMAKE_C_COMPILER=gcc \
          -DCMAKE_CXX_COMPILER=g++ \
          -DCMAKE_INSTALL_PREFIX=$PWD/../install \
-         -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake \
+         -DMFrontGenericInterface_DIR=$(spack location -i mgis)/share/mgis/cmake \
          -DMFEM_DIR=$MFEM_DIR
 make -j 4 install
 make check
@@ -157,7 +157,7 @@ make check
 # Explanation of the Commands
 
 - `cmake .. -DCMAKE_BUILD_TYPE=Release ...`: Configures the build in Release mode with GCC as the compiler. The installation prefix is set to `../install`.
-- `-DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake`: Specifies the directory for the `MFrontGenericInterface` configuration.
+- `-DMFrontGenericInterface_DIR=$(spack location -i mgis)/share/mgis/cmake`: Specifies the directory for the `MFrontGenericInterface` configuration.
 - `make -j 4 install`: Compiles and installs the project using 4 parallel jobs.
 - `make check`: Runs the built-in checks to verify the installation.
 
@@ -243,7 +243,7 @@ Ensure you have installed the necessary dependencies (`hypre`, `metis`, `mgis`, 
             -DCMAKE_C_COMPILER=gcc \
             -DCMAKE_CXX_COMPILER=g++ \
             -DCMAKE_INSTALL_PREFIX=$PWD/../install \
-            -DMFrontGenericInterface_DIR=$(spack location -i mgis@master)/share/mgis/cmake \
+            -DMFrontGenericInterface_DIR=$(spack location -i mgis)/share/mgis/cmake \
             -DMFEM_DIR=$MFEM_DIR
    ```
 

@@ -98,7 +98,7 @@ Get the `spack-repo-mfem-mgis` directory, add the Spack repository, and install 
 ```sh
 git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
 spack repo add spack-repo-mfem-mgis
-spack install -j 8 mfem-mgis^mfem+mpi+suite-sparse
+spack install -j 8 mfem-mgis
 ```
 
 ## Step 6: Load the Installed Package
@@ -106,7 +106,7 @@ spack install -j 8 mfem-mgis^mfem+mpi+suite-sparse
 Load the installed package.
 
 ```sh
-spack load mfem-mgis^mfem~mpi+suite-sparse
+spack load mfem-mgis
 ```
 
 #### Step 7: Build and Install the Project
@@ -130,8 +130,8 @@ Install the required packages using Spack.
 
 ```sh
 spack install mfem+mpi+suite-sparse
-spack install tfel@master:~python~python_bindings
-spack install mgis@master:+c~fortran~python
+spack install tfel@4.2.0:~python~python_bindings
+spack install mgis@2.2:+c~fortran~python
 ```
 
 ## Step 2: Load the Installed Packages
