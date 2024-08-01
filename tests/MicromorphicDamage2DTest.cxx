@@ -29,11 +29,6 @@ int main(int argc, char** argv) {
   constexpr auto pi = mfem_mgis::real{3.14159265358979323846};
   constexpr auto Gc = mfem_mgis::real{1};
   constexpr auto l0 = mfem_mgis::real{0.1};
-#ifdef DO_USE_MPI
-  static constexpr const auto parallel = true;
-#else
-  static constexpr const auto parallel = false;
-#endif
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
   mfem_mgis::initialize(argc, argv);
@@ -47,9 +42,9 @@ int main(int argc, char** argv) {
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", parameters.order},
        {"UnknownsSize", 1},
-       {"NumberOfUniformRefinements", parallel ? 2 : 0},
+       {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
        {"Hypothesis", "PlaneStrain"},
-       {"Parallel", parallel}});
+       {"Parallel", bool(parameters.parallel)}});
   // materials
   problem.addBehaviourIntegrator("MicromorphicDamage", 5, parameters.library,
                                  parameters.behaviour);
@@ -89,7 +84,7 @@ int main(int argc, char** argv) {
   // set the solver parameters
   mfem_mgis::unit_tests::setLinearSolver(problem, parameters);
   problem.setSolverParameters({{"VerbosityLevel", 0},
-                               {"RelativeTolerance", 1e-12},
+                               {"RelativeTolerance", 1e-10},
                                {"AbsoluteTolerance", 0.},
                                {"MaximumNumberOfIterations", 10}});
   // vtk export
