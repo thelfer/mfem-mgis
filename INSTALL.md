@@ -80,11 +80,11 @@ spack external find tar tcl perl curl zlib openblas
 ```
 
 ## Step 5: Install MFEM-MGIS-MFront
-Change to the `mfem-mgis` directory, add the Spack repository, and install the package.
+Get the `spack-repo-mfem-mgis` directory, add the Spack repository, and install the package.
 
 ```sh
-cd mfem-mgis
-spack repo add spack_repo
+git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
+spack repo add spack-repo-mfem-mgis
 spack install -j 8 mmm^mfem+mpi+suite-sparse
 ```
 

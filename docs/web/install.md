@@ -50,7 +50,8 @@ $ spack external find m4 openssl automake ncurses
 $ spack external find autoconf libtool xz gmake cmake
 $ spack external find tar tcl perl curl zlib openblas
 $ cd mfem-mgis
-$ spack repo add spack_repo 
+$ git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
+$ spack repo add spack-repo-mfem-mgis
 $ spack install -j 8 mmm^mfem~mpi+suite-sparse
 $ spack load mmm^mfem~mpi+suite-sparse
 $ mkdir build && cd build
