@@ -56,7 +56,7 @@ if (NOT TARGET doc)
   add_custom_target(doc)
 endif(NOT TARGET doc)
 
-option(enable-website "enable generation of the website" ON)
+option(enable-website "enable generation of the website" OFF)
 if(enable-website)
   set(MFEMMGIS_GENERATE_WEBSITE ON)
   # Looking for pandoc (http://johnmacfarlane.net/pandoc)
