@@ -11,7 +11,8 @@ on:
   # On push to main we build and deploy images
   push:
     branches:
-      - master
+      - master 
+      - rliv-1.0
 
   # Publish packages on release
   release:
@@ -36,4 +37,4 @@ jobs:
         run: |
           git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
           spack repo add spack-repo-mfem-mgis
-          spack install mfem-mgis+mpi+suite-sparse
+          spack install mfem-mgis@rliv-1.0+mpi+suite-sparse
