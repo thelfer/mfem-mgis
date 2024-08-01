@@ -1,4 +1,4 @@
-name: "Spack"
+name: "Spack-rliv-1.0"
 
 on:
   # Always have a base image ready to go - this is a nightly build
@@ -37,4 +37,4 @@ jobs:
         run: |
           git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
           spack repo add spack-repo-mfem-mgis
-          spack install mfem-mgis@rliv-1.0+mpi+suite-sparse
+          spack install mfem-mgis@rliv-1.0
