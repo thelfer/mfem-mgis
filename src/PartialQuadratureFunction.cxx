@@ -137,7 +137,7 @@ namespace mfem_mgis {
   ImmutablePartialQuadratureFunctionView::
       ImmutablePartialQuadratureFunctionView(
           std::shared_ptr<const PartialQuadratureSpace> s,
-          std::span<const real> v,
+          mgis::span<const real> v,
           const size_type db,
           const size_type ds)
       : qspace(s) {
@@ -191,7 +191,7 @@ namespace mfem_mgis {
     return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
   }  // end of getIntegrationPointValues
 
-  std::span<const real>
+  mgis::span<const real>
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValues(
       const size_type e, const size_type i) const {
     return this->getIntegrationPointValues(this->qspace->getOffset(e) + i);
@@ -244,13 +244,13 @@ namespace mfem_mgis {
       : ImmutablePartialQuadratureFunctionView(s, nv, 0, nv) {
     this->local_values_storage.resize(
         this->qspace->getNumberOfIntegrationPoints() * this->data_size);
-    this->values = std::span<real>(this->local_values_storage);
-    this->immutable_values = std::span<const real>(this->local_values_storage);
+    this->values = mgis::span<real>(this->local_values_storage);
+    this->immutable_values = mgis::span<const real>(this->local_values_storage);
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s,
-      std::span<real> v,
+      mgis::span<real> v,
       const size_type db,
       const size_type ds)
       : ImmutablePartialQuadratureFunctionView(s, v, db, ds),
@@ -325,7 +325,7 @@ namespace mfem_mgis {
     return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
   }  // end of PartialQuadratureFunction::getIntegrationPointValues
 
-  std::span<real> PartialQuadratureFunction::getIntegrationPointValues(
+  mgis::span<real> PartialQuadratureFunction::getIntegrationPointValues(
       const size_type e, const size_type i) {
     return this->getIntegrationPointValues(this->qspace->getOffset(e) + i);
   }  // end of PartialQuadratureFunction::getIntegrationPointValues

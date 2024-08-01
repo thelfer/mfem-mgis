@@ -123,7 +123,7 @@ namespace mfem_mgis {
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    virtual void setMacroscopicGradients(std::span<const real>);
+    virtual void setMacroscopicGradients(mgis::span<const real>);
     /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.

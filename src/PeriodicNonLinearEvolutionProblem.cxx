@@ -17,8 +17,8 @@ namespace mfem_mgis {
                         const size_t dim,
                         const int index,
                         const int size,
-                        const std::span<const real>& corner1,
-                        const std::span<const real>& corner2) {
+                        const mgis::span<const real>& corner1,
+                        const mgis::span<const real>& corner2) {
     real coord[dim];  // coordinates of a node
     real dist = 0.;
     for (int j = 0; j < dim; ++j) {
@@ -37,8 +37,8 @@ namespace mfem_mgis {
 
   void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<true>& p,
-      const std::span<const real>& corner1,
-      const std::span<const real>& corner2) {
+      const mgis::span<const real>& corner1,
+      const mgis::span<const real>& corner2) {
     const FiniteElementSpace<true>& fes = p.getFiniteElementSpace();
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -169,8 +169,8 @@ namespace mfem_mgis {
 
   void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<false>& p,
-      const std::span<const real>& corner1,
-      const std::span<const real>& corner2) {
+      const mgis::span<const real>& corner1,
+      const mgis::span<const real>& corner2) {
     const FiniteElementSpace<false>& fes = p.getFiniteElementSpace();
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -263,8 +263,8 @@ namespace mfem_mgis {
 
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed,
-      const std::span<const real>& corner1,
-      const std::span<const real>& corner2)
+      const mgis::span<const real>& corner1,
+      const mgis::span<const real>& corner2)
       : NonLinearEvolutionProblem(fed,
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
     CatchTimeSection("PeriodicNonLinEvPB::constructor_with_corners");

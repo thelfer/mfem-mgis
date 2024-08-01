@@ -66,12 +66,12 @@ namespace mfem_mgis {
      */
     inline RotationMatrix getRotationMatrix(const size_type) const;
 
-    inline void rotateGradients(std::span<real>, const RotationMatrix &);
+    inline void rotateGradients(mgis::span<real>, const RotationMatrix &);
 
     inline std::array<real, 9> rotateThermodynamicForces(
-        std::span<const real>, const RotationMatrix &);
+        mgis::span<const real>, const RotationMatrix &);
 
-    inline void rotateTangentOperatorBlocks(std::span<real>,
+    inline void rotateTangentOperatorBlocks(mgis::span<real>,
                                             const RotationMatrix &);
 
     const mfem::IntegrationRule &getIntegrationRule(
@@ -131,7 +131,7 @@ namespace mfem_mgis {
      * \param[in] dshape: derivatives of the shape function
      * \param[in] n: node index
      */
-    void updateGradients(std::span<real> &,
+    void updateGradients(mgis::span<real> &,
                          const mfem::Vector &,
                          const mfem::DenseMatrix &,
                          const size_type) noexcept;
@@ -146,7 +146,7 @@ namespace mfem_mgis {
      * \param[in] n: node index
      */
     void updateInnerForces(mfem::Vector &,
-                           const std::span<const real> &,
+                           const mgis::span<const real> &,
                            const mfem::DenseMatrix &,
                            const real,
                            const size_type) const noexcept;
@@ -162,7 +162,7 @@ namespace mfem_mgis {
      * \param[in] n: node index
      */
     void updateStiffnessMatrix(mfem::DenseMatrix &,
-                               const std::span<const real> &,
+                               const mgis::span<const real> &,
                                const mfem::DenseMatrix &,
                                const real,
                                const size_type) const noexcept;

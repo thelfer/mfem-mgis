@@ -50,7 +50,7 @@ namespace mfem_mgis {
     return this->quadrature_space;
   }  // end of getPartialQuadratureSpacePointer
 
-  void Material::setMacroscopicGradients(std::span<const real> g) {
+  void Material::setMacroscopicGradients(mgis::span<const real> g) {
     if (g.size() != this->s1.gradients_stride) {
       raise(
           "Material::setMacroscopicGradients: "
@@ -207,7 +207,7 @@ namespace mfem_mgis {
 
   static PartialQuadratureFunction buildPartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> qs,
-      std::span<mgis::real> values,
+      mgis::span<mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
       const mgis::string_view n,
       const Hypothesis h) {
@@ -220,7 +220,7 @@ namespace mfem_mgis {
   static ImmutablePartialQuadratureFunctionView
   buildImmutablePartialQuadratureFunctionView(
       std::shared_ptr<const PartialQuadratureSpace> qs,
-      std::span<const mgis::real> values,
+      mgis::span<const mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
       const mgis::string_view n,
       const Hypothesis h) {
