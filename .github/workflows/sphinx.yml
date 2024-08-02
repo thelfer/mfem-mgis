@@ -1,10 +1,14 @@
 name: Deploy Sphinx documentation to Pages
 
 on:
-  push:
+  pull_request:
     branches:
       - main
       - 91-add-sphinx-documentation-+-generate-pages
+  push:
+    branches:
+      - main
+      - 91-add-sphinx-documentation-+-generate-pages      
 
 jobs:
   pages:
