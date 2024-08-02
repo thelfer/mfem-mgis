@@ -17,10 +17,15 @@ jobs:
     permissions:
       pages: write
       id-token: write
+      
     steps:
+    - name: test
+      uses: actions/checkout@v1
+      with:
+        enablement: true
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
-        checkout: true
+        checkout: false
         documentation_path: docs/source
         requirements_path: docs/source/requirements.txt
