@@ -3,12 +3,10 @@ name: Deploy Sphinx documentation to Pages
 on:
   pull_request:
     branches:
-      - main
-      - 91-add-sphinx-documentation-+-generate-pages
+      - master
   push:
     branches:
-      - main
-      - 91-add-sphinx-documentation-+-generate-pages      
+      - master     
 
 jobs:
   pages:
