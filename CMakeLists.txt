@@ -103,7 +103,6 @@ add_compile_definitions(MFEM_HYPRE_VERSION=${MFEM_HYPRE_VERSION})
 
 mfem_mgis_buildenv()
 
-add_subdirectory(docs)
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(tests)
