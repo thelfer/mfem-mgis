@@ -28,5 +28,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - CI workflow with examples in `test` and 58% coverage
 - Profiler for performance analysis
 - Support for MFEM solvers:
-  - Direct solvers: MUMPS, UMFPACK
-  - Krylov solvers: HYPREPCG, HYPREGMRES, HYPREFGMRES, MINRES, BIC
+  - Direct solvers: 
+    - MUMPS
+    - UMFPackSolver
+  - Krylov solvers:
+    - CGSolver
+    - GMRESSolver
+    - BiCGSTABSolver
+    - MINRESSolver
+    - SLISolver
+		- HyprePCG
+    - HypreGMRES
+		- HypreFGMRES
+    - Solver from Petsc
+  - Preconditioner:
+    - HypreILU
+    - HypreEuclid
+    - HypreBoomerAMG
+    - HypreParaSails
+    - HypreDiagScale
+    - Preconditioner from Petsc
