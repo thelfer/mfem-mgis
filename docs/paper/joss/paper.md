@@ -18,6 +18,9 @@ authors:
   - name: Maxence Wangermez
     orcid: 0000-0002-3431-5081
     affiliation: 1
+  - name: Francesca Cuteri
+    orcid: 0000-0002-9339-8892
+    affiliation: 1
 affiliations:
  - name: DES/IRESNE/DEC/SESC, CEA, France
    index: 1
