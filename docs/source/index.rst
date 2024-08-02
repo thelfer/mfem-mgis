@@ -20,6 +20,7 @@ This project is written in ``C++-17``.
    install.rst
    tutorial.rst
    micromorphic-damage-tutorial.rst
+   examples.rst
    about.rst
 
 
