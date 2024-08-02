@@ -49,10 +49,10 @@ $ spack external find m4 openssl automake ncurses
     # libraries/program. If such libraries/program are found they are not reinstalled.
 $ spack external find autoconf libtool xz gmake cmake
 $ spack external find tar tcl perl curl zlib openblas
-$ cd mfem-mgis
-$ spack repo add spack_repo 
-$ spack install -j 8 mmm^mfem~mpi+suite-sparse
-$ spack load mmm^mfem~mpi+suite-sparse
+$ git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
+$ spack repo add spack-repo-mfem-mgi 
+$ spack install -j 8 mfem-mgis
+$ spack load mfem-mgis
 $ mkdir build && cd build
 $ cmake .. -DCMAKE_INSTALL_PREFIX=../install
 $ make -j 4 check

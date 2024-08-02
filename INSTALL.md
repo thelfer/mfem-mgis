@@ -95,9 +95,9 @@ spack external find tar tcl perl curl zlib openblas
 Change to the `mfem-mgis` directory, add the Spack repository, and install the package.
 
 ```sh
-cd mfem-mgis
-spack repo add spack_repo
-spack install -j 8 mmm^mfem+mpi+suite-sparse
+git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
+spack repo add spack-repo-mfem-mgi
+spack install -j 8 mfem-mgis
 ```
 
 ## Step 6: Load the Installed Package
@@ -105,7 +105,7 @@ spack install -j 8 mmm^mfem+mpi+suite-sparse
 Load the installed package.
 
 ```sh
-spack load mmm^mfem~mpi+suite-sparse
+spack load mfem-mgis
 ```
 
 #### Step 7: Build and Install the Project
