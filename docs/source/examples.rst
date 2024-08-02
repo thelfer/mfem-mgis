@@ -4,11 +4,25 @@ MFEM MGIS Examples
 
 All the examples presented in this section can be found in the git repository: https://github.com/latug0/mfem-mgis-examples
 
+TensileTest
+===========
+
+.. figure:: _static/ex1Start.png
+   :alt: Illustration of the start of the TensileTest simulation.
+
+.. figure:: _static/ex1End.png
+   :alt: Illustration of the start of the TensileTest simulation.
 
 Ssna303 Example (2D and 3D)
 ===========================
 
 This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on a notched beam modeled by finite-strain plastic behavior. 
+
+.. figure:: _static/ssna303Start.png
+   :alt: Illustration of the start of the ssna303 simulation.
+
+.. figure:: _static/ssna303End.png
+   :alt: Illustration of the start of the ssna303 simulation.
 
 See tutorial. 
 
@@ -18,10 +32,14 @@ Satoh
 Modelling plate of length 1 in plane strain clamped on the left and right boundaries and submitted to a parabolic thermal gradient along the x-axis. (source code 5)
 
 
+.. figure:: _static/SatohTest.png
+   :alt: Illustration of the displacement of the plate.
+
+
 Problem solved
 --------------
 
-.. code:: test
+.. code:: text
 
   This test models a 2D plate of lenght 1 in plane strain clamped on the left
   and right boundaries and submitted to a parabolic thermal gradient along the
@@ -56,6 +74,52 @@ Representative Volume Element with Elastic inclusions
 
 Simulation of a Representative Volume Element (RVE) with a non-linear elastic behavior law. A geometry mesh is provided : "inclusions_49.geo". The mesh can be generated using the following command: gmsh -3 inclusions_49.geo. By modifying the parameters within the .geo file, such as the number of spheres and the size of the element mesh, you can control and customize the simulation accordingly. (code source: ex6)
 
+
+.. figure:: _static/ex6half.png
+   :alt: Slice of a RVE with 49 spheres.
+
+
+.. figure:: _static/ex6full.png
+   :alt: RVE with 49 spheres.
+
+Build the mesh
+--------------
+
+Use GMSH to mesh the geometry. Files ``.geo`` is in the depository ``ex6``. Command line:
+
+.. code:: bash
+
+   # generate the .msh file with GMSH
+   gmsh -3 inclusions_49.geo 
+
+Run the Simulation
+------------------
+
+.. code:: bash
+
+  mpirun -n 12 ./rve --mesh inclusions_49.msh --verbosity-level 0 
+
+Available options
+~~~~~~~~~~~~~~~~~
+
+To customize the simulation, several options are available, as detailed
+below.
+
++------------------------+--------------------------------------------+
+| Command line           | Descritption                               |
++========================+============================================+
+| –mesh or -m            | specify the mesh “.msh” used (default =    |
+|                        | inclusion.msh)                             |
++------------------------+--------------------------------------------+
+| –refinement or -r      | refinement level of the mesh (default = 0) |
++------------------------+--------------------------------------------+
+| –order or -o           | Finite element order (polynomial degree)   |
+|                        | (default = 2)                              |
++------------------------+--------------------------------------------+
+| –verbosity-level or -v | choose the verbosity level (default = 0)   |
++------------------------+--------------------------------------------+
+| –post-processing or -p | run post processing step (default = 1)     |
++------------------------+--------------------------------------------+
 
 Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications
 ==================================================================================
