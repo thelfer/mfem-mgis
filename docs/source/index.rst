@@ -18,6 +18,7 @@ This project is written in ``C++-17``.
    :caption: MFEM MGIS Project
 
    install.rst
+   changelog.rst
    glossary.rst
    post-processing.rst
    tutorial.rst
