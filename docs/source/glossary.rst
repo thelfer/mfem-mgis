@@ -367,3 +367,56 @@ Jacobi (HypreDiagScale)
 
 Setup Your NonLinearProblem
 ===========================
+
+.. warning::
+
+  This section is under construction.
+
+PeriodicNonLinearProblem
+------------------------
+
+
+Material parameters
+-------------------
+
+Material Identifier
+^^^^^^^^^^^^^^^^^^^
+
+Functions: getMaterialIdentifier or 
+
+- Key: ``Material`` or ``Materials``
+- 
+
+**Example:**
+
+Boundary Condition parameters
+-----------------------------
+
+
+
+Boundary Mutators:
+^^^^^^^^^^^^^^^^^^
+
+- Functions: `getBoundariesIdentifiers`
+- Key: ``Boundary`` or ``Boundaries``
+
+**Example:**
+
+Dirichlet Condition
+-------------------
+
+This is how to apply a dirichlet boundary condition to several boundaries.
+
+**Example:**
+
+.. code-block:: cpp
+
+  // boundary conditions
+  for (const auto boundary : {"left", "right"}) {
+    for (const auto dof : {0, 1}) {
+      problem.addBoundaryCondition(
+          std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+              problem.getFiniteElementDiscretizationPointer(), boundary, dof));
+    }
+  }
+
