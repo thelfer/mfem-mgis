@@ -18,6 +18,7 @@ This project is written in ``C++-17``.
    :caption: MFEM MGIS Project
 
    install.rst
+   glossary.rst
    tutorial.rst
    micromorphic-damage-tutorial.rst
    examples.rst
