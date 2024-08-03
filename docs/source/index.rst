@@ -17,6 +17,7 @@ This project is written in ``C++-17``.
    :maxdepth: 2      
    :caption: MFEM MGIS Project
 
+   about.rst
    install.rst
    changelog.rst
    glossary.rst
@@ -24,8 +25,4 @@ This project is written in ``C++-17``.
    tutorial.rst
    micromorphic-damage-tutorial.rst
    examples.rst
-   about.rst
 
-
-References
-==========

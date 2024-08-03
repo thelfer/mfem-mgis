@@ -2,12 +2,19 @@
 About the ``MFEM/MGIS`` project
 ===============================
 
+The MFEM-MGIS project in a nutshell
+===================================
+
+The ``MFEM-MGIS`` project, aims at efficiently use supercomputers in order to describe coupled multiphysics phenomena with a particular focus on thermo-mechanics. This open-source library is based on several components as prerequisites: the ``mfem`` (Modular Finite Element Methods) library, the ``mgis`` (MFront Generic Interface Support) library and the ``MFront`` DSL code generator. Thanks to the features embedded within ``mgis`` and ``MFront`` and thanks to specific developments, ``MFEM-MGIS`` adds several mechanical features compared to a pure ``mfem`` approach. The library tackles some peculiarities of nonlinear mechanics. In particular, the support of complex constitutive laws and the management of advanced boundary conditions. It provides a high level of abstraction based on a declarative text-based Application Programming Interface.
+
+.. figure:: _static/mfem-mgis-illustration.png
+
 Contributors
 ============
 
 - Thomas Helfer (Mechanics, `thelfer <https://github.com/thelfer>`__)
-- Guillaume Latu (computer science, HPC)
-- Raphaël Prat (computer scienc, HPC)
+- Guillaume Latu (Computer science, HPC)
+- Raphaël Prat (Computer science, HPC)
 - Maxence Wangermez (Mechanics)
 
 Tools

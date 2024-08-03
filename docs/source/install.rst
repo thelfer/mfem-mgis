@@ -31,7 +31,8 @@ steps carefully to ensure a successful installation.
 Prerequisites
 ^^^^^^^^^^^^^
 
--  Ensure you have ``git`` installed on your system.
+- Ensure you have ``git``, ``mpi``, ``hypre``, ``tfel``, ``mgis``, and ``mfem`` installed on your system with a recent c++ gnu compiler.
+- Use ``spack`` to install missing Prerequisites.
 
 Step 1: Clone the Spack Repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
