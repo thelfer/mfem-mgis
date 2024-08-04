@@ -56,10 +56,10 @@ below.
 +---------------------------------+--------------------------------------------+
 | Command line                    | Descritption                               |
 +=================================+============================================+
-| --mesh or -m                     | specify the mesh “.msh” used (default =    |
+| --mesh or -m                    | specify the mesh “.msh” used (default =    |
 |                                 | inclusion.msh)                             |
 +---------------------------------+--------------------------------------------+
-| --refinement or -r               | The reference file                         |
+| --refinement or -r              | The reference file                         |
 |                                 | (default = Plasticity.ref)                 |
 +---------------------------------+--------------------------------------------+
 | --behaviour or -b               | Name of the behaviour law                  |
@@ -76,10 +76,10 @@ below.
 |                                 | 3-> MUMPS(serial), 2 -> HypreFGMRES (//),  | 
 |                                 | 3 -> HyprePCG (//), 4 -> HypreGMRES (//).  |
 +---------------------------------+--------------------------------------------+
-| --order or -o                    | Finite element order (polynomial degree)   |
+| --order or -o                   | Finite element order (polynomial degree)   |
 |                                 | (default = 2)                              |
 +---------------------------------+--------------------------------------------+
-| --parallel or -p                 | run parallel execution                     |
+| --parallel or -p                | run parallel execution                     |
 |                                 | (default = 0, serial)                      |
 +---------------------------------+--------------------------------------------+
 
@@ -193,21 +193,21 @@ Available options
 To customize the simulation, several options are available, as detailed
 below.
 
-+------------------------+--------------------------------------------+
-| Command line           | Descritption                               |
-+========================+============================================+
++-------------------------+--------------------------------------------+
+| Command line            | Descritption                               |
++=========================+============================================+
 | --mesh or -m            | specify the mesh “.msh” used (default =    |
-|                        | inclusion.msh)                             |
-+------------------------+--------------------------------------------+
+|                         | inclusion.msh)                             |
++-------------------------+--------------------------------------------+
 | --refinement or -r      | refinement level of the mesh (default = 0) |
-+------------------------+--------------------------------------------+
++-------------------------+--------------------------------------------+
 | --order or -o           | Finite element order (polynomial degree)   |
-|                        | (default = 2)                              |
-+------------------------+--------------------------------------------+
+|                         | (default = 2)                              |
++-------------------------+--------------------------------------------+
 | --verbosity-level or -v | choose the verbosity level (default = 0)   |
-+------------------------+--------------------------------------------+
++-------------------------+--------------------------------------------+
 | --post-processing or -p | run post processing step (default = 1)     |
-+------------------------+--------------------------------------------+
++-------------------------+--------------------------------------------+
 
 Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications
 ==================================================================================
@@ -300,21 +300,21 @@ Available options
 To customize the simulation, several options are available, as detailed
 below.
 
-+------------------------+--------------------------------------------+
-| Command line           | Descritption                               |
-+========================+============================================+
++-------------------------+--------------------------------------------+
+| Command line            | Descritption                               |
++=========================+============================================+
 | --mesh or -m            | specify the mesh “.msh” used (default =    |
-|                        | inclusion.msh)                             |
-+------------------------+--------------------------------------------+
+|                         | inclusion.msh)                             |
++-------------------------+--------------------------------------------+
 | --refinement or -r      | refinement level of the mesh (default = 0) |
-+------------------------+--------------------------------------------+
++-------------------------+--------------------------------------------+
 | --order or -o           | Finite element order (polynomial degree)   |
-|                        | (default = 2)                              |
-+------------------------+--------------------------------------------+
+|                         | (default = 2)                              |
++-------------------------+--------------------------------------------+
 | --verbosity-level or -v | choose the verbosity level (default = 0)   |
-+------------------------+--------------------------------------------+
-| –post-processing or -p | run post processing step (default = 1)     |
-+------------------------+--------------------------------------------+
++-------------------------+--------------------------------------------+
+| --post-processing or -p | run post processing step (default = 1)     |
++-------------------------+--------------------------------------------+
 
 Example of customized simulation:
 
