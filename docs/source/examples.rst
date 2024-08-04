@@ -7,16 +7,91 @@ All the examples presented in this section can be found in the git repository: h
 TensileTest
 ===========
 
+website : https://github.com/latug0/mfem-mgis-examples/tree/master/ex1
+
+Description:
+------------
+
+
 .. figure:: _static/ex1Start.png
    :alt: Illustration of the start of the TensileTest simulation.
 
 .. figure:: _static/ex1End.png
    :alt: Illustration of the start of the TensileTest simulation.
 
+.. warning::
+
+  Complet the description
+
+Problem Solved
+--------------
+
+.. code:: text
+
+  Export the internal value name plasticity strain 
+
+  Solver : Conjugate Gradient (default)
+  Preconditioner : Depends on the solver
+
+  The default is plasticity, behavior law parameter are defined into the lib loaded.
+
+  Element: 
+  - Family H1
+  - Order 1
+
+Run This Simulation
+-------------------
+
+.. code-block:: bash
+
+  mpirun -n 10 ./UniaxialTensileTestEx -m cube.mesh -l  src/libBehaviour.so -b Plasticity -r Plasticity.ref -ls 1 -p 1 -v EquivalentPlasticStrain
+
+
+Available options
+-----------------
+
+To customize the simulation, several options are available, as detailed
+below.
+
++---------------------------------+--------------------------------------------+
+| Command line                    | Descritption                               |
++=================================+============================================+
+| --mesh or -m                     | specify the mesh “.msh” used (default =    |
+|                                 | inclusion.msh)                             |
++---------------------------------+--------------------------------------------+
+| --refinement or -r               | The reference file                         |
+|                                 | (default = Plasticity.ref)                 |
++---------------------------------+--------------------------------------------+
+| --behaviour or -b               | Name of the behaviour law                  |
+|                                 | (default = Plasticity)                     |
++---------------------------------+--------------------------------------------+
+| --internal-state-variable or -v | Internal variable name to be post-processed|
+|                                 | (default = EquivalentPlasticStrain)        |
++---------------------------------+--------------------------------------------+
+| --library or -l                 | Material library                           |
+|                                 | (default = src/libBehaviour.so)            |
++---------------------------------+--------------------------------------------+
+| --linearsolver or -ls           | identifier of the linear solver: 0 -> CG,  |
+|                                 | 1 -> GMRES, 2 -> UMFPack (serial),         |
+|                                 | 3-> MUMPS(serial), 2 -> HypreFGMRES (//),  | 
+|                                 | 3 -> HyprePCG (//), 4 -> HypreGMRES (//).  |
++---------------------------------+--------------------------------------------+
+| --order or -o                    | Finite element order (polynomial degree)   |
+|                                 | (default = 2)                              |
++---------------------------------+--------------------------------------------+
+| --parallel or -p                 | run parallel execution                     |
+|                                 | (default = 0, serial)                      |
++---------------------------------+--------------------------------------------+
+
+
 Ssna303 Example (2D and 3D)
 ===========================
 
-This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on a notched beam modeled by finite-strain plastic behavior. 
+This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on a notched beam modeled by finite-strain plastic behavior. See the tutorial section. 
+
+- website 2D example: https://github.com/latug0/mfem-mgis-examples/tree/master/ex2
+- website 3D example : https://github.com/latug0/mfem-mgis-examples/tree/master/ex4
+
 
 .. figure:: _static/ssna303Start.png
    :alt: Illustration of the start of the ssna303 simulation.
@@ -24,10 +99,14 @@ This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on 
 .. figure:: _static/ssna303End.png
    :alt: Illustration of the start of the ssna303 simulation.
 
-See tutorial. 
 
 Satoh
 =====
+
+website: https://github.com/latug0/mfem-mgis-examples/tree/master/ex5
+
+Description:
+------------
 
 Modelling plate of length 1 in plane strain clamped on the left and right boundaries and submitted to a parabolic thermal gradient along the x-axis. (source code 5)
 
@@ -67,7 +146,16 @@ Problem solved
 Run the simulation
 ------------------
 
-TODO
+Paramerters are hardcode into this example.
+
+.. code-block:: bash
+
+  ./SatohTest
+
+.. note::
+
+  If you want to run this example in parallel, you'll have to change the solver too.
+
 
 Representative Volume Element with Elastic inclusions
 =====================================================
@@ -108,17 +196,17 @@ below.
 +------------------------+--------------------------------------------+
 | Command line           | Descritption                               |
 +========================+============================================+
-| –mesh or -m            | specify the mesh “.msh” used (default =    |
+| --mesh or -m            | specify the mesh “.msh” used (default =    |
 |                        | inclusion.msh)                             |
 +------------------------+--------------------------------------------+
-| –refinement or -r      | refinement level of the mesh (default = 0) |
+| --refinement or -r      | refinement level of the mesh (default = 0) |
 +------------------------+--------------------------------------------+
-| –order or -o           | Finite element order (polynomial degree)   |
+| --order or -o           | Finite element order (polynomial degree)   |
 |                        | (default = 2)                              |
 +------------------------+--------------------------------------------+
-| –verbosity-level or -v | choose the verbosity level (default = 0)   |
+| --verbosity-level or -v | choose the verbosity level (default = 0)   |
 +------------------------+--------------------------------------------+
-| –post-processing or -p | run post processing step (default = 1)     |
+| --post-processing or -p | run post processing step (default = 1)     |
 +------------------------+--------------------------------------------+
 
 Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications
@@ -215,15 +303,15 @@ below.
 +------------------------+--------------------------------------------+
 | Command line           | Descritption                               |
 +========================+============================================+
-| –mesh or -m            | specify the mesh “.msh” used (default =    |
+| --mesh or -m            | specify the mesh “.msh” used (default =    |
 |                        | inclusion.msh)                             |
 +------------------------+--------------------------------------------+
-| –refinement or -r      | refinement level of the mesh (default = 0) |
+| --refinement or -r      | refinement level of the mesh (default = 0) |
 +------------------------+--------------------------------------------+
-| –order or -o           | Finite element order (polynomial degree)   |
+| --order or -o           | Finite element order (polynomial degree)   |
 |                        | (default = 2)                              |
 +------------------------+--------------------------------------------+
-| –verbosity-level or -v | choose the verbosity level (default = 0)   |
+| --verbosity-level or -v | choose the verbosity level (default = 0)   |
 +------------------------+--------------------------------------------+
 | –post-processing or -p | run post processing step (default = 1)     |
 +------------------------+--------------------------------------------+
