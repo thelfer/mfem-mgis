@@ -24,12 +24,21 @@ MUMPS Solver
 ^^^^^^^^^^^^
 
 - Solver name: ``MUMPSSolver``
-- Dependencies: 
+- Dependencies:
+ 
   - ``MFEM_USE_MUMPS``
   - parallel
+
 - Parameters:
-  - ``Symetric`` [bool]: specify if the matrix is symetric.
-  - ``PositiveDefinite`` [bool]: specify if the matrix is positive definite
+
++----------------------+----------------------------------------------------+
+| Key                  | Description                                        |
++======================+====================================================+
+| ``Symetric``         | Specify if the matrix is symetric. [bool]          |
++----------------------+----------------------------------------------------+
+| ``PositiveDefinite`` | Specify if the matrix is positive definite. [bool] |
++----------------------+----------------------------------------------------+
+
 
 **Example:**
 
@@ -42,8 +51,10 @@ UMFPack Solver
 
 - Solver name: ``UMFPackSolver``
 - Dependencies: 
+
   - ``MFEM_USE_SUITESPARSE``
   - not parallel
+
 - Parameters:None
 
 **Example:**
@@ -71,11 +82,21 @@ Conjugate Gradient
 - Solver name: ``CGSolver``
 - Dependencies: None
 - Parameters:
-  - ``Precondition`` [Parameters]: Define your preconditioner.
-  - ``VerbosityLevel`` [0,1]: Define the verbosity of the solver
-  - ``RelativeTolerance`` [double]: Define the relative tolerance
-  - ``AbsoluteTolerance`` [double]: Define the absolute tolerance
-  - ``MaximumNumberOfIterations`` [int]: Maximum number of Krylov iterations
+
+
++-------------------------------+--------------------------------------------------+
+| Key                           | Description                                      |
++===============================+==================================================+
+| ``Precondition``              | Define your preconditioner. [Parameters]         |
++-------------------------------+--------------------------------------------------+
+| ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
++-------------------------------+--------------------------------------------------+
+| ``RelativeTolerance``         | Define the relative tolerance, >0. [double]      |
++-------------------------------+--------------------------------------------------+
+| ``AbsoluteTolerance``         | Define the absolute tolerance, >= 0. [double]    |
++-------------------------------+--------------------------------------------------+
+| ``MaximumNumberOfIterations`` | Maximum number of Krylov iterations, >= 1. [int] |
++-------------------------------+--------------------------------------------------+
 
 **Example:**
 
@@ -94,11 +115,20 @@ Generalized Minimal Residual (GMRES)
 - Solver name: ``GMRESSolver``
 - Dependencies: None
 - Parameters:
-  - ``Precondition`` [Parameters]: Define your preconditioner.
-  - ``VerbosityLevel`` [0,1]: Define the verbosity of the solver
-  - ``RelativeTolerance`` [double]: Define the relative tolerance
-  - ``AbsoluteTolerance`` [double]: Define the absolute tolerance
-  - ``MaximumNumberOfIterations`` [int]: Maximum number of Krylov iterations
+
++-------------------------------+--------------------------------------------------+
+| Key                           | Description                                      |
++===============================+==================================================+
+| ``Precondition``              | Define your preconditioner. [Parameters]         |
++-------------------------------+--------------------------------------------------+
+| ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
++-------------------------------+--------------------------------------------------+
+| ``RelativeTolerance``         | Define the relative tolerance, >0. [double]      |
++-------------------------------+--------------------------------------------------+
+| ``AbsoluteTolerance``         | Define the absolute tolerance, >= 0. [double]    |
++-------------------------------+--------------------------------------------------+
+| ``MaximumNumberOfIterations`` | Maximum number of Krylov iterations, >= 1. [int] |
++-------------------------------+--------------------------------------------------+
 
 **Example:**
 
@@ -117,11 +147,20 @@ Biconjugate Gradient Stabilized (BiCGSTAB)
 - Solver name: ``BiCGSTABSolver``
 - Dependencies: None
 - Parameters:
-  - ``Precondition`` [Parameters]: Define your preconditioner.
-  - ``VerbosityLevel`` [0,1]: Define the verbosity of the solver
-  - ``RelativeTolerance`` [double]: Define the relative tolerance
-  - ``AbsoluteTolerance`` [double]: Define the absolute tolerance
-  - ``MaximumNumberOfIterations`` [int]: Maximum number of Krylov iterations
+
++-------------------------------+--------------------------------------------------+
+| Key                           | Description                                      |
++===============================+==================================================+
+| ``Precondition``              | Define your preconditioner. [Parameters]         |
++-------------------------------+--------------------------------------------------+
+| ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
++-------------------------------+--------------------------------------------------+
+| ``RelativeTolerance``         | Define the relative tolerance, >0. [double]      |
++-------------------------------+--------------------------------------------------+
+| ``AbsoluteTolerance``         | Define the absolute tolerance, >= 0. [double]    |
++-------------------------------+--------------------------------------------------+
+| ``MaximumNumberOfIterations`` | Maximum number of Krylov iterations, >= 1. [int] |
++-------------------------------+--------------------------------------------------+
 
 **Example:**
 
@@ -140,11 +179,20 @@ Minimal Residual (MINRES)
 - Solver name: ``MINRESSolver``
 - Dependencies: None
 - Parameters:
-  - ``Precondition`` [Parameters]: Define your preconditioner.
-  - ``VerbosityLevel`` [0,1]: Define the verbosity of the solver
-  - ``RelativeTolerance`` [double]: Define the relative tolerance
-  - ``AbsoluteTolerance`` [double]: Define the absolute tolerance
-  - ``MaximumNumberOfIterations`` [int]: Maximum number of Krylov iterations
+
++-------------------------------+--------------------------------------------------+
+| Key                           | Description                                      |
++===============================+==================================================+
+| ``Precondition``              | Define your preconditioner. [Parameters]         |
++-------------------------------+--------------------------------------------------+
+| ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
++-------------------------------+--------------------------------------------------+
+| ``RelativeTolerance``         | Define the relative tolerance, >0. [double]      |
++-------------------------------+--------------------------------------------------+
+| ``AbsoluteTolerance``         | Define the absolute tolerance, >= 0. [double]    |
++-------------------------------+--------------------------------------------------+
+| ``MaximumNumberOfIterations`` | Maximum number of Krylov iterations, >= 1. [int] |
++-------------------------------+--------------------------------------------------+
 
 **Example:**
 
@@ -162,11 +210,20 @@ Stationary Linear Iteration (SLI)
 - Solver name: ``SLISolver``
 - Dependencies: None
 - Parameters:
-  - ``Precondition`` [Parameters]: Define your preconditioner.
-  - ``VerbosityLevel`` [0,1]: Define the verbosity of the solver
-  - ``RelativeTolerance`` [double]: Define the relative tolerance
-  - ``AbsoluteTolerance`` [double]: Define the absolute tolerance
-  - ``MaximumNumberOfIterations`` [int]: Maximum number of Krylov iterations
+
++-------------------------------+--------------------------------------------------+
+| Key                           | Description                                      |
++===============================+==================================================+
+| ``Precondition``              | Define your preconditioner. [Parameters]         |
++-------------------------------+--------------------------------------------------+
+| ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
++-------------------------------+--------------------------------------------------+
+| ``RelativeTolerance``         | Define the relative tolerance, >0. [double]      |
++-------------------------------+--------------------------------------------------+
+| ``AbsoluteTolerance``         | Define the absolute tolerance, >= 0. [double]    |
++-------------------------------+--------------------------------------------------+
+| ``MaximumNumberOfIterations`` | Maximum number of Krylov iterations, >= 1. [int] |
++-------------------------------+--------------------------------------------------+
 
 **Example:**
 
@@ -183,13 +240,24 @@ Preconditioned Conjugate Gradient (HyprePCG)
 
 - Solver name: ``HyprePCG``
 - Dependencies:
+
   - ``hypre``
   - parallel
+
 - Parameters:
-  - ``Precondition`` [Parameters]: Define your preconditioner. 
-  - ``VerbosityLevel`` [0,1]: Define the verbosity of the solver
-  - ``Tolerance`` [double]: Define the tolerance
-  - ``MaximumNumberOfIterations`` [int]: Maximum number of Krylov iterations
+
++-------------------------------+--------------------------------------------------+
+| key                           | description                                      |
++===============================+==================================================+
+| ``precondition``              | define your preconditioner. [parameters]         |
++-------------------------------+--------------------------------------------------+
+| ``verbositylevel``            | define the verbosity of the solver. [int: 0,1]   |
++-------------------------------+--------------------------------------------------+
+| ``tolerance``                 | define the tolerance, >0. [double]               |
++-------------------------------+--------------------------------------------------+
+| ``maximumnumberofiterations`` | maximum number of krylov iterations, >= 1. [int] |
++-------------------------------+--------------------------------------------------+
+
 
 **Example with a Jacobi preconditioner:**
 
@@ -209,14 +277,25 @@ Generalized Minimal Residual (HypreGMRES)
 
 - Solver name: ``HypreGMRES``
 - Dependencies:
+
   - ``hypre``
   - parallel
+
 - Parameters:
-  - ``KDim`` [int]: Define the Krylov dimension.
-  - ``Precondition`` [Parameters]: Define your preconditioner. 
-  - ``VerbosityLevel`` [0,1]: Define the verbosity of the solver
-  - ``Tolerance`` [double]: Define the tolerance
-  - ``MaximumNumberOfIterations`` [int]: Maximum number of Krylov iterations
+
++-------------------------------+--------------------------------------------------+
+| Key                           | Description                                      |
++===============================+==================================================+
+| ``KDim``                      | Define the Krylov dimension, >= 1. [int]         |
++-------------------------------+--------------------------------------------------+
+| ``Precondition``              | Define your preconditioner. [Parameters]         |
++-------------------------------+--------------------------------------------------+
+| ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
++-------------------------------+--------------------------------------------------+
+| ``Tolerance``                 | Define the tolerance, >0. [double]               |
++-------------------------------+--------------------------------------------------+
+| ``MaximumNumberOfIterations`` | Maximum number of Krylov iterations, >= 1. [int] |
++-------------------------------+--------------------------------------------------+
 
 **Example with a  Parasail preconditioner:**
 
@@ -237,14 +316,25 @@ Flexible GMRES (HypreFGMRES)
 
 - Solver name: ``HypreFGMRES``
 - Dependencies:
+
   - ``hypre``
   - parallel
+
 - Parameters:
-  - ``KDim`` [int]: Define the Krylov dimension.
-  - ``Precondition`` [Parameters]: Define your preconditioner. 
-  - ``VerbosityLevel`` [0,1]: Define the verbosity of the solver
-  - ``Tolerance`` [double]: Define the tolerance
-  - ``MaximumNumberOfIterations`` [int]: Maximum number of Krylov iterations
+
++-------------------------------+--------------------------------------------------+
+| Key                           | Description                                      |
++===============================+==================================================+
+| ``KDim``                      | Define the Krylov dimension, >= 1. [int]         |
++-------------------------------+--------------------------------------------------+
+| ``Precondition``              | Define your preconditioner. [Parameters]         |
++-------------------------------+--------------------------------------------------+
+| ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
++-------------------------------+--------------------------------------------------+
+| ``Tolerance``                 | Define the tolerance, >0. [double]               |
++-------------------------------+--------------------------------------------------+
+| ``MaximumNumberOfIterations`` | Maximum number of Krylov iterations, >= 1. [int] |
++-------------------------------+--------------------------------------------------+
 
 **Example with a ILU preconditioner:**
 
@@ -270,8 +360,15 @@ Algebraic MultiGrid (AMG)
 
 - Preconditioner name: ``HypreBoomerAMG``
 - Options:
-  - ``Strategy`` [Elasticity, System, None]: Propose strategies that can lead to improve convergence and scalability
-  - ``VerbosityLevel`` [0,1]:  Define the verbosity of the preconditioner
+
++--------------------+---------------------------------------------------------------------------------------------------------------+
+| Key                | Description                                                                                                   |
++====================+===============================================================================================================+
+| ``Strategy``       | Propose strategies that can lead to improve convergence and scalability, [Elasticity, System, None]. [string] |
++--------------------+---------------------------------------------------------------------------------------------------------------+
+| ``VerbosityLevel`` | Define the verbosity of the solver. [int: 0,1]                                                                |
++--------------------+---------------------------------------------------------------------------------------------------------------+
+
 - website: https://hypre.readthedocs.io/en/latest/solvers-boomeramg.html
 
 **Example:**
@@ -291,7 +388,13 @@ Euclid (HypreEuclid)
 --------------------
 - Preconditioner name: ``HypreEuclid``
 - Options:
-  - ``VerbosityLevel`` [0,1]:  Define the verbosity of the preconditioner
+
++--------------------+------------------------------------------------+
+| Key                | Description                                    |
++====================+================================================+
+| ``VerbosityLevel`` | Define the verbosity of the solver. [int: 0,1] |
++--------------------+------------------------------------------------+
+
 - website: https://hypre.readthedocs.io/en/latest/solvers-euclid.html 
 
 **Example:**
@@ -314,8 +417,15 @@ Incomplete LU factorization (HypreILU)
 - Dependencies:
   - ``MFEM_HYPRE_VERSION`` >= 21900
 - Options:
-  - ``HypreILULevelOfFill`` [int]:
-  - ``VerbosityLevel`` [0,1]:  Define the verbosity of the preconditioner
+
++-------------------------+------------------------------------------------+
+| Key                     | Description                                    |
++=========================+================================================+
+| ``HypreILULevelOfFill`` | [int] TODO                                     |
++-------------------------+------------------------------------------------+
+| ``VerbosityLevel``      | Define the verbosity of the solver. [int: 0,1] |
++-------------------------+------------------------------------------------+
+
 - website: https://hypre.readthedocs.io/en/latest/solvers-ilu.html
 
 **Example:**
@@ -331,7 +441,13 @@ Sparse Approximate Inverse (HypreParaSails)
 - Description: ParaSails is a parallel implementation of a sparse approximate inverse preconditioner, using a priori sparsity patterns and least-squares (Frobenius norm) minimization.
 - Preconditioner name: ``HypreParaSails``
 - Options:
-  - ``VerbosityLevel`` [0,1]:  Define the verbosity of the preconditioner
+
++--------------------+------------------------------------------------+
+| Key                | Description                                    |
++====================+================================================+
+| ``VerbosityLevel`` | Define the verbosity of the solver. [int: 0,1] |
++--------------------+------------------------------------------------+
+
 - website: https://hypre.readthedocs.io/en/latest/solvers-parasails.html
 
 **Example:**
@@ -356,7 +472,12 @@ Jacobi (HypreDiagScale)
 
 - Preconditioner name: ``HypreDiagScale``
 - Options:
-  - ``VerbosityLevel`` [0,1]:  Define the verbosity of the preconditioner
+
++--------------------+------------------------------------------------+
+| Key                | Description                                    |
++====================+================================================+
+| ``VerbosityLevel`` | Define the verbosity of the solver. [int: 0,1] |
++--------------------+------------------------------------------------+
 
 **Example:**
 
@@ -372,8 +493,41 @@ Setup Your NonLinearProblem
 
   This section is under construction.
 
-PeriodicNonLinearProblem
-------------------------
+PeriodicNonLinearEvolutionProblem
+---------------------------------
+
++----------------------------+----------------------------------------------------------+
+| Key                        | Description                                              |
++============================+==========================================================+
+| FiniteElementFamily        | Finite Element Familly, ex: H1 [string]                  |
++----------------------------+----------------------------------------------------------+
+| MeshFileName               | Path to the mesh file [string]                           |
++----------------------------+----------------------------------------------------------+
+| FiniteElementOrder         | Finite Element Order, >= 1 [int]                         |
++----------------------------+----------------------------------------------------------+
+| UnknownsSize               | Number of unknowns, >=1 [int]                            |
++----------------------------+----------------------------------------------------------+
+| NumberOfUniformRefinements | Number of time the mesh is Uniform refiined, >= 0 [int]  |
++----------------------------+----------------------------------------------------------+
+| Parallel                   | Run parallel execution [bool]                            |
++----------------------------+----------------------------------------------------------+
+
+.. note::
+
+  The uniform refinement process is done after spliting the mesh across the mpi processes. 
+
+CPP example:
+
+.. code-block:: cpp
+
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+      mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
+      {"FiniteElementFamily", "H1"},
+      {"FiniteElementOrder", 2},
+      {"UnknownsSize", 3},
+      {"NumberOfUniformRefinements", 2},
+      {"Parallel", true}});
+  mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);
 
 
 Material parameters
