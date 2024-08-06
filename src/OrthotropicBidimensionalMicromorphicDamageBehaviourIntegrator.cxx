@@ -143,7 +143,7 @@ namespace mfem_mgis {
       const auto o = eoffset + i;
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
       const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
-      std::array<real, 2> rs;
+      std::array<real, 3> rs;
       std::copy(s.begin(), s.end(), rs.begin());
       this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), r.data());
       for (size_type ni = 0; ni != nnodes; ++ni) {
@@ -254,8 +254,8 @@ namespace mfem_mgis {
         // - a_chi, the dual force conjugated with d_chi (scalar)
         // - b_chi, the dual force conjugated with the gradient of d_chi
         // (vector)
-        Fe[ni] += w * (rs[1] * dshape(ni, 0) +  //
-                       rs[2] * dshape(ni, 1));
+        Fe[ni] += w * (rs[0] * dshape(ni, 0) +  //
+                       rs[1] * dshape(ni, 1));
       }
     }
   }  // end of computeInnerForces

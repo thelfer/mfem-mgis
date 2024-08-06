@@ -1,3 +1,24 @@
+function(add_test_case name)
+  add_executable(${name} EXCLUDE_FROM_ALL ${name}.cxx)
+  target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(${name} PRIVATE MFEMMGIS)
+  add_test(NAME ${name} COMMAND ${name})
+  add_dependencies(check ${name})
+endfunction()
+
+
+function(add_test_case_mpi name parameters)
+  add_executable(${name} EXCLUDE_FROM_ALL ${name}.cxx)
+  target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(${name} PRIVATE MFEMMGIS)
+  add_test(NAME ${name} COMMAND ${name} ${${parameters}} "--parallel" "0")
+  add_test(NAME ${name}P COMMAND mpirun -n 2 ./${name} ${${parameters}} "--parallel" "1")
+  add_dependencies(check ${name})
+endfunction()
+
+
+add_test_case(UnitTestParameters)
+
 if(MFEM_MGIS_HAVE_TFEL)
   mfront_behaviours_check_library(BehaviourTest
     Elasticity
@@ -5,11 +26,18 @@ if(MFEM_MGIS_HAVE_TFEL)
     Plasticity
     Mazars
     SaintVenantKirchhoffElasticity
+    SaintVenantKirchhoffElasticityV2
     MiehePhaseFieldDamage
     MicromorphicDamageI_SpectralSplit
     MicromorphicDamageII
-    StationaryNonLinearHeatTransfer)
-  
+    StationaryNonLinearHeatTransfer
+    ImplicitNortonThreshold
+    ElasticitySatohTest)
+
+
+  set(SatohTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh" "--library" "$<TARGET_FILE:BehaviourTest>")
+  add_test_case_mpi(SatohTest SatohTestParameters)
+
   add_executable(PeriodicTest
     EXCLUDE_FROM_ALL
     PeriodicTest.cxx)
@@ -19,28 +47,27 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   function(add_periodic_test ncase nsolver)
     set(test "PeriodicTest-${ncase}-${nsolver}")
-    add_test(NAME ${test}
-     COMMAND PeriodicTest 
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--test-case" "${ncase}"
-     "--linearsolver" "${nsolver}")
+    set(PeriodicTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--test-case" "${ncase}" "--linearsolver" "${nsolver}")
+    if("1" STREQUAL ${nsolver} OR "0" STREQUAL ${nsolver})
+    	add_test(NAME ${test}  COMMAND ./PeriodicTest ${PeriodicTestParameters} "--parallel" "0")
+		endif()
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./PeriodicTest ${PeriodicTestParameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
-      set_property(TEST ${test}
-        PROPERTY DEPENDS BehaviourTest
-        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+        set_property(TEST ${test}P
+          PROPERTY DEPENDS BehaviourTest
+          PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
     else((CMAKE_HOST_WIN32) AND (NOT MSYS))
-      set_property(TEST ${test}
+        set_property(TEST ${test}P
         PROPERTY DEPENDS BehaviourTest)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_periodic_test)
   
   foreach(ncase RANGE 0 5)
-    foreach(nsolver RANGE 0 1)
+    foreach(nsolver RANGE 0 5)
       add_periodic_test(${ncase} ${nsolver})
     endforeach(nsolver)
   endforeach(ncase)
-      
+
   add_executable(UniaxialTensileTest
     EXCLUDE_FROM_ALL
     UniaxialTensileTest.cxx)
@@ -52,13 +79,9 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   function(add_uniaxial_tensile_test behaviour internal_state_variable)
     set(test "UniaxialTensileTest-${behaviour}")
-    add_test(NAME ${test}
-     COMMAND UniaxialTensileTest
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "${behaviour}"
-     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-     "--internal-state-variable" "${internal_state_variable}")
+    set(UniaxialTensileTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "${behaviour}" "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref" "--internal-state-variable" "${internal_state_variable}")
+    add_test(NAME ${test}  COMMAND ./UniaxialTensileTest ${UniaxialTensileTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./UniaxialTensileTest ${UniaxialTensileTestParameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest
@@ -86,12 +109,19 @@ if(MFEM_MGIS_HAVE_TFEL)
   function(add_partial_quadrature_function_test behaviour internal_state_variable)
     set(test "PartialQuadratureFunctionTest-${behaviour}")
     add_test(NAME ${test}
-     COMMAND PartialQuadratureFunctionTest
+     COMMAND ./PartialQuadratureFunctionTest
      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
      "--library" "$<TARGET_FILE:BehaviourTest>"
      "--behaviour" "${behaviour}"
      "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-     "--internal-state-variable" "${internal_state_variable}")
+     "--internal-state-variable" "${internal_state_variable}" "--parallel" 0)
+    add_test(NAME ${test}P
+     COMMAND mpirun -n 2 ./PartialQuadratureFunctionTest
+     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+     "--library" "$<TARGET_FILE:BehaviourTest>"
+     "--behaviour" "${behaviour}"
+     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
+     "--internal-state-variable" "${internal_state_variable}" "--parallel" 0)
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest
@@ -115,14 +145,9 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   function(add_stationary_non_linear_heat_transfer_test nsolver)
     set(test "StationaryNonLinearHeatTransferTest-${nsolver}")
-    add_test(NAME ${test}
-     COMMAND StationaryNonLinearHeatTransferTest
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "StationaryNonLinearHeatTransfer"
-     "--linearsolver" "${nsolver}"
-#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-	)
+    set(StationaryNonLinearHeatTransferTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"  "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "StationaryNonLinearHeatTransfer" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test} COMMAND ./StationaryNonLinearHeatTransferTest ${StationaryNonLinearHeatTransferTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P COMMAND mpirun -n 2 ./StationaryNonLinearHeatTransferTest ${StationaryNonLinearHeatTransferTestParameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest
@@ -149,14 +174,9 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   function(add_micromorphic_damage_2d_test nsolver)
     set(test "MicromorphicDamage2DTest-${nsolver}")
-    add_test(NAME ${test}
-     COMMAND MicromorphicDamage2DTest
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "MiehePhaseFieldDamage"
-     "--linearsolver" "${nsolver}"
-#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-	)
+    set(MicromorphicDamage2DTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MiehePhaseFieldDamage" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test}  COMMAND ./MicromorphicDamage2DTest ${MicromorphicDamage2DTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./MicromorphicDamage2DTest ${MicromorphicDamage2DTestParameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest
@@ -168,7 +188,8 @@ if(MFEM_MGIS_HAVE_TFEL)
   endfunction(add_micromorphic_damage_2d_test)
 
   if(MFEM_USE_SUITESPARSE)
-	add_micromorphic_damage_2d_test(2)
+          message(STATUS "micromorphic_damage_2d has been disabled with SUITE SPARSE")
+          #add_micromorphic_damage_2d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   add_executable(MicromorphicDamage2DTest2
@@ -182,14 +203,9 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   function(add_micromorphic_damage_2d_test2 nsolver)
     set(test "MicromorphicDamage2DTest2-${nsolver}")
-    add_test(NAME ${test}
-     COMMAND MicromorphicDamage2DTest2
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "MicromorphicDamageII"
-     "--linearsolver" "${nsolver}"
-#     "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-	)
+    set(MicromorphicDamage2DTest2Parameteres "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MicromorphicDamageII" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameteres} "--parallel" "0")
+    add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameteres} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest
@@ -211,114 +227,76 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   function(add_micromorphic_damage_3d_test nsolver)
     set(test "MicromorphicDamage3DTest-${nsolver}")
-    add_test(NAME ${test}
-     COMMAND MicromorphicDamage3DTest
-     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
-     "--library" "$<TARGET_FILE:BehaviourTest>"
-     "--behaviour" "MicromorphicDamageII"
-     "--linearsolver" "${nsolver}"
-	)
+    set(${test}Parameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MicromorphicDamageII" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage3DTest ${${test}Parameters} "--parallel" "0")
+    add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage3DTest ${${test}Parameters} "--parallel" "1")
+
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+      set_property(TEST ${test}P
         PROPERTY DEPENDS BehaviourTest
         PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
     else((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest)
+      set_property(TEST ${test}P
+        PROPERTY DEPENDS BehaviourTest)
     endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
   endfunction(add_micromorphic_damage_3d_test)
-
+  
+	add_micromorphic_damage_2d_test2(0)
+	add_micromorphic_damage_2d_test(0)
+#	add_micromorphic_damage_2d_test2(1)
+	add_micromorphic_damage_3d_test(0)
+#	add_micromorphic_damage_3d_test(1)
   if(MFEM_USE_SUITESPARSE)
-	add_micromorphic_damage_2d_test2(2)
-	add_micromorphic_damage_3d_test(2)
+#	add_micromorphic_damage_2d_test2(2)
+#	add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
   if (MFEM_USE_MPI)
-    
-    add_executable(PeriodicTestP
+
+    add_executable(ParallelReadMode
       EXCLUDE_FROM_ALL
-      PeriodicTest.cxx)
-    set_target_properties(PeriodicTestP PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
-    target_link_libraries(PeriodicTestP
+      ParallelReadMode.cxx)
+    set_target_properties(ParallelReadMode PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
+    target_link_libraries(ParallelReadMode
       PRIVATE MFEMMGIS)
-    add_dependencies(check PeriodicTestP)
-    
-    function(add_periodic_testp ncase nsolver nbprocs)
-      set(test "PeriodicTestP-${ncase}-${nsolver}-${nbprocs}")
-      add_test(NAME ${test}
-       COMMAND mpirun -n ${nbprocs} PeriodicTestP 
-       "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
-       "--library" "$<TARGET_FILE:BehaviourTest>"
-       "--test-case" "${ncase}"
-       "--linearsolver" "${nsolver}")
-      if((CMAKE_HOST_WIN32) AND (NOT MSYS))
-        set_property(TEST ${test}
-          PROPERTY DEPENDS BehaviourTest
-          PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
-      else((CMAKE_HOST_WIN32) AND (NOT MSYS))
-        set_property(TEST ${test}
-          PROPERTY DEPENDS BehaviourTest)
-      endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
-    endfunction(add_periodic_testp)
-    
-    foreach(ncase RANGE 0 0)
-      foreach(nsolver RANGE 1 1)
-        foreach(nbprocs RANGE 1 4 3)
-          add_periodic_testp(${ncase} ${nsolver} ${nbprocs})
-        endforeach(nbprocs)
-      endforeach(nsolver)
-    endforeach(ncase)
-
-    if(MFEM_USE_MUMPS)
-
-      add_periodic_testp(0 3 1)
-      add_periodic_testp(0 3 4)
-
-      add_executable(UniaxialTensileTestP
-      	EXCLUDE_FROM_ALL
-      	UniaxialTensileTest.cxx)
-      set_target_properties(UniaxialTensileTestP PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
-      target_include_directories(UniaxialTensileTestP
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-      target_link_libraries(UniaxialTensileTestP
-	    PRIVATE MFEMMGIS)
-      add_dependencies(check UniaxialTensileTestP)
-      
-      function(add_uniaxial_tensile_testp behaviour internal_state_variable linear_solver nbprocs)
-	    set(test "UniaxialTensileTestP-${behaviour}-${linear_solver}-${nbprocs}")
-	    add_test(NAME ${test}
-	      COMMAND mpirun -n ${nbprocs} UniaxialTensileTestP
-	      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
-	      "--library" "$<TARGET_FILE:BehaviourTest>"
-	      "--linearsolver" "${linear_solver}"
-	      "--behaviour" "${behaviour}"
-	      "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref"
-	      "--internal-state-variable" "${internal_state_variable}")
-	    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
-	      set_property(TEST ${test}
-                PROPERTY DEPENDS BehaviourTest
-                PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
-	    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
-	      set_property(TEST ${test}
-                PROPERTY DEPENDS BehaviourTest)
-	    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
-      endfunction(add_uniaxial_tensile_testp)
-      
-      add_uniaxial_tensile_testp(OrthotropicElasticity EquivalentStrain 3 1)
-      add_uniaxial_tensile_testp(OrthotropicElasticity EquivalentStrain 3 4)
-
-    endif(MFEM_USE_MUMPS)
+    add_dependencies(check ParallelReadMode)
+  
+    add_test(NAME Restart_Parallel_Read_Mode_MPI_4
+      COMMAND mpirun -n 4 ./ParallelReadMode --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-explorer.mesh. --library "$<TARGET_FILE:BehaviourTest>" --read-mesh-mode Restart)
     
   endif(MFEM_USE_MPI)
-else(MFEM_MGIS_HAVE_TFEL)
+
+## RVE examples
+
+  if (MFEM_USE_MPI)
+    set(RVEParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
+    add_test_case_mpi(RveNonLinearElastic RVEParameters)
+    add_test_case_mpi(RveNonLinearElasticV2 RVEParameters)
+    set(MixedOxideFuelsParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh" "--order" "1" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
+    add_test_case_mpi(MixedOxideFuels MixedOxideFuelsParameters)
+  endif(MFEM_USE_MPI)
+
 endif(MFEM_MGIS_HAVE_TFEL)
 
 # Configure and export example 1
 # This example is based on UniaxialTensileTest from the unit tests
 
 set(EX1_DIR "share/mfem-mgis/examples/ex1")
-install(FILES Plasticity.mfront cube.mesh
+install(FILES Plasticity.mfront cube.mesh 
   DESTINATION ${EX1_DIR})
+
+install(FILES ex1CMakeLists.txt
+  DESTINATION ${EX1_DIR}
+  RENAME CMakeLists.txt)
+
+install(FILES ex1Makefile
+  DESTINATION ${EX1_DIR}
+  RENAME Makefile)
 
 set(UTILITY_FILE ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UnitTestingUtilities.hxx)
 add_custom_command(
@@ -335,6 +313,10 @@ install(FILES
   ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
   DESTINATION ${EX1_DIR})
 
-set(EX3_DIR "share/mfem-mgis/examples/ex3")
-install(FILES Elasticity.mfront cube_2mat_per.mesh
-  DESTINATION ${EX3_DIR})
+set(EX2_DIR "share/mfem-mgis/examples/ex2")
+install(FILES PeriodicTest.cxx Elasticity.mfront cube_2mat_per.mesh
+  DESTINATION ${EX2_DIR})
+
+install(FILES ex2CMakeLists.txt
+  DESTINATION ${EX2_DIR}
+  RENAME CMakeLists.txt)

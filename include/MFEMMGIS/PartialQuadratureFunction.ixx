@@ -39,7 +39,7 @@ namespace mfem_mgis {
     return this->qspace;
   }  // end of getPartialQuadratureSpacePointer
 
-  inline mgis::span<const real>
+  inline std::span<const real>
   ImmutablePartialQuadratureFunctionView::getValues() const {
     return this->immutable_values;
   }
@@ -50,19 +50,19 @@ namespace mfem_mgis {
     return *(this->immutable_values.data() + this->getDataOffset(o));
   }  // end of getIntegrationPointValues
 
-  inline mgis::span<const real>
+  inline std::span<const real>
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValues(
       const size_type o) const {
-    return mgis::span<const real>(
+    return std::span<const real>(
         this->immutable_values.data() + this->getDataOffset(o),
         this->data_size);
   }  // end of getIntegrationPointValues
 
   template <size_type N>
-  inline mgis::span<const real, N>
+  inline std::span<const real, N>
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValues(
       const size_type o) const {
-    return mgis::span<const real, N>(
+    return std::span<const real, N>(
         this->immutable_values.data() + this->getDataOffset(o),
         this->data_size);
   }  // end of getIntegrationPointValues
@@ -72,20 +72,20 @@ namespace mfem_mgis {
     return *(this->values.data() + this->getDataOffset(o));
   }  // end of getIntegrationPointValues
 
-  inline mgis::span<real> PartialQuadratureFunction::getIntegrationPointValues(
+  inline std::span<real> PartialQuadratureFunction::getIntegrationPointValues(
       const size_type o) {
-    return mgis::span<real>(this->values.data() + this->getDataOffset(o),
+    return std::span<real>(this->values.data() + this->getDataOffset(o),
                             this->data_size);
   }  // end of getIntegrationPointValues
 
   template <size_type N>
-  inline mgis::span<real, N>
+  inline std::span<real, N>
   PartialQuadratureFunction::getIntegrationPointValues(const size_type o) {
-    return mgis::span<real, N>(this->values.data() + this->getDataOffset(o),
+    return std::span<real, N>(this->values.data() + this->getDataOffset(o),
                                this->data_size);
   }  // end of getIntegrationPointValues
 
-  inline mgis::span<real> PartialQuadratureFunction::getValues() {
+  inline std::span<real> PartialQuadratureFunction::getValues() {
     return this->values;
   }
 

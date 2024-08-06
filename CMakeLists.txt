@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.8)
 project(mfem-mgis)
 
 include(cmake/modules/mfem-mgis.cmake)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
@@ -22,17 +23,22 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # MFEM
-if (NOT TARGET mfem)
-  message(STATUS "Searching for MFEM")
-  find_package(MFEM REQUIRED)
-else(NOT TARGET mfem)
-  message(STATUS "MFEM target already set")
-endif(NOT TARGET mfem)
+find_package(MFEM REQUIRED)
 
 if (MFEM_USE_MPI)
   message(STATUS "MFEM: using MPI, so mfem_mgis will use MPI")
   find_package(MPI REQUIRED)
+  # The following include directories are automatically filled within FindMFEM.cmake
+  include_directories(SYSTEM ${HYPRE_INCLUDE_DIRS})
+  include_directories(SYSTEM ${METIS_INCLUDE_DIRS})
 endif(MFEM_USE_MPI)
+
+if (MFEM_USE_MUMPS)
+	find_package(OpenMP)
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif (MFEM_USE_MUMPS)
 
 # MFontGenericInterface
 find_package (MFrontGenericInterface REQUIRED)
@@ -74,18 +80,18 @@ set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
 if(CMAKE_CONFIGURATION_TYPES)
    if (NOT TARGET check)
       add_custom_target(check COMMAND 
-         ${CMAKE_CTEST_COMMAND} -T test -C $<CONFIGURATION>)
+         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>)
    else(NOT TARGET check)
       add_custom_target(mgis_check COMMAND 
-         ${CMAKE_CTEST_COMMAND} -T test -C $<CONFIGURATION>)
+         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>)
    endif(NOT TARGET check)
 else(CMAKE_CONFIGURATION_TYPES)
    if (NOT TARGET check)
       add_custom_target(check COMMAND 
-      ${CMAKE_CTEST_COMMAND} -T test )
+      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure )
    else(NOT TARGET check)
       add_custom_target(mgis_check COMMAND 
-      ${CMAKE_CTEST_COMMAND} -T test )
+      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure )
    endif(NOT TARGET check)
 endif(CMAKE_CONFIGURATION_TYPES)
 
@@ -97,7 +103,6 @@ add_compile_definitions(MFEM_HYPRE_VERSION=${MFEM_HYPRE_VERSION})
 
 mfem_mgis_buildenv()
 
-add_subdirectory(docs)
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(tests)

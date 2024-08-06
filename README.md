@@ -11,3 +11,4 @@ A tutorial based on a mechanical noteched beam is given here
 Some examples of MFEM-MGIS use (with mesh inputs) are stored on another repository here:
 [`MFEM-MGIS-EXAMPLES`](https://github.com/latug0/mfem-mgis-examples).
 
+MFEM-MGIS project documentation is available here: [Documentation](https://thelfer.github.io/mfem-mgis/)

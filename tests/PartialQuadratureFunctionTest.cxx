@@ -19,11 +19,6 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
-#ifdef DO_USE_MPI
-  static constexpr const auto parallel = true;
-#else
-  static constexpr const auto parallel = false;
-#endif
   constexpr const auto dim = mfem_mgis::size_type{3};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
@@ -36,9 +31,9 @@ int main(int argc, char** argv) {
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", parameters.order},
        {"UnknownsSize", dim},
-       {"NumberOfUniformRefinements", parallel ? 2 : 0},
+       {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
        {"Hypothesis", "Tridimensional"},
-       {"Parallel", parallel}});
+       {"Parallel", bool(parameters.parallel)}});
   // materials
   problem.addBehaviourIntegrator("Mechanics", 1, parameters.library,
                                  parameters.behaviour);

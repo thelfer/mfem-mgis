@@ -50,7 +50,7 @@ namespace mfem_mgis {
     return this->quadrature_space;
   }  // end of getPartialQuadratureSpacePointer
 
-  void Material::setMacroscopicGradients(mgis::span<const real> g) {
+  void Material::setMacroscopicGradients(std::span<const real> g) {
     if (g.size() != this->s1.gradients_stride) {
       raise(
           "Material::setMacroscopicGradients: "
@@ -68,7 +68,7 @@ namespace mfem_mgis {
   }  // end of checkBehaviourSymmetry
 
   void Material::setRotationMatrix(const RotationMatrix2D &r) {
-    checkBehaviourSymmetry(b);
+    checkBehaviourSymmetry(this->b);
     if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) != 2u) {
       raise(
           "Material::setRotationMatrix: "
@@ -97,7 +97,7 @@ namespace mfem_mgis {
   }  // end of setRotationMatrix
 
   void Material::setRotationMatrix(const RotationMatrix3D &r) {
-    checkBehaviourSymmetry(b);
+    checkBehaviourSymmetry(this->b);
     if (mgis::behaviour::getSpaceDimension(this->b.hypothesis) != 3u) {
       raise(
           "Material::setRotationMatrix: "
@@ -181,6 +181,12 @@ namespace mfem_mgis {
     this->r3D = r;
   }  // end of setRotationMatrix
 
+  std::array<real, 9u> Material::getRotationMatrixAtIntegrationPoint(
+      const size_type o) const {
+    checkBehaviourSymmetry(this->b);
+    return this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
+  } // end of getRotationMatrixAtIntegrationPoint
+
   Material::~Material() = default;
 
   static mgis::behaviour::MaterialStateManager &getStateManager(
@@ -201,7 +207,7 @@ namespace mfem_mgis {
 
   static PartialQuadratureFunction buildPartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> qs,
-      mgis::span<mgis::real> values,
+      std::span<mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
       const mgis::string_view n,
       const Hypothesis h) {
@@ -214,7 +220,7 @@ namespace mfem_mgis {
   static ImmutablePartialQuadratureFunctionView
   buildImmutablePartialQuadratureFunctionView(
       std::shared_ptr<const PartialQuadratureSpace> qs,
-      mgis::span<const mgis::real> values,
+      std::span<const mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
       const mgis::string_view n,
       const Hypothesis h) {

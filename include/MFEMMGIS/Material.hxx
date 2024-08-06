@@ -12,7 +12,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
-#include "MGIS/Span.hxx"
+#include <span>
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
@@ -47,7 +47,7 @@ namespace mfem_mgis {
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    void setMacroscopicGradients(mgis::span<const real>);
+    void setMacroscopicGradients(std::span<const real>);
     /*!
      * \brief set the rotation matrix
      * \param[in] r: rotation matrix
@@ -66,6 +66,12 @@ namespace mfem_mgis {
     //! \return the quadrature space
     std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const;
+    /*!
+     * \return the rotation matrix for the given integration point
+     * \param[in] o: offset of the integration point
+     * \note this method is only valid for orthotropic behaviours
+     */
+    std::array<real, 9u> getRotationMatrixAtIntegrationPoint(const size_type) const;
     //! \brief destructor
     ~Material();
 

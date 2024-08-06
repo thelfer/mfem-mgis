@@ -149,7 +149,7 @@ namespace mfem_mgis {
   }  // end of setTimeIncrement
 
   void MultiMaterialNonLinearIntegrator::setMacroscopicGradients(
-      mgis::span<const real> g) {
+      std::span<const real> g) {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {
         bi->setMacroscopicGradients(g);
