@@ -34,5 +34,6 @@ jobs:
           path: spack       # Where to clone Spack
       - name: Install MFEM MGIS
         run: |
-          spack repo add spack_repo
-          spack install mmm+mpi+suite-sparse
+          git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
+          spack repo add spack-repo-mfem-mgis
+          spack install mfem-mgis
