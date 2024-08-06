@@ -30,12 +30,14 @@ bibliography: paper.bib
 
 # Summary
 
-The `MFEM/MGIS` application, aims at efficiently use supercomputers in
+The `MFEM/MGIS` application aims at efficiently use supercomputers in
 order to describe coupled multiphysics phenomena with a particular focus
-on thermo-mechanics. This open-source library is based on several
-components as prerequisites: the `MFEM` (Modular Finite Element Methods)
-[@mfem; @mfem-web] library, the `MGIS` (MFront Generic Interface
-Support) [@Helfer2020] library and the `MFront` code generator
+on thermo-mechanics.
+
+This open-source library is based on several components as
+prerequisites: the `MFEM` (Modular Finite Element Methods) [@mfem;
+@mfem-web] library, the `MGIS` (MFront Generic Interface Support)
+[@Helfer2020] library and the `MFront` code generator
 [@helfer2015introducing].
 
 Thanks to the features embedded within MGIS and MFront and thanks to
@@ -67,21 +69,21 @@ microstructure and mesoscale modeling for nuclear fuel.
 # Statement of need
 
 The solid mechanic applications in `MFEM` are mostly limited to simple
-constitutive equations such as elasticity and hyper-elasticity, which is
-insufficient to address complex nuclear fuel simulations such as a
-Representative Volume Element (RVE) of nuclear fuel or a pellet
-cracking.
+constitutive equations such as elasticity and hyperelasticity, which is
+insufficient to address complex nuclear fuel simulations.
 
 The aim of `MFEM/MGIS` project is to combine `MFEM` with the
 `MFrontGenericInterfaceSupport` (`MGIS`) project, an open-source `C++`
 library handles all the kinds of behavior supported by the open-source
-`MFront` code generator. In the field of nonlinear mechanics, this
-encompasses arbitrary complex behaviors that can describe damage,
-plasticity, viscoplasticity, phase change in both small or finite strain
-analyses. Generalized behaviors such as strongly coupled
-thermo-mechanical behaviors, variational approaches to fracture,
-cosserat media are supported by `MGIS` and will be considered in future
-versions of `MFEM/MGIS`.
+`MFront` code generator.
+
+In the field of nonlinear mechanics, this encompasses arbitrary complex
+behaviors that can describe damage, plasticity, viscoplasticity, phase
+change in both small or finite strain analyses. Generalized behaviors
+such as variational approaches to fracture, Cosserat media are supported
+by `MFEM/MGIS`. Strongly coupled thermo-mechanical behaviors and
+Cosserat media can be introduced by plugins and will be integrated in
+future versions of `MFEM/MGIS`.
 
 Through its integration with `MGIS` and `MFront`, along with dedicated
 advancements, `MFEM/MGIS` has incorporated the subsequent mechanical
@@ -113,26 +115,33 @@ The library tackles some peculiarities of nonlinear mechanics. In
 particular, the support of complex constitutive laws and the management
 of advanced boundary conditions.
 
-The `MFEM/MGIS` library is written in `C++17` language and
-provides a high level of abstraction based on a declarative
-text-based Application Programming Interface.
+The `MFEM/MGIS` library is written in `C++17` language and provides a
+high level of abstraction based on a declarative text-based Application
+Programming Interface.
+
+Several examples can be found on the open-source GitHub repository:
+`https://github.com/latug0/mfem-mgis-examples`, including simulation of
+the microstructural scale using a Representative Volume Element (RVE) of
+nuclear fuel.
 
 # Integrate MFEM/MGIS in an Open Source Ecosystem
 
 The `MFEM/MGIS` library takes full advantage of an open-source software
 (OSS) stack. It benefits from the increasing maturity of several
-scientific tools that are combined. Thus, within `MFEM`, one has many
-available choices to set the linear solver, such as:
-`Hypre`[@hypre2002], `PETSc`[@petsc-web-page], `MUMPS`[@mumps],
-`SuperLU`, `UMFPACK`[@davis2004algorithm] or other ones. Likewise,
-several preconditioners, partitioning libraries, or input mesh formats
-can be activated and used. Combinations are highly configurable and
-almost all external libraries that relates to linear solvers are
-switchable.
+scientific tools that are combined.
+
+Thus, within `MFEM`, one has many available choices to set the linear
+solver, such as: `Hypre`[@hypre2002], `PETSc`[@petsc-web-page],
+`MUMPS`[@mumps], `SuperLU`, `UMFPACK`[@davis2004algorithm] or other
+ones. Likewise, several preconditioners, partitioning libraries, or
+input mesh formats can be activated and used.
+
+Combinations are highly configurable and almost all external libraries
+that relates to linear solvers are switchable.
 
 # Software stack
 
-![MFEM/MGIS-MFront Stack. Each library is open source.\label{fig:SoftStack}](./MFEM/MGIS-stack-v0.png "MFEM/MGIS-MFront software stack. MFEM/MGIS is the convergence between two open sources ecosytem."){width=75%}
+![MFEM/MGIS Stack. Each library is open source.\label{fig:SoftStack}](./MMM-stack-v0.png "MFEM/MGIS software stack. MFEM/MGIS is the convergence between two open sources ecosytem."){width=75%}
 
 The MFEM/MGIS software stack is presented on \autoref{fig:SoftStack}.
 Most of low-level external libraries are required by `MFEM` and can be
@@ -161,13 +170,16 @@ Installation and deployment on desktop or large computers is shortened
 using the Spack package manager. Multi-material elastic modelling on
 computational clusters has been carried out with `MFEM/MGIS`. The
 observed scalability performance is good on a few thousands of CPU
-cores. Despite the very high level of abstraction and the genericness of
+cores.
+
+Despite the very high level of abstraction and the genericness of
 `MFEM/MGIS` (multi-material and arbitrary behaviors), the overhead
 appears reasonably limited. In the worst-case for `MFEM/MGIS`, an
 overhead of up to 30% has been observed compared to a pure `MFEM`
 version which provides very optimized and specialized kernels (the test
-was performed on a simulation with only two elastic materials). Several
-examples can be found on the open-source GitHub repository:
+was performed on a simulation with only two elastic materials).
+
+Several examples can be found on the open-source GitHub repository:
 `https://github.com/latug0/mfem-mgis-examples`.
 
 # Conclusion
@@ -195,8 +207,12 @@ or `OCCA` for performance portability of MFEM/MGIS on GPU.
 
 # Acknowledgement
 
-This work was performed using HPC resources from CCRT funded by the
-CEA/DEs simulation programme.
+Funded by the European Union, this work has received funding from the
+Open HPC thermomechanical tools for the development of EATF fuels
+undertaking (OperaHPC) grant agreement No 101061453.
+
+Benchmarks and scalability tests were performed using HPC resources from
+CCRT funded by the CEA/DEs simulation program.
 
 # References
 
