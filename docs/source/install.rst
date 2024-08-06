@@ -7,8 +7,8 @@ This project uses ```cmake`` as build system.
 Dependencies
 ------------
 
--  [MFEM](https://mfem.org/)
--  [MGIS](https://github.com/thelfer/MFrontGenericInterfaceSupport)
+- `MFEM <https://mfem.org/>`_
+-  `MGIS <https://github.com/thelfer/MFrontGenericInterfaceSupport>`_
 
 A simple way to install dependencies is to rely on ``Spack`` packaging
 system. ``Spack`` is an open source package
@@ -25,7 +25,7 @@ Installation Tutorial for ``MFEM-MGIS-MFront`` using Spack
 ----------------------------------------------------------
 
 This tutorial provides detailed instructions on how to install
-``MFEM-MGIS-MFront`` using [Spack](https://spack.io/). Follow the
+``MFEM-MGIS-MFront`` using `Spack <https://spack.io/>`_. Follow the
 steps carefully to ensure a successful installation.
 
 Prerequisites
