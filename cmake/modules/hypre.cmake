@@ -21,7 +21,7 @@ if(MFEM_USE_MPI)
          set(HYPRE_DIR $ENV{HYPRE_DIR})
   endif()
   message(STATUS "Hypre directory: ${HYPRE_DIR}")
-  set(HYPRE_INCLUDE_DIRS "${HYPRE_DIR}/include")
+  set(HYPRE_INCLUDE_DIRS "${HYPRE_DIR}/include/hypre;${HYPRE_DIR}/include")
   try_run(HYPRE_VERSION_RUN_RESULT HYPRE_VERSION_COMPILE_RESULT
           ${CMAKE_CURRENT_BINARY_DIR}/cmake/modules/
           ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/get_hypre_version.cpp
