@@ -270,19 +270,18 @@ if(MFEM_MGIS_HAVE_TFEL)
       COMMAND mpirun -n 4 ./ParallelReadMode --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-explorer.mesh. --library "$<TARGET_FILE:BehaviourTest>" --read-mesh-mode Restart)
     
   endif(MFEM_USE_MPI)
-else(MFEM_MGIS_HAVE_TFEL)
-endif(MFEM_MGIS_HAVE_TFEL)
 
 ## RVE examples
 
-if (MFEM_USE_MPI)
-  set(RVEParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
-  add_test_case_mpi(RveNonLinearElastic RVEParameters)
-  add_test_case_mpi(RveNonLinearElasticV2 RVEParameters)
-  set(MixedOxideFuelsParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh" "--order" "1" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
-  add_test_case_mpi(MixedOxideFuels MixedOxideFuelsParameters)
-endif(MFEM_USE_MPI)
+  if (MFEM_USE_MPI)
+    set(RVEParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
+    add_test_case_mpi(RveNonLinearElastic RVEParameters)
+    add_test_case_mpi(RveNonLinearElasticV2 RVEParameters)
+    set(MixedOxideFuelsParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh" "--order" "1" "--library" "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
+    add_test_case_mpi(MixedOxideFuels MixedOxideFuelsParameters)
+  endif(MFEM_USE_MPI)
 
+endif(MFEM_MGIS_HAVE_TFEL)
 
 # Configure and export example 1
 # This example is based on UniaxialTensileTest from the unit tests
