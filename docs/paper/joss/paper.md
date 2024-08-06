@@ -120,7 +120,7 @@ high level of abstraction based on a declarative text-based Application
 Programming Interface.
 
 Several examples can be found on the open-source GitHub repository:
-`https://github.com/latug0/mfem-mgis-examples`, including simulation of
+<https://github.com/latug0/mfem-mgis-examples>, including simulation of
 the microstructural scale using a Representative Volume Element (RVE) of
 nuclear fuel.
 
@@ -180,7 +180,7 @@ version which provides very optimized and specialized kernels (the test
 was performed on a simulation with only two elastic materials).
 
 Several examples can be found on the open-source GitHub repository:
-`https://github.com/latug0/mfem-mgis-examples`.
+<https://github.com/latug0/mfem-mgis-examples>.
 
 # Conclusion
 
