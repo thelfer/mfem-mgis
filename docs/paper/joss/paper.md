@@ -22,7 +22,7 @@ authors:
     orcid: 0000-0002-9339-8892
     affiliation: 1
 affiliations:
- - name: CEA.DES.IRESNE.DEC, Cadarache F 13108 St Paul Lez Durance
+ - name: CEA, DES, IRESNE, DEC, Cadarache F 13108 St Paul Lez Durance
    index: 1
 date: 3 August 2023
 bibliography: paper.bib
