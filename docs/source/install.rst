@@ -420,3 +420,25 @@ Using ccc_msub
 
 TODO
 
+Troubleshooting
+^^^^^^^^^^^^^^^
+
+If you encounter ``Spack`` errors due to missing packages, consider the following possibilities:
+
+Two possibilities:
+
+- Check if the package is already installed on Topaze by running:**
+
+.. code-block:: bash
+
+  spack external find your-package
+
+If the package is found, you can use it directly.
+
+- If the package is not installed on ``Topaze``, you can add its sources to your mirror directory. If you are using an SSHFS mount, you can complete your mirror by executing the following command on your host machine:
+
+.. code-block:: bash
+
+  spack mirror create -d your-mirror/ -D your-package
+
+For more questions about ``spack``, see the ``spack`` documentation.
