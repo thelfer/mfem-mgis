@@ -312,7 +312,7 @@ Create an archive for these files:
 .. code-block:: bash
 
    cd $MY_DIR
-   tar cvf archive.tar.gz mfem-mgis/ mfem-mgis-examples/ mirror-mfem-mgis/ spack/ my_bootstrap/
+   tar cvf archive.tar.gz mfem-mgis/ mfem-mgis-examples/ mirror-mfem-mgis/ spack/ my_bootstrap/ spack-repo-mfem-mgis/
    scp archive.tar.gz $MY_LOG@topaze.ccc.cea.fr:$MY_DEST/
 
 **Load Topaze modules**
