@@ -58,6 +58,10 @@ namespace mfem_mgis {
     const FiniteElementSpace<true>& getFiniteElementSpace() const;
     //
     void Mult(const mfem::Vector&, mfem::Vector&) const override;
+    void addBoundaryCondition(
+        std::unique_ptr<DirichletBoundaryCondition>) override;
+    void addBoundaryCondition(
+        const Parameter&, std::unique_ptr<NonlinearFormIntegrator>) override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
@@ -107,6 +111,11 @@ namespace mfem_mgis {
     FiniteElementSpace<false>& getFiniteElementSpace();
     //! \return the finite element space
     const FiniteElementSpace<false>& getFiniteElementSpace() const;
+    //
+    void addBoundaryCondition(
+        std::unique_ptr<DirichletBoundaryCondition>) override;
+    void addBoundaryCondition(
+        const Parameter&, std::unique_ptr<NonlinearFormIntegrator>) override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing

@@ -117,8 +117,6 @@ namespace mfem_mgis {
                                 const Parameter&,
                                 const std::string&,
                                 const std::string&) override;
-    void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
     void revert() override;
     void update() override;
     NonLinearResolutionOutput solve(const real, const real) override;
@@ -194,6 +192,8 @@ namespace mfem_mgis {
      * The memory associated with this pointer must be released in derived class
      */
     MultiMaterialNonLinearIntegrator* const mgis_integrator = nullptr;
+    //! \brief registred boundary conditions
+    std::vector<std::unique_ptr<NonlinearFormIntegrator>> boundary_conditions;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
 

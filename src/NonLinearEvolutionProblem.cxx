@@ -158,6 +158,11 @@ namespace mfem_mgis {
   }  // end of getAssignedMaterialsIdentifiers
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
+      const Parameter& bids, std::unique_ptr<NonlinearFormIntegrator> f) {
+    this->pimpl->addBoundaryCondition(bids, std::move(f));
+  } // end of addBoundaryCondition
+
+  void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {
     this->pimpl->addBoundaryCondition(std::move(bc));
   }  // end of NonLinearEvolutionProblem::addBoundaryCondition

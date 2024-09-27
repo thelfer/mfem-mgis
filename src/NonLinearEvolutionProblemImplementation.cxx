@@ -17,6 +17,7 @@
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
+#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
@@ -88,6 +89,20 @@ namespace mfem_mgis {
       const mfem::Vector& u, mfem::Vector& r) const {
     return mfem_mgis::NonlinearForm<true>::Mult(u, r);
   }  // end of Mult
+
+  void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
+      std::unique_ptr<DirichletBoundaryCondition> bc) {
+    this->dirichlet_boundary_conditions.push_back(std::move(bc));
+  }  // end of addBoundaryCondition
+
+  void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
+      const Parameter& bids, std::unique_ptr<NonlinearFormIntegrator> f) {
+    const auto ids = this->getBoundariesIdentifiers(bids);
+    auto mids = mfem::Array<int>(ids.size());
+    std::copy(ids.begin(), ids.end(), mids.begin());
+    this->AddBoundaryIntegrator(f.get(), mids);
+    this->boundary_conditions.push_back(std::move(f));
+  }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       std::unique_ptr<PostProcessing<true>> p) {
@@ -192,6 +207,20 @@ namespace mfem_mgis {
       this->AddDomainIntegrator(this->mgis_integrator);
     }
   }  // end of NonLinearEvolutionProblemImplementation
+
+  void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
+      std::unique_ptr<DirichletBoundaryCondition> bc) {
+    this->dirichlet_boundary_conditions.push_back(std::move(bc));
+  }  // end of addBoundaryCondition
+
+  void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
+      const Parameter& bids, std::unique_ptr<NonlinearFormIntegrator> f) {
+    const auto ids = this->getBoundariesIdentifiers(bids);
+    auto mids = mfem::Array<int>(ids.size());
+    std::copy(ids.begin(), ids.end(), mids.begin());
+    this->AddBoundaryIntegrator(f.get(), mids);
+    this->boundary_conditions.push_back(std::move(f));
+  }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
       std::unique_ptr<PostProcessing<false>> p) {

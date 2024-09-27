@@ -303,6 +303,11 @@ namespace mfem_mgis {
   }  // end of PeriodicNonLinearEvolutionProblem
 
   void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
+      const Parameter& bids, std::unique_ptr<NonlinearFormIntegrator> f) {
+    NonLinearEvolutionProblem::addBoundaryCondition(bids, std::move(f));
+  }  // end of addBoundaryCondition
+
+  void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition>) {
     raise(
         "PeriodicNonLinearEvolutionProblem::addBoundaryCondition: "

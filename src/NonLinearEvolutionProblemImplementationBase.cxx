@@ -296,11 +296,6 @@ namespace mfem_mgis {
                              std::move(s.preconditioner));
   }  // end of updateLinearSolver
 
-  void NonLinearEvolutionProblemImplementationBase::addBoundaryCondition(
-      std::unique_ptr<DirichletBoundaryCondition> bc) {
-    this->dirichlet_boundary_conditions.push_back(std::move(bc));
-  }  // end of addBoundaryCondition
-
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {
     CatchTimeSection("NonLinearEvolutionProblemImplementationBase::solve");

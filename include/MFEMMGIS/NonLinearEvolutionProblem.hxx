@@ -81,6 +81,8 @@ namespace mfem_mgis {
     void setSolverParameters(const Parameters &) override;
     void setLinearSolver(std::string_view, const Parameters &) override;
     void addBoundaryCondition(
+        const Parameter&, std::unique_ptr<NonlinearFormIntegrator>) override;
+    void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     /*!
      * \brief add an uniform boundary condition

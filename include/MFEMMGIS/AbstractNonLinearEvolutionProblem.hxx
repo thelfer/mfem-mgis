@@ -173,6 +173,13 @@ namespace mfem_mgis {
      */
     virtual BehaviourIntegrator &getBehaviourIntegrator(const size_type) = 0;
     /*!
+     * \brief add a boundary condition
+     * \param[in] bids: boundary identifiers
+     * \param[in] f: boundary condition
+     */
+    virtual void addBoundaryCondition(
+        const Parameter &, std::unique_ptr<NonlinearFormIntegrator>) = 0;
+    /*!
      * \brief add a Dirichlet boundary condition
      * \param[in] bc: boundary condition
      */
