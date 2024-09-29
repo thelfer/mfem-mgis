@@ -14,6 +14,7 @@
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
@@ -250,6 +251,9 @@ namespace mfem_mgis {
     this->initialization_phase = false;
     for (const auto& bc : this->dirichlet_boundary_conditions) {
       bc->updateImposedValues(this->u1, t + dt);
+    }
+    for (const auto& bc : this->boundary_conditions) {
+      bc->setup(t, dt);
     }
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->setup(t, dt);

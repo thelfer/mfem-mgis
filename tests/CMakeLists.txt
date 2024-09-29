@@ -6,7 +6,6 @@ function(add_test_case name)
   add_dependencies(check ${name})
 endfunction()
 
-
 function(add_test_case_mpi name parameters)
   add_executable(${name} EXCLUDE_FROM_ALL ${name}.cxx)
   target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -15,7 +14,6 @@ function(add_test_case_mpi name parameters)
   add_test(NAME ${name}P COMMAND mpirun -n 2 ./${name} ${${parameters}} "--parallel" "1")
   add_dependencies(check ${name})
 endfunction()
-
 
 add_test_case(UnitTestParameters)
 
@@ -33,7 +31,6 @@ if(MFEM_MGIS_HAVE_TFEL)
     StationaryNonLinearHeatTransfer
     ImplicitNortonThreshold
     ElasticitySatohTest)
-
 
   set(SatohTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh" "--library" "$<TARGET_FILE:BehaviourTest>")
   add_test_case_mpi(SatohTest SatohTestParameters)
@@ -76,7 +73,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   target_link_libraries(UniaxialTensileTest
     PRIVATE MFEMMGIS)
   add_dependencies(check UniaxialTensileTest)
-  
+
   function(add_uniaxial_tensile_test behaviour internal_state_variable)
     set(test "UniaxialTensileTest-${behaviour}")
     set(UniaxialTensileTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "${behaviour}" "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref" "--internal-state-variable" "${internal_state_variable}")
@@ -96,6 +93,32 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_uniaxial_tensile_test(Plasticity EquivalentPlasticStrain)
   add_uniaxial_tensile_test(Mazars Damage)
   add_uniaxial_tensile_test(SaintVenantKirchhoffElasticity EquivalentStrain)
+
+  add_executable(ImposedPressureTest
+    EXCLUDE_FROM_ALL
+    ImposedPressureTest.cxx)
+  target_include_directories(ImposedPressureTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(ImposedPressureTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check ImposedPressureTest)
+
+  function(add_imposed_pressure_test behaviour)
+    set(test "ImposedPressureTest-${behaviour}")
+    set(ImposedPressureTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "${behaviour}" "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref")
+    add_test(NAME ${test}  COMMAND ./ImposedPressureTest ${ImposedPressureTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./ImposedPressureTest ${ImposedPressureTestParameters} "--parallel" "1")
+    if((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest
+        PROPERTY ENVIRONMENT "PATH=$<TARGET_FILE_DIR:MFEMMGIS>\;${MGIS_PATH_STRING}")
+    else((CMAKE_HOST_WIN32) AND (NOT MSYS))
+      set_property(TEST ${test}
+        PROPERTY DEPENDS BehaviourTest)
+    endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
+  endfunction(add_imposed_pressure_test)
+
+  add_imposed_pressure_test(Elasticity)
 
   add_executable(PartialQuadratureFunctionTest
     EXCLUDE_FROM_ALL

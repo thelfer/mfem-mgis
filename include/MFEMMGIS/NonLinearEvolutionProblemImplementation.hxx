@@ -61,7 +61,7 @@ namespace mfem_mgis {
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void addBoundaryCondition(
-        const Parameter&, std::unique_ptr<NonlinearFormIntegrator>) override;
+        std::unique_ptr<AbstractBoundaryCondition>) override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
@@ -115,7 +115,7 @@ namespace mfem_mgis {
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     void addBoundaryCondition(
-        const Parameter&, std::unique_ptr<NonlinearFormIntegrator>) override;
+        std::unique_ptr<AbstractBoundaryCondition>) override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing

@@ -17,6 +17,7 @@
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
+#include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
@@ -96,11 +97,8 @@ namespace mfem_mgis {
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
-      const Parameter& bids, std::unique_ptr<NonlinearFormIntegrator> f) {
-    const auto ids = this->getBoundariesIdentifiers(bids);
-    auto mids = mfem::Array<int>(ids.size());
-    std::copy(ids.begin(), ids.end(), mids.begin());
-    this->AddBoundaryIntegrator(f.get(), mids);
+      std::unique_ptr<AbstractBoundaryCondition> f) {
+    f->addNonlinearFormIntegrator(*this);
     this->boundary_conditions.push_back(std::move(f));
   }  // end of addBoundaryCondition
 
@@ -214,11 +212,8 @@ namespace mfem_mgis {
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
-      const Parameter& bids, std::unique_ptr<NonlinearFormIntegrator> f) {
-    const auto ids = this->getBoundariesIdentifiers(bids);
-    auto mids = mfem::Array<int>(ids.size());
-    std::copy(ids.begin(), ids.end(), mids.begin());
-    this->AddBoundaryIntegrator(f.get(), mids);
+      std::unique_ptr<AbstractBoundaryCondition> f) {
+    f->addNonlinearFormIntegrator(*this);
     this->boundary_conditions.push_back(std::move(f));
   }  // end of addBoundaryCondition
 

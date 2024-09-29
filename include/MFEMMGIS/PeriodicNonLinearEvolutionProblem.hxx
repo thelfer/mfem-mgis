@@ -101,7 +101,7 @@ namespace mfem_mgis {
 
     // disable adding boundary conditions
     void addBoundaryCondition(
-        const Parameter&, std::unique_ptr<NonlinearFormIntegrator>) override;
+        std::unique_ptr<AbstractBoundaryCondition>) override;
     [[noreturn]] void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     /*!

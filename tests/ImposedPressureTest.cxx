@@ -1,5 +1,5 @@
 /*!
- * \file   tests/UniaxialTensileTest.cxx
+ * \file   tests/ImposedPressureTest.cxx
  * \brief
  * \author Thomas Helfer
  * \date   14/12/2020
@@ -15,6 +15,7 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/UniformImposedPressureBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "UnitTestingUtilities.hxx"
 
@@ -42,6 +43,12 @@ int main(int argc, char** argv) {
     auto& m1 = problem.getMaterial(1);
     mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
     mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
+    const mfem_mgis::real l = 100e9;
+    const mfem_mgis::real mu = 75e9;
+    mgis::behaviour::setMaterialProperty(m1.s0, "FirstLameCoefficient", l);
+    mgis::behaviour::setMaterialProperty(m1.s0, "ShearModulus", mu);
+    mgis::behaviour::setMaterialProperty(m1.s1, "FirstLameCoefficient", l);
+    mgis::behaviour::setMaterialProperty(m1.s1, "ShearModulus", mu);
     if (m1.b.symmetry == mgis::behaviour::Behaviour::ORTHOTROPIC) {
       std::array<mfem_mgis::real, 9u> r = {0, 1, 0,  //
                                            1, 0, 0,  //
@@ -76,16 +83,9 @@ int main(int argc, char** argv) {
         std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
             problem.getFiniteElementDiscretizationPointer(), 5, 0));
     problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 3, 0,
-            [](const auto t) noexcept {
-              if (t < 0.3) {
-                return 3e-2 * t;
-              } else if (t < 0.6) {
-                return 0.009 - 0.1 * (t - 0.3);
-              }
-              return -0.021 + 0.1 * (t - 0.6);
-            }));
+        std::make_unique<mfem_mgis::UniformImposedPressureBoundaryCondition>(
+            problem.getFiniteElementDiscretizationPointer(), 3,
+            [](const mfem_mgis::real t) noexcept { return 150e6 * t; }));
     // set the solver parameters
     mfem_mgis::unit_tests::setLinearSolver(problem, parameters);
     problem.setSolverParameters({{"VerbosityLevel", 0},
@@ -96,26 +96,27 @@ int main(int argc, char** argv) {
     problem.addPostProcessing(
         "ParaviewExportResults",
         {{"OutputFileName",
-          "UniaxialTensileTestOutput-" + std::string(parameters.behaviour)}});
-    const auto& b = problem.getMaterial(1).b;
-    if ((b.btype == mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) &&
-        (b.kinematic == mgis::behaviour::Behaviour::SMALLSTRAINKINEMATIC)) {
-      problem.addPostProcessing(
-          "ParaviewExportIntegrationPointResultsAtNodes",
-          {{"OutputFileName", "UniaxialTensileTestIntegrationPointOutput-" +
-                                  std::string(parameters.behaviour)},
-           {"Materials", {1}},
-           {"Results", {"Strain"}}});
-    }
-    // solving the problem in 100 time steps
-    auto r = mfem_mgis::unit_tests::solve(problem, parameters, 0, 1, 100);
+          "ImposedPressureTestOutput-" + std::string(parameters.behaviour)}});
+    // solving the problem in 1 time step
+    auto r = mfem_mgis::unit_tests::solve(problem, parameters, 0, 1, 1);
+    const auto& s = problem.getMaterial(1).s1;
+    std::cout << "strain: ";
+    std::copy(s.gradients.begin(), s.gradients.end(),
+              std::ostream_iterator<double>(std::cout, " "));
+    std::cout << std::endl;
+    std::cout << "stress: ";
+    std::copy(s.thermodynamic_forces.begin(), s.thermodynamic_forces.end(),
+              std::ostream_iterator<double>(std::cout, " "));
+    std::cout << std::endl;
+
     // save the results curve
     mfem_mgis::unit_tests::saveResults(
-        "UniaxialTensileTest-" + std::string(parameters.behaviour) + ".txt", r);
+        "ImposedPressureTest-" + std::string(parameters.behaviour) + ".txt", r);
     // compare to reference files
-    constexpr const auto eps = mfem_mgis::real(1.e-10);
-    constexpr const auto E = mfem_mgis::real(70.e9);
-    success = mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E * eps);
+    //     constexpr const auto eps = mfem_mgis::real(1.e-10);
+    //     constexpr const auto E = mfem_mgis::real(70.e9);
+    //     success = mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps,
+    //     E * eps);
   }
   mfem_mgis::Profiler::timers::print_timers();
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

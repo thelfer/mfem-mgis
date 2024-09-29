@@ -7,6 +7,7 @@
 
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Profiler.hxx"
+#include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 
@@ -303,8 +304,8 @@ namespace mfem_mgis {
   }  // end of PeriodicNonLinearEvolutionProblem
 
   void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
-      const Parameter& bids, std::unique_ptr<NonlinearFormIntegrator> f) {
-    NonLinearEvolutionProblem::addBoundaryCondition(bids, std::move(f));
+      std::unique_ptr<AbstractBoundaryCondition> f) {
+    NonLinearEvolutionProblem::addBoundaryCondition(std::move(f));
   }  // end of addBoundaryCondition
 
   void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(

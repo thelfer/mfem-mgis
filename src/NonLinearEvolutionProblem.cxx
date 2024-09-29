@@ -9,6 +9,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/BoundaryUtilities.hxx"
+#include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
@@ -158,9 +159,9 @@ namespace mfem_mgis {
   }  // end of getAssignedMaterialsIdentifiers
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
-      const Parameter& bids, std::unique_ptr<NonlinearFormIntegrator> f) {
-    this->pimpl->addBoundaryCondition(bids, std::move(f));
-  } // end of addBoundaryCondition
+      std::unique_ptr<AbstractBoundaryCondition> f) {
+    this->pimpl->addBoundaryCondition(std::move(f));
+  }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {

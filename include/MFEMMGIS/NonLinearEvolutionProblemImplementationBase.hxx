@@ -193,7 +193,7 @@ namespace mfem_mgis {
      */
     MultiMaterialNonLinearIntegrator* const mgis_integrator = nullptr;
     //! \brief registred boundary conditions
-    std::vector<std::unique_ptr<NonlinearFormIntegrator>> boundary_conditions;
+    std::vector<std::unique_ptr<AbstractBoundaryCondition>> boundary_conditions;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
 
