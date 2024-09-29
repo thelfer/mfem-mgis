@@ -16,6 +16,10 @@ function(add_test_case_mpi name parameters)
   add_dependencies(check ${name})
 endfunction()
 
+add_executable(petsc_test EXCLUDE_FROM_ALL petsc_test.cxx)
+target_include_directories(petsc_test  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(petsc_test PRIVATE MFEMMGIS)
+
 
 add_test_case(UnitTestParameters)
 
