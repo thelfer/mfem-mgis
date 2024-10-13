@@ -256,8 +256,8 @@ Create a new directory and useful paths
    export MY_LOG=YOURLOGIN
    export MY_DEST=/ccc/scratch/cont002/den/YOURLOGIN/mini-test
 
-Download Spack
-^^^^^^^^^^^^^^
+Download Spack, mfem-mgis, and mfem-mgis-examples (not required)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 How to download Spack:
 
@@ -266,6 +266,8 @@ How to download Spack:
    cd $MY_DIR
    git clone https://github.com/spack/spack.git
    export SPACK_ROOT=$PWD/spack
+   git clone https://github.com/thelfer/mfem-mgis.git
+   git clone https://github.com/latug0/mfem-mgis-examples.git
 
 Before proceeding, make sure to source Spack and clear your local ``~/.spack`` repository (warning).
 
