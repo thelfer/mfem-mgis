@@ -241,6 +241,8 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
+
+    CatchTimeSection("NonLinearEvolutionProblemImplementationBase::setup");
     if (this->initialization_phase) {
       if (!this->dirichlet_boundary_conditions.empty()) {
         this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
