@@ -147,6 +147,7 @@ namespace mfem_mgis {
 
   void NewtonSolver::computeResidual(mfem::Vector &r,
                                      const mfem::Vector &u) const {
+    CatchTimeSection("computeResidual");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     this->oper->Mult(u, r);
@@ -163,7 +164,10 @@ namespace mfem_mgis {
     const auto usesIterativeLinearSolver =
         dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
     this->prec->SetOperator(this->getJacobian(u));
-    this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
+    {
+      CatchNestedTimeSection("computeNewtonCorrection::Mult");
+      this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
+    }
     if (usesIterativeLinearSolver) {
       const auto &iprec =
           static_cast<const mfem::IterativeSolver &>(*(this->prec));
@@ -185,6 +189,7 @@ namespace mfem_mgis {
   }  // end of addNewUnknownsEstimateActions
 
   bool NewtonSolver::processNewUnknownsEstimate(const mfem::Vector &u) const {
+     CatchTimeSection("NewtonSolver::processNewUnknownsEstimate");
     for (const auto &a : this->nue_actions) {
       if (!a(u)) {
         return false;
