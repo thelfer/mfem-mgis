@@ -17,18 +17,14 @@
 
 namespace mfem_mgis {
 
-  // forward declaration
+  // forward declarations
   struct Parameter;
-  // forward declaration
   struct Parameters;
-  // forward declaration
   struct FiniteElementDiscretization;
-  // forward declaration
   struct DirichletBoundaryCondition;
-  // forward declaration
   struct BehaviourIntegrator;
-  // forward declaration
   struct Material;
+  struct AbstractBoundaryCondition;
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -172,6 +168,12 @@ namespace mfem_mgis {
      * \param[in] m: material id
      */
     virtual BehaviourIntegrator &getBehaviourIntegrator(const size_type) = 0;
+    /*!
+     * \brief add a boundary condition
+     * \param[in] f: boundary condition
+     */
+    virtual void addBoundaryCondition(
+        std::unique_ptr<AbstractBoundaryCondition>) = 0;
     /*!
      * \brief add a Dirichlet boundary condition
      * \param[in] bc: boundary condition

@@ -100,6 +100,8 @@ namespace mfem_mgis {
         const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
 
     // disable adding boundary conditions
+    void addBoundaryCondition(
+        std::unique_ptr<AbstractBoundaryCondition>) override;
     [[noreturn]] void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     /*!
