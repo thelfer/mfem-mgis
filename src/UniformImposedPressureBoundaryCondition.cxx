@@ -23,12 +23,28 @@ namespace mfem_mgis {
 
   //! \brief nonlinear form implementing a uniform imposed pressure
   struct UniformImposedPressureBoundaryCondition::
-      UniformImposedPressureNonlinearFormIntegrator final
+      UniformImposedPressureNonlinearFormIntegratorBase
       : public NonlinearFormIntegrator {
     //! \brief constructor
-    UniformImposedPressureNonlinearFormIntegrator()
-        : pressure(0) {}  // end of UniformImposedPressureNonlinearFormIntegrator
+    UniformImposedPressureNonlinearFormIntegratorBase()
+        : pressure(0) {
+    }  // end of UniformImposedPressureNonlinearFormIntegratorBase
     void setPressure(const real pr) { this->pressure = pr; }
+    //! \brief destructor
+    virtual ~UniformImposedPressureNonlinearFormIntegratorBase() = default;
+
+   protected:
+    real pressure;
+  };
+
+  //! \brief nonlinear form implementing a uniform imposed pressure
+  struct UniformImposedPressureBoundaryCondition::
+      UniformImposedPressureNonlinearFormIntegrator final
+      : public UniformImposedPressureBoundaryCondition::
+            UniformImposedPressureNonlinearFormIntegratorBase {
+    //! \brief constructor
+    UniformImposedPressureNonlinearFormIntegrator() {
+    }  // end of UniformImposedPressureNonlinearFormIntegrator
     // MFEM API
     void AssembleElementVector(const mfem::FiniteElement &e,
                                mfem::ElementTransformation &tr,
@@ -84,9 +100,6 @@ namespace mfem_mgis {
     }
     //! \brief destructor
     virtual ~UniformImposedPressureNonlinearFormIntegrator() = default;
-
-   protected:
-    real pressure;
 
 #ifndef MFEM_THREAD_SAFE
    private:

@@ -65,13 +65,15 @@ namespace mfem_mgis {
 
    protected:
     //! \brief internal structure
+    struct UniformImposedPressureNonlinearFormIntegratorBase;
+    //! \brief internal structure
     struct UniformImposedPressureNonlinearFormIntegrator;
     //! \brief list of boundary identifiers
     std::vector<size_type> bids;
     //! \brief function returning the value of the imposed pressure
     std::function<real(const real)> prfct;
     //! \brief underlying integrator
-    UniformImposedPressureNonlinearFormIntegrator* const nfi = nullptr;
+    UniformImposedPressureNonlinearFormIntegratorBase* const nfi = nullptr;
     //
     bool shallFreeIntegrator = true;
   };  // end of UniformImposedPressureBoundaryCondition
