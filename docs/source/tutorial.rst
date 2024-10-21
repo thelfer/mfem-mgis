@@ -51,10 +51,10 @@ Figure :ref:`fig:mfem_mgis:ssna303:mesh`. The height (h) of the beam is
 The positions of the points (p1) (p2) and (c) are respectivly
 (3,mm, 0), (5.4,mm, 4.8,mm), and (9,mm, 0).
 
-This notched beam has been meshed using [Cast3M](http://www-cast3m.cea.fr/) and exported in the ``MED`` 
-file format proposed and used by [Salomé](https://www.salome-platform.org/) platform. This file has been
+This notched beam has been meshed using `Cast3M <http://www-cast3m.cea.fr/>`_ and exported in the ``MED`` 
+file format proposed and used by `Salomé <https://www.salome-platform.org/>`_ platform. This file has been
 converted in the ``msh`` file format using
-[gmsh](https://gmsh.info/) tool in order to import it easily in
+`gmsh <https://gmsh.info/>`_ tool in order to import it easily in
 MFEM.
 
 .. note::
@@ -91,7 +91,7 @@ Description
 
 The material of the notched beam is described by a simple isotropic
 elasto-plastic behaviour with isotropic hardening in the logarithmic
-space [@miehe_anisotropic_2002] and is implemented using the [MFront](http://tfel.sourceforge.net)
+space :cite:`miehe_anisotropic_2002` and is implemented using the `MFront <http://tfel.sourceforge.net>`_
 code generator.
 
 This behaviour is characterized by four parameters:
@@ -156,7 +156,7 @@ The ``initialize`` function must be called at the very beginning of the
 
 ..
 
-   ** The ``mfem_mgis`` namespace **
+   **The ``mfem_mgis`` namespace**
 
    All the classes and funtions of the ``MFEM/MGIS`` project are place
    in the ``mfem_mgis`` namespace.
@@ -165,7 +165,7 @@ This call is mostly useful in parallel and handles:
 
 -  The initialization of interprocess communications handled by the
    `MPI`` framework.
--  The initialization of the ``PETSc`` (https://www.mcs.anl.gov/petsc/) scientific
+-  The initialization of the `PETSc <https://www.mcs.anl.gov/petsc/>`_ scientific
    toolkit, if supported and
    requested.
 
@@ -272,7 +272,7 @@ parallelization and memory management. For example, the parameter
 ``Parallel`` allows to switch from a parallel computation to a parallel
 one at runtime.
 
-   ** Input files and ``python`` wrappers **
+   **Input files and ``python`` wrappers**
 
    This high level API can be used to configure a resolution from an
    input file or to wrap the library in ``python``. Those features are
@@ -299,7 +299,7 @@ allows to associate names to materials and boundaries as follows:
 
 ..
 
-   ** Automatic definition of the names of materials and boundaries **
+   **Automatic definition of the names of materials and boundaries**
 
    Many mesh file formats naturally associate names to mesh elements.
    This is the case for ``MED`` file format and the ``msh`` file format
@@ -330,17 +330,17 @@ The four arguments of the ``addBehaviourIntegrator`` are:
    may be either an integer or a string. In the later case, the string
    is interpreted as a regular expression, a feature introduced by the
    ``Licos`` fuel performance code and which proved very pratical in
-   many cases [@helfer_licos_2015].
+   many cases :cite:`helfer_licos_2015`.
 -  The shared library containing the behaviour to be used.
 -  The name of the behaviour to be used.
 
 ..
 
-   ** Information associated with the behaviour and automatic memory
-   management **
+   **Information associated with the behaviour and automatic memory
+   management**
 
    Thanks to the ```MGIS``
-   project [@helfer_mfrontgenericinterfacesupport_2020], all the information
+   project :cite:`helfer_mfrontgenericinterfacesupport_2020`, all the information
    related to the mechanical behaviour is retrieved, including:
 
    -  The type of behaviour (finite strain mechanical behaviour is this
@@ -367,8 +367,8 @@ beginning of the time step and at the end of time step:
 Defining the temperature is required by all ``MFront`` behaviours.
 
 The object returned a by the ``getMaterial`` method returns a thin
-wrapper around the ``MaterialDataManager`` provided by the [MGIS](https://thelfer.github.io/mgis/web/index.html) project
-[@helfer_mfrontgenericinterfacesupport_2020].
+wrapper around the ``MaterialDataManager`` provided by the `MGIS <https://thelfer.github.io/mfem-mgis/index.html>`_ project
+:cite:`helfer_mfrontgenericinterfacesupport_2020`.
 
 In the previous lines, ``m1.s0`` and ``m1.s1`` denotes respectively the
 state of the material at the beginning of the time step and at the end
@@ -455,7 +455,7 @@ The ``addPostProcessing`` method let the user define some built-in
 postprocessings.
 
 In this example, we export the displacements for visualization in
-[paraview](https://www.paraview.org/) and compute the resultant
+`paraview <https://www.paraview.org/>`_ and compute the resultant
 force on the boundary where the displacement as follows:
 
 .. code:: cpp

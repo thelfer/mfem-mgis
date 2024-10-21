@@ -294,27 +294,38 @@ command line:
    # run the simulation by specifying the mesh with --mesh option
    ./mox2 --mesh OneSphere.msh
 
+With ``MPI`` + ``Petsc``:
+
+.. code:: bash
+  
+  mpirun -n 2 mox2 -m mesh/OneSphere.msh -o 1 --use-petsc true --petsc-configuration-file petscrc 
+
 Available options
 ~~~~~~~~~~~~~~~~~
 
 To customize the simulation, several options are available, as detailed
 below.
 
-+-------------------------+--------------------------------------------+
-| Command line            | Descritption                               |
-+=========================+============================================+
-| --mesh or -m            | specify the mesh “.msh” used (default =    |
-|                         | inclusion.msh)                             |
-+-------------------------+--------------------------------------------+
-| --refinement or -r      | refinement level of the mesh (default = 0) |
-+-------------------------+--------------------------------------------+
-| --order or -o           | Finite element order (polynomial degree)   |
-|                         | (default = 2)                              |
-+-------------------------+--------------------------------------------+
-| --verbosity-level or -v | choose the verbosity level (default = 0)   |
-+-------------------------+--------------------------------------------+
-| --post-processing or -p | run post processing step (default = 1)     |
-+-------------------------+--------------------------------------------+
++----------------------------+--------------------------------------------+
+| Command line               | Descritption                               |
++============================+============================================+
+| --mesh or -m               | Specify the mesh “.msh” used (default =    |
+|                            | inclusion.msh)                             |
++----------------------------+--------------------------------------------+
+| --refinement or -r         | Refinement level of the mesh (default = 0) |
++----------------------------+--------------------------------------------+
+| --order or -o              | Finite element order (polynomial degree)   |
+|                            | (default = 2)                              |
++----------------------------+--------------------------------------------+
+| --verbosity-level or -v    | Choose the verbosity level (default = 0)   |
++----------------------------+--------------------------------------------+
+| --post-processing or -p    | Run post processing step (default = 1)     |
++----------------------------+--------------------------------------------+
+| --use-petsc                | Activate petsc if petsc is availabled      |
++----------------------------+--------------------------------------------+
+| --petsc-configuration-file | Name of the Petsc source file              |
++----------------------------+--------------------------------------------+
+
 
 Example of customized simulation:
 

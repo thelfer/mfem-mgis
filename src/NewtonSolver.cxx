@@ -10,6 +10,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 
 namespace mfem_mgis {
 
@@ -69,6 +70,7 @@ namespace mfem_mgis {
   }  // end of GetInitialNorm
 
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
+    CatchTimeSection("NewtonSolver::Mult");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
@@ -153,6 +155,7 @@ namespace mfem_mgis {
   bool NewtonSolver::computeNewtonCorrection(mfem::Vector &c,
                                              const mfem::Vector &r,
                                              const mfem::Vector &u) const {
+    CatchTimeSection("NewtonSolver::computeNewtonCorrection");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
@@ -170,6 +173,7 @@ namespace mfem_mgis {
   }  // end of computeNewtonCorrection
 
   mfem::Operator &NewtonSolver::getJacobian(const mfem::Vector &u) const {
+    CatchTimeSection("NewtonSolver::getJacobian");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     return this->oper->GetGradient(u);

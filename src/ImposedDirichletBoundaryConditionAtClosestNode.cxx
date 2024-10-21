@@ -101,7 +101,6 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     if constexpr (parallel) {
       static_assert(std::is_same_v<size_type, int>, "invalid integer types");
-      static_assert(std::is_same_v<HYPRE_BigInt, int>, "invalid integer types");
       int nbranks, myrank;
       MPI_Comm_size(MPI_COMM_WORLD, &nbranks);
       MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
@@ -111,7 +110,7 @@ namespace mfem_mgis {
       // gathering all minimum values and global ides overs all processes
       MPI_Allgather(&d_min, 1, MPI_DOUBLE, d_min_buffer.data(), 1, MPI_DOUBLE,
                     MPI_COMM_WORLD);
-      MPI_Allgather(&global_dof_id, 1, MPI_INT, global_dof_id_buffer.data(), 1,
+      MPI_Allgather(&global_dof_id, 1, HYPRE_MPI_BIG_INT, global_dof_id_buffer.data(), 1,
                     MPI_INT, MPI_COMM_WORLD);
 #ifdef MFEM_MGIS_DEBUG
       if (myrank == 0) {
@@ -200,7 +199,7 @@ namespace mfem_mgis {
           const std::shared_ptr<FiniteElementDiscretization> fed,
           const std::array<real, 3u> pt,
           const size_type c)
-      : ufct([](const real) { return 0; }),
+      : ufct([](const real) noexcept { return 0; }),
         dof(getDegreeOfFreedomForClosestNode<3u>(*fed, pt, c)) {
   }  // end of  ImposedDirichletBoundaryConditionAtClosestNode
 

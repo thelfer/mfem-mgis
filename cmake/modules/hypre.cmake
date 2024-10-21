@@ -32,7 +32,7 @@ if(MFEM_USE_MPI)
     set(HYPRE_VERSION ${HYPRE_VERSION} CACHE STRING "HYPRE version." FORCE)
     message(STATUS "Found HYPRE version ${HYPRE_VERSION}")
   else()
-    set(HYPRE_INCLUDE_DIRS "${HYPRE_DIR}/include/hypre")
+    set(HYPRE_INCLUDE_DIRS "${HYPRE_DIR}/include/")
     try_run(HYPRE_VERSION_RUN_RESULT HYPRE_VERSION_COMPILE_RESULT
             ${CMAKE_CURRENT_BINARY_DIR}/cmake/modules/
             ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/get_hypre_version.cpp

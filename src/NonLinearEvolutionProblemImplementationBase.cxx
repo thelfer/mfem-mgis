@@ -14,6 +14,7 @@
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
@@ -241,6 +242,8 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
+
+    CatchTimeSection("NonLinearEvolutionProblemImplementationBase::setup");
     if (this->initialization_phase) {
       if (!this->dirichlet_boundary_conditions.empty()) {
         this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
@@ -250,6 +253,9 @@ namespace mfem_mgis {
     this->initialization_phase = false;
     for (const auto& bc : this->dirichlet_boundary_conditions) {
       bc->updateImposedValues(this->u1, t + dt);
+    }
+    for (const auto& bc : this->boundary_conditions) {
+      bc->setup(t, dt);
     }
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->setup(t, dt);
@@ -295,11 +301,6 @@ namespace mfem_mgis {
     this->updateLinearSolver(std::move(s.linear_solver),
                              std::move(s.preconditioner));
   }  // end of updateLinearSolver
-
-  void NonLinearEvolutionProblemImplementationBase::addBoundaryCondition(
-      std::unique_ptr<DirichletBoundaryCondition> bc) {
-    this->dirichlet_boundary_conditions.push_back(std::move(bc));
-  }  // end of addBoundaryCondition
 
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {
