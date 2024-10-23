@@ -72,6 +72,8 @@ namespace mfem_mgis {
     std::shared_ptr<FiniteElementDiscretization> finiteElementDiscretization;
     //! \brief list of boundary identifiers
     std::vector<size_type> bids;
+    //
+    mfem::Array<mfem_mgis::size_type> boundaries_markers;
     //! \brief function returning the value of the imposed pressure
     std::function<real(const real)> prfct;
     //! \brief underlying integrator

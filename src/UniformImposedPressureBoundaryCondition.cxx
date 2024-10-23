@@ -145,13 +145,13 @@ namespace mfem_mgis {
   void UniformImposedPressureBoundaryCondition::addNonlinearFormIntegrator(
       NonlinearForm<true> &f) {
     auto &m = this->finiteElementDiscretization->getMesh<true>();
-    auto boundaries_markers =
+    this->boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
-    boundaries_markers = 0;
+    this->boundaries_markers = 0;
     for (const auto& bid : bids) {
-      boundaries_markers[bid - 1] = 1;
+      this->boundaries_markers[bid - 1] = 1;
     }
-    f.AddBoundaryIntegrator(this->nfi, boundaries_markers);
+    f.AddBoundaryIntegrator(this->nfi, this->boundaries_markers);
     this->shallFreeIntegrator = false;
   }  // end of addNonlinearFormIntegrator
 #endif /* MFEM_USE_MPI */
@@ -159,13 +159,13 @@ namespace mfem_mgis {
   void UniformImposedPressureBoundaryCondition::addNonlinearFormIntegrator(
       NonlinearForm<false> &f) {
     auto &m = this->finiteElementDiscretization->getMesh<false>();
-    auto boundaries_markers =
+    this->boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
-    boundaries_markers = 0;
+    this->boundaries_markers = 0;
     for (const auto& bid : bids) {
-      boundaries_markers[bid - 1] = 1;
+      this->boundaries_markers[bid - 1] = 1;
     }
-    f.AddBoundaryIntegrator(this->nfi, boundaries_markers);
+    f.AddBoundaryIntegrator(this->nfi, this->boundaries_markers);
     this->shallFreeIntegrator = false;
   }  // end of addNonlinearFormIntegrator
 
