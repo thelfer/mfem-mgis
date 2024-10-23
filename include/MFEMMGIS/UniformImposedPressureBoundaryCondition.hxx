@@ -68,6 +68,8 @@ namespace mfem_mgis {
     struct UniformImposedPressureNonlinearFormIntegratorBase;
     //! \brief internal structure
     struct UniformImposedPressureNonlinearFormIntegrator;
+    //! \brief finite element discretization
+    std::shared_ptr<FiniteElementDiscretization> finiteElementDiscretization;
     //! \brief list of boundary identifiers
     std::vector<size_type> bids;
     //! \brief function returning the value of the imposed pressure
