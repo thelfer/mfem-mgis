@@ -574,3 +574,27 @@ This is how to apply a dirichlet boundary condition to several boundaries.
     }
   }
 
+Mesh Reader
+-----------
+
+``Mfem-Mgis`` uses the classic sequential reading of meshes generated via gmsh by specifying the `MFEM` input format with the ``-format msh22`` option. 
+
+.. note::
+  For more information: https://mfem.org/mesh-formats/
+
+
+If your mesh is too large (memory limit), you can also use MFEM's option of splitting the mesh into smaller meshes and reading them in parallel.
+
+To split the mesh, we use the ``mesh-explorer`` tool (https://mfem.org/meshing-miniapps/#mesh-explorer) and you can specify the parallel reader using the keywork: ``MeshReadMode``.
+
++------------------+-------------------------------------------------------------------+
+| Key              | Description                                                       |
++==================+===================================================================+
+| ``MeshReadMode`` | Read Splitted Mesh, FromScratch = sequential, Restart = parallel  |
++------------------+-------------------------------------------------------------------+
+ 
+.. code-block::
+
+   mfem_mgis::Parameters{{"MeshFileName", "mesh-explorer.mesh."},
+                         {"MeshReadMode", "Restart"}, ... }
+
