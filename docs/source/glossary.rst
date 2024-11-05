@@ -575,7 +575,7 @@ This is how to apply a dirichlet boundary condition to several boundaries.
   }
 
 Mesh Reader
------------
+===========
 
 ``Mfem-Mgis`` uses the classic sequential reading of meshes generated via gmsh by specifying the `MFEM` input format with the ``-format msh22`` option. 
 
