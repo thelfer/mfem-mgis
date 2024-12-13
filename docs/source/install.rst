@@ -410,17 +410,41 @@ There are two ways to run an example, such as ex8:
 Using ccc_mprun
 ^^^^^^^^^^^^^^^
 
-To run an example using ccc_mprun with 32 processes and 1 core per
-process, execute the following command:
+To run an example using ccc_mprun with 1024 processes and 1 core per process (-m access to other filesystem, -T time), execute the following command:
 
 .. code-block:: bash
 
-   ccc_mprun -n 32 -c 1 -pmilan ./uniaxial-elastic
+   ccc_mprun -n 1024 -c 1 -m work,store,scratch -T 84000 -pmilan ./uniaxial-elastic
 
 Using ccc_msub
 ^^^^^^^^^^^^^^
 
-TODO
+
+Here's an example of a `run.batch` job submission file to run a VER simulation on 4096 MPI processes on the partition named milan for 84000 seconds. 
+
+.. code-block:: bash
+
+  #!/bin/bash
+  #MSUB -r ver
+  #MSUB -n 4096
+  #MSUB -c 1
+  #MSUB -T 86400
+  #MSUB -o ver_4096_%I.o
+  #MSUB -e ver_4096_%I.e
+  #MSUB -q milan
+  #MSUB -m scratch,work
+
+  module load gnu/13.2.0 mpi/openmpi/4.0.5 cmake/3.29.6
+  export OMP_NUM_THREADS=1
+  set -x
+  ccc_mprun ./ex7 -m ../par-mesh/mesh-4096. -o 1 -r 2 --post-processing 0
+
+Then, to submit the job:
+
+.. code-block:: bash
+  
+  ccc_msub run.batch
+
 
 Troubleshooting
 ^^^^^^^^^^^^^^^
