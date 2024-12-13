@@ -8,11 +8,12 @@
 #ifndef LIB_MFEM_MGIS_MATERIAL_HXX
 #define LIB_MFEM_MGIS_MATERIAL_HXX
 
+#include <span>
 #include <array>
 #include <vector>
 #include <memory>
 #include <optional>
-#include <span>
+#include <string_view>
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
@@ -121,7 +122,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT PartialQuadratureFunction
   getGradient(Material &,
-              const mgis::string_view,
+              const std::string_view,
               const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function for the given gradient
@@ -131,7 +132,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView
   getGradient(const Material &,
-              const mgis::string_view,
+              const std::string_view,
               const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function for the given thermodynamic force
@@ -141,7 +142,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT PartialQuadratureFunction getThermodynamicForce(
       Material &,
-      const mgis::string_view,
+      const std::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function for the given thermodynamic force
@@ -151,7 +152,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView getThermodynamicForce(
       const Material &,
-      const mgis::string_view,
+      const std::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function for the given state variable
@@ -161,7 +162,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT PartialQuadratureFunction getInternalStateVariable(
       Material &,
-      const mgis::string_view,
+      const std::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function for the given state variable
@@ -172,7 +173,7 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView
   getInternalStateVariable(
       const Material &,
-      const mgis::string_view,
+      const std::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function holding the stored energy

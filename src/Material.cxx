@@ -209,7 +209,7 @@ namespace mfem_mgis {
       std::shared_ptr<const PartialQuadratureSpace> qs,
       std::span<mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
-      const mgis::string_view n,
+      const std::string_view n,
       const Hypothesis h) {
     const auto o = getVariableOffset(variables, n, h);
     const auto s =
@@ -222,7 +222,7 @@ namespace mfem_mgis {
       std::shared_ptr<const PartialQuadratureSpace> qs,
       std::span<const mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
-      const mgis::string_view n,
+      const std::string_view n,
       const Hypothesis h) {
     const auto o = getVariableOffset(variables, n, h);
     const auto s =
@@ -231,7 +231,7 @@ namespace mfem_mgis {
   }  // end of buildImmutablePartialQuadratureFunctionView
 
   PartialQuadratureFunction getGradient(Material &m,
-                                        const mgis::string_view n,
+                                        const std::string_view n,
                                         const Material::StateSelection s) {
     return buildPartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
                                           getStateManager(m, s).gradients,
@@ -240,7 +240,7 @@ namespace mfem_mgis {
 
   ImmutablePartialQuadratureFunctionView getGradient(
       const Material &m,
-      const mgis::string_view n,
+      const std::string_view n,
       const Material::StateSelection s) {
     return buildImmutablePartialQuadratureFunctionView(
         m.getPartialQuadratureSpacePointer(), getStateManager(m, s).gradients,
@@ -249,7 +249,7 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction getThermodynamicForce(
       Material &m,
-      const mgis::string_view n,
+      const std::string_view n,
       const Material::StateSelection s) {
     return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
@@ -259,7 +259,7 @@ namespace mfem_mgis {
 
   ImmutablePartialQuadratureFunctionView getThermodynamicForce(
       const Material &m,
-      const mgis::string_view n,
+      const std::string_view n,
       const Material::StateSelection s) {
     return buildImmutablePartialQuadratureFunctionView(
         m.getPartialQuadratureSpacePointer(),
@@ -269,7 +269,7 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction getInternalStateVariable(
       Material &m,
-      const mgis::string_view n,
+      const std::string_view n,
       const Material::StateSelection s) {
     return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
@@ -279,7 +279,7 @@ namespace mfem_mgis {
 
   ImmutablePartialQuadratureFunctionView getInternalStateVariable(
       const Material &m,
-      const mgis::string_view n,
+      const std::string_view n,
       const Material::StateSelection s) {
     return buildImmutablePartialQuadratureFunctionView(
         m.getPartialQuadratureSpacePointer(),
