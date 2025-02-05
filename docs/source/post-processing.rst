@@ -53,6 +53,8 @@ Export Integration Point Results At Nodes
 Compute Mean Thermodynamic Forces
 ---------------------------------
 
+ The `Compute Mean Thermodynamic Forces` post-processing step calculates the average stress over selected regions of the mesh. 
+
 - Key: ``MeanThermodynamicForces``
 
 **Example: print the average stress of one inclusion into a matrix (RVE)**
