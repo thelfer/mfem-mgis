@@ -27,7 +27,7 @@ jobs:
         path: ${{github.workspace}}/spack       # Where to clone Spack
 
     - name: Generate a code coverage report part1
-      uses: threeal/gcovr-action@v1.0.0
+      uses: threeal/gcovr-action@v1.1.0
       with:
         root: ${{github.workspace}}
 
