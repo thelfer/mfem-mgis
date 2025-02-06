@@ -13,11 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install compiler
-      id: install_cc
-      uses: rlalik/setup-cpp-compiler@master
-      with:
-        compiler: g++-12
     - name: Set up Spack
       uses: spack/setup-spack@v2
       with:
