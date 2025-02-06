@@ -66,13 +66,13 @@ jobs:
         spack load tfel
         make check 
 
-    - name: Generate a code coverage report part2
-      working-directory: ${{github.workspace}}/
-      run: |
-        gcovr --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
+  #  - name: Generate a code coverage report part2
+  #    working-directory: ${{github.workspace}}/
+  #    run: |
+  #      gcovr --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
 
-    - name: Archive code coverage results
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-coverage-report
-        path: ${{github.workspace}}/coverage.html
+  #  - name: Archive code coverage results
+   #   uses: actions/upload-artifact@v4
+   #   with:
+   #     name: code-coverage-report
+   #     path: ${{github.workspace}}/coverage.html
