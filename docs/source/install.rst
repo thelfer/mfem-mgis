@@ -95,7 +95,7 @@ install the package.
 .. code:: sh
 
    git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-   spack repo add spack-repo-mfem-mgi
+   spack repo add spack-repo-mfem-mgis
    spack install -j 8 mfem-mgis
 
 Step 6: Load the Installed Package
