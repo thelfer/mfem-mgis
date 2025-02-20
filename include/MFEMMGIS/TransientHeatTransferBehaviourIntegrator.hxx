@@ -31,6 +31,18 @@ namespace mfem_mgis {
   };  // end of struct BehaviourIntegratorTraits<>
 
   /*!
+   * This behaviour integrator is meant to compute the inner forces associated
+   * with the term:
+   *
+   * \f[
+   * \frac{\partial h}{\partial T}\,\dot{T}
+   * \f]
+   *
+   * where \f$h\f$ is the enthalpy per unit of volume.
+   *
+   * \note Most of the time, the derivative
+   * \f$\frac{\partial h}{\partial T}\f$
+   * is computed by the product of the mass density by the specific heat.
    */
   struct MFEM_MGIS_EXPORT TransientHeatTransferBehaviourIntegrator final
       : StandardBehaviourIntegratorCRTPBase<
