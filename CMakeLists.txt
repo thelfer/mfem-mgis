@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
-project(mfem-mgis)
+project(mfem-mgis
+  VERSION 0.2
+  DESCRIPTION "The aim of the MFEM/MGIS project is to provide a C++ library to build advanced mechanical simulation based on MFront behaviours with MFEM.")
 
 include(cmake/modules/mfem-mgis.cmake)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
@@ -73,6 +75,31 @@ else(enable-website)
   set(MFEMMGIS_GENERATE_WEBSITE OFF)
   message(STATUS "Generation of the MFEM/MGIS website disabled")
 endif(enable-website)
+
+# add a target to generate API documentation with Doxygen
+option(enable-doxygen-doc "enable generation of the Doxygen documentation" OFF)
+if(enable-doxygen-doc)
+  find_package(Doxygen)
+  if(DOXYGEN_FOUND)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+      ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    add_custom_target(doc-html
+      ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating API documentation with Doxygen" VERBATIM)
+    add_dependencies(doc doc-html)
+    list(APPEND CPACK_COMPONENTS_ALL doxygen)
+    set(CPACK_COMPONENT_DOXYGEN_DESCRIPTION
+      "Contains the TFEL doxygen documentation")
+    set(GENERATE_DOXYGEN ON)
+  else(DOXYGEN_FOUND)
+    message(FATAL_ERROR "doxygen is required")
+  endif(DOXYGEN_FOUND)
+else(enable-doxygen-doc)
+  message(STATUS "doxygen documentation is not enabled")
+endif(enable-doxygen-doc)
+
+add_subdirectory(docs)
 
 # testing
 set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
