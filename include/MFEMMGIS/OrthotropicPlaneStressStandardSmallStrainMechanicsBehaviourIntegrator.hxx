@@ -16,22 +16,21 @@ namespace mfem_mgis {
   struct OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator;
 
   /*!
-   * \brief partial specialisation of the `BehaviourIntegratorTraits`  * class
-   * for the
+   * \brief partial specialisation of the `BehaviourIntegratorTraits`
+   * class for the
    * `OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator`
-   * behaviour integrator */
+   * behaviour integrator
+   */
   template <>
   struct BehaviourIntegratorTraits<
       OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator> {
-    //! \brief size of the unknowns
     static constexpr size_type unknownsSize = 2;
-    //! \brief
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
-    //! \brief
+    static constexpr bool
+        gradientsComputationRequiresShapeFunctionsDerivatives = true;
     static constexpr bool updateExternalStateVariablesFromUnknownsValues =
         false;
-  };  // end of struct
-      // BehaviourIntegratorTraits<OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>
+  };  // end of struct BehaviourIntegratorTraits<>
 
   /*!
    */
@@ -45,23 +44,23 @@ namespace mfem_mgis {
      * symmetric tensors
      */
     static constexpr const auto icste = real{0.70710678118654752440};
-
     //! \brief a simple alias
     using RotationMatrix =
-        std::array<real, 9u>; /*!
-                               * \brief constructor
-                               * \param[in] fed: finite element discretization.
-                               * \param[in] m: material attribute.
-                               * \param[in] b_ptr: behaviour
-                               */
+        std::array<real, 9u>;
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization.
+     * \param[in] m: material attribute.
+     * \param[in] b_ptr: behaviour
+     */
     OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
         std::unique_ptr<const Behaviour>);
-
     /*!
-     * \return the rotation matrix associated with the given  * integration
-     * point \param[in] i: integration points
+     * \return the rotation matrix associated with the given
+     * integration point
+     * \param[in] i: integration points
      */
     inline RotationMatrix getRotationMatrix(const size_type) const;
 

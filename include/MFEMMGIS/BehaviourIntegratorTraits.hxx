@@ -23,6 +23,9 @@ namespace mfem_mgis {
     //! \brief
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
     //! \brief
+    static constexpr bool
+        gradientsComputationRequiresShapeFunctionsDerivatives = false;
+    //! \brief
     static constexpr bool updateExternalStateVariablesFromUnknownsValues =
         false;
   };  // end of struct BehaviourIntegratorTraits

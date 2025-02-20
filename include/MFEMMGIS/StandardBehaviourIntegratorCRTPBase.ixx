@@ -25,9 +25,16 @@ namespace mfem_mgis {
       const IntegrationType it) {
     //
     using Traits = BehaviourIntegratorTraits<Child>;
+    static_assert(
+        ((Traits::gradientsComputationRequiresShapeFunctions) ||
+         (Traits::gradientsComputationRequiresShapeFunctionsDerivatives)),
+        "neither the shape functions or their derivatives are required to "
+        "compute the gradients, this is not supported");
     constexpr const auto evaluateShapeFunctions =
         Traits::updateExternalStateVariablesFromUnknownsValues ||
         Traits::gradientsComputationRequiresShapeFunctions;
+    constexpr const auto evaluateShapeFunctionsDerivatives =
+        Traits::gradientsComputationRequiresShapeFunctionsDerivatives;
     //
     auto &child = static_cast<Child &>(*this);
     // element offset
@@ -50,15 +57,20 @@ namespace mfem_mgis {
     } else {
 #ifdef MFEM_THREAD_SAFE
       mfem::Vector shape;
-      mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
+      mfem::DenseMatrix dshape;
       if constexpr (evaluateShapeFunctions) {
         shape.SetSize(e.GetDof());
+      }
+      if constexpr (evaluateShapeFunctionsDerivatives) {
+        dshape.setSize(e.GetDof(), e.GetDim());
       }
 #else
       if constexpr (evaluateShapeFunctions) {
         this->shape.SetSize(e.GetDof());
       }
-      this->dshape.SetSize(e.GetDof(), e.GetDim());
+      if constexpr (evaluateShapeFunctionsDerivatives) {
+        this->dshape.SetSize(e.GetDof(), e.GetDim());
+      }
 #endif
       const auto nnodes = e.GetDof();
       const auto gsize = this->s1.gradients_stride;
@@ -75,16 +87,23 @@ namespace mfem_mgis {
         if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
           child.updateExternalStateVariablesFromUnknownsValues(u, shape, o);
         }
-        // get the gradients of the shape functions
-        e.CalcPhysDShape(tr, dshape);
+        if constexpr (evaluateShapeFunctionsDerivatives) {
+          // get the gradients of the shape functions
+          e.CalcPhysDShape(tr, dshape);
+        }
         auto g = this->s1.gradients.subspan(o * gsize, gsize);
         std::copy(this->macroscopic_gradients.begin(),
                   this->macroscopic_gradients.end(), g.begin());
         for (size_type ni = 0; ni != nnodes; ++ni) {
-          if constexpr (Traits::gradientsComputationRequiresShapeFunctions) {
+          if constexpr (
+              (Traits::gradientsComputationRequiresShapeFunctions) &&
+              (Traits::gradientsComputationRequiresShapeFunctionsDerivatives)) {
             child.updateGradients(g, u, shape, dshape, ni);
-          } else {
+          } else if constexpr (
+              Traits::gradientsComputationRequiresShapeFunctionsDerivatives) {
             child.updateGradients(g, u, dshape, ni);
+          } else {
+            child.updateGradients(g, u, shape, ni);
           }
         }
         const auto r = child.getRotationMatrix(o);

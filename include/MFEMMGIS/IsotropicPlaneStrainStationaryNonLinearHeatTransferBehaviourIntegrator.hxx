@@ -23,14 +23,12 @@ namespace mfem_mgis {
   template <>
   struct BehaviourIntegratorTraits<
       IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator> {
-    //! \brief size of the unknowns
     static constexpr size_type unknownsSize = 1;
-    //! \brief
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
-    //! \brief
+    static constexpr bool
+        gradientsComputationRequiresShapeFunctionsDerivatives = true;
     static constexpr bool updateExternalStateVariablesFromUnknownsValues = true;
-  };  // end of struct
-      // BehaviourIntegratorTraits<IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator>
+  };  // end of struct BehaviourIntegratorTraits<>
 
   /*!
    */
@@ -44,10 +42,8 @@ namespace mfem_mgis {
      * symmetric tensors
      */
     static constexpr const auto icste = real{0.70710678118654752440};
-
     //! \brief a dummy structure
     struct RotationMatrix {};
-
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
@@ -72,10 +68,10 @@ namespace mfem_mgis {
     void updateExternalStateVariablesFromUnknownsValues(const mfem::Vector &,
                                                         const mfem::Vector &,
                                                         const size_type);
-
     /*!
-     * \return the rotation matrix associated with the given  * integration
-     * point \param[in] i: integration points
+     * \return the rotation matrix associated with the given integration
+     * point
+     * \param[in] i: integration points
      */
     inline RotationMatrix getRotationMatrix(const size_type) const;
 
