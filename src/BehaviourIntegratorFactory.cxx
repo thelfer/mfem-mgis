@@ -29,6 +29,7 @@
 #include "MFEMMGIS/BidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 #include "MFEMMGIS/OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 #include "MFEMMGIS/TridimensionalMicromorphicDamageBehaviourIntegrator.hxx"
+#include "MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
@@ -108,6 +109,17 @@ namespace mfem_mgis {
           }
           return std::make_unique<
               OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator>(
+              fed, m, std::move(b));
+        });
+    f.addGenerator(
+        "TransientHeatTransfer",
+        [](const FiniteElementDiscretization& fed, const size_type m,
+           std::unique_ptr<const Behaviour> b)
+            -> std::unique_ptr<BehaviourIntegrator> {
+          if (b->btype != Behaviour::GENERALBEHAVIOUR) {
+            raise("invalid behaviour type");
+          }
+          return std::make_unique<TransientHeatTransferBehaviourIntegrator>(
               fed, m, std::move(b));
         });
     f.addGenerator("MicromorphicDamage",  //

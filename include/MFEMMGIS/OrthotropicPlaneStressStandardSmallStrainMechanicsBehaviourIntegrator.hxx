@@ -165,7 +165,7 @@ namespace mfem_mgis {
                                const real,
                                const size_type) const noexcept;
 
-    //! rief the rotation matrix
+    //! \brief the rotation matrix
     RotationMatrix2D rotation_matrix;
 
   };  // end of struct
