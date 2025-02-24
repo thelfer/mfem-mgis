@@ -46,6 +46,7 @@ jobs:
         spack install mgis@master:+c~fortran~python%gcc@12.3.0
 
     - name: Configure CMake
+      shell: spack-sh {0}    
       run:  |
         spack load mfem 
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -Denable-doxygen-doc=ON \
