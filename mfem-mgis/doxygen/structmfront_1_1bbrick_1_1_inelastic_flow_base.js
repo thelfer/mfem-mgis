@@ -1,0 +1,36 @@
+var structmfront_1_1bbrick_1_1_inelastic_flow_base =
+[
+    [ "PorosityEffectOnFlowRule", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#adf1152f285c2f87b72bf871d9decd0c9", [
+      [ "UNDEFINED_POROSITY_EFFECT_ON_EQUIVALENT_PLASTIC_STRAIN", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#adf1152f285c2f87b72bf871d9decd0c9a8c96346ec696d05e47d608fceb192b14", null ],
+      [ "NO_POROSITY_EFFECT_ON_EQUIVALENT_PLASTIC_STRAIN", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#adf1152f285c2f87b72bf871d9decd0c9abd3ddeba8a2b09c845ca5c8a5fa9a4f4", null ],
+      [ "STANDARD_POROSITY_CORRECTION_ON_EQUIVALENT_PLASTIC_STRAIN", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#adf1152f285c2f87b72bf871d9decd0c9a7632711ed90989192a6a74221b2a33bb", null ]
+    ] ],
+    [ "~InelasticFlowBase", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#aa27134362564bab6024128b84a9d8aa9", null ],
+    [ "addFlowContributionToTheImplicitEquationAssociatedWithPorosityEvolution", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a1402aa8057b9e05df27582ca45be36b6", null ],
+    [ "buildFlowImplicitEquations", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a7ee89d637f010c0414296906c7712a19", null ],
+    [ "checkOptions", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a6a4ae96af7e36c0015f7614dfed84d61", null ],
+    [ "completeVariableDeclaration", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#af4de0c589ed0e7853fd8b7e0a37274f5", null ],
+    [ "computeEffectiveStress", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a509df085e28292bde85e27133a78dd71", null ],
+    [ "computeInitialActivationState", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a5430287235bd66807c4f56f9ce645063", null ],
+    [ "contributesToPorosityGrowth", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a928f60072f5464f6f81aaf0d386f564e", null ],
+    [ "endTreatment", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#abe2eb20a295fe2f064c8f1233ed08b99", null ],
+    [ "getOptions", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a2b9e704556e401c25156db403b843c4a", null ],
+    [ "getPorosityEffectOnEquivalentPlasticStrain", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#af1a10cea3ee1189e4dee2eb8194732e4", null ],
+    [ "initialize", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a879a897db3746f2fedf15ce712a74233", null ],
+    [ "isCoupledWithPorosityEvolution", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a64ddce1dd113d82c551e5d85004bda66", null ],
+    [ "requiresActivationState", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#aa957b093d1979ed5308d1c69008632e8", null ],
+    [ "setPorosityEvolutionHandled", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#ad854c4c312876e3fc15809dfbf89524c", null ],
+    [ "updateNextEstimateOfThePorosityIncrement", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a0e1e55991752aaea3456a72c5f430231", null ],
+    [ "updatePorosityUpperBound", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a77ba16402b393c5e3740639b62ce2203", null ],
+    [ "cosine_check_maximum_iteration_factor", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a495cc378185d87671beaa0b64f1d7c90", null ],
+    [ "cosine_check_minimum_iteration_factor", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a671dd3335adc47b51a66729def827c19", null ],
+    [ "cosine_threshold", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a79a868ddd962018d01cb20b9b448a2ad", null ],
+    [ "fc", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#aa128e20c4392c3b9320caba75b4c087e", null ],
+    [ "ihrs", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#ace40c01e3e816e9e3e2835459a2e27f6", null ],
+    [ "khrs", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a96c75e1d099e3f9ea20b97338ff41555", null ],
+    [ "porosity_effect_on_equivalent_plastic_strain", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#adbb879d0fc60c7cd66d25356372a5901", null ],
+    [ "porosity_evolution_algorithm", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#a98f9a3859229d15abf9a36fdfca67cec", null ],
+    [ "porosity_evolution_explicitely_handled", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#aa0ef4cff5d615583af68445803ce6ca2", null ],
+    [ "save_porosity_increase", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#afbe0512ef25468bc8b10f46d9f8cfcfa", null ],
+    [ "sc", "structmfront_1_1bbrick_1_1_inelastic_flow_base.html#adcbc1c336d53e0bda9e1e7d0c1f79db3", null ]
+];
