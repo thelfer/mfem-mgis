@@ -1,4 +1,0 @@
-var _m_front_2_behaviour_brick_2_gurson_tvergaard_needleman1982_stress_criterion_8hxx =
-[
-    [ "mfront::bbrick::GursonTvergaardNeedleman1982StressCriterion", "structmfront_1_1bbrick_1_1_gurson_tvergaard_needleman1982_stress_criterion.html", "structmfront_1_1bbrick_1_1_gurson_tvergaard_needleman1982_stress_criterion" ]
-];
