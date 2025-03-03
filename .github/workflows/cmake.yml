@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-and-run:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -58,6 +58,11 @@ jobs:
     - name: Build MFEM-MGIS [coverage]
       run: cmake --build ${{github.workspace}}/coverage --config Coverage
 
+  Run_Tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Run examples 
       shell: spack-sh {0}    
       working-directory: ${{github.workspace}}/coverage
