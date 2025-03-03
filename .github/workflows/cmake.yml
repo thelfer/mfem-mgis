@@ -59,9 +59,8 @@ jobs:
       run: cmake --build ${{github.workspace}}/coverage --config Coverage
 
   Run_Tests:
-
+    needs: build
     runs-on: ubuntu-latest
-
     steps:
     - name: Run examples 
       shell: spack-sh {0}    
