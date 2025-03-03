@@ -7,10 +7,8 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
+  build_and_run_tests:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up Spack
@@ -57,19 +55,6 @@ jobs:
 
     - name: Build MFEM-MGIS [coverage]
       run: cmake --build ${{github.workspace}}/coverage --config Coverage
-
-  Run_Tests:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Spack
-      uses: spack/setup-spack@v2
-      with:
-        ref: develop      # Spack version (examples: develop, releases/v0.21)
-        buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
-        color: true       # Force color output (SPACK_COLOR=always)
-        path: ${{github.workspace}}/spack       # Where to clone Spack    
     - name: Run examples 
       shell: spack-sh {0}    
       working-directory: ${{github.workspace}}/coverage
