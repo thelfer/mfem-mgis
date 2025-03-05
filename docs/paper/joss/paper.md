@@ -217,10 +217,7 @@ On the one hand, `MGIS` and `MFront` bring support for complex
 nonlinear behaviours such as damage, plasticity, viscoplasticity
 capabilities. On the other hand, `MFEM` provides advanced finite
 element schemes and parallel performance (tested on several thousands
-of cores until now). Open source approach was chosen mainly to promote
-collaboration, improve reproducibility, and reduce costs for development
-and maintenance.
-
+of cores until now). 
 <!--
 
 Regarding performance portability on GPUs, MFEM already offers numerous
