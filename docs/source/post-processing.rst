@@ -103,28 +103,3 @@ Compute dissipated Energy
       "DissipatedEnergy",
       {{"OutputFileName", "dissiped_energy.txt"}});
 
-Dump Partial Quadrature
------------------------
-
-**Example: dump the Hydrostatic Pressure at Partial quadrature points**
-
-.. code-block:: cpp
-
-  constexpr bool parallel = true;
-  std::ofstream output("HydrostaticPressure.txt");
-  const auto pr = getInternalStateVariable(static_cast<const mfem_mgis::Material&>(m1), "HydrostaticPressure");
-  dumpPartialQuadratureFunction<parallel>(output, pr);
-
-
-**Results**
-
-Command:
-
-.. code-block:: text
-
-  splot "HydrostaticPressure.txt" using 1:2:3
-
-Plot: 
-
-.. figure:: _static/SatohTestHydrostaticPressure.png
-
