@@ -158,25 +158,16 @@ through plugins.
 ![MFEM/MGIS Stack. Each library is open source.\label{fig:SoftStack}](./MMM-stack-v0.png "MFEM/MGIS software stack. MFEM/MGIS is the convergence between two open sources ecosytem."){width=75%}
 
 The MFEM/MGIS software stack is presented on \autoref{fig:SoftStack}.
-Most of low-level external libraries are required by `MFEM` and can be
-disabled. Hence, the minimal package requirements to build MFEM/MGIS on
+Hence, the minimal package requirements to build MFEM/MGIS on
 a HPC platform is typically:`C++17`, `MFEM`, `MGIS`, `TFEL`(MFront),
-CMake and `MPI`.
-
+CMake and `MPI`. Note that `MFEM` includes a significant stack of several tens packages such as linear solver libraries.
 To handle the numerous accessible combinations, `Spack`
 [@gamblin2015spack] is really a cornerstone. This package manager
 simplifies building, installing, customizing, and sharing HPC software
-stacks. It provides a simple way for installing packages with cumbersome
-structures and lots of dependencies. `Spack` is an open-source package
-manager developed and maintained by community of HPC developers. Our
-setup that combines OSS allows for a fast and cheap access to advanced
-features embedded in the underlying libraries.
+stacks. In the end, `MFEM-MGIS` offers a `Spack`
+package reusing most of the `MFEM` installation variants already provided in
+the `MFEM` `Spack` package while maintaining compatibility across package versions.
 
-To complete the installation, you can enable the following options while
-compiling `MFEM`. The most interesting are the solver or preconditioner
-packages such as `Hypre`, `MUMPS`, and `PETSc` (including `SuperLU`,
-`UMFPACK`), and the load balancing packages `Zoltan` [@devine2000design]
-and `Metis` [@karypis1997parmetis].
 
 <!--
 
