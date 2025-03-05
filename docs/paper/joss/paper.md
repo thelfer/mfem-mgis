@@ -193,7 +193,7 @@ Installation and deployment on desktop or large computers is shortened
 using the Spack package manager. Multi-material elastic modelling on
 computational clusters has been carried out with `MFEM/MGIS`. The
 observed scalability performance is good on a few thousands of CPU
-cores.
+cores. Benchmarks are available in the documentation: <https://thelfer.github.io/mfem-mgis/benchmark.html>.
 
 Despite the very high level of abstraction and the genericness of
 `MFEM/MGIS` (multi-material and arbitrary behaviors), the overhead
