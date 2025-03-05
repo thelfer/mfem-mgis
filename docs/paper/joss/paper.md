@@ -30,9 +30,9 @@ bibliography: paper.bib
 
 # Summary
 
-The `MFEM/MGIS` application aims at efficiently use supercomputers in
+The `MFEM/MGIS` application aims to efficiently use supercomputers in
 order to describe coupled multiphysics phenomena with a particular focus
-on thermo-mechanics. The authors primarily aims at describing the
+on thermo-mechanics. The authors primarily aim at describing the
 nuclear fuels at mesoscale (see example below), but `MFEM/MGIS` is
 versatile and can address more general cases.
 
@@ -84,7 +84,7 @@ by `MFEM/MGIS`.
 
 Also, contrary to non linear forms provided natively by `MFEM`,
 `MFEM/MGIS` allows to assign distinct behaviors to each material. The
-`MGIS` data structures are also use to add support for partial
+`MGIS` data structures are also used to add support for partial
 quadrature functions to `MFEM`, a feature needed to store internal state
 variables on each material.
 
@@ -100,22 +100,22 @@ introduced by plugins and will be integrated in future versions of
 
 The `MFEM/MGIS` library is written in `C++17` language.
 
-As the application targets mechanical engineer, it provides a high level
+As the application targets mechanical engineers, it provides a high level
 of abstraction, focused on the physical aspects of the simulation and
 hiding most numerical details by default.
 
 The main class of `MFEM/MGIS` is called `NonLinearEvolutionProblem` and
-allows to describe the evolution of the materials of the physical system
+describes the evolution of the materials of the physical system
 of interest over a single time step for a given phenomenon: currently
-`MFEM/MGIS` provides built-in support for mechanics, heat transfer and
+`MFEM/MGIS` provides built-in support for mechanics, heat transfer, and
 micromorphic damage are supported.
 
 A staggered approach for multiphysics simulations can be set up by using
 several instances of `NonLinearEvolutionProblem`.
 
-The API is declarative and mostly based on data structure similar to a
+The API is declarative and mostly based on data structures similar to a
 `python` dictionary, limiting direct usage of `C++`. In particular, this
-data structure is used to instanciate post-processings and boundary
+data structure is used to instantiate post-processings and boundary
 conditions through abstract factories.
 
 <!--
@@ -132,7 +132,7 @@ Various post-processings are available:
 - `ComputeResultantForceOnBoundary`: Compute the resultant of the inner
   forces on a boundary.
 - `ComputeMeanThermodynamicForcesValues`: Compute the macroscopic stress
-  and strain for each materials.
+  and strain for each material.
 - `ParaviewExportIntegrationPointResultsAtNodes`: Paraview post
   processing files of partial quadrature functions, like the ones
   associated with the internal state variables.
@@ -149,7 +149,7 @@ nuclear fuel.
 
 ## Plugins
 
-Post-processings and boundary conditions are instanciated through
+Post-processings and boundary conditions are instantiated through
 abstract factories. Those abstract factories allow to extend `MFEM/MGIS`
 through plugins.
 
@@ -157,10 +157,10 @@ through plugins.
 
 ![MFEM/MGIS Stack. Each library is open source.\label{fig:SoftStack}](./MMM-stack-v0.png "MFEM/MGIS software stack. MFEM/MGIS is the convergence between two open sources ecosytem."){width=75%}
 
-The MFEM/MGIS software stack is presented on \autoref{fig:SoftStack}.
+The MFEM/MGIS software stack is illustrated in \autoref{fig:SoftStack}.
 Hence, the minimal package requirements to build MFEM/MGIS on
 a HPC platform is typically:`C++17`, `MFEM`, `MGIS`, `TFEL`(MFront),
-CMake and `MPI`. Note that `MFEM` includes a significant stack of several tens packages such as linear solver libraries.
+CMake and `MPI`. It is important to note that `MFEM` includes a significant stack of several tens packages including linear solver libraries.
 To handle the numerous accessible combinations, `Spack`
 [@gamblin2015spack] is really a cornerstone. This package manager
 simplifies building, installing, customizing, and sharing HPC software
@@ -213,10 +213,10 @@ Based on an open source software stack, it allows for the fine
 representation of microstructure in full 3D in the field of fuel
 modeling.
 
-On the one hand, `MGIS` and `MFront` bring support for complexe
+On the one hand, `MGIS` and `MFront` bring support for complex
 nonlinear behaviours such as damage, plasticity, viscoplasticity
 capabilities. On the other hand, `MFEM` provides advanced finite
-elements schemes and parallel performance (tested on several thousands
+element schemes and parallel performance (tested on several thousands
 of cores until now). Open source approach was chosen mainly to promote
 collaboration, improve reproducibility, and reduce costs for development
 and maintenance.
