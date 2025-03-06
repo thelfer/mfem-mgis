@@ -111,7 +111,7 @@ namespace mfem_mgis {
       MPI_Allgather(&d_min, 1, MPI_DOUBLE, d_min_buffer.data(), 1, MPI_DOUBLE,
                     MPI_COMM_WORLD);
       MPI_Allgather(&global_dof_id, 1, HYPRE_MPI_BIG_INT, global_dof_id_buffer.data(), 1,
-                    MPI_INT, MPI_COMM_WORLD);
+                    HYPRE_MPI_BIG_INT, MPI_COMM_WORLD);
 #ifdef MFEM_MGIS_DEBUG
       if (myrank == 0) {
         std::cout << "minimal distance per proc:";
