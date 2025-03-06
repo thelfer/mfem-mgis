@@ -24,7 +24,7 @@ authors:
 affiliations:
  - name: CEA, DES, IRESNE, DEC, Cadarache F 13108 St Paul Lez Durance
    index: 1
-date: 3 August 2023
+date: 6 March 2025
 bibliography: paper.bib
 ---
 
@@ -48,15 +48,16 @@ compared to a pure MFEM approach. The library tackles some peculiarities
 of nonlinear mechanics. In particular, the support of complex
 constitutive laws and the management of advanced boundary conditions.
 
-# MFEM-based Thermo-Mechanical Solver for Nuclear Fuel Simulations
+# About MFEM
 
-`MFEM`, is a finite element library designed for current supercomputers
-but also for the upcoming exascale supercomputers. It provides many
-useful features for carrying out realistic simulations: support for
-curvilinear meshes, high order approximation spaces and different
-families of finite elements, interfaces to several types of parallel
-solvers (including matrix-free ones), preconditioners, and native
-support for adaptive non-conforming mesh refinement (AMR).
+`MFEM`, is a finite element library designed for current
+supercomputers but also for the upcoming exascale supercomputers. It
+provides many useful features for carrying out state-of-the art
+simulations: support for curvilinear meshes, high order approximation
+spaces and different families of finite elements, interfaces to
+several types of parallel solvers (including matrix-free ones),
+preconditioners, and native support for adaptive non-conforming mesh
+refinement (AMR).
 
 Originating from the applied mathematics and parallel computing
 communities, `MFEM` offers both performance and a large panel of
@@ -67,9 +68,11 @@ microstructure and mesoscale modeling for nuclear fuel.
 
 # Statement of need
 
-The solid mechanic applications in `MFEM` are mostly limited to simple
-constitutive equations such as elasticity and hyperelasticity, which is
-insufficient to address complex nuclear fuel simulations.
+The solid mechanic examples in `MFEM` are mostly limited to simple
+constitutive equations such as elasticity and hyperelasticity without
+internal state variables. This is insufficient to address many
+engineering studies and in particular complex nuclear fuel
+simulations.
 
 The aim of `MFEM/MGIS` project is to combine `MFEM` with the
 `MFrontGenericInterfaceSupport` (`MGIS`) project, an open-source `C++`
@@ -77,14 +80,11 @@ library handles all the kinds of behavior supported by the open-source
 `MFront` code generator.
 
 In the field of nonlinear mechanics, this encompasses arbitrary complex
-behaviors that can describe damage, plasticity, viscoplasticity, phase
-change in both small or finite strain analyses. Generalized behaviors
-such as variational approaches to fracture are supported
-by `MFEM/MGIS`.
+behaviors that can describe damage, plasticity, viscoplasticity in both
+small or finite strain analyses. Generalized behaviors such as
+variational approaches to fracture are supported by `MFEM/MGIS`.
 
-Also, contrary to non linear forms provided natively by `MFEM`,
-`MFEM/MGIS` allows to assign distinct behaviors to each material. The
-`MGIS` data structures are also used to add support for partial
+The `MGIS` data structures are also used to add support for partial
 quadrature functions to `MFEM`, a feature needed to store internal state
 variables on each material.
 
@@ -96,6 +96,108 @@ introduced by plugins and will be integrated in future versions of
 
 # Overview of `MFEM/MGIS` features
 
+## The `NonLinearEvolutionProblem` class
+
+The main class of `MFEM/MGIS` is called `NonLinearEvolutionProblem` and
+describes the evolution of the materials of the physical system
+of interest over a single time step for a given phenomenon.
+
+Currently `MFEM/MGIS` provides built-in support for mechanics, heat
+transfer, and micromorphic damage are supported.
+
+The following snippet declares a new nonlinear evolution problem:
+
+~~~~.c++
+mfem_mgis::NonLinearEvolutionProblem problem(
+    {{"MeshFileName", "fuel.msh"},
+     {"FiniteElementFamily", "H1"},
+     {"FiniteElementOrder", 6},
+     {"UnknownsSize", 1},
+     {"Hypothesis", "Tridimensional"},
+     {"Parallel", true}});
+~~~~
+
+As the unknown is scalar (according to the `UnknownsSize` parameter),
+this problem can be used to describe heat transfer or micromorphic
+damage, depending on the behaviour integrators declared, as explained in
+the next section. The `NonLinearEvolutionProblem` class supports both
+sequential and parallel computations and let the user exploits a large
+subset of `MFEM` abilities, including the use of finite elements of
+arbitrary orders.
+
+A staggered approach for multiphysics simulations can be set up by using
+several instances of `NonLinearEvolutionProblem`.
+
+### The `PeriodicNonLinearEvolutionProblem` class
+
+`MFEM/MGIS` provides a specialized version for the
+`NonLinearEvolutionProblem` for periodic computations named
+`PeriodicNonLinearEvolutionProblem`.
+
+This class allows to manage the evolutions of the macroscopic
+gradients (strain in small strain analysis, deformation gradient in
+finite strain analysis, temperature gradient in heat transfer
+analysis) and pass them to the behaviour integrators.
+
+### Note about linear analyses
+ 
+As implied by its name, the `NonLinearEvolutionProblem` is focused on
+nonlinear resolutions. Linear analyses can still be performed by using
+linear behaviours (generated by `MFront`), but with a computational
+overhead compared to linear analysis made with optimised kernels, such
+as the elastic kernels provided natively by `MFEM`.
+
+In our experience, this overhead is limited and mostly comes from
+the extra flexibility allowed by `MFEM/MGIS`. For instance,
+`MFEM` elastic kernels assumes that:
+
+- all materials are elastic,
+- material properties (Young's modulus, Poisson's ratio) are uniform
+  on each material.
+
+`MFEM/MGIS` kernels don't have those restrictions as described below.
+
+## Behaviour integrators
+
+Contrary to non linear forms provided natively by `MFEM`, `MFEM/MGIS`
+allows to assign distinct behaviors to each material. To achieve this, a
+special nonlinear formulation has been implemented which delegates the
+computations of residual and jacobian terms on each material to
+so-called behaviour integrators.
+
+Behaviour integrators are associated with a physical phenomenon and a
+modelling hypothesis (plane strain, plane stress).
+
+This following snipet assign a behaviour integrator to the material
+named `beam` to a mechanical non linear evolution problem:
+
+~~~~.c++
+mechanics.addBehaviourIntegrator("Mechanics", "beam",
+                                  "src/libBehaviour.so",
+                                  "MicromorphicDamageI_SpectralSplit");
+~~~~
+
+The behaviour `MicromorphicDamageI_SpectralSplit` is loaded from a
+behaviour named `libBehaviour.so` which shall have been generated using
+`MFront` before running the simulation. The behaviour integrator
+`Mechanics` suports arbitrary small strain and finite strain behaviours.
+
+Internally, the `addBehaviourIntegrator` method calls an abstract
+factory which instanciates a `BehaviourIntegrator` dedicated to the kind
+of behaviour selected by the user (small or finite strain) and the
+modelling hypothesis declared by the problem (plane strain, plane
+stress, tridimensional, etc.).
+
+### About the definition of material properties
+
+Behaviours may require the user to provide properties, such as the
+Young's modulus, Poisson's ratio, etc.. In `MFEM/MGIS`, those
+properties can be uniform on the material or given by a partial
+quadrature function. The later case allows the properties to be
+defined independently on each integration points, which is required if
+those properties depends on local material properties or on the local
+state of the material (for instance, the local temperature).
+
 ## User interface
 
 The `MFEM/MGIS` library is written in `C++17` language.
@@ -104,35 +206,25 @@ As the application targets mechanical engineers, it provides a high level
 of abstraction, focused on the physical aspects of the simulation and
 hiding most numerical details by default.
 
-The main class of `MFEM/MGIS` is called `NonLinearEvolutionProblem` and
-describes the evolution of the materials of the physical system
-of interest over a single time step for a given phenomenon: currently
-`MFEM/MGIS` provides built-in support for mechanics, heat transfer, and
-micromorphic damage are supported.
-
-A staggered approach for multiphysics simulations can be set up by using
-several instances of `NonLinearEvolutionProblem`.
-
 The API is declarative and mostly based on data structures similar to a
 `python` dictionary, limiting direct usage of `C++`. In particular, this
-data structure is used to instantiate post-processings and boundary
-conditions through abstract factories.
+data structure is used to instantiate non linear evolution problems,
+behaviour integrators, post-processings and boundary conditions.
 
 <!--
-
 This data structure can be read from a `JSON`-file allowing to create
 domain-specific applications.
-
 -->
 
 ## Post-processings
 
-Various post-processings are available:
+Various post-processings are available. Here are some examples of
+post-processings that were added to `MFEM/MGIS`:
 
 - `ComputeResultantForceOnBoundary`: Compute the resultant of the inner
   forces on a boundary.
 - `ComputeMeanThermodynamicForcesValues`: Compute the macroscopic stress
-  and strain for each material.
+  and strain for each material. This is mostly useful for 
 - `ParaviewExportIntegrationPointResultsAtNodes`: Paraview post
   processing files of partial quadrature functions, like the ones
   associated with the internal state variables.
@@ -147,11 +239,13 @@ Several examples can be found on the open-source GitHub repository:
 the microstructural scale using a Representative Volume Element (RVE) of
 nuclear fuel.
 
+<!--
 ## Plugins
 
 Post-processings and boundary conditions are instantiated through
 abstract factories. Those abstract factories allow to extend `MFEM/MGIS`
 through plugins.
+-->
 
 ## Software stack and installation process
 
@@ -189,21 +283,15 @@ that relates to linear solvers are switchable.
 
 # Numerical Results {#sec:numerical_results}
 
-Installation and deployment on desktop or large computers is shortened
-using the Spack package manager. Multi-material elastic modelling on
-computational clusters has been carried out with `MFEM/MGIS`. The
-observed scalability performance is good on a few thousands of CPU
-cores. Benchmarks are available in the documentation: <https://thelfer.github.io/mfem-mgis/benchmark.html>.
-
-Despite the very high level of abstraction and the genericness of
-`MFEM/MGIS` (multi-material and arbitrary behaviors), the overhead
-appears reasonably limited. In the worst-case for `MFEM/MGIS`, an
-overhead of up to 30% has been observed compared to a pure `MFEM`
-version which provides very optimized and specialized kernels (the test
-was performed on a simulation with only two elastic materials).
+ Multi-material elastic modelling on computational clusters has been
+carried out with `MFEM/MGIS`. The observed scalability performance is
+good on a few thousands of CPU cores. Benchmarks are available in the
+documentation: <https://thelfer.github.io/mfem-mgis/benchmark.html>.
 
 Several examples can be found on the open-source GitHub repository:
 <https://github.com/latug0/mfem-mgis-examples>.
+
+<!--
 
 # Conclusion
 
@@ -218,8 +306,10 @@ nonlinear behaviours such as damage, plasticity, viscoplasticity
 capabilities. On the other hand, `MFEM` provides advanced finite
 element schemes and parallel performance (tested on several thousands
 of cores until now). 
-<!--
+-->
 
+
+<!--
 Regarding performance portability on GPUs, MFEM already offers numerous
 algorithms such as partial assembly on GPUs, but MFEM/MGIS does not
 exploit these features yet. Work is underway to port behavior laws to
@@ -236,7 +326,7 @@ Open HPC thermomechanical tools for the development of EATF fuels
 undertaking (OperaHPC) grant agreement No 101061453.
 
 Benchmarks and scalability tests were performed using HPC resources from
-CCRT funded by the CEA/DEs simulation program.
+CCRT funded by the CEA/DES simulation program.
 
 # References
 
