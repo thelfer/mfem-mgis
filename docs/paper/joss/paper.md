@@ -48,7 +48,9 @@ compared to a pure MFEM approach. The library tackles some peculiarities
 of nonlinear mechanics. In particular, the support of complex
 constitutive laws and the management of advanced boundary conditions.
 
-# About MFEM
+# Context and motivation
+
+## About MFEM
 
 `MFEM`, is a finite element library designed for current
 supercomputers but also for the upcoming exascale supercomputers. It
@@ -66,7 +68,7 @@ from one linear solver to another (direct or iterative), which is
 essential for the targeted application [@bernaud2024pleiades]:
 microstructure and mesoscale modeling for nuclear fuel.
 
-# Statement of need
+## Statement of need
 
 The solid mechanic examples in `MFEM` are mostly limited to simple
 constitutive equations such as elasticity and hyperelasticity without
@@ -87,6 +89,19 @@ variational approaches to fracture are supported by `MFEM/MGIS`.
 The `MGIS` data structures are also used to add support for partial
 quadrature functions to `MFEM`, a feature needed to store internal state
 variables on each material.
+
+## State of the field
+
+Many open-source thermomechanical solvers allows to handle complex
+mechanical behaviours. `code_aster`, `MoFEM`, `CalculiX` are examples
+of state of the art solvers which have an interface with `MFront`.
+
+However, those solvers lacks many features provided by `MFEM` that the
+authors found intersting to explore in the field of solid mechanics
+(see the above section for a detailed list). The authors also found
+interesting to take a plateform designed from the start for high
+performance computing and adapt it to engineering needs and evaluate
+the resulting performances.
 
 <!--
 Strongly coupled thermo-mechanical behaviors and Cosserat media can be
