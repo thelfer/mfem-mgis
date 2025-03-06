@@ -251,7 +251,11 @@ These features are described in the following tutorial:
 Several examples can be found on the open-source GitHub repository:
 <https://github.com/latug0/mfem-mgis-examples>, including simulation of
 the microstructural scale using a Representative Volume Element (RVE) of
-nuclear fuel.
+nuclear fuel, figure \autoref{fig:RVE}. 
+
+
+![Simulation of a Representative Volume Element (RVE) of mixed oxide material, which contains 634 inclusions. The variable "u" represents the displacement. \label{fig:RVE}](./MOX17percent634Spheres.png"test"){width=70%}
+
 
 <!--
 ## Plugins
