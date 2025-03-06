@@ -254,7 +254,7 @@ the microstructural scale using a Representative Volume Element (RVE) of
 nuclear fuel, figure \autoref{fig:RVE}. 
 
 
-![Simulation of a Representative Volume Element (RVE) of mixed oxide material, which contains 634 inclusions. The variable "u" represents the displacement. \label{fig:RVE}](./MOX17percent634Spheres.png){width=70%}
+![Simulation of a Representative Volume Element (RVE) of mixed oxide material, which contains 634 inclusions. The variable "u" represents the displacement. This simulation reproduces the results obtained by [@MASSON2020103874], who used an FFT method. \label{fig:RVE}](./MOX17percent634Spheres.png){width=70%}
 
 
 <!--
