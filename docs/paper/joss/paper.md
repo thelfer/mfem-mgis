@@ -53,7 +53,7 @@ constitutive laws and the management of advanced boundary conditions.
 ## About MFEM
 
 `MFEM`, is a finite element library designed for current
-supercomputers but also for the upcoming exascale supercomputers. It
+supercomputers and the upcoming exascale supercomputers. It
 provides many useful features for carrying out state-of-the art
 simulations: support for curvilinear meshes, high order approximation
 spaces and different families of finite elements, interfaces to
@@ -64,8 +64,7 @@ refinement (AMR).
 Originating from the applied mathematics and parallel computing
 communities, `MFEM` offers both performance and a large panel of
 advanced mathematical features. In particular, one can easily switch
-from one linear solver to another (direct or iterative), which is
-essential for the targeted application [@bernaud2024pleiades]:
+from one linear solver to another (direct or iterative), essential for the targeted application [@bernaud2024pleiades]:
 microstructure and mesoscale modeling for nuclear fuel.
 
 ## Statement of need
@@ -82,24 +81,24 @@ library handles all the kinds of behavior supported by the open-source
 `MFront` code generator.
 
 In the field of nonlinear mechanics, this encompasses arbitrary complex
-behaviors that can describe damage, plasticity, viscoplasticity in both
+behaviors that can describe damage, plasticity, and viscoplasticity in both
 small or finite strain analyses. Generalized behaviors such as
 variational approaches to fracture are supported by `MFEM/MGIS`.
 
-The `MGIS` data structures are also used to add support for partial
+The `MGIS` data structures are used to add support for partial
 quadrature functions to `MFEM`, a feature needed to store internal state
 variables on each material.
 
 ## State of the field
 
-Many open-source thermomechanical solvers allows to handle complex
+Many open-source thermomechanical solvers allow to handle complex
 mechanical behaviours. `code_aster`, `MoFEM`, `CalculiX` are examples
 of state of the art solvers which have an interface with `MFront`.
 
-However, those solvers lacks many features provided by `MFEM` that the
-authors found intersting to explore in the field of solid mechanics
+However, those solvers lack many features provided by `MFEM` that the
+authors found interesting to explore in the field of solid mechanics
 (see the above section for a detailed list). The authors also found
-interesting to take a plateform designed from the start for high
+interesting to take a platform designed from the start for high
 performance computing and adapt it to engineering needs and evaluate
 the resulting performances.
 
@@ -164,7 +163,7 @@ as the elastic kernels provided natively by `MFEM`.
 
 In our experience, this overhead is limited and mostly comes from
 the extra flexibility allowed by `MFEM/MGIS`. For instance,
-`MFEM` elastic kernels assumes that:
+`MFEM` elastic kernels assume that:
 
 - all materials are elastic,
 - material properties (Young's modulus, Poisson's ratio) are uniform
@@ -183,7 +182,7 @@ so-called behaviour integrators.
 Behaviour integrators are associated with a physical phenomenon and a
 modelling hypothesis (plane strain, plane stress).
 
-This following snipet assign a behaviour integrator to the material
+This following snippet assigns a behaviour integrator to the material
 named `beam` to a mechanical non linear evolution problem:
 
 ~~~~.c++
@@ -195,7 +194,7 @@ mechanics.addBehaviourIntegrator("Mechanics", "beam",
 The behaviour `MicromorphicDamageI_SpectralSplit` is loaded from a
 behaviour named `libBehaviour.so` which shall have been generated using
 `MFront` before running the simulation. The behaviour integrator
-`Mechanics` suports arbitrary small strain and finite strain behaviours.
+`Mechanics` supports arbitrary small strain and finite strain behaviours.
 
 Internally, the `addBehaviourIntegrator` method calls an abstract
 factory which instanciates a `BehaviourIntegrator` dedicated to the kind
@@ -209,8 +208,8 @@ Behaviours may require the user to provide properties, such as the
 Young's modulus, Poisson's ratio, etc.. In `MFEM/MGIS`, those
 properties can be uniform on the material or given by a partial
 quadrature function. The later case allows the properties to be
-defined independently on each integration points, which is required if
-those properties depends on local material properties or on the local
+defined independently on each integration point, which is required if
+those properties depend on local material properties or the local
 state of the material (for instance, the local temperature).
 
 ## User interface
@@ -224,7 +223,7 @@ hiding most numerical details by default.
 The API is declarative and mostly based on data structures similar to a
 `python` dictionary, limiting direct usage of `C++`. In particular, this
 data structure is used to instantiate non linear evolution problems,
-behaviour integrators, post-processings and boundary conditions.
+behaviour integrators, post-processings, and boundary conditions.
 
 <!--
 This data structure can be read from a `JSON`-file allowing to create
