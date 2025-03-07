@@ -48,6 +48,13 @@ MFEM-MGIS / MFEM
 
 This benchmark aims to evaluate the time overhead between MFEM and MFEM-MGIS for a simple test case involving an elastic behavior law. The same supercomputer used in the previous RVE benchmark is employed.
 
+Details: 
+
+- Solver: `HyprePCG`
+- Preconditionner: `HypreDiagScale` (Jacobi)
+- Tolerance: 1e-14
+- Boundary conditions: we impose an uniform dirichlet condition U = (0,0,0) at left and U = (0,0,1) at right.
+
 .. figure:: _static/bench-perf.png
 
 
