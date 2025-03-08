@@ -1,0 +1,26 @@
+@Behaviour Elasticity;
+@Author Helfer Thomas;
+@Date 11 / 12 / 06;
+@Description{
+  A very first test (the most simple one in fact).
+}
+
+@MaterialProperty stress λ;
+λ.setGlossaryName("FirstLameCoefficient");
+@MaterialProperty stress μ;
+μ.setGlossaryName("ShearModulus");
+
+@PredictionOperator {
+  static_cast<void>(smt);
+  Dt = λ ⋅ (I₂ ⊗ I₂) + 2 ⋅ μ ⋅ I₄;
+}
+
+@Integrator{
+  const auto ε = εᵗᵒ + Δεᵗᵒ;
+  σ = λ ⋅ trace(ε) ⋅ I₂ + 2 ⋅ μ ⋅ ε;
+}
+
+@TangentOperator {
+  static_cast<void>(smt);
+  Dt = λ ⋅ (I₂ ⊗ I₂) + 2 ⋅ μ ⋅ I₄;
+}

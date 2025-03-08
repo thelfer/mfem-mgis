@@ -15,7 +15,8 @@ include(CTest)
 enable_testing()
 
 # portable-build
-option(enable-portable-build "produce binary that can be shared between various machine (same architecture, same gcc version, different processors" OFF)
+option(enable-portable-build "Produce binary that can be shared between various machine (same architecture, same gcc version, different processors" OFF)
+option(BENCHMARKS "Compile benchmarks" OFF)
 
 #compiler options
 include(cmake/modules/compiler.cmake)
@@ -133,3 +134,6 @@ mfem_mgis_buildenv()
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(tests)
+if(BENCHMARKS)
+  add_subdirectory(benchmarks)
+endif(BENCHMARKS)
