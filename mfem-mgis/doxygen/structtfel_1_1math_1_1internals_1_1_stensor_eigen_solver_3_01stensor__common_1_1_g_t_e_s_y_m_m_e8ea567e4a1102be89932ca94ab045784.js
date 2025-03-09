@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1internals_1_1_stensor_eigen_solver_3_01stensor__common_1_1_g_t_e_s_y_m_m_e8ea567e4a1102be89932ca94ab045784 =
-[
-    [ "real", "structtfel_1_1math_1_1internals_1_1_stensor_eigen_solver_3_01stensor__common_1_1_g_t_e_s_y_m_m_e8ea567e4a1102be89932ca94ab045784.html#ab9ea53deec365eebf4e0b27576aa71d6", null ]
-];

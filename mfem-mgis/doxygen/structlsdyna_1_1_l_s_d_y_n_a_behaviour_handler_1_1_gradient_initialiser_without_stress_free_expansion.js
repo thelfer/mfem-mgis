@@ -1,4 +1,0 @@
-var structlsdyna_1_1_l_s_d_y_n_a_behaviour_handler_1_1_gradient_initialiser_without_stress_free_expansion =
-[
-    [ "BV", "structlsdyna_1_1_l_s_d_y_n_a_behaviour_handler_1_1_gradient_initialiser_without_stress_free_expansion.html#ab183856af3f87c74839c84e543018345", null ]
-];
