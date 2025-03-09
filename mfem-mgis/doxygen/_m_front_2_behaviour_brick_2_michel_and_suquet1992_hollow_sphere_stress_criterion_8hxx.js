@@ -1,0 +1,4 @@
+var _m_front_2_behaviour_brick_2_michel_and_suquet1992_hollow_sphere_stress_criterion_8hxx =
+[
+    [ "mfront::bbrick::MichelAndSuquet1992HollowSphereStressCriterion", "structmfront_1_1bbrick_1_1_michel_and_suquet1992_hollow_sphere_stress_criterion.html", "structmfront_1_1bbrick_1_1_michel_and_suquet1992_hollow_sphere_stress_criterion" ]
+];

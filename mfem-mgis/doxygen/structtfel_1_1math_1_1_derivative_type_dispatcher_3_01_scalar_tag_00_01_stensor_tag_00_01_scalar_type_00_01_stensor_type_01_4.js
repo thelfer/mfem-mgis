@@ -1,0 +1,4 @@
+var structtfel_1_1math_1_1_derivative_type_dispatcher_3_01_scalar_tag_00_01_stensor_tag_00_01_scalar_type_00_01_stensor_type_01_4 =
+[
+    [ "type", "structtfel_1_1math_1_1_derivative_type_dispatcher_3_01_scalar_tag_00_01_stensor_tag_00_01_scalar_type_00_01_stensor_type_01_4.html#ada71235160380bf9c683d205ba683e1e", null ]
+];
