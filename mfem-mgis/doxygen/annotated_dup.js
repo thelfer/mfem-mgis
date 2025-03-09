@@ -538,9 +538,6 @@ var annotated_dup =
       [ "UMATImportThermodynamicForces", "structlsdyna_1_1_u_m_a_t_import_thermodynamic_forces.html", null ],
       [ "UMATImportThermodynamicForces< tfel::material::ModellingHypothesis::PLANESTRESS >", "structlsdyna_1_1_u_m_a_t_import_thermodynamic_forces_3_01tfel_1_1material_1_1_modelling_hypothes2cf82d0aaf4e88d28dc75c7fae8270c8.html", null ]
     ] ],
-    [ "mfem", null, [
-      [ "Array", "classmfem_1_1_array.html", null ]
-    ] ],
     [ "mfem_mgis", "namespacemfem__mgis.html", [
       [ "Profiler", null, [
         [ "timers", null, [

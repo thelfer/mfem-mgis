@@ -260,11 +260,9 @@ var hierarchy =
       ] ],
       [ "tfel::utilities::ArgumentParserBase< Child >", "structtfel_1_1utilities_1_1_argument_parser_base.html", null ]
     ] ],
-    [ "mfem::Array< class >", "classmfem_1_1_array.html", null ],
     [ "std::array", null, [
       [ "tfel::utilities::basic_fcstring< N, CharT, Traits >", "structtfel_1_1utilities_1_1basic__fcstring.html", null ]
     ] ],
-    [ "mfem::Array< mfem_mgis::size_type >", "classmfem_1_1_array.html", null ],
     [ "tfel::math::ArrayConceptBase< T >", "structtfel_1_1math_1_1_array_concept_base.html", [
       [ "tfel::math::fsarray< N, ValueType >", "structtfel_1_1math_1_1fsarray.html", null ]
     ] ],
