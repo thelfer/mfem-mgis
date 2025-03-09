@@ -1,0 +1,4 @@
+var structtfel_1_1typetraits_1_1_promote_3_01tfel_1_1math_1_1_complex_3_01_a_01_4_00_01tfel_1_1math_1_1_complex_3_01_b_01_4_01_4 =
+[
+    [ "type", "structtfel_1_1typetraits_1_1_promote_3_01tfel_1_1math_1_1_complex_3_01_a_01_4_00_01tfel_1_1math_1_1_complex_3_01_b_01_4_01_4.html#a6e0778dcfaf791077b1ce42be72b7de0", null ]
+];
