@@ -63,7 +63,7 @@ jobs:
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:
-        personal_token: ${{ secrets.GITHUB_TOKEN }}
+        personal_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
         publish_branch: master
         publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
         external_repository: thelfer/thelfer.github.io
