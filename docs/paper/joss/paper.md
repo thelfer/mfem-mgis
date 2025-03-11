@@ -64,7 +64,8 @@ refinement (AMR).
 Originating from the applied mathematics and parallel computing
 communities, `MFEM` offers both performance and a large panel of
 advanced mathematical features. In particular, one can easily switch
-from one linear solver to another (direct or iterative), essential for the targeted application [@bernaud2024pleiades]:
+from one linear solver to another (direct or iterative),
+which is essential for the targeted application [@bernaud2024pleiades]:
 microstructure and mesoscale modeling for nuclear fuel.
 
 ## Statement of need
@@ -75,14 +76,14 @@ internal state variables. This is insufficient to address many
 engineering studies and in particular complex nuclear fuel
 simulations.
 
-The aim of `MFEM/MGIS` project is to combine `MFEM` with the
+The aim of the `MFEM/MGIS` project is to combine `MFEM` with the
 `MFrontGenericInterfaceSupport` (`MGIS`) project, an open-source `C++`
-library handles all the kinds of behavior supported by the open-source
+library that handles all the kinds of behaviours supported by the open-source
 `MFront` code generator.
 
 In the field of nonlinear mechanics, this encompasses arbitrary complex
-behaviors that can describe damage, plasticity, and viscoplasticity in both
-small or finite strain analyses. Generalized behaviors such as
+behaviours that can describe damage, plasticity, and viscoplasticity in both
+small or finite strain analyses. Generalized behaviours such as
 variational approaches to fracture are supported by `MFEM/MGIS`.
 
 The `MGIS` data structures are used to add support for partial
@@ -91,7 +92,7 @@ variables on each material.
 
 ## State of the field
 
-Many open-source thermomechanical solvers allow to handle complex
+Many open-source thermomechanical solvers allow handling complex
 mechanical behaviours. `code_aster`, `MoFEM`, `CalculiX` are examples
 of state of the art solvers which have an interface with `MFront`.
 
@@ -103,7 +104,7 @@ performance computing and adapt it to engineering needs and evaluate
 the resulting performances.
 
 <!--
-Strongly coupled thermo-mechanical behaviors and Cosserat media can be
+Strongly coupled thermo-mechanical behaviours and Cosserat media can be
 introduced by plugins and will be integrated in future versions of
 `MFEM/MGIS`.
 -->
@@ -117,7 +118,7 @@ describes the evolution of the materials of the physical system
 of interest over a single time step for a given phenomenon.
 
 Currently `MFEM/MGIS` provides built-in support for mechanics, heat
-transfer, and micromorphic damage are supported.
+transfer, and micromorphic damage.
 
 The following snippet declares a new nonlinear evolution problem:
 
@@ -135,7 +136,7 @@ As the unknown is scalar (according to the `UnknownsSize` parameter),
 this problem can be used to describe heat transfer or micromorphic
 damage, depending on the behaviour integrators declared, as explained in
 the next section. The `NonLinearEvolutionProblem` class supports both
-sequential and parallel computations and let the user exploits a large
+sequential and parallel computations and lets the user exploit a large
 subset of `MFEM` abilities, including the use of finite elements of
 arbitrary orders.
 
@@ -148,7 +149,7 @@ several instances of `NonLinearEvolutionProblem`.
 `NonLinearEvolutionProblem` for periodic computations named
 `PeriodicNonLinearEvolutionProblem`.
 
-This class allows to manage the evolutions of the macroscopic
+This class allows managing the evolutions of the macroscopic
 gradients (strain in small strain analysis, deformation gradient in
 finite strain analysis, temperature gradient in heat transfer
 analysis) and pass them to the behaviour integrators.
@@ -168,7 +169,7 @@ ratio) are uniform on each material.
 
 ## Behaviour integrators
 
-`MFEM/MGIS` allows to assign distinct behaviors to each material. To
+`MFEM/MGIS` allows the assignment of distinct behaviours to each material. To
 achieve this, a special nonlinear formulation has been implemented which
 delegates the computations of residual and jacobian terms on each
 material to so-called behaviour integrators.
@@ -176,8 +177,8 @@ material to so-called behaviour integrators.
 Behaviour integrators are associated with a physical phenomenon and a
 modelling hypothesis (plane strain, plane stress).
 
-This following snippet assigns a behaviour integrator to the material
-named `beam` to a mechanical non linear evolution problem:
+The following snippet assigns the behaviour integrator named `Mechanics` to the material
+named `beam` to the mechanical non linear evolution problem named `mechanics`:
 
 ~~~~.c++
 mechanics.addBehaviourIntegrator("Mechanics", "beam",
@@ -186,7 +187,7 @@ mechanics.addBehaviourIntegrator("Mechanics", "beam",
 ~~~~
 
 The behaviour `MicromorphicDamageI_SpectralSplit` is loaded from a
-behaviour named `libBehaviour.so` which shall have been generated using
+library named `libBehaviour.so` which shall have been generated using
 `MFront` before running the simulation. The behaviour integrator
 `Mechanics` supports arbitrary small strain and finite strain behaviours.
 
@@ -201,7 +202,7 @@ stress, tridimensional, etc.).
 Behaviours may require the user to provide properties, such as the
 Young's modulus, Poisson's ratio, etc.. In `MFEM/MGIS`, those
 properties can be uniform on the material or given by a partial
-quadrature function. The later case allows the properties to be
+quadrature function. The latter case allows the properties to be
 defined independently on each integration point, which is required if
 those properties depend on local material properties or the local
 state of the material (for instance, the local temperature).
@@ -215,8 +216,8 @@ of abstraction, focused on the physical aspects of the simulation and
 hiding most numerical details by default.
 
 The API is declarative and mostly based on data structures similar to a
-`python` dictionary, limiting direct usage of `C++`. In particular, this
-data structure is used to instantiate non linear evolution problems,
+`python` dictionary, hence limiting direct usage of `C++`. In particular, such
+data structures are used to instantiate non linear evolution problems,
 behaviour integrators, post-processings, and boundary conditions.
 
 <!--
@@ -232,20 +233,20 @@ post-processings that were added to `MFEM/MGIS`:
 - `ComputeResultantForceOnBoundary`: Compute the resultant of the inner
   forces on a boundary.
 - `ComputeMeanThermodynamicForcesValues`: Compute the macroscopic stress
-  and strain for each material. This is mostly useful for 
+  and strain for each material. <!--This is mostly useful for -->
 - `ParaviewExportIntegrationPointResultsAtNodes`: Paraview post
   processing files of partial quadrature functions, like the ones
   associated with the internal state variables.
 
 ## Tutorials
 
-These features are described in the following tutorial:
+MFEM/MGIS features are described in the following tutorial:
 <https://thelfer.github.io/mfem-mgis/tutorial.html>.
 
 Several examples can be found on the open-source GitHub repository:
-<https://github.com/latug0/mfem-mgis-examples>, including simulation of
-the microstructural scale using a Representative Volume Element (RVE) of
-nuclear fuel, figure \autoref{fig:RVE}. 
+<https://github.com/latug0/mfem-mgis-examples>, including a simulation of
+nuclear fuel at microstructural scale using a Representative Volume
+Element (RVE), cf. \autoref{fig:RVE}.
 
 ![Simulation of a Representative Volume Element (RVE) of mixed oxide material, which contains 634 inclusions. The variable "u" represents the displacement. This simulation reproduces the results obtained by [@MASSON2020103874], who used an FFT method. \label{fig:RVE}](./MOX17percent634Spheres.png){width=70%}
 
@@ -264,8 +265,8 @@ through plugins.
 
 The MFEM/MGIS software stack is illustrated in \autoref{fig:SoftStack}.
 Hence, the minimal package requirements to build MFEM/MGIS on
-a HPC platform is typically:`C++17`, `MFEM`, `MGIS`, `TFEL`(MFront),
-CMake and `MPI`. It is important to note that `MFEM` includes a significant stack of several tens packages including linear solver libraries.
+a HPC platform are typically:`C++17`, `MFEM`, `MGIS`, `TFEL` (MFront),
+CMake and `MPI`. It is important to note that `MFEM` includes a significant stack of several tens of packages including linear solver libraries.
 To handle the numerous accessible combinations, `Spack`
 [@gamblin2015spack] is really a cornerstone. This package manager
 simplifies building, installing, customizing, and sharing HPC software
@@ -323,7 +324,7 @@ of cores until now).
 <!--
 Regarding performance portability on GPUs, MFEM already offers numerous
 algorithms such as partial assembly on GPUs, but MFEM/MGIS does not
-exploit these features yet. Work is underway to port behavior laws to
+exploit these features yet. Work is underway to port behaviour laws to
 the GPU (`MFront`) and associated data structures (`MGIS`). Note that
 other HPC libraries is considered for the future, such as `CUDA`, `RAJA`
 or `OCCA` for performance portability of MFEM/MGIS on GPU.
