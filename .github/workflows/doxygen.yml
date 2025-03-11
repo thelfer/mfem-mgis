@@ -65,6 +65,6 @@ jobs:
       with:
         personal_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
         publish_branch: master
-        publish_dir: ./public #${{github.workspace}}/build/docs/doxygen/html/ 
-#        external_repository: thelfer/thelfer.github.io
-#        destination_dir: mfem-mgis/doxygen/
+        publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
+        external_repository: thelfer/thelfer.github.io
+        destination_dir: mfem-mgis/doxygen/
