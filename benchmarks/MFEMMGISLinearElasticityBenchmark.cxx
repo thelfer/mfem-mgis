@@ -15,7 +15,6 @@
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
@@ -39,7 +38,8 @@ struct TestParameters {
   const char* behaviour = "Elasticity";
   const char* library = "src/libBehaviour.so";
   int order = 1;
-  int refinement = 0;
+  int refinement = 3;
+  int verbosity = 0;
   int post_processing = 0;
 };
 
@@ -50,6 +50,7 @@ void common_parameters(mfem::OptionsParser& args, TestParameters& p)
   args.AddOption(&p.order, "-o", "--order", "Finite element order (polynomial degree).");
   args.AddOption(&p.refinement, "-r", "--refinement", "refinement level of the mesh, default = 0");
   args.AddOption(&p.post_processing, "-p", "--post-processing", "run post processing step");
+  args.AddOption(&p.verbosity, "-v", "--verbosity", "Linear solver verbosity");
 
   args.Parse();
 
@@ -208,14 +209,15 @@ int main(int argc, char* argv[])
 
   constexpr int defaultMaxNumOfIt     = 50000;     // MaximumNumberOfIterations
   auto solverParameters = mfem_mgis::Parameters{};
-  solverParameters.insert(mfem_mgis::Parameters{{"VerbosityLevel", 1}});
+  solverParameters.insert(mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}});
   solverParameters.insert(mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
   solverParameters.insert(mfem_mgis::Parameters{{"Tolerance", 1e-14}});
 
-  auto options = mfem_mgis::Parameters{{"VerbosityLevel", 0}}; 
+  auto options = mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}}; 
   auto preconditionner = mfem_mgis::Parameters{{"Name","HypreDiagScale"}, {"Options",options}};
   solverParameters.insert(mfem_mgis::Parameters{{"Preconditioner",preconditionner}});
   // solver HyprePCG
+  //problem.setLinearSolver("HypreGMRES", solverParameters);
   problem.setLinearSolver("HyprePCG", solverParameters);
 
 

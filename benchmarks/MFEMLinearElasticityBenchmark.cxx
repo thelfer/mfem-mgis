@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
   const char *mesh_file = "../beam-tet.mesh";
   int order = 1;
   int refinement = 3;
+  int verbosity = 1;
   bool visualization = 0;
   bool reorder_space = false;
 
@@ -30,6 +31,8 @@ int main(int argc, char *argv[])
       "Use byNODES ordering of vector space instead of byVDIM");
   args.AddOption(&refinement, "-r", "--refinenemt",
       "Define the uniform refinement level");
+  args.AddOption(&verbosity, "-v", "--verbosity",
+      "Linear solver verbosity");
   args.Parse();
   if (!args.Good())
   {
@@ -153,10 +156,11 @@ int main(int argc, char *argv[])
 
   /** Define and Use Linear Solver */
   HypreDiagScale *ds = new HypreDiagScale(A);
+  //HypreGMRES *pcg = new HypreGMRES(A);
   HyprePCG *pcg = new HyprePCG(A);
   pcg->SetTol(1e-14);
   pcg->SetMaxIter(10000);
-  pcg->SetPrintLevel(1);
+  pcg->SetPrintLevel(verbosity);
   pcg->SetPreconditioner(*ds);
 
   solve_t1 = MPI_Wtime();

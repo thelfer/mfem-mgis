@@ -210,22 +210,35 @@ namespace mfem_mgis {
     const auto mesh_mode = get_if<std::string>(
         params, FiniteElementDiscretization::MeshReadMode, "FromScratch");
     if (parallel) {
+    
 #ifdef MFEM_USE_MPI
-	if(mesh_mode == "FromScratch") {
-	  auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
-	  this->parallel_mesh =
-	    std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
-	}
-	else if(mesh_mode == "Restart") {
-	  this->parallel_mesh = loadMeshParallel(mesh_file);
-	}
-	else 	{	
-	  raise( "Wrong MeshReadMode value" );
-	}
-      for (size_type i = 0; i < nrefinement; ++i) {
-        CatchNestedTimeSection("run_ParUniformRefinement");
-        this->parallel_mesh->UniformRefinement();
+
+    size_type ref_level = 0;
+	  if(mesh_mode == "FromScratch") {
+	    auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
+      // Perform a uniform refinement on the sequential mesh if it doesn't have enough elements.
+      // Assume that each subdomain should have at leat 8 elements
+      // Not superior to nrefinement
+      if(nrefinement > 0) {
+        double numberOfProcs = double(mfem::Mpi::WorldSize());
+        while( (double(smesh->GetNE()) / numberOfProcs) < 8 && ref_level < nrefinement) {
+          smesh->UniformRefinement();
+          ref_level++;
+        }
       }
+	    this->parallel_mesh =
+	      std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
+	  }
+	  else if(mesh_mode == "Restart") {
+	    this->parallel_mesh = loadMeshParallel(mesh_file);
+	  }
+	  else 	{	
+	    raise( "Wrong MeshReadMode value" );
+  	}
+    for (size_type i = ref_level; i < nrefinement; ++i) {
+      CatchNestedTimeSection("run_ParUniformRefinement");
+      this->parallel_mesh->UniformRefinement();
+    }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
