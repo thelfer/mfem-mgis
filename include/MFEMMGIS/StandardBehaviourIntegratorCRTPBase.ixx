@@ -25,9 +25,16 @@ namespace mfem_mgis {
       const IntegrationType it) {
     //
     using Traits = BehaviourIntegratorTraits<Child>;
+    static_assert(
+        ((Traits::gradientsComputationRequiresShapeFunctions) ||
+         (Traits::gradientsComputationRequiresShapeFunctionsDerivatives)),
+        "neither the shape functions or their derivatives are required to "
+        "compute the gradients, this is not supported");
     constexpr const auto evaluateShapeFunctions =
         Traits::updateExternalStateVariablesFromUnknownsValues ||
         Traits::gradientsComputationRequiresShapeFunctions;
+    constexpr const auto evaluateShapeFunctionsDerivatives =
+        Traits::gradientsComputationRequiresShapeFunctionsDerivatives;
     //
     auto &child = static_cast<Child &>(*this);
     // element offset
@@ -50,15 +57,20 @@ namespace mfem_mgis {
     } else {
 #ifdef MFEM_THREAD_SAFE
       mfem::Vector shape;
-      mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
+      mfem::DenseMatrix dshape;
       if constexpr (evaluateShapeFunctions) {
         shape.SetSize(e.GetDof());
+      }
+      if constexpr (evaluateShapeFunctionsDerivatives) {
+        dshape.setSize(e.GetDof(), e.GetDim());
       }
 #else
       if constexpr (evaluateShapeFunctions) {
         this->shape.SetSize(e.GetDof());
       }
-      this->dshape.SetSize(e.GetDof(), e.GetDim());
+      if constexpr (evaluateShapeFunctionsDerivatives) {
+        this->dshape.SetSize(e.GetDof(), e.GetDim());
+      }
 #endif
       const auto nnodes = e.GetDof();
       const auto gsize = this->s1.gradients_stride;
@@ -75,16 +87,23 @@ namespace mfem_mgis {
         if constexpr (Traits::updateExternalStateVariablesFromUnknownsValues) {
           child.updateExternalStateVariablesFromUnknownsValues(u, shape, o);
         }
-        // get the gradients of the shape functions
-        e.CalcPhysDShape(tr, dshape);
+        if constexpr (evaluateShapeFunctionsDerivatives) {
+          // get the gradients of the shape functions
+          e.CalcPhysDShape(tr, dshape);
+        }
         auto g = this->s1.gradients.subspan(o * gsize, gsize);
         std::copy(this->macroscopic_gradients.begin(),
                   this->macroscopic_gradients.end(), g.begin());
         for (size_type ni = 0; ni != nnodes; ++ni) {
-          if constexpr (Traits::gradientsComputationRequiresShapeFunctions) {
+          if constexpr (
+              (Traits::gradientsComputationRequiresShapeFunctions) &&
+              (Traits::gradientsComputationRequiresShapeFunctionsDerivatives)) {
             child.updateGradients(g, u, shape, dshape, ni);
-          } else {
+          } else if constexpr (
+              Traits::gradientsComputationRequiresShapeFunctionsDerivatives) {
             child.updateGradients(g, u, dshape, ni);
+          } else {
+            child.updateGradients(g, u, shape, ni);
           }
         }
         const auto r = child.getRotationMatrix(o);
@@ -120,11 +139,32 @@ namespace mfem_mgis {
       const mfem::FiniteElement &e,
       mfem::ElementTransformation &tr) {
     using Traits = BehaviourIntegratorTraits<Child>;
+    constexpr const auto evaluateShapeFunctions =
+        Traits::updateExternalStateVariablesFromUnknownsValues ||
+        Traits::gradientsComputationRequiresShapeFunctions;
+    constexpr const auto evaluateShapeFunctionsDerivatives =
+        Traits::gradientsComputationRequiresShapeFunctionsDerivatives;
+    static_assert(
+        ((evaluateShapeFunctions) || (evaluateShapeFunctionsDerivatives)),
+        "neither the shape functions or their derivatives are required to "
+        "compute the gradients, this is not supported");
     auto &child = static_cast<Child &>(*this);
 #ifdef MFEM_THREAD_SAFE
-    mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
+      mfem::Vector shape;
+      mfem::DenseMatrix dshape;
+      if constexpr (evaluateShapeFunctions) {
+        shape.SetSize(e.GetDof());
+      }
+      if constexpr (evaluateShapeFunctionsDerivatives) {
+        dshape.setSize(e.GetDof(), e.GetDim());
+      }
 #else
-    this->dshape.SetSize(e.GetDof(), e.GetDim());
+      if constexpr (evaluateShapeFunctions) {
+        this->shape.SetSize(e.GetDof());
+      }
+      if constexpr (evaluateShapeFunctionsDerivatives) {
+        this->dshape.SetSize(e.GetDof(), e.GetDim());
+      }
 #endif
     const auto nnodes = e.GetDof();
     const auto thsize = this->s1.thermodynamic_forces_stride;
@@ -136,8 +176,14 @@ namespace mfem_mgis {
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
-      // get the gradients of the shape functions
-      e.CalcPhysDShape(tr, dshape);
+      if constexpr (evaluateShapeFunctions) {
+        // get the shape functions
+        e.CalcPhysShape(tr, shape);
+      }
+      if constexpr (evaluateShapeFunctionsDerivatives) {
+        // get the gradients of the shape functions
+        e.CalcPhysDShape(tr, dshape);
+      }
       // get the weights associated to point ip
       const auto w = child.getIntegrationPointWeight(tr, ip);
       // offset of the integration point
@@ -146,7 +192,11 @@ namespace mfem_mgis {
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
       const auto &rs = child.rotateThermodynamicForces(s, r);
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        child.updateInnerForces(Fe, rs, dshape, w, ni);
+        if constexpr (evaluateShapeFunctionsDerivatives) {
+          child.updateInnerForces(Fe, rs, dshape, w, ni);
+        } else {
+          child.updateInnerForces(Fe, rs, shape, w, ni);
+        }
       }
     }
   }  // end of implementComputeInnerForces
@@ -158,18 +208,32 @@ namespace mfem_mgis {
       mfem::ElementTransformation &tr) {
     using Traits = BehaviourIntegratorTraits<Child>;
     auto &child = static_cast<Child &>(*this);
-    constexpr const bool updateExt =
-        Traits::updateExternalStateVariablesFromUnknownsValues;
+    constexpr const auto evaluateShapeFunctions =
+        Traits::updateExternalStateVariablesFromUnknownsValues ||
+        Traits::gradientsComputationRequiresShapeFunctions;
+    constexpr const auto evaluateShapeFunctionsDerivatives =
+        Traits::gradientsComputationRequiresShapeFunctionsDerivatives;
+    static_assert(
+        ((evaluateShapeFunctions) || (evaluateShapeFunctionsDerivatives)),
+        "neither the shape functions or their derivatives are required to "
+        "compute the gradients, this is not supported");
 #ifdef MFEM_THREAD_SAFE
     mfem::Vector shape;
-    mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
-    if (updateExt) shape.SetSize(e.GetDof());
+    mfem::DenseMatrix dshape;
+    if constexpr (evaluateShapeFunctions) {
+      shape.SetSize(e.GetDof());
+    }
+    if constexpr (evaluateShapeFunctionsDerivatives) {
+      dshape.SetSize(e.GetDof(), e.GetDim());
+    }
   }
 #else
-    if constexpr (updateExt) {
+    if constexpr (evaluateShapeFunctions) {
       this->shape.SetSize(e.GetDof());
     }
-    this->dshape.SetSize(e.GetDof(), e.GetDim());
+    if constexpr (evaluateShapeFunctionsDerivatives) {
+      this->dshape.SetSize(e.GetDof(), e.GetDim());
+    }
 #endif
   // element offset
   const auto nnodes = e.GetDof();
@@ -182,11 +246,14 @@ namespace mfem_mgis {
     // get the gradients of the shape functions
     const auto &ip = ir.IntPoint(i);
     tr.SetIntPoint(&ip);
-    if constexpr (updateExt) {
-      // get the gradients of the shape functions
+    if constexpr (evaluateShapeFunctions) {
+      // get the shape functions
       e.CalcPhysShape(tr, shape);
     }
-    e.CalcPhysDShape(tr, dshape);
+    if constexpr (evaluateShapeFunctionsDerivatives) {
+      // get the derivatives of the shape functions
+      e.CalcPhysDShape(tr, dshape);
+    }
     // get the weights associated to point ip
     const auto w = child.getIntegrationPointWeight(tr, ip);
     // offset of the integration point
@@ -194,10 +261,13 @@ namespace mfem_mgis {
     const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
     // assembly of the stiffness matrix
     for (size_type ni = 0; ni != nnodes; ++ni) {
-      if constexpr (updateExt) {
+      if constexpr ((evaluateShapeFunctions) &&
+                    (evaluateShapeFunctionsDerivatives)) {
         child.updateStiffnessMatrix(Ke, Kip, shape, dshape, w, ni);
-      } else {
+      } else if constexpr (evaluateShapeFunctionsDerivatives) {
         child.updateStiffnessMatrix(Ke, Kip, dshape, w, ni);
+      } else {
+        child.updateStiffnessMatrix(Ke, Kip, shape, w, ni);
       }
     }
   }

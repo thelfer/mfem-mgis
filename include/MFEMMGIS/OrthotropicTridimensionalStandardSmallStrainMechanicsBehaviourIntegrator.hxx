@@ -17,22 +17,21 @@ namespace mfem_mgis {
       OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator;
 
   /*!
-   * \brief partial specialisation of the `BehaviourIntegratorTraits`  * class
-   * for the
+   * \brief partial specialisation of the `BehaviourIntegratorTraits`
+   * class for the
    * `OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator`
-   * behaviour integrator */
+   * behaviour integrator
+   */
   template <>
   struct BehaviourIntegratorTraits<
       OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator> {
-    //! \brief size of the unknowns
     static constexpr size_type unknownsSize = 3;
-    //! \brief
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
-    //! \brief
+    static constexpr bool
+        gradientsComputationRequiresShapeFunctionsDerivatives = true;
     static constexpr bool updateExternalStateVariablesFromUnknownsValues =
         false;
-  };  // end of struct
-      // BehaviourIntegratorTraits<OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>
+  };  // end of struct BehaviourIntegratorTraits<>
 
   /*!
    */
@@ -46,23 +45,22 @@ namespace mfem_mgis {
      * symmetric tensors
      */
     static constexpr const auto icste = real{0.70710678118654752440};
-
     //! \brief a simple alias
-    using RotationMatrix =
-        std::array<real, 9u>; /*!
-                               * \brief constructor
-                               * \param[in] fed: finite element discretization.
-                               * \param[in] m: material attribute.
-                               * \param[in] b_ptr: behaviour
-                               */
+    using RotationMatrix = std::array<real, 9u>;
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization.
+     * \param[in] m: material attribute.
+     * \param[in] b_ptr: behaviour
+     */
     OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
         std::unique_ptr<const Behaviour>);
-
     /*!
-     * \return the rotation matrix associated with the given  * integration
-     * point \param[in] i: integration points
+     * \return the rotation matrix associated with the given
+     * integration point
+     * \param[in] i: integration points
      */
     inline RotationMatrix getRotationMatrix(const size_type) const;
 
@@ -167,7 +165,7 @@ namespace mfem_mgis {
                                const real,
                                const size_type) const noexcept;
 
-    //! rief the rotation matrix
+    //! \brief the rotation matrix
     RotationMatrix3D rotation_matrix;
 
   };  // end of struct

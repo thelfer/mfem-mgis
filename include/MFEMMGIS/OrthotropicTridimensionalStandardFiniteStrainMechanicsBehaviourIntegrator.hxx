@@ -24,15 +24,13 @@ namespace mfem_mgis {
   template <>
   struct BehaviourIntegratorTraits<
       OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator> {
-    //! \brief size of the unknowns
     static constexpr size_type unknownsSize = 3;
-    //! \brief
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
-    //! \brief
+    static constexpr bool
+        gradientsComputationRequiresShapeFunctionsDerivatives = true;
     static constexpr bool updateExternalStateVariablesFromUnknownsValues =
         false;
-  };  // end of struct
-      // BehaviourIntegratorTraits<OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>
+  };  // end of struct BehaviourIntegratorTraits<>
 
   /*!
    */
@@ -167,7 +165,7 @@ namespace mfem_mgis {
                                const real,
                                const size_type) const noexcept;
 
-    //! rief the rotation matrix
+    //! \brief the rotation matrix
     RotationMatrix3D rotation_matrix;
 
   };  // end of struct

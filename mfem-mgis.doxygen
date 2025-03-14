@@ -1,0 +1,16 @@
+/*!
+ * \file mfem-mgis.doxygen 
+ * \brief This file contains the main page of the doxygen
+ * documentation and the documentation of the tfel namespace.
+ */
+
+/*!
+ * \mainpage An introduction to the MFEM/MGIS project
+ * \author   Thomas Helfer
+ * \date     20/02/2025
+ */
+
+/*!
+ * \namespace mfem_mgis
+ * \brief the namespace mfem_mgis encloses all the MFEM/MGIS project.
+ */

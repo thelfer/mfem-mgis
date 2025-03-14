@@ -24,14 +24,12 @@ namespace mfem_mgis {
   template <>
   struct BehaviourIntegratorTraits<
       OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator> {
-    //! \brief size of the unknowns
     static constexpr size_type unknownsSize = 1;
-    //! \brief
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
-    //! \brief
+    static constexpr bool
+        gradientsComputationRequiresShapeFunctionsDerivatives = true;
     static constexpr bool updateExternalStateVariablesFromUnknownsValues = true;
-  };  // end of struct
-      // BehaviourIntegratorTraits<OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator>
+  };  // end of struct BehaviourIntegratorTraits<>
 
   /*!
    */
@@ -47,13 +45,13 @@ namespace mfem_mgis {
     static constexpr const auto icste = real{0.70710678118654752440};
 
     //! \brief a simple alias
-    using RotationMatrix =
-        std::array<real, 9u>; /*!
-                               * \brief constructor
-                               * \param[in] fed: finite element discretization.
-                               * \param[in] m: material attribute.
-                               * \param[in] b_ptr: behaviour
-                               */
+    using RotationMatrix = std::array<real, 9u>;
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization.
+     * \param[in] m: material attribute.
+     * \param[in] b_ptr: behaviour
+     */
     OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
@@ -74,8 +72,9 @@ namespace mfem_mgis {
                                                         const size_type);
 
     /*!
-     * \return the rotation matrix associated with the given  * integration
-     * point \param[in] i: integration points
+     * \return the rotation matrix associated with the given
+     * integration point
+     * \param[in] i: integration points
      */
     inline RotationMatrix getRotationMatrix(const size_type) const;
 
@@ -182,7 +181,7 @@ namespace mfem_mgis {
                                const real,
                                const size_type) const noexcept;
 
-    //! rief the rotation matrix
+    //! \brief the rotation matrix
     RotationMatrix2D rotation_matrix;
 
     /*!

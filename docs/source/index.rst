@@ -24,6 +24,7 @@ This project is written in ``C++-17``.
    post-processing.rst
    tutorial.rst
    examples.rst
+   benchmark.rst
 
 
 .. bibliography:: bibliography.bib

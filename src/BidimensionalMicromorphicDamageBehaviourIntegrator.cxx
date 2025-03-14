@@ -207,10 +207,8 @@ namespace mfem_mgis {
       mfem::ElementTransformation &tr) {
 #ifdef MFEM_THREAD_SAFE
     mfem::Vector shape;
-    shape.SetSize(e.GetDof());
     mfem::DenseMatrix dshape(e.GetDof(), e.GetDim());
 #else
-    this->shape.SetSize(e.GetDof());
     this->dshape.SetSize(e.GetDof(), e.GetDim());
 #endif
     const auto nnodes = e.GetDof();
@@ -223,8 +221,6 @@ namespace mfem_mgis {
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
-      // get the values of the shape functions
-      e.CalcPhysShape(tr, shape);
       // get the gradients of the shape functions
       e.CalcPhysDShape(tr, dshape);
       // get the weights associated to point ip

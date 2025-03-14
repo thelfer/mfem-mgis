@@ -8,6 +8,7 @@
 #include <memory>
 #include <cstdlib>
 #include <iostream>
+#include <iterator>
 #ifdef DO_USE_MPI
 #include <mpi.h>
 #endif
@@ -18,6 +19,7 @@
 #include "MFEMMGIS/UniformImposedPressureBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "UnitTestingUtilities.hxx"
+
 
 int main(int argc, char** argv) {
   constexpr const auto dim = mfem_mgis::size_type{3};

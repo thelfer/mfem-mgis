@@ -20,7 +20,7 @@ namespace mfem_mgis {
             getBoundariesIdentifiers(p, params, false),
             get<size_type>(params, "Component")) {
     this->ufct = get_if<std::function<real(const real)>>(
-        params, "LoadingEvolution", [](const real) { return real(0); });
+        params, "LoadingEvolution", [](const real)  noexcept { return real(0); });
   }  // end of UniformDirichletBoundaryCondition
 
   UniformDirichletBoundaryCondition::UniformDirichletBoundaryCondition(
@@ -28,7 +28,7 @@ namespace mfem_mgis {
       const size_type bid,
       const size_type c)
       : DirichletBoundaryConditionBase(*fed, {bid}, c),
-        ufct([](const real) { return real(0); }) {
+        ufct([](const real) noexcept { return real(0); }) {
   }  // end of UniformDirichletBoundaryCondition
 
   UniformDirichletBoundaryCondition::UniformDirichletBoundaryCondition(
@@ -37,7 +37,7 @@ namespace mfem_mgis {
       const size_type c)
       : DirichletBoundaryConditionBase(
             *fed, fed->getBoundariesIdentifiers(bid), c),
-        ufct([](const real) { return real(0); }) {
+        ufct([](const real) noexcept { return real(0); }) {
   }  // end of UniformDirichletBoundaryCondition
 
   UniformDirichletBoundaryCondition::UniformDirichletBoundaryCondition(

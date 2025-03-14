@@ -180,7 +180,7 @@ namespace mfem_mgis {
           const std::shared_ptr<FiniteElementDiscretization> fed,
           const std::array<real, 2u> pt,
           const size_type c)
-      : ufct([](const real) { return 0; }),
+      : ufct([](const real) noexcept { return 0; }),
         dof(getDegreeOfFreedomForClosestNode<2u>(*fed, pt, c)) {
   }  // end of  ImposedDirichletBoundaryConditionAtClosestNode
 
