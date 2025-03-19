@@ -9,5 +9,6 @@ User guide
 
    tutorial.rst
    overview.rst
-   post-processing.rst  
+   behaviour_integrators.rst  
+   post_processings.rst  
    glossary.rst  

@@ -9,11 +9,11 @@ Overview and main concepts
 The ``NonLinearEvolutionProblem`` class
 =======================================
 
-The main class of ``MFEM/MGIS`` is called ``NonLinearEvolutionProblem``
+The main class of :code:`MFEM/MGIS` is called ``NonLinearEvolutionProblem``
 and describes the evolution of the materials of the physical system of
 interest over a single time step for a given phenomenon.
 
-Currently ``MFEM/MGIS`` provides built-in support for mechanics, heat
+Currently :code:`MFEM/MGIS` provides built-in support for mechanics, heat
 transfer, and micromorphic damage.
 
 The following snippet declares a new nonlinear evolution problem:
@@ -42,7 +42,7 @@ several instances of ``NonLinearEvolutionProblem``.
 The ``PeriodicNonLinearEvolutionProblem`` class
 -----------------------------------------------
 
-``MFEM/MGIS`` provides a specialized version for the
+:code:`MFEM/MGIS` provides a specialized version for the
 ``NonLinearEvolutionProblem`` for periodic computations named
 ``PeriodicNonLinearEvolutionProblem``.
 
@@ -61,14 +61,14 @@ overhead compared to linear analysis made with optimised kernels, such
 as the elastic kernels provided natively by ``MFEM``.
 
 In our experience, this overhead is limited and mostly comes from the
-extra flexibility allowed by ``MFEM/MGIS``. For instance, ``MFEM``
+extra flexibility allowed by :code:`MFEM/MGIS`. For instance, ``MFEM``
 elastic kernels assume that material properties (Young’s modulus,
 Poisson’s ratio) are uniform on each material.
 
 Behaviour integrators
 =====================
 
-``MFEM/MGIS`` allows the assignment of distinct behaviours to each
+:code:`MFEM/MGIS` allows the assignment of distinct behaviours to each
 material. To achieve this, a special nonlinear formulation has been
 implemented which delegates the computations of residual and jacobian
 terms on each material to so-called behaviour integrators.
@@ -102,7 +102,7 @@ About the definition of material properties
 -------------------------------------------
 
 Behaviours may require the user to provide properties, such as the
-Young’s modulus, Poisson’s ratio, etc.. In ``MFEM/MGIS``, those
+Young’s modulus, Poisson’s ratio, etc.. In :code:`MFEM/MGIS`, those
 properties can be uniform on the material or given by a partial
 quadrature function. The latter case allows the properties to be defined
 independently on each integration point, which is required if those
@@ -112,7 +112,7 @@ material (for instance, the local temperature).
 User interface
 ==============
 
-The ``MFEM/MGIS`` library is written in ``C++17`` language.
+The :code:`MFEM/MGIS` library is written in ``C++17`` language.
 
 As the application targets mechanical engineers, it provides a high
 level of abstraction, focused on the physical aspects of the simulation
@@ -133,7 +133,7 @@ Post-processings
 ================
 
 Various post-processings are available. Here are some examples of
-post-processings that were added to ``MFEM/MGIS``:
+post-processings that were added to :code:`MFEM/MGIS`:
 
 -  ``ComputeResultantForceOnBoundary``: Compute the resultant of the
    inner forces on a boundary.
