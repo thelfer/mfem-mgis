@@ -2,20 +2,36 @@
 Glossary Of Parameters
 ======================
 
-``MFEM-MGIS`` offers a simplified API based on encapsulating ``Parameter`` objects in a ``Parameters`` class, which is then given to various functions to implement the problem to be solved.
-It is important to note that if a Parameter is not listed in the glossary, the code will stop and an error message will specify the available options.
-In this section we describe the options available for each part of the code, both for setting the parameters of the linear solver and for defining the problem to be solved.
+``MFEM-MGIS`` offers a simplified API based on encapsulating
+``Parameter`` objects in a ``Parameters`` class, which is then given to
+various functions to implement the problem to be solved. It is important
+to note that if a Parameter is not listed in the glossary, the code will
+stop and an error message will specify the available options. In this
+section we describe the options available for each part of the code,
+both for setting the parameters of the linear solver and for defining
+the problem to be solved.
+
+.. contents::
+    :depth: 3
+    :local:
 
 .. note:: 
 
-  The list of default parameters is adapted according to compilation flags. For example, if ``MFEM_USE_MUMPS`` is not active, ``MUMPS`` will not appear in the list. So if one of the options listed below doesn't appear,  ``MFEM-MGIS`` may not have been compiled with all the options.
+  The list of default parameters is adapted according to compilation
+  flags. For example, if ``MFEM_USE_MUMPS`` is not active, ``MUMPS`` will
+  not appear in the list. So if one of the options listed below doesn't
+  appear, ``MFEM-MGIS`` may not have been compiled with all the options.
 
 Setup Your Linear Solver
 ========================
 
-In this section, we'll distinguish between two types of solver: direct solvers, which are not always listed in the parallel version of the problems, and Krylov solvers, which are available in both serial and parallel versions (except for ``hypre`` solvers). 
+In this section, we'll distinguish between two types of solver: direct
+solvers, which are not always listed in the parallel version of the
+problems, and Krylov solvers, which are available in both serial and
+parallel versions (except for ``hypre`` solvers).
 
-To choose your solver, pass a Parameters object to the `setLinearSolver` function.
+To choose your solver, pass a Parameters object to the `setLinearSolver`
+function.
 
 Direct Solver
 -------------
@@ -69,12 +85,18 @@ UMFPack Solver
 
 .. note::
 
-  We advise you not to use the direct solvers using the parallel option, this advice is is mainly due to the fact that these solvers don't scale in memory on large problems (e.g. meshes with more than a hundred thousand points).  Nevertheless, these solvers are maintained within the framework of small computations achievable on a standard laptop.
+  We advise you to not use the direct solvers using the parallel option for large systems,
+  this advice is mainly due to the fact that these solvers don't scale
+  in memory on large problems (e.g. meshes with more than a hundred
+  thousand points). Nevertheless, these solvers are maintained within the
+  framework of small computations achievable on a standard laptop.
 
 Krylov Solver
 -------------
 
-In this section, we'll start with the solvers present in ``mfem`` and then describe the ``hypre`` solvers available only in the parallel version.
+In this section, we'll start with the solvers present in ``mfem`` and
+then describe the ``hypre`` solvers available only in the parallel
+version.
 
 Conjugate Gradient
 ^^^^^^^^^^^^^^^^^^

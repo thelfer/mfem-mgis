@@ -2,7 +2,7 @@
 Installation guide
 ==================
 
-This project uses ```cmake`` as build system.
+This project uses ``cmake`` as build system.
 
 Dependencies
 ------------
@@ -239,11 +239,11 @@ to develop and test your own study cases.
 
 
 
-Installation Guide on Topaze/CCRT of mfem-mgis-Example
-------------------------------------------------------
+Installation Guide on Topaze/CCRT of mfem-mgis-examples
+-------------------------------------------------------
 
 This guide provides step-by-step instructions for setting up your
-environment on Topaze/CCRT and installing the necessary software. Follow
+environment on ``Topaze/CCRT`` and installing the necessary software. Follow
 these steps to get started.
 
 Create a new directory and useful paths
@@ -348,7 +348,7 @@ files are automatically removed after 3 months.
    spack bootstrap reset -y
    spack bootstrap add --scope=site --trust local-binaries $PWD/my_bootstrap/metadata/binaries/
    spack bootstrap disable --scope=site github-actions-v0.5
-   spack bootstrap disable --scope=site github-actions-v0.4
+   spack bootstrap disable --scope=site github-actions-v0.6
    spack bootstrap disable --scope=site spack-install
    spack bootstrap root $PWD/spack/bootstrap
    spack repo add spack-repo-mfem-mgis/
