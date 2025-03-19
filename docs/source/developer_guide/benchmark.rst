@@ -1,6 +1,9 @@
 Benchmarks
 ==========
 
+.. contents::
+    :depth: 3
+    :local:
 
 Benchmarks REV MOX
 ^^^^^^^^^^^^^^^^^^
@@ -11,7 +14,7 @@ In this section, we propose some scaling curves for different test cases. For th
 Regarding the specificities of the simulations, we use the HyprePCG solver with a HypreBoomerAMG preconditioner. Mesh reading is performed using a mesh pre-cut into small msh files to limit the impact on the memory footprint.
 
 
-.. figure:: _static/634.jpeg
+.. figure:: img/634.jpeg
    :alt: Illustration of a RVE with 634 spheres after 5 seconds.
 
 
@@ -26,20 +29,20 @@ We performed tests on 3 problem sizes: 80M ddl, 190M ddl and 664M ddl.
 80M ddl
 -------
 
-.. figure:: _static/80MDofMFEMMGIS.png
+.. figure:: img/80MDofMFEMMGIS.png
    :alt: Time, Memory footprint and speedup of a MOX RVE with 80M ddl.
 
 
 190M ddl
 --------
 
-.. figure:: _static/190MDofMFEM-MGIS.png
+.. figure:: img/190MDofMFEM-MGIS.png
    :alt: Time, Memory footprint and speedup of a MOX RVE with 190M ddl.
 
 664M ddl
 ---------
 
-.. figure:: _static/664MDofMFEM-MGIS.png
+.. figure:: img/664MDofMFEM-MGIS.png
    :alt: Time, Memory footprint and speedup of a MOX REV with 664M ddl.
 
 
@@ -55,7 +58,7 @@ Details:
 - Tolerance: 1e-14
 - Boundary conditions: we impose an uniform dirichlet condition U = (0,0,0) at left and U = (0,0,1) at right.
 
-.. figure:: _static/bench-perf.png
+.. figure:: img/bench-perf.png
 
 
 

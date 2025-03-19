@@ -1,8 +1,12 @@
 ==================
-MFEM MGIS Examples
+Commented Examples
 ==================
 
 All the examples presented in this section can be found in the git repository: https://github.com/latug0/mfem-mgis-examples
+
+.. contents::
+    :depth: 1
+    :local:
 
 TensileTest
 ===========
@@ -13,10 +17,10 @@ Description:
 ------------
 
 
-.. figure:: _static/ex1Start.png
+.. figure:: img/ex1Start.png
    :alt: Illustration of the start of the TensileTest simulation.
 
-.. figure:: _static/ex1End.png
+.. figure:: img/ex1End.png
    :alt: Illustration of the start of the TensileTest simulation.
 
 .. warning::
@@ -93,10 +97,10 @@ This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on 
 - website 3D example : https://github.com/latug0/mfem-mgis-examples/tree/master/ex4
 
 
-.. figure:: _static/ssna303Start.png
+.. figure:: img/ssna303Start.png
    :alt: Illustration of the start of the ssna303 simulation.
 
-.. figure:: _static/ssna303End.png
+.. figure:: img/ssna303End.png
    :alt: Illustration of the start of the ssna303 simulation.
 
 
@@ -111,7 +115,7 @@ Description:
 Modelling plate of length 1 in plane strain clamped on the left and right boundaries and submitted to a parabolic thermal gradient along the x-axis. (source code 5)
 
 
-.. figure:: _static/SatohTest.png
+.. figure:: img/SatohTest.png
    :alt: Illustration of the displacement of the plate.
 
 
@@ -163,11 +167,11 @@ Representative Volume Element with Elastic inclusions
 Simulation of a Representative Volume Element (RVE) with a non-linear elastic behavior law. A geometry mesh is provided : "inclusions_49.geo". The mesh can be generated using the following command: gmsh -3 inclusions_49.geo. By modifying the parameters within the .geo file, such as the number of spheres and the size of the element mesh, you can control and customize the simulation accordingly. (code source: ex6)
 
 
-.. figure:: _static/ex6half.png
+.. figure:: img/ex6half.png
    :alt: Slice of a RVE with 49 spheres.
 
 
-.. figure:: _static/ex6full.png
+.. figure:: img/ex6full.png
    :alt: RVE with 49 spheres.
 
 Build the mesh
@@ -251,7 +255,7 @@ Problem solved
        - Familly H1
        - Order 2
 
-.. figure:: _static/mox-order2.png
+.. figure:: img/mox-order2.png
    :alt: Illustration of a RVE with 634 spheres after 5 seconds.
 
    Illustration of a RVE with 634 spheres after 5 seconds.
