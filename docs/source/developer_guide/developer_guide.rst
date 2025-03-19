@@ -7,6 +7,7 @@ Developer guide
 This project is written in ``C++-17``.
 
 .. toctree::
+   :maxdepth: 1
 
    benchmark.rst
    changelog.rst

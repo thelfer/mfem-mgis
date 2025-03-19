@@ -1,9 +1,8 @@
 .. _mfem_mgis_tutorial:
 
-========================================
-A tutorial introduction to ``MFEM/MGIS``
-========================================
-
+=======================
+A tutorial introduction
+=======================
 
 This tutorial describes how to describe in ``MFEM/MGIS`` a tensile test
 on a notched beam made of an isotropic plastic behaviour with linear
@@ -36,10 +35,11 @@ https://www.code-aster.org/V2/doc/v10/fr/man_v/v6/v6.01.303.pdf
 Geometry and mesh
 -----------------
 
-.. figure:: img/ssna303-mesh.png
+.. figure:: img/mesh.svg
    :alt: Mesh used to described the notched beam
    :name: fig:mfem_mgis:ssna303:mesh
-   :width: 40.0%
+   :width: 80.0%
+   :align: center
 
    Mesh used to described the notched beam
 

@@ -8,5 +8,6 @@ User guide
    :maxdepth: 1
 
    tutorial.rst
+   overview.rst
    post-processing.rst  
    glossary.rst  
