@@ -8,10 +8,10 @@ The ``MFEM/MGIS`` project
    :hidden:
    :maxdepth: 1
 
+   installation_guide/installation_guide.rst
    user_guide/user_guide.rst
    commented_examples/commented_examples.rst
    developer_guide/developer_guide.rst
-   installation_guide/installation_guide.rst
 
 The aim of the ``MFEM/MGIS`` project is to provide a ``C++`` library to
 build advanced mechanical simulation based on ``MFront`` behaviours with
@@ -29,9 +29,9 @@ components as prerequisites:
   :cite:`helfer_mfrontgenericinterfacesupport_2020`,
 -  the ``MFront`` code generator.
 
-Thanks to the features embedded within ``mgis`` and ``MFront`` and
+Thanks to the features embedded within ``MGIS`` and ``MFront`` and
 thanks to specific developments, ``MFEM-MGIS`` adds several mechanical
-features compared to a pure ``mfem`` approach.
+features compared to a pure ``MFEM`` approach.
 
 The library tackles some peculiarities of nonlinear mechanics. In
 particular, the support of complex constitutive laws and the management
@@ -43,34 +43,34 @@ based focused on the physics to be treated.
 Statement of need
 =================
 
-The solid mechanic examples in `MFEM` are mostly limited to simple
+The solid mechanic examples in ``MFEM`` are mostly limited to simple
 constitutive equations such as elasticity and hyperelasticity without
 internal state variables. This is insufficient to address many
 engineering studies and in particular complex nuclear fuel
 simulations.
 
-The aim of the `MFEM/MGIS` project is to combine `MFEM` with the
-`MFrontGenericInterfaceSupport` (`MGIS`) project, an open-source `C++`
+The aim of the ``MFEM/MGIS`` project is to combine ``MFEM`` with the
+``MFrontGenericInterfaceSupport`` (``MGIS``) project, an open-source ``C++``
 library that handles all the kinds of behaviours supported by the open-source
-`MFront` code generator.
+``MFront`` code generator.
 
 In the field of nonlinear mechanics, this encompasses arbitrary complex
 behaviours that can describe damage, plasticity, and viscoplasticity in both
 small or finite strain analyses. Generalized behaviours such as
-variational approaches to fracture are supported by `MFEM/MGIS`.
+variational approaches to fracture are supported by ``MFEM/MGIS``.
 
-The `MGIS` data structures are used to add support for partial
-quadrature functions to `MFEM`, a feature needed to store internal state
+The ``MGIS`` data structures are used to add support for partial
+quadrature functions to ``MFEM``, a feature needed to store internal state
 variables on each material.
 
 State of the field
 ==================
 
 Many open-source thermomechanical solvers allow handling complex
-mechanical behaviours. `code_aster`, `MoFEM`, `CalculiX` are examples
-of state of the art solvers which have an interface with `MFront`.
+mechanical behaviours. ``code_aster``, ``MoFEM``, ``CalculiX`` are examples
+of state of the art solvers which have an interface with ``MFront``.
 
-However, those solvers lack many features provided by `MFEM` that the
+However, those solvers lack many features provided by ``MFEM`` that the
 authors found interesting to explore in the field of solid mechanics
 (see the above section for a detailed list). The authors also found
 interesting to take a platform designed from the start for high
