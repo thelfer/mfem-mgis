@@ -5,13 +5,13 @@ Benchmarks
     :depth: 3
     :local:
 
-Benchmarks REV MOX
+Benchmarks RVE MOX
 ^^^^^^^^^^^^^^^^^^
 
-In this section, we propose some scaling curves for different test cases. For the first benchmark, we use the MOX REV example with 643 inclusions and a viscoplastic behavior law for the matrix, and an elastic behavior law for the inclusions. Calculations are performed on the TOPAZE supercalculator at CCRT. Each node in the cluster is built on 64-core AMD EPYC Milan 7763 dual-socket processors running at 2.45 GHz and equipped with 256 GB RAM. Benchmarks are in pure MPI. 
+In this section, we propose some scaling curves for different test cases. For the first benchmark, we use the MOX RVE example with 643 inclusions and a viscoplastic behavior law for the matrix, and an elastic behavior law for the inclusions. Calculations are performed on the ``TOPAZE`` supercalculator at CCRT. Each node in the cluster is built on 64-core ``AMD EPYC Milan 7763`` dual-socket processors running at 2.45 GHz and equipped with 256 GB ``RAM``. Benchmarks are in pure ``MPI``. 
 
 
-Regarding the specificities of the simulations, we use the HyprePCG solver with a HypreBoomerAMG preconditioner. Mesh reading is performed using a mesh pre-cut into small msh files to limit the impact on the memory footprint.
+Regarding the specificities of the simulations, we use the ``HyprePCG`` solver with a ``HypreBoomerAMG`` preconditioner. Mesh reading is performed using a mesh pre-cut into small msh files to limit the impact on the memory footprint.
 
 
 .. figure:: img/634.jpeg
@@ -46,10 +46,10 @@ We performed tests on 3 problem sizes: 80M ddl, 190M ddl and 664M ddl.
    :alt: Time, Memory footprint and speedup of a MOX REV with 664M ddl.
 
 
-MFEM-MGIS / MFEM 
-^^^^^^^^^^^^^^^^
+MFEM/MGIS versus MFEM 
+^^^^^^^^^^^^^^^^^^^^^
 
-This benchmark aims to evaluate the time overhead between MFEM and MFEM-MGIS for a simple test case involving an elastic behavior law. The same supercomputer used in the previous RVE benchmark is employed.
+This benchmark aims to evaluate the time overhead between ``MFEM`` and ``MFEM/MGIS`` for a simple test case involving an elastic behavior law.
 
 Details: 
 

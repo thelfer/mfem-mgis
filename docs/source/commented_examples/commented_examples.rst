@@ -2,7 +2,7 @@
 Commented Examples
 ==================
 
-All the examples presented in this section can be found in the git repository: https://github.com/latug0/mfem-mgis-examples
+All the examples presented in this section can be found in the git repositories: https://github.com/latug0/mfem-mgis-examples and https://github.com/rprat-pro/mm-opera-hpc (developed as part of operaHPC project).
 
 .. contents::
     :depth: 1

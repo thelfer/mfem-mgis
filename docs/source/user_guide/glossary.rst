@@ -85,8 +85,8 @@ UMFPack Solver
 
 .. note::
 
-  We advise you not to use the direct solvers using the parallel option,
-  this advice is is mainly due to the fact that these solvers don't scale
+  We advise you to not use the direct solvers using the parallel option for large systems,
+  this advice is mainly due to the fact that these solvers don't scale
   in memory on large problems (e.g. meshes with more than a hundred
   thousand points). Nevertheless, these solvers are maintained within the
   framework of small computations achievable on a standard laptop.

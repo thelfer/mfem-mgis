@@ -78,7 +78,7 @@ modelling hypothesis (plane strain, plane stress).
 
 The following snippet assigns the behaviour integrator named
 ``Mechanics`` to the material named ``beam`` to the mechanical non
-linear evolution problem named ``mechanics``:
+linear evolution problem named ``Mechanics``:
 
 .. code:: c++
 
