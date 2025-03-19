@@ -9,6 +9,7 @@ User guide
 
    tutorial.rst
    overview.rst
-   behaviour_integrators.rst  
+   behaviour_integrators.rst
+   boundary_conditions.rst
    post_processings.rst  
    glossary.rst  

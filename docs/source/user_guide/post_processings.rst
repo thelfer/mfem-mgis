@@ -16,7 +16,7 @@ MFEM-MGIS.
   This section is under construction
 
 Dump Paraview Results
----------------------
+=====================
 
 - Key: ``ParaviewExportResults``
 
@@ -32,7 +32,7 @@ Dump Paraview Results
 .. figure:: img/SatohTest.png
 
 Export Integration Point Results At Nodes
-------------------------------------------
+==========================================
 
 - Key: ``ParaviewExportIntegrationPointResultsAtNodes``
 
@@ -58,7 +58,7 @@ Export Integration Point Results At Nodes
 
 
 Compute Mean Thermodynamic Forces
----------------------------------
+=================================
 
  The `Compute Mean Thermodynamic Forces` post-processing step calculates the average stress over selected regions of the mesh. 
 
@@ -85,7 +85,7 @@ We display the average stress SZZ over the RVE (composed of 83% matrix and 17% i
 
 
 Compute Stored Energy
----------------------
+=====================
 
 - Key: ``StoredEnergy``
 
@@ -98,7 +98,7 @@ Compute Stored Energy
       {{"OutputFileName", "energy.txt"}});
 
 Compute dissipated Energy
--------------------------
+=========================
 
 - Key: ``DissipatedEnergy``
 
