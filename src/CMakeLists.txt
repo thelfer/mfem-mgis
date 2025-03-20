@@ -16,6 +16,7 @@ mfem_mgis_library(MFEMMGIS
   DirichletBoundaryConditionBase.cxx
   UniformDirichletBoundaryCondition.cxx
   AbstractBoundaryCondition.cxx
+  UniformHeatSourceBoundaryCondition.cxx
   UniformImposedPressureBoundaryCondition.cxx
   ImposedDirichletBoundaryConditionAtClosestNode.cxx
   PostProcessing.cxx
