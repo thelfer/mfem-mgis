@@ -141,6 +141,7 @@ namespace mfem_mgis {
 
   bool BehaviourIntegratorBase::performsLocalBehaviourIntegration(
       const size_type ip, const IntegrationType it) {
+    char error_msg[512];
     const auto g_offset = this->s0.gradients_stride * ip;
     const auto t_offset = this->s0.thermodynamic_forces_stride * ip;
     const auto isvs_offset = this->s0.internal_state_variables_stride * ip;
@@ -160,6 +161,7 @@ namespace mfem_mgis {
     //
     rdt = real{1};
     mgis::behaviour::BehaviourDataView v;
+    v.error_message = error_msg;
     v.rdt = &rdt;
     v.dt = this->time_increment;
     v.K = this->K.data() + this->K_stride * ip;
@@ -194,6 +196,9 @@ namespace mfem_mgis {
     v.s1.external_state_variables = this->wks.esvs1.data();
     v.K[0] = static_cast<int>(it);
     const auto r = mgis::behaviour::integrate(v, this->b);
+    if (!((r == 0) || (r == 1))) {
+      std::cerr << "behaviour integration failed: " << error_msg << std::endl;
+    }
     return (r == 0) || (r == 1);
   }  // end of BehaviourIntegratorBase::integrate
 
