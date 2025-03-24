@@ -41,7 +41,7 @@ First, clone the Spack repository from GitHub.
 
 .. code:: sh
 
-   git clone https://github.com/spack/spack.git
+   git clone --depth=2 --branch=v0.23.0 https://github.com/spack/spack.git
 
 .. note::
 
