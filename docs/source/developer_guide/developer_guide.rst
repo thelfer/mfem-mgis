@@ -11,4 +11,5 @@ This project is written in ``C++-17``.
 
    changelog.rst
    benchmark.rst
+   contributing_guide.rst
    contributors.rst
