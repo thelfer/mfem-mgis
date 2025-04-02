@@ -87,10 +87,11 @@ included in the project.
 
 For new features:
 
-  - Make sure that non-regression tests are performed with the command ``make check`` in your build repository.
+ - Make sure that non-regression tests are performed with the command ``make check`` in your build repository.
  - New features must be accompanied by one or more non-regression ``tests`` in the tests repository.
  - New features must be accompanied by a ``documentation`` in the /docs/source/developer_guide repository in sphinx format.
 
+Before creating a pull request, please follow these steps to ensure that your developments are up to date with the master branch:
 
 1. [Fork](http://help.github.com/fork-a-repo/) the project, clone your fork,
    and configure the remotes:
