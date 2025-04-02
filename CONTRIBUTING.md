@@ -125,7 +125,7 @@ included in the project:
 6. Check that non-regression tests are still running. Ideally, every new feature should be accompanied by a new test in the `tests` repository:
 
    ```bash
-   make check
+   cd build && make check
    ```
 
 7. Push your topic branch up to your fork:
