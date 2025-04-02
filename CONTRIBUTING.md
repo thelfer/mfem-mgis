@@ -122,7 +122,7 @@ included in the project:
    ```bash
    git pull [--rebase] upstream master
    ```
-6. Check that non-regression tests are still running. Ideally, every new feature should be accompanied by a new test in the `tests` repository.
+6. Check that non-regression tests are still running. Ideally, every new feature should be accompanied by a new test in the `tests` repository:
 
    ```bash
    make check
