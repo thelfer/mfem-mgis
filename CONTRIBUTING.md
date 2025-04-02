@@ -83,7 +83,14 @@ Please adhere to the coding conventions used throughout a project (indentation,
 accurate comments, etc.) and any other requirements (such as test coverage).
 
 Adhering to the following this process is the best way to get your work
-included in the project:
+included in the project.
+
+For new features:
+
+  - Make sure that non-regression tests are performed with the command ``make check`` in your build repository.
+ - New features must be accompanied by one or more non-regression ``tests`` in the tests repository.
+ - New features must be accompanied by a ``documentation`` in the /docs/source/developer_guide repository in sphinx format.
+
 
 1. [Fork](http://help.github.com/fork-a-repo/) the project, clone your fork,
    and configure the remotes:
@@ -122,22 +129,16 @@ included in the project:
    ```bash
    git pull [--rebase] upstream master
    ```
-6. Check that non-regression tests are still running. Ideally, every new feature should be accompanied by a new test in the `tests` repository:
 
-   ```bash
-   cd build && make check
-   ```
-
-7. Push your topic branch up to your fork:
+6. Push your topic branch up to your fork:
 
    ```bash
    git push origin <topic-branch-name>
    ```
 
-8. [Open a Pull Request](https://help.github.com/articles/using-pull-requests/)
+7. [Open a Pull Request](https://help.github.com/articles/using-pull-requests/)
     with a clear title and description.
    
-
 **IMPORTANT**: By submitting a patch, you agree to allow the project owners to
 license your work under the the terms of the *LGPL License*.
 
