@@ -122,15 +122,21 @@ included in the project:
    ```bash
    git pull [--rebase] upstream master
    ```
+6. Check that non-regression tests are still running. Ideally, every new feature should be accompanied by a new test in the `tests` repository.
 
-6. Push your topic branch up to your fork:
+   ```bash
+   make check
+   ```
+
+7. Push your topic branch up to your fork:
 
    ```bash
    git push origin <topic-branch-name>
    ```
 
-7. [Open a Pull Request](https://help.github.com/articles/using-pull-requests/)
+8. [Open a Pull Request](https://help.github.com/articles/using-pull-requests/)
     with a clear title and description.
+   
 
 **IMPORTANT**: By submitting a patch, you agree to allow the project owners to
 license your work under the the terms of the *LGPL License*.
