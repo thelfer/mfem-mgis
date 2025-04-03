@@ -42,7 +42,7 @@ This is an example of an output:
   | |--> set_mgis_stuff                                                      |                  1 |           0.000687 |           0.000824 |           0.000970 |          1.577426% |          0.177846% |
   | |--> set_linear_solver                                                   |                  1 |           0.000139 |           0.000169 |           0.000204 |          0.331618% |          0.205352% |
   |    |--> NonLinearEvolutionProblemImplementationBase::updateLinearSolver  |                  1 |           0.000001 |           0.000001 |           0.000001 |          0.001975% |          0.078562% |
-   | |--> PeriodicNonLinEvPB::constructor_with_bct                            |                  1 |           0.000045 |           0.000047 |           0.000050 |          0.081340% |          0.053553% |
+  | |--> PeriodicNonLinEvPB::constructor_with_bct                            |                  1 |           0.000045 |           0.000047 |           0.000050 |          0.081340% |          0.053553% |
   |-- end timetable ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 To write the time table in a file is done by adding the following function call: 
