@@ -52,7 +52,7 @@ constitutive laws and the management of advanced boundary conditions.
 
 ## About MFEM
 
-`MFEM`, is a finite element library designed for current
+`MFEM` is a finite element library designed for current
 supercomputers and the upcoming exascale supercomputers. It
 provides many useful features for carrying out state-of-the art
 simulations: support for curvilinear meshes, high order approximation
@@ -152,7 +152,7 @@ several instances of `NonLinearEvolutionProblem`.
 This class allows managing the evolutions of the macroscopic
 gradients (strain in small strain analysis, deformation gradient in
 finite strain analysis, temperature gradient in heat transfer
-analysis) and pass them to the behaviour integrators.
+analysis) and passing them to the behaviour integrators.
 
 ### Note about linear analyses
  
@@ -192,7 +192,7 @@ library named `libBehaviour.so` which shall have been generated using
 `Mechanics` supports arbitrary small strain and finite strain behaviours.
 
 Internally, the `addBehaviourIntegrator` method calls an abstract
-factory which instanciates a `BehaviourIntegrator` dedicated to the kind
+factory which instantiates a `BehaviourIntegrator` dedicated to the kind
 of behaviour selected by the user (small or finite strain) and the
 modelling hypothesis declared by the problem (plane strain, plane
 stress, tridimensional, etc.).
