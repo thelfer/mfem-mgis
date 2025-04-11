@@ -292,7 +292,7 @@ Now, you will create a ``spack`` mirror and a boostrap directory.
 .. code-block:: bash
 
    spack bootstrap mirror --binary-packages my_bootstrap
-   spack mirror create -d mirror-mfem-mgis -D mfem-mgis%gcc@11.1.0
+   spack mirror create -d mirror-mfem-mgis -D mfem-mgis
 
 It’s possible that you will need some packages in your mirror, you can
 specify them with the following command:
