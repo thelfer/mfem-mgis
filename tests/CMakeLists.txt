@@ -301,8 +301,13 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE MFEMMGIS)
   add_dependencies(check PostProSubMesh)
   
+  if (MFEM_USE_MPI)
   add_test(NAME PostProSubMesh
-    COMMAND ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-explorer.mesh. --library "$<TARGET_FILE:BehaviourTest>")
+    COMMAND mpirun -n 4 ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
+  else(MFEM_USE_MPI)
+  add_test(NAME PostProSubMesh
+    COMMAND ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
+  endif(MFEM_USE_MPI)
 
 ## RVE examples
 

@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
     std::vector<int> DomainAttibuteLeft = {1}; 
     std::vector<int> DomainAttibuteRight = {2}; 
     std::vector<int> AllBoundaries = {1, 2}; 
-    /** You can't defined DomainAttributes and BoundaryAttributes in a single post processing */
+    /** You can no define DomainAttributes and BoundaryAttributes in a single post processing */
     problem.addPostProcessing("ParaviewExportResults", 
         {{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
         {"OutputFieldName", "Displacement"},

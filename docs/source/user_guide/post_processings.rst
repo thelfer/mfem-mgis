@@ -34,6 +34,55 @@ evolution problem for visualization in :code:`paraview`:
 
 .. figure:: img/SatohTest.png
 
+It is also possible to extract only portions of the mesh by defining either the boundary zones or the domain attribute. This is particularly useful for reducing the size of output files when only a small part is to be studied.
+
+**Example**
+
+.. code-block:: cpp
+
+    std::vector<int> DomainAttibuteLeft = {1};
+    std::vector<int> DomainAttibuteRight = {2};
+    std::vector<int> AllBoundaries = {1, 2};
+    /** You can not define DomainAttributes and BoundaryAttributes in a single post processing */
+    problem.addPostProcessing("ParaviewExportResults",
+        {{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
+        {"OutputFieldName", "Displacement"},
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults",
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
+        {"OutputFieldName", "Displacement"},
+        {"DomainAttributes", DomainAttibuteLeft},
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults",
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
+        {"OutputFieldName", "Displacement"},
+        {"DomainAttributes", DomainAttibuteRight},
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults",
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Boundaries"},
+        {"OutputFieldName", "Displacement"},
+        {"BoundaryAttributes", AllBoundaries},
+        {"Verbosity", 1}});
+
+**Results**
+
+.. figure:: img/ExportDataAtNodes.png
+
+
++---------------------+--------------------------------------------------------------------------------------------+
+| **Key**             | **Description**                                                                            |
++=====================+============================================================================================+
+| OutputFileName      | Name of the output directory                                                               |
++---------------------+--------------------------------------------------------------------------------------------+
+| OutputFieldName     | Name of the field that will appear in ParaView (default: ``"u"``)                          |
++---------------------+--------------------------------------------------------------------------------------------+
+| DomainAttributes    | List of domain attributes; a submesh will be used instead of exporting the entire mesh     |
++---------------------+--------------------------------------------------------------------------------------------+
+| BoundaryAttributes  | List of boundary attributes; a submesh will be used instead of exporting the entire mesh   |
++---------------------+--------------------------------------------------------------------------------------------+
+| Verbosity           | If this value is ``>= 1``, submesh information will be displayed when using attributes     |
++---------------------+--------------------------------------------------------------------------------------------+
+
 Export Integration Point Results At Nodes
 ==========================================
 
