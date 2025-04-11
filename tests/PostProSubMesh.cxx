@@ -172,10 +172,22 @@ int main(int argc, char* argv[])
 
 	if(p.post_processing == 1)
 	{ 
-		//problem.addPostProcessing("ParaviewExportResults", {{"OutputFileName", "Displacement"}});
+		std::vector<int> DomainAttibuteLeft = {1}; 
 		std::vector<int> DomainAttibuteRight = {2}; 
 		problem.addPostProcessing("ParaviewExportResults", 
-				{{"OutputFileName", "Displacement"},{"DomainAttributes", DomainAttibuteRight}});
+				{{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
+         {"OutputFieldName", "Displacement"},
+         {"Verbosity", 1}});
+		problem.addPostProcessing("ParaviewExportResults", 
+				{{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
+         {"OutputFieldName", "Displacement"},
+         {"DomainAttributes", DomainAttibuteLeft}, 
+         {"Verbosity", 1}});
+		problem.addPostProcessing("ParaviewExportResults", 
+				{{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
+         {"OutputFieldName", "Displacement"},
+         {"DomainAttributes", DomainAttibuteRight}, 
+         {"Verbosity", 1}});
 	}
 
 	// time 
