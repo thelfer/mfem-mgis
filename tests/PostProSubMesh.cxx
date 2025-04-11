@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 {
   using namespace mgis::behaviour;
 
-  /** mpi initialization here, note that this command initialize the timers */
+  /** mpi initialization here, note that this command initializes the timers */
   mfem_mgis::initialize(argc, argv);
 
   // get parameters
@@ -93,7 +93,6 @@ int main(int argc, char* argv[])
       {"Parallel", true}};
 
   mfem_mgis::NonLinearEvolutionProblem problem(fed);
-  //print_mesh_information(problem.getImplementation<true>());
 
   // set material properties
   problem.addBehaviourIntegrator("Mechanics", 1, p.library, p.behaviour);
@@ -157,7 +156,7 @@ int main(int argc, char* argv[])
   problem.setLinearSolver("HyprePCG", solverParameters);
 
 
-  /** Define you post processings */
+  /** Define your post processings here */
   {
     std::vector<int> DomainAttibuteLeft = {1}; 
     std::vector<int> DomainAttibuteRight = {2}; 
