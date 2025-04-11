@@ -10,6 +10,8 @@ library.
 A tutorial based on a mechanical noteched beam is given here
 [tutorial](https://thelfer.github.io/mfem-mgis/tutorial.html).
 
+Installation guidelines are avaiblables here: [Installation Guidelines](https://thelfer.github.io/mfem-mgis/installation_guide/installation_guide.html).
+
 Some examples of MFEM-MGIS use (with mesh inputs) are stored on another repository here:
 [`MFEM-MGIS-EXAMPLES`](https://github.com/latug0/mfem-mgis-examples).
 
