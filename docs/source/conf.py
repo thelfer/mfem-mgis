@@ -27,7 +27,7 @@ author = 'Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-extensions = ['sphinx_rtd_theme', 'sphinxcontrib.bibtex']
+extensions = ['sphinx_rtd_theme', 'sphinxcontrib.bibtex', 'sphinx_reredirects']
 
 bibtex_bibfiles= ["bibliography.bib"]
 
@@ -46,9 +46,7 @@ exclude_patterns = []
 
 # -- Redirect old page name --------------------------------------------------
 
-redirects = {
-    "benchmark": "developer_guide/benchmark.html",
-}
+redirects = {"benchmark": "developer_guide/benchmark.html"}
 
 # -- Options for HTML output -------------------------------------------------
 
