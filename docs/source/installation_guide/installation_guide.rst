@@ -380,13 +380,13 @@ the following commands:
 
 .. code-block:: bash
 
-   module load gnu/11.1.0 mpi hwloc cmake
+   module load gnu/12.3.0 mpi hwloc cmake
    spack compiler find
    spack external find hwloc
    spack external find cmake
    spack external find openssh
    spack external find openmpi
-   spack install mfem-mgis%gcc@11.1.0
+   spack install mfem-mgis%gcc@12.3.0
 
 Install MFEM-MGIS-example on Topaze
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
