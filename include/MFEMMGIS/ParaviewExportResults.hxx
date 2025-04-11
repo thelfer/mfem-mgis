@@ -39,14 +39,14 @@ namespace mfem_mgis {
     mfem::ParaViewDataCollection exporter;
     //! \brief exported grid function
     mfem_mgis::GridFunction<parallel> result;
-    //! \brief boundaries attributes (if defined)
-    mfem::Array<int> bdr_attributes;
     //! \brief number of records
     size_type cycle;
-
+    //! \brief submesh defined when exporting data for domain or boundary attributes
     std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;
-    std::shared_ptr<mfem_mgis::FiniteElementSpace<parallel>> fes_sm; /** fespace for a submesh */
-    std::shared_ptr<mfem_mgis::GridFunction<parallel>> result_sm;  /** result on a submesh */  
+    //! \brief fespace defined when exporting data for domain or boundary attributes
+    std::shared_ptr<mfem_mgis::FiniteElementSpace<parallel>> fes_sm; 
+    //! \brief result_sm is used to transfer data from the result gridfunction on submesh
+    std::shared_ptr<mfem_mgis::GridFunction<parallel>> result_sm; 
   };  // end of struct ParaviewExportResults
 
 }  // end of namespace mfem_mgis

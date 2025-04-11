@@ -1,5 +1,3 @@
-// Benchmark MFEM Versus MFEM-MGIS (lower overhead is better)
-
 #include <memory>
 #include <cstdlib>
 #include <iostream>
@@ -34,13 +32,12 @@
 
 
 struct TestParameters {
-  const char* mesh_file = "../beam-tet.mesh";
+  const char* mesh_file = "data/beam-tet.mesh";
   const char* behaviour = "Elasticity";
   const char* library = "src/libBehaviour.so";
   int order = 1;
   int refinement = 3;
   int verbosity = 0;
-  int post_processing = 0;
 };
 
 void common_parameters(mfem::OptionsParser& args, TestParameters& p)
@@ -49,7 +46,6 @@ void common_parameters(mfem::OptionsParser& args, TestParameters& p)
   args.AddOption(&p.library, "-l", "--library", "Material library.");
   args.AddOption(&p.order, "-o", "--order", "Finite element order (polynomial degree).");
   args.AddOption(&p.refinement, "-r", "--refinement", "refinement level of the mesh, default = 0");
-  args.AddOption(&p.post_processing, "-p", "--post-processing", "run post processing step");
   args.AddOption(&p.verbosity, "-v", "--verbosity", "Linear solver verbosity");
 
   args.Parse();
@@ -76,14 +72,8 @@ int main(int argc, char* argv[])
 {
   using namespace mgis::behaviour;
 
-  // mpi initialization here 
+  /** mpi initialization here, note that this command initialize the timers */
   mfem_mgis::initialize(argc, argv);
-
-  // init timers
-  mfem_mgis::Profiler::timers::init_timers();
-
-  [[maybe_unused]] double start, end;
-  start = MPI_Wtime();
 
   // get parameters
   TestParameters p;
@@ -124,30 +114,29 @@ int main(int argc, char* argv[])
   set_properties(m1, 50, 50);
   set_properties(m2, 1, 1);
 
-  // BCS
+  /** Setting Boundaries Conditions */
+  problem.addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+        problem.getFiniteElementDiscretizationPointer(), 1, 0));
+  problem.addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+        problem.getFiniteElementDiscretizationPointer(), 1, 1));
+  problem.addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+        problem.getFiniteElementDiscretizationPointer(), 1, 2));
 
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-  problem.getFiniteElementDiscretizationPointer(), 1, 0));
+        problem.getFiniteElementDiscretizationPointer(), 2, 0));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-  problem.getFiniteElementDiscretizationPointer(), 1, 1));
+        problem.getFiniteElementDiscretizationPointer(), 2, 1));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-  problem.getFiniteElementDiscretizationPointer(), 1, 2));
-
-  problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-  problem.getFiniteElementDiscretizationPointer(), 2, 0));
-  problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-  problem.getFiniteElementDiscretizationPointer(), 2, 1));
-  problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-  problem.getFiniteElementDiscretizationPointer(), 2, 2,
-  []([[maybe_unused]]const auto t) noexcept {
-  return -1;
-  }));
+        problem.getFiniteElementDiscretizationPointer(), 2, 2,
+        []([[maybe_unused]]const auto t) noexcept {
+        return -1;
+        }));
 
   problem.setSolverParameters({{"VerbosityLevel", 1},
       {"RelativeTolerance", 1e-6},
@@ -163,43 +152,50 @@ int main(int argc, char* argv[])
   auto options = mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}}; 
   auto preconditionner = mfem_mgis::Parameters{{"Name","HypreDiagScale"}, {"Options",options}};
   solverParameters.insert(mfem_mgis::Parameters{{"Preconditioner",preconditionner}});
+
   // solver HyprePCG
-  //problem.setLinearSolver("HypreGMRES", solverParameters);
   problem.setLinearSolver("HyprePCG", solverParameters);
 
 
-  // post processing
+  /** Define you post processings */
+  {
+    std::vector<int> DomainAttibuteLeft = {1}; 
+    std::vector<int> DomainAttibuteRight = {2}; 
+    std::vector<int> AllBoundaries = {1, 2}; 
+    /** You can't defined DomainAttributes and BoundaryAttributes in a single post processing */
+    problem.addPostProcessing("ParaviewExportResults", 
+        {{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
+        {"OutputFieldName", "Displacement"},
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults", 
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
+        {"OutputFieldName", "Displacement"},
+        {"DomainAttributes", DomainAttibuteLeft}, 
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults", 
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
+        {"OutputFieldName", "Displacement"},
+        {"DomainAttributes", DomainAttibuteRight}, 
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults", 
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Boundaries"},
+        {"OutputFieldName", "Displacement"},
+        {"BoundaryAttributes", AllBoundaries}, 
+        {"Verbosity", 1}});
+  }
 
-	if(p.post_processing == 1)
-	{ 
-		std::vector<int> DomainAttibuteLeft = {1}; 
-		std::vector<int> DomainAttibuteRight = {2}; 
-		problem.addPostProcessing("ParaviewExportResults", 
-				{{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
-         {"OutputFieldName", "Displacement"},
-         {"Verbosity", 1}});
-		problem.addPostProcessing("ParaviewExportResults", 
-				{{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
-         {"OutputFieldName", "Displacement"},
-         {"DomainAttributes", DomainAttibuteLeft}, 
-         {"Verbosity", 1}});
-		problem.addPostProcessing("ParaviewExportResults", 
-				{{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
-         {"OutputFieldName", "Displacement"},
-         {"DomainAttributes", DomainAttibuteRight}, 
-         {"Verbosity", 1}});
-	}
+  /** time increment */ 
+  auto statistics = problem.solve(time, dt);
+  /** Check convergence */
+  if (!statistics.status) { mfem_mgis::Profiler::Utils::Message("INFO: FAILED"); } 
+  time += dt;
 
-	// time 
-	auto statistics = problem.solve(time, dt);
-	if (!statistics.status) { mfem_mgis::Profiler::Utils::Message("INFO: FAILED"); } 
-	time += dt;
+  /** Do not forget to update your problem at each timestep */
+  problem.update();
 
-	problem.update();
-	if(p.post_processing == 1) problem.executePostProcessings(time, dt);
+  /** Run post processings previously defined */
+  problem.executePostProcessings(time, dt);
 
-	end = MPI_Wtime();
-	//printf("Duration: %1.6f s \n", end-start);fflush(stdout);
-	mfem_mgis::Profiler::timers::print_timers();
-	return 0;
+  mfem_mgis::Profiler::timers::print_timers();
+  return 0;
 }
