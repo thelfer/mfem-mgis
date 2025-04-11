@@ -294,6 +294,16 @@ if(MFEM_MGIS_HAVE_TFEL)
     
   endif(MFEM_USE_MPI)
 
+  add_executable(PostProSubMesh
+      EXCLUDE_FROM_ALL
+      PostProSubMesh.cxx)
+  target_link_libraries(PostProSubMesh
+    PRIVATE MFEMMGIS)
+  add_dependencies(check PostProSubMesh)
+  
+  add_test(NAME PostProSubMesh
+    COMMAND ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-explorer.mesh. --library "$<TARGET_FILE:BehaviourTest>")
+
 ## RVE examples
 
   if (MFEM_USE_MPI)

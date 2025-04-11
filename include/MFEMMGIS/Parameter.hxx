@@ -27,6 +27,7 @@ namespace mfem_mgis {
                                         real,
                                         std::string,
                                         std::vector<Parameter>,
+                                        std::vector<int>,
                                         Parameters,
                                         std::function<real(const real)>>;
 

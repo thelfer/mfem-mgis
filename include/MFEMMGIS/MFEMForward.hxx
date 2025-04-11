@@ -19,6 +19,7 @@ namespace mfem {
   class GridFunction;
   class DenseMatrix;
   class Mesh;
+  class SubMesh;
   class FiniteElementSpace;
   class FiniteElementCollection;
   class FiniteElement;
@@ -28,6 +29,7 @@ namespace mfem {
   class NonlinearFormIntegrator;
   class ParGridFunction;
   class ParMesh;
+  class ParSubMesh;
   class ParFiniteElementSpace;
   class ParNonlinearForm;
   class Solver;
@@ -55,6 +57,13 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   using Mesh = std::conditional_t<parallel, mfem::ParMesh, mfem::Mesh>;
+  /*!
+   * \brief a simple alias used to select the `MFEM` class handling the sub mesh
+   * depending if a parallel computation is considered or not.
+   * \tparam parallel: flag stating if a parallel computation is considered.
+   */
+  template <bool parallel>
+  using SubMesh = std::conditional_t<parallel, mfem::ParSubMesh, mfem::SubMesh>;
   /*!
    * \brief a simple alias used to select the `MFEM` class handling the
    * finite element space depending if a parallel computation is considered or

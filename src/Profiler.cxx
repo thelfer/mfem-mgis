@@ -272,7 +272,6 @@ namespace mfem_mgis {
     void write_timers() {
       Profiler::timer::end_global_timer<ROOT>();
       Profiler::OutputManager::writeFile();
-      Profiler::OutputManager::printTimeTable();
     }
   };  // namespace Profiler
 
