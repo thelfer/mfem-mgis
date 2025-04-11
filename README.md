@@ -1,4 +1,3 @@
-Markdown:
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.07719/status.svg)](https://doi.org/10.21105/joss.07719)
 
 # Description of the `mfem-mgis`
