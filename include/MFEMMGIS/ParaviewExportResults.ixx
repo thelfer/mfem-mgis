@@ -47,23 +47,30 @@ namespace mfem_mgis {
 
       /** Default, the mesh is the entire mesh */
       Mesh<parallel>& pmesh = p.getMesh();
+      
+      bool contains_brd = contains(params, "Boundary") || contains(params, "Boundaries");
+      bool contains_mat = contains(params, "Material") || contains(params, "Materials");
 
-      if(contains(params, "DomainAttributes") && contains(params, "BoundaryAttributes"))
+      if(contains_brd && contains_mat)
       {
-        Profiler::Utils::Message("You can not define 'DomainAttributes' and 'BoundaryAttributes' in a single ParaviewExportResults post processing");
+        Profiler::Utils::Message("You can not define 'Material' and 'Boundary' in a single ParaviewExportResults post processing");
         std::exit(0);
       }
 
-      if(contains(params, "DomainAttributes")){ /** DomainAttributes and Sub mesh */
-        auto domainAttributes = get<std::vector<int>>(params, "DomainAttributes");
-        mfem::Array<int> domain_attributes;
+      if(contains_mat){ /** Materials and Sub mesh */
+        /** "false" means that we double check if params include Material or Materials */
+        auto materials_ids = getMaterialsIdentifiers(p, params, false);
+        mfem::Array<int> mat_attributes;
 
-        /** Create Submesh using the domain attributes */
-        for(const auto& dattr : domainAttributes){
-          assert(dattr <= p.getMesh().attributes.Max());
-          domain_attributes.Append(dattr);
+        /** Create Submesh using the material identifiers */
+        for(const auto& mids : materials_ids){
+          mat_attributes.Append(mids);
         }
-        this->submesh = std::make_shared<SubMesh<parallel>>(SubMesh<parallel>(SubMesh<parallel>::CreateFromDomain(pmesh, domain_attributes)));
+        
+        this->submesh = std::make_shared<SubMesh<parallel>>(
+        SubMesh<parallel>(
+        SubMesh<parallel>::CreateFromDomain(pmesh, mat_attributes)
+        ));
 
         /** Create the corresponding Grid Function */
         auto& FED = p.getFiniteElementDiscretization();
@@ -75,7 +82,8 @@ namespace mfem_mgis {
               pmesh.Dimension()));
 
         /** init the grid function corresponding to the sub mesh */
-        this->result_sm = std::make_shared<mfem_mgis::GridFunction<parallel>>(mfem_mgis::GridFunction<parallel>(fes_sm.get()));
+        this->result_sm = std::make_shared<mfem_mgis::GridFunction<parallel>>(
+        mfem_mgis::GridFunction<parallel>(fes_sm.get()));
 
         /** Update exporter */
         this->exporter.SetMesh(this->submesh.get());
@@ -95,18 +103,23 @@ namespace mfem_mgis {
           this->exporter.RegisterField("u", this->result_sm.get());
         }
       } /** No Domain Attributes */
-      else if(contains(params, "BoundaryAttributes")){ /** BoundaryAttributes and Sub mesh */
-        auto bdrAttributes = get<std::vector<int>>(params, "BoundaryAttributes");
+      else if(contains_brd){ /** Boundaries and Sub mesh */
+      
+        /** "false" means that we double check if params include Material or Materials */
+        auto bdrAttributes = getBoundariesIdentifiers(p , params, false);
 
         /** Get the list of boundary attributes */
         mfem::Array<int> bdr_attributes;
+        
         /** Create Submesh using the domain attributes */
         for(const auto& dattr : bdrAttributes){
           bdr_attributes.Append(dattr);
         }
 
         /** Use the list of boundary attributes to define the sub mesh */
-        this->submesh = std::make_shared<SubMesh<parallel>>(SubMesh<parallel>(SubMesh<parallel>::CreateFromBoundary(pmesh, bdr_attributes)));
+        this->submesh = std::make_shared<SubMesh<parallel>>(
+        SubMesh<parallel>(
+        SubMesh<parallel>::CreateFromBoundary(pmesh, bdr_attributes)));
 
         /** Create the corresponding Grid Function */
         auto& FED = p.getFiniteElementDiscretization();
@@ -118,7 +131,8 @@ namespace mfem_mgis {
               pmesh.Dimension()));
 
         /** init the grid function corresponding to the sub mesh */
-        this->result_sm = std::make_shared<mfem_mgis::GridFunction<parallel>>(mfem_mgis::GridFunction<parallel>(fes_sm.get()));
+        this->result_sm = std::make_shared<mfem_mgis::GridFunction<parallel>>(
+        mfem_mgis::GridFunction<parallel>(fes_sm.get()));
 
         /** Update exporter */
         this->exporter.SetMesh(this->submesh.get());

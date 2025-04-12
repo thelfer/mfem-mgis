@@ -1,6 +1,9 @@
 #include <memory>
 #include <cstdlib>
 #include <iostream>
+#include <functional>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include "mfem/general/optparser.hpp"
 #include "mfem/linalg/solvers.hpp"
@@ -15,20 +18,7 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
-
-#ifdef MFEM_USE_PETSC
-#include "mfem/linalg/petsc.hpp"
-#endif /* MFEM_USE_PETSC */
-
-#ifdef MFEM_USE_PETSC
-#include "mfem/linalg/mumps.hpp"
-#endif /* MFEM_USE_MUMPS */
-
 #include <MFEMMGIS/Profiler.hxx>
-#include <functional>
-
-#include <sys/time.h>
-#include <sys/resource.h>
 
 
 struct TestParameters {
@@ -88,6 +78,8 @@ int main(int argc, char* argv[])
       {"FiniteElementFamily", "H1"},
       {"FiniteElementOrder", p.order},
       {"UnknownsSize", 3},
+      {"Materials", mfem_mgis::Parameters{{"Attr1", 1}, {"Attr2", 2}}},
+      {"Boundaries", mfem_mgis::Parameters{{"left", 1}, {"right", 2}}},
       {"NumberOfUniformRefinements", p.refinement},
       {"Hypothesis", "Tridimensional"},
       {"Parallel", true}};
@@ -158,28 +150,28 @@ int main(int argc, char* argv[])
 
   /** Define your post processings here */
   {
-    std::vector<int> DomainAttibuteLeft = {1}; 
-    std::vector<int> DomainAttibuteRight = {2}; 
-    std::vector<int> AllBoundaries = {1, 2}; 
-    /** You can no define DomainAttributes and BoundaryAttributes in a single post processing */
+    std::vector<mfem_mgis::Parameter> materials{"Attr1","Attr2"};
+    std::vector<mfem_mgis::Parameter> bdrs{"left","right"};
+    /** You can not define Materials and Boundaries in a single post processing */
     problem.addPostProcessing("ParaviewExportResults", 
         {{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
+        {"Materials", materials},
         {"OutputFieldName", "Displacement"},
         {"Verbosity", 1}});
     problem.addPostProcessing("ParaviewExportResults", 
         {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
         {"OutputFieldName", "Displacement"},
-        {"DomainAttributes", DomainAttibuteLeft}, 
+        {"Material", "Attr1"}, 
         {"Verbosity", 1}});
     problem.addPostProcessing("ParaviewExportResults", 
         {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
         {"OutputFieldName", "Displacement"},
-        {"DomainAttributes", DomainAttibuteRight}, 
+        {"Material", "Attr2"}, 
         {"Verbosity", 1}});
     problem.addPostProcessing("ParaviewExportResults", 
         {{"OutputFileName", "TestPPSubMeshOutputDir/Boundaries"},
         {"OutputFieldName", "Displacement"},
-        {"BoundaryAttributes", AllBoundaries}, 
+        {"Boundaries", bdrs},
         {"Verbosity", 1}});
   }
 
