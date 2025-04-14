@@ -294,6 +294,21 @@ if(MFEM_MGIS_HAVE_TFEL)
     
   endif(MFEM_USE_MPI)
 
+  add_executable(PostProSubMesh
+      EXCLUDE_FROM_ALL
+      PostProSubMesh.cxx)
+  target_link_libraries(PostProSubMesh
+    PRIVATE MFEMMGIS)
+  add_dependencies(check PostProSubMesh)
+  
+  if (MFEM_USE_MPI)
+  add_test(NAME PostProSubMesh
+    COMMAND mpirun -n 4 ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
+  else(MFEM_USE_MPI)
+  add_test(NAME PostProSubMesh
+    COMMAND ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
+  endif(MFEM_USE_MPI)
+
 ## RVE examples
 
   if (MFEM_USE_MPI)

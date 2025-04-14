@@ -34,6 +34,62 @@ evolution problem for visualization in :code:`paraview`:
 
 .. figure:: img/SatohTest.png
 
+It is also possible to extract only portions of the mesh by defining either the boundary zones or the materials (domain attributes). This is particularly useful for reducing the size of output files when only a small part is to be studied.
+
+**Example**
+
+.. code-block:: cpp
+
+    std::vector<mfem_mgis::Parameter> materials{"Attr1","Attr2"};
+    std::vector<mfem_mgis::Parameter> bdrs{"left","right"};
+    /** You can not define Materials and Boundaries in a single post processing */
+    problem.addPostProcessing("ParaviewExportResults",
+        {{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
+        {"Materials", materials},
+        {"OutputFieldName", "Displacement"},
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults",
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
+        {"OutputFieldName", "Displacement"},
+        {"Material", "Attr1"},
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults",
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
+        {"OutputFieldName", "Displacement"},
+        {"Material", "Attr2"},
+        {"Verbosity", 1}});
+    problem.addPostProcessing("ParaviewExportResults",
+        {{"OutputFileName", "TestPPSubMeshOutputDir/Boundaries"},
+        {"OutputFieldName", "Displacement"},
+        {"Boundaries", bdrs},
+        {"Verbosity", 1}});
+
+.. note::
+
+  Boundary and Material names are defined by the problem using the key words: "Boundaries" or "Materials" such as:
+
+  - {"Materials", mfem_mgis::Parameters{{"Attr1", 1}, {"Attr2", 2}}}
+  - {"Boundaries", mfem_mgis::Parameters{{"left", 1}, {"right", 2}}}
+
+**Results**
+
+.. figure:: img/ExportDataAtNodes.png
+
+
++---------------------+--------------------------------------------------------------------------------------------+
+| **Key**             | **Description**                                                                            |
++=====================+============================================================================================+
+| OutputFileName      | Name of the output directory                                                               |
++---------------------+--------------------------------------------------------------------------------------------+
+| OutputFieldName     | Name of the field that will appear in ParaView (default: ``"u"``)                          |
++---------------------+--------------------------------------------------------------------------------------------+
+| Material/Materials  | List of materials; a submesh will be used instead of exporting the entire mesh             |
++---------------------+--------------------------------------------------------------------------------------------+
+| Boundary/Boundaries | List of boundaries; a submesh will be used instead of exporting the entire mesh            |
++---------------------+--------------------------------------------------------------------------------------------+
+| Verbosity           | If this value is ``>= 1``, submesh information will be displayed when using attributes     |
++---------------------+--------------------------------------------------------------------------------------------+
+
 Export Integration Point Results At Nodes
 ==========================================
 

@@ -41,6 +41,8 @@
   model and a model describing damage evolution in 2D. solution.
 
 ## Unit tests
+
+- `PostProSubMesh`: This test provides some tests of ParaviewExportResults 
 - `PeriodicTest`: This test provides some tests of periodic features 
 - `ParallelReadMode`: This test checks that the reader can read correctly a splitted mesh
 - `PartialQuadratureFunctionTest`:  This test provides some tests
