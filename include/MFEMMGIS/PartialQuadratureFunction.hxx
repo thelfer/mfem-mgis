@@ -41,14 +41,16 @@ namespace mfem_mgis {
     PartialQuadratureFunctionDataLayout& operator=(
         const PartialQuadratureFunctionDataLayout&) = default;
     //! \return the number of components
-    size_type getNumberOfComponents() const;
+    bool isScalar() const noexcept;
+    //! \return the number of components
+    size_type getNumberOfComponents() const noexcept;
     /*!
      * \return the stride of data, i.e. the distance between the values of two
      * successive integration points.
      */
-    size_type getDataStride() const;
+    size_type getDataStride() const noexcept;
     //! \return the offset of the first element
-    size_type getDataOffset() const;
+    size_type getDataOffset() const noexcept;
     //! \brief destructor
     ~PartialQuadratureFunctionDataLayout() = default;
 
@@ -57,7 +59,7 @@ namespace mfem_mgis {
      * \return the data offset associated with the given integration point.
      * \param[in] o: offset associated with the integration point
      */
-    size_type getDataOffset(const size_type) const;
+    size_type getDataOffset(const size_type) const noexcept;
     //! \brief data stride
     size_type data_stride = size_type{};
     /*!

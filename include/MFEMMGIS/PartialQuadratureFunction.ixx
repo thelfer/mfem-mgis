@@ -10,21 +10,27 @@
 
 namespace mfem_mgis {
 
-  inline size_type PartialQuadratureFunctionDataLayout::getDataStride() const {
+  bool PartialQuadratureFunctionDataLayout::isScalar() const noexcept {
+    return this->getNumberOfComponents() == 1;
+  }  // end of isScalar
+
+  inline size_type PartialQuadratureFunctionDataLayout::getDataStride()
+      const noexcept {
     return this->data_stride;
   }  // end of getDataStride
 
-  inline size_type PartialQuadratureFunctionDataLayout::getDataOffset() const {
+  inline size_type PartialQuadratureFunctionDataLayout::getDataOffset()
+      const noexcept {
     return this->data_begin;
   }  // end of getDataOffset
 
   inline size_type PartialQuadratureFunctionDataLayout::getNumberOfComponents()
-      const {
+      const noexcept {
     return this->data_size;
   }  // end of PartialQuadratureFunctionDataLayout::getNumberOfComponents
 
   inline size_type PartialQuadratureFunctionDataLayout::getDataOffset(
-      const size_type o) const {
+      const size_type o) const noexcept {
     return o * (this->data_stride) + this->data_begin;
   }  // end of getDataOffset
 

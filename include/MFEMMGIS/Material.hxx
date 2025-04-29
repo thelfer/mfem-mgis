@@ -115,6 +115,17 @@ namespace mfem_mgis {
   };  // end of struct Material
 
   /*!
+   * \brief rotate the thermodynamic forces in the global frame
+   * \param[out] f: quadrature function containing the thermodynamic forces in the global frame
+   * \param[in] m: material
+   * \param[in] s: state considered
+   */
+  [[nodiscard]] bool rotateThermodynamicsForces(
+      PartialQuadratureFunction &,
+      Material &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
+
+  /*!
    * \return a partial quadrature function for the given gradient
    * \param[in] m: material
    * \param[in] n: name of the gradient
