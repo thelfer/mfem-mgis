@@ -116,7 +116,6 @@ namespace mfem_mgis {
           }
           return evs;
         };  // end of dispatch
-
     // The `b` field refers to MGIS MaterialDataManager class, which
     // is an ancestor class of the current BehaviourIntegratorBase class.
     this->wks.mps_evaluators =
@@ -151,8 +150,8 @@ namespace mfem_mgis {
     auto eval = [](std::vector<real>& v,
                    const std::vector<std::tuple<size_type, real*>>& evs,
                    const size_type i) {
-      for (const auto& ev : evs) {
-        v[std::get<0>(ev)] = std::get<1>(ev)[i];
+      for (const auto& [offset, values] : evs) {
+        v[offset] = values[i];
       }
     };  // end of eval
     eval(this->wks.mps, this->wks.mps_evaluators, ip);
