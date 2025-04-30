@@ -1,0 +1,253 @@
+/*!
+ * \file   MFEMMGIS/PartialQuadratureFunctionEvaluator.ixx
+ * \brief
+ * \author Thomas Helfer
+ * \date   29/04/2025
+ */
+
+#ifndef LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_IXX
+#define LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_IXX
+
+#include <iterator>
+#include <algorithm>
+
+namespace mfem_mgis::algorithm {
+
+  /*!
+   * \brief copy N values
+   * \tparam N: number of values to be copied
+   * \tparam InputIterator: input iterator type
+   * \tparam OutputIterator: output iterator type
+   * \param[in] p: iterator to the beginning of the values to be copied
+   * \param[in] pe: iterator past the end of the values to be copied
+   * \param[in] po: iterator to the output values
+   */
+  template <size_type N, typename InputIterator, typename OutputIterator>
+  void copy(const InputIterator p,
+            const InputIterator pe,
+            OutputIterator po) requires(N > 0) {
+    if constexpr ((std::random_access_iterator<InputIterator>)&&  //
+                  (std::random_access_iterator<OutputIterator>)) {
+      if constexpr (N > 9) {
+        std::copy(p, pe, po);
+      } else if constexpr (N == 1) {
+        *po = *p;
+      } else if constexpr (N == 2) {
+        po[0] = p[0];
+        po[1] = p[1];
+      } else if constexpr (N == 3) {
+        po[0] = p[0];
+        po[1] = p[1];
+        po[2] = p[2];
+      } else if constexpr (N == 4) {
+        po[0] = p[0];
+        po[1] = p[1];
+        po[2] = p[2];
+        po[3] = p[3];
+      } else {
+        copy<N - 1>(++p, pe, ++po);
+      }
+    } else {
+      std::copy(p, pe, po);
+    }
+  }  // end of copy
+
+}  // end of namespace mfem_mgis::algorithm
+
+namespace mfem_mgis {
+
+  template <size_type N>
+  FixedSizedPartialQuadratureFunctionEvalutor<N>::
+      FixedSizedPartialQuadratureFunctionEvalutor(
+          const ImmutablePartialQuadratureFunctionView& values)
+      : function(values) {}
+
+  template <size_type N>
+  void FixedSizedPartialQuadratureFunctionEvalutor<N>::check() const {
+    raise_if(this->function.getNumberOfComponents() != N,
+             "FixedSizeImmutableView::FixedSizeImmutableView: "
+             "unmatched size");
+  }
+
+  template <size_type N>
+  void FixedSizedPartialQuadratureFunctionEvalutor<N>::allocateWorkspace() {}
+
+  template <size_type N>
+  const PartialQuadratureSpace& FixedSizedPartialQuadratureFunctionEvalutor<
+      N>::getPartialQuadratureSpace() const {
+    return this->function.getPartialQuadratureSpace();
+  }
+
+  template <size_type N>
+  constexpr size_type FixedSizedPartialQuadratureFunctionEvalutor<
+      N>::getNumberOfComponents() const noexcept {
+    return N;
+  }
+
+  template <size_type N>
+  auto FixedSizedPartialQuadratureFunctionEvalutor<N>::operator()(
+      const size_type i) const {
+    if constexpr (N == 1) {
+      return this->function.getIntegrationPointValue(i);
+    } else {
+      return this->function.template getIntegrationPointValues<N>(i);
+    }
+  }
+
+  constexpr size_type
+  RotationMatrixPartialQuadratureFunctionEvalutor::getNumberOfComponents()
+      const noexcept {
+    return 9u;
+  }
+
+  inline auto RotationMatrixPartialQuadratureFunctionEvalutor::operator()(
+      const size_type i) const {
+    return this->material.getRotationMatrixAtIntegrationPoint(i);
+  }
+
+  template <size_type ThermodynamicForcesSize>
+  RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      ThermodynamicForcesSize>::
+      RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor(
+          const Material& m, const Material::StateSelection s)
+      : material(m),
+        thforces(getStateManager(m, s).thermodynamic_forces),
+        stage(s) {}
+
+  template <size_type ThermodynamicForcesSize>
+  void RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      ThermodynamicForcesSize>::check() const {
+    raise_if(
+        this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC,
+        "material is not orthotropic");
+    if constexpr (ThermodynamicForcesSize != dynamic_extent) {
+      const auto& sm = getStateManager(this->material, this->stage);
+      const auto thsize = sm.thermodynamic_forces_stride;
+      raise_if(ThermodynamicForcesSize != thsize,
+               "inconsistent number of components of the thermodynamic forces");
+    }
+  }
+
+  template <size_type ThermodynamicForcesSize>
+  const PartialQuadratureSpace&
+  RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      ThermodynamicForcesSize>::getPartialQuadratureSpace() const {
+    return this->material.getPartialQuadratureSpace();
+  }
+
+  template <size_type ThermodynamicForcesSize>
+  size_type RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      ThermodynamicForcesSize>::getNumberOfComponents() const noexcept {
+    if constexpr (ThermodynamicForcesSize == dynamic_extent) {
+      const auto& sm = getStateManager(this->material, this->stage);
+      return sm.thermodynamic_forces_stride;
+    } else {
+      return ThermodynamicForcesSize;
+    }
+  }
+
+  template <size_type ThermodynamicForcesSize>
+  void RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      ThermodynamicForcesSize>::allocateWorkspace() {
+    if constexpr (ThermodynamicForcesSize == dynamic_extent) {
+      const auto& sm = getStateManager(this->material, this->stage);
+      const auto thsize = sm.thermodynamic_forces_stride;
+      this->buffer.resize(thsize);
+    }
+  }
+
+  template <size_type ThermodynamicForcesSize>
+  auto RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      ThermodynamicForcesSize>::operator()(const size_type i) {
+    const auto* const mf = [this, i] {
+      if constexpr (ThermodynamicForcesSize == dynamic_extent) {
+        return this->thforces.data() + i * (this->buffer.size());
+      } else {
+        return this->thforces.data() + i * ThermodynamicForcesSize;
+      }
+    }();
+    const auto r = this->material.getRotationMatrixAtIntegrationPoint(i);
+    this->material.b.rotate_thermodynamic_forces_ptr(this->buffer.data(), mf,
+                                                     r.data());
+    return makeSpan(this->buffer);
+  }
+
+  template <size_type GradientsSize>
+  RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>::
+      RotatedGradientsMatrixPartialQuadratureFunctionEvalutor(
+          const Material& m, const Material::StateSelection s)
+      : material(m), gradients(getStateManager(m, s).gradients), stage(s) {}
+
+  template <size_type GradientsSize>
+  void RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+      GradientsSize>::check() const {
+    raise_if(
+        this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC,
+        "material is not orthotropic");
+    if constexpr (GradientsSize != dynamic_extent) {
+      const auto& sm = getStateManager(this->material, this->stage);
+      const auto gsize = sm.gradients_stride;
+      raise_if(GradientsSize != gsize,
+               "inconsistent number of components of the thermodynamic forces");
+    }
+  }  // end of check
+
+  template <size_type GradientsSize>
+  const PartialQuadratureSpace&
+  RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+      GradientsSize>::getPartialQuadratureSpace() const {
+    return this->material.getPartialQuadratureSpace();
+  }
+
+  template <size_type GradientsSize>
+  size_type RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+      GradientsSize>::getNumberOfComponents() const noexcept {
+    if constexpr (GradientsSize == dynamic_extent) {
+      const auto& sm = getStateManager(this->material, this->stage);
+      return sm.gradients_stride;
+    } else {
+      return GradientsSize;
+    }
+  }
+
+  template <size_type GradientsSize>
+  void RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+      GradientsSize>::allocateWorkspace() {
+    if constexpr (GradientsSize == dynamic_extent) {
+      const auto& sm = getStateManager(this->material, this->stage);
+      const auto gsize = sm.gradients_stride;
+      this->buffer.resize(gsize);
+    }
+  }
+
+  template <size_type GradientsSize>
+  auto RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+      GradientsSize>::operator()(const size_type i) {
+    const auto* const mg = [this, i] {
+      if constexpr (GradientsSize == dynamic_extent) {
+        return this->gradients.data() + i * (this->buffer.size());
+      } else {
+        return this->gradients.data() + i * GradientsSize;
+      }
+    }();
+    const auto r = this->material.getRotationMatrixAtIntegrationPoint(i);
+    // transposed rotation matrix
+    const auto tr = std::array<real, 9>{r[0], r[3], r[6],  //
+                                        r[1], r[4], r[7],  //
+                                        r[2], r[5], r[8]};
+    this->material.b.rotate_gradients_ptr(this->buffer.data(), mg, tr.data());
+    return makeSpan(this->buffer);
+  }
+
+  template <PartialQuadratureFunctionEvalutorConcept EvaluatorType1,
+            PartialQuadratureFunctionEvalutorConcept EvaluatorType2>
+  void checkMatchingQuadratureSpaces(const EvaluatorType1& e1,
+                                     const EvaluatorType2& e2) {
+    const auto& qspace1 = e1.getPartialQuadratureSpace();
+    const auto& qspace2 = e2.getPartialQuadratureSpace();
+    raise_if(&qspace1 != &qspace2, "unmatched quadrature spaces");
+  }  // end of checkMatchingQuadratureSpaces
+
+}  // end of namespace mfem_mgis
+
+#endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_IXX */

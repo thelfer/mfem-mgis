@@ -6,6 +6,8 @@ mfem_mgis_library(MFEMMGIS
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
+  PartialQuadratureFunctionEvaluator.cxx
+  PartialQuadratureFunctionUtilities.cxx
   Behaviour.cxx
   Material.cxx
   BehaviourIntegrator.cxx

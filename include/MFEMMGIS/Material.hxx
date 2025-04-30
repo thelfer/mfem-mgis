@@ -105,6 +105,7 @@ namespace mfem_mgis {
     Material &operator=(const Material &) = delete;
     //! \brief move assignement (disabled)
     Material &operator=(Material &&) = delete;
+
     /*!
      * \brief underlying behaviour. Only stored for memory management.
      * \note The behaviour can be accessed through the `b` member which is
@@ -113,17 +114,6 @@ namespace mfem_mgis {
     const std::unique_ptr<const Behaviour> behaviour_ptr;
 
   };  // end of struct Material
-
-  /*!
-   * \brief rotate the thermodynamic forces in the global frame
-   * \param[out] f: quadrature function containing the thermodynamic forces in the global frame
-   * \param[in] m: material
-   * \param[in] s: state considered
-   */
-  [[nodiscard]] bool rotateThermodynamicsForces(
-      PartialQuadratureFunction &,
-      Material &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
 
   /*!
    * \return a partial quadrature function for the given gradient
@@ -234,6 +224,12 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT real computeDissipatedEnergy(
       const BehaviourIntegrator &,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
+
+  mgis::behaviour::MaterialStateManager &getStateManager(
+      Material &m, const Material::StateSelection s);
+
+  const mgis::behaviour::MaterialStateManager &getStateManager(
+      const Material &m, const Material::StateSelection s);
 
 }  // end of namespace mfem_mgis
 

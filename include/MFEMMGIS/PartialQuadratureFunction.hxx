@@ -8,11 +8,11 @@
 #ifndef LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_HXX
 #define LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_HXX
 
+#include <span>
+#include <limits>
 #include <memory>
 #include <vector>
-#include <limits>
 #include <functional>
-#include <span>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 
@@ -44,6 +44,8 @@ namespace mfem_mgis {
     bool isScalar() const noexcept;
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
+
+
     /*!
      * \return the stride of data, i.e. the distance between the values of two
      * successive integration points.
@@ -126,6 +128,7 @@ namespace mfem_mgis {
      * \note this method is only meaningful when the quadrature function is
      * scalar
      */
+
     const real& getIntegrationPointValue(const size_type) const;
     /*!
      * \brief return the data associated with an integration point
