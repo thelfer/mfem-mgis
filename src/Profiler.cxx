@@ -91,10 +91,10 @@ namespace mfem_mgis {
         return myTmp;
       }
 
-      void ProfilerTimeSection::printReplicate(size_t begin,
-                                               size_t end,
+      void ProfilerTimeSection::printReplicate(int begin,
+                                               int end,
                                                std::string motif) {
-        for (size_t i = begin; i < end; i++) mfem::out << motif;
+        for (int i = begin; i < end; i++) mfem::out << motif;
       }
 
       void ProfilerTimeSection::space() { mfem::out << " "; }
@@ -103,7 +103,7 @@ namespace mfem_mgis {
 
       void ProfilerTimeSection::endline() { mfem::out << std::endl; }
 
-      void ProfilerTimeSection::printBanner(size_t shift) {
+      void ProfilerTimeSection::printBanner(int shift) {
         if (m_name == "root") {
 #ifndef MFEM_USE_MPI
           Profiler::Utils::Message(
@@ -115,14 +115,14 @@ namespace mfem_mgis {
 #endif
           std::string start_name = " |-- start timetable ";
           mfem::out << start_name;
-          size_t end = shift + nColumns * (cWidth + 1) + 1;
+          int end = shift + nColumns * (cWidth + 1) + 1;
           printReplicate(start_name.size(), end, "-");
           column();
           endline();
           std::string name = " |    name";
           mfem::out << name;
           printReplicate(name.size(), shift + 1, " ");
-          for (size_t i = 0; i < nColumns; i++) {
+          for (int i = 0; i < nColumns; i++) {
             column();
             int size = cName[i].size();
             printReplicate(0, (int(cWidth) - size - 1), " ");
@@ -142,7 +142,7 @@ namespace mfem_mgis {
       }
     }  // namespace timers
 
-    void ProfilerTimeSection::printEnding(size_t shift) {
+    void ProfilerTimeSection::printEnding(int shift) {
       if (m_name == "root") {
         if (Profiler::Utils::is_master()) {
           shift += nColumns * (cWidth + 1) + 1;  // +1 for "|";
@@ -157,15 +157,15 @@ namespace mfem_mgis {
 
     duration* ProfilerTimeSection::get_ptr_duration() { return &m_duration; }
 
-    void ProfilerTimeSection::print(size_t shift, double total_time) {
+    void ProfilerTimeSection::print(int shift, double total_time) {
       assert(total_time >= 0);
       std::string cValue[nColumns];
       if (Profiler::Utils::is_master()) {
-        size_t realShift = shift;
+        int realShift = shift;
         space();
         column();
         space();
-        size_t currentShift = 3;
+        int currentShift = 3;
         for (int i = 0; i < int(m_level) - 1; i++) {
           int spaceSize = 3;
           for (int j = 0; j < spaceSize; j++) space();
@@ -220,7 +220,7 @@ namespace mfem_mgis {
           cValue[2] = std::to_string((m_duration.count() / total_time) * 100);
 #endif
       if (Profiler::Utils::is_master()) {
-        for (size_t i = 0; i < nColumns; i++) {
+        for (int i = 0; i < nColumns; i++) {
           column();
           int _size = cValue[i].size();
           printReplicate(0, (int(cWidth) - _size - 1), " ");
@@ -236,9 +236,9 @@ namespace mfem_mgis {
 
     double ProfilerTimeSection::get_duration() { return m_duration.count(); }
 
-    std::size_t ProfilerTimeSection::get_iteration() { return m_iteration; }
+    int ProfilerTimeSection::get_iteration() { return m_iteration; }
 
-    std::size_t ProfilerTimeSection::get_level() { return m_level; }
+    int ProfilerTimeSection::get_level() { return m_level; }
 
     std::vector<ProfilerTimeSection*>& ProfilerTimeSection::get_daughter() {
       return m_daughter;
@@ -306,7 +306,7 @@ namespace mfem_mgis {
       std::string file_name =
           base_name + "." + std::to_string(mpiSize) + ".perf";
 #else
-          std::size_t nthreads = 0;
+          int nthreads = 0;
 #if defined(_OPENMP)
 #pragma omp parallel
           { nthreads = omp_get_num_threads(); }
@@ -323,7 +323,7 @@ namespace mfem_mgis {
       runtime =
           Profiler::Utils::reduce_max(runtime);  // if MPI, else return runtime
 
-      auto my_print = [](ProfilerTimeSection* a_ptr, size_t a_shift,
+      auto my_print = [](ProfilerTimeSection* a_ptr, int a_shift,
                          double a_runtime) {
         a_ptr->print(a_shift, a_runtime);
       };
@@ -333,13 +333,13 @@ namespace mfem_mgis {
         return a_ptr->get_duration() > b_ptr->get_duration();
       };
 
-      auto max_length = [](ProfilerTimeSection* a_ptr, size_t& a_count,
-                           size_t& a_nbElem) {
-        size_t length = a_ptr->get_level() * 3 + a_ptr->getName().size();
+      auto max_length = [](ProfilerTimeSection* a_ptr, int& a_count,
+                           int& a_nbElem) {
+        int length = a_ptr->get_level() * 3 + a_ptr->getName().size();
         a_count = std::max(a_count, length);
         a_nbElem++;
       };
-      size_t count(0), nbElem(0);
+      int count(0), nbElem(0);
 
       recursive_call(max_length, root_timer, count, nbElem);
       count += 6;
@@ -366,7 +366,7 @@ namespace mfem_mgis {
         std::string space;
         std::string motif = "   ";
 
-        for (std::size_t i = 0; i < a_ptr->get_level(); i++) space += motif;
+        for (int i = 0; i < a_ptr->get_level(); i++) space += motif;
 
         const auto max_time = reduce_max(a_ptr->get_duration());
 
