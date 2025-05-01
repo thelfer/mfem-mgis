@@ -70,7 +70,7 @@ namespace mfem_mgis {
   }  // end of GetInitialNorm
 
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
-    CatchTimeSection("NewtonSolver::Mult");
+    CatchTimeSection("NS::Mult");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
@@ -100,6 +100,7 @@ namespace mfem_mgis {
     auto norm = this->initial_norm;
 
     while (true) {
+      CatchTimeSection("NS::Mult::WhileLoop");
       MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
       if (this->print_level >= 0) {
         if (mfem_mgis::getMPIrank() == 0)
@@ -147,6 +148,7 @@ namespace mfem_mgis {
 
   void NewtonSolver::computeResidual(mfem::Vector &r,
                                      const mfem::Vector &u) const {
+    CatchTimeSection("NS::computeResidual");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     this->oper->Mult(u, r);
@@ -155,7 +157,7 @@ namespace mfem_mgis {
   bool NewtonSolver::computeNewtonCorrection(mfem::Vector &c,
                                              const mfem::Vector &r,
                                              const mfem::Vector &u) const {
-    CatchTimeSection("NewtonSolver::computeNewtonCorrection");
+    CatchTimeSection("NS::computeNewtonCorrection");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
@@ -173,7 +175,7 @@ namespace mfem_mgis {
   }  // end of computeNewtonCorrection
 
   mfem::Operator &NewtonSolver::getJacobian(const mfem::Vector &u) const {
-    CatchTimeSection("NewtonSolver::getJacobian");
+    CatchTimeSection("NS::getJacobian");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     return this->oper->GetGradient(u);
@@ -181,10 +183,12 @@ namespace mfem_mgis {
 
   void NewtonSolver::addNewUnknownsEstimateActions(
       std::function<bool(const mfem::Vector &)> a) {
+    CatchTimeSection("NS::addNewUnknownsEstimateActions");
     this->nue_actions.push_back(std::move(a));
   }  // end of addNewUnknownsEstimateActions
 
   bool NewtonSolver::processNewUnknownsEstimate(const mfem::Vector &u) const {
+    CatchTimeSection("NS::processNewUnknownsEstimate");
     for (const auto &a : this->nue_actions) {
       if (!a(u)) {
         return false;

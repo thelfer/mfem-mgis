@@ -113,6 +113,13 @@ namespace mfem_mgis {
           if (Profiler::Utils::is_master()) {
             Profiler::Utils::Message(" MPI feature activated, rank 0:");
 #endif
+          mfem::out << std::endl;
+          mfem::out << "Glossary: " << std::endl;
+          mfem::out << "NS: Newton Solver Class" << std::endl;
+          mfem::out << "NLEPIB: Non Linear Evolution Problem Implementation Base Class" << std::endl;
+          mfem::out << "FED: Finite Element Discretization Class" << std::endl;
+          mfem::out << std::endl;
+
           std::string start_name = " |-- start timetable ";
           mfem::out << start_name;
           int end = shift + nColumns * (cWidth + 1) + 1;
@@ -328,10 +335,13 @@ namespace mfem_mgis {
         a_ptr->print(a_shift, a_runtime);
       };
 
+//#define SortPrintTimeTable 0
+#ifdef SortPrintTimeTable
       auto sort_comp = [](ProfilerTimeSection* a_ptr,
                           ProfilerTimeSection* b_ptr) {
         return a_ptr->get_duration() > b_ptr->get_duration();
       };
+#endif
 
       auto max_length = [](ProfilerTimeSection* a_ptr, int& a_count,
                            int& a_nbElem) {
@@ -344,7 +354,11 @@ namespace mfem_mgis {
       recursive_call(max_length, root_timer, count, nbElem);
       count += 6;
       root_timer->printBanner(count);
+#ifdef SortPrintTimeTable
       recursive_sorted_call(my_print, sort_comp, root_timer, count, runtime);
+#else
+      recursive_call(my_print, root_timer, count, runtime);
+#endif
       root_timer->printEnding(count);
     }
 

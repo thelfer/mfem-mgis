@@ -52,7 +52,7 @@ namespace mfem_mgis {
       int generate_edges = 0,
       int refine = 1,
       bool /* fix_orientation */ = true) {
-    CatchTimeSection("loadMesh");
+    CatchTimeSection("FED::LoadMesh");
 #ifdef MFEM_USE_MED
     const auto extension = getFileExt(mesh_name);
     if (extension == "med") {
@@ -76,7 +76,7 @@ namespace mfem_mgis {
   }  // end of loadMeshSequential
 
   static std::shared_ptr<Mesh<true>> loadMeshParallel(const std::string& mesh_name) {
-    CatchTimeSection("loadMeshParallel");
+    CatchTimeSection("FED::LoadMeshInParallel");
 #ifdef MFEM_USE_MED
     const auto extension = getFileExt(mesh_name);
     if (extension == "med") {
@@ -186,7 +186,7 @@ namespace mfem_mgis {
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       const Parameters& params) {
-    CatchTimeSection("FiniteElementDiscretization::constructor");
+    CatchTimeSection("FED::Constructor");
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};
       for (const auto& p : parameters) {
@@ -236,7 +236,7 @@ namespace mfem_mgis {
 	    raise( "Wrong MeshReadMode value" );
   	}
     for (size_type i = ref_level; i < nrefinement; ++i) {
-      CatchNestedTimeSection("run_ParUniformRefinement");
+      CatchNestedTimeSection("FED::Run_ParUniformRefinement");
       this->parallel_mesh->UniformRefinement();
     }
 #else  /* MFEM_USE_MPI */
@@ -248,7 +248,7 @@ namespace mfem_mgis {
       }
       this->sequential_mesh = loadMeshSequential(mesh_file, 0, 1, true);
       for (size_type i = 0; i < nrefinement; ++i) {
-        CatchNestedTimeSection("run_SeqUniformRefinement");
+        CatchNestedTimeSection("FED::Run_SeqUniformRefinement");
         this->sequential_mesh->UniformRefinement();
       }
     }

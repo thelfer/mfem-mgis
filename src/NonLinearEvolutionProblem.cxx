@@ -118,7 +118,7 @@ namespace mfem_mgis {
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
-    CatchTimeSection("NonLinearEvolutionProblem::solve");
+    CatchTimeSection("NLEP::solve");
     this->setup(t, dt);
     return this->pimpl->solve(t, dt);
   }  // end of solve
