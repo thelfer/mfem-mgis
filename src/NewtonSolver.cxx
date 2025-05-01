@@ -165,7 +165,10 @@ namespace mfem_mgis {
     const auto usesIterativeLinearSolver =
         dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
     this->prec->SetOperator(this->getJacobian(u));
-    this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
+    {
+      CatchNestedTimeSection("MFEM::Mult(r,c)");
+      this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
+    }
     if (usesIterativeLinearSolver) {
       const auto &iprec =
           static_cast<const mfem::IterativeSolver &>(*(this->prec));
