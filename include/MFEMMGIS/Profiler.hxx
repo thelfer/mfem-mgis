@@ -12,14 +12,14 @@
 // variables
 #ifdef MFEM_USE_MPI
 #include <mpi.h>
-const size_t cWidth = 20;
-const size_t nColumns = 6;
+const int cWidth = 20;
+const int nColumns = 6;
 const std::string cName[nColumns] = {
     "number Of Calls", "min(s)",  "mean(s)",
     "max(s)",          "part(%)", "imb(%)"};  // [1-Imax/Imean]%
 #else
-const size_t cWidth = 20;
-const size_t nColumns = 3;
+const int cWidth = 20;
+const int nColumns = 3;
 const std::string cName[nColumns] = {"number Of Calls", "max(s),", "part(%)"};
 #endif
 
@@ -62,28 +62,28 @@ namespace mfem_mgis {
 
         // printer functions
         //
-        void printReplicate(size_t begin, size_t end, std::string motif);
+        void printReplicate(int begin, int end, std::string motif);
         void space();
         void column();
         void endline();
-        void printBanner(size_t shift);
-        void printEnding(size_t shift);
+        void printBanner(int shift);
+        void printEnding(int shift);
         duration* get_ptr_duration();
-        void print(size_t shift, double runtime);
+        void print(int shift, double runtime);
 
         // accessor
         //
         std::string getName();
-        std::size_t get_iteration();
-        std::size_t get_level();
+        int get_iteration();
+        int get_level();
         std::vector<ProfilerTimeSection*>& get_daughter();
         ProfilerTimeSection* get_mother();
         double get_duration();
 
        private:
         std::string m_name;
-        std::size_t m_iteration;
-        std::size_t m_level;
+        int m_iteration;
+        int m_level;
         std::vector<ProfilerTimeSection*> m_daughter;
         ProfilerTimeSection* m_mother;
         duration m_duration;
@@ -180,21 +180,36 @@ namespace mfem_mgis {
           recursive_sorted_call(func, mySort, it, arg...);
       }
 
-    };  // namespace OutputManager
-  };    // namespace Profiler
+		};  // namespace OutputManager
+
+
+		inline
+			std::chrono::duration<double>* get_duration(std::string a_name)
+			{
+				auto& ptr = timers::get_timer<CURRENT>();
+				assert(ptr != nullptr && "do not use an undefined timer node");
+				ptr=ptr->find(a_name); // this function increment the 'iteration' member
+				return ptr->get_ptr_duration();
+			}
+	};    // namespace Profiler
 
 };  // namespace mfem_mgis
 
-#define CatchTimeSection(X)                                                    \
-  mfem_mgis::Profiler::timers::ProfilerTimeSection*& current =                            \
-      mfem_mgis::Profiler::timers::get_timer<CURRENT>();                                  \
-  assert(current != nullptr && "do not use an undefined ProfilerTimeSection"); \
-  current = current->find(X);                                                  \
-  mfem_mgis::Profiler::timer::TimeSection non_generic_name(current->get_ptr_duration());
+/** Define macros here */
 
-#define CatchNestedTimeSection(X)                                              \
-  current = mfem_mgis::Profiler::timers::get_timer<CURRENT>();                            \
-  assert(current != nullptr && "do not use an undefined ProfilerTimeSection"); \
-  current = current->find(X);                                                  \
-  mfem_mgis::Profiler::timer::TimeSection non_nested_generic_name(                        \
-      current->get_ptr_duration());
+// One level of macro indirection is required in order to resolve __COUNTER__,
+// and get varname1 instead of varname__COUNTER__.
+#define CONCAT(a, b) CONCAT_INNER(a, b)
+#define CONCAT_INNER(a, b) a ## b
+
+#define CONCAT_LINE(x) CONCAT(x, __LINE__)
+#define CONCAT_FILE(x) CONCAT(x, __FILE__)
+#define CONCAT_COUNTER(x) CONCAT(x, __COUNTER__)
+#define VARNAME() CONCAT_COUNTER(BASE)
+
+#define CatchTimeSection(XNAME)\
+	mfem_mgis::Profiler::timer::TimeSection VARNAME()(mfem_mgis::Profiler::get_duration(XNAME));
+
+// alias
+#define CatchNestedTimeSection(XNAME) CatchTimeSection(XNAME)
+#define START_TIMER(XNAME) CatchTimeSection(XNAME)
