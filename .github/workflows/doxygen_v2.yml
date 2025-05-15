@@ -72,5 +72,5 @@ jobs:
         publish_branch: 123-fix-the-doxygen-ci
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
-#        external_repository: thelfer/thelfer.github.io
+        external_repository: thelfer/thelfer.github.io
         destination_dir: mfem-mgis/doxygen/
