@@ -69,7 +69,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       with:
         personal_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
-        publish_branch: 123-fix-the-doxygen-ci
+        publish_branch: gh-pages
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
         external_repository: thelfer/thelfer.github.io
