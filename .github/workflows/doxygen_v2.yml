@@ -1,0 +1,72 @@
+name: Doxygen
+
+on:
+  push:
+    branches:
+      - master
+      - 123-fix-the-doxygen-ci
+  pull_request:
+    branches: [ master ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+
+  doc-html:
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Set up Spack
+      uses: spack/setup-spack@v2
+      with:
+        ref: develop      # Spack version (examples: develop, releases/v0.21)
+        buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
+        color: true       # Force color output (SPACK_COLOR=always)
+        path: ${{github.workspace}}/spack       # Where to clone Spack
+    
+    - name: Install Doxygen
+      run: sudo apt-get install doxygen graphviz -y
+      shell: bash
+
+    - name: Install mpich
+      run: sudo apt-get install mpich
+    - name: Install libfabric
+      run: sudo apt-get install libfabric-dev
+
+    - name: Install Packages
+      run: |
+        spack compiler find
+        spack external find openmpi mpich libfabric
+        spack install mfem+mpi+suite-sparse+mumps@4.7.0%gcc@12.3.0
+        spack install tfel@master:~python~python_bindings%gcc@12.3.0
+        spack install mgis@master:+c~fortran~python%gcc@12.3.0
+
+    - name: Configure CMake
+      shell: spack-sh {0}    
+      run:  |
+        spack load mfem 
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -Denable-doxygen-doc=ON \
+              -DCMAKE_C_COMPILER=gcc-12 \
+              -DCMAKE_CXX_COMPILER=g++-12 \
+              -DMFEM_DIR=`spack location -i mfem` \
+              -DHYPRE_DIR=`spack location -i hypre` \
+              -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+              -DCMAKE_PREFIX_PATH=`spack location -i tfel`        
+    
+    - name: Generate doxygen
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target doc-html 
+
+    - name: Deploy
+      uses: AgarwalSaurav/ghaction-doxygen-ghpages@release/v2
+      with:
+        github_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
+        branch: 123-fix-the-doxygen-ci
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        html-output-folder: ${{github.workspace}}/build/docs/doxygen/html/ 
+#        destination_dir: mfem-mgis/doxygen/
