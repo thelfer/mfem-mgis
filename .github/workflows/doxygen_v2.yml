@@ -65,7 +65,7 @@ jobs:
     - name: Deploy
       uses: AgarwalSaurav/ghaction-doxygen-ghpages@release/v2
       with:
-        github_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
+#        github_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
         branch: 123-fix-the-doxygen-ci
         github_token: ${{ secrets.GITHUB_TOKEN }}
         html-output-folder: ${{github.workspace}}/build/docs/doxygen/html/ 
