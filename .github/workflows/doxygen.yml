@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - master
-      - 123-fix-the-doxygen-ci
-  pull_request:
-    branches: [ master ]
+
 permissions:
   contents: write
   
