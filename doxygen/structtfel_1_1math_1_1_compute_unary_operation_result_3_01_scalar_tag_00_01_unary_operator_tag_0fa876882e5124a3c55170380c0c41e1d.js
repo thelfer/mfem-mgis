@@ -1,0 +1,4 @@
+var structtfel_1_1math_1_1_compute_unary_operation_result_3_01_scalar_tag_00_01_unary_operator_tag_0fa876882e5124a3c55170380c0c41e1d =
+[
+    [ "type", "structtfel_1_1math_1_1_compute_unary_operation_result_3_01_scalar_tag_00_01_unary_operator_tag_0fa876882e5124a3c55170380c0c41e1d.html#ad9a447ad77e3b057d910c6fe296e68ea", null ]
+];

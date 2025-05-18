@@ -1,0 +1,4 @@
+var structtfel_1_1material_1_1_tangent_operator_traits_3_01_mechanical_behaviour_base_1_1_s_t_a_n_d_e4079c363cc9cc01d207ee5f8c9ad98d =
+[
+    [ "SMFlag", "structtfel_1_1material_1_1_tangent_operator_traits_3_01_mechanical_behaviour_base_1_1_s_t_a_n_d_e4079c363cc9cc01d207ee5f8c9ad98d.html#a3279eaf452f59d7aac8713b599b1773b", null ]
+];
