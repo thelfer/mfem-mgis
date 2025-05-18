@@ -1,7 +1,0 @@
-var _cyrano_compute_thermal_expansion_coefficient_tensor_8hxx =
-[
-    [ "cyrano::CyranoComputeThermalExpansionCoefficientTensor< tfel::material::ModellingHypothesis::AXISYMMETRICALGENERALISEDPLANESTRAIN, ISOTROPIC >", "structcyrano_1_1_cyrano_compute_thermal_expansion_coefficient_tensor_3_01tfel_1_1material_1_1_mo9c3396801dbadc9b5cbabdfa1908c7c1.html", null ],
-    [ "cyrano::CyranoComputeThermalExpansionCoefficientTensor< tfel::material::ModellingHypothesis::AXISYMMETRICALGENERALISEDPLANESTRAIN, ORTHOTROPIC >", "structcyrano_1_1_cyrano_compute_thermal_expansion_coefficient_tensor_3_01tfel_1_1material_1_1_moaf726adb7962a65359198fbb3f7e2444.html", null ],
-    [ "cyrano::CyranoComputeThermalExpansionCoefficientTensor< tfel::material::ModellingHypothesis::AXISYMMETRICALGENERALISEDPLANESTRESS, ISOTROPIC >", "structcyrano_1_1_cyrano_compute_thermal_expansion_coefficient_tensor_3_01tfel_1_1material_1_1_mo5c7d39c8f292c08aae38bd9c10a5a26e.html", null ],
-    [ "cyrano::CyranoComputeThermalExpansionCoefficientTensor< tfel::material::ModellingHypothesis::AXISYMMETRICALGENERALISEDPLANESTRESS, ORTHOTROPIC >", "structcyrano_1_1_cyrano_compute_thermal_expansion_coefficient_tensor_3_01tfel_1_1material_1_1_mo26d55a7d1cf54f2cab3a77704eddda5a.html", null ]
-];

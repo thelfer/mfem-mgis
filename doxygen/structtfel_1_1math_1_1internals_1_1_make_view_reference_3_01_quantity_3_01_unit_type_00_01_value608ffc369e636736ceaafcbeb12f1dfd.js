@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1internals_1_1_make_view_reference_3_01_quantity_3_01_unit_type_00_01_value608ffc369e636736ceaafcbeb12f1dfd =
-[
-    [ "type", "structtfel_1_1math_1_1internals_1_1_make_view_reference_3_01_quantity_3_01_unit_type_00_01_value608ffc369e636736ceaafcbeb12f1dfd.html#a023ad5024d327263f871f27bb13fcd7c", null ]
-];
