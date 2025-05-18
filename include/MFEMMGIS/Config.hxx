@@ -8,8 +8,8 @@
 #ifndef LIB_MFEM_MGIS_CONFIG_HXX
 #define LIB_MFEM_MGIS_CONFIG_HXX
 
-#include <cstdlib>
 #include <limits>
+#include <cstdlib>
 #include "MGIS/Config.hxx"
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/MGISForward.hxx"
