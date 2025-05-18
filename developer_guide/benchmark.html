@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benchmarks &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing guide" href="contributing_guide.html" />
+    <link rel="prev" title="MFEM-MGIS Changelog" href="changelog.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commented_examples/commented_examples.html">Commented Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer_guide.html">Developer guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="changelog.html">MFEM-MGIS Changelog</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Benchmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#profiling-tools">Profiling tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#benchmarks-rve-mox">Benchmarks RVE MOX</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#m-ddl">80M ddl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">190M ddl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">664M ddl</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mfem-mgis-versus-mfem">MFEM/MGIS versus MFEM</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing_guide.html">Contributing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributors.html">Contributors</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="developer_guide.html">Developer guide</a></li>
+      <li class="breadcrumb-item active">Benchmarks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developer_guide/benchmark.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="benchmarks">
+<h1>Benchmarks<a class="headerlink" href="#benchmarks" title="Link to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#profiling-tools" id="id3">Profiling tools</a></p></li>
+<li><p><a class="reference internal" href="#benchmarks-rve-mox" id="id4">Benchmarks RVE MOX</a></p>
+<ul>
+<li><p><a class="reference internal" href="#m-ddl" id="id5">80M ddl</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id6">190M ddl</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id7">664M ddl</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#mfem-mgis-versus-mfem" id="id8">MFEM/MGIS versus MFEM</a></p></li>
+</ul>
+</nav>
+<section id="profiling-tools">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Profiling tools</a><a class="headerlink" href="#profiling-tools" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">MFEM-MGIS</span></code> provides a simple tool for profiling your application, consisting mainly in generating a time table of timed sections respecting the call stack (tree). The master or root timer of the call stack is initialized during the general initialization of mfem-mgis:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Displaying the time table in your terminal is done by adding the following function call:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Profiler</span><span class="o">::</span><span class="n">timers</span><span class="o">::</span><span class="n">print_timers</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>This is an example of an output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>MPI feature activated, rank 0:
+|-- start timetable -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|    name                                                                  |    number Of Calls |             min(s) |            mean(s) |             max(s) |            part(%) |             imb(%) |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| &gt; root                                                                   |                  1 |           0.061155 |           0.061313 |           0.061512 |        100.000000% |          0.003254% |
+| |--&gt; Solve                                                               |                  1 |           0.056359 |           0.056493 |           0.056539 |         91.914400% |          0.000812% |
+|    |--&gt; NonLinearEvolutionProblem::solve                                 |                  1 |           0.056359 |           0.056492 |           0.056538 |         91.913194% |          0.000812% |
+|       |--&gt; NonLinearEvolutionProblemImplementationBase::solve            |                  1 |           0.056357 |           0.056490 |           0.056536 |         91.909814% |          0.000810% |
+|          |--&gt; NewtonSolver::Mult                                         |                  1 |           0.056351 |           0.056483 |           0.056528 |         91.897665% |          0.000798% |
+|             |--&gt; NewtonSolver::computeNewtonCorrection                   |                 10 |           0.048653 |           0.048706 |           0.048851 |         79.416040% |          0.002969% |
+|                |--&gt; NewtonSolver::getJacobian                            |                 10 |           0.020212 |           0.020215 |           0.020220 |         32.870789% |          0.000239% |
+|          |--&gt; NonLinearEvolutionProblemImplementationBase::setup         |                  1 |           0.000004 |           0.000005 |           0.000006 |          0.009562% |          0.148211% |
+| |--&gt; FiniteElementDiscretization::constructor                            |                  1 |           0.002696 |           0.002717 |           0.002760 |          4.487192% |          0.015873% |
+|    |--&gt; loadMesh                                                         |                  1 |           0.000944 |           0.000965 |           0.001002 |          1.629139% |          0.038049% |
+| |--&gt; common::post_processing_step                                        |                  1 |           0.000856 |           0.000974 |           0.001084 |          1.762192% |          0.113317% |
+| |--&gt; set_mgis_stuff                                                      |                  1 |           0.000687 |           0.000824 |           0.000970 |          1.577426% |          0.177846% |
+| |--&gt; set_linear_solver                                                   |                  1 |           0.000139 |           0.000169 |           0.000204 |          0.331618% |          0.205352% |
+|    |--&gt; NonLinearEvolutionProblemImplementationBase::updateLinearSolver  |                  1 |           0.000001 |           0.000001 |           0.000001 |          0.001975% |          0.078562% |
+| |--&gt; PeriodicNonLinEvPB::constructor_with_bct                            |                  1 |           0.000045 |           0.000047 |           0.000050 |          0.081340% |          0.053553% |
+|-- end timetable ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+</pre></div>
+</div>
+<p>To write the time table in a file is done by adding the following function call:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Profiler</span><span class="o">::</span><span class="n">timers</span><span class="o">::</span><span class="n">write_timers</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Each line is composed of the section name, number of calls, time in seconds, and ratio to total time. This is an example of an output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>root 1 3676.43 100
+   FiniteElementDiscretization::constructor 1 132.422 3.60192
+      loadMesh 1 117.7 3.20148
+   PeriodicNonLinEvPB::constructor_with_bct 1 0.276666 0.0075254
+   set_mgis_stuff 1 0.104737 0.00284886
+   set_linear_solver 1 0.000827939 2.25202e-05
+      NonLinearEvolutionProblemImplementationBase::updateLinearSolver 1 1.5063e-05 4.09718e-07
+   Solve 40 3480.88 94.6808
+      NonLinearEvolutionProblem::solve 40 3480.88 94.6808
+         NonLinearEvolutionProblemImplementationBase::solve 40 3480.88 94.6808
+            NonLinearEvolutionProblemImplementationBase::setup 40 0.000191316 5.20385e-06
+            NewtonSolver::Mult 40 3480.88 94.6808
+               NewtonSolver::computeNewtonCorrection 109 3322.7 90.3783
+                  NewtonSolver::getJacobian 109 349.572 9.50845
+   common::post_processing_step 40 95.899 2.60848
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can specify the name of your output file by using <code class="docutils literal notranslate"><span class="pre">mfem_mgis::Profiler::OutputManager::writeFile(&quot;OutputTimerFile.perf&quot;)</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Both functions can be called directly by this function <code class="docutils literal notranslate"><span class="pre">print_and_write_timers()</span></code></p>
+</div>
+<p>You can instrument each of your functions using section timers. It’s important to remember that adding chronos can add extra cost, negligible for “big” functions but very costly for functions called in each element.</p>
+<ul class="simple">
+<li><p>To time a function, place this instruction at the start of your function, the timer will stop at the end of the scope (the second time point is hidden in the timer destructor).</p></li>
+</ul>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CatchTimeSection</span><span class="p">(</span><span class="s">&quot;NameOfYourFunction&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>To add a second timer to the same scope, you can use:</p></li>
+</ul>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CatchNestedTimeSection</span><span class="p">(</span><span class="s">&quot;NameOfYourNestedSection&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="benchmarks-rve-mox">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Benchmarks RVE MOX</a><a class="headerlink" href="#benchmarks-rve-mox" title="Link to this heading"></a></h2>
+<p>In this section, we propose some scaling curves for different test cases. For the first benchmark, we use the MOX RVE example with 643 inclusions and a viscoplastic behavior law for the matrix, and an elastic behavior law for the inclusions. Calculations are performed on the <code class="docutils literal notranslate"><span class="pre">TOPAZE</span></code> supercalculator at CCRT. Each node in the cluster is built on 64-core <code class="docutils literal notranslate"><span class="pre">AMD</span> <span class="pre">EPYC</span> <span class="pre">Milan</span> <span class="pre">7763</span></code> dual-socket processors running at 2.45 GHz and equipped with 256 GB <code class="docutils literal notranslate"><span class="pre">RAM</span></code>. Benchmarks are in pure <code class="docutils literal notranslate"><span class="pre">MPI</span></code>.</p>
+<p>Regarding the specificities of the simulations, we use the <code class="docutils literal notranslate"><span class="pre">HyprePCG</span></code> solver with a <code class="docutils literal notranslate"><span class="pre">HypreBoomerAMG</span></code> preconditioner. Mesh reading is performed using a mesh pre-cut into small msh files to limit the impact on the memory footprint.</p>
+<figure class="align-default">
+<img alt="Illustration of a RVE with 634 spheres after 5 seconds." src="../_images/634.jpeg" />
+</figure>
+<p>We performed tests on 3 problem sizes: 80M ddl, 190M ddl and 664M ddl.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Un test de faisabilité de cette simulation a aussi était réalisé sûr plus de 5.3 milliards de ddl.</p>
+</div>
+<section id="m-ddl">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">80M ddl</a><a class="headerlink" href="#m-ddl" title="Link to this heading"></a></h3>
+<figure class="align-default">
+<img alt="Time, Memory footprint and speedup of a MOX RVE with 80M ddl." src="../_images/80MDofMFEMMGIS.png" />
+</figure>
+</section>
+<section id="id1">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">190M ddl</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<figure class="align-default">
+<img alt="Time, Memory footprint and speedup of a MOX RVE with 190M ddl." src="../_images/190MDofMFEM-MGIS.png" />
+</figure>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">664M ddl</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<figure class="align-default">
+<img alt="Time, Memory footprint and speedup of a MOX REV with 664M ddl." src="../_images/664MDofMFEM-MGIS.png" />
+</figure>
+</section>
+</section>
+<section id="mfem-mgis-versus-mfem">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">MFEM/MGIS versus MFEM</a><a class="headerlink" href="#mfem-mgis-versus-mfem" title="Link to this heading"></a></h2>
+<p>This benchmark aims to evaluate the time overhead between <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> and <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> for a simple test case involving an elastic behavior law.</p>
+<p>Details:</p>
+<ul class="simple">
+<li><p>Solver: <cite>HyprePCG</cite></p></li>
+<li><p>Preconditionner: <cite>HypreDiagScale</cite> (Jacobi)</p></li>
+<li><p>Tolerance: 1e-14</p></li>
+<li><p>Boundary conditions: we impose an uniform dirichlet condition U = (0,0,0) at left and U = (0,0,1) at right.</p></li>
+</ul>
+<figure class="align-default">
+<img alt="../_images/bench-perf.png" src="../_images/bench-perf.png" />
+</figure>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Refinement</p></td>
+<td><p>MPI</p></td>
+<td><p>DDL</p></td>
+<td><p>MFEM-MGIS Time</p></td>
+<td><p>MFEM-MGIS Iteration</p></td>
+<td><p>MFEM Time</p></td>
+<td><p>MFEM Iteration</p></td>
+<td><p>Overhead</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>111843</p></td>
+<td><p>8.34</p></td>
+<td><p>1592</p></td>
+<td><p>6.21</p></td>
+<td><p>1565</p></td>
+<td><p>34.4 %</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>1</p></td>
+<td><p>839619</p></td>
+<td><p>122.54</p></td>
+<td><p>3167</p></td>
+<td><p>94.53</p></td>
+<td><p>3102</p></td>
+<td><p>29.6 %</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>16</p></td>
+<td><p>839619</p></td>
+<td><p>51.34</p></td>
+<td><p>3167</p></td>
+<td><p>41.90</p></td>
+<td><p>3102</p></td>
+<td><p>22.5 %</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>16</p></td>
+<td><p>6502275</p></td>
+<td><p>1057.24</p></td>
+<td><p>6273</p></td>
+<td><p>877.92</p></td>
+<td><p>6124</p></td>
+<td><p>20.0 %</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that due to the small size of the input mesh, domain decomposition is limited to 16 subdomains (MFEM-MGIS only performs parallel refinement). To improve this benchmark, consider using sequential refinement or a finer mesh.</p>
+</div>
+<p>Run this example on Topaze supercomputer:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ccc_mprun<span class="w"> </span>-n<span class="w"> </span><span class="m">16</span><span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>-m<span class="w"> </span>work<span class="w"> </span>-T<span class="w"> </span><span class="m">600</span><span class="w"> </span>-p<span class="w"> </span>milan<span class="w"> </span>-Q<span class="w"> </span><span class="nb">test</span><span class="w"> </span>./MFEMLinearElasticityBenchmark<span class="w"> </span>--mesh<span class="w"> </span>../beam-tet.mesh<span class="w"> </span>-r<span class="w"> </span><span class="m">5</span>
+ccc_mprun<span class="w"> </span>-n<span class="w"> </span><span class="m">16</span><span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>-m<span class="w"> </span>work<span class="w"> </span>-T<span class="w"> </span><span class="m">600</span><span class="w"> </span>-p<span class="w"> </span>milan<span class="w"> </span>-Q<span class="w"> </span><span class="nb">test</span><span class="w"> </span>./MFEMMGISLinearElasticityBenchmark<span class="w"> </span>--mesh<span class="w"> </span>../beam-tet.mesh<span class="w"> </span>-r<span class="w"> </span><span class="m">5</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="changelog.html" class="btn btn-neutral float-left" title="MFEM-MGIS Changelog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contributing_guide.html" class="btn btn-neutral float-right" title="Contributing guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

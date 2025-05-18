@@ -1,0 +1,192 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The MFEM/MGIS project &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation guide" href="installation_guide/installation_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commented_examples/commented_examples.html">Commented Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide/developer_guide.html">Developer guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">The <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> project</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-mfem-mgis-project">
+<span id="mfem-mgis"></span><h1>The <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> project<a class="headerlink" href="#the-mfem-mgis-project" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>The aim of the <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> project is to provide a <code class="docutils literal notranslate"><span class="pre">C++</span></code> library to
+build advanced mechanical simulation based on <code class="docutils literal notranslate"><span class="pre">MFront</span></code> behaviours with
+<code class="docutils literal notranslate"><span class="pre">MFEM</span></code> . The <code class="docutils literal notranslate"><span class="pre">MGIS</span></code> project is used to interface
+<code class="docutils literal notranslate"><span class="pre">MFront</span></code> behaviours .</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">MFEM-MGIS</span></code> project, aims at efficiently use supercomputers in
+order to describe coupled multiphysics phenomena with a particular focus
+on thermo-mechanics. This open-source library is based on several
+components as prerequisites:</p>
+<ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">mfem</span></code> (Modular Finite Element Methods) library
+<span id="id1">[<a class="reference internal" href="#id6" title="Robert Anderson, Julian Andrej, Andrew Barker, Jamie Bramwell, Jean-Sylvain Camier, Jakub Cerveny, Veselin Dobrev, Yohann Dudouit, Aaron Fisher, Tzanio Kolev, and et al. Mfem: a modular finite element methods library. Computers &amp; Mathematics with Applications, Jul 2020. doi:10.1016/j.camwa.2020.06.009.">AAB+20</a>]</span>,</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">MGIS</span></code> (MFront Generic Interface Support) library
+<span id="id2">[<a class="reference internal" href="#id7" title="Thomas Helfer, Jeremy Bleyer, Tero Frondelius, Ivan Yashchuk, Thomas Nagel, and Dmitri Naumov. The `MFrontGenericInterfaceSupport` project. Journal of Open Source Software, 5(48):2003, 2020. Publisher: The Open Journal. URL: https://doi.org/10.21105/joss.02003, doi:10.21105/joss.02003.">HBF+20</a>]</span>,</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">MFront</span></code> code generator.</p></li>
+</ul>
+<p>Thanks to the features embedded within <code class="docutils literal notranslate"><span class="pre">MGIS</span></code> and <code class="docutils literal notranslate"><span class="pre">MFront</span></code> and
+thanks to specific developments, <code class="docutils literal notranslate"><span class="pre">MFEM-MGIS</span></code> adds several mechanical
+features compared to a pure <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> approach.</p>
+<p>The library tackles some peculiarities of nonlinear mechanics. In
+particular, the support of complex constitutive laws and the management
+of advanced boundary conditions. It provides a high level of abstraction
+based focused on the physics to be treated.</p>
+<figure class="align-default">
+<img alt="_images/mfem-mgis-illustration.png" src="_images/mfem-mgis-illustration.png" />
+</figure>
+<section id="statement-of-need">
+<h2>Statement of need<a class="headerlink" href="#statement-of-need" title="Link to this heading"></a></h2>
+<p>The solid mechanic examples in <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> are mostly limited to simple
+constitutive equations such as elasticity and hyperelasticity without
+internal state variables. This is insufficient to address many
+engineering studies and in particular complex nuclear fuel
+simulations.</p>
+<p>The aim of the <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> project is to combine <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> with the
+<code class="docutils literal notranslate"><span class="pre">MFrontGenericInterfaceSupport</span></code> (<code class="docutils literal notranslate"><span class="pre">MGIS</span></code>) project, an open-source <code class="docutils literal notranslate"><span class="pre">C++</span></code>
+library that handles all the kinds of behaviours supported by the open-source
+<code class="docutils literal notranslate"><span class="pre">MFront</span></code> code generator.</p>
+<p>In the field of nonlinear mechanics, this encompasses arbitrary complex
+behaviours that can describe damage, plasticity, and viscoplasticity in both
+small or finite strain analyses. Generalized behaviours such as
+variational approaches to fracture are supported by <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">MGIS</span></code> data structures are used to add support for partial
+quadrature functions to <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>, a feature needed to store internal state
+variables on each material.</p>
+</section>
+<section id="state-of-the-field">
+<h2>State of the field<a class="headerlink" href="#state-of-the-field" title="Link to this heading"></a></h2>
+<p>Many open-source thermomechanical solvers allow handling complex
+mechanical behaviours. <code class="docutils literal notranslate"><span class="pre">code_aster</span></code>, <code class="docutils literal notranslate"><span class="pre">MoFEM</span></code>, <code class="docutils literal notranslate"><span class="pre">CalculiX</span></code> are examples
+of state of the art solvers which have an interface with <code class="docutils literal notranslate"><span class="pre">MFront</span></code>.</p>
+<p>However, those solvers lack many features provided by <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> that the
+authors found interesting to explore in the field of solid mechanics
+(see the above section for a detailed list). The authors also found
+interesting to take a platform designed from the start for high
+performance computing and adapt it to engineering needs and evaluate
+the resulting performances.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<div class="docutils container" id="id3">
+<div role="list" class="citation-list">
+<div class="citation" id="id6" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">AAB+20</a><span class="fn-bracket">]</span></span>
+<p>Robert Anderson, Julian Andrej, Andrew Barker, Jamie Bramwell, Jean-Sylvain Camier, Jakub Cerveny, Veselin Dobrev, Yohann Dudouit, Aaron Fisher, Tzanio Kolev, and et al. Mfem: a modular finite element methods library. <em>Computers &amp; Mathematics with Applications</em>, Jul 2020. <a class="reference external" href="https://doi.org/10.1016/j.camwa.2020.06.009">doi:10.1016/j.camwa.2020.06.009</a>.</p>
+</div>
+<div class="citation" id="id4" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>HBM01<span class="fn-bracket">]</span></span>
+<p>Thomas Helfer, Syriac Bejaoui, and Bruno Michel. Licos, a fuel performance code for innovative fuel elements or experimental devices design. <em>Nuclear Engineering and Design</em>, 294:117–136, 2015-12-01. URL: <a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S0029549315003842">http://www.sciencedirect.com/science/article/pii/S0029549315003842</a> (visited on 2015-11-30), <a class="reference external" href="https://doi.org/10.1016/j.nucengdes.2015.07.070">doi:10.1016/j.nucengdes.2015.07.070</a>.</p>
+</div>
+<div class="citation" id="id7" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">HBF+20</a><span class="fn-bracket">]</span></span>
+<p>Thomas Helfer, Jeremy Bleyer, Tero Frondelius, Ivan Yashchuk, Thomas Nagel, and Dmitri Naumov. The `MFrontGenericInterfaceSupport` project. <em>Journal of Open Source Software</em>, 5(48):2003, 2020. Publisher: The Open Journal. URL: <a class="reference external" href="https://doi.org/10.21105/joss.02003">https://doi.org/10.21105/joss.02003</a>, <a class="reference external" href="https://doi.org/10.21105/joss.02003">doi:10.21105/joss.02003</a>.</p>
+</div>
+<div class="citation" id="id5" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MAL02<span class="fn-bracket">]</span></span>
+<p>C. Miehe, N. Apel, and M. Lambrecht. Anisotropic additive plasticity in the logarithmic strain space: modular kinematic formulation and implementation based on incremental minimization principles for standard materials. <em>Computer Methods in Applied Mechanics and Engineering</em>, 191(47–48):5383–5425, November 2002. URL: <a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S0045782502004383">http://www.sciencedirect.com/science/article/pii/S0045782502004383</a>, <a class="reference external" href="https://doi.org/10.1016/S0045-7825(02)00438-3">doi:10.1016/S0045-7825(02)00438-3</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation_guide/installation_guide.html" class="btn btn-neutral float-right" title="Installation guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
