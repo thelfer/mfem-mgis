@@ -24,3 +24,8 @@ jobs:
       with:
         documentation_path: docs/source
         requirements_path: docs/source/requirements.txt
+        publish: false
+    - uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ${{ steps.deployment.outputs.artifact }}        
