@@ -13,6 +13,7 @@
 #include "mfem/fem/pfespace.hpp"
 #endif /* MFEM_USE_MPI */
 #include "MGIS/Raise.hxx"
+
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
@@ -186,6 +187,11 @@ namespace mfem_mgis {
     this->immutable_values = v;
   }  // end of ImmutablePartialQuadratureFunctionView
 
+  const real* ImmutablePartialQuadratureFunctionView::data(
+      const size_type e, const size_type i) const {
+    return this->data(this->qspace->getOffset(e) + i);
+  }  // end of getIntegrationPointValues
+
   const real& ImmutablePartialQuadratureFunctionView::getIntegrationPointValue(
       const size_type e, const size_type i) const {
     return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
@@ -319,6 +325,10 @@ namespace mfem_mgis {
       }
     }
   }  // end of copy
+
+  real* PartialQuadratureFunction::data(const size_type e, const size_type i) {
+    return this->data(this->qspace->getOffset(e) + i);
+  }  // end of getIntegrationPointValues
 
   real& PartialQuadratureFunction::getIntegrationPointValue(const size_type e,
                                                             const size_type i) {

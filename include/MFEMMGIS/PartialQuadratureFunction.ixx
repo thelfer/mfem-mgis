@@ -39,6 +39,8 @@ namespace mfem_mgis {
     return this->qspace;
   }  // end of getPartialQuadratureSpacePointer
 
+  inline void ImmutablePartialQuadratureFunctionView::allocateWorkspace() {}
+
   inline std::span<const real>
   ImmutablePartialQuadratureFunctionView::getValues() const {
     return this->immutable_values;
@@ -48,6 +50,11 @@ namespace mfem_mgis {
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValue(
       const size_type o) const {
     return *(this->immutable_values.data() + this->getDataOffset(o));
+  }  // end of getIntegrationPointValues
+
+  inline const real* ImmutablePartialQuadratureFunctionView::data(
+      const size_type o) const {
+    return this->immutable_values.data() + this->getDataOffset(o);
   }  // end of getIntegrationPointValues
 
   inline std::span<const real>
@@ -67,6 +74,21 @@ namespace mfem_mgis {
         this->data_size);
   }  // end of getIntegrationPointValues
 
+  inline std::span<const real>
+  ImmutablePartialQuadratureFunctionView::operator()(const size_type o) const {
+    return this->getIntegrationPointValues(o);
+  }
+
+  inline std::span<const real>
+  ImmutablePartialQuadratureFunctionView::operator()(const size_type e,
+                                                     const size_type i) const {
+    return this->getIntegrationPointValues(e, i);
+  }
+
+  inline real* PartialQuadratureFunction::data(const size_type o) {
+    return this->values.data() + this->getDataOffset(o);
+  }  // end of getIntegrationPointValues
+
   inline real& PartialQuadratureFunction::getIntegrationPointValue(
       const size_type o) {
     return *(this->values.data() + this->getDataOffset(o));
@@ -84,6 +106,16 @@ namespace mfem_mgis {
     return std::span<real, N>(this->values.data() + this->getDataOffset(o),
                                this->data_size);
   }  // end of getIntegrationPointValues
+
+  inline std::span<real> PartialQuadratureFunction::operator()(
+      const size_type o) {
+    return this->getIntegrationPointValues(o);
+  }
+
+  inline std::span<real> PartialQuadratureFunction::operator()(
+      const size_type e, const size_type i) {
+    return this->getIntegrationPointValues(e, i);
+  }
 
   inline std::span<real> PartialQuadratureFunction::getValues() {
     return this->values;

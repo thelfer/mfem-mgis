@@ -12,6 +12,11 @@
 #include <variant>
 #include <functional>
 #include <unordered_map>
+
+#ifdef MGIS_FUNCTION_SUPPORT
+#include "MGIS/Function/SpaceConcept.hxx"
+#endif /* MGIS_FUNCTION_SUPPORT */
+
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
@@ -28,8 +33,8 @@ namespace mfem_mgis {
      * \param[in] id: material identifier
      * \param[in] i: element number
      */
-    [[noreturn]] static void treatInvalidOffset(const size_type,
-                                                const size_type);
+    [[noreturn]] static void treatInvalidElementIndex(const size_type,
+                                                      const size_type);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
@@ -53,12 +58,18 @@ namespace mfem_mgis {
     const mfem::IntegrationRule &getIntegrationRule(
         const mfem::FiniteElement &, const mfem::ElementTransformation &) const;
     /*!
-     * \brief return the number of element associated with this material
+     * \brief return the number of finite element associated with this material
      * identifier
      */
     size_type getNumberOfElements() const;
     //! \brief return the number of integration points
     size_type getNumberOfIntegrationPoints() const;
+    /*!
+     * \brief return the number of quadrature points for the given finite
+     * element
+     * \param[in] e: index of the finite element
+     */
+    size_type getNumberOfQuadraturePoints(const size_type) const;
     /*!
      * \brief return the hash table associating global element numbers and local
      * offsets.
@@ -88,13 +99,101 @@ namespace mfem_mgis {
     std::unordered_map<size_type,  // element number (global numbering)
                        size_type>  // offset
         offsets;
+    //! \brief number of quadrature points associated with elements
+    std::unordered_map<size_type,  // element number (global numbering)
+                       size_type>  // offset
+        number_of_quadrature_points;
     //! \brief material identifier
     size_type id;
     //! \brief number of integration points
     size_type ng;
-  };  // end of struct QuadratureSpace
+  };  // end of struct PartialQuadratureSpace
 
-}  // namespace mfem_mgis
+}  // end of namespace mfem_mgis
+
+#ifdef MGIS_FUNCTION_SUPPORT
+
+namespace mfem_mgis {
+
+  /*!
+   * \brief return the number of integration points
+   *
+   * \note this method is equivalent to `getNumberOfIntegrationPoints`
+   * \note this is as requirement of mgis::function::SpaceConcept
+   */
+  size_type getSpaceSize(const PartialQuadratureSpace &);
+  /*!
+   * \brief return the number of quadrature points
+   *
+   * \note this function calls the method
+   * `PartialQuadratureSpace::getNumberOfIntegrationPoints`
+   * \note this is as
+   * requirement of mgis::function::QuadratureSpaceConcept
+   */
+  size_type getNumberOfElements(const PartialQuadratureSpace &);
+
+  /*!
+   * \brief return the number of finite elements associated identifier
+   *
+   * \note this function calls the method
+   * `PartialQuadratureSpace::getNumberOfElements`
+   * \note this is as requirement of mgis::function::QuadratureSpaceConcept
+   */
+  size_type getNumberOfCells(const PartialQuadratureSpace &);
+  /*!
+   * \brief return the number of quadrature points for the given finite
+   * element
+   * \param[in] e: index of the finite element
+   */
+  size_type getNumberOfQuadraturePoints(const PartialQuadratureSpace &,
+                                        const size_type);
+}
+
+namespace mgis::function {
+
+  template <>
+  struct SpaceTraits<mfem_mgis::PartialQuadratureSpace> {
+    /*!
+     * \brief a simple alias
+     *
+     * \note this is as requirement of mgis::function::SpaceConcept
+     */
+    using size_type = mfem_mgis::size_type;
+    /*!
+     * \brief a simple alias
+     *
+     * \note this is as requirement of mgis::function::ElementSpaceConcept
+     */
+    using element_index_type = mfem_mgis::size_type;
+    /*!
+     * \brief boolean stating that the integration points are stored from 0 to
+     * size()-1
+     *
+     * \note this is as requirement of mgis::function::LinearElementSpaceConcept
+     */
+    static constexpr auto linear_element_indexing = true;
+    /*!
+     * \brief a simple alias
+     *
+     * \note this is as requirement of mgis::function::QuadratureSpaceConcept
+     */
+    using cell_index_type = mfem_mgis::size_type;
+    /*!
+     * \brief a simple alias
+     *
+     * \note this is as requirement of mgis::function::QuadratureSpaceConcept
+     */
+    using quadrature_point_index_type = mfem_mgis::size_type;
+  };
+
+  static_assert(SpaceConcept<mfem_mgis::PartialQuadratureSpace>);
+  static_assert(ElementSpaceConcept<mfem_mgis::PartialQuadratureSpace>);
+  static_assert(LinearElementSpaceConcept<mfem_mgis::PartialQuadratureSpace>);
+  static_assert(QuadratureSpaceConcept<mfem_mgis::PartialQuadratureSpace>);
+
+}  // end of namespace mgis::function
+
+#endif /* MGIS_FUNCTION_SUPPORT */
 
 #include "MFEMMGIS/PartialQuadratureSpace.ixx"
 
