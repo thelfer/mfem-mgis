@@ -28,6 +28,15 @@ namespace mfem_mgis {
     return o * (this->data_stride) + this->data_begin;
   }  // end of getDataOffset
 
+#ifdef MGIS_FUNCTION_SUPPORT
+
+  constexpr bool ImmutablePartialQuadratureFunctionView::check(
+      Context&) const noexcept {
+    return true;
+  }
+
+#endif /* MGIS_FUNCTION_SUPPORT */
+  
   inline const PartialQuadratureSpace&
   ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpace() const {
     return *(this->qspace);

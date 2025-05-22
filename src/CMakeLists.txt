@@ -53,6 +53,7 @@ mfem_mgis_library(MFEMMGIS
   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TransientHeatTransferBehaviourIntegrator.cxx
+  MechanicalPostProcessings.cxx
 )
 
 if(OpenMP_FOUND)

@@ -122,6 +122,9 @@ namespace mfem_mgis {
     //! \return the underlying quadrature space
     std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const;
+#ifdef MGIS_FUNCTION_SUPPORT
+    constexpr bool check(Context&) const noexcept;
+#endif /* MGIS_FUNCTION_SUPPORT */
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
