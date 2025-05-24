@@ -330,7 +330,7 @@ these steps to get started.</p>
 <h3>Download Spack, mfem-mgis, and mfem-mgis-examples (not required)<a class="headerlink" href="#download-spack-mfem-mgis-and-mfem-mgis-examples-not-required" title="Link to this heading"></a></h3>
 <p>How to download Spack:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$MY_DIR</span>
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/spack/spack.git
+git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="o">=</span><span class="m">2</span><span class="w"> </span>--branch<span class="o">=</span>v0.23.0<span class="w"> </span>https://github.com/spack/spack.git
 <span class="nb">export</span><span class="w"> </span><span class="nv">SPACK_ROOT</span><span class="o">=</span><span class="nv">$PWD</span>/spack
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/thelfer/mfem-mgis.git
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/latug0/mfem-mgis-examples.git
