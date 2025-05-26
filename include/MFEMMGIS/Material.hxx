@@ -14,6 +14,11 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+
+#ifdef MGIS_FUNCTION_SUPPORT
+#include "MGIS/Function/EvaluatorConcept.hxx"
+#endif /* MGIS_FUNCTION_SUPPORT */
+
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
@@ -21,6 +26,7 @@
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 
 namespace mfem_mgis {
+
 
   // forward declarations
   struct PartialQuadratureSpace;
@@ -223,6 +229,37 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT real computeDissipatedEnergy(
       const BehaviourIntegrator &,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
+
+#ifdef MGIS_FUNCTION_SUPPORT
+
+struct RotationMatrixEvaluator {
+  RotationMatrixEvaluator(const Material&m) : material(m) {}
+  bool check(Context &ctx) const {
+    if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
+      return ctx.registerErrorMessage("considered material is not orthotropic");
+    }
+    return false;
+  }
+  void allocateWorkspace();
+  const PartialQuadratureSpace &getSpace() const {
+    return this->material.getPartialQuadratureSpace();
+  }
+  std::array<real, 9u> operator()(const size_type i) const {
+    return this->material.getRotationMatrixAtIntegrationPoint(i);
+  }
+ private:
+  const Material &material;
+};
+
+inline const PartialQuadratureSpace &getSpace(
+    const RotationMatrixEvaluator &e) {
+  return e.getSpace();
+}  // end of getSpace
+
+static_assert(mgis::function::EvaluatorConcept<RotationMatrixEvaluator>);
+static_assert(!mgis::function::FunctionConcept<RotationMatrixEvaluator>);
+
+#endif /* MGIS_FUNCTION_SUPPORT */
 
 }  // end of namespace mfem_mgis
 

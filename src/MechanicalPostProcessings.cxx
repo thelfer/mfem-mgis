@@ -238,50 +238,48 @@ namespace mfem_mgis {
         "computeFirstEigenStress: unsupported behaviour type");
   }  // end of computeFirstEigenStress
 
-  //   template <unsigned short N>
-  //   static std::optional<PartialQuadratureFunction>
-  //   computeCauchyStressInGlobalFrame_impl(Context& ctx,
-  //                                         const Material& m,
-  //                                         const Material::StateSelection s) {
-  //     PartialQuadratureFunction sig(m.getPartialQuadratureSpacePointer(),
-  //                                   tfel::math::StensorSize<N>::value);
-  //     const auto F = getThermodynamicForce(m, "DeformationGradient", s);
-  //     const auto pk1 = getThermodynamicForce(m, "Stress", s);
-  //     const auto ok = pk1 | as_tensor<N> | from_pk1_to_cauchy(F |
-  //     as_tensor<N>) |
-  //                     rotate_backwards(R) | (sig | as_stensor<N>);
-  //     if (!ok) {
-  //       return ctx.registerErrorMessage(
-  //           "computeFirstEigenStress: computation of the von Mises stress "
-  //           "failed");
-  //     }
-  //     return sig;
-  //   }
-  //
-  //   std::optional<PartialQuadratureFunction>
-  //   computeCauchyStressInGlobalFrame(
-  //       Context& ctx, const Material& m, const Material::StateSelection s) {
-  //     using namespace mgis::function;
-  //     if (m.b.btype !=
-  //         mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-  //       return ctx.registerErrorMessage(
-  //           "computeCauchyStressInGlobalFrame: not a finite strain
-  //           behaviour");
-  //     }
-  //     if (m.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
-  //       return ctx.registerErrorMessage(
-  //           "computeCauchyStressInGlobalFrame: material is not orthotropic");
-  //     }
-  //
-  //     if (m.b.hypothesis == Hypothesis::PLANESTRAIN) {
-  //       return computeCauchyStressInGlobalFrame_impl<2>(ctx, m, s);
-  //     } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
-  //       return computeCauchyStressInGlobalFrame_impl<3>(ctx, m, s);
-  //     }
-  //     return ctx.registerErrorMessage(
-  //         "computeCauchyStressInGlobalFrame: unsupported modelling
-  //         hypothesis");
-  //   }  // end of computeCauchyStressInGlobalFrame
+  template <unsigned short N>
+  static std::optional<PartialQuadratureFunction>
+  computeCauchyStressInGlobalFrame_impl(Context& ctx,
+                                        const Material& m,
+                                        const Material::StateSelection s) {
+    using namespace mgis::function;
+    PartialQuadratureFunction sig(m.getPartialQuadratureSpacePointer(),
+                                  tfel::math::StensorDimeToSize<N>::value);
+    const auto F = getThermodynamicForce(m, "DeformationGradient", s);
+    const auto pk1 = getThermodynamicForce(m, "Stress", s);
+    const auto R = RotationMatrixEvaluator{m};
+    auto sview = sig | as_stensor<N>;
+    const auto ok = pk1 | as_tensor<N> |  //
+                    from_pk1_to_cauchy(F | as_tensor<N>) |
+                    rotate_backwards(R | as_tmatrix<3, 3>) | sview;
+    if (!ok) {
+      return ctx.registerErrorMessage(
+          "computeCauchyStressInGlobalFrame: computation of the Cauchy "
+          "stress in the global frame failed");
+    }
+    return sig;
+  } // end of computeCauchyStressInGlobalFrame_impl
+
+  std::optional<PartialQuadratureFunction> computeCauchyStressInGlobalFrame(
+      Context& ctx, const Material& m, const Material::StateSelection s) {
+    if (m.b.btype !=
+        mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+      return ctx.registerErrorMessage(
+          "computeCauchyStressInGlobalFrame: not a finite strain behaviour");
+    }
+    if (m.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
+      return ctx.registerErrorMessage(
+          "computeCauchyStressInGlobalFrame: material is not orthotropic");
+    }
+    if (m.b.hypothesis == Hypothesis::PLANESTRAIN) {
+      return computeCauchyStressInGlobalFrame_impl<2>(ctx, m, s);
+    } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
+      return computeCauchyStressInGlobalFrame_impl<3>(ctx, m, s);
+    }
+    return ctx.registerErrorMessage(
+        "computeCauchyStressInGlobalFrame: unsupported modelling hypothesis");
+  }  // end of computeCauchyStressInGlobalFrame
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 

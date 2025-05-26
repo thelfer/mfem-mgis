@@ -85,10 +85,10 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state considered (beginnig of time step, end
    * of time step)
    */
-  //   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  //   computeCauchyStressInGlobalFrame(Context&,
-  //                                    const Material&,
-  //                                    const Material::StateSelection);
+  MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
+  computeCauchyStressInGlobalFrame(Context&,
+                                   const Material&,
+                                   const Material::StateSelection);
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 
