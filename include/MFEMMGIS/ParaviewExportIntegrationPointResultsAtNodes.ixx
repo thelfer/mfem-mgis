@@ -32,7 +32,6 @@ namespace mfem_mgis {
     }
     //
     auto add_result = [this, &p](const std::string& rn) {
-      std::cerr << "tata" << rn << "\n";
       auto r = IntegrationPointResult{};
       r.name = rn;
       this->getResultDescription(r, p);
