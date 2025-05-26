@@ -56,12 +56,6 @@ namespace mfem_mgis {
       //! \brief grid function
       std::unique_ptr<GridFunction<parallel>> f;
     };
-    //
-    struct ResultCoefficientBase;
-    //
-    struct ScalarResultCoefficient;
-    //
-    struct MultiComponentsResultCoefficient;
     /*!
      * \brief get information about the given result (number of components and
      * category)
@@ -69,10 +63,15 @@ namespace mfem_mgis {
     void getResultDescription(
         IntegrationPointResult&,
         const NonLinearEvolutionProblemImplementation<parallel>&);
-    //! \brief update the results
-    void updateResultGridFunction(
-        IntegrationPointResult&,
-        NonLinearEvolutionProblemImplementation<parallel>&);
+    /*!
+     * \return the functions associated with the given result
+     * \param[in] p: non linear evolution problem
+     * \param[in] r: results considered
+     */
+    std::vector<ImmutablePartialQuadratureFunctionView>
+    getPartialQuadratureFunctionViews(
+        const NonLinearEvolutionProblemImplementation<parallel>&,
+        const IntegrationPointResult&);
     //! \brief paraview exporter
     mfem::ParaViewDataCollection exporter;
     //! \brief list of material' identifiers

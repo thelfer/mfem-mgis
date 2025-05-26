@@ -13,103 +13,6 @@
 namespace mfem_mgis {
 
   template <bool parallel>
-  struct ParaviewExportIntegrationPointResultsAtNodes<
-      parallel>::ResultCoefficientBase {
-    //
-    ResultCoefficientBase(
-        const IntegrationPointResult& r,
-        const NonLinearEvolutionProblemImplementation<parallel>& p,
-        const std::vector<size_type>& mids) {
-      // creating the partial functions per materials
-      for (const auto& mid : mids) {
-        const auto& m = p.getMaterial(mid);
-        if (r.category == IntegrationPointResult::GRADIENTS) {
-          this->functions.insert({mid, getGradient(m, r.name)});
-        } else if (r.category == IntegrationPointResult::THERMODYNAMIC_FORCES) {
-          this->functions.insert({mid, getThermodynamicForce(m, r.name)});
-        } else {
-          this->functions.insert({mid, getInternalStateVariable(m, r.name)});
-        }
-      }
-    }
-    //
-    ResultCoefficientBase(ResultCoefficientBase&&) = default;
-    ResultCoefficientBase(const ResultCoefficientBase&) = default;
-    ResultCoefficientBase& operator=(ResultCoefficientBase&&) = default;
-    ResultCoefficientBase& operator=(const ResultCoefficientBase&) = default;
-
-   protected:
-    std::map<size_type, ImmutablePartialQuadratureFunctionView> functions;
-  };  // end of ResultCoefficientBase
-
-  template <bool parallel>
-  struct ParaviewExportIntegrationPointResultsAtNodes<
-      parallel>::ScalarResultCoefficient : public ResultCoefficientBase,
-                                           public mfem::Coefficient {
-    //
-    ScalarResultCoefficient(
-        const IntegrationPointResult& r,
-        NonLinearEvolutionProblemImplementation<parallel>& p,
-        const std::vector<size_type>& mids)
-        : ResultCoefficientBase(r, p, mids) {}
-    //
-    ScalarResultCoefficient(ScalarResultCoefficient&&) = default;
-    ScalarResultCoefficient(const ScalarResultCoefficient&) = default;
-    ScalarResultCoefficient& operator=(ScalarResultCoefficient&&) = default;
-    ScalarResultCoefficient& operator=(const ScalarResultCoefficient&) =
-        default;
-    //
-    double Eval(mfem::ElementTransformation& tr,
-                const mfem::IntegrationPoint& i) override {
-      const auto mid = tr.Attribute;
-      const auto p = this->functions.find(mid);
-      if (p == this->functions.end()) {
-        return 0.;
-      }
-      return p->second.getIntegrationPointValue(tr.ElementNo, i.index);
-    }  // end of Eval
-  };
-
-  template <bool parallel>
-  struct ParaviewExportIntegrationPointResultsAtNodes<
-      parallel>::MultiComponentsResultCoefficient
-      : public ResultCoefficientBase,
-        public mfem::VectorCoefficient {
-    //
-    MultiComponentsResultCoefficient(
-        const IntegrationPointResult& r,
-        NonLinearEvolutionProblemImplementation<parallel>& p,
-        const std::vector<size_type>& mids)
-        : ResultCoefficientBase(r, p, mids),
-          mfem::VectorCoefficient(r.number_of_components) {}
-    //
-    MultiComponentsResultCoefficient(MultiComponentsResultCoefficient&&) =
-        default;
-    MultiComponentsResultCoefficient(const MultiComponentsResultCoefficient&) =
-        default;
-    MultiComponentsResultCoefficient& operator=(
-        MultiComponentsResultCoefficient&&) = default;
-    MultiComponentsResultCoefficient& operator=(
-        const MultiComponentsResultCoefficient&) = default;
-    //
-    void Eval(mfem::Vector& values,
-              mfem::ElementTransformation& tr,
-              const mfem::IntegrationPoint& ip) override {
-      const auto mid = tr.Attribute;
-      const auto p = this->functions.find(mid);
-      if (p == this->functions.end()) {
-        values = 0.;
-      } else {
-        const auto rvalues =
-            p->second.getIntegrationPointValues(tr.ElementNo, ip.index);
-        for (size_type i = 0; i != this->GetVDim(); ++i) {
-          values[i] = rvalues[i];
-        }
-      }
-    }  // end of Eval
-  };
-
-  template <bool parallel>
   ParaviewExportIntegrationPointResultsAtNodes<parallel>::
       ParaviewExportIntegrationPointResultsAtNodes(
           NonLinearEvolutionProblemImplementation<parallel>& p,
@@ -117,6 +20,7 @@ namespace mfem_mgis {
       : exporter(get<std::string>(params, "OutputFileName"),
                  p.getFiniteElementSpace().GetMesh()),
         cycle(0) {
+    std::cerr << "ParaviewExportIntegrationPointResultsAtNodes\n";
     checkParameters(params, {"OutputFileName", "Materials", "Results"});
     // if Materials exists, use it, otherwise, take all materials
     this->materials_identifiers = getMaterialsIdentifiers(p, params);
@@ -128,17 +32,12 @@ namespace mfem_mgis {
     }
     //
     auto add_result = [this, &p](const std::string& rn) {
+      std::cerr << "tata" << rn << "\n";
       auto r = IntegrationPointResult{};
       r.name = rn;
       this->getResultDescription(r, p);
-      // creating the finite element space that will support the result grid
-      // function
-      auto fes = p.getFiniteElementSpace();
-      r.fespace = std::make_unique<FiniteElementSpace<parallel>>(
-          &(p.getMesh()), fes.FEColl(), r.number_of_components,
-          fes.GetOrdering());
-      // grid function
-      r.f = std::make_unique<GridFunction<parallel>>(r.fespace.get());
+      std::tie(r.fespace, r.f) = makeGridFunction<parallel>(
+          this->getPartialQuadratureFunctionViews(p, r));
       // registring
       this->exporter.RegisterField(r.name, r.f.get());
       // saving
@@ -162,26 +61,12 @@ namespace mfem_mgis {
     this->exporter.SetTime(t + dt);
     // updating grid functions
     for (auto& r : this->results) {
-      this->updateResultGridFunction(r, p);
+      updateGridFunction<parallel>(
+          *(r.f), this->getPartialQuadratureFunctionViews(p, r));
     }
     this->exporter.Save();
     ++(this->cycle);
   }  // end of execute
-
-  template <bool parallel>
-  void ParaviewExportIntegrationPointResultsAtNodes<parallel>::
-      updateResultGridFunction(
-          IntegrationPointResult& r,
-          NonLinearEvolutionProblemImplementation<parallel>& p) {
-    if (r.number_of_components == 1u) {
-      auto c = ScalarResultCoefficient(r, p, this->materials_identifiers);
-      r.f->ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
-    } else {
-      auto c =
-          MultiComponentsResultCoefficient(r, p, this->materials_identifiers);
-      r.f->ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
-    }
-  }  // end of updateResultGridFunction
 
   template <bool parallel>
   void
@@ -237,6 +122,27 @@ namespace mfem_mgis {
     r.category = c;
     r.number_of_components = s;
   }  // end of getResultDescription
+
+  template <bool parallel>
+  std::vector<ImmutablePartialQuadratureFunctionView>
+  ParaviewExportIntegrationPointResultsAtNodes<parallel>::
+      getPartialQuadratureFunctionViews(
+          const NonLinearEvolutionProblemImplementation<parallel>& p,
+          const IntegrationPointResult& r) {
+    auto fcts = std::vector<ImmutablePartialQuadratureFunctionView>{};
+    // creating the partial functions per materials
+    for (const auto& mid : this->materials_identifiers) {
+      const auto& m = p.getMaterial(mid);
+      if (r.category == IntegrationPointResult::GRADIENTS) {
+        fcts.push_back(getGradient(m, r.name));
+      } else if (r.category == IntegrationPointResult::THERMODYNAMIC_FORCES) {
+        fcts.push_back(getThermodynamicForce(m, r.name));
+      } else {
+        fcts.push_back(getInternalStateVariable(m, r.name));
+      }
+    }
+    return fcts;
+  }  // end of getPartialQuadratureFunctionViews
 
   template <bool parallel>
   ParaviewExportIntegrationPointResultsAtNodes<

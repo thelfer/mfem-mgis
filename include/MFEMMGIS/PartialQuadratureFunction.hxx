@@ -111,8 +111,8 @@ namespace mfem_mgis {
     ImmutablePartialQuadratureFunctionView(
         std::shared_ptr<const PartialQuadratureSpace>,
         std::span<const real>,
-        const size_type = 0,
-        const size_type = std::numeric_limits<size_type>::max());
+        const size_type,
+        const size_type);
     //! \return the underlying quadrature space
     const PartialQuadratureSpace& getPartialQuadratureSpace() const;
     //! \return the underlying quadrature space
@@ -151,7 +151,7 @@ namespace mfem_mgis {
      * \param[in] i: integration point number in the element
      */
     std::span<const real> getIntegrationPointValues(const size_type,
-                                                     const size_type) const;
+                                                    const size_type) const;
     //! \return a view to the function values
     std::span<const real> getValues() const;
     /*!
@@ -297,8 +297,7 @@ namespace mfem_mgis {
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
      */
-    std::span<real> getIntegrationPointValues(const size_type,
-                                               const size_type);
+    std::span<real> getIntegrationPointValues(const size_type, const size_type);
     //! \return a view to the function values
     std::span<real> getValues();
     //! \brief destructor
@@ -329,6 +328,51 @@ namespace mfem_mgis {
      */
     std::vector<real> local_values_storage;
   };  // end of struct PartialQuadratureFunction
+
+  /*!
+   * \return a grid function able to store the result of the given functions
+   * \param[in] p: underlying problem
+   * \param[in] fcts: functions
+   * \note the values of the grid function are computed by the
+   * updateGridFunction function.
+   */
+  template <bool parallel>
+  std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
+            std::unique_ptr<GridFunction<parallel>>>
+  makeGridFunction(const std::vector<ImmutablePartialQuadratureFunctionView>&);
+
+  template <>
+  MFEM_MGIS_EXPORT std::pair<std::unique_ptr<FiniteElementSpace<true>>,
+                             std::unique_ptr<GridFunction<true>>>
+  makeGridFunction<true>(
+      const std::vector<ImmutablePartialQuadratureFunctionView>&);
+
+  template <>
+  MFEM_MGIS_EXPORT std::pair<std::unique_ptr<FiniteElementSpace<false>>,
+                             std::unique_ptr<GridFunction<false>>>
+  makeGridFunction<false>(
+      const std::vector<ImmutablePartialQuadratureFunctionView>&);
+
+  /*!
+   * \brief update a grid function using the values of the given functions
+   * \param[in] f: function
+   * \param[in] fcts: functions
+   * \note the grid function must have been created by `makeGridFunction`
+   */
+  template <bool parallel>
+  void updateGridFunction(
+      GridFunction<parallel>&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&);
+
+  template <>
+  MFEM_MGIS_EXPORT void updateGridFunction<true>(
+      GridFunction<true>&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&);
+
+  template <>
+  MFEM_MGIS_EXPORT void updateGridFunction<false>(
+      GridFunction<false>&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&);
 
 }  // namespace mfem_mgis
 
