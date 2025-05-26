@@ -20,10 +20,17 @@ namespace mfem_mgis {
       : exporter(get<std::string>(params, "OutputFileName"),
                  p.getFiniteElementSpace().GetMesh()),
         cycle(0) {
-    std::cerr << "ParaviewExportIntegrationPointResultsAtNodes\n";
     checkParameters(params, {"OutputFileName", "Materials", "Results"});
     // if Materials exists, use it, otherwise, take all materials
     this->materials_identifiers = getMaterialsIdentifiers(p, params);
+    /** Create Submesh using the material identifiers */
+    mfem::Array<int> mat_attributes;
+    for (const auto& mids : this->materials_identifiers) {
+      mat_attributes.Append(mids);
+    }
+    this->submesh = std::make_shared<SubMesh<parallel>>(SubMesh<parallel>(
+        SubMesh<parallel>::CreateFromDomain(p.getMesh(), mat_attributes)));
+    //
     if (!contains(params, "Results")) {
       raise(
           "ParaviewExportIntegrationPointResultsAtNodes::"
@@ -36,7 +43,7 @@ namespace mfem_mgis {
       r.name = rn;
       this->getResultDescription(r, p);
       std::tie(r.fespace, r.f) = makeGridFunction<parallel>(
-          this->getPartialQuadratureFunctionViews(p, r));
+          this->getPartialQuadratureFunctionViews(p, r), this->submesh);
       // registring
       this->exporter.RegisterField(r.name, r.f.get());
       // saving
@@ -61,7 +68,7 @@ namespace mfem_mgis {
     // updating grid functions
     for (auto& r : this->results) {
       updateGridFunction<parallel>(
-          *(r.f), this->getPartialQuadratureFunctionViews(p, r));
+          *(r.f), this->getPartialQuadratureFunctionViews(p, r), this->submesh);
     }
     this->exporter.Save();
     ++(this->cycle);

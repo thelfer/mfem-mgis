@@ -8,9 +8,11 @@
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
+#include "mfem/mesh/submesh/submesh.hpp"
 #include "mfem/fem/fespace.hpp"
 #include "mfem/fem/gridfunc.hpp"
 #ifdef MFEM_USE_MPI
+#include "mfem/mesh/submesh/psubmesh.hpp"
 #include "mfem/fem/pfespace.hpp"
 #include "mfem/fem/pgridfunc.hpp"
 #endif /* MFEM_USE_MPI */
@@ -461,10 +463,46 @@ namespace mfem_mgis {
   }
 
   template <bool parallel>
+  static std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
+                   std::unique_ptr<GridFunction<parallel>>>
+  makeGridFunction_impl(
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const std::shared_ptr<SubMesh<parallel>>& mesh) {
+    if (fcts.empty()) {
+      raise("no functions defined");
+    }
+    const auto n = fcts.at(0).getNumberOfComponents();
+    const auto& fed =
+        fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    auto& fes = fed.getFiniteElementSpace<parallel>();
+    auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
+        mesh.get(), fes.FEColl(), n, fes.GetOrdering());
+    auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
+    return {std::move(fespace), std::move(f)};
+  }
+
+  template <>
+  std::pair<std::unique_ptr<FiniteElementSpace<true>>,
+            std::unique_ptr<GridFunction<true>>>
+  makeGridFunction<true>(
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const std::shared_ptr<SubMesh<true>>& mesh) {
+    return makeGridFunction_impl<true>(fcts, mesh);
+  }
+
+  template <>
+  std::pair<std::unique_ptr<FiniteElementSpace<false>>,
+            std::unique_ptr<GridFunction<false>>>
+  makeGridFunction<false>(
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const std::shared_ptr<SubMesh<false>>& mesh) {
+    return makeGridFunction_impl<false>(fcts, mesh);
+  }
+
+  template <bool parallel>
   static void updateGridFunction_impl(
       GridFunction<parallel>& f,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
-    std::cerr << "updateGridFunction_impl\n";
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
@@ -484,7 +522,6 @@ namespace mfem_mgis {
       auto c = PartialQuadratureFunctionsVectorCoefficient(fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     }
-    std::cerr << "updateGridFunction_impl end\n";
   }
 
   template <>
@@ -500,5 +537,47 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
     updateGridFunction_impl<false>(f, fcts);
   }
+
+  template <bool parallel>
+  static void updateGridFunction_impl(
+      GridFunction<parallel> & f,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const std::shared_ptr<SubMesh<parallel>>& mesh) {
+    const auto n = fcts.at(0).getNumberOfComponents();
+    const auto& fed =
+        fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    const auto& fes = fed.getFiniteElementSpace<parallel>();
+    const auto& fespace = f.FESpace();
+    if ((fespace->GetMesh() != mesh.get()) ||  //
+        (fespace->GetVDim() != n) ||           //
+        (fes.FEColl() != fespace->FEColl()) ||
+        (fes.GetOrdering() != fespace->GetOrdering())) {
+      raise("inconsistent grid function");
+    }
+    if (n == 1u) {
+      auto c = PartialQuadratureFunctionsScalarCoefficient(fcts);
+      f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
+    } else {
+      auto c = PartialQuadratureFunctionsVectorCoefficient(fcts);
+      f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
+    }
+  }
+
+  template <>
+  MFEM_MGIS_EXPORT void updateGridFunction<true>(
+      GridFunction<true>& f,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const std::shared_ptr<SubMesh<true>>& mesh) {
+    updateGridFunction_impl<true>(f, fcts, mesh);
+  }
+
+  template <>
+  MFEM_MGIS_EXPORT void updateGridFunction<false>(
+      GridFunction<false>& f,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const std::shared_ptr<SubMesh<false>>& mesh) {
+    updateGridFunction_impl<false>(f, fcts, mesh);
+  }
+
 
 }  // end of namespace mfem_mgis

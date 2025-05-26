@@ -72,6 +72,8 @@ namespace mfem_mgis {
     getPartialQuadratureFunctionViews(
         const NonLinearEvolutionProblemImplementation<parallel>&,
         const IntegrationPointResult&);
+    //! \brief submesh defined when exporting data for domain or boundary attributes
+    std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;
     //! \brief paraview exporter
     mfem::ParaViewDataCollection exporter;
     //! \brief list of material' identifiers
