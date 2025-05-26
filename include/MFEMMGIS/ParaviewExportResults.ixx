@@ -79,7 +79,7 @@ namespace mfem_mgis {
         this->fes_sm = std::make_shared<FiniteElementSpace<parallel>>(FiniteElementSpace<parallel>( 
               this->submesh.get(), 
               &fec_subdomain, 
-              pmesh.Dimension()));
+              FED.template getFiniteElementSpace<parallel>().GetVDim()));
 
         /** init the grid function corresponding to the sub mesh */
         this->result_sm = std::make_shared<mfem_mgis::GridFunction<parallel>>(
