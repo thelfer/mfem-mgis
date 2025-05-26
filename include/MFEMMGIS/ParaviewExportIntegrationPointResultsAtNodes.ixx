@@ -30,6 +30,8 @@ namespace mfem_mgis {
     }
     this->submesh = std::make_shared<SubMesh<parallel>>(SubMesh<parallel>(
         SubMesh<parallel>::CreateFromDomain(p.getMesh(), mat_attributes)));
+    this->exporter.SetMesh(this->submesh.get());
+    this->exporter.SetDataFormat(mfem::VTKFormat::BINARY);
     //
     if (!contains(params, "Results")) {
       raise(
