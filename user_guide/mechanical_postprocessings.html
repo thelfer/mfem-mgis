@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partial quadrature functions &mdash; The MFEM MGIS project  documentation</title>
+  <title>Mechanical post-processings &mdash; The MFEM MGIS project  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Mechanical post-processings" href="mechanical_postprocessings.html" />
-    <link rel="prev" title="Post-processings" href="post_processings.html" /> 
+    <link rel="next" title="Glossary Of Parameters" href="glossary.html" />
+    <link rel="prev" title="Partial quadrature functions" href="partial_quadrature_functions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,11 +51,8 @@
 <li class="toctree-l2"><a class="reference internal" href="behaviour_integrators.html">Behaviour integrators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="boundary_conditions.html">Boundary conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="post_processings.html">Post-processings</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Partial quadrature functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#extrapolating-quadrature-functions-at-nodes">Extrapolating quadrature functions at nodes</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="partial_quadrature_functions.html">Partial quadrature functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="glossary.html">Glossary Of Parameters</a></li>
 </ul>
 </li>
@@ -78,9 +75,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="user_guide.html">User guide</a></li>
-      <li class="breadcrumb-item active">Partial quadrature functions</li>
+      <li class="breadcrumb-item active">Mechanical post-processings</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/user_guide/partial_quadrature_functions.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/user_guide/mechanical_postprocessings.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -88,35 +85,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="partial-quadrature-functions">
-<h1>Partial quadrature functions<a class="headerlink" href="#partial-quadrature-functions" title="Link to this heading"></a></h1>
-<p>Partial quadrature functions map quadrature points to values. A partial
-quadrature function is defined on the quadrature points associated with
-a unique material.</p>
-<section id="extrapolating-quadrature-functions-at-nodes">
-<h2>Extrapolating quadrature functions at nodes<a class="headerlink" href="#extrapolating-quadrature-functions-at-nodes" title="Link to this heading"></a></h2>
-<p>Using a so-called <a href="#id1"><span class="problematic" id="id2">:cxx:`GridFunction`</span></a>, a set of partial quadrature
-functions, each associated with a distinct material, can be extrapolated
-at nodes:</p>
+  <section id="mechanical-post-processings">
+<h1>Mechanical post-processings<a class="headerlink" href="#mechanical-post-processings" title="Link to this heading"></a></h1>
+<p>The <a href="#id1"><span class="problematic" id="id2">:cxx:`MechanicalPostProcessings.hxx`</span></a> header declares various utility
+functions:</p>
 <ul class="simple">
-<li><p>the <cite>makeGridFunction</cite> creates the <cite>GridFunction</cite> and the associated
-finite element space.</p></li>
-<li><p>the <cite>updateGridFunction</cite> fills the <cite>GridFunction</cite> with the values of
-the partial quadrature functions.</p></li>
+<li><p><a href="#id3"><span class="problematic" id="id4">:cxx:`computeVonMisesEquivalentStress`</span></a>: computes the von Mises
+equivalent stress. For finite strain behaviours, the von Mises
+equivalent stress of the Cauchy stress is returned.</p></li>
+<li><p><a href="#id5"><span class="problematic" id="id6">:cxx:`computeEigenStresses`</span></a> computes the eigen values of the stress.
+For finite strain behaviours, the eigen values of the Cauchy stress is
+returned.</p></li>
+<li><p><a href="#id7"><span class="problematic" id="id8">:cxx:`computeFirstEigenStress`</span></a> computes the first (maximum) eigen
+value of the stress. For finite strain behaviours, the first eigen
+value of the Cauchy stress is returned.</p></li>
+<li><p><a href="#id9"><span class="problematic" id="id10">:cxx:`computeStressInGlobalFrame`</span></a>: compute the stress in the global
+frame. This function is only for orthotropic behaviours. For finite
+strain behaviours, the first Piola-Kirchhoff stress is returned.</p></li>
+<li><p><a href="#id11"><span class="problematic" id="id12">:cxx:`computeCauchyStressInGlobalFrame`</span></a>: compute the Cauchy stress in
+the global frame. This function is only valid for orthotropic finite
+strain behaviours.</p></li>
 </ul>
-<p>A <a href="#id3"><span class="problematic" id="id4">:cxx:`GridFunction`</span></a> being an <cite>MFEM</cite> object, the reader may refer to
-the <cite>MFEM</cite> documentation for further details. In particular, a
-<a href="#id5"><span class="problematic" id="id6">:cxx:`GridFunction`</span></a> can easily be exported to <cite>Paraview</cite> using
-<a href="#id7"><span class="problematic" id="id8">:cxx:`MFEM`</span></a>’s <a href="#id9"><span class="problematic" id="id10">:cxx:`ParaViewDataCollection`</span></a>.</p>
-</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="post_processings.html" class="btn btn-neutral float-left" title="Post-processings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="mechanical_postprocessings.html" class="btn btn-neutral float-right" title="Mechanical post-processings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="partial_quadrature_functions.html" class="btn btn-neutral float-left" title="Partial quadrature functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="glossary.html" class="btn btn-neutral float-right" title="Glossary Of Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
