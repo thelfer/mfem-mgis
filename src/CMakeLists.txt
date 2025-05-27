@@ -21,6 +21,7 @@ mfem_mgis_library(MFEMMGIS
   ImposedDirichletBoundaryConditionAtClosestNode.cxx
   PostProcessing.cxx
   PostProcessingFactory.cxx
+  ParaviewExportIntegrationPointResultsAtNodes.cxx
   ComputeResultantForceOnBoundary.cxx
   AbstractNonLinearEvolutionProblem.cxx
   NonLinearEvolutionProblemImplementationBase.cxx

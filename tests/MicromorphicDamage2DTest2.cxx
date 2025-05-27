@@ -163,7 +163,8 @@ int main(int argc, char** argv) {
       buildMechanicalProblem(test_parameters, common_problem_parameters);
   auto micromorphic_problem =
       buildMicromorphicProblem(test_parameters, common_problem_parameters);
-  // solving the problem in 5 time steps, put t1 to 1 and nstep to 100 for the full simulation
+  // solving the problem in 5 time steps, put t1 to 1 and nstep to 100 for the
+  // full simulation
   const auto t0 = mfem_mgis::real{0};
   const auto t1 = mfem_mgis::real{0.05};
   const auto nsteps = mfem_mgis::size_type{5};

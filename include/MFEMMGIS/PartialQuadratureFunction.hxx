@@ -169,7 +169,7 @@ namespace mfem_mgis {
      * \param[in] i: integration point number in the element
      */
     std::span<const real> getIntegrationPointValues(const size_type,
-                                                     const size_type) const;
+                                                    const size_type) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
@@ -294,10 +294,10 @@ namespace mfem_mgis {
     //     //! \brief move assignement operator
     //     PartialQuadratureFunction& operator=(PartialQuadratureFunction&&);
     //
+    using ImmutablePartialQuadratureFunctionView::data;
     using ImmutablePartialQuadratureFunctionView::getIntegrationPointValue;
     using ImmutablePartialQuadratureFunctionView::getIntegrationPointValues;
     using ImmutablePartialQuadratureFunctionView::getValues;
-    using ImmutablePartialQuadratureFunctionView::data;
     using ImmutablePartialQuadratureFunctionView::operator();
     /*!
      * \brief return the data associated with an integration point
@@ -497,11 +497,12 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT const PartialQuadratureSpace& getSpace(
       const PartialQuadratureFunction&);
 
-} // end of mfem_mgis
+}  // namespace mfem_mgis
 
 namespace mgis::function {
 
-  static_assert(EvaluatorConcept<mfem_mgis::ImmutablePartialQuadratureFunctionView>);
+  static_assert(
+      EvaluatorConcept<mfem_mgis::ImmutablePartialQuadratureFunctionView>);
   static_assert(FunctionConcept<mfem_mgis::PartialQuadratureFunction>);
   static_assert(!EvaluatorConcept<mfem_mgis::PartialQuadratureFunction>);
 

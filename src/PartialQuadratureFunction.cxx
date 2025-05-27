@@ -550,7 +550,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static void updateGridFunction_impl(
-      GridFunction<parallel> & f,
+      GridFunction<parallel>& f,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const std::shared_ptr<SubMesh<parallel>>& mesh) {
     const auto n = fcts.at(0).getNumberOfComponents();

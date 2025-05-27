@@ -36,7 +36,7 @@ namespace mfem_mgis {
   }
 
 #endif /* MGIS_FUNCTION_SUPPORT */
-  
+
   inline const PartialQuadratureSpace&
   ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpace() const {
     return *(this->qspace);
@@ -106,14 +106,14 @@ namespace mfem_mgis {
   inline std::span<real> PartialQuadratureFunction::getIntegrationPointValues(
       const size_type o) {
     return std::span<real>(this->values.data() + this->getDataOffset(o),
-                            this->data_size);
+                           this->data_size);
   }  // end of getIntegrationPointValues
 
   template <size_type N>
   inline std::span<real, N>
   PartialQuadratureFunction::getIntegrationPointValues(const size_type o) {
     return std::span<real, N>(this->values.data() + this->getDataOffset(o),
-                               this->data_size);
+                              this->data_size);
   }  // end of getIntegrationPointValues
 
   inline std::span<real> PartialQuadratureFunction::operator()(

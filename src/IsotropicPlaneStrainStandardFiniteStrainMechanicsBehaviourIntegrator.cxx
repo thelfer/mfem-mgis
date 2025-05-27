@@ -39,9 +39,9 @@ namespace mfem_mgis {
      // IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator
 
   real IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
-      getIntegrationPointWeight(mfem::ElementTransformation &tr,
-                                const mfem::IntegrationPoint &ip) const
-      noexcept {
+      getIntegrationPointWeight(
+          mfem::ElementTransformation &tr,
+          const mfem::IntegrationPoint &ip) const noexcept {
     return ip.weight * tr.Weight();
   }
   const mfem::IntegrationRule &

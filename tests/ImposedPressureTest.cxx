@@ -20,7 +20,6 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "UnitTestingUtilities.hxx"
 
-
 int main(int argc, char** argv) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
@@ -35,7 +34,7 @@ int main(int argc, char** argv) {
          {"FiniteElementFamily", "H1"},
          {"FiniteElementOrder", parameters.order},
          {"UnknownsSize", dim},
-         {"NumberOfUniformRefinements", 0}, // faster for testing
+         {"NumberOfUniformRefinements", 0},  // faster for testing
          //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
          {"Hypothesis", "Tridimensional"},
          {"Parallel", bool(parameters.parallel)}});

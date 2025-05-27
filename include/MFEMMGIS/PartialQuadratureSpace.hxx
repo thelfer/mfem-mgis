@@ -147,7 +147,7 @@ namespace mfem_mgis {
    */
   size_type getNumberOfQuadraturePoints(const PartialQuadratureSpace &,
                                         const size_type);
-}
+}  // namespace mfem_mgis
 
 namespace mgis::function {
 

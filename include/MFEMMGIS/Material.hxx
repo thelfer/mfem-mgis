@@ -27,7 +27,6 @@
 
 namespace mfem_mgis {
 
-
   // forward declarations
   struct PartialQuadratureSpace;
   struct BehaviourIntegrator;
@@ -78,7 +77,8 @@ namespace mfem_mgis {
      * \param[in] o: offset of the integration point
      * \note this method is only valid for orthotropic behaviours
      */
-    std::array<real, 9u> getRotationMatrixAtIntegrationPoint(const size_type) const;
+    std::array<real, 9u> getRotationMatrixAtIntegrationPoint(
+        const size_type) const;
     //! \brief destructor
     ~Material();
 
@@ -232,32 +232,35 @@ namespace mfem_mgis {
 
 #ifdef MGIS_FUNCTION_SUPPORT
 
-struct RotationMatrixEvaluator {
-  RotationMatrixEvaluator(const Material&m) : material(m) {}
-  bool check(Context &ctx) const {
-    if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
-      return ctx.registerErrorMessage("considered material is not orthotropic");
+  struct RotationMatrixEvaluator {
+    RotationMatrixEvaluator(const Material &m) : material(m) {}
+    bool check(Context &ctx) const {
+      if (this->material.b.symmetry !=
+          mgis::behaviour::Behaviour::ORTHOTROPIC) {
+        return ctx.registerErrorMessage(
+            "considered material is not orthotropic");
+      }
+      return false;
     }
-    return false;
-  }
-  inline void allocateWorkspace(){};
-  const PartialQuadratureSpace &getSpace() const {
-    return this->material.getPartialQuadratureSpace();
-  }
-  std::array<real, 9u> operator()(const size_type i) const {
-    return this->material.getRotationMatrixAtIntegrationPoint(i);
-  }
- private:
-  const Material &material;
-};
+    inline void allocateWorkspace(){};
+    const PartialQuadratureSpace &getSpace() const {
+      return this->material.getPartialQuadratureSpace();
+    }
+    std::array<real, 9u> operator()(const size_type i) const {
+      return this->material.getRotationMatrixAtIntegrationPoint(i);
+    }
 
-inline const PartialQuadratureSpace &getSpace(
-    const RotationMatrixEvaluator &e) {
-  return e.getSpace();
-}  // end of getSpace
+   private:
+    const Material &material;
+  };
 
-static_assert(mgis::function::EvaluatorConcept<RotationMatrixEvaluator>);
-static_assert(!mgis::function::FunctionConcept<RotationMatrixEvaluator>);
+  inline const PartialQuadratureSpace &getSpace(
+      const RotationMatrixEvaluator &e) {
+    return e.getSpace();
+  }  // end of getSpace
+
+  static_assert(mgis::function::EvaluatorConcept<RotationMatrixEvaluator>);
+  static_assert(!mgis::function::FunctionConcept<RotationMatrixEvaluator>);
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 

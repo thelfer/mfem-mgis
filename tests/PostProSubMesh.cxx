@@ -20,7 +20,6 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include <MFEMMGIS/Profiler.hxx>
 
-
 struct TestParameters {
   const char* mesh_file = "data/beam-tet.mesh";
   const char* behaviour = "Elasticity";
@@ -30,19 +29,19 @@ struct TestParameters {
   int verbosity = 0;
 };
 
-void common_parameters(mfem::OptionsParser& args, TestParameters& p)
-{
+void common_parameters(mfem::OptionsParser& args, TestParameters& p) {
   args.AddOption(&p.mesh_file, "-m", "--mesh", "Mesh file to use.");
   args.AddOption(&p.library, "-l", "--library", "Material library.");
-  args.AddOption(&p.order, "-o", "--order", "Finite element order (polynomial degree).");
-  args.AddOption(&p.refinement, "-r", "--refinement", "refinement level of the mesh, default = 0");
+  args.AddOption(&p.order, "-o", "--order",
+                 "Finite element order (polynomial degree).");
+  args.AddOption(&p.refinement, "-r", "--refinement",
+                 "refinement level of the mesh, default = 0");
   args.AddOption(&p.verbosity, "-v", "--verbosity", "Linear solver verbosity");
 
   args.Parse();
 
   if (!args.Good()) {
-    if (mfem_mgis::getMPIrank() == 0)
-      args.PrintUsage(std::cout);
+    if (mfem_mgis::getMPIrank() == 0) args.PrintUsage(std::cout);
     mfem_mgis::finalize();
     exit(0);
   }
@@ -51,15 +50,12 @@ void common_parameters(mfem::OptionsParser& args, TestParameters& p)
       std::cout << "ERROR: Mesh file missing" << std::endl;
     args.PrintUsage(std::cout);
   }
-  if (mfem_mgis::getMPIrank() == 0)
-    args.PrintOptions(std::cout);
+  if (mfem_mgis::getMPIrank() == 0) args.PrintOptions(std::cout);
 
   mfem_mgis::declareDefaultOptions(args);
 }
 
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   using namespace mgis::behaviour;
 
   /** mpi initialization here, note that this command initializes the timers */
@@ -73,8 +69,8 @@ int main(int argc, char* argv[])
   mfem::OptionsParser args(argc, argv);
   common_parameters(args, p);
 
-  auto fed = 
-    mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
+  auto fed = mfem_mgis::Parameters{
+      {"MeshFileName", p.mesh_file},
       {"FiniteElementFamily", "H1"},
       {"FiniteElementOrder", p.order},
       {"UnknownsSize", 3},
@@ -108,77 +104,85 @@ int main(int argc, char* argv[])
   /** Setting Boundaries Conditions */
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-        problem.getFiniteElementDiscretizationPointer(), 1, 0));
+          problem.getFiniteElementDiscretizationPointer(), 1, 0));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-        problem.getFiniteElementDiscretizationPointer(), 1, 1));
+          problem.getFiniteElementDiscretizationPointer(), 1, 1));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-        problem.getFiniteElementDiscretizationPointer(), 1, 2));
+          problem.getFiniteElementDiscretizationPointer(), 1, 2));
 
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-        problem.getFiniteElementDiscretizationPointer(), 2, 0));
+          problem.getFiniteElementDiscretizationPointer(), 2, 0));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-        problem.getFiniteElementDiscretizationPointer(), 2, 1));
+          problem.getFiniteElementDiscretizationPointer(), 2, 1));
   problem.addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-        problem.getFiniteElementDiscretizationPointer(), 2, 2,
-        []([[maybe_unused]]const auto t) noexcept {
-        return -1;
-        }));
+          problem.getFiniteElementDiscretizationPointer(), 2, 2,
+          []([[maybe_unused]] const auto t) noexcept { return -1; }));
 
   problem.setSolverParameters({{"VerbosityLevel", 1},
-      {"RelativeTolerance", 1e-6},
-      {"AbsoluteTolerance", 0.},
-      {"MaximumNumberOfIterations", 6}});
+                               {"RelativeTolerance", 1e-6},
+                               {"AbsoluteTolerance", 0.},
+                               {"MaximumNumberOfIterations", 6}});
 
-  constexpr int defaultMaxNumOfIt     = 50000;     // MaximumNumberOfIterations
+  constexpr int defaultMaxNumOfIt = 50000;  // MaximumNumberOfIterations
   auto solverParameters = mfem_mgis::Parameters{};
-  solverParameters.insert(mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}});
-  solverParameters.insert(mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
+  solverParameters.insert(
+      mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}});
+  solverParameters.insert(
+      mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
   solverParameters.insert(mfem_mgis::Parameters{{"Tolerance", 1e-14}});
 
-  auto options = mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}}; 
-  auto preconditionner = mfem_mgis::Parameters{{"Name","HypreDiagScale"}, {"Options",options}};
-  solverParameters.insert(mfem_mgis::Parameters{{"Preconditioner",preconditionner}});
+  auto options = mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}};
+  auto preconditionner =
+      mfem_mgis::Parameters{{"Name", "HypreDiagScale"}, {"Options", options}};
+  solverParameters.insert(
+      mfem_mgis::Parameters{{"Preconditioner", preconditionner}});
 
   // solver HyprePCG
   problem.setLinearSolver("HyprePCG", solverParameters);
 
-
   /** Define your post processings here */
   {
-    std::vector<mfem_mgis::Parameter> materials{"Attr1","Attr2"};
-    std::vector<mfem_mgis::Parameter> bdrs{"left","right"};
-    /** You can not define Materials and Boundaries in a single post processing */
-    problem.addPostProcessing("ParaviewExportResults", 
+    std::vector<mfem_mgis::Parameter> materials{"Attr1", "Attr2"};
+    std::vector<mfem_mgis::Parameter> bdrs{"left", "right"};
+    /** You can not define Materials and Boundaries in a single post processing
+     */
+    problem.addPostProcessing(
+        "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
-        {"Materials", materials},
-        {"OutputFieldName", "Displacement"},
-        {"Verbosity", 1}});
-    problem.addPostProcessing("ParaviewExportResults", 
+         {"Materials", materials},
+         {"OutputFieldName", "Displacement"},
+         {"Verbosity", 1}});
+    problem.addPostProcessing(
+        "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
-        {"OutputFieldName", "Displacement"},
-        {"Material", "Attr1"}, 
-        {"Verbosity", 1}});
-    problem.addPostProcessing("ParaviewExportResults", 
+         {"OutputFieldName", "Displacement"},
+         {"Material", "Attr1"},
+         {"Verbosity", 1}});
+    problem.addPostProcessing(
+        "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
-        {"OutputFieldName", "Displacement"},
-        {"Material", "Attr2"}, 
-        {"Verbosity", 1}});
-    problem.addPostProcessing("ParaviewExportResults", 
+         {"OutputFieldName", "Displacement"},
+         {"Material", "Attr2"},
+         {"Verbosity", 1}});
+    problem.addPostProcessing(
+        "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Boundaries"},
-        {"OutputFieldName", "Displacement"},
-        {"Boundaries", bdrs},
-        {"Verbosity", 1}});
+         {"OutputFieldName", "Displacement"},
+         {"Boundaries", bdrs},
+         {"Verbosity", 1}});
   }
 
-  /** time increment */ 
+  /** time increment */
   auto statistics = problem.solve(time, dt);
   /** Check convergence */
-  if (!statistics.status) { mfem_mgis::Profiler::Utils::Message("INFO: FAILED"); } 
+  if (!statistics.status) {
+    mfem_mgis::Profiler::Utils::Message("INFO: FAILED");
+  }
   time += dt;
 
   /** Do not forget to update your problem at each timestep */

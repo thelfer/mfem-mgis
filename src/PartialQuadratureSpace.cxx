@@ -44,7 +44,7 @@ namespace mfem_mgis {
   }  // end of buildPartialQuadratureSpaceOffsets
 
   void PartialQuadratureSpace::treatInvalidElementIndex(const size_type id,
-                                                  const size_type i) {
+                                                        const size_type i) {
     mgis::raise(
         "PartialQuadratureSpace::getOffset: "
         "invalid element index '" +
