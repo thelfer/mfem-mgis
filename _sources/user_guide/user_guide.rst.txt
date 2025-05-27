@@ -12,4 +12,5 @@ User guide
    behaviour_integrators.rst
    boundary_conditions.rst
    post_processings.rst  
+   partial_quadrature_functions.rst  
    glossary.rst  
