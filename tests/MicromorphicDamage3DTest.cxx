@@ -91,7 +91,7 @@ buildMechanicalProblem(
   problem->addBoundaryCondition(
       std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
           problem->getFiniteElementDiscretizationPointer(), "right", 0,
-          [](const mfem_mgis::real t) { return umax * t; }));
+          [](const mfem_mgis::real t) noexcept { return umax * t; }));
   // linear solver, convergence critera
   setLinearSolverMicromorphicDamage3D(*problem, test_parameters);
   problem->setSolverParameters({{"VerbosityLevel", 0},
