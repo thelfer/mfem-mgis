@@ -16,6 +16,7 @@
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include <MFEMMGIS/Profiler.hxx>
 
@@ -166,6 +167,32 @@ int main(int argc, char** argv) {
   // solving the problem on 1 time step
   auto r = problem.solve(0, 1);
   problem.executePostProcessings(0, 1);
+  // manual export
+  if (p.parallel == 0) {
+    using ExportedFunctionsDescription =
+        mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes<
+            false>::ExportedFunctionsDescription;
+    mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes<false>
+        export_stress(problem.getImplementation<false>(),
+                      std::vector<ExportedFunctionsDescription>{
+                          ExportedFunctionsDescription{
+                              .name = "Stress",
+                              .functions = {mfem_mgis::getThermodynamicForce(
+                                  m1, "Stress")}}},
+                      "SatohTestStressOutput");
+    export_stress.execute(problem.getImplementation<false>(), 0, 1);
+  } else {
+    using ExportedFunctionsDescription =
+        mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes<
+            true>::ExportedFunctionsDescription;
+    mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes<true> export_stress(
+        problem.getImplementation<true>(),
+        std::vector<ExportedFunctionsDescription>{ExportedFunctionsDescription{
+            .name = "Stress",
+            .functions = {mfem_mgis::getThermodynamicForce(m1, "Stress")}}},
+        "SatohTestStressParallelOutput");
+    export_stress.execute(problem.getImplementation<true>(), 0, 1);
+  }
   //
   std::ofstream output("HydrostaticPressure.txt");
   const auto pr = getInternalStateVariable(
