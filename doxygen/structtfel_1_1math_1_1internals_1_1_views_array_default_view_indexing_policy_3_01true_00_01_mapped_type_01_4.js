@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1internals_1_1_views_array_default_view_indexing_policy_3_01true_00_01_mapped_type_01_4 =
-[
-    [ "type", "structtfel_1_1math_1_1internals_1_1_views_array_default_view_indexing_policy_3_01true_00_01_mapped_type_01_4.html#a76e15b88873dcf82ce3dbc48d409c573", null ]
-];

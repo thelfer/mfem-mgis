@@ -393,6 +393,7 @@ tar<span class="w"> </span>xvf<span class="w"> </span>archive.tar.gz
 <span class="nb">source</span><span class="w"> </span><span class="nv">$PWD</span>/spack/share/spack/setup-env.sh
 spack<span class="w"> </span>bootstrap<span class="w"> </span>reset<span class="w"> </span>-y
 spack<span class="w"> </span>bootstrap<span class="w"> </span>add<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>--trust<span class="w"> </span>local-binaries<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/metadata/binaries/
+spack<span class="w"> </span>bootstrap<span class="w"> </span>add<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>--trust<span class="w"> </span>local-sources<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/metadata/sources/
 spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>github-actions-v0.5
 spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>github-actions-v0.6
 spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>spack-install
