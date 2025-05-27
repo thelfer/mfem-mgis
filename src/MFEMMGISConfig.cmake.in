@@ -1,0 +1,14 @@
+@PACKAGE_INIT@
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+if (NOT TARGET MFEM::mfem)
+  find_package(MFEM REQUIRED)
+endif(NOT TARGET MFEM::mfem)
+
+# Require MGIS
+if (NOT TARGET mgis::MFrontGenericInterface)
+  find_package(MFrontGenericInterface REQUIRED)
+endif(NOT TARGET mgis::MFrontGenericInterface)
+
+include("${CMAKE_CURRENT_LIST_DIR}/MFEMMGISTargets.cmake")

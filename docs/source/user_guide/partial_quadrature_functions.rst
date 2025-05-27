@@ -2,7 +2,7 @@
 Partial quadrature functions
 ============================
 
-Partial quadrature functions maps quadrature points to values. A partial
+Partial quadrature functions map quadrature points to values. A partial
 quadrature function is defined on the quadrature points associated with
 a unique material.
 
