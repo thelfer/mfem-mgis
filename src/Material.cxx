@@ -304,7 +304,7 @@ namespace mfem_mgis {
       return {};
     }
     return ImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), sm.stored_energies);
+        m.getPartialQuadratureSpacePointer(), sm.stored_energies, 0, 1);
   }  // end of getStoredEnergy
 
   std::optional<PartialQuadratureFunction> getDissipatedEnergy(
@@ -324,7 +324,7 @@ namespace mfem_mgis {
       return {};
     }
     return ImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), sm.dissipated_energies);
+        m.getPartialQuadratureSpacePointer(), sm.dissipated_energies, 0, 1);
   }  // end of getDissipatedEnergy
 
   real computeStoredEnergy(const BehaviourIntegrator &bi,

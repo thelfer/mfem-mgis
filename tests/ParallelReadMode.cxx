@@ -204,7 +204,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
   auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
       mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
-      											{"MeshReadMode", p.mesh_mode},
+                            {"MeshReadMode", p.mesh_mode},
                             {"FiniteElementFamily", "H1"},
                             {"FiniteElementOrder", p.order},
                             {"UnknownsSize", dim},
@@ -251,18 +251,22 @@ void executeMFEMMGISTest(const TestParameters& p) {
     // Add postprocessing and outputs
     problem.addPostProcessing(
         "ParaviewExportResults",
-        {{"OutputFileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
+        {{"OutputFileName",
+          "ParallelReadModeTestOutput-" + std::to_string(p.tcase)}});
     std::vector<mfem_mgis::Parameter> materials_out{1, 2};
-    problem.addPostProcessing("ParaviewExportIntegrationPointResultsAtNodes",
-                              {{"OutputFileName", "PeriodicTestOutput-Strain-" +
-                                                      std::to_string(p.tcase)},
-                               {"Materials", {materials_out}},
-                               {"Results", "Strain"}});
-    problem.addPostProcessing("ParaviewExportIntegrationPointResultsAtNodes",
-                              {{"OutputFileName", "PeriodicTestOutput-Stress-" +
-                                                      std::to_string(p.tcase)},
-                               {"Materials", {materials_out}},
-                               {"Results", "Stress"}});
+    problem.addPostProcessing(
+        "ParaviewExportIntegrationPointResultsAtNodes",
+        {{"OutputFileName",
+          "ParallelReadModeTestOutput-Strain-" + std::to_string(p.tcase)},
+         {"Materials", {materials_out}},
+         {"Results", "Strain"}});
+    //     problem.addPostProcessing(
+    //         "ParaviewExportIntegrationPointResultsAtNodes",
+    //         {{"OutputFileName",
+    //           "ParallelReadModeTestOutput-Stress-" +
+    //           std::to_string(p.tcase)},
+    //          {"Materials", {materials_out}},
+    //          {"Results", "Stress"}});
     // solving the problem
     if (!problem.solve(0, 1)) {
       mfem_mgis::abort(EXIT_FAILURE);
