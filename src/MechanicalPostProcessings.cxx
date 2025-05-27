@@ -1,6 +1,6 @@
 /*!
  * \file   src/MechanicalPostProcessings.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   22/05/2025
  */
@@ -16,12 +16,12 @@ namespace mfem_mgis {
 #ifdef MGIS_FUNCTION_SUPPORT
 
   template <unsigned short N>
-  static std::optional<PartialQuadratureFunction>
-  computeVonMisesEquivalentStressForSmallStrainBehaviours_impl(
-      Context& ctx, const Material& m,
+  static bool computeVonMisesEquivalentStressForSmallStrainBehaviours_impl(
+      Context& ctx,
+      PartialQuadratureFunction& seq,
+      const Material& m,
       const Material::StateSelection s) {
     using namespace mgis::function;
-    PartialQuadratureFunction seq(m.getPartialQuadratureSpacePointer());
     const auto sig = getThermodynamicForce(m, "Stress", s);
     const auto ok = sig | as_stensor<N> | vmis | seq;
     if (!ok) {
@@ -29,33 +29,35 @@ namespace mfem_mgis {
           "computeVonMisesEquivalentStress: computation of the von Mises "
           "stress failed");
     }
-    return seq;
+    return true;
   }  // end of computeVonMisesEquivalentStressForSmallStrainBehaviours
 
-  static std::optional<PartialQuadratureFunction>
-  computeVonMisesEquivalentStressForSmallStrainBehaviours(
-      Context & ctx, const Material& m, const Material::StateSelection s) {
+  static bool computeVonMisesEquivalentStressForSmallStrainBehaviours(
+      Context& ctx,
+      PartialQuadratureFunction& seq,
+      const Material& m,
+      const Material::StateSelection s) {
     if ((m.b.hypothesis == Hypothesis::PLANESTRESS) ||
         (m.b.hypothesis == Hypothesis::PLANESTRAIN)) {
       return computeVonMisesEquivalentStressForSmallStrainBehaviours_impl<2>(
-          ctx, m, s);
+          ctx, seq, m, s);
     } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
       return computeVonMisesEquivalentStressForSmallStrainBehaviours_impl<3>(
-          ctx, m, s);
+          ctx, seq, m, s);
     }
     return ctx.registerErrorMessage(
         "computeVonMisesEquivalentStress: unsupported modelling hypothesis");
   }  // end of computeVonMisesEquivalentStressForSmallStrainBehaviours
 
   template <unsigned short N>
-  static std::optional<PartialQuadratureFunction>
-  computeVonMisesEquivalentStressForFiniteStrainBehaviours_impl(
-      Context& ctx, const Material& m,
+  static bool computeVonMisesEquivalentStressForFiniteStrainBehaviours_impl(
+      Context& ctx,
+      PartialQuadratureFunction& seq,
+      const Material& m,
       const Material::StateSelection s) {
     using namespace mgis::function;
-    PartialQuadratureFunction seq(m.getPartialQuadratureSpacePointer());
-    const auto F = getThermodynamicForce(m, "DeformationGradient", s);
-    const auto pk1 = getThermodynamicForce(m, "Stress", s);
+    const auto F = getGradient(m, "DeformationGradient", s);
+    const auto pk1 = getThermodynamicForce(m, "FirstPiolaKirchhoffStress", s);
     const auto ok =
         pk1 | as_tensor<N> | from_pk1_to_cauchy(F | as_tensor<N>) | vmis | seq;
     if (!ok) {
@@ -63,29 +65,55 @@ namespace mfem_mgis {
           "computeVonMisesEquivalentStress: computation of the von Mises "
           "stress failed");
     }
-    return seq;
+    return true;
   }  // end of computeVonMisesEquivalentStressForFiniteStrainBehaviours
 
-  static std::optional<PartialQuadratureFunction>
-  computeVonMisesEquivalentStressForFiniteStrainBehaviours(
-      Context & ctx, const Material& m, const Material::StateSelection s) {
+  static bool computeVonMisesEquivalentStressForFiniteStrainBehaviours(
+      Context& ctx,
+      PartialQuadratureFunction& seq,
+      const Material& m,
+      const Material::StateSelection s) {
     if (m.b.hypothesis == Hypothesis::PLANESTRAIN) {
       return computeVonMisesEquivalentStressForFiniteStrainBehaviours_impl<2>(
-          ctx, m, s);
+          ctx, seq, m, s);
     } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
       return computeVonMisesEquivalentStressForFiniteStrainBehaviours_impl<3>(
-          ctx, m, s);
+          ctx, seq, m, s);
     }
     return ctx.registerErrorMessage(
         "computeVonMisesEquivalentStress: unsupported modelling hypothesis");
   }  // end of computeVonMisesEquivalentStressForFiniteStrainBehaviours
 
   std::optional<PartialQuadratureFunction> computeVonMisesEquivalentStress(
-      Context & ctx, const Material& m, const Material::StateSelection s) {
+      Context& ctx, const Material& m, const Material::StateSelection s) {
+    PartialQuadratureFunction seq(m.getPartialQuadratureSpacePointer());
+    if (!computeVonMisesEquivalentStress(ctx, seq, m, s)) {
+      return {};
+    }
+    return seq;
+  }  // end of computeVonMisesEquivalentStress
+
+  bool computeVonMisesEquivalentStress(Context& ctx,
+                                       PartialQuadratureFunction& seq,
+                                       const Material& m,
+                                       const Material::StateSelection s) {
+    if (seq.getPartialQuadratureSpacePointer() !=
+        m.getPartialQuadratureSpacePointer()) {
+      return ctx.registerErrorMessage(
+          "computeVonMisesEquivalentStress: quadrature function is not defined "
+          "on the given material");
+    }
+    if (seq.getNumberOfComponents() != 1) {
+      return ctx.registerErrorMessage(
+          "computeVonMisesEquivalentStress: quadrature function is not scalar");
+    }
     if (m.b.btype == mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
-      return computeVonMisesEquivalentStressForSmallStrainBehaviours(ctx, m, s);
-    } else if (m.b.btype == mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-      return computeVonMisesEquivalentStressForFiniteStrainBehaviours(ctx, m, s);
+      return computeVonMisesEquivalentStressForSmallStrainBehaviours(ctx, seq,
+                                                                     m, s);
+    } else if (m.b.btype ==
+               mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+      return computeVonMisesEquivalentStressForFiniteStrainBehaviours(ctx, seq,
+                                                                      m, s);
     }
     return ctx.registerErrorMessage(
         "computeVonMisesEquivalentStress: unsupported behaviour type");
@@ -111,11 +139,9 @@ namespace mfem_mgis {
       Context& ctx, const Material& m, const Material::StateSelection s) {
     if ((m.b.hypothesis == Hypothesis::PLANESTRESS) ||
         (m.b.hypothesis == Hypothesis::PLANESTRAIN)) {
-      return computeEigenStressesForSmallStrainBehaviours_impl<2>(
-          ctx, m, s);
+      return computeEigenStressesForSmallStrainBehaviours_impl<2>(ctx, m, s);
     } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
-      return computeEigenStressesForSmallStrainBehaviours_impl<3>(
-          ctx, m, s);
+      return computeEigenStressesForSmallStrainBehaviours_impl<3>(ctx, m, s);
     }
     return ctx.registerErrorMessage(
         "computeEigenStresses: unsupported modelling hypothesis");
@@ -127,8 +153,8 @@ namespace mfem_mgis {
       Context& ctx, const Material& m, const Material::StateSelection s) {
     using namespace mgis::function;
     PartialQuadratureFunction vp(m.getPartialQuadratureSpacePointer(), 3);
-    const auto F = getThermodynamicForce(m, "DeformationGradient", s);
-    const auto pk1 = getThermodynamicForce(m, "Stress", s);
+    const auto F = getGradient(m, "DeformationGradient", s);
+    const auto pk1 = getThermodynamicForce(m, "FirstPiolaKirchhoffStress", s);
     const auto ok = pk1 | as_tensor<N> | from_pk1_to_cauchy(F | as_tensor<N>) |
                     eigen_values<> | vp;
     if (!ok) {
@@ -142,11 +168,9 @@ namespace mfem_mgis {
   computeEigenStressesForFiniteStrainBehaviours(
       Context& ctx, const Material& m, const Material::StateSelection s) {
     if (m.b.hypothesis == Hypothesis::PLANESTRAIN) {
-      return computeEigenStressesForFiniteStrainBehaviours_impl<2>(
-          ctx, m, s);
+      return computeEigenStressesForFiniteStrainBehaviours_impl<2>(ctx, m, s);
     } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
-      return computeEigenStressesForFiniteStrainBehaviours_impl<3>(
-          ctx, m, s);
+      return computeEigenStressesForFiniteStrainBehaviours_impl<3>(ctx, m, s);
     }
     return ctx.registerErrorMessage(
         "computeEigenStresses: unsupported modelling hypothesis");
@@ -156,7 +180,8 @@ namespace mfem_mgis {
       Context& ctx, const Material& m, const Material::StateSelection s) {
     if (m.b.btype == mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
       return computeEigenStressesForSmallStrainBehaviours(ctx, m, s);
-    } else if (m.b.btype == mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+    } else if (m.b.btype ==
+               mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
       return computeEigenStressesForFiniteStrainBehaviours(ctx, m, s);
     }
     return ctx.registerErrorMessage(
@@ -185,11 +210,9 @@ namespace mfem_mgis {
       Context& ctx, const Material& m, const Material::StateSelection s) {
     if ((m.b.hypothesis == Hypothesis::PLANESTRESS) ||
         (m.b.hypothesis == Hypothesis::PLANESTRAIN)) {
-      return computeFirstEigenStressForSmallStrainBehaviours_impl<2>(
-          ctx, m, s);
+      return computeFirstEigenStressForSmallStrainBehaviours_impl<2>(ctx, m, s);
     } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
-      return computeFirstEigenStressForSmallStrainBehaviours_impl<3>(
-          ctx, m, s);
+      return computeFirstEigenStressForSmallStrainBehaviours_impl<3>(ctx, m, s);
     }
     return ctx.registerErrorMessage(
         "computeFirstEigenStress: unsupported modelling hypothesis");
@@ -201,8 +224,8 @@ namespace mfem_mgis {
       Context& ctx, const Material& m, const Material::StateSelection s) {
     using namespace mgis::function;
     PartialQuadratureFunction s1(m.getPartialQuadratureSpacePointer());
-    const auto F = getThermodynamicForce(m, "DeformationGradient", s);
-    const auto pk1 = getThermodynamicForce(m, "Stress", s);
+    const auto F = getGradient(m, "DeformationGradient", s);
+    const auto pk1 = getThermodynamicForce(m, "FirstPiolaKirchhoffStress", s);
     const auto ok = pk1 | as_tensor<N> | from_pk1_to_cauchy(F | as_tensor<N>) |
                     eigen_values<> | maximum_component | s1;
     if (!ok) {
@@ -217,11 +240,11 @@ namespace mfem_mgis {
   computeFirstEigenStressForFiniteStrainBehaviours(
       Context& ctx, const Material& m, const Material::StateSelection s) {
     if (m.b.hypothesis == Hypothesis::PLANESTRAIN) {
-      return computeFirstEigenStressForFiniteStrainBehaviours_impl<2>(
-          ctx, m, s);
+      return computeFirstEigenStressForFiniteStrainBehaviours_impl<2>(ctx, m,
+                                                                      s);
     } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
-      return computeFirstEigenStressForFiniteStrainBehaviours_impl<3>(
-          ctx, m, s);
+      return computeFirstEigenStressForFiniteStrainBehaviours_impl<3>(ctx, m,
+                                                                      s);
     }
     return ctx.registerErrorMessage(
         "computeFirstEigenStress: unsupported modelling hypothesis");
@@ -231,7 +254,8 @@ namespace mfem_mgis {
       Context& ctx, const Material& m, const Material::StateSelection s) {
     if (m.b.btype == mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
       return computeFirstEigenStressForSmallStrainBehaviours(ctx, m, s);
-    } else if (m.b.btype == mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+    } else if (m.b.btype ==
+               mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
       return computeFirstEigenStressForFiniteStrainBehaviours(ctx, m, s);
     }
     return ctx.registerErrorMessage(
@@ -246,8 +270,8 @@ namespace mfem_mgis {
     using namespace mgis::function;
     PartialQuadratureFunction sig(m.getPartialQuadratureSpacePointer(),
                                   tfel::math::StensorDimeToSize<N>::value);
-    const auto F = getThermodynamicForce(m, "DeformationGradient", s);
-    const auto pk1 = getThermodynamicForce(m, "Stress", s);
+    const auto F = getGradient(m, "DeformationGradient", s);
+    const auto pk1 = getThermodynamicForce(m, "FirstPiolaKirchhoffStress", s);
     const auto R = RotationMatrixEvaluator{m};
     auto sview = sig | as_stensor<N>;
     const auto ok = pk1 | as_tensor<N> |  //
@@ -259,7 +283,7 @@ namespace mfem_mgis {
           "stress in the global frame failed");
     }
     return sig;
-  } // end of computeCauchyStressInGlobalFrame_impl
+  }  // end of computeCauchyStressInGlobalFrame_impl
 
   std::optional<PartialQuadratureFunction> computeCauchyStressInGlobalFrame(
       Context& ctx, const Material& m, const Material::StateSelection s) {
@@ -283,5 +307,4 @@ namespace mfem_mgis {
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 
-} // end of namespace mfem_mgis
-
+}  // end of namespace mfem_mgis

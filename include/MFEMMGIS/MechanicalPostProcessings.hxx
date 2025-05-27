@@ -30,10 +30,29 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state considered (beginnig of time step, end
    * of time step)
    */
-  MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
+  [[nodiscard]] MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
   computeVonMisesEquivalentStress(Context&,
                                   const Material&,
                                   const Material::StateSelection);
+  /*!
+   * \brief compute the von Mises equivalent stress.
+   *
+   * \note For finite strain behaviours, the von Mises equivalent stress of the
+   * Cauchy stress is returned.
+   * \note This function currently does not work in plane stress for finite
+   * strain behaviours.
+   *
+   * \return the von Mises stress
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] s: selection of the state considered (beginnig of time step, end
+   * of time step)
+   */
+  [[nodiscard]] MFEM_MGIS_EXPORT bool computeVonMisesEquivalentStress(
+      Context&,
+      PartialQuadratureFunction&,
+      const Material&,
+      const Material::StateSelection);
 
   /*!
    * \brief compute the eigen values of the stress.

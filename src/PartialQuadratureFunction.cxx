@@ -589,5 +589,21 @@ namespace mfem_mgis {
     updateGridFunction_impl<false>(f, fcts, mesh);
   }
 
+}  // end of namespace mfem_mgis
+
+#ifdef MGIS_FUNCTION_SUPPORT
+
+namespace mfem_mgis {
+
+  const PartialQuadratureSpace& getSpace(
+      const ImmutablePartialQuadratureFunctionView& f) {
+    return f.getPartialQuadratureSpace();
+  }
+
+  const PartialQuadratureSpace& getSpace(const PartialQuadratureFunction& f) {
+    return f.getPartialQuadratureSpace();
+  }
 
 }  // end of namespace mfem_mgis
+
+#endif /* MGIS_FUNCTION_SUPPORT */

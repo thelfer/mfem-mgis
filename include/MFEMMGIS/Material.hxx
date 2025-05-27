@@ -240,7 +240,7 @@ struct RotationMatrixEvaluator {
     }
     return false;
   }
-  void allocateWorkspace();
+  inline void allocateWorkspace(){};
   const PartialQuadratureSpace &getSpace() const {
     return this->material.getPartialQuadratureSpace();
   }

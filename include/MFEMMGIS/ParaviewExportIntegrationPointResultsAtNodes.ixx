@@ -8,6 +8,11 @@
 #ifndef LIB_MFEMMGIS_PARAVIEWEXPORTINTEGRATIONPOINTRESULTSATNODES_IXX
 #define LIB_MFEMMGIS_PARAVIEWEXPORTINTEGRATIONPOINTRESULTSATNODES_IXX
 
+#include "mfem/mesh/submesh/submesh.hpp"
+#ifdef MFEM_USE_MPI
+#include "mfem/mesh/submesh/psubmesh.hpp"
+#endif /* MFEM_USE_MPI */
+
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {

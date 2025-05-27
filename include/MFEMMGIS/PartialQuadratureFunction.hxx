@@ -491,9 +491,11 @@ namespace mfem_mgis {
 
 namespace mfem_mgis {
 
-  const PartialQuadratureSpace& getSpace(const ImmutablePartialQuadratureFunctionView&);
+  MFEM_MGIS_EXPORT const PartialQuadratureSpace& getSpace(
+      const ImmutablePartialQuadratureFunctionView&);
 
-  const PartialQuadratureSpace& getSpace(const PartialQuadratureFunction&);
+  MFEM_MGIS_EXPORT const PartialQuadratureSpace& getSpace(
+      const PartialQuadratureFunction&);
 
 } // end of mfem_mgis
 
