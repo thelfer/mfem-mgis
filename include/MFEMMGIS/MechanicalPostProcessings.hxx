@@ -72,6 +72,25 @@ namespace mfem_mgis {
   computeEigenStresses(Context&,
                        const Material&,
                        const Material::StateSelection);
+  /*!
+   * \brief compute the eigen values of the stress.
+   *
+   * \note For finite strain behaviours, the eigen values of the
+   * Cauchy stress is returned.
+   * \note This function currently does not work in plane stress for finite
+   * strain behaviours.
+   *
+   * \return the eigen values of the stress
+   * \param[in] ctx: execution context
+   * \param[in] svp: eigen values of the stress
+   * \param[in] m: material
+   * \param[in] s: selection of the state considered (beginnig of time step, end
+   * of time step)
+   */
+  MFEM_MGIS_EXPORT bool computeEigenStresses(Context&,
+                                             PartialQuadratureFunction&,
+                                             const Material&,
+                                             const Material::StateSelection);
 
   /*!
    * \brief compute the first (maximum) eigen value of the stress.
@@ -91,6 +110,57 @@ namespace mfem_mgis {
   computeFirstEigenStress(Context&,
                           const Material&,
                           const Material::StateSelection);
+  /*!
+   * \brief compute the first (maximum) eigen value of the stress.
+   *
+   * \note For finite strain behaviours, the first eigen value of the
+   * Cauchy stress is returned.
+   * \note This function currently does not work in plane stress for finite
+   * strain behaviours.
+   *
+   * \return the eigen values of the stress
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] s: selection of the state considered (beginnig of time step, end
+   * of time step)
+   */
+  MFEM_MGIS_EXPORT bool computeFirstEigenStress(Context&,
+                                                PartialQuadratureFunction&,
+                                                const Material&,
+                                                const Material::StateSelection);
+  /*!
+   * \brief compute the stress in the global frame.
+   *
+   * \note For finite strain behaviours, the first Piola-Kirchhoff stress
+   * tensor is returned.
+   *
+   * \return the stress in the global frame
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] s: selection of the state considered (beginnig of time step, end
+   * of time step)
+   */
+  MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
+  computeStressInGlobalFrame(Context&,
+                             const Material&,
+                             const Material::StateSelection);
+  /*!
+   * \brief compute the stress in the global frame.
+   *
+   * \note For finite strain behaviours, the first Piola-Kirchhoff stress
+   * tensor is returned.
+   *
+   * \return the stress in the global frame
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] s: selection of the state considered (beginnig of time step, end
+   * of time step)
+   */
+  MFEM_MGIS_EXPORT bool computeStressInGlobalFrame(
+      Context&,
+      PartialQuadratureFunction&,
+      const Material&,
+      const Material::StateSelection);
 
   /*!
    * \brief compute the Cauchy stress in the global frame.
@@ -98,7 +168,7 @@ namespace mfem_mgis {
    * \note This function is only valid for finite strain behaviours
    * \note This function currently does not work in plane stress.
    *
-   * \return the eigen values of the stress
+   * \return the Cauchy stress in the global frame
    * \param[in] ctx: execution context
    * \param[in] m: material
    * \param[in] s: selection of the state considered (beginnig of time step, end
@@ -108,6 +178,23 @@ namespace mfem_mgis {
   computeCauchyStressInGlobalFrame(Context&,
                                    const Material&,
                                    const Material::StateSelection);
+  /*!
+   * \brief compute the Cauchy stress in the global frame.
+   *
+   * \note This function is only valid for finite strain behaviours
+   * \note This function currently does not work in plane stress.
+   *
+   * \return the Cauchy stress in the global frame
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] s: selection of the state considered (beginnig of time step, end
+   * of time step)
+   */
+  MFEM_MGIS_EXPORT bool computeCauchyStressInGlobalFrame(
+      Context&,
+      PartialQuadratureFunction&,
+      const Material&,
+      const Material::StateSelection);
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 
