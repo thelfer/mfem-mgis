@@ -347,6 +347,7 @@ files are automatically removed after 3 months.
    source $PWD/spack/share/spack/setup-env.sh
    spack bootstrap reset -y
    spack bootstrap add --scope=site --trust local-binaries $PWD/my_bootstrap/metadata/binaries/
+   spack bootstrap add --scope=site --trust local-sources $PWD/my_bootstrap/metadata/sources/
    spack bootstrap disable --scope=site github-actions-v0.5
    spack bootstrap disable --scope=site github-actions-v0.6
    spack bootstrap disable --scope=site spack-install
