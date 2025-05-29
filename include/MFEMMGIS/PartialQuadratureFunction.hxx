@@ -379,7 +379,7 @@ namespace mfem_mgis {
      */
     void copyValues(const ImmutablePartialQuadratureFunctionView&);
     //! \brief underlying values
-    std::span<real> values;
+    std::span<real> mutable_values;
     /*!
      * \brief storage for the values when the partial function holds the
      * values

@@ -95,24 +95,24 @@ namespace mfem_mgis {
   }
 
   inline real* PartialQuadratureFunction::data(const size_type o) {
-    return this->values.data() + this->getDataOffset(o);
+    return this->mutable_values.data() + this->getDataOffset(o);
   }  // end of getIntegrationPointValues
 
   inline real& PartialQuadratureFunction::getIntegrationPointValue(
       const size_type o) {
-    return *(this->values.data() + this->getDataOffset(o));
+    return *(this->mutable_values.data() + this->getDataOffset(o));
   }  // end of getIntegrationPointValues
 
   inline std::span<real> PartialQuadratureFunction::getIntegrationPointValues(
       const size_type o) {
-    return std::span<real>(this->values.data() + this->getDataOffset(o),
+    return std::span<real>(this->mutable_values.data() + this->getDataOffset(o),
                            this->data_size);
   }  // end of getIntegrationPointValues
 
   template <size_type N>
   inline std::span<real, N>
   PartialQuadratureFunction::getIntegrationPointValues(const size_type o) {
-    return std::span<real, N>(this->values.data() + this->getDataOffset(o),
+    return std::span<real, N>(this->mutable_values.data() + this->getDataOffset(o),
                               this->data_size);
   }  // end of getIntegrationPointValues
 
@@ -127,7 +127,7 @@ namespace mfem_mgis {
   }
 
   inline std::span<real> PartialQuadratureFunction::getValues() {
-    return this->values;
+    return this->mutable_values;
   }
 
 }  // end of namespace mfem_mgis

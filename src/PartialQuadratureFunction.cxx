@@ -212,7 +212,7 @@ namespace mfem_mgis {
       static_cast<PartialQuadratureFunctionDataLayout&>(*this).operator=(f);
       this->qspace = f.qspace;
       this->local_values_storage = std::move(f.local_values_storage);
-      this->values = local_values_storage;
+      this->mutable_values = local_values_storage;
       this->immutable_values = local_values_storage;
     } else {
       // the function does not hold the memory
@@ -240,7 +240,7 @@ namespace mfem_mgis {
       : ImmutablePartialQuadratureFunctionView(s, nv, 0, nv) {
     this->local_values_storage.resize(
         this->qspace->getNumberOfIntegrationPoints() * this->data_size);
-    this->values = std::span<real>(this->local_values_storage);
+    this->mutable_values = std::span<real>(this->local_values_storage);
     this->immutable_values = std::span<const real>(this->local_values_storage);
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 
@@ -250,13 +250,13 @@ namespace mfem_mgis {
       const size_type db,
       const size_type ds)
       : ImmutablePartialQuadratureFunctionView(s, v, db, ds),
-        values(v) {
+        mutable_values(v) {
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 
   void PartialQuadratureFunction::makeView(PartialQuadratureFunction& f) {
     static_cast<PartialQuadratureFunctionDataLayout&>(*this).operator=(f);
     this->qspace = f.qspace;
-    this->values = f.values;
+    this->mutable_values = f.mutable_values;
     this->immutable_values = f.immutable_values;
   }
 
@@ -284,7 +284,7 @@ namespace mfem_mgis {
     this->data_size = v.getNumberOfComponents();
     this->data_stride = v.getNumberOfComponents();
     this->local_values_storage.resize(this->data_size * n);
-    this->values = local_values_storage;
+    this->mutable_values = local_values_storage;
     this->immutable_values = local_values_storage;
     this->copyValues(v);
   }  // end of copy
@@ -295,17 +295,17 @@ namespace mfem_mgis {
     const auto vs = v.getDataStride();
     if (vs == v.getNumberOfComponents()) {
       // data are continous in v
-      std::copy(v_values, v_values + this->values.size(), this->values.begin());
+      std::copy(v_values, v_values + this->mutable_values.size(), this->mutable_values.begin());
     } else {
       if (this->data_size == 1) {
         // special case for scalars
-        for (size_type i = 0; i != this->values.size(); ++i) {
-          this->values[i] = v_values[i * vs];
+        for (size_type i = 0; i != this->mutable_values.size(); ++i) {
+          this->mutable_values[i] = v_values[i * vs];
         }
       } else {
         const auto n =
             this->getPartialQuadratureSpace().getNumberOfIntegrationPoints();
-        auto pv = this->values.begin();
+        auto pv = this->mutable_values.begin();
         for (size_type i = 0; i != n; ++i) {
           const auto b = v_values + i * vs;
           const auto e = b + this->data_size;
