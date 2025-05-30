@@ -53,7 +53,6 @@
 #include "MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx"
 #include "UnitTestingUtilities.hxx"
 
-
 constexpr double xmax = 1.;
 
 void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
@@ -110,7 +109,6 @@ void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
 
 static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
                             const std::size_t i) {
-
   if (i == 0) {
     p.setLinearSolver("GMRESSolver", {{"VerbosityLevel", 1},
                                       {"AbsoluteTolerance", 1e-12},
@@ -179,7 +177,8 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   args.AddOption(
       &p.linearsolver, "-ls", "--linearsolver",
       "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
-  args.AddOption(&p.parallel, "-p", "--parallel", "choose between serial (-p 0) and parallel (-p 1)");
+  args.AddOption(&p.parallel, "-p", "--parallel",
+                 "choose between serial (-p 0) and parallel (-p 1)");
 
   args.Parse();
   if ((!args.Good()) || (p.mesh_file == nullptr)) {
@@ -241,7 +240,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
     }
     problem.setMacroscopicGradientsEvolution([e](const double) { return e; });
     //
-    //setLinearSolver(problem, p.linearsolver);
+    // setLinearSolver(problem, p.linearsolver);
     mfem_mgis::unit_tests::setLinearSolver(problem, p);
     setSolverParameters(problem);
     // Add postprocessing and outputs
@@ -273,9 +272,9 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
 int main(int argc, char* argv[]) {
   mfem_mgis::initialize(argc, argv);
-	mfem_mgis::Profiler::timers::init_timers();
+  mfem_mgis::Profiler::timers::init_timers();
   const auto p = parseCommandLineOptions(argc, argv);
   executeMFEMMGISTest(p);
-	mfem_mgis::Profiler::timers::print_and_write_timers();
+  mfem_mgis::Profiler::timers::print_and_write_timers();
   return EXIT_SUCCESS;
 }

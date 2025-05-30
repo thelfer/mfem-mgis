@@ -11,6 +11,10 @@
 #include <cstdlib>
 #include "MGIS/Config.hxx"
 #include "MGIS/Raise.hxx"
+#ifdef MGIS_FUNCTION_SUPPORT
+#include "MGIS/Context.hxx"
+#endif /* MGIS_FUNCTION_SUPPORT*/
+
 #include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 
@@ -40,10 +44,14 @@
 
 namespace mfem_mgis {
 
-  //! a simple alias
+#ifdef MGIS_FUNCTION_SUPPORT
+  using mgis::Context;
+#endif /* MGIS_FUNCTION_SUPPORT*/
+
+  //! \brief a simple alias
   using size_type = int;
 
-  //! alias to the numeric type used
+  //! \brief alias to the numeric type used
   using real = mgis::real;
 
   /*!

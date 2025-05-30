@@ -148,12 +148,12 @@ namespace mfem_mgis {
     this->boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
     this->boundaries_markers = 0;
-    for (const auto& bid : bids) {
+    for (const auto &bid : bids) {
       this->boundaries_markers[bid - 1] = 1;
     }
     f.AddBoundaryIntegrator(this->nfi, this->boundaries_markers);
     this->shallFreeIntegrator = false;
-  }  // end of addNonlinearFormIntegrator
+  }    // end of addNonlinearFormIntegrator
 #endif /* MFEM_USE_MPI */
 
   void UniformImposedPressureBoundaryCondition::addNonlinearFormIntegrator(
@@ -162,7 +162,7 @@ namespace mfem_mgis {
     this->boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
     this->boundaries_markers = 0;
-    for (const auto& bid : bids) {
+    for (const auto &bid : bids) {
       this->boundaries_markers[bid - 1] = 1;
     }
     f.AddBoundaryIntegrator(this->nfi, this->boundaries_markers);
@@ -170,7 +170,7 @@ namespace mfem_mgis {
   }  // end of addNonlinearFormIntegrator
 
   UniformImposedPressureBoundaryCondition::
-      ~UniformImposedPressureBoundaryCondition(){
+      ~UniformImposedPressureBoundaryCondition() {
     if (this->shallFreeIntegrator) {
       std::free(this->nfi);
     }

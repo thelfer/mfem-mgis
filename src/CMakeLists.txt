@@ -21,6 +21,7 @@ mfem_mgis_library(MFEMMGIS
   ImposedDirichletBoundaryConditionAtClosestNode.cxx
   PostProcessing.cxx
   PostProcessingFactory.cxx
+  ParaviewExportIntegrationPointResultsAtNodes.cxx
   ComputeResultantForceOnBoundary.cxx
   AbstractNonLinearEvolutionProblem.cxx
   NonLinearEvolutionProblemImplementationBase.cxx
@@ -53,6 +54,7 @@ mfem_mgis_library(MFEMMGIS
   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TransientHeatTransferBehaviourIntegrator.cxx
+  MechanicalPostProcessings.cxx
 )
 
 if(OpenMP_FOUND)

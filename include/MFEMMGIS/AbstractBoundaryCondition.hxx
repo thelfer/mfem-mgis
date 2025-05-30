@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/AbstractBoundaryCondition.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   27/09/2024
  */
