@@ -1,0 +1,4 @@
+var structtfel_1_1math_1_1internals_1_1_make_quantity_value_type_3_01qt_3_01unit_1_1_no_unit_00_01_value_type_01_4_01_4 =
+[
+    [ "type", "structtfel_1_1math_1_1internals_1_1_make_quantity_value_type_3_01qt_3_01unit_1_1_no_unit_00_01_value_type_01_4_01_4.html#a23a53b634ad397985954b8dd2fb50c46", null ]
+];

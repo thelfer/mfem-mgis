@@ -1,0 +1,4 @@
+var structtfel_1_1math_1_1_derivative_type_dispatcher_3_01_s_t2to_s_t2_tag_00_01_scalar_tag_00_01_s_6f1e10b8bec3f38241e926e629d9873c =
+[
+    [ "type", "structtfel_1_1math_1_1_derivative_type_dispatcher_3_01_s_t2to_s_t2_tag_00_01_scalar_tag_00_01_s_6f1e10b8bec3f38241e926e629d9873c.html#ac6dc8009691798f6edd3843ca9af1763", null ]
+];
