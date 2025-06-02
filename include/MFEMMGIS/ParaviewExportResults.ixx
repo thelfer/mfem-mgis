@@ -65,12 +65,12 @@ namespace mfem_mgis {
       mfem::Array<int> mat_attributes;
 
       /** Create Submesh using the material identifiers */
-      for (const auto& mids : materials_ids) {
-        mat_attributes.Append(mids);
+      for (const auto& mid : materials_ids) {
+        mat_attributes.Append(mid);
       }
 
-      this->submesh = std::make_shared<SubMesh<parallel>>(SubMesh<parallel>(
-          SubMesh<parallel>::CreateFromDomain(pmesh, mat_attributes)));
+      this->submesh = std::make_shared<SubMesh<parallel>>(
+          SubMesh<parallel>::CreateFromDomain(pmesh, mat_attributes));
 
       /** Create the corresponding Grid Function */
       auto& FED = p.getFiniteElementDiscretization();

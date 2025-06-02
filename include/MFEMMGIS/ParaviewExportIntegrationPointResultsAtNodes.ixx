@@ -41,8 +41,13 @@ namespace mfem_mgis {
       auto r = MaterialIntegrationPointResult{};
       r.name = rn;
       this->getResultDescription(r, p);
-      std::tie(r.fespace, r.f) = makeGridFunction<parallel>(
-          this->getPartialQuadratureFunctionViews(p, r), this->submesh);
+      if (this->submesh.get() == nullptr) {
+        std::tie(r.fespace, r.f) = makeGridFunction<parallel>(
+            this->getPartialQuadratureFunctionViews(p, r), p.getMesh());
+      } else {
+        std::tie(r.fespace, r.f) = makeGridFunction<parallel>(
+            this->getPartialQuadratureFunctionViews(p, r), *(this->submesh));
+      }
       // registring
       this->exporter.RegisterField(r.name, r.f.get());
       // saving
@@ -75,15 +80,25 @@ namespace mfem_mgis {
           const std::string& n)
       : ParaviewExportIntegrationPointResultsAtNodesBase(n) {
     this->extractMaterialIdentifiers(ds);
-    this->createSubMesh(p);
-    this->exporter.SetMesh(this->submesh.get());
+    const auto all_mids = p.getAssignedMaterialsIdentifiers();
+    if (this->materials_identifiers.size() == all_mids.size()) {
+      this->exporter.SetMesh(&(p.getMesh()));
+    } else {
+      this->createSubMesh(p);
+      this->exporter.SetMesh(this->submesh.get());
+    }
     //
     for (const auto& d : ds) {
       auto fcts = std::make_unique<ExportedFunctions>();
       fcts->name = d.name;
       fcts->functions = d.functions;
-      std::tie(fcts->grid_function_fespace, fcts->grid_function) =
-          makeGridFunction<parallel>(fcts->functions, this->submesh);
+      if (this->submesh.get() == nullptr) {
+        std::tie(fcts->grid_function_fespace, fcts->grid_function) =
+            makeGridFunction<parallel>(fcts->functions, p.getMesh());
+      } else {
+        std::tie(fcts->grid_function_fespace, fcts->grid_function) =
+            makeGridFunction<parallel>(fcts->functions, *(this->submesh));
+      }
       // registring
       this->exporter.RegisterField(fcts->name, fcts->grid_function.get());
       this->exported_functions.push_back(std::move(fcts));
@@ -95,11 +110,11 @@ namespace mfem_mgis {
       createSubMesh(NonLinearEvolutionProblemImplementation<parallel>& p) {
     /** Create Submesh using the material identifiers */
     mfem::Array<int> mat_attributes;
-    for (const auto& mids : this->materials_identifiers) {
-      mat_attributes.Append(mids);
+    for (const auto& mid : this->materials_identifiers) {
+      mat_attributes.Append(mid);
     }
-    this->submesh = std::make_shared<SubMesh<parallel>>(SubMesh<parallel>(
-        SubMesh<parallel>::CreateFromDomain(p.getMesh(), mat_attributes)));
+    this->submesh = std::make_shared<SubMesh<parallel>>(
+        SubMesh<parallel>::CreateFromDomain(p.getMesh(), mat_attributes));
   }  // end of createSubMesh
 
   template <bool parallel>
@@ -113,14 +128,25 @@ namespace mfem_mgis {
     // updating grid functions
     if (!this->results.empty()) {
       for (auto& r : this->results) {
-        updateGridFunction<parallel>(
-            *(r.f), this->getPartialQuadratureFunctionViews(p, r),
-            this->submesh);
+        if (this->submesh.get() == nullptr) {
+          updateGridFunction<parallel>(
+              *(r.f), this->getPartialQuadratureFunctionViews(p, r),
+              p.getMesh());
+        } else {
+          updateGridFunction<parallel>(
+              *(r.f), this->getPartialQuadratureFunctionViews(p, r),
+              *(this->submesh));
+        }
       }
     } else {
       for (const auto& fcts : this->exported_functions) {
-        updateGridFunction<parallel>(*(fcts->grid_function), fcts->functions,
-                                     this->submesh);
+        if (this->submesh.get() == nullptr) {
+          updateGridFunction<parallel>(*(fcts->grid_function), fcts->functions,
+                                       p.getMesh());
+        } else {
+          updateGridFunction<parallel>(*(fcts->grid_function), fcts->functions,
+                                       *(this->submesh));
+        }
       }
     }
     this->exporter.Save();

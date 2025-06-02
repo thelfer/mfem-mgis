@@ -5,6 +5,8 @@
  * \date   27/05/2025
  */
 
+#include <utility>
+#include "MFEMMGIS/PartialQuadratureFunctionsSet.hxx"
 #include "MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx"
 
 namespace mfem_mgis {
@@ -221,5 +223,29 @@ namespace mfem_mgis {
 
   ParaviewExportIntegrationPointResultsAtNodes::
       ~ParaviewExportIntegrationPointResultsAtNodes() = default;
+
+  ParaviewExportIntegrationPointResultsAtNodesBase::ExportedFunctionsDescription
+  makeExportedFunctionsDescription(std::string_view n,
+                                   const PartialQuadratureFunctionsSet &f){
+    auto efcts = std::vector<ImmutablePartialQuadratureFunctionView>{};
+    const auto& fcts = f.getFunctions();
+    efcts.reserve(fcts.size());
+    for (const auto& fptr : fcts) {
+      efcts.push_back(*fptr);
+    }
+    return {.name = std::string{n}, .functions = std::move(efcts)};
+  }
+
+  std::vector<ParaviewExportIntegrationPointResultsAtNodesBase::
+                  ExportedFunctionsDescription>
+  makeExportedFunctionsDescriptions(
+      const std::map<std::string, const PartialQuadratureFunctionsSet&>& fcts) {
+    auto efcts = std::vector<ParaviewExportIntegrationPointResultsAtNodesBase::
+                                 ExportedFunctionsDescription>{};
+    for (const auto& [n, f] : fcts) {
+      efcts.push_back(makeExportedFunctionsDescription(n, f));
+    }
+    return efcts;
+  }
 
 }  // end of namespace mfem_mgis

@@ -8,8 +8,11 @@
 #ifndef LIB_MFEMMGIS_PARAVIEWEXPORTINTEGRATIONPOINTRESULTSATNODES_HXX
 #define LIB_MFEMMGIS_PARAVIEWEXPORTINTEGRATIONPOINTRESULTSATNODES_HXX
 
+#include <map>
+#include <string>
 #include <memory>
 #include <variant>
+#include <string_view>
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
@@ -19,6 +22,9 @@
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
+
+  // forward declaration
+  struct PartialQuadratureFunctionsSet;
 
   /*!
    * \brief a base class to factorize methods between sequential and parallel
@@ -217,6 +223,23 @@ namespace mfem_mgis {
         ParaviewExportIntegrationPointResultsAtNodesImplementation<false>>
         implementations;
   };
+
+  /*!
+   * \brief generates a description of functions to be exported from  a set of
+   * partial quadrature functions.
+   * \param[in] n: name of the exported functions
+   * \param[in] f: partial quadrature functions setx
+   */
+  ParaviewExportIntegrationPointResultsAtNodesBase::ExportedFunctionsDescription
+  makeExportedFunctionsDescription(std::string_view,
+                                   const PartialQuadratureFunctionsSet &);
+  /*!
+   *
+   */
+  std::vector<ParaviewExportIntegrationPointResultsAtNodesBase::
+                  ExportedFunctionsDescription>
+  makeExportedFunctionsDescriptions(
+      const std::map<std::string, const PartialQuadratureFunctionsSet &> &);
 
 }  // end of namespace mfem_mgis
 
