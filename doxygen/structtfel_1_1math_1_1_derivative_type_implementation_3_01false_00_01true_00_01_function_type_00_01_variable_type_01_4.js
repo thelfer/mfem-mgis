@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1_derivative_type_implementation_3_01false_00_01true_00_01_function_type_00_01_variable_type_01_4 =
-[
-    [ "type", "structtfel_1_1math_1_1_derivative_type_implementation_3_01false_00_01true_00_01_function_type_00_01_variable_type_01_4.html#ab17a97427a7a253978bf099fcaddd69f", null ]
-];

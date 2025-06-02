@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User guide &mdash; The MFEM MGIS project  documentation</title>
+  <title>Mechanical post-processings &mdash; The MFEM MGIS project  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
@@ -17,12 +17,11 @@
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="A tutorial introduction" href="tutorial.html" />
-    <link rel="prev" title="Installation guide" href="../installation_guide/installation_guide.html" /> 
+    <link rel="next" title="Glossary Of Parameters" href="glossary.html" />
+    <link rel="prev" title="Partial quadrature functions" href="partial_quadrature_functions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,14 +45,14 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">User guide</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="user_guide.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html">A tutorial introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html">Overview and main concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="behaviour_integrators.html">Behaviour integrators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="boundary_conditions.html">Boundary conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="post_processings.html">Post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="partial_quadrature_functions.html">Partial quadrature functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="glossary.html">Glossary Of Parameters</a></li>
 </ul>
 </li>
@@ -75,9 +74,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">User guide</li>
+          <li class="breadcrumb-item"><a href="user_guide.html">User guide</a></li>
+      <li class="breadcrumb-item active">Mechanical post-processings</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/user_guide/user_guide.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/user_guide/mechanical_postprocessings.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -85,28 +85,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="user-guide">
-<span id="mfem-mgis-user-guide"></span><h1>User guide<a class="headerlink" href="#user-guide" title="Link to this heading"></a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">A tutorial introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview and main concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="behaviour_integrators.html">Behaviour integrators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="boundary_conditions.html">Boundary conditions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="post_processings.html">Post-processings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partial_quadrature_functions.html">Partial quadrature functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary Of Parameters</a></li>
+  <section id="mechanical-post-processings">
+<h1>Mechanical post-processings<a class="headerlink" href="#mechanical-post-processings" title="Link to this heading"></a></h1>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MechanicalPostProcessings</span><span class="p">.</span><span class="n">hxx</span></code> header declares various utility
+functions:</p>
+<ul class="simple">
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeVonMisesEquivalentStress</span></code>: computes the von Mises
+equivalent stress. For finite strain behaviours, the von Mises
+equivalent stress of the Cauchy stress is returned.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeEigenStresses</span></code> computes the eigen values of the stress.
+For finite strain behaviours, the eigen values of the Cauchy stress is
+returned.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeFirstEigenStress</span></code> computes the first (maximum) eigen
+value of the stress. For finite strain behaviours, the first eigen
+value of the Cauchy stress is returned.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeStressInGlobalFrame</span></code>: compute the stress in the global
+frame. This function is only for orthotropic behaviours. For finite
+strain behaviours, the first Piola-Kirchhoff stress is returned.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeCauchyStressInGlobalFrame</span></code>: compute the Cauchy stress in
+the global frame. This function is only valid for orthotropic finite
+strain behaviours.</p></li>
 </ul>
-</div>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../installation_guide/installation_guide.html" class="btn btn-neutral float-left" title="Installation guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tutorial.html" class="btn btn-neutral float-right" title="A tutorial introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="partial_quadrature_functions.html" class="btn btn-neutral float-left" title="Partial quadrature functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="glossary.html" class="btn btn-neutral float-right" title="Glossary Of Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
