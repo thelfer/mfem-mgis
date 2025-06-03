@@ -1,6 +1,5 @@
 var NAVTREEINDEX25 =
 {
-"structmfront_1_1_behaviour_description_1_1_hill_tensor.html":[4,0,11,14,4],
 "structmfront_1_1_behaviour_description_1_1_hill_tensor.html#a2d5651a489c4da193f0086df6e234a15":[4,0,11,14,4,1],
 "structmfront_1_1_behaviour_description_1_1_hill_tensor.html#a827913d12df36d0f6d53ba7d9bfc5243":[4,0,11,14,4,2],
 "structmfront_1_1_behaviour_description_1_1_hill_tensor.html#ab033e048a46ec9f846a02d1b78fb695e":[4,0,11,14,4,0],
@@ -249,5 +248,6 @@ var NAVTREEINDEX25 =
 "structmfront_1_1_d_s_l_factory.html#aa668b0c43337287844c0f5713a1b1411":[4,0,11,41,5],
 "structmfront_1_1_d_s_l_factory.html#ab60a1ab153cb1ad205b40fb5e6be0323":[4,0,11,41,3],
 "structmfront_1_1_d_s_l_factory.html#ac6de63e6d3c93cae5d0dcc0bb0ef833f":[4,0,11,41,0],
-"structmfront_1_1_d_s_l_factory.html#adc36b11a0d8bea6a388f2dcbcff77013":[4,0,11,41,4]
+"structmfront_1_1_d_s_l_factory.html#adc36b11a0d8bea6a388f2dcbcff77013":[4,0,11,41,4],
+"structmfront_1_1_d_s_l_proxy.html":[4,0,11,42]
 };

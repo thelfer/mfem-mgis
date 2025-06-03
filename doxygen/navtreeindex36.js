@@ -1,6 +1,5 @@
 var NAVTREEINDEX36 =
 {
-"structmtest_1_1_calculi_x_standard_behaviour.html#a2c7c21b22a2417e0770726c241df4550":[4,0,13,20,1],
 "structmtest_1_1_calculi_x_standard_behaviour.html#a3aa568e16c643412c0dd3daac6abcdc9":[4,0,13,20,8],
 "structmtest_1_1_calculi_x_standard_behaviour.html#a43087ab297b4eba288f79b39088acb3c":[4,0,13,20,9],
 "structmtest_1_1_calculi_x_standard_behaviour.html#a5d9186277b5c2451ab21413e91f48846":[4,0,13,20,4],
@@ -249,5 +248,6 @@ var NAVTREEINDEX36 =
 "structmtest_1_1_f_anderson_acceleration_algorithm.html#a58b205eb61c5da0d5d64733bbe39ec81":[4,0,13,46,8],
 "structmtest_1_1_f_anderson_acceleration_algorithm.html#a6f8f96b25b732e42724bc6694a46d27c":[4,0,13,46,7],
 "structmtest_1_1_f_anderson_acceleration_algorithm.html#a730a463c5803ef530688e1e57af85928":[4,0,13,46,11],
-"structmtest_1_1_f_anderson_acceleration_algorithm.html#a8c148b1256f232577fb13e59ebd19490":[4,0,13,46,13]
+"structmtest_1_1_f_anderson_acceleration_algorithm.html#a8c148b1256f232577fb13e59ebd19490":[4,0,13,46,13],
+"structmtest_1_1_f_anderson_acceleration_algorithm.html#a8c312a60760b24ed472c39a0e7c6d4bc":[4,0,13,46,1]
 };

@@ -1,6 +1,5 @@
 var NAVTREEINDEX53 =
 {
-"structtfel_1_1system_1_1wstream_view.html":[4,0,16,7,58],
 "structtfel_1_1tests_1_1_multiple_test_outputs.html":[4,0,16,8,0],
 "structtfel_1_1tests_1_1_multiple_test_outputs.html#a057f6bc9e460d657d22650b14c8d9032":[4,0,16,8,0,6],
 "structtfel_1_1tests_1_1_multiple_test_outputs.html#a0945a5d4c120f4bb8ce80100a8e2ab85":[4,0,16,8,0,5],
@@ -249,5 +248,6 @@ var NAVTREEINDEX53 =
 "structtfel_1_1utilities_1_1_argument_parser_1_1_call_back.html#a2934cabf55234d774eebe9f64f834366":[4,0,16,11,2,0,2],
 "structtfel_1_1utilities_1_1_argument_parser_1_1_call_back.html#a3802992baee33d98d83d1505ce866bd4":[4,0,16,11,2,0,5],
 "structtfel_1_1utilities_1_1_argument_parser_1_1_call_back.html#a6726dd2945980981f5c2b91125282489":[4,0,16,11,2,0,6],
-"structtfel_1_1utilities_1_1_argument_parser_1_1_call_back.html#abf6b2926e3885340a2e72d0b0490ad07":[4,0,16,11,2,0,1]
+"structtfel_1_1utilities_1_1_argument_parser_1_1_call_back.html#abf6b2926e3885340a2e72d0b0490ad07":[4,0,16,11,2,0,1],
+"structtfel_1_1utilities_1_1_argument_parser_1_1_call_back.html#ad80cb4e60b25f9ebeab97448aa360425":[4,0,16,11,2,0,8]
 };

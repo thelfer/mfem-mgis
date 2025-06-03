@@ -1,6 +1,5 @@
 var NAVTREEINDEX42 =
 {
-"structtfel_1_1material_1_1_modelling_hypothesis_to_stensor_size_3_01_modelling_hypothesis_1_1_p_l_a_n_e_s_t_r_e_s_s_01_4.html":[4,0,16,4,77],
 "structtfel_1_1material_1_1_modelling_hypothesis_to_stensor_size_3_01_modelling_hypothesis_1_1_t_r_i_d_i_m_e_n_s_i_o_n_a_l_01_4.html":[4,0,16,4,78],
 "structtfel_1_1material_1_1_modelling_hypothesis_to_tensor_size.html":[4,0,16,4,79],
 "structtfel_1_1material_1_1_modelling_hypothesis_to_tensor_size_3_01_modelling_hypothesis_1_1_a_x1200f83fc853729008d13fa973877830.html":[4,0,16,4,81],
@@ -249,5 +248,6 @@ var NAVTREEINDEX42 =
 "structtfel_1_1math_1_1_compute_binary_operation_handler_3_01_vector_tag_00_01_matrix_tag_00_01_a87d91f3701914f11c151d60834a61054.html":[4,0,16,5,56,0],
 "structtfel_1_1math_1_1_compute_binary_operation_handler_3_01_vector_tag_00_01_matrix_tag_00_01_a_00_01_b_00_01_op_mult_01_4.html":[4,0,16,5,56],
 "structtfel_1_1math_1_1_compute_binary_operation_result.html":[4,0,16,5,59],
-"structtfel_1_1math_1_1_compute_binary_operation_result.html#a0bc243f3f3d546f0afa997d3b517d3ce":[4,0,16,5,59,0]
+"structtfel_1_1math_1_1_compute_binary_operation_result.html#a0bc243f3f3d546f0afa997d3b517d3ce":[4,0,16,5,59,0],
+"structtfel_1_1math_1_1_compute_object_tag.html":[4,0,16,5,99]
 };

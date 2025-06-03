@@ -1,6 +1,5 @@
 var NAVTREEINDEX33 =
 {
-"structmfront_1_1bbrick_1_1_stress_potential.html#a830a9991354243fe7e87583df6a5e835":[4,0,11,0,57,12],
 "structmfront_1_1bbrick_1_1_stress_potential.html#a8ffbf600e74506f126e9c038f6b0a4ce":[4,0,11,0,57,3],
 "structmfront_1_1bbrick_1_1_stress_potential.html#a974a48d661e1b3397a3cce6b64050562":[4,0,11,0,57,0],
 "structmfront_1_1bbrick_1_1_stress_potential.html#aa9933a8f126d10dd947a27956333af58":[4,0,11,0,57,6],
@@ -249,5 +248,6 @@ var NAVTREEINDEX33 =
 "structmgis_1_1behaviour_1_1_behaviour_description.html#aba3be50466a4d60a79a2196c80c07243":[4,0,12,0,2,10],
 "structmgis_1_1behaviour_1_1_behaviour_description.html#abd9a2c4b908c2cbf30af017483a57a05":[4,0,12,0,2,17],
 "structmgis_1_1behaviour_1_1_behaviour_description.html#ac755975ea41e2127475aa46120746e12":[4,0,12,0,2,9],
-"structmgis_1_1behaviour_1_1_behaviour_description.html#ac9bb9a643a4d0ecc729377dc0b14d774":[4,0,12,0,2,27]
+"structmgis_1_1behaviour_1_1_behaviour_description.html#ac9bb9a643a4d0ecc729377dc0b14d774":[4,0,12,0,2,27],
+"structmgis_1_1behaviour_1_1_behaviour_description.html#ad2fc9829363e8bd2ed0dc1dae21900ff":[4,0,12,0,2,28]
 };

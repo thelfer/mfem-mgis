@@ -111,12 +111,12 @@ $(document).ready(function(){initNavTree('structtfel_1_1typetraits_1_1internals_
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a828c4ffcd1e340f9c13128ca19ed5370" id="r_a828c4ffcd1e340f9c13128ca19ed5370"><td class="memItemLeft" align="right" valign="top"><a id="a828c4ffcd1e340f9c13128ca19ed5370" name="a828c4ffcd1e340f9c13128ca19ed5370"></a>
-<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = std::conditional_t&lt;((std::numeric_limits&lt; A &gt;::max_exponent10&lt; std::numeric_limits&lt; <a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">B</a> &gt;::max_exponent10)||((std::numeric_limits&lt; A &gt;::max_exponent10==std::numeric_limits&lt; <a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">B</a> &gt;::max_exponent10) &amp;&amp;(std::numeric_limits&lt; A &gt;::digits&lt;=std::numeric_limits&lt; <a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">B</a> &gt;::digits))), <a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">B</a>, A &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = std::conditional_t&lt;((std::numeric_limits&lt; A &gt;::max_exponent10&lt; std::numeric_limits&lt; B &gt;::max_exponent10)||((std::numeric_limits&lt; A &gt;::max_exponent10==std::numeric_limits&lt; B &gt;::max_exponent10) &amp;&amp;(std::numeric_limits&lt; A &gt;::digits&lt;=std::numeric_limits&lt; B &gt;::digits))), B, A &gt;</td></tr>
 <tr class="memdesc:a828c4ffcd1e340f9c13128ca19ed5370"><td class="mdescLeft">&#160;</td><td class="mdescRight">the result <br /></td></tr>
 <tr class="separator:a828c4ffcd1e340f9c13128ca19ed5370"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">typename</a> A, <a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">typename</a> <a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">B</a>&gt;<br />
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename A, typename B&gt;<br />
 class tfel::typetraits::internals::PromoteNumericsGreater_&lt; A, B &gt;</div><p>An helper class which return the greatest type, ie the type which has the maximal positive value. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -138,7 +138,7 @@ class tfel::typetraits::internals::PromoteNumericsGreater_&lt; A, B &gt;</div><p
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>tfel</b></li><li class="navelem"><b>typetraits</b></li><li class="navelem"><b>internals</b></li><li class="navelem"><a class="el" href="structtfel_1_1typetraits_1_1internals_1_1_promote_numerics_greater__.html">PromoteNumericsGreater_</a></li>
-    <li class="footer">Generated on Tue Jun 3 2025 11:07:22 for mfem-mgis by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jun 3 2025 11:19:32 for mfem-mgis by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,6 +1,5 @@
 var NAVTREEINDEX43 =
 {
-"structtfel_1_1math_1_1_compute_object_tag.html":[4,0,16,5,99],
 "structtfel_1_1math_1_1_compute_object_tag.html#ac6ad4c24ac64d62f96aa52a7778fb86d":[4,0,16,5,99,0],
 "structtfel_1_1math_1_1_compute_object_tag__.html":[4,0,16,5,100],
 "structtfel_1_1math_1_1_compute_object_tag__.html#afec5e7ade6e5ccdb971da4dc16c76292":[4,0,16,5,100,0],
@@ -249,5 +248,6 @@ var NAVTREEINDEX43 =
 "structtfel_1_1math_1_1_evaluator_1_1_t_logical_expr.html":[4,0,16,5,195,10],
 "structtfel_1_1math_1_1_evaluator_1_1_t_logical_operation.html":[4,0,16,5,195,11],
 "structtfel_1_1math_1_1_evaluator_1_1_t_neg_logical_expr.html":[4,0,16,5,195,13],
-"structtfel_1_1math_1_1_evaluator_1_1_t_negation.html":[4,0,16,5,195,12]
+"structtfel_1_1math_1_1_evaluator_1_1_t_negation.html":[4,0,16,5,195,12],
+"structtfel_1_1math_1_1_evaluator_1_1_t_number.html":[4,0,16,5,195,14]
 };

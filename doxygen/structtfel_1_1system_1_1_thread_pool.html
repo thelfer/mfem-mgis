@@ -110,12 +110,12 @@ $(document).ready(function(){initNavTree('structtfel_1_1system_1_1_thread_pool.h
 <p>structure handling a fixed-size pool of threads  
  <a href="structtfel_1_1system_1_1_thread_pool.html#details">More...</a></p>
 
-<p><code>#include &lt;/home/runner/work/mfem-mgis/mfem-mgis/spack/opt/spack/linux-ubuntu24.04-zen2/gcc-12.3.0/tfel-master-enq2weoohdliii3aug33ziqtre372jqr/include/TFEL/System/ThreadPool.hxx&gt;</code></p>
+<p><code>#include &lt;/home/runner/work/mfem-mgis/mfem-mgis/spack/opt/spack/linux-zen2/tfel-master-xmrmx3enquo3wf2kylvgrms3shhjpkc5/include/TFEL/System/ThreadPool.hxx&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a17027776055ece06425196b28b02ddaf" id="r_a17027776055ece06425196b28b02ddaf"><td class="memItemLeft" align="right" valign="top"><a id="a17027776055ece06425196b28b02ddaf" name="a17027776055ece06425196b28b02ddaf"></a>
-<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>size_type</b> = std::vector&lt; std::thread &gt;::size_type</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>size_type</b> = std::vector&lt; std::thread &gt;::size_type</td></tr>
 <tr class="memdesc:a17027776055ece06425196b28b02ddaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">a simple alias <br /></td></tr>
 <tr class="separator:a17027776055ece06425196b28b02ddaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -124,14 +124,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a99f444420683087393753b3db2138df1" id="r_a99f444420683087393753b3db2138df1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtfel_1_1system_1_1_thread_pool.html#a99f444420683087393753b3db2138df1">ThreadPool</a> (const <a class="el" href="structtfel_1_1system_1_1_thread_pool.html#a17027776055ece06425196b28b02ddaf">size_type</a>)</td></tr>
 <tr class="memdesc:a99f444420683087393753b3db2138df1"><td class="mdescLeft">&#160;</td><td class="mdescRight">constructor  <br /></td></tr>
 <tr class="separator:a99f444420683087393753b3db2138df1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a77f76cf590dd5eaf811c559acc5a2327" id="r_a77f76cf590dd5eaf811c559acc5a2327"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">typename</a> F , typename... Args&gt; </td></tr>
-<tr class="memitem:a77f76cf590dd5eaf811c559acc5a2327"><td class="memTemplItemLeft" align="right" valign="top">std::future&lt; <a class="el" href="structtfel_1_1system_1_1_threaded_task_result.html">ThreadedTaskResult</a>&lt; std::invoke_result_t&lt; F, Args... &gt; &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structtfel_1_1system_1_1_thread_pool.html#a77f76cf590dd5eaf811c559acc5a2327">addTask</a> (F &amp;&amp;, <a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">Args</a> &amp;&amp;...)</td></tr>
+<tr class="memitem:a77f76cf590dd5eaf811c559acc5a2327" id="r_a77f76cf590dd5eaf811c559acc5a2327"><td class="memTemplParams" colspan="2">template&lt;typename F , typename... Args&gt; </td></tr>
+<tr class="memitem:a77f76cf590dd5eaf811c559acc5a2327"><td class="memTemplItemLeft" align="right" valign="top">std::future&lt; <a class="el" href="structtfel_1_1system_1_1_threaded_task_result.html">ThreadedTaskResult</a>&lt; std::invoke_result_t&lt; F, Args... &gt; &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structtfel_1_1system_1_1_thread_pool.html#a77f76cf590dd5eaf811c559acc5a2327">addTask</a> (F &amp;&amp;, Args &amp;&amp;...)</td></tr>
 <tr class="memdesc:a77f76cf590dd5eaf811c559acc5a2327"><td class="mdescLeft">&#160;</td><td class="mdescRight">add a new task  <br /></td></tr>
 <tr class="separator:a77f76cf590dd5eaf811c559acc5a2327"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec851dbd2951760a9e95f61312a72f11" id="r_aec851dbd2951760a9e95f61312a72f11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtfel_1_1system_1_1_thread_pool.html#a17027776055ece06425196b28b02ddaf">size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtfel_1_1system_1_1_thread_pool.html#aec851dbd2951760a9e95f61312a72f11">getNumberOfThreads</a> () const</td></tr>
 <tr class="separator:aec851dbd2951760a9e95f61312a72f11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76bdadf9dc5d76554a69aca422aa23a0" id="r_a76bdadf9dc5d76554a69aca422aa23a0"><td class="memItemLeft" align="right" valign="top"><a id="a76bdadf9dc5d76554a69aca422aa23a0" name="a76bdadf9dc5d76554a69aca422aa23a0"></a>
-<a class="el" href="spack_2opt_2spack_2linux-ubuntu24_804-zen2_2gcc-12_83_80_2tfel-master-enq2weoohdliii3aug33ziqtre1f8f1016d76570b8f4a1f2d79d3611c1.html#a04a02917f85c2196f18aa1b3c89504bd">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>wait</b> ()</td></tr>
+<a class="el" href="spack_2opt_2spack_2linux-zen2_2tfel-master-xmrmx3enquo3wf2kylvgrms3shhjpkc5_2include_2_cyrano_2_behaviour_8hxx.html#a04a02917f85c2196f18aa1b3c89504bd">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>wait</b> ()</td></tr>
 <tr class="memdesc:a76bdadf9dc5d76554a69aca422aa23a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">wait for all tasks to be finished <br /></td></tr>
 <tr class="separator:a76bdadf9dc5d76554a69aca422aa23a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e7663ad5f5fc710267f886df13ee648" id="r_a4e7663ad5f5fc710267f886df13ee648"><td class="memItemLeft" align="right" valign="top"><a id="a4e7663ad5f5fc710267f886df13ee648" name="a4e7663ad5f5fc710267f886df13ee648"></a>
@@ -175,7 +175,7 @@ Public Member Functions</h2></td></tr>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">typename</a> F , typename... Args&gt; </div>
+template&lt;typename F , typename... Args&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">std::future&lt; <a class="el" href="structtfel_1_1system_1_1_threaded_task_result.html">ThreadedTaskResult</a>&lt; std::invoke_result_t&lt; F, Args... &gt; &gt; &gt; tfel::system::ThreadPool::addTask </td>
@@ -186,7 +186,7 @@ template&lt;<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2in
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">Args</a> &amp;&amp;&#160;</td>
+          <td class="paramtype">Args &amp;&amp;&#160;</td>
           <td class="paramname"><em>...</em>&#160;</td>
         </tr>
         <tr>
@@ -227,7 +227,7 @@ template&lt;<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2in
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_system_2_thread_pool_8hxx.html">tfel-master-enq2weoohdliii3aug33ziqtre372jqr/include/TFEL/System/ThreadPool.hxx</a></li>
+<li><a class="el" href="tfel-master-xmrmx3enquo3wf2kylvgrms3shhjpkc5_2include_2_t_f_e_l_2_system_2_thread_pool_8hxx.html">tfel-master-xmrmx3enquo3wf2kylvgrms3shhjpkc5/include/TFEL/System/ThreadPool.hxx</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -235,7 +235,7 @@ template&lt;<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2in
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>tfel</b></li><li class="navelem"><b>system</b></li><li class="navelem"><a class="el" href="structtfel_1_1system_1_1_thread_pool.html">ThreadPool</a></li>
-    <li class="footer">Generated on Tue Jun 3 2025 11:07:22 for mfem-mgis by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jun 3 2025 11:19:32 for mfem-mgis by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -109,12 +109,12 @@ $(document).ready(function(){initNavTree('structtfel_1_1utilities_1_1_data_map_v
 <p>an helper structure used to validate a data map.  
  <a href="structtfel_1_1utilities_1_1_data_map_validator.html#details">More...</a></p>
 
-<p><code>#include &lt;/home/runner/work/mfem-mgis/mfem-mgis/spack/opt/spack/linux-ubuntu24.04-zen2/gcc-12.3.0/tfel-master-enq2weoohdliii3aug33ziqtre372jqr/include/TFEL/Utilities/Data.hxx&gt;</code></p>
+<p><code>#include &lt;/home/runner/work/mfem-mgis/mfem-mgis/spack/opt/spack/linux-zen2/tfel-master-xmrmx3enquo3wf2kylvgrms3shhjpkc5/include/TFEL/Utilities/Data.hxx&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a1496525a6178843c5d414c0baf2f0f77" id="r_a1496525a6178843c5d414c0baf2f0f77"><td class="memItemLeft" align="right" valign="top"><a id="a1496525a6178843c5d414c0baf2f0f77" name="a1496525a6178843c5d414c0baf2f0f77"></a>
-<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>DataValidator</b> = std::function&lt; <a class="el" href="spack_2opt_2spack_2linux-ubuntu24_804-zen2_2gcc-12_83_80_2tfel-master-enq2weoohdliii3aug33ziqtre1f8f1016d76570b8f4a1f2d79d3611c1.html#a04a02917f85c2196f18aa1b3c89504bd">void</a>(const <a class="el" href="structtfel_1_1utilities_1_1_data.html">Data</a> &amp;)&gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>DataValidator</b> = std::function&lt; <a class="el" href="spack_2opt_2spack_2linux-zen2_2tfel-master-xmrmx3enquo3wf2kylvgrms3shhjpkc5_2include_2_cyrano_2_behaviour_8hxx.html#a04a02917f85c2196f18aa1b3c89504bd">void</a>(const <a class="el" href="structtfel_1_1utilities_1_1_data.html">Data</a> &amp;)&gt;</td></tr>
 <tr class="memdesc:a1496525a6178843c5d414c0baf2f0f77"><td class="mdescLeft">&#160;</td><td class="mdescRight">function used to validate a <br /></td></tr>
 <tr class="separator:a1496525a6178843c5d414c0baf2f0f77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -144,12 +144,12 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="structtfel_1_1utilities_1_1_data_map_validator.html">DataMapValidator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>addDataValidator</b> (const std::string &amp;, const <a class="el" href="structtfel_1_1utilities_1_1_data_map_validator.html#a1496525a6178843c5d414c0baf2f0f77">DataValidator</a> &amp;)</td></tr>
 <tr class="separator:a32481b6a9d352e12e24a3daa31502323"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49067dc73b6013f2c0dae273196f23e5" id="r_a49067dc73b6013f2c0dae273196f23e5"><td class="memTemplParams" colspan="2"><a id="a49067dc73b6013f2c0dae273196f23e5" name="a49067dc73b6013f2c0dae273196f23e5"></a>
-template&lt;<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">typename</a> <a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">T1</a> &gt; <br />
-requires ( <a class="el" href="structtfel_1_1meta_1_1_t_l_count_nbr_of_t.html">tfel::meta::TLCountNbrOfT</a>&lt;std::decay_t&lt;<a class="el" href="tfel-master-enq2weoohdliii3aug33ziqtre372jqr_2include_2_t_f_e_l_2_raise_8hxx.html#ab078b2be289d5db6af0c3cb08154af56">T1</a>&gt;, <a class="el" href="_data_8hxx.html#a9a5a2eb6070860c23e59f235b64c9428">DataTypes</a>&gt;::value == 1)</td></tr>
+template&lt;typename T1 &gt; <br />
+requires ( <a class="el" href="structtfel_1_1meta_1_1_t_l_count_nbr_of_t.html">tfel::meta::TLCountNbrOfT</a>&lt;std::decay_t&lt;T1&gt;, <a class="el" href="_data_8hxx.html#a9a5a2eb6070860c23e59f235b64c9428">DataTypes</a>&gt;::value == 1)</td></tr>
 <tr class="memitem:a49067dc73b6013f2c0dae273196f23e5"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structtfel_1_1utilities_1_1_data_map_validator.html">DataMapValidator</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>addDataTypeValidator</b> (const std::string &amp;k)</td></tr>
 <tr class="separator:a49067dc73b6013f2c0dae273196f23e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afefedc157789d247f61ceae5992f2dec" id="r_afefedc157789d247f61ceae5992f2dec"><td class="memItemLeft" align="right" valign="top"><a id="afefedc157789d247f61ceae5992f2dec" name="afefedc157789d247f61ceae5992f2dec"></a>
-<a class="el" href="spack_2opt_2spack_2linux-ubuntu24_804-zen2_2gcc-12_83_80_2tfel-master-enq2weoohdliii3aug33ziqtre1f8f1016d76570b8f4a1f2d79d3611c1.html#a04a02917f85c2196f18aa1b3c89504bd">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>validate</b> (const <a class="el" href="_forward_8hxx.html#a9f8fccb5eab542fcfe15ebd521fdbfb9">DataMap</a> &amp;) const</td></tr>
+<a class="el" href="spack_2opt_2spack_2linux-zen2_2tfel-master-xmrmx3enquo3wf2kylvgrms3shhjpkc5_2include_2_cyrano_2_behaviour_8hxx.html#a04a02917f85c2196f18aa1b3c89504bd">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>validate</b> (const <a class="el" href="_forward_8hxx.html#a9f8fccb5eab542fcfe15ebd521fdbfb9">DataMap</a> &amp;) const</td></tr>
 <tr class="memdesc:afefedc157789d247f61ceae5992f2dec"><td class="mdescLeft">&#160;</td><td class="mdescRight">validate a data-map <br /></td></tr>
 <tr class="separator:afefedc157789d247f61ceae5992f2dec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af7b5bfaf0a69e7b41a190418d6ea2586" id="r_af7b5bfaf0a69e7b41a190418d6ea2586"><td class="memItemLeft" align="right" valign="top"><a id="af7b5bfaf0a69e7b41a190418d6ea2586" name="af7b5bfaf0a69e7b41a190418d6ea2586"></a>
@@ -169,7 +169,7 @@ requires ( <a class="el" href="structtfel_1_1meta_1_1_t_l_count_nbr_of_t.html">t
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>tfel</b></li><li class="navelem"><b>utilities</b></li><li class="navelem"><a class="el" href="structtfel_1_1utilities_1_1_data_map_validator.html">DataMapValidator</a></li>
-    <li class="footer">Generated on Tue Jun 3 2025 11:07:22 for mfem-mgis by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jun 3 2025 11:19:32 for mfem-mgis by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,6 +1,5 @@
 var NAVTREEINDEX52 =
 {
-"structtfel_1_1system_1_1_external_library_manager.html#a2e7feaeaa61dcbacf9e41fb818fd7bd6":[4,0,16,7,28,3],
 "structtfel_1_1system_1_1_external_library_manager.html#a30d14d739f62b1549efddd191d150fb9":[4,0,16,7,28,100],
 "structtfel_1_1system_1_1_external_library_manager.html#a31e5a14ffac84e72f98e207bd136ff4d":[4,0,16,7,28,15],
 "structtfel_1_1system_1_1_external_library_manager.html#a322138fa2f41b6bef313d8bb8a63f880":[4,0,16,7,28,115],
@@ -249,5 +248,6 @@ var NAVTREEINDEX52 =
 "structtfel_1_1system_1_1stream__traits_3_01wfstream_01_4.html":[4,0,16,7,49],
 "structtfel_1_1system_1_1stream__traits_3_01wstream_view_3_01is_01_4_01_4.html":[4,0,16,7,50],
 "structtfel_1_1system_1_1system_call.html":[4,0,16,7,51],
-"structtfel_1_1system_1_1wfstream.html":[4,0,16,7,57]
+"structtfel_1_1system_1_1wfstream.html":[4,0,16,7,57],
+"structtfel_1_1system_1_1wstream_view.html":[4,0,16,7,58]
 };
