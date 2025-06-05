@@ -20,7 +20,6 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include <MFEMMGIS/Profiler.hxx>
 
-
 template <bool parallel>
 static void dumpPartialQuadratureFunction(
     std::ostream& os,
@@ -48,43 +47,41 @@ static void dumpPartialQuadratureFunction(
   }
 }  // end of dumpPartialQuadratureFunction
 
-
 struct TestParameters {
-	const char* mesh_file = "inclusion.msh";
-	const char* behaviour = "ElasticitySatohTest";
-	const char* library = "src/libBehaviour.so";
-	int order = 1;
-	bool parallel = true;
-	int refinement = 0;
-	int verbosity_level = 0; // default value : lower level
+  const char* mesh_file = "inclusion.msh";
+  const char* behaviour = "ElasticitySatohTest";
+  const char* library = "src/libBehaviour.so";
+  int order = 1;
+  bool parallel = true;
+  int refinement = 0;
+  int verbosity_level = 0;  // default value : lower level
 };
 
-void common_parameters(mfem::OptionsParser& args, TestParameters& p)
-{
-	args.AddOption(&p.mesh_file, "-m", "--mesh", "Mesh file to use.");
-	args.AddOption(&p.library, "-l", "--library", "Material library.");
-	args.AddOption(&p.order, "-o", "--order", "Finite element order (polynomial degree).");
-	args.AddOption(&p.refinement, "-r", "--refinement", "refinement level of the mesh, default = 0");
-	args.AddOption(&p.verbosity_level, "-p", "--parallel", "choose between serial (-p 0 and parallel -p 1");
+void common_parameters(mfem::OptionsParser& args, TestParameters& p) {
+  args.AddOption(&p.mesh_file, "-m", "--mesh", "Mesh file to use.");
+  args.AddOption(&p.library, "-l", "--library", "Material library.");
+  args.AddOption(&p.order, "-o", "--order",
+                 "Finite element order (polynomial degree).");
+  args.AddOption(&p.refinement, "-r", "--refinement",
+                 "refinement level of the mesh, default = 0");
+  args.AddOption(&p.verbosity_level, "-p", "--parallel",
+                 "choose between serial (-p 0 and parallel -p 1");
 
-	args.Parse();
+  args.Parse();
 
-	if (!args.Good()) {
-		if (mfem_mgis::getMPIrank() == 0)
-			args.PrintUsage(std::cout);
-		mfem_mgis::finalize();
-		exit(0);
-	}
-	if (p.mesh_file == nullptr) {
-		if (mfem_mgis::getMPIrank() == 0)
-			std::cout << "ERROR: Mesh file missing" << std::endl;
-		args.PrintUsage(std::cout);
-		mfem_mgis::abort(EXIT_FAILURE);
-	}
-	if (mfem_mgis::getMPIrank() == 0)
-		args.PrintOptions(std::cout);
+  if (!args.Good()) {
+    if (mfem_mgis::getMPIrank() == 0) args.PrintUsage(std::cout);
+    mfem_mgis::finalize();
+    exit(0);
+  }
+  if (p.mesh_file == nullptr) {
+    if (mfem_mgis::getMPIrank() == 0)
+      std::cout << "ERROR: Mesh file missing" << std::endl;
+    args.PrintUsage(std::cout);
+    mfem_mgis::abort(EXIT_FAILURE);
+  }
+  if (mfem_mgis::getMPIrank() == 0) args.PrintOptions(std::cout);
 }
-
 
 /*
  * This test models a 2D plate of lenght 1 in plane strain clamped on the left
@@ -98,7 +95,7 @@ void common_parameters(mfem::OptionsParser& args, TestParameters& p)
  * analytical profile.
  */
 int main(int argc, char** argv) {
-  // mpi initialization here 
+  // mpi initialization here
   mfem_mgis::initialize(argc, argv);
   // init timers
   mfem_mgis::Profiler::timers::init_timers();
@@ -107,7 +104,6 @@ int main(int argc, char** argv) {
   TestParameters p;
   mfem::OptionsParser args(argc, argv);
   common_parameters(args, p);
-
 
   auto success = true;
   // building the non linear problem
@@ -133,7 +129,7 @@ int main(int argc, char** argv) {
   mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
   auto Tg = mfem_mgis::PartialQuadratureFunction::evaluate(
       m1.getPartialQuadratureSpacePointer(),
-      [](const mfem_mgis::real x, const mfem_mgis::real) {
+      [](const mfem_mgis::real x, const mfem_mgis::real) noexcept {
         constexpr auto Tref = mfem_mgis::real{293.15};
         constexpr auto dT = mfem_mgis::real{2000} - Tref;
         return 4 * dT * x * (1 - x) + Tref;
@@ -168,41 +164,19 @@ int main(int argc, char** argv) {
   auto r = problem.solve(0, 1);
   problem.executePostProcessings(0, 1);
   // manual export
-  if (p.parallel == 0) {
-    using ExportedFunctionsDescription =
-        mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes<
-            false>::ExportedFunctionsDescription;
-    mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes<false>
-        export_stress(problem.getImplementation<false>(),
-                      std::vector<ExportedFunctionsDescription>{
-                          ExportedFunctionsDescription{
-                              .name = "Stress",
-                              .functions = {mfem_mgis::getThermodynamicForce(
-                                  m1, "Stress")}}},
-                      "SatohTestStressOutput");
-    export_stress.execute(problem.getImplementation<false>(), 0, 1);
-  } else {
-    using ExportedFunctionsDescription =
-        mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes<
-            true>::ExportedFunctionsDescription;
-    mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes<true> export_stress(
-        problem.getImplementation<true>(),
-        std::vector<ExportedFunctionsDescription>{ExportedFunctionsDescription{
-            .name = "Stress",
-            .functions = {mfem_mgis::getThermodynamicForce(m1, "Stress")}}},
-        "SatohTestStressParallelOutput");
-    export_stress.execute(problem.getImplementation<true>(), 0, 1);
-  }
+  auto export_stress = mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes{
+      problem,
+      {{.name = "Stress",
+        .functions = {mfem_mgis::getThermodynamicForce(m1, "Stress")}}},
+      "SatohTestStressOutput"};
+  export_stress.execute(problem, 0, 1);
   //
   std::ofstream output("HydrostaticPressure.txt");
   const auto pr = getInternalStateVariable(
       static_cast<const mfem_mgis::Material&>(m1), "HydrostaticPressure");
-  if(p.parallel == 0)
-  {
+  if (p.parallel == 0) {
     dumpPartialQuadratureFunction<false>(output, pr);
-  }
-  else
-  {
+  } else {
     dumpPartialQuadratureFunction<true>(output, pr);
   }
   //

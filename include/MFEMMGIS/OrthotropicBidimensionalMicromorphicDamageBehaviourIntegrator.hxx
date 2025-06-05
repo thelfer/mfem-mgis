@@ -43,9 +43,9 @@ namespace mfem_mgis {
     const mfem::IntegrationRule &getIntegrationRule(
         const mfem::FiniteElement &,
         const mfem::ElementTransformation &) const override;
-    real getIntegrationPointWeight(mfem::ElementTransformation &,
-                                   const mfem::IntegrationPoint &) const
-        noexcept override;
+    real getIntegrationPointWeight(
+        mfem::ElementTransformation &,
+        const mfem::IntegrationPoint &) const noexcept override;
     bool integrate(const mfem::FiniteElement &,
                    mfem::ElementTransformation &,
                    const mfem::Vector &,

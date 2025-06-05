@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
   //
   const auto H = mfem_mgis::PartialQuadratureFunction::evaluate(
       m.getPartialQuadratureSpacePointer(),
-      [](const mfem_mgis::real x, const mfem_mgis::real) {
+      [](const mfem_mgis::real x, const mfem_mgis::real) noexcept {
         const auto d = std::sin(4 * pi * x) / 2;
         return Gc * d * (1 + l0 * l0 * 16 * pi * pi) / (2 * l0 * (1 - d));
       });

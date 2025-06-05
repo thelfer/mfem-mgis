@@ -95,36 +95,32 @@ namespace mfem_mgis {
 #endif
   };  // end of UniformHeatSourceNonlinearFormIntegrator
 
-  UniformHeatSourceBoundaryCondition::
-      UniformHeatSourceBoundaryCondition(
-          AbstractNonLinearEvolutionProblem &p, const Parameters &params)
+  UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
+      AbstractNonLinearEvolutionProblem &p, const Parameters &params)
       : finiteElementDiscretization(p.getFiniteElementDiscretizationPointer()),
         mids(getBoundariesIdentifiers(p, params, false)),
         prfct(get<std::function<real(const real)>>(params, "LoadingEvolution")),
         nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
 
-  UniformHeatSourceBoundaryCondition::
-      UniformHeatSourceBoundaryCondition(
-          std::shared_ptr<FiniteElementDiscretization> fed,
-          const size_type mid,
-          std::function<real(const real)> prvalues)
+  UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const size_type mid,
+      std::function<real(const real)> prvalues)
       : finiteElementDiscretization(fed),
         mids(1, mid),
         prfct(prvalues),
         nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
 
-  UniformHeatSourceBoundaryCondition::
-      UniformHeatSourceBoundaryCondition(
-          std::shared_ptr<FiniteElementDiscretization> fed,
-          const std::string_view mid,
-          std::function<real(const real)> prvalues)
+  UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const std::string_view mid,
+      std::function<real(const real)> prvalues)
       : finiteElementDiscretization(fed),
         mids(fed->getMaterialsIdentifiers(mid)),
         prfct(prvalues),
         nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
 
-  void UniformHeatSourceBoundaryCondition::setup(const real t,
-                                                        const real dt) {
+  void UniformHeatSourceBoundaryCondition::setup(const real t, const real dt) {
     this->nfi->setHeatSource(this->prfct(t + dt));
   }
 
@@ -156,8 +152,7 @@ namespace mfem_mgis {
     this->shallFreeIntegrator = false;
   }  // end of addNonlinearFormIntegrator
 
-  UniformHeatSourceBoundaryCondition::
-      ~UniformHeatSourceBoundaryCondition() {
+  UniformHeatSourceBoundaryCondition::~UniformHeatSourceBoundaryCondition() {
     if (this->shallFreeIntegrator) {
       std::free(this->nfi);
     }

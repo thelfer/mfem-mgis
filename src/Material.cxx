@@ -185,7 +185,7 @@ namespace mfem_mgis {
       const size_type o) const {
     checkBehaviourSymmetry(this->b);
     return this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
-  } // end of getRotationMatrixAtIntegrationPoint
+  }  // end of getRotationMatrixAtIntegrationPoint
 
   Material::~Material() = default;
 
@@ -248,9 +248,7 @@ namespace mfem_mgis {
   }  // end of getGradient
 
   PartialQuadratureFunction getThermodynamicForce(
-      Material &m,
-      const std::string_view n,
-      const Material::StateSelection s) {
+      Material &m, const std::string_view n, const Material::StateSelection s) {
     return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
         getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
@@ -268,9 +266,7 @@ namespace mfem_mgis {
   }  // end of getThermodynamicForce
 
   PartialQuadratureFunction getInternalStateVariable(
-      Material &m,
-      const std::string_view n,
-      const Material::StateSelection s) {
+      Material &m, const std::string_view n, const Material::StateSelection s) {
     return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
         getStateManager(m, s).internal_state_variables, m.b.isvs, n,

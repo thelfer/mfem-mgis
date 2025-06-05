@@ -128,54 +128,54 @@ namespace mfem_mgis {
   [[noreturn]] void Finalizer::abort(int error) {
     if (!this->pendingExit) {
 #ifdef MFEM_USE_MPI
-			MPI_Abort(MPI_COMM_WORLD, error);
-			this->pendingExit = true;
+      MPI_Abort(MPI_COMM_WORLD, error);
+      this->pendingExit = true;
 #endif /* MFEM_USE_MPI */
-		}
-		std::exit(error);
-	}  // end of abort
+    }
+    std::exit(error);
+  }  // end of abort
 
-	Finalizer::~Finalizer() { this->finalize(); }
+  Finalizer::~Finalizer() { this->finalize(); }
 
-	[[noreturn]] void reportUnsupportedParallelComputations() {
-		raise(
-				"reportUnsupportedParallelComputations: "
-				"unsupported parallel computations");
-	}  // end of reportUnsupportedParallelComputations
+  [[noreturn]] void reportUnsupportedParallelComputations() {
+    raise(
+        "reportUnsupportedParallelComputations: "
+        "unsupported parallel computations");
+  }  // end of reportUnsupportedParallelComputations
 
 #ifdef MFEM_USE_MPI
 
-	static void exit_on_failure() {
-		try {
-			throw;
-		} catch (std::exception& e) {
-			mfem_mgis::getErrorStream() << e.what() << '\n';
-		} catch (...) {
-			mfem_mgis::getErrorStream() << "unknown exception thrown";
-		}
-		abort();
-		std::abort();
-	}  // end of exit_on_failure
+  static void exit_on_failure() {
+    try {
+      throw;
+    } catch (std::exception& e) {
+      mfem_mgis::getErrorStream() << e.what() << '\n';
+    } catch (...) {
+      mfem_mgis::getErrorStream() << "unknown exception thrown";
+    }
+    abort();
+    std::abort();
+  }  // end of exit_on_failure
 
-	void initialize(int& argc, MainFunctionArguments& argv) {
-		static bool first = true;
-		if (first) {
-			mgis::setExceptionHandler(exit_on_failure);
-			MPI_Init(&argc, &argv);
-			if (getMPIrank() != 0) {
-				mfem::out.Disable();
-				mfem::err.Disable();
-			}
-			Finalizer::get().initialize(argc, argv);
-			first = false;
-			Profiler::timers::init_timers();
-		}
-	}  // end of initialize
+  void initialize(int& argc, MainFunctionArguments& argv) {
+    static bool first = true;
+    if (first) {
+      mgis::setExceptionHandler(exit_on_failure);
+      MPI_Init(&argc, &argv);
+      if (getMPIrank() != 0) {
+        mfem::out.Disable();
+        mfem::err.Disable();
+      }
+      Finalizer::get().initialize(argc, argv);
+      first = false;
+      Profiler::timers::init_timers();
+    }
+  }  // end of initialize
 
 #else /* MFEM_USE_MPI */
 
-	void initialize(int&, MainFunctionArguments&) {
-		Finalizer::get();
+  void initialize(int&, MainFunctionArguments&) {
+    Finalizer::get();
     Profiler::timers::init_timers();
   }  // end of initialize
 

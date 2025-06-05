@@ -158,13 +158,13 @@ struct TestParameters {
   int order = 1;
   int tcase = 0;
   int linearsolver = 0;
-//#ifdef DO_USE_MPI
+  //#ifdef DO_USE_MPI
   bool parallel = true;
   const char* mesh_mode = "FromScratch";
-//#else  /* DO_USE_MPI */
-//  bool parallel = false;
-//  std::string mesh_mode = "FromScratch";
-//#endif /* DO_USE_MPI */
+  //#else  /* DO_USE_MPI */
+  //  bool parallel = false;
+  //  std::string mesh_mode = "FromScratch";
+  //#endif /* DO_USE_MPI */
 };
 
 TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
@@ -179,7 +179,8 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
                  "identifier of the case : Exx->0, Eyy->1, Ezz->2, Exy->3, "
                  "Exz->4, Eyz->5");
   args.AddOption(&p.mesh_mode, "-rmm", "--read-mesh-mode",
-                  "Restart: computation from the last checkpoint. FromScratch: read the mesh from scratch");
+                 "Restart: computation from the last checkpoint. FromScratch: "
+                 "read the mesh from scratch");
   args.AddOption(
       &p.linearsolver, "-ls", "--linearsolver",
       "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");

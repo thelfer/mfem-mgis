@@ -6,6 +6,7 @@ mfem_mgis_library(MFEMMGIS
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
+  PartialQuadratureFunctionsSet.cxx
   Behaviour.cxx
   Material.cxx
   BehaviourIntegrator.cxx
@@ -21,6 +22,7 @@ mfem_mgis_library(MFEMMGIS
   ImposedDirichletBoundaryConditionAtClosestNode.cxx
   PostProcessing.cxx
   PostProcessingFactory.cxx
+  ParaviewExportIntegrationPointResultsAtNodes.cxx
   ComputeResultantForceOnBoundary.cxx
   AbstractNonLinearEvolutionProblem.cxx
   NonLinearEvolutionProblemImplementationBase.cxx
@@ -53,6 +55,7 @@ mfem_mgis_library(MFEMMGIS
   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TransientHeatTransferBehaviourIntegrator.cxx
+  MechanicalPostProcessings.cxx
 )
 
 if(OpenMP_FOUND)

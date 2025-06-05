@@ -116,7 +116,9 @@ namespace mfem_mgis {
           mfem::out << std::endl;
           mfem::out << "Glossary: " << std::endl;
           mfem::out << "NS: Newton Solver Class" << std::endl;
-          mfem::out << "NLEPIB: Non Linear Evolution Problem Implementation Base Class" << std::endl;
+          mfem::out << "NLEPIB: Non Linear Evolution Problem Implementation "
+                       "Base Class"
+                    << std::endl;
           mfem::out << "FED: Finite Element Discretization Class" << std::endl;
           mfem::out << std::endl;
 
@@ -357,7 +359,7 @@ namespace mfem_mgis {
 #ifdef SortPrintTimeTable
       recursive_sorted_call(my_print, sort_comp, root_timer, count, runtime);
 #else
-      recursive_call(my_print, root_timer, count, runtime);
+          recursive_call(my_print, root_timer, count, runtime);
 #endif
       root_timer->printEnding(count);
     }

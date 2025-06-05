@@ -180,18 +180,16 @@ namespace mfem_mgis {
           recursive_sorted_call(func, mySort, it, arg...);
       }
 
-		};  // namespace OutputManager
+    };  // namespace OutputManager
 
-
-		inline
-			std::chrono::duration<double>* get_duration(std::string a_name)
-			{
-				auto& ptr = timers::get_timer<CURRENT>();
-				assert(ptr != nullptr && "do not use an undefined timer node");
-				ptr=ptr->find(a_name); // this function increment the 'iteration' member
-				return ptr->get_ptr_duration();
-			}
-	};    // namespace Profiler
+    inline std::chrono::duration<double>* get_duration(std::string a_name) {
+      auto& ptr = timers::get_timer<CURRENT>();
+      assert(ptr != nullptr && "do not use an undefined timer node");
+      ptr =
+          ptr->find(a_name);  // this function increment the 'iteration' member
+      return ptr->get_ptr_duration();
+    }
+  };  // namespace Profiler
 
 };  // namespace mfem_mgis
 
@@ -200,15 +198,16 @@ namespace mfem_mgis {
 // One level of macro indirection is required in order to resolve __COUNTER__,
 // and get varname1 instead of varname__COUNTER__.
 #define CONCAT(a, b) CONCAT_INNER(a, b)
-#define CONCAT_INNER(a, b) a ## b
+#define CONCAT_INNER(a, b) a##b
 
 #define CONCAT_LINE(x) CONCAT(x, __LINE__)
 #define CONCAT_FILE(x) CONCAT(x, __FILE__)
 #define CONCAT_COUNTER(x) CONCAT(x, __COUNTER__)
 #define VARNAME() CONCAT_COUNTER(BASE)
 
-#define CatchTimeSection(XNAME)\
-	mfem_mgis::Profiler::timer::TimeSection VARNAME()(mfem_mgis::Profiler::get_duration(XNAME));
+#define CatchTimeSection(XNAME)                      \
+  mfem_mgis::Profiler::timer::TimeSection VARNAME()( \
+      mfem_mgis::Profiler::get_duration(XNAME));
 
 // alias
 #define CatchNestedTimeSection(XNAME) CatchTimeSection(XNAME)
