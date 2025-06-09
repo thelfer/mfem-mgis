@@ -13,7 +13,6 @@ mfem_mgis_header(MFEMMGIS PartialQuadratureSpace.hxx)
 mfem_mgis_header(MFEMMGIS PartialQuadratureSpace.ixx)
 mfem_mgis_header(MFEMMGIS PartialQuadratureFunction.hxx)
 mfem_mgis_header(MFEMMGIS PartialQuadratureFunction.ixx)
-mfem_mgis_header(MFEMMGIS PartialQuadratureFunctionsSet.hxx)
 mfem_mgis_header(MFEMMGIS RotationMatrix.hxx)
 mfem_mgis_header(MFEMMGIS Behaviour.hxx)
 mfem_mgis_header(MFEMMGIS Material.hxx)
@@ -47,8 +46,11 @@ mfem_mgis_header(MFEMMGIS NewtonSolver.hxx)
 mfem_mgis_header(MFEMMGIS AnalyticalTests.hxx)
 mfem_mgis_header(MFEMMGIS BoundaryUtilities.hxx)
 mfem_mgis_header(MFEMMGIS BoundaryUtilities.ixx)
-mfem_mgis_header(MFEMMGIS MechanicalPostProcessings.hxx)
-
-
 mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.hxx)
 mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.ixx)
+
+if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
+  mfem_mgis_header(MFEMMGIS MechanicalPostProcessings.hxx)
+  mfem_mgis_header(MFEMMGIS PartialQuadratureFunctionsSet.hxx)
+endif(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
+

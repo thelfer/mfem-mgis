@@ -8,6 +8,10 @@
 #ifndef LIB_MFEMMGIS_PARTIALQUADRATUREFUNCTIONSSET_HXX
 #define LIB_MFEMMGIS_PARTIALQUADRATUREFUNCTIONSSET_HXX
 
+#ifndef MGIS_FUNCTION_SUPPORT
+#error "PartialQuadratureFunctionsSet requires mgis/function"
+#endif /* MGIS_FUNCTION_SUPPORT */
+
 #include <vector>
 #include <memory>
 #include <functional>

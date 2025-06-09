@@ -5,15 +5,11 @@
  * \date   22/05/2025
  */
 
-#ifdef MGIS_FUNCTION_SUPPORT
 #include "MGIS/Function/Mechanics.hxx"
-#endif /* MGIS_FUNCTION_SUPPORT */
-
 #include "MFEMMGIS/MechanicalPostProcessings.hxx"
 
 namespace mfem_mgis {
 
-#ifdef MGIS_FUNCTION_SUPPORT
 
   template <unsigned short N>
   static bool computeVonMisesEquivalentStressForSmallStrainBehaviours_impl(
@@ -536,7 +532,5 @@ namespace mfem_mgis {
     }
     return sig;
   }  // end of computeCauchyStressInGlobalFrame
-
-#endif /* MGIS_FUNCTION_SUPPORT */
 
 }  // end of namespace mfem_mgis

@@ -1,4 +1,5 @@
-mfem_mgis_library(MFEMMGIS
+set(MFEMMGIS_SOURCES)
+list(APPEND MFEMMGIS_SOURCES
   Config.cxx
   Profiler.cxx
   Parameter.cxx
@@ -54,9 +55,13 @@ mfem_mgis_library(MFEMMGIS
   BidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
-  TransientHeatTransferBehaviourIntegrator.cxx
-  MechanicalPostProcessings.cxx
-)
+  TransientHeatTransferBehaviourIntegrator.cxx)
+
+if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
+  list(APPEND MFEMMGIS_SOURCES MechanicalPostProcessings.cxx)
+endif(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
+
+mfem_mgis_library(MFEMMGIS ${MFEMMGIS_SOURCES})
 
 if(OpenMP_FOUND)
   target_link_libraries(MFEMMGIS
