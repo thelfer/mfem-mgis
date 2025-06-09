@@ -16,9 +16,6 @@
 
 namespace mfem_mgis {
 
-  // forward declaration
-  struct Context;
-
   /*!
    * \brief a structure grouping a set of partial quadrature functions.
    */
