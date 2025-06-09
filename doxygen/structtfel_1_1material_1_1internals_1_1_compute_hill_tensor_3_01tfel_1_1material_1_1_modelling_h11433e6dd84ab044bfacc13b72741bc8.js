@@ -1,4 +1,0 @@
-var structtfel_1_1material_1_1internals_1_1_compute_hill_tensor_3_01tfel_1_1material_1_1_modelling_h11433e6dd84ab044bfacc13b72741bc8 =
-[
-    [ "result_type", "structtfel_1_1material_1_1internals_1_1_compute_hill_tensor_3_01tfel_1_1material_1_1_modelling_h11433e6dd84ab044bfacc13b72741bc8.html#aafbe5f3e3c5407102a5e19ea55b1a573", null ]
-];
