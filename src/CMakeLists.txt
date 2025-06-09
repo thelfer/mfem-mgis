@@ -7,7 +7,6 @@ list(APPEND MFEMMGIS_SOURCES
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
-  PartialQuadratureFunctionsSet.cxx
   Behaviour.cxx
   Material.cxx
   BehaviourIntegrator.cxx
@@ -58,7 +57,9 @@ list(APPEND MFEMMGIS_SOURCES
   TransientHeatTransferBehaviourIntegrator.cxx)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
-  list(APPEND MFEMMGIS_SOURCES MechanicalPostProcessings.cxx)
+  list(APPEND MFEMMGIS_SOURCES
+       MechanicalPostProcessings.cxx
+       PartialQuadratureFunctionsSet.cxx)
 endif(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
 
 mfem_mgis_library(MFEMMGIS ${MFEMMGIS_SOURCES})
