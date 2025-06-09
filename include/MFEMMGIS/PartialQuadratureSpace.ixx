@@ -45,6 +45,11 @@ namespace mfem_mgis {
     return p->second;
   }  // end of getNumberOfQuadraturePoints
 
+  constexpr bool areEquivalent(const PartialQuadratureSpace & s1,
+                               const PartialQuadratureSpace & s2) noexcept{
+    return &s1 == &s2;
+  } // end of areEquivalent
+
   inline size_type getSpaceSize(const PartialQuadratureSpace& s) {
     return s.getNumberOfIntegrationPoints();
   }  // end of getSpaceSize

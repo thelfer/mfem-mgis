@@ -60,7 +60,7 @@ namespace mfem_mgis {
         }
       }
       if (rank == 0) {
-        this->out << '\n';
+        this->out << std::endl;
       }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
@@ -70,7 +70,7 @@ namespace mfem_mgis {
       for (const auto &mi : p.getAssignedMaterialsIdentifiers()) {
         this->writeResults(tf_integrals[mi], volumes[mi]);
       }
-      this->out << '\n';
+      this->out << std::endl;
     }
   }  // end of MeanThermodynamicForces
 

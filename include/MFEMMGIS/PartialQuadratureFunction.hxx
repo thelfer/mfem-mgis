@@ -359,7 +359,11 @@ namespace mfem_mgis {
     ~PartialQuadratureFunction();
 
    protected:
-    //
+    /*!
+     * \brief this function is deleted to avoid
+     * `PartialQuadratureFunction` to match `mgis::EvaluatorConcept`
+     * as it is not a lightweight object
+     */
     void allocateWorkspace() = delete;
 
     /*!
