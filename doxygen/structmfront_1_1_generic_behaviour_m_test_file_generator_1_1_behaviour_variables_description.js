@@ -1,4 +1,0 @@
-var structmfront_1_1_generic_behaviour_m_test_file_generator_1_1_behaviour_variables_description =
-[
-    [ "VariableDescription", "structmfront_1_1_generic_behaviour_m_test_file_generator_1_1_behaviour_variables_description_1_1_variable_description.html", null ]
-];

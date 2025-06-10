@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1_compute_binary_operation_handler_3_01_scalar_tag_00_01_math_object_tag_00b703abb03566e06b31c98c29770e7d11 =
-[
-    [ "DummyHandle", "structtfel_1_1math_1_1_compute_binary_operation_handler_3_01_scalar_tag_00_01_math_object_tag_00066dae1694a3ab9f1aed320e0b58701e.html", null ]
-];
