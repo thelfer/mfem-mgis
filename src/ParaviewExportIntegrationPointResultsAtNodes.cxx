@@ -6,7 +6,9 @@
  */
 
 #include <utility>
+#ifdef MGIS_FUNCTION_SUPPORT
 #include "MFEMMGIS/PartialQuadratureFunctionsSet.hxx"
+#endif /* MGIS_FUNCTION_SUPPORT */
 #include "MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx"
 
 namespace mfem_mgis {
@@ -224,6 +226,8 @@ namespace mfem_mgis {
   ParaviewExportIntegrationPointResultsAtNodes::
       ~ParaviewExportIntegrationPointResultsAtNodes() = default;
 
+#ifdef MGIS_FUNCTION_SUPPORT
+
   ParaviewExportIntegrationPointResultsAtNodesBase::ExportedFunctionsDescription
   makeExportedFunctionsDescription(std::string_view n,
                                    const PartialQuadratureFunctionsSet &f){
@@ -247,5 +251,7 @@ namespace mfem_mgis {
     }
     return efcts;
   }
+
+#endif /* MGIS_FUNCTION_SUPPORT */
 
 }  // end of namespace mfem_mgis

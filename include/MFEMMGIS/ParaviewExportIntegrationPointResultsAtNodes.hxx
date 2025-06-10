@@ -23,8 +23,10 @@
 
 namespace mfem_mgis {
 
+#ifdef MGIS_FUNCTION_SUPPORT
   // forward declaration
   struct PartialQuadratureFunctionsSet;
+#endif /* MGIS_FUNCTION_SUPPORT */
 
   /*!
    * \brief a base class to factorize methods between sequential and parallel
@@ -224,6 +226,7 @@ namespace mfem_mgis {
         implementations;
   };
 
+#ifdef MGIS_FUNCTION_SUPPORT
   /*!
    * \brief generates a description of functions to be exported from  a set of
    * partial quadrature functions.
@@ -240,6 +243,7 @@ namespace mfem_mgis {
                   ExportedFunctionsDescription>
   makeExportedFunctionsDescriptions(
       const std::map<std::string, const PartialQuadratureFunctionsSet &> &);
+#endif /* MGIS_FUNCTION_SUPPORT */
 
 }  // end of namespace mfem_mgis
 
