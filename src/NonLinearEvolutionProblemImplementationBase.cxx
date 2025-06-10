@@ -242,7 +242,6 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
-
     CatchTimeSection("NLEPIB::setup");
     if (this->initialization_phase) {
       if (!this->dirichlet_boundary_conditions.empty()) {
@@ -296,8 +295,7 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
       LinearSolverHandler s) {
-    CatchTimeSection(
-        "NLEPIB::updateLinearSolver");
+    CatchTimeSection("NLEPIB::updateLinearSolver");
     this->updateLinearSolver(std::move(s.linear_solver),
                              std::move(s.preconditioner));
   }  // end of updateLinearSolver

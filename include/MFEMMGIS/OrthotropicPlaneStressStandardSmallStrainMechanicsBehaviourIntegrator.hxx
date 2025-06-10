@@ -45,8 +45,7 @@ namespace mfem_mgis {
      */
     static constexpr const auto icste = real{0.70710678118654752440};
     //! \brief a simple alias
-    using RotationMatrix =
-        std::array<real, 9u>;
+    using RotationMatrix = std::array<real, 9u>;
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
@@ -76,9 +75,9 @@ namespace mfem_mgis {
         const mfem::FiniteElement &,
         const mfem::ElementTransformation &) const override;
 
-    real getIntegrationPointWeight(mfem::ElementTransformation &,
-                                   const mfem::IntegrationPoint &) const
-        noexcept override;
+    real getIntegrationPointWeight(
+        mfem::ElementTransformation &,
+        const mfem::IntegrationPoint &) const noexcept override;
 
     bool integrate(const mfem::FiniteElement &,
                    mfem::ElementTransformation &,

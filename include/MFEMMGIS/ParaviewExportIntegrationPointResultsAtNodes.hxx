@@ -8,27 +8,31 @@
 #ifndef LIB_MFEMMGIS_PARAVIEWEXPORTINTEGRATIONPOINTRESULTSATNODES_HXX
 #define LIB_MFEMMGIS_PARAVIEWEXPORTINTEGRATIONPOINTRESULTSATNODES_HXX
 
+#include <map>
+#include <string>
 #include <memory>
+#include <variant>
+#include <string_view>
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
+#include "MFEMMGIS/PartialQuadratureFunction.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
 
+#ifdef MGIS_FUNCTION_SUPPORT
+  // forward declaration
+  struct PartialQuadratureFunctionsSet;
+#endif /* MGIS_FUNCTION_SUPPORT */
+
   /*!
-   * \brief a post-processing to export integration points results to paraview
-   * after projecting them to nodes
-   *
-   * The functions to be exported can be either:
-   *
-   * 1. automatically extracted from the materials defined in a nonlinear
-   *    evolution problem
-   * 2. explicitely given by the user
+   * \brief a base class to factorize methods between sequential and parallel
+   * versions
    */
-  template <bool parallel>
-  struct ParaviewExportIntegrationPointResultsAtNodes final
-      : public PostProcessing<parallel> {
+  struct MFEM_MGIS_EXPORT ParaviewExportIntegrationPointResultsAtNodesBase {
     //! \brief a simple structure to describe the functions to be exported.
     struct ExportedFunctionsDescription {
       //! \brief name of the exported function in the Paraview's file
@@ -37,41 +41,13 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView> functions;
     };
     /*!
-     * \brief constructor
-     * \param[in] p: non linear problem
-     * \param[in] params: parameters passed to the post-processing
-     */
-    ParaviewExportIntegrationPointResultsAtNodes(
-        NonLinearEvolutionProblemImplementation<parallel>&, const Parameters&);
-    /*!
-     * \brief constructor
-     * \param[in] p: non linear problem
-     * \param[in] d: functions to be exported
      * \param[in] n: output directory name
      */
-    ParaviewExportIntegrationPointResultsAtNodes(
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const ExportedFunctionsDescription &,
-        const std::string &);
-    /*!
-     * \brief constructor
-     * \param[in] p: non linear problem
-     * \param[in] d: functions to be exported
-     * \param[in] n: output directory name
-     */
-    ParaviewExportIntegrationPointResultsAtNodes(
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const std::vector<ExportedFunctionsDescription> &,
-        const std::string &);
-    //
-    void execute(NonLinearEvolutionProblemImplementation<parallel>&,
-                 const real,
-                 const real) override;
-    //! \brief destructor
-    ~ParaviewExportIntegrationPointResultsAtNodes() override;
+    ParaviewExportIntegrationPointResultsAtNodesBase(const std::string &);
 
-   private:
-    struct MaterialIntegrationPointResult {
+   protected:
+    //
+    struct MaterialIntegrationPointResultBase {
       //! \brief enumeration of the kind of results that can be post-processed.
       enum Category {
         GRADIENTS,
@@ -84,18 +60,21 @@ namespace mfem_mgis {
       size_type number_of_components;
       //! \brief kind of results treated
       Category category;
-      //! \brief finite element space
-      std::unique_ptr<FiniteElementSpace<parallel>> fespace;
-      //! \brief grid function
-      std::unique_ptr<GridFunction<parallel>> f;
     };
+    /*!
+     * \brief extract the material identifiers from the description of
+     * of the exported functions
+     * \param[in] ds: functions to be exported
+     */
+    void extractMaterialIdentifiers(
+        const std::vector<ExportedFunctionsDescription> &);
     /*!
      * \brief get information about the given result (number of components and
      * category)
      */
     void getResultDescription(
-        MaterialIntegrationPointResult&,
-        const NonLinearEvolutionProblemImplementation<parallel>&);
+        MaterialIntegrationPointResultBase &,
+        const NonLinearEvolutionProblemImplementationBase &);
     /*!
      * \return the functions associated with the given result
      * \param[in] p: non linear evolution problem
@@ -103,19 +82,85 @@ namespace mfem_mgis {
      */
     std::vector<ImmutablePartialQuadratureFunctionView>
     getPartialQuadratureFunctionViews(
-        const NonLinearEvolutionProblemImplementation<parallel>&,
-        const MaterialIntegrationPointResult&);
-    //! \brief submesh defined when exporting data for domain or boundary
-    //! attributes
-    std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;
+        const NonLinearEvolutionProblemImplementationBase &,
+        const MaterialIntegrationPointResultBase &);
     //! \brief paraview exporter
     mfem::ParaViewDataCollection exporter;
     //! \brief list of material' identifiers
     std::vector<size_type> materials_identifiers;
+    //! \brief number of records
+    size_type cycle;
+  };
+
+  /*!
+   * \brief a post-processing to export integration points results to paraview
+   * after projecting them to nodes
+   *
+   * The functions to be exported can be either:
+   *
+   * 1. automatically extracted from the materials defined in a nonlinear
+   *    evolution problem
+   * 2. explicitely given by the user
+   */
+  template <bool parallel>
+  struct ParaviewExportIntegrationPointResultsAtNodesImplementation final
+      : public PostProcessing<parallel>,
+        public ParaviewExportIntegrationPointResultsAtNodesBase {
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear problem
+     * \param[in] params: parameters passed to the post-processing
+     */
+    ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        NonLinearEvolutionProblemImplementation<parallel> &,
+        const Parameters &);
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear problem
+     * \param[in] d: functions to be exported
+     * \param[in] n: output directory name
+     */
+    ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        NonLinearEvolutionProblemImplementation<parallel> &,
+        const ExportedFunctionsDescription &,
+        const std::string &);
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear problem
+     * \param[in] ds: functions to be exported
+     * \param[in] n: output directory name
+     */
+    ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        NonLinearEvolutionProblemImplementation<parallel> &,
+        const std::vector<ExportedFunctionsDescription> &,
+        const std::string &);
+    //
+    void execute(NonLinearEvolutionProblemImplementation<parallel> &,
+                 const real,
+                 const real) override;
+    //! \brief destructor
+    ~ParaviewExportIntegrationPointResultsAtNodesImplementation() override;
+
+   private:
+    struct MaterialIntegrationPointResult
+        : public MaterialIntegrationPointResultBase {
+      //! \brief finite element space
+      std::unique_ptr<FiniteElementSpace<parallel>> fespace;
+      //! \brief grid function
+      std::unique_ptr<GridFunction<parallel>> f;
+    };
+    /*!
+     * \brief create the sub mesh once the material identifiers are known
+     * \param[in] p: non linear problem
+     */
+    void createSubMesh(NonLinearEvolutionProblemImplementation<parallel> &);
+    //! \brief submesh defined when exporting data
+    std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;
     //! \brief list of results defined through parameters
     std::vector<MaterialIntegrationPointResult> results;
     /*!
-     * \brief a small structure gathering information about fields to be exported
+     * \brief a small structure gathering information about fields to be
+     * exported
      */
     struct ExportedFunctions {
       ExportedFunctions() = default;
@@ -125,15 +170,80 @@ namespace mfem_mgis {
       //! \brief list of exported function name
       std::vector<ImmutablePartialQuadratureFunctionView> functions;
       //! \brief finite element space used to define the exported grid function
-      std::unique_ptr<FiniteElementSpace<parallel>>
-          grid_function_fespace;
+      std::unique_ptr<FiniteElementSpace<parallel>> grid_function_fespace;
       //! \brief exported grid functions corresponding to the exported functions
       std::unique_ptr<GridFunction<parallel>> grid_function;
     };
     std::vector<std::unique_ptr<ExportedFunctions>> exported_functions;
-    //! \brief number of records
-    size_type cycle;
-  };  // end of struct ParaviewExportIntegrationPointResultsAtNodes
+  };  // end of struct
+      // ParaviewExportIntegrationPointResultsAtNodesImplementation
+
+  /*!
+   * \brief a facade to export quadrature function in sequential and parallel.
+   */
+  struct ParaviewExportIntegrationPointResultsAtNodes {
+    //
+    using ExportedFunctionsDescription =
+        ParaviewExportIntegrationPointResultsAtNodesBase::
+            ExportedFunctionsDescription;
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear problem
+     * \param[in] params: parameters passed to the post-processing
+     */
+    ParaviewExportIntegrationPointResultsAtNodes(NonLinearEvolutionProblem &,
+                                                 const Parameters &);
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear problem
+     * \param[in] d: functions to be exported
+     * \param[in] n: output directory name
+     */
+    ParaviewExportIntegrationPointResultsAtNodes(
+        NonLinearEvolutionProblem &,
+        const ExportedFunctionsDescription &,
+        const std::string &);
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear problem
+     * \param[in] ds: functions to be exported
+     * \param[in] n: output directory name
+     */
+    ParaviewExportIntegrationPointResultsAtNodes(
+        NonLinearEvolutionProblem &,
+        const std::vector<ExportedFunctionsDescription> &,
+        const std::string &);
+    //
+    void execute(NonLinearEvolutionProblem &, const real, const real);
+    //! \brief destructor
+    ~ParaviewExportIntegrationPointResultsAtNodes();
+
+   private:
+    std::variant<
+        std::monostate,
+        ParaviewExportIntegrationPointResultsAtNodesImplementation<true>,
+        ParaviewExportIntegrationPointResultsAtNodesImplementation<false>>
+        implementations;
+  };
+
+#ifdef MGIS_FUNCTION_SUPPORT
+  /*!
+   * \brief generates a description of functions to be exported from  a set of
+   * partial quadrature functions.
+   * \param[in] n: name of the exported functions
+   * \param[in] f: partial quadrature functions setx
+   */
+  ParaviewExportIntegrationPointResultsAtNodesBase::ExportedFunctionsDescription
+  makeExportedFunctionsDescription(std::string_view,
+                                   const PartialQuadratureFunctionsSet &);
+  /*!
+   *
+   */
+  std::vector<ParaviewExportIntegrationPointResultsAtNodesBase::
+                  ExportedFunctionsDescription>
+  makeExportedFunctionsDescriptions(
+      const std::map<std::string, const PartialQuadratureFunctionsSet &> &);
+#endif /* MGIS_FUNCTION_SUPPORT */
 
 }  // end of namespace mfem_mgis
 

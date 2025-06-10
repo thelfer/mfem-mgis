@@ -46,9 +46,9 @@ namespace mfem_mgis {
   }  // end of OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator
 
   real OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
-      getIntegrationPointWeight(mfem::ElementTransformation &tr,
-                                const mfem::IntegrationPoint &ip) const
-      noexcept {
+      getIntegrationPointWeight(
+          mfem::ElementTransformation &tr,
+          const mfem::IntegrationPoint &ip) const noexcept {
     return ip.weight * tr.Weight();
   }  // end of getIntegrationPointWeight
 

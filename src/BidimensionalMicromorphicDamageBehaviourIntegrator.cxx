@@ -45,8 +45,8 @@ namespace mfem_mgis {
 
   real
   BidimensionalMicromorphicDamageBehaviourIntegrator::getIntegrationPointWeight(
-      mfem::ElementTransformation &tr, const mfem::IntegrationPoint &ip) const
-      noexcept {
+      mfem::ElementTransformation &tr,
+      const mfem::IntegrationPoint &ip) const noexcept {
     return ip.weight * tr.Weight();
   }  // end of getIntegrationPointWeight
 

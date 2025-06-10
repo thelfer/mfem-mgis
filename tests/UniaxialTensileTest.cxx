@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
          {"FiniteElementFamily", "H1"},
          {"FiniteElementOrder", parameters.order},
          {"UnknownsSize", dim},
-         {"NumberOfUniformRefinements", 0}, // faster for testing
+         {"NumberOfUniformRefinements", 0},  // faster for testing
          //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
          {"Hypothesis", "Tridimensional"},
          {"Parallel", bool(parameters.parallel)}});
@@ -115,7 +115,8 @@ int main(int argc, char** argv) {
     // compare to reference files
     constexpr const auto eps = mfem_mgis::real(1.e-10);
     constexpr const auto E = mfem_mgis::real(70.e9);
-    success = mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E * eps);
+    success =
+        mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E * eps);
   }
   mfem_mgis::Profiler::timers::print_timers();
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

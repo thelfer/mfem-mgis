@@ -150,21 +150,21 @@ namespace mfem_mgis {
         "compute the gradients, this is not supported");
     auto &child = static_cast<Child &>(*this);
 #ifdef MFEM_THREAD_SAFE
-      mfem::Vector shape;
-      mfem::DenseMatrix dshape;
-      if constexpr (evaluateShapeFunctions) {
-        shape.SetSize(e.GetDof());
-      }
-      if constexpr (evaluateShapeFunctionsDerivatives) {
-        dshape.setSize(e.GetDof(), e.GetDim());
-      }
+    mfem::Vector shape;
+    mfem::DenseMatrix dshape;
+    if constexpr (evaluateShapeFunctions) {
+      shape.SetSize(e.GetDof());
+    }
+    if constexpr (evaluateShapeFunctionsDerivatives) {
+      dshape.setSize(e.GetDof(), e.GetDim());
+    }
 #else
-      if constexpr (evaluateShapeFunctions) {
-        this->shape.SetSize(e.GetDof());
-      }
-      if constexpr (evaluateShapeFunctionsDerivatives) {
-        this->dshape.SetSize(e.GetDof(), e.GetDim());
-      }
+    if constexpr (evaluateShapeFunctions) {
+      this->shape.SetSize(e.GetDof());
+    }
+    if constexpr (evaluateShapeFunctionsDerivatives) {
+      this->dshape.SetSize(e.GetDof(), e.GetDim());
+    }
 #endif
     const auto nnodes = e.GetDof();
     const auto thsize = this->s1.thermodynamic_forces_stride;
@@ -237,7 +237,7 @@ namespace mfem_mgis {
 #endif
   // element offset
   const auto nnodes = e.GetDof();
-  const auto eoffset = this -> quadrature_space -> getOffset(tr.ElementNo);
+  const auto eoffset = this -> quadrature_space->getOffset(tr.ElementNo);
   Ke.SetSize(e.GetDof() * Traits::unknownsSize,
              e.GetDof() * Traits::unknownsSize);
   Ke = 0.;

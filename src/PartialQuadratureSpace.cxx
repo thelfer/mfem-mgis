@@ -21,6 +21,7 @@ namespace mfem_mgis {
   template <bool parallel>
   static size_type buildPartialQuadratureSpaceOffsets(
       std::unordered_map<size_type, size_type>& offsets,
+      std::unordered_map<size_type, size_type>& number_of_quadrature_points,
       const FiniteElementSpace<parallel>& fespace,
       const size_type m,
       const std::function<const mfem::IntegrationRule&(
@@ -35,18 +36,20 @@ namespace mfem_mgis {
       const auto& tr = *(fespace.GetElementTransformation(i));
       offsets[i] = ng;
       const auto& ir = integration_rule_selector(fe, tr);
-      ng += ir.GetNPoints();
+      const auto lng = ir.GetNPoints();
+      ng += lng;
+      number_of_quadrature_points[i] = lng;
     }
     return ng;
   }  // end of buildPartialQuadratureSpaceOffsets
 
-  void PartialQuadratureSpace::treatInvalidOffset(const size_type id,
-                                                  const size_type i) {
+  void PartialQuadratureSpace::treatInvalidElementIndex(const size_type id,
+                                                        const size_type i) {
     mgis::raise(
         "PartialQuadratureSpace::getOffset: "
-        "invalid element number '" +
+        "invalid element index '" +
         std::to_string(i) + "' for material '" + std::to_string(id) + "'");
-  }  // end of treatInvalidOffset
+  }  // end of treatInvalidElementIndex
 
   PartialQuadratureSpace::PartialQuadratureSpace(
       const FiniteElementDiscretization& fed,
@@ -59,7 +62,8 @@ namespace mfem_mgis {
       const auto& fespace =
           this->fe_discretization.getFiniteElementSpace<true>();
       this->ng = buildPartialQuadratureSpaceOffsets<true>(
-          this->offsets, fespace, this->id, this->integration_rule_selector);
+          this->offsets, this->number_of_quadrature_points, fespace, this->id,
+          this->integration_rule_selector);
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
@@ -67,7 +71,8 @@ namespace mfem_mgis {
       const auto& fespace =
           this->fe_discretization.getFiniteElementSpace<false>();
       this->ng = buildPartialQuadratureSpaceOffsets<false>(
-          this->offsets, fespace, this->id, this->integration_rule_selector);
+          this->offsets, this->number_of_quadrature_points, fespace, this->id,
+          this->integration_rule_selector);
     }
   }  // end of PartialQuadratureSpace
 

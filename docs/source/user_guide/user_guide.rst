@@ -13,4 +13,5 @@ User guide
    boundary_conditions.rst
    post_processings.rst  
    partial_quadrature_functions.rst  
+   mechanical_postprocessings.rst  
    glossary.rst  
