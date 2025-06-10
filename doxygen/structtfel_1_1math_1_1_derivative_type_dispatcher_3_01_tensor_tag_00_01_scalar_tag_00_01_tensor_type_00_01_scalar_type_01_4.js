@@ -1,0 +1,4 @@
+var structtfel_1_1math_1_1_derivative_type_dispatcher_3_01_tensor_tag_00_01_scalar_tag_00_01_tensor_type_00_01_scalar_type_01_4 =
+[
+    [ "type", "structtfel_1_1math_1_1_derivative_type_dispatcher_3_01_tensor_tag_00_01_scalar_tag_00_01_tensor_type_00_01_scalar_type_01_4.html#af192953378b74b338233a48eda725d19", null ]
+];
