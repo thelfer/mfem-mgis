@@ -303,10 +303,11 @@ if(MFEM_MGIS_HAVE_TFEL)
   
   if (MFEM_USE_MPI)
     add_test(NAME PostProSubMeshPar
-      COMMAND mpirun -n 2 ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-test. --library "$<TARGET_FILE:BehaviourTest>")
-  endif(MFEM_USE_MPI)
+      COMMAND mpirun -n 2 ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
+  else(MFEM_USE_MPI)
   add_test(NAME PostProSubMeshSeq
     COMMAND ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
+  endif(MFEM_USE_MPI)
 
 
 ## RVE examples
