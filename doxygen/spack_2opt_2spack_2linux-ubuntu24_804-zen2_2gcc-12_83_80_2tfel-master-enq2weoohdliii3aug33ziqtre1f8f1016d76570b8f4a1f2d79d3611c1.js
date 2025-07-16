@@ -1,4 +1,0 @@
-var spack_2opt_2spack_2linux_ubuntu24_804_zen2_2gcc_12_83_80_2tfel_master_enq2weoohdliii3aug33ziqtre1f8f1016d76570b8f4a1f2d79d3611c1 =
-[
-    [ "void", "spack_2opt_2spack_2linux-ubuntu24_804-zen2_2gcc-12_83_80_2tfel-master-enq2weoohdliii3aug33ziqtre1f8f1016d76570b8f4a1f2d79d3611c1.html#a04a02917f85c2196f18aa1b3c89504bd", null ]
-];
