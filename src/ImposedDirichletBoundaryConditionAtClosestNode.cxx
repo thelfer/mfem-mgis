@@ -83,9 +83,9 @@ namespace mfem_mgis {
       if (d < min_distance) {
         if constexpr (parallel) {
           local_dof_id = fes.GetLocalTDofNumber(index(i, c));
-#ifdef MFEM_MGIS_DEBUG
+#ifdef MFEM_USE_MPI
           global_dof_id = fes.GetGlobalTDofNumber(index(i, c));
-#endif /* MFEM_MGIS_DEBUG */
+#endif /* MFEM_USE_MPI */
         } else {
           local_dof_id = index(i, c);
         }
