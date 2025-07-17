@@ -292,6 +292,8 @@ Now, you will create a ``spack`` mirror and a boostrap directory.
 .. code-block:: bash
 
    spack bootstrap mirror --binary-packages my_bootstrap
+   spack mirror create -d re2c_mirror re2c@3.0
+   cp -r re2c_mirror/_source-cache/archive/b3/ my_bootstrap/bootstrap_cache/_source-cache/archive
    spack mirror create -d mirror-mfem-mgis -D mfem-mgis
 
 It’s possible that you will need some packages in your mirror, you can
