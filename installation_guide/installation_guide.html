@@ -351,6 +351,8 @@ spack<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </s
 </div>
 <p>Now, you will create a <code class="docutils literal notranslate"><span class="pre">spack</span></code> mirror and a boostrap directory.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>bootstrap<span class="w"> </span>mirror<span class="w"> </span>--binary-packages<span class="w"> </span>my_bootstrap
+spack<span class="w"> </span>mirror<span class="w"> </span>create<span class="w"> </span>-d<span class="w"> </span>re2c_mirror<span class="w"> </span>re2c@3.0
+cp<span class="w"> </span>-r<span class="w"> </span>re2c_mirror/_source-cache/archive/b3/<span class="w"> </span>my_bootstrap/bootstrap_cache/_source-cache/archive
 spack<span class="w"> </span>mirror<span class="w"> </span>create<span class="w"> </span>-d<span class="w"> </span>mirror-mfem-mgis<span class="w"> </span>-D<span class="w"> </span>mfem-mgis
 </pre></div>
 </div>
