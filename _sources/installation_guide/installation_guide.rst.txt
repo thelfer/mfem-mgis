@@ -401,7 +401,6 @@ Follow these steps to install mfem-mgis-example on Topaze:
    cd mfem-mgis-example
    mkdir build && cd build
    spack load mfem-mgis
-   export MFEMMGIS_DIR=`spack location -i mfem-mgis`/share/mfem-mgis/cmake/
    cmake ..
    make -j 10
    ctest

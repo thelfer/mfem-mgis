@@ -438,7 +438,6 @@ spack<span class="w"> </span>install<span class="w"> </span>mfem-mgis%gcc@12.3.0
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>mfem-mgis-example
 mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
 spack<span class="w"> </span>load<span class="w"> </span>mfem-mgis
-<span class="nb">export</span><span class="w"> </span><span class="nv">MFEMMGIS_DIR</span><span class="o">=</span><span class="sb">`</span>spack<span class="w"> </span>location<span class="w"> </span>-i<span class="w"> </span>mfem-mgis<span class="sb">`</span>/share/mfem-mgis/cmake/
 cmake<span class="w"> </span>..
 make<span class="w"> </span>-j<span class="w"> </span><span class="m">10</span>
 ctest
