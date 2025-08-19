@@ -52,7 +52,7 @@ namespace mfem_mgis {
       int generate_edges = 0,
       int refine = 1,
       bool /* fix_orientation */ = true) {
-    CatchTimeSection("loadMesh");
+    CatchTimeSection("FED::LoadMesh");
 #ifdef MFEM_USE_MED
     const auto extension = getFileExt(mesh_name);
     if (extension == "med") {
@@ -75,28 +75,33 @@ namespace mfem_mgis {
     return smesh;
   }  // end of loadMeshSequential
 
-  static std::shared_ptr<Mesh<true>> loadMeshParallel(const std::string& mesh_name) {
-    CatchTimeSection("loadMeshParallel");
+  static std::shared_ptr<Mesh<true>> loadMeshParallel(
+      const std::string& mesh_name) {
+    CatchTimeSection("FED::LoadMeshInParallel");
 #ifdef MFEM_USE_MED
     const auto extension = getFileExt(mesh_name);
     if (extension == "med") {
-      std::cout << "Aborting. The option '--restart' is not handled with a '.med' file format" << std::endl;
+      std::cout << "Aborting. The option '--restart' is not handled with a "
+                   "'.med' file format"
+                << std::endl;
       std::abort();
     }
 #endif /* MFEM_USE_MED */
 #ifdef MFEM_USE_MPI
     int myid;
     MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-    
+
     std::string fname(mfem::MakeParFilename(mesh_name, myid));
     std::ifstream ifs(fname);
     MFEM_VERIFY(ifs.good(), "Checkpoint file " << fname << " not found.");
     auto smesh = std::make_shared<Mesh<true>>(Mesh<true>(MPI_COMM_WORLD, ifs));
-//    auto smesh = std::make_shared<Mesh<true>>(mesh_name.c_str(),
-//                                               generate_edges, refine);
+    //    auto smesh = std::make_shared<Mesh<true>>(mesh_name.c_str(),
+    //                                               generate_edges, refine);
     return smesh;
 #else
-    std::cout << "Aborting. The option Restart is not compatible with sequential run." << std::endl;
+    std::cout
+        << "Aborting. The option Restart is not compatible with sequential run."
+        << std::endl;
     std::abort();
     return std::shared_ptr<Mesh<true>>(nullptr);
 #endif
@@ -186,7 +191,7 @@ namespace mfem_mgis {
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       const Parameters& params) {
-    CatchTimeSection("FiniteElementDiscretization::constructor");
+    CatchTimeSection("FED::Constructor");
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};
       for (const auto& p : parameters) {
@@ -210,45 +215,45 @@ namespace mfem_mgis {
     const auto mesh_mode = get_if<std::string>(
         params, FiniteElementDiscretization::MeshReadMode, "FromScratch");
     if (parallel) {
-    
 #ifdef MFEM_USE_MPI
 
-    size_type ref_level = 0;
-	  if(mesh_mode == "FromScratch") {
-	    auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
-      // Perform a uniform refinement on the sequential mesh if it doesn't have enough elements.
-      // Assume that each subdomain should have at leat 8 elements
-      // Not superior to nrefinement
-      if(nrefinement > 0) {
-        double numberOfProcs = double(mfem::Mpi::WorldSize());
-        while( (double(smesh->GetNE()) / numberOfProcs) < 8 && ref_level < nrefinement) {
-          smesh->UniformRefinement();
-          ref_level++;
+      size_type ref_level = 0;
+      if (mesh_mode == "FromScratch") {
+        auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
+        // Perform a uniform refinement on the sequential mesh if it doesn't
+        // have enough elements. Assume that each subdomain should have at leat
+        // 8 elements Not superior to nrefinement
+        if (nrefinement > 0) {
+          double numberOfProcs = double(mfem::Mpi::WorldSize());
+          while ((double(smesh->GetNE()) / numberOfProcs) < 8 &&
+                 ref_level < nrefinement) {
+            smesh->UniformRefinement();
+            ref_level++;
+          }
         }
+        this->parallel_mesh =
+            std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
+      } else if (mesh_mode == "Restart") {
+        this->parallel_mesh = loadMeshParallel(mesh_file);
+      } else {
+        raise("Wrong MeshReadMode value");
       }
-	    this->parallel_mesh =
-	      std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
-	  }
-	  else if(mesh_mode == "Restart") {
-	    this->parallel_mesh = loadMeshParallel(mesh_file);
-	  }
-	  else 	{	
-	    raise( "Wrong MeshReadMode value" );
-  	}
-    for (size_type i = ref_level; i < nrefinement; ++i) {
-      CatchNestedTimeSection("run_ParUniformRefinement");
-      this->parallel_mesh->UniformRefinement();
-    }
+      for (size_type i = ref_level; i < nrefinement; ++i) {
+        CatchNestedTimeSection("FED::Run_ParUniformRefinement");
+        this->parallel_mesh->UniformRefinement();
+      }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      if(mesh_mode == "Restart") {
-	raise( "Aborting. The option '--restart' is not handled while running a sequential program");
+      if (mesh_mode == "Restart") {
+        raise(
+            "Aborting. The option '--restart' is not handled while running a "
+            "sequential program");
       }
       this->sequential_mesh = loadMeshSequential(mesh_file, 0, 1, true);
       for (size_type i = 0; i < nrefinement; ++i) {
-        CatchNestedTimeSection("run_SeqUniformRefinement");
+        CatchNestedTimeSection("FED::Run_SeqUniformRefinement");
         this->sequential_mesh->UniformRefinement();
       }
     }

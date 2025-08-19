@@ -83,9 +83,9 @@ namespace mfem_mgis {
       if (d < min_distance) {
         if constexpr (parallel) {
           local_dof_id = fes.GetLocalTDofNumber(index(i, c));
-#ifdef MFEM_MGIS_DEBUG
+#ifdef MFEM_USE_MPI
           global_dof_id = fes.GetGlobalTDofNumber(index(i, c));
-#endif /* MFEM_MGIS_DEBUG */
+#endif /* MFEM_USE_MPI */
         } else {
           local_dof_id = index(i, c);
         }
@@ -110,8 +110,9 @@ namespace mfem_mgis {
       // gathering all minimum values and global ides overs all processes
       MPI_Allgather(&d_min, 1, MPI_DOUBLE, d_min_buffer.data(), 1, MPI_DOUBLE,
                     MPI_COMM_WORLD);
-      MPI_Allgather(&global_dof_id, 1, HYPRE_MPI_BIG_INT, global_dof_id_buffer.data(), 1,
-                    HYPRE_MPI_BIG_INT, MPI_COMM_WORLD);
+      MPI_Allgather(&global_dof_id, 1, HYPRE_MPI_BIG_INT,
+                    global_dof_id_buffer.data(), 1, HYPRE_MPI_BIG_INT,
+                    MPI_COMM_WORLD);
 #ifdef MFEM_MGIS_DEBUG
       if (myrank == 0) {
         std::cout << "minimal distance per proc:";

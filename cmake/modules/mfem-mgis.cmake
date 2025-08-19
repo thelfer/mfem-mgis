@@ -1,3 +1,4 @@
+include(CMakePackageConfigHelpers)
 set(EXPORT_INSTALL_PATH "share/mfem-mgis/cmake")
 
 function(mfem_mgis_buildenv)
@@ -37,10 +38,6 @@ function(mfem_mgis_library name)
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     PUBLIC $<INSTALL_INTERFACE:include>
   )
-  target_include_directories(${name}
-    SYSTEM
-    PRIVATE "$<BUILD_INTERFACE:${MFEM_INCLUDE_DIRS}>"
-    PRIVATE "$<INSTALL_INTERFACE:${MFEM_INCLUDE_DIRS}>")
   target_link_libraries(${name} 
     PUBLIC mgis::MFrontGenericInterface
     PUBLIC MFEM::mfem)
@@ -52,10 +49,23 @@ function(mfem_mgis_library name)
             DESTINATION lib${LIB_SUFFIX})
   endif(WIN32)
   install(EXPORT ${name} DESTINATION ${EXPORT_INSTALL_PATH}
-    NAMESPACE mfem-mgis:: FILE ${name}Config.cmake)
-  install(FILES
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/cmake/modules/FindMFEM.cmake>
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/cmake/modules/FindMFrontGenericInterface.cmake>
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/cmake/modules/ParELAGCMakeUtilities.cmake>
-    DESTINATION share/mfem-mgis/cmake)
+          EXPORT_LINK_INTERFACE_LIBRARIES
+          NAMESPACE mfem-mgis:: FILE ${name}Targets.cmake)
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${name}Config.cmake.in)
+    set(_package_config_file ${CMAKE_CURRENT_SOURCE_DIR}/${name}Config.cmake.in)
+  else()
+    set(_package_config_file ${CMAKE_CURRENT_BINARY_DIR}/${name}Config.cmake.in)
+    file(WRITE ${_package_config_file}
+         "@PACKAGE_INIT@\n"
+         "\n"
+         "include(\"\${CMAKE_CURRENT_LIST_DIR}/${name}Targets.cmake\")")
+  endif()
+  # generate the config file that includes the exports
+  configure_package_config_file(${_package_config_file}
+                                "${CMAKE_CURRENT_BINARY_DIR}/${name}Config.cmake"
+                                INSTALL_DESTINATION ${EXPORT_INSTALL_PATH}
+                                NO_SET_AND_CHECK_MACRO
+                                NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${name}Config.cmake"
+          DESTINATION ${EXPORT_INSTALL_PATH})
 endfunction(mfem_mgis_library)

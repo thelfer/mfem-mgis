@@ -289,8 +289,8 @@ if(MFEM_MGIS_HAVE_TFEL)
       PRIVATE MFEMMGIS)
     add_dependencies(check ParallelReadMode)
   
-    add_test(NAME Restart_Parallel_Read_Mode_MPI_4
-      COMMAND mpirun -n 4 ./ParallelReadMode --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-explorer.mesh. --library "$<TARGET_FILE:BehaviourTest>" --read-mesh-mode Restart)
+    add_test(NAME Restart_Parallel_Read_Mode_MPI_2
+      COMMAND mpirun -n 2 ./ParallelReadMode --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-test. --library "$<TARGET_FILE:BehaviourTest>" --read-mesh-mode Restart)
     
   endif(MFEM_USE_MPI)
 
@@ -302,12 +302,13 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_dependencies(check PostProSubMesh)
   
   if (MFEM_USE_MPI)
-  add_test(NAME PostProSubMesh
-    COMMAND mpirun -n 4 ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
+    add_test(NAME PostProSubMeshPar
+      COMMAND mpirun -n 2 ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
   else(MFEM_USE_MPI)
-  add_test(NAME PostProSubMesh
+  add_test(NAME PostProSubMeshSeq
     COMMAND ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
   endif(MFEM_USE_MPI)
+
 
 ## RVE examples
 

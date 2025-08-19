@@ -264,7 +264,7 @@ How to download Spack:
 .. code-block:: bash
 
    cd $MY_DIR
-   git clone https://github.com/spack/spack.git
+   git clone --depth=2 --branch=v0.23.0 https://github.com/spack/spack.git
    export SPACK_ROOT=$PWD/spack
    git clone https://github.com/thelfer/mfem-mgis.git
    git clone https://github.com/latug0/mfem-mgis-examples.git
@@ -292,6 +292,8 @@ Now, you will create a ``spack`` mirror and a boostrap directory.
 .. code-block:: bash
 
    spack bootstrap mirror --binary-packages my_bootstrap
+   spack mirror create -d re2c_mirror re2c@3.0
+   cp -r re2c_mirror/_source-cache/archive/b3/ my_bootstrap/bootstrap_cache/_source-cache/archive
    spack mirror create -d mirror-mfem-mgis -D mfem-mgis
 
 It’s possible that you will need some packages in your mirror, you can
@@ -347,6 +349,7 @@ files are automatically removed after 3 months.
    source $PWD/spack/share/spack/setup-env.sh
    spack bootstrap reset -y
    spack bootstrap add --scope=site --trust local-binaries $PWD/my_bootstrap/metadata/binaries/
+   spack bootstrap add --scope=site --trust local-sources $PWD/my_bootstrap/metadata/sources/
    spack bootstrap disable --scope=site github-actions-v0.5
    spack bootstrap disable --scope=site github-actions-v0.6
    spack bootstrap disable --scope=site spack-install
@@ -398,7 +401,6 @@ Follow these steps to install mfem-mgis-example on Topaze:
    cd mfem-mgis-example
    mkdir build && cd build
    spack load mfem-mgis
-   export MFEMMGIS_DIR=`spack location -i mfem-mgis`/share/mfem-mgis/cmake/
    cmake ..
    make -j 10
    ctest

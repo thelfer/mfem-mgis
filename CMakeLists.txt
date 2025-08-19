@@ -52,24 +52,6 @@ if (NOT TARGET doc)
   add_custom_target(doc)
 endif(NOT TARGET doc)
 
-option(enable-website "enable generation of the website" ON)
-if(enable-website)
-  set(MFEMMGIS_GENERATE_WEBSITE ON)
-  # Looking for pandoc (http://johnmacfarlane.net/pandoc)
-  include(cmake/modules/pandoc.cmake)
-  if(MFEMMGIS_HAVE_PANDOC)
-    set(MFEMMGIS_GENERATE_WEBSITE ON)
-  endif(MFEMMGIS_HAVE_PANDOC)
-  if(MFEMMGIS_GENERATE_WEBSITE)
-    list(APPEND CPACK_COMPONENTS_ALL website)
-    set(CPACK_COMPONENT_WEBSITE_DESCRIPTION
-      "Contains the MFEM/MGIS web site")
-  endif(MFEMMGIS_GENERATE_WEBSITE)
-else(enable-website)
-  set(MFEMMGIS_GENERATE_WEBSITE OFF)
-  message(STATUS "Generation of the MFEM/MGIS website disabled")
-endif(enable-website)
-
 # add a target to generate API documentation with Doxygen
 option(enable-doxygen-doc "enable generation of the Doxygen documentation" OFF)
 if(enable-doxygen-doc)
@@ -95,6 +77,11 @@ endif(enable-doxygen-doc)
 
 add_subdirectory(docs)
 
+# HYPRE version
+include(cmake/modules/hypre.cmake)  
+set(MFEM_HYPRE_VERSION ${HYPRE_VERSION})
+add_compile_definitions(MFEM_HYPRE_VERSION=${MFEM_HYPRE_VERSION})
+
 # testing
 set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
 
@@ -116,12 +103,6 @@ else(CMAKE_CONFIGURATION_TYPES)
    endif(NOT TARGET check)
 endif(CMAKE_CONFIGURATION_TYPES)
 
-# HYPRE version
-include(cmake/modules/hypre.cmake)  
-set(MFEM_HYPRE_VERSION ${HYPRE_VERSION})
-add_compile_definitions(MFEM_HYPRE_VERSION=${MFEM_HYPRE_VERSION})
-
-
 mfem_mgis_buildenv()
 
 add_subdirectory(include)
@@ -130,3 +111,10 @@ add_subdirectory(tests)
 if(BENCHMARKS)
   add_subdirectory(benchmarks)
 endif(BENCHMARKS)
+
+# install
+install(FILES
+   ${PROJECT_SOURCE_DIR}/cmake/modules/FindMFEM.cmake
+   ${PROJECT_SOURCE_DIR}/cmake/modules/FindMFrontGenericInterface.cmake
+   ${PROJECT_SOURCE_DIR}/cmake/modules/ParELAGCMakeUtilities.cmake
+   DESTINATION share/mfem-mgis/cmake)

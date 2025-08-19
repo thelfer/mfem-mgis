@@ -27,7 +27,12 @@ set(INPUT_PREFIX_PATH "$ENV{CMAKE_PREFIX_PATH}")
 STRING(REPLACE ":" ";" MYSEARCH_PATH "${INPUT_PREFIX_PATH}")
 find_file(MFEM_CONFIG_FILE config.mk
   PATHS ${MYSEARCH_PATH} 
-  PATHS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build ${MFEM_DIR} $ENV{MFEM_DIR} 
+  PATHS ${MFEM_DIR}/build $ENV{MFEM_DIR}/build
+  ${MFEM_DIR}
+  $ENV{MFEM_DIR}
+  # MFEM_DIR generally points to MFEM_INSTALL_DIR/lib/share/mfem
+  ${MFEM_DIR}/../../../
+  $ENV{MFEM_DIR}/../../../
   PATH_SUFFIXES share/mfem
   NO_DEFAULT_PATH
   DOC "The MFEM configuration file")

@@ -226,9 +226,7 @@ namespace mfem_mgis {
   }  // end of getGradient
 
   PartialQuadratureFunction getThermodynamicForce(
-      Material &m,
-      const std::string_view n,
-      const Material::StateSelection s) {
+      Material &m, const std::string_view n, const Material::StateSelection s) {
     return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
         getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
@@ -246,9 +244,7 @@ namespace mfem_mgis {
   }  // end of getThermodynamicForce
 
   PartialQuadratureFunction getInternalStateVariable(
-      Material &m,
-      const std::string_view n,
-      const Material::StateSelection s) {
+      Material &m, const std::string_view n, const Material::StateSelection s) {
     return buildPartialQuadratureFunction(
         m.getPartialQuadratureSpacePointer(),
         getStateManager(m, s).internal_state_variables, m.b.isvs, n,
@@ -282,7 +278,7 @@ namespace mfem_mgis {
       return {};
     }
     return ImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), sm.stored_energies);
+        m.getPartialQuadratureSpacePointer(), sm.stored_energies, 0, 1);
   }  // end of getStoredEnergy
 
   std::optional<PartialQuadratureFunction> getDissipatedEnergy(
@@ -302,7 +298,7 @@ namespace mfem_mgis {
       return {};
     }
     return ImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), sm.dissipated_energies);
+        m.getPartialQuadratureSpacePointer(), sm.dissipated_energies, 0, 1);
   }  // end of getDissipatedEnergy
 
   real computeStoredEnergy(const BehaviourIntegrator &bi,

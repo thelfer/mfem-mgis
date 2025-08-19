@@ -43,7 +43,6 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
 # -- Redirect old page name --------------------------------------------------
 
 redirects = {"benchmark": "developer_guide/benchmark.html"}
@@ -62,3 +61,28 @@ html_static_path = []
 
 def setup(app):
     app.add_css_file('css/custom.css')
+
+rst_prolog = """
+.. role:: cxx(code)
+    :language: c++
+    :class: highlight
+
+.. role:: param(code)
+    :language: c++
+    :class: highlight
+
+.. role:: jarg(emphasis)
+
+.. role:: shell(code)
+    :language: shell
+    :class: highlight
+
+.. starting_point_replace
+.. |c| replace:: C  
+.. |cxx| replace:: C++  
+.. |python| replace:: Python  
+.. |MFront| replace:: MFront
+.. ending_point_replace
+
+.. cpp:namespace:: manta
+"""

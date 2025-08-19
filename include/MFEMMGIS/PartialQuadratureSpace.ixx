@@ -31,10 +31,37 @@ namespace mfem_mgis {
   inline size_type PartialQuadratureSpace::getOffset(const size_type i) const {
     const auto p = this->offsets.find(i);
     if (p == this->offsets.end()) {
-      PartialQuadratureSpace::treatInvalidOffset(this->id, i);
+      PartialQuadratureSpace::treatInvalidElementIndex(this->id, i);
     }
     return p->second;
   }  // end of getOffset
+
+  inline size_type PartialQuadratureSpace::getNumberOfQuadraturePoints(
+      const size_type e) const {
+    const auto p = this->number_of_quadrature_points.find(e);
+    if (p == this->number_of_quadrature_points.end()) {
+      PartialQuadratureSpace::treatInvalidElementIndex(this->id, e);
+    }
+    return p->second;
+  }  // end of getNumberOfQuadraturePoints
+
+  constexpr bool areEquivalent(const PartialQuadratureSpace & s1,
+                               const PartialQuadratureSpace & s2) noexcept{
+    return &s1 == &s2;
+  } // end of areEquivalent
+
+  inline size_type getSpaceSize(const PartialQuadratureSpace& s) {
+    return s.getNumberOfIntegrationPoints();
+  }  // end of getSpaceSize
+
+  inline size_type getNumberOfCells(const PartialQuadratureSpace& s) {
+    return s.getNumberOfElements();
+  }  // end of getNumberOfCells
+
+  inline size_type getNumberOfQuadraturePoints(const PartialQuadratureSpace& s,
+                                               const size_type e) {
+    return s.getNumberOfQuadraturePoints(e);
+  }
 
 }  // namespace mfem_mgis
 

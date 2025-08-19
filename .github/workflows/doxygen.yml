@@ -2,10 +2,12 @@ name: Doxygen
 
 on:
   push:
-    branches: [ master]
-  pull_request:
-    branches: [ master ]
+    branches:
+      - master
 
+permissions:
+  contents: write
+  
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
@@ -23,7 +25,7 @@ jobs:
     - name: Set up Spack
       uses: spack/setup-spack@v2
       with:
-        ref: develop      # Spack version (examples: develop, releases/v0.21)
+        ref: v0.23.0      # Spack version (examples: develop, releases/v0.21)
         buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
         color: true       # Force color output (SPACK_COLOR=always)
         path: ${{github.workspace}}/spack       # Where to clone Spack
@@ -34,6 +36,7 @@ jobs:
 
     - name: Install mpich
       run: sudo apt-get install mpich
+
     - name: Install libfabric
       run: sudo apt-get install libfabric-dev
 
@@ -63,9 +66,7 @@ jobs:
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:
-#        personal_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
-        publish_branch: master
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        personal_token: ${{ secrets.GITHUB_TOKEN }}        
+        publish_branch: gh-pages
         publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
-#        external_repository: thelfer/thelfer.github.io
-        destination_dir: mfem-mgis/doxygen/
+        destination_dir: doxygen/

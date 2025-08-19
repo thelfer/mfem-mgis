@@ -158,13 +158,13 @@ struct TestParameters {
   int order = 1;
   int tcase = 0;
   int linearsolver = 0;
-//#ifdef DO_USE_MPI
+  //#ifdef DO_USE_MPI
   bool parallel = true;
   const char* mesh_mode = "FromScratch";
-//#else  /* DO_USE_MPI */
-//  bool parallel = false;
-//  std::string mesh_mode = "FromScratch";
-//#endif /* DO_USE_MPI */
+  //#else  /* DO_USE_MPI */
+  //  bool parallel = false;
+  //  std::string mesh_mode = "FromScratch";
+  //#endif /* DO_USE_MPI */
 };
 
 TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
@@ -179,7 +179,8 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
                  "identifier of the case : Exx->0, Eyy->1, Ezz->2, Exy->3, "
                  "Exz->4, Eyz->5");
   args.AddOption(&p.mesh_mode, "-rmm", "--read-mesh-mode",
-                  "Restart: computation from the last checkpoint. FromScratch: read the mesh from scratch");
+                 "Restart: computation from the last checkpoint. FromScratch: "
+                 "read the mesh from scratch");
   args.AddOption(
       &p.linearsolver, "-ls", "--linearsolver",
       "identifier of the linear solver: 0 -> GMRES, 1 -> CG, 2 -> UMFPack");
@@ -204,7 +205,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
   auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
       mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
-      											{"MeshReadMode", p.mesh_mode},
+                            {"MeshReadMode", p.mesh_mode},
                             {"FiniteElementFamily", "H1"},
                             {"FiniteElementOrder", p.order},
                             {"UnknownsSize", dim},
@@ -251,18 +252,22 @@ void executeMFEMMGISTest(const TestParameters& p) {
     // Add postprocessing and outputs
     problem.addPostProcessing(
         "ParaviewExportResults",
-        {{"OutputFileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}});
+        {{"OutputFileName",
+          "ParallelReadModeTestOutput-" + std::to_string(p.tcase)}});
     std::vector<mfem_mgis::Parameter> materials_out{1, 2};
-    problem.addPostProcessing("ParaviewExportIntegrationPointResultsAtNodes",
-                              {{"OutputFileName", "PeriodicTestOutput-Strain-" +
-                                                      std::to_string(p.tcase)},
-                               {"Materials", {materials_out}},
-                               {"Results", "Strain"}});
-    problem.addPostProcessing("ParaviewExportIntegrationPointResultsAtNodes",
-                              {{"OutputFileName", "PeriodicTestOutput-Stress-" +
-                                                      std::to_string(p.tcase)},
-                               {"Materials", {materials_out}},
-                               {"Results", "Stress"}});
+    problem.addPostProcessing(
+        "ParaviewExportIntegrationPointResultsAtNodes",
+        {{"OutputFileName",
+          "ParallelReadModeTestOutput-Strain-" + std::to_string(p.tcase)},
+         {"Materials", {materials_out}},
+         {"Results", "Strain"}});
+    //     problem.addPostProcessing(
+    //         "ParaviewExportIntegrationPointResultsAtNodes",
+    //         {{"OutputFileName",
+    //           "ParallelReadModeTestOutput-Stress-" +
+    //           std::to_string(p.tcase)},
+    //          {"Materials", {materials_out}},
+    //          {"Results", "Stress"}});
     // solving the problem
     if (!problem.solve(0, 1)) {
       mfem_mgis::abort(EXIT_FAILURE);
