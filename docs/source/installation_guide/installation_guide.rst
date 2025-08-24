@@ -134,8 +134,8 @@ Install the required packages using Spack.
 .. code:: sh
 
    spack install mfem+mpi+suite-sparse
-   spack install tfel@master:~python~python_bindings
-   spack install mgis@master:+c~fortran~python
+   spack install tfel@5.0.1:~python~python_bindings
+   spack install mgis@3.0.1:+c~fortran~python
 
 Step 2: Load the Installed Packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
