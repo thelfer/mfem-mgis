@@ -1,5 +1,0 @@
-var structcastem_1_1_castem_tangent_operator_type_3_01castem_1_1_s_t_a_n_d_a_r_d_f_i_n_i_t_e_s_t_r_a7ec5f2e1d4ff5eb6fabb3c7397d9d7a4 =
-[
-    [ "type", "structcastem_1_1_castem_tangent_operator_type_3_01castem_1_1_s_t_a_n_d_a_r_d_f_i_n_i_t_e_s_t_r_a7ec5f2e1d4ff5eb6fabb3c7397d9d7a4.html#a591ccf3c1d16f3479915c4b3a3a92ecb", null ],
-    [ "view_type", "structcastem_1_1_castem_tangent_operator_type_3_01castem_1_1_s_t_a_n_d_a_r_d_f_i_n_i_t_e_s_t_r_a7ec5f2e1d4ff5eb6fabb3c7397d9d7a4.html#adfd4ca36e24e8d436161f9cd05d9651b", null ]
-];

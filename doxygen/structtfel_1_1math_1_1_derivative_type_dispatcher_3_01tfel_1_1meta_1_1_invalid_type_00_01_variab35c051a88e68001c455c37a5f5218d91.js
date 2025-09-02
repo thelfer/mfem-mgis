@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1_derivative_type_dispatcher_3_01tfel_1_1meta_1_1_invalid_type_00_01_variab35c051a88e68001c455c37a5f5218d91 =
-[
-    [ "type", "structtfel_1_1math_1_1_derivative_type_dispatcher_3_01tfel_1_1meta_1_1_invalid_type_00_01_variab35c051a88e68001c455c37a5f5218d91.html#a6c40f941b01d4d9bd11d53b48e6af115", null ]
-];

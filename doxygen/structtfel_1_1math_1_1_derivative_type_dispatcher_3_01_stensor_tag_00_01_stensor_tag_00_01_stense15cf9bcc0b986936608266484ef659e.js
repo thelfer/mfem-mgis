@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1_derivative_type_dispatcher_3_01_stensor_tag_00_01_stensor_tag_00_01_stense15cf9bcc0b986936608266484ef659e =
-[
-    [ "type", "structtfel_1_1math_1_1_derivative_type_dispatcher_3_01_stensor_tag_00_01_stensor_tag_00_01_stense15cf9bcc0b986936608266484ef659e.html#a6fab53eb2c679f5dc0c337eec611c82c", null ]
-];
