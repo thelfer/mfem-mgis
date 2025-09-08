@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User guide &mdash; The MFEM MGIS project  documentation</title>
+  <title>Partial quadrature functions &mdash; The MFEM MGIS project  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
@@ -17,12 +17,11 @@
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="A tutorial introduction" href="tutorial.html" />
-    <link rel="prev" title="Installation guide" href="../installation_guide/installation_guide.html" /> 
+    <link rel="next" title="Mechanical post-processings" href="mechanical_postprocessings.html" />
+    <link rel="prev" title="Post-processings" href="post_processings.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,13 +45,16 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">User guide</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="user_guide.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html">A tutorial introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html">Overview and main concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="behaviour_integrators.html">Behaviour integrators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="boundary_conditions.html">Boundary conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="post_processings.html">Post-processings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="partial_quadrature_functions.html">Partial quadrature functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Partial quadrature functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#extrapolating-quadrature-functions-at-nodes">Extrapolating quadrature functions at nodes</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh Reader</a></li>
@@ -76,9 +78,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">User guide</li>
+          <li class="breadcrumb-item"><a href="user_guide.html">User guide</a></li>
+      <li class="breadcrumb-item active">Partial quadrature functions</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/user_guide/user_guide.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/user_guide/partial_quadrature_functions.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -86,29 +89,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="user-guide">
-<span id="mfem-mgis-user-guide"></span><h1>User guide<a class="headerlink" href="#user-guide" title="Link to this heading"></a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">A tutorial introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview and main concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="behaviour_integrators.html">Behaviour integrators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="boundary_conditions.html">Boundary conditions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="post_processings.html">Post-processings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partial_quadrature_functions.html">Partial quadrature functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary Of Parameters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh Reader</a></li>
+  <section id="partial-quadrature-functions">
+<h1>Partial quadrature functions<a class="headerlink" href="#partial-quadrature-functions" title="Link to this heading"></a></h1>
+<p>Partial quadrature functions map quadrature points to values. A partial
+quadrature function is defined on the quadrature points associated with
+a unique material.</p>
+<section id="extrapolating-quadrature-functions-at-nodes">
+<h2>Extrapolating quadrature functions at nodes<a class="headerlink" href="#extrapolating-quadrature-functions-at-nodes" title="Link to this heading"></a></h2>
+<p>Using a so-called <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code>, a set of partial quadrature
+functions, each associated with a distinct material, can be extrapolated
+at nodes:</p>
+<ul class="simple">
+<li><p>the <cite>makeGridFunction</cite> creates the <cite>GridFunction</cite> and the associated
+finite element space.</p></li>
+<li><p>the <cite>updateGridFunction</cite> fills the <cite>GridFunction</cite> with the values of
+the partial quadrature functions.</p></li>
 </ul>
-</div>
+<p>A <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> being an <cite>MFEM</cite> object, the reader may refer to
+the <cite>MFEM</cite> documentation for further details. In particular, a
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> can easily be exported to <cite>Paraview</cite> using
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MFEM</span></code>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">ParaViewDataCollection</span></code>.</p>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../installation_guide/installation_guide.html" class="btn btn-neutral float-left" title="Installation guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tutorial.html" class="btn btn-neutral float-right" title="A tutorial introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="post_processings.html" class="btn btn-neutral float-left" title="Post-processings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mechanical_postprocessings.html" class="btn btn-neutral float-right" title="Mechanical post-processings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
