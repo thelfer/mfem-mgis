@@ -16,3 +16,4 @@ User guide
    partial_quadrature_functions/partial_quadrature_functions.rst
    mechanical_postprocessings.rst  
    glossary.rst  
+   mesh.rst  

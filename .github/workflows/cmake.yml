@@ -14,7 +14,7 @@ jobs:
     - name: Set up Spack
       uses: spack/setup-spack@v2
       with:
-        ref: v0.23.0      # Spack version (examples: develop, releases/v0.21)
+        ref: v1.0.1      # Spack version (examples: develop, releases/v0.21)
         buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
         color: true       # Force color output (SPACK_COLOR=always)
         path: ${{github.workspace}}/spack       # Where to clone Spack
@@ -36,9 +36,9 @@ jobs:
       run: |
         spack compiler find
         spack external find openmpi mpich libfabric
-        spack install mfem+mpi+suite-sparse+mumps@4.7.0%gcc@12.3.0
-        spack install tfel@master:~python~python_bindings%gcc@12.3.0
-        spack install mgis@master:+c~fortran~python%gcc@12.3.0
+        spack install mfem+mpi+suite-sparse+mumps@4.7.0%gcc@12.4.0
+        spack install tfel@master:~python~python_bindings%gcc@12.4.0
+        spack install mgis@master:+c~fortran~python%gcc@12.4.0
 
     - name: Config MFEM-MGIS [coverage]
       shell: spack-sh {0}    

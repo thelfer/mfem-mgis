@@ -141,6 +141,7 @@ namespace mfem_mgis {
   bool BehaviourIntegratorBase::performsLocalBehaviourIntegration(
       const size_type ip, const IntegrationType it) {
     char error_msg[512];
+    error_msg[0] = '\0';
     const auto g_offset = this->s0.gradients_stride * ip;
     const auto t_offset = this->s0.thermodynamic_forces_stride * ip;
     const auto isvs_offset = this->s0.internal_state_variables_stride * ip;
