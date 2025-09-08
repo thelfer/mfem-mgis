@@ -72,7 +72,7 @@ namespace mfem_mgis {
 
   template <size_type ThermodynamicForcesSize>
   bool RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-    ThermodynamicForcesSize>::check(Context& ctx) const {
+      ThermodynamicForcesSize>::check(Context& ctx) const {
     if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
       return ctx.registerErrorMessage("material is not orthotropic");
     }
@@ -159,8 +159,9 @@ namespace mfem_mgis {
       : material(m), gradients(getStateManager(m, s).gradients), stage(s) {}
 
   template <size_type GradientsSize>
-  bool RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-      GradientsSize>::check(Context& ctx) const {
+  bool
+  RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>::check(
+      Context& ctx) const {
     if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
       return ctx.registerErrorMessage("material is not orthotropic");
     }
@@ -225,20 +226,24 @@ namespace mfem_mgis {
   template <size_type GradientsSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
       const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-          GradientsSize>& e){
+          GradientsSize>& e) {
     return e.getPartialQuadratureSpace();
-  } // end of getSpace
+  }  // end of getSpace
 
   template <size_type GradientsSize>
-  inline void allocateWorkspace(RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>& e) {
+  inline void allocateWorkspace(
+      RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>&
+          e) {
     e.allocateWorkspace();
   }
 
   template <size_type GradientsSize>
-  inline  mgis::size_type getNumberOfComponents(const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>& e) noexcept{
+  inline mgis::size_type getNumberOfComponents(
+      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+          GradientsSize>& e) noexcept {
     return e.getNumberOfComponents();
   }
-  
+
   template <PartialQuadratureFunctionEvaluatorConcept EvaluatorType1,
             PartialQuadratureFunctionEvaluatorConcept EvaluatorType2>
   void checkMatchingQuadratureSpaces(const EvaluatorType1& e1,

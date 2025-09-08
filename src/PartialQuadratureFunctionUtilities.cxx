@@ -12,7 +12,7 @@
 namespace mfem_mgis {
 
   bool rotateThermodynamicsForcesToGlobalFrame(
-      Context& ctx,
+      Context &ctx,
       PartialQuadratureFunction &f,
       const Material &m,
       const Material::StateSelection s) {

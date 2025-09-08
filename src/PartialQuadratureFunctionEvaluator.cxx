@@ -19,7 +19,7 @@ namespace mfem_mgis {
 
   bool RotationMatrixPartialQuadratureFunctionEvalutor::check(
       Context& ctx) const {
-    if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC){
+    if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
       return ctx.registerErrorMessage("material is not orthotropic");
     }
     return true;
