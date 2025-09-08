@@ -17,10 +17,12 @@ namespace mfem_mgis {
         "material is not orthotropic");
   }
 
-  void RotationMatrixPartialQuadratureFunctionEvalutor::check() const {
-    raise_if(
-        this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC,
-        "material is not orthotropic");
+  bool RotationMatrixPartialQuadratureFunctionEvalutor::check(
+      Context& ctx) const {
+    if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC){
+      return ctx.registerErrorMessage("material is not orthotropic");
+    }
+    return true;
   }  // end of check
 
   const PartialQuadratureSpace&

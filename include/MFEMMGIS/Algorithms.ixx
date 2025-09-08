@@ -10,16 +10,21 @@
 
 namespace mfem_mgis {
 
-  template <size_type N, PartialQuadratureFunctionEvalutorConcept EvaluatorType>
-  bool assign(PartialQuadratureFunction& f, EvaluatorType e) requires(N > 0) {
+  template <size_type N,
+            PartialQuadratureFunctionEvaluatorConcept EvaluatorType>
+  bool assign(Context& ctx,
+              PartialQuadratureFunction& f,
+              EvaluatorType e) requires(N > 0) {
     checkMatchingQuadratureSpaces(f, e);
     raise_if(f.getNumberOfComponents() != N,
              "assign: invalid number of components for the left hand size");
     raise_if(e.getNumberOfComponents() != N,
              "assign: invalid number of components for the right hand size");
     //
-    e.check();
-    e.allocateWorkspace();
+    if (!e.check(ctx)) {
+      return false;
+    }
+    allocateWorkspace(e);
     //
     const auto qspace = f.getPartialQuadratureSpace();
     const auto ne = qspace.getNumberOfIntegrationPoints();
@@ -37,8 +42,8 @@ namespace mfem_mgis {
     return true;
   }  // end of assign
 
-  template <PartialQuadratureFunctionEvalutorConcept EvaluatorType>
-  bool assign(PartialQuadratureFunction& f, EvaluatorType e) {
+  template <PartialQuadratureFunctionEvaluatorConcept EvaluatorType>
+  bool assign(Context& ctx, PartialQuadratureFunction& f, EvaluatorType e) {
     raise_if(&f.getPartialQuadratureSpace() != &e.getPartialQuadratureSpace(),
              "assign: unmatched number of components for the left hand size "
              "and the right hand side");
@@ -46,7 +51,9 @@ namespace mfem_mgis {
              "assign: unmatched number of components for the left hand size "
              "and the right hand side");
     //
-    e.check();
+    if (!e.check(ctx)) {
+      return false;
+    }
     e.allocateWorkspace();
     //
     const auto qspace = f.getPartialQuadratureSpace();

@@ -19,16 +19,21 @@ namespace mfem_mgis {
    * \param[in] lhs: left hand side
    * \param[in] e: right hand side
    */
-  template <size_type N, typename PartialQuadratureFunctionEvaluatorType>
-  bool assign(PartialQuadratureFunction&,
+  template <size_type N,
+            PartialQuadratureFunctionEvaluatorConcept
+                PartialQuadratureFunctionEvaluatorType>
+  bool assign(Context&,
+              PartialQuadratureFunction&,
               PartialQuadratureFunctionEvaluatorType) requires(N > 0);
   /*!
    * \brief assign the evaluator to a partial quadrature function
    * \param[in] lhs: left hand side
    * \param[in] e: right hand side
    */
-  template <typename PartialQuadratureFunctionEvaluatorType>
-  bool assign(PartialQuadratureFunction&,
+  template <PartialQuadratureFunctionEvaluatorConcept
+                PartialQuadratureFunctionEvaluatorType>
+  bool assign(Context&,
+              PartialQuadratureFunction&,
               PartialQuadratureFunctionEvaluatorType);
 
   /*!

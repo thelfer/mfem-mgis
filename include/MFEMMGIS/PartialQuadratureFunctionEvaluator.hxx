@@ -18,47 +18,11 @@ b * \author Thomas Helfer
 namespace mfem_mgis {
 
   template <typename EvaluatorType>
-  concept PartialQuadratureFunctionEvalutorConcept =
-      requires(EvaluatorType& e) {
-    e.allocateWorkspace();
-  }
-  &&requires(const EvaluatorType& e) {
-    e.check();
-    {
-      e.getPartialQuadratureSpace()
-      } -> std::same_as<const PartialQuadratureSpace&>;
-    { e.getNumberOfComponents() } -> std::same_as<size_type>;
-  }
-  &&((requires(const EvaluatorType& e, size_type i) { e(i); }) ||
-     (requires(EvaluatorType & e, size_type i) { e(i); }));
-
-  /*!
-   * \brief an evaluator returning the values of an immutable partial quadrature
-   * function view as a fixed size span or a scalar
-   * \tparam size of the returned value
-   */
-  template <size_type N>
-  struct FixedSizedPartialQuadratureFunctionEvalutor {
-    /*!
-     * \brief constructor
-     */
-    FixedSizedPartialQuadratureFunctionEvalutor(
-        const ImmutablePartialQuadratureFunctionView&);
-    //! \brief perform consistency checks
-    void check() const;
-    //! \brief allocate internal workspace
-    void allocateWorkspace();
-    //! \brief return the underlying partial quadrature space
-    const PartialQuadratureSpace& getPartialQuadratureSpace() const;
-    //! \return the number of components
-    constexpr size_type getNumberOfComponents() const noexcept;
-    // access operator
-    auto operator()(const size_type i) const;
-
-   private:
-    //! \brief underlying partial quadrature space
-    const ImmutablePartialQuadratureFunctionView& function;
-  };  // end of FixedSizedPartialQuadratureFunctionEvalutor
+  concept PartialQuadratureFunctionEvaluatorConcept =
+      ((mgis::function::EvaluatorConcept<EvaluatorType>)&&  //
+       (requires(const EvaluatorType& e) {
+         { getSpace(e) } -> std::same_as<const PartialQuadratureSpace&>;
+       }));
 
   //! \brief an evaluator returning the rotation matrix
   struct RotationMatrixPartialQuadratureFunctionEvalutor {
@@ -68,11 +32,10 @@ namespace mfem_mgis {
      */
     RotationMatrixPartialQuadratureFunctionEvalutor(const Material&);
     //! \brief perform consistency checks
-    void check() const;
+    [[nodiscard]] bool check(Context&) const;
     //! \brief return the underlying partial quadrature space
-    const PartialQuadratureSpace& getPartialQuadratureSpace() const;
-    //! \return the number of components
-    constexpr size_type getNumberOfComponents() const noexcept;
+    [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
+        const;
     // access operator
     auto operator()(const size_type) const;
 
@@ -94,15 +57,16 @@ namespace mfem_mgis {
         const Material&,
         const Material::StateSelection = Material::END_OF_TIME_STEP);
     //! \brief perform consistency checks
-    void check() const;
+    [[nodiscard]] bool check(Context&) const;
+    //! \brief return the underlying partial quadrature space
+    [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
+        const;
     //! \brief allocate internal workspace
     void allocateWorkspace();
-    //! \brief return the underlying partial quadrature space
-    const PartialQuadratureSpace& getPartialQuadratureSpace() const;
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
     // access operator
-    auto operator()(const size_type);
+    auto operator()(const size_type) const;
 
    private:
     //! \brief underlying material
@@ -112,9 +76,25 @@ namespace mfem_mgis {
     //! \brief time step stage
     const Material::StateSelection stage;
     //! \brief buffer
-    Buffer<ThermodynamicForcesSize> buffer;
+    mutable Buffer<ThermodynamicForcesSize> buffer;
   };  // end of
       // RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor
+
+  //! \bref return the quadrature space
+  template <size_type ThermodynamicForcesSize>
+  [[nodiscard]] const PartialQuadratureSpace& getSpace(
+      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+          ThermodynamicForcesSize>&);
+  //! \brief allocate internal workspace
+  template <size_type ThermodynamicForcesSize>
+  void allocateWorkspace(
+      RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+          ThermodynamicForcesSize>&);
+  //! \brief return the number of components
+  template <size_type ThermodynamicForcesSize>
+  mgis::size_type getNumberOfComponents(
+      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+          ThermodynamicForcesSize>&) noexcept;
 
   /*!
    * \brief an evaluator returning the gradients rotated in the material frame
@@ -129,15 +109,16 @@ namespace mfem_mgis {
         const Material&,
         const Material::StateSelection = Material::END_OF_TIME_STEP);
     //! \brief perform consistency checks
-    void check() const;
+    [[nodiscard]] bool check(Context&) const;
     //! \brief allocate internal workspace
     void allocateWorkspace();
     //! \brief return the underlying partial quadrature space
-    const PartialQuadratureSpace& getPartialQuadratureSpace() const;
+    [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
+        const;
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
     // access operator
-    auto operator()(const size_type);
+    auto operator()(const size_type) const;
 
    private:
     //! \brief underlying material
@@ -147,16 +128,31 @@ namespace mfem_mgis {
     //! \brief time step stage
     const Material::StateSelection stage;
     //! \brief buffer
-    Buffer<GradientsSize> buffer;
+    mutable Buffer<GradientsSize> buffer;
   };  // end of RotatedGradientsMatrixPartialQuadratureFunctionEvalutor
+
+  //! \bref return the quadrature space
+  template <size_type GradientsSize>
+  [[nodiscard]] const PartialQuadratureSpace& getSpace(
+      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+          GradientsSize>&);
+  //! \brief allocate internal workspace
+  template <size_type GradientsSize>
+  void allocateWorkspace(
+      RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>&);
+  //! \brief return the number of components
+  template <size_type GradientsSize>
+  mgis::size_type getNumberOfComponents(
+      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+          GradientsSize>&) noexcept;
 
   /*!
    * \brief check if the given evaluators have the same partial quadrature space
    * \param[in] e1: first evaluator
    * \param[in] e2: second evaluator
    */
-  template <PartialQuadratureFunctionEvalutorConcept EvaluatorType1,
-            PartialQuadratureFunctionEvalutorConcept EvaluatorType2>
+  template <PartialQuadratureFunctionEvaluatorConcept EvaluatorType1,
+            PartialQuadratureFunctionEvaluatorConcept EvaluatorType2>
   void checkMatchingQuadratureSpaces(const EvaluatorType1&,
                                      const EvaluatorType2&);
 

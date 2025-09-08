@@ -12,11 +12,12 @@
 namespace mfem_mgis {
 
   bool rotateThermodynamicsForcesToGlobalFrame(
+      Context& ctx,
       PartialQuadratureFunction &f,
       const Material &m,
       const Material::StateSelection s) {
     RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor e(m, s);
-    return assign(f, e);
+    return assign(ctx, f, e);
   }  // end of rotateThermodynamicsForces
 
 }  // end of namespace mfem_mgis
