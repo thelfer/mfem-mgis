@@ -540,6 +540,13 @@ namespace mfem_mgis {
 
 namespace mfem_mgis {
 
+  template <typename EvaluatorType>
+  concept PartialQuadratureFunctionEvaluatorConcept =
+      ((mgis::function::EvaluatorConcept<EvaluatorType>)&&  //
+       (requires(const EvaluatorType& e) {
+         { getSpace(e) } -> std::same_as<const PartialQuadratureSpace&>;
+       }));
+
   constexpr bool check(AbstractErrorHandler&,
                        const ImmutablePartialQuadratureFunctionView&) noexcept;
 

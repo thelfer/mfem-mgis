@@ -61,6 +61,25 @@ namespace mfem_mgis {
     return this->material.getRotationMatrixAtIntegrationPoint(i);
   }
 
+  inline const PartialQuadratureSpace& getSpace(
+      const RotationMatrixPartialQuadratureFunctionEvalutor& e) {
+    return e.getPartialQuadratureSpace();
+  }  // end of getSpace
+
+  inline bool check(AbstractErrorHandler& eh,
+                    const RotationMatrixPartialQuadratureFunctionEvalutor& e) {
+    return e.check(eh);
+  }  // end of check
+
+  constexpr void allocateWorkspace(
+      RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept {
+  }  // end of allocateWorkspace
+
+  constexpr mgis::size_type getNumberOfComponents(
+      const RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept {
+    return 9u;
+  }  // end of getNumberOfComponents
+
   template <size_type ThermodynamicForcesSize>
   RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
       ThermodynamicForcesSize>::

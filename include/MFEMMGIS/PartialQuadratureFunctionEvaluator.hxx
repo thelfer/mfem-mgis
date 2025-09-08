@@ -17,13 +17,6 @@ b * \author Thomas Helfer
 
 namespace mfem_mgis {
 
-  template <typename EvaluatorType>
-  concept PartialQuadratureFunctionEvaluatorConcept =
-      ((mgis::function::EvaluatorConcept<EvaluatorType>)&&  //
-       (requires(const EvaluatorType& e) {
-         { getSpace(e) } -> std::same_as<const PartialQuadratureSpace&>;
-       }));
-
   //! \brief an evaluator returning the rotation matrix
   struct RotationMatrixPartialQuadratureFunctionEvalutor {
     /*!
@@ -43,6 +36,20 @@ namespace mfem_mgis {
     //! \brief underlying material
     const Material& material;
   };  // end of RotationMatrixPartialQuadratureFunctionEvalutor
+
+
+  [[nodiscard]] const PartialQuadratureSpace& getSpace(
+      const RotationMatrixPartialQuadratureFunctionEvalutor&);
+
+  [[nodiscard]] bool check(
+      AbstractErrorHandler&,
+      const RotationMatrixPartialQuadratureFunctionEvalutor&);
+
+  constexpr void allocateWorkspace(
+      RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept;
+
+  [[nodiscard]] constexpr mgis::size_type getNumberOfComponents(
+      const RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept;
 
   /*!
    * \brief an evaluator returning the rotated thermodynamic forces
@@ -123,7 +130,7 @@ namespace mfem_mgis {
         const;
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
-    // access operator
+    // \brief access operator
     auto operator()(const size_type) const;
 
    private:
@@ -171,5 +178,24 @@ namespace mfem_mgis {
 }  // end of namespace mfem_mgis
 
 #include "MFEMMGIS/PartialQuadratureFunctionEvaluator.ixx"
+
+namespace mfem_mgis{
+
+  static_assert(mgis::function::EvaluatorConcept<
+                RotationMatrixPartialQuadratureFunctionEvalutor>);
+  static_assert(!mgis::function::FunctionConcept<
+                RotationMatrixPartialQuadratureFunctionEvalutor>);
+  static_assert(
+      mgis::function::EvaluatorConcept<
+          RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<>>);
+  static_assert(
+      !mgis::function::FunctionConcept<
+          RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<>>);
+  static_assert(mgis::function::EvaluatorConcept<
+                RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<>>);
+  static_assert(!mgis::function::FunctionConcept<
+                RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<>>);
+
+}
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_HXX */
