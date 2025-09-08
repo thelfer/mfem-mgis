@@ -10,7 +10,6 @@
 
 namespace mfem_mgis {
 
-
   template <unsigned short N>
   static bool computeVonMisesEquivalentStressForSmallStrainBehaviours_impl(
       Context& ctx,
