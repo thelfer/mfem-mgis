@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/Algorithms.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   23/04/2025
  */
@@ -12,7 +12,7 @@
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 #include "MFEMMGIS/PartialQuadratureFunctionEvaluator.hxx"
 
-namespace mfem_mgis{
+namespace mfem_mgis {
 
   /*!
    * \brief assign the evaluator to a partial quadrature function

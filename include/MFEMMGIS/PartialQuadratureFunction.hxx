@@ -49,7 +49,6 @@ namespace mfem_mgis {
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
 
-
     /*!
      * \return the stride of data, i.e. the distance between the values of two
      * successive integration points.
@@ -127,7 +126,7 @@ namespace mfem_mgis {
     std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const;
 #ifdef MGIS_FUNCTION_SUPPORT
-    constexpr bool check(Context&) const noexcept;
+    constexpr bool check(AbstractErrorHandler&) const noexcept;
 #endif /* MGIS_FUNCTION_SUPPORT */
     /*!
      * \brief return the data associated with an integration point
@@ -195,8 +194,6 @@ namespace mfem_mgis {
      */
     bool checkCompatibility(
         const ImmutablePartialQuadratureFunctionView&) const;
-    //
-    void allocateWorkspace();
     //! \brief destructor
     ~ImmutablePartialQuadratureFunctionView();
 
@@ -546,6 +543,15 @@ namespace mfem_mgis {
       GridFunction<false>&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
       const SubMesh<false>&);
+
+#ifdef MGIS_FUNCTION_SUPPORT
+  inline void allocateWorkspace(ImmutablePartialQuadratureFunctionView&);
+
+  inline mgis::size_type getNumberOfComponents(
+      const ImmutablePartialQuadratureFunctionView&) noexcept;
+
+  void allocateWorkspace(PartialQuadratureFunction&) = delete;
+#endif /* MGIS_FUNCTION_SUPPORT*/
 
 }  // namespace mfem_mgis
 

@@ -1,6 +1,6 @@
 /*!
  * \file   PartialQuadratureFunctionUtilities.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   30/04/2025
  */
@@ -9,7 +9,7 @@
 #include "MFEMMGIS/PartialQuadratureFunctionEvaluator.hxx"
 #include "MFEMMGIS/PartialQuadratureFunctionUtilities.hxx"
 
-namespace mfem_mgis{
+namespace mfem_mgis {
 
   bool rotateThermodynamicsForcesToGlobalFrame(
       PartialQuadratureFunction &f,

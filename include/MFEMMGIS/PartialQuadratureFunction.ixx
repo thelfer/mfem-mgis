@@ -37,7 +37,7 @@ namespace mfem_mgis {
 #ifdef MGIS_FUNCTION_SUPPORT
 
   constexpr bool ImmutablePartialQuadratureFunctionView::check(
-      Context&) const noexcept {
+      AbstractErrorHandler&) const noexcept {
     return true;
   }
 
@@ -53,8 +53,6 @@ namespace mfem_mgis {
       const {
     return this->qspace;
   }  // end of getPartialQuadratureSpacePointer
-
-  inline void ImmutablePartialQuadratureFunctionView::allocateWorkspace() {}
 
   inline std::span<const real>
   ImmutablePartialQuadratureFunctionView::getValues() const {
@@ -118,8 +116,8 @@ namespace mfem_mgis {
   template <size_type N>
   inline std::span<real, N>
   PartialQuadratureFunction::getIntegrationPointValues(const size_type o) {
-    return std::span<real, N>(this->mutable_values.data() + this->getDataOffset(o),
-                              this->data_size);
+    return std::span<real, N>(
+        this->mutable_values.data() + this->getDataOffset(o), this->data_size);
   }  // end of getIntegrationPointValues
 
   inline std::span<real> PartialQuadratureFunction::operator()(
@@ -135,6 +133,16 @@ namespace mfem_mgis {
   inline std::span<real> PartialQuadratureFunction::getValues() {
     return this->mutable_values;
   }
+
+#ifdef MGIS_FUNCTION_SUPPORT
+  inline void allocateWorkspace(ImmutablePartialQuadratureFunctionView&) {}
+
+  inline mgis::size_type getNumberOfComponents(
+      const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    return static_cast<mgis::size_type>(v.getNumberOfComponents());
+  }  // end of getNumberOfComponents
+
+#endif /* MGIS_FUNCTION_SUPPORT*/
 
 }  // end of namespace mfem_mgis
 

@@ -10,7 +10,6 @@
 
 namespace mfem_mgis {
 
-
   template <unsigned short N>
   static bool computeVonMisesEquivalentStressForSmallStrainBehaviours_impl(
       Context& ctx,
@@ -312,9 +311,7 @@ namespace mfem_mgis {
   }  // end of computeFirstEigenStress
 
   std::optional<PartialQuadratureFunction> computeFirstEigenStress(
-      Context& ctx,
-      const Material& m,
-      const Material::StateSelection s) {
+      Context& ctx, const Material& m, const Material::StateSelection s) {
     PartialQuadratureFunction s1(m.getPartialQuadratureSpacePointer());
     if (!computeFirstEigenStress(ctx, s1, m, s)) {
       return {};
@@ -389,9 +386,11 @@ namespace mfem_mgis {
     if (m.b.btype != mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
       if ((m.b.hypothesis == Hypothesis::PLANESTRAIN) ||
           (m.b.hypothesis == Hypothesis::PLANESTRESS)) {
-        return computeSmallStrainStressInGlobalFrame_impl<2>(ctx, rstress, m, s);
+        return computeSmallStrainStressInGlobalFrame_impl<2>(ctx, rstress, m,
+                                                             s);
       } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
-        return computeSmallStrainStressInGlobalFrame_impl<3>(ctx, rstress, m, s);
+        return computeSmallStrainStressInGlobalFrame_impl<3>(ctx, rstress, m,
+                                                             s);
       } else {
         return ctx.registerErrorMessage(
             "computeStressInGlobalFrame: unsupported modelling hypothesis");
@@ -400,9 +399,11 @@ namespace mfem_mgis {
                mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
       if ((m.b.hypothesis == Hypothesis::PLANESTRAIN) ||
           (m.b.hypothesis == Hypothesis::PLANESTRESS)) {
-        return computeFirstPiolaKirchhoffStressInGlobalFrame_impl<2>(ctx, rstress, m, s);
+        return computeFirstPiolaKirchhoffStressInGlobalFrame_impl<2>(
+            ctx, rstress, m, s);
       } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
-        return computeFirstPiolaKirchhoffStressInGlobalFrame_impl<3>(ctx, rstress, m, s);
+        return computeFirstPiolaKirchhoffStressInGlobalFrame_impl<3>(
+            ctx, rstress, m, s);
       } else {
         return ctx.registerErrorMessage(
             "computeStressInGlobalFrame: unsupported modelling hypothesis");
@@ -512,9 +513,7 @@ namespace mfem_mgis {
   }  // end of computeCauchyStressInGlobalFrame
 
   std::optional<PartialQuadratureFunction> computeCauchyStressInGlobalFrame(
-      Context& ctx,
-      const Material& m,
-      const Material::StateSelection s) {
+      Context& ctx, const Material& m, const Material::StateSelection s) {
     auto stress_size = size_type{};
     if (m.b.hypothesis == Hypothesis::PLANESTRAIN) {
       stress_size = 4;

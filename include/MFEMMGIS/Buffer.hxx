@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/Buffer.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   30/04/2025
  */

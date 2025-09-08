@@ -230,7 +230,7 @@ namespace mfem_mgis {
 
   ParaviewExportIntegrationPointResultsAtNodesBase::ExportedFunctionsDescription
   makeExportedFunctionsDescription(std::string_view n,
-                                   const PartialQuadratureFunctionsSet &f){
+                                   const PartialQuadratureFunctionsSet& f) {
     auto efcts = std::vector<ImmutablePartialQuadratureFunctionView>{};
     const auto& fcts = f.getFunctions();
     efcts.reserve(fcts.size());

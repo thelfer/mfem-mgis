@@ -1,13 +1,13 @@
 /*!
  * \file   src/PartialQuadratureFunctionEvaluator.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   29/04/2025
  */
 
 #include "MFEMMGIS/PartialQuadratureFunctionEvaluator.hxx"
 
-namespace mfem_mgis{
+namespace mfem_mgis {
 
   RotationMatrixPartialQuadratureFunctionEvalutor::
       RotationMatrixPartialQuadratureFunctionEvalutor(const Material& m)
@@ -21,13 +21,12 @@ namespace mfem_mgis{
     raise_if(
         this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC,
         "material is not orthotropic");
-  } // end of check
+  }  // end of check
 
   const PartialQuadratureSpace&
   RotationMatrixPartialQuadratureFunctionEvalutor::getPartialQuadratureSpace()
       const {
-
     return this->material.getPartialQuadratureSpace();
   }
 
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

@@ -18,12 +18,15 @@ b * \author Thomas Helfer
 namespace mfem_mgis {
 
   template <typename EvaluatorType>
-  concept PartialQuadratureFunctionEvalutorConcept = requires(EvaluatorType& e) {
+  concept PartialQuadratureFunctionEvalutorConcept =
+      requires(EvaluatorType& e) {
     e.allocateWorkspace();
   }
   &&requires(const EvaluatorType& e) {
     e.check();
-    {e.getPartialQuadratureSpace()}->std::same_as<const PartialQuadratureSpace&>;
+    {
+      e.getPartialQuadratureSpace()
+      } -> std::same_as<const PartialQuadratureSpace&>;
     { e.getNumberOfComponents() } -> std::same_as<size_type>;
   }
   &&((requires(const EvaluatorType& e, size_type i) { e(i); }) ||

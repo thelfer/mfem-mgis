@@ -31,6 +31,17 @@ namespace mfem_mgis {
     return m.s0;
   }
 
+#ifdef MGIS_FUNCTION_SUPPORT
+
+  inline void allocateWorkspace(RotationMatrixEvaluator &) {}
+
+  inline constexpr mgis::size_type getNumberOfComponents(
+      const RotationMatrixEvaluator &) noexcept {
+    return 9u;
+  }
+
+#endif /* MGIS_FUNCTION_SUPPORT */
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_MATERIAL_IXX */

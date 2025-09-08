@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/Algorithm.ixx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   29/04/2025
  */
@@ -38,8 +38,7 @@ namespace mfem_mgis {
   }  // end of assign
 
   template <PartialQuadratureFunctionEvalutorConcept EvaluatorType>
-  bool assign(PartialQuadratureFunction& f,
-              EvaluatorType e) {
+  bool assign(PartialQuadratureFunction& f, EvaluatorType e) {
     raise_if(&f.getPartialQuadratureSpace() != &e.getPartialQuadratureSpace(),
              "assign: unmatched number of components for the left hand size "
              "and the right hand side");
@@ -75,6 +74,6 @@ namespace mfem_mgis {
     return true;
   }  // end of assign
 
-} // end of mfem_mgis
+}  // namespace mfem_mgis
 
 #endif /* LIB_MFEMMGIS_ALGORITHMS_IXX */

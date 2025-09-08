@@ -241,7 +241,7 @@ namespace mfem_mgis {
 
   struct RotationMatrixEvaluator {
     RotationMatrixEvaluator(const Material &m) : material(m) {}
-    bool check(Context &ctx) const {
+    bool check(AbstractErrorHandler &ctx) const {
       if (this->material.b.symmetry !=
           mgis::behaviour::Behaviour::ORTHOTROPIC) {
         return ctx.registerErrorMessage(
@@ -249,7 +249,6 @@ namespace mfem_mgis {
       }
       return false;
     }
-    inline void allocateWorkspace(){};
     const PartialQuadratureSpace &getSpace() const {
       return this->material.getPartialQuadratureSpace();
     }
@@ -265,6 +264,11 @@ namespace mfem_mgis {
       const RotationMatrixEvaluator &e) {
     return e.getSpace();
   }  // end of getSpace
+
+  void allocateWorkspace(RotationMatrixEvaluator &);
+
+  constexpr mgis::size_type getNumberOfComponents(
+      const RotationMatrixEvaluator &) noexcept;
 
   static_assert(mgis::function::EvaluatorConcept<RotationMatrixEvaluator>);
   static_assert(!mgis::function::FunctionConcept<RotationMatrixEvaluator>);
