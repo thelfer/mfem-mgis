@@ -72,7 +72,7 @@ namespace mfem_mgis {
 
   template <size_type ThermodynamicForcesSize>
   bool RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-      ThermodynamicForcesSize>::check(Context& ctx) const {
+      ThermodynamicForcesSize>::check(AbstractErrorHandler& ctx) const {
     if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
       return ctx.registerErrorMessage("material is not orthotropic");
     }
@@ -146,6 +146,14 @@ namespace mfem_mgis {
   }
 
   template <size_type ThermodynamicForcesSize>
+  bool check(
+      AbstractErrorHandler& eh,
+      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+          ThermodynamicForcesSize>& e) {
+    return e.check(eh);
+  }  // end of check
+
+  template <size_type ThermodynamicForcesSize>
   inline mgis::size_type getNumberOfComponents(
       const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
           ThermodynamicForcesSize>& e) noexcept {
@@ -161,7 +169,7 @@ namespace mfem_mgis {
   template <size_type GradientsSize>
   bool
   RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>::check(
-      Context& ctx) const {
+      AbstractErrorHandler& ctx) const {
     if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
       return ctx.registerErrorMessage("material is not orthotropic");
     }
@@ -229,6 +237,13 @@ namespace mfem_mgis {
           GradientsSize>& e) {
     return e.getPartialQuadratureSpace();
   }  // end of getSpace
+
+  template <size_type GradientsSize>
+  bool check(AbstractErrorHandler& eh,
+             const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+                 GradientsSize>& e) {
+    return e.check(eh);
+  }  // end of check
 
   template <size_type GradientsSize>
   inline void allocateWorkspace(

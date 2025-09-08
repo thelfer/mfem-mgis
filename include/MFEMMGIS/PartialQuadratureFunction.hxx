@@ -125,9 +125,6 @@ namespace mfem_mgis {
     //! \return the underlying quadrature space
     std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const;
-#ifdef MGIS_FUNCTION_SUPPORT
-    constexpr bool check(AbstractErrorHandler&) const noexcept;
-#endif /* MGIS_FUNCTION_SUPPORT */
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
@@ -362,13 +359,6 @@ namespace mfem_mgis {
 
    protected:
     /*!
-     * \brief this function is deleted to avoid
-     * `PartialQuadratureFunction` to match `mgis::EvaluatorConcept`
-     * as it is not a lightweight object
-     */
-    void allocateWorkspace() = delete;
-
-    /*!
      * \brief turns this function into a view to the given function
      * \param[in] f: function
      */
@@ -544,26 +534,33 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
       const SubMesh<false>&);
 
-#ifdef MGIS_FUNCTION_SUPPORT
-  inline void allocateWorkspace(ImmutablePartialQuadratureFunctionView&);
-
-  inline mgis::size_type getNumberOfComponents(
-      const ImmutablePartialQuadratureFunctionView&) noexcept;
-
-  void allocateWorkspace(PartialQuadratureFunction&) = delete;
-#endif /* MGIS_FUNCTION_SUPPORT*/
-
 }  // namespace mfem_mgis
 
 #ifdef MGIS_FUNCTION_SUPPORT
 
 namespace mfem_mgis {
 
+  constexpr bool check(AbstractErrorHandler&,
+                       const ImmutablePartialQuadratureFunctionView&) noexcept;
+
+  constexpr void allocateWorkspace(
+      ImmutablePartialQuadratureFunctionView&) noexcept;
+
+  mgis::size_type getNumberOfComponents(
+      const ImmutablePartialQuadratureFunctionView&) noexcept;
+
   MFEM_MGIS_EXPORT const PartialQuadratureSpace& getSpace(
       const ImmutablePartialQuadratureFunctionView&);
 
   MFEM_MGIS_EXPORT const PartialQuadratureSpace& getSpace(
       const PartialQuadratureFunction&);
+
+  /*!
+   * \brief this function is deleted to avoid
+   * `PartialQuadratureFunction` to match `mgis::EvaluatorConcept`
+   * as it is not a lightweight object
+   */
+  void allocateWorkspace(PartialQuadratureFunction&) = delete;
 
 }  // namespace mfem_mgis
 

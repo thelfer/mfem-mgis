@@ -32,7 +32,7 @@ namespace mfem_mgis {
      */
     RotationMatrixPartialQuadratureFunctionEvalutor(const Material&);
     //! \brief perform consistency checks
-    [[nodiscard]] bool check(Context&) const;
+    [[nodiscard]] bool check(AbstractErrorHandler&) const;
     //! \brief return the underlying partial quadrature space
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const;
@@ -56,11 +56,11 @@ namespace mfem_mgis {
     RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor(
         const Material&,
         const Material::StateSelection = Material::END_OF_TIME_STEP);
-    //! \brief perform consistency checks
-    [[nodiscard]] bool check(Context&) const;
     //! \brief return the underlying partial quadrature space
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const;
+    //! \brief perform consistency checks
+    [[nodiscard]] bool check(AbstractErrorHandler&) const;
     //! \brief allocate internal workspace
     void allocateWorkspace();
     //! \return the number of components
@@ -83,6 +83,12 @@ namespace mfem_mgis {
   //! \bref return the quadrature space
   template <size_type ThermodynamicForcesSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
+      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+          ThermodynamicForcesSize>&);
+  //! \brief perform consistency checks
+  template <size_type ThermodynamicForcesSize>
+  [[nodiscard]] bool check(
+      AbstractErrorHandler&,
       const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
           ThermodynamicForcesSize>&);
   //! \brief allocate internal workspace
@@ -109,7 +115,7 @@ namespace mfem_mgis {
         const Material&,
         const Material::StateSelection = Material::END_OF_TIME_STEP);
     //! \brief perform consistency checks
-    [[nodiscard]] bool check(Context&) const;
+    [[nodiscard]] bool check(AbstractErrorHandler&) const;
     //! \brief allocate internal workspace
     void allocateWorkspace();
     //! \brief return the underlying partial quadrature space
@@ -134,6 +140,12 @@ namespace mfem_mgis {
   //! \bref return the quadrature space
   template <size_type GradientsSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
+      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+          GradientsSize>&);
+  //! \brief perform consistency checks
+  template <size_type GradientsSize>
+  [[nodiscard]] bool check(
+      AbstractErrorHandler&,
       const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
           GradientsSize>&);
   //! \brief allocate internal workspace

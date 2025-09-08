@@ -33,12 +33,18 @@ namespace mfem_mgis {
 
 #ifdef MGIS_FUNCTION_SUPPORT
 
-  inline void allocateWorkspace(RotationMatrixEvaluator &) {}
+  inline bool check(AbstractErrorHandler &eh,
+                    const RotationMatrixEvaluator &e) {
+    return e.check(eh);
+  }  // end of check
 
-  inline constexpr mgis::size_type getNumberOfComponents(
+  constexpr void allocateWorkspace(RotationMatrixEvaluator &) noexcept {
+  }  // end of allocateWorkspace
+
+  constexpr mgis::size_type getNumberOfComponents(
       const RotationMatrixEvaluator &) noexcept {
     return 9u;
-  }
+  }  // end of getNumberOfComponents
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 
