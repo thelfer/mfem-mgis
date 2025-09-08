@@ -45,6 +45,7 @@
 namespace mfem_mgis {
 
 #ifdef MGIS_FUNCTION_SUPPORT
+  using mgis::AbstractErrorHandler;
   using mgis::Context;
 #endif /* MGIS_FUNCTION_SUPPORT*/
 

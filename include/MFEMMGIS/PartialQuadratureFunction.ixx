@@ -28,15 +28,6 @@ namespace mfem_mgis {
     return o * (this->data_stride) + this->data_begin;
   }  // end of getDataOffset
 
-#ifdef MGIS_FUNCTION_SUPPORT
-
-  constexpr bool ImmutablePartialQuadratureFunctionView::check(
-      Context&) const noexcept {
-    return true;
-  }
-
-#endif /* MGIS_FUNCTION_SUPPORT */
-
   inline const PartialQuadratureSpace&
   ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpace() const {
     return *(this->qspace);
@@ -47,8 +38,6 @@ namespace mfem_mgis {
       const {
     return this->qspace;
   }  // end of getPartialQuadratureSpacePointer
-
-  inline void ImmutablePartialQuadratureFunctionView::allocateWorkspace() {}
 
   inline std::span<const real>
   ImmutablePartialQuadratureFunctionView::getValues() const {
@@ -130,6 +119,22 @@ namespace mfem_mgis {
     return this->mutable_values;
   }
 
+#ifdef MGIS_FUNCTION_SUPPORT
+
+  constexpr bool check(AbstractErrorHandler&,
+                       const ImmutablePartialQuadratureFunctionView&) noexcept{
+    return true;
+  } // end of check
+
+  constexpr void allocateWorkspace(ImmutablePartialQuadratureFunctionView&) noexcept{
+  } // end of allocateWorkspace
+
+  inline mgis::size_type getNumberOfComponents(const ImmutablePartialQuadratureFunctionView& f) noexcept{
+    return static_cast<mgis::size_type>(f.getNumberOfComponents());
+  } // end of getNumberOfComponents
+  
+#endif /* MGIS_FUNCTION_SUPPORT */
+  
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_IXX */

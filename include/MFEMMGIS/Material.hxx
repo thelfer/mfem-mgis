@@ -233,8 +233,8 @@ namespace mfem_mgis {
 #ifdef MGIS_FUNCTION_SUPPORT
 
   struct RotationMatrixEvaluator {
-    RotationMatrixEvaluator(const Material &m) : material(m) {}
-    bool check(Context &ctx) const {
+    inline RotationMatrixEvaluator(const Material &m) : material(m) {}
+    inline bool check(AbstractErrorHandler &ctx) const {
       if (this->material.b.symmetry !=
           mgis::behaviour::Behaviour::ORTHOTROPIC) {
         return ctx.registerErrorMessage(
@@ -242,11 +242,10 @@ namespace mfem_mgis {
       }
       return false;
     }
-    inline void allocateWorkspace(){};
-    const PartialQuadratureSpace &getSpace() const {
+    inline const PartialQuadratureSpace &getSpace() const {
       return this->material.getPartialQuadratureSpace();
     }
-    std::array<real, 9u> operator()(const size_type i) const {
+    inline std::array<real, 9u> operator()(const size_type i) const {
       return this->material.getRotationMatrixAtIntegrationPoint(i);
     }
 
@@ -259,6 +258,17 @@ namespace mfem_mgis {
     return e.getSpace();
   }  // end of getSpace
 
+  inline bool check(AbstractErrorHandler& eh,
+		    const RotationMatrixEvaluator &e){
+    return e.check(eh);
+  } // end of check
+
+  constexpr void allocateWorkspace(RotationMatrixEvaluator &) noexcept{};
+
+  constexpr mgis::size_type getNumberOfComponents(const RotationMatrixEvaluator &) noexcept{
+    return 9u;
+  } // end of getNumberOfComponents
+  
   static_assert(mgis::function::EvaluatorConcept<RotationMatrixEvaluator>);
   static_assert(!mgis::function::FunctionConcept<RotationMatrixEvaluator>);
 
