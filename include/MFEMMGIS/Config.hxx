@@ -8,6 +8,7 @@
 #ifndef LIB_MFEM_MGIS_CONFIG_HXX
 #define LIB_MFEM_MGIS_CONFIG_HXX
 
+#include <limits>
 #include <cstdlib>
 #include "MGIS/Config.hxx"
 #include "MGIS/Raise.hxx"
@@ -51,6 +52,9 @@ namespace mfem_mgis {
 
   //! \brief a simple alias
   using size_type = int;
+
+  inline constexpr size_type dynamic_extent =
+      std::numeric_limits<size_type>::max();
 
   //! \brief alias to the numeric type used
   using real = mgis::real;

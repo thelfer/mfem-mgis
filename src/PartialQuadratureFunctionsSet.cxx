@@ -1,6 +1,6 @@
 /*!
  * \file   src/PartialQuadratureFunctionsSet.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   02/06/2025
  */
@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "MFEMMGIS/PartialQuadratureFunctionsSet.hxx"
 
-namespace mfem_mgis{
+namespace mfem_mgis {
 
   static std::vector<std::shared_ptr<PartialQuadratureFunction>>
   buildPartialQuadratureFunctionsSet(
@@ -21,7 +21,7 @@ namespace mfem_mgis{
           std::make_shared<PartialQuadratureFunction>(qspace, n));
     }
     return functions;
-  } // end of functions
+  }  // end of functions
 
   PartialQuadratureFunctionsSet::PartialQuadratureFunctionsSet(
       const std::vector<std::shared_ptr<const PartialQuadratureSpace>>& qspaces,
@@ -44,7 +44,7 @@ namespace mfem_mgis{
               std::to_string(qspace.getId()) + "'");
       }
     }
-  } // end of PartialQuadratureFunctionsSet
+  }  // end of PartialQuadratureFunctionsSet
 
   std::vector<std::shared_ptr<const PartialQuadratureFunction>>
   PartialQuadratureFunctionsSet::getFunctions() const {
@@ -92,7 +92,7 @@ namespace mfem_mgis{
                                     std::to_string(m) + "' found");
   }  // end of get
 
-  bool PartialQuadratureFunctionsSet::update(Context& ctx, UpdateFunction& f){
+  bool PartialQuadratureFunctionsSet::update(Context& ctx, UpdateFunction& f) {
     for (const auto& fptr : *this) {
       if (!f(ctx, *fptr)) {
         return false;
@@ -105,6 +105,6 @@ namespace mfem_mgis{
     for (const auto& fptr : *this) {
       f(*fptr);
     }
-  } // end of update
+  }  // end of update
 
 }  // end of namespace mfem_mgis

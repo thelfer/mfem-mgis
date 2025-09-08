@@ -295,7 +295,8 @@ namespace mfem_mgis {
     const auto vs = v.getDataStride();
     if (vs == v.getNumberOfComponents()) {
       // data are continous in v
-      std::copy(v_values, v_values + this->mutable_values.size(), this->mutable_values.begin());
+      std::copy(v_values, v_values + this->mutable_values.size(),
+                this->mutable_values.begin());
     } else {
       if (this->data_size == 1) {
         // special case for scalars
@@ -523,7 +524,8 @@ namespace mfem_mgis {
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
     auto& fes = fed.getFiniteElementSpace<parallel>();
     auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
-        const_cast<SubMesh<parallel>*>(&mesh), fes.FEColl(), n, fes.GetOrdering());
+        const_cast<SubMesh<parallel>*>(&mesh), fes.FEColl(), n,
+        fes.GetOrdering());
     auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
     return {std::move(fespace), std::move(f)};
   }
@@ -596,7 +598,7 @@ namespace mfem_mgis {
     const auto& fes = fed.getFiniteElementSpace<parallel>();
     const auto& fespace = f.FESpace();
     if ((fespace->GetMesh() != &mesh) ||  //
-        (fespace->GetVDim() != n) ||           //
+        (fespace->GetVDim() != n) ||      //
         (fes.FEColl() != fespace->FEColl()) ||
         (fes.GetOrdering() != fespace->GetOrdering())) {
       raise("inconsistent grid function");
@@ -637,7 +639,7 @@ namespace mfem_mgis {
     const auto& fes = fed.getFiniteElementSpace<parallel>();
     const auto& fespace = f.FESpace();
     if ((fespace->GetMesh() != &mesh) ||  //
-        (fespace->GetVDim() != n) ||           //
+        (fespace->GetVDim() != n) ||      //
         (fes.FEColl() != fespace->FEColl()) ||
         (fes.GetOrdering() != fespace->GetOrdering())) {
       raise("inconsistent grid function");

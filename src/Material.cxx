@@ -181,29 +181,7 @@ namespace mfem_mgis {
     this->r3D = r;
   }  // end of setRotationMatrix
 
-  std::array<real, 9u> Material::getRotationMatrixAtIntegrationPoint(
-      const size_type o) const {
-    checkBehaviourSymmetry(this->b);
-    return this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
-  }  // end of getRotationMatrixAtIntegrationPoint
-
   Material::~Material() = default;
-
-  static mgis::behaviour::MaterialStateManager &getStateManager(
-      Material &m, const Material::StateSelection s) {
-    if (s == Material::END_OF_TIME_STEP) {
-      return m.s1;
-    }
-    return m.s0;
-  }
-
-  static const mgis::behaviour::MaterialStateManager &getStateManager(
-      const Material &m, const Material::StateSelection s) {
-    if (s == Material::END_OF_TIME_STEP) {
-      return m.s1;
-    }
-    return m.s0;
-  }
 
   static PartialQuadratureFunction buildPartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> qs,
