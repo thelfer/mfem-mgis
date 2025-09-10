@@ -45,6 +45,7 @@ jobs:
       run: |
         spack load mfem 
         spack load tfel
+        export TFELMath_DIR=`spack location -i tfel` # test
         spack load mgis
         cmake -B ${{github.workspace}}/coverage \
               -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
@@ -52,6 +53,7 @@ jobs:
               -DCMAKE_CXX_COMPILER=g++-12 \
               -DMFEM_DIR=`spack location -i mfem` \
               -DHYPRE_DIR=`spack location -i hypre` \
+              -DTFELMath_DIR=`spack location -i tfel`\
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`        
 
