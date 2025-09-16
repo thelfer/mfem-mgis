@@ -8,6 +8,7 @@
 #ifndef LIB_MFEM_MGIS_PERIODICNONLINEAREVOLUTIONPROBLEM_HXX
 #define LIB_MFEM_MGIS_PERIODICNONLINEAREVOLUTIONPROBLEM_HXX
 
+#include <span>
 #include <functional>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
