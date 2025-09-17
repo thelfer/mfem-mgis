@@ -111,6 +111,7 @@ namespace mfem_mgis {
     Material &operator=(const Material &) = delete;
     //! \brief move assignement (disabled)
     Material &operator=(Material &&) = delete;
+
     /*!
      * \brief underlying behaviour. Only stored for memory management.
      * \note The behaviour can be accessed through the `b` member which is
@@ -230,6 +231,12 @@ namespace mfem_mgis {
       const BehaviourIntegrator &,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
 
+  mgis::behaviour::MaterialStateManager &getStateManager(
+      Material &m, const Material::StateSelection s);
+
+  const mgis::behaviour::MaterialStateManager &getStateManager(
+      const Material &m, const Material::StateSelection s);
+
 #ifdef MGIS_FUNCTION_SUPPORT
 
   struct RotationMatrixEvaluator {
@@ -258,17 +265,13 @@ namespace mfem_mgis {
     return e.getSpace();
   }  // end of getSpace
 
-  inline bool check(AbstractErrorHandler& eh,
-		    const RotationMatrixEvaluator &e){
-    return e.check(eh);
-  } // end of check
+  bool check(AbstractErrorHandler &, const RotationMatrixEvaluator &);
 
-  constexpr void allocateWorkspace(RotationMatrixEvaluator &) noexcept{};
+  constexpr void allocateWorkspace(RotationMatrixEvaluator &) noexcept;
 
-  constexpr mgis::size_type getNumberOfComponents(const RotationMatrixEvaluator &) noexcept{
-    return 9u;
-  } // end of getNumberOfComponents
-  
+  constexpr mgis::size_type getNumberOfComponents(
+      const RotationMatrixEvaluator &) noexcept;
+
   static_assert(mgis::function::EvaluatorConcept<RotationMatrixEvaluator>);
   static_assert(!mgis::function::FunctionConcept<RotationMatrixEvaluator>);
 

@@ -1,3 +1,5 @@
+.. _mfem_mgis_partial_quadrature_functions:
+
 ============================
 Partial quadrature functions
 ============================
@@ -23,4 +25,9 @@ the `MFEM` documentation for further details. In particular, a
 :cxx:`GridFunction` can easily be exported to `Paraview` using
 :cxx:`MFEM`'s :cxx:`ParaViewDataCollection`.
 
+Available functions
+===================
+
+:cxx:`rotateThermodynamicForcesToGlobalFrame`
+---------------------------------------------
 

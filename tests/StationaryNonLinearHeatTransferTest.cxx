@@ -79,7 +79,9 @@ int main(int argc, char** argv) {
     problem.addBoundaryCondition(
         std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
             problem.getFiniteElementDiscretizationPointer(), 3, 0,
-            [](const auto t) noexcept { return 293.15 + (893.15 - 293.15) * t; }));
+            [](const auto t) noexcept {
+              return 293.15 + (893.15 - 293.15) * t;
+            }));
     // set the solver parameters
     mfem_mgis::unit_tests::setLinearSolver(problem, parameters);
     problem.setSolverParameters({{"VerbosityLevel", 0},

@@ -7,6 +7,8 @@ list(APPEND MFEMMGIS_SOURCES
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
+  PartialQuadratureFunctionEvaluator.cxx
+  PartialQuadratureFunctionUtilities.cxx
   Behaviour.cxx
   Material.cxx
   BehaviourIntegrator.cxx

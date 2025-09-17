@@ -8,11 +8,11 @@
 #ifndef LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_HXX
 #define LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_HXX
 
+#include <span>
+#include <limits>
 #include <memory>
 #include <vector>
-#include <limits>
 #include <functional>
-#include <span>
 
 #ifdef MGIS_FUNCTION_SUPPORT
 #include "MGIS/Function/EvaluatorConcept.hxx"
@@ -45,14 +45,17 @@ namespace mfem_mgis {
     PartialQuadratureFunctionDataLayout& operator=(
         const PartialQuadratureFunctionDataLayout&) = default;
     //! \return the number of components
-    size_type getNumberOfComponents() const;
+    bool isScalar() const noexcept;
+    //! \return the number of components
+    size_type getNumberOfComponents() const noexcept;
+
     /*!
      * \return the stride of data, i.e. the distance between the values of two
      * successive integration points.
      */
-    size_type getDataStride() const;
+    size_type getDataStride() const noexcept;
     //! \return the offset of the first element
-    size_type getDataOffset() const;
+    size_type getDataOffset() const noexcept;
     //! \brief destructor
     ~PartialQuadratureFunctionDataLayout() = default;
 
@@ -61,7 +64,7 @@ namespace mfem_mgis {
      * \return the data offset associated with the given integration point.
      * \param[in] o: offset associated with the integration point
      */
-    size_type getDataOffset(const size_type) const;
+    size_type getDataOffset(const size_type) const noexcept;
     //! \brief data stride
     size_type data_stride = size_type{};
     /*!
@@ -139,6 +142,7 @@ namespace mfem_mgis {
      * \note this method is only meaningful when the quadrature function is
      * scalar
      */
+
     const real& getIntegrationPointValue(const size_type) const;
     /*!
      * \brief return the data associated with an integration point
@@ -354,7 +358,6 @@ namespace mfem_mgis {
     ~PartialQuadratureFunction();
 
    protected:
-
     /*!
      * \brief turns this function into a view to the given function
      * \param[in] f: function
@@ -537,13 +540,22 @@ namespace mfem_mgis {
 
 namespace mfem_mgis {
 
+  template <typename EvaluatorType>
+  concept PartialQuadratureFunctionEvaluatorConcept =
+      ((mgis::function::EvaluatorConcept<EvaluatorType>)&&  //
+       (requires(const EvaluatorType& e) {
+         { getSpace(e) } -> std::same_as<const PartialQuadratureSpace&>;
+       }));
+
   constexpr bool check(AbstractErrorHandler&,
                        const ImmutablePartialQuadratureFunctionView&) noexcept;
 
-  constexpr void allocateWorkspace(ImmutablePartialQuadratureFunctionView&) noexcept;
+  constexpr void allocateWorkspace(
+      ImmutablePartialQuadratureFunctionView&) noexcept;
 
-  mgis::size_type getNumberOfComponents(const ImmutablePartialQuadratureFunctionView&) noexcept;
-  
+  mgis::size_type getNumberOfComponents(
+      const ImmutablePartialQuadratureFunctionView&) noexcept;
+
   MFEM_MGIS_EXPORT const PartialQuadratureSpace& getSpace(
       const ImmutablePartialQuadratureFunctionView&);
 
@@ -556,7 +568,7 @@ namespace mfem_mgis {
    * as it is not a lightweight object
    */
   void allocateWorkspace(PartialQuadratureFunction&) = delete;
-  
+
 }  // namespace mfem_mgis
 
 namespace mgis::function {

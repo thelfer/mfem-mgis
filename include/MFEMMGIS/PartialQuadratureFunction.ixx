@@ -10,21 +10,27 @@
 
 namespace mfem_mgis {
 
-  inline size_type PartialQuadratureFunctionDataLayout::getDataStride() const {
+  inline bool PartialQuadratureFunctionDataLayout::isScalar() const noexcept {
+    return this->getNumberOfComponents() == 1;
+  }  // end of isScalar
+
+  inline size_type PartialQuadratureFunctionDataLayout::getDataStride()
+      const noexcept {
     return this->data_stride;
   }  // end of getDataStride
 
-  inline size_type PartialQuadratureFunctionDataLayout::getDataOffset() const {
+  inline size_type PartialQuadratureFunctionDataLayout::getDataOffset()
+      const noexcept {
     return this->data_begin;
   }  // end of getDataOffset
 
   inline size_type PartialQuadratureFunctionDataLayout::getNumberOfComponents()
-      const {
+      const noexcept {
     return this->data_size;
   }  // end of PartialQuadratureFunctionDataLayout::getNumberOfComponents
 
   inline size_type PartialQuadratureFunctionDataLayout::getDataOffset(
-      const size_type o) const {
+      const size_type o) const noexcept {
     return o * (this->data_stride) + this->data_begin;
   }  // end of getDataOffset
 
@@ -101,8 +107,8 @@ namespace mfem_mgis {
   template <size_type N>
   inline std::span<real, N>
   PartialQuadratureFunction::getIntegrationPointValues(const size_type o) {
-    return std::span<real, N>(this->mutable_values.data() + this->getDataOffset(o),
-                              this->data_size);
+    return std::span<real, N>(
+        this->mutable_values.data() + this->getDataOffset(o), this->data_size);
   }  // end of getIntegrationPointValues
 
   inline std::span<real> PartialQuadratureFunction::operator()(
@@ -122,19 +128,21 @@ namespace mfem_mgis {
 #ifdef MGIS_FUNCTION_SUPPORT
 
   constexpr bool check(AbstractErrorHandler&,
-                       const ImmutablePartialQuadratureFunctionView&) noexcept{
+                       const ImmutablePartialQuadratureFunctionView&) noexcept {
     return true;
-  } // end of check
+  }  // end of check
 
-  constexpr void allocateWorkspace(ImmutablePartialQuadratureFunctionView&) noexcept{
-  } // end of allocateWorkspace
+  constexpr void allocateWorkspace(
+      ImmutablePartialQuadratureFunctionView&) noexcept {
+  }  // end of allocateWorkspace
 
-  inline mgis::size_type getNumberOfComponents(const ImmutablePartialQuadratureFunctionView& f) noexcept{
+  inline mgis::size_type getNumberOfComponents(
+      const ImmutablePartialQuadratureFunctionView& f) noexcept {
     return static_cast<mgis::size_type>(f.getNumberOfComponents());
-  } // end of getNumberOfComponents
-  
+  }  // end of getNumberOfComponents
+
 #endif /* MGIS_FUNCTION_SUPPORT */
-  
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTION_IXX */
