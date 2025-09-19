@@ -158,6 +158,39 @@ namespace mfem_mgis {
       parallel>::~ParaviewExportIntegrationPointResultsAtNodesImplementation() =
       default;
 
+#ifdef MGIS_FUNCTION_SUPPORT
+
+  template <bool parallel>
+  ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<parallel>::
+      ParaviewExportIntegrationPointPostProcessingsResultsAtNodes(
+          NonLinearEvolutionProblemImplementation<true>& p,
+          std::string_view n,
+          const std::vector<size_type> mids,
+          const size_type nc,
+          std::function<bool(Context&, PartialQuadratureFunction&)> f,
+          std::string_view d)
+      : functions(buildPartialQuadratureFunctionsSet(p, mids, nc)),
+        update_function(f),
+        exporter(p,
+                 makeExportedFunctionsDescription(n, this->functions),
+                 std::string{d}) {
+  }  // end of
+     // ParaviewExportIntegrationPointPostProcessingsResultsAtNodes
+
+  template <bool parallel>
+  void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
+      parallel>::execute(NonLinearEvolutionProblemImplementation<parallel>& p,
+                         const real t,
+                         const real dt) {
+    Context ctx;
+    if (!this->functions.update(ctx, this->update_function)) {
+      raise(ctx.getErrorMessage());
+    }
+    this->exporter.execute(p, t, dt);
+  }  // end of execute
+
+#endif /* MGIS_FUNCTION_SUPPORT */
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEMMGIS_PARAVIEWEXPORTINTEGRATIONPOINTRESULTSATNODES_IXX */

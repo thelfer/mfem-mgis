@@ -252,6 +252,19 @@ namespace mfem_mgis {
     return efcts;
   }
 
+
+  PartialQuadratureFunctionsSet buildPartialQuadratureFunctionsSet(
+      const NonLinearEvolutionProblemImplementationBase &p,
+      const std::vector<size_type>& mids,
+      const size_type nc) {
+    auto qspaces = std::vector<std::shared_ptr<const PartialQuadratureSpace>>{};
+    qspaces.reserve(mids.size());
+    for (const auto m : mids) {
+      qspaces.push_back(p.getMaterial(m).getPartialQuadratureSpacePointer());
+    }
+    return PartialQuadratureFunctionsSet(qspaces, nc);
+  }  // end of buildPartialQuadratureFunctionsSet
+
 #endif /* MGIS_FUNCTION_SUPPORT */
 
 }  // end of namespace mfem_mgis

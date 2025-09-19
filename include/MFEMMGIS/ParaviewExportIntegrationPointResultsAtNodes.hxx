@@ -20,6 +20,9 @@
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
+#ifdef MGIS_FUNCTION_SUPPORT
+#include "MFEMMGIS/PartialQuadratureFunctionsSet.hxx"
+#endif /* MGIS_FUNCTION_SUPPORT */
 
 namespace mfem_mgis {
 
@@ -233,16 +236,59 @@ namespace mfem_mgis {
    * \param[in] n: name of the exported functions
    * \param[in] f: partial quadrature functions setx
    */
-  ParaviewExportIntegrationPointResultsAtNodesBase::ExportedFunctionsDescription
-  makeExportedFunctionsDescription(std::string_view,
-                                   const PartialQuadratureFunctionsSet &);
+  MFEM_MGIS_EXPORT ParaviewExportIntegrationPointResultsAtNodesBase::
+      ExportedFunctionsDescription
+      makeExportedFunctionsDescription(std::string_view,
+                                       const PartialQuadratureFunctionsSet &);
   /*!
    *
    */
+  MFEM_MGIS_EXPORT
   std::vector<ParaviewExportIntegrationPointResultsAtNodesBase::
                   ExportedFunctionsDescription>
   makeExportedFunctionsDescriptions(
       const std::map<std::string, const PartialQuadratureFunctionsSet &> &);
+
+  MFEM_MGIS_EXPORT PartialQuadratureFunctionsSet
+  buildPartialQuadratureFunctionsSet(
+      const NonLinearEvolutionProblemImplementationBase &,
+      const std::vector<size_type> &,
+      const size_type);
+
+  template <bool parallel>
+  struct ParaviewExportIntegrationPointPostProcessingsResultsAtNodes
+      : public PostProcessing<parallel> {
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear problem
+     * \param[in] n: name of the field
+     * \param[in] mids: material identifier
+     * \param[in] nc: number of components
+     * \param[in] fct: function used to compute the exported fields
+     * \param[in] d: output directory
+     */
+    ParaviewExportIntegrationPointPostProcessingsResultsAtNodes(
+        NonLinearEvolutionProblemImplementation<true> &,
+        std::string_view,
+        const std::vector<size_type>,
+        const size_type,
+        std::function<bool(Context &, PartialQuadratureFunction &)>,
+        std::string_view);
+    //
+    void execute(NonLinearEvolutionProblemImplementation<parallel> &p,
+                 const real t,
+                 const real dt) override;
+
+   private:
+    //! \brief exported functions
+    PartialQuadratureFunctionsSet functions;
+    //! \brief update function
+    std::function<bool(Context &, PartialQuadratureFunction &)> update_function;
+    //! \brief exporter
+    ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>
+        exporter;
+  };
+
 #endif /* MGIS_FUNCTION_SUPPORT */
 
 }  // end of namespace mfem_mgis
