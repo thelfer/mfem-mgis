@@ -58,7 +58,7 @@ jobs:
               -DMFEM_DIR=`spack location -i mfem` \
               -DHYPRE_DIR=`spack location -i hypre` \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-              -DCMAKE_PREFIX_PATH=`spack location -i tfel`        
+              -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake                 
     
     - name: Generate doxygen
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target doc-html 
