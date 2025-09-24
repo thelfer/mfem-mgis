@@ -7,7 +7,6 @@ list(APPEND MFEMMGIS_SOURCES
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
-  PartialQuadratureFunctionEvaluator.cxx
   PartialQuadratureFunctionUtilities.cxx
   Behaviour.cxx
   Material.cxx
@@ -60,6 +59,7 @@ list(APPEND MFEMMGIS_SOURCES
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES
+       PartialQuadratureFunctionEvaluator.cxx
        MechanicalPostProcessings.cxx
        PartialQuadratureFunctionsSet.cxx)
 endif(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
