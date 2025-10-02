@@ -71,10 +71,6 @@ namespace mfem_mgis {
     return e.check(eh);
   }  // end of check
 
-  constexpr void allocateWorkspace(
-      RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept {
-  }  // end of allocateWorkspace
-
   constexpr mgis::size_type getNumberOfComponents(
       const RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept {
     return 9u;
@@ -87,7 +83,13 @@ namespace mfem_mgis {
           const Material& m, const Material::StateSelection s)
       : material(m),
         thforces(getStateManager(m, s).thermodynamic_forces),
-        stage(s) {}
+        stage(s) {
+    if constexpr (ThermodynamicForcesSize != dynamic_extent) {
+      const auto& sm = getStateManager(this->material, this->stage);
+      const auto thsize = sm.thermodynamic_forces_stride;
+      this->buffer.resize(thsize);
+    }
+  }  // end of RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor
 
   template <size_type ThermodynamicForcesSize>
   bool RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
@@ -125,16 +127,6 @@ namespace mfem_mgis {
   }
 
   template <size_type ThermodynamicForcesSize>
-  void RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-      ThermodynamicForcesSize>::allocateWorkspace() {
-    if constexpr (ThermodynamicForcesSize == dynamic_extent) {
-      const auto& sm = getStateManager(this->material, this->stage);
-      const auto thsize = sm.thermodynamic_forces_stride;
-      this->buffer.resize(thsize);
-    }
-  }
-
-  template <size_type ThermodynamicForcesSize>
   auto RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
       ThermodynamicForcesSize>::operator()(const size_type i) const {
     const auto* const mf = [this, i] {
@@ -158,13 +150,6 @@ namespace mfem_mgis {
   }  // end of getSpace
 
   template <size_type ThermodynamicForcesSize>
-  inline void allocateWorkspace(
-      RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-          ThermodynamicForcesSize>& e) {
-    e.allocateWorkspace();
-  }
-
-  template <size_type ThermodynamicForcesSize>
   bool check(
       AbstractErrorHandler& eh,
       const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
@@ -183,7 +168,13 @@ namespace mfem_mgis {
   RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>::
       RotatedGradientsMatrixPartialQuadratureFunctionEvalutor(
           const Material& m, const Material::StateSelection s)
-      : material(m), gradients(getStateManager(m, s).gradients), stage(s) {}
+      : material(m), gradients(getStateManager(m, s).gradients), stage(s) {
+    if constexpr (GradientsSize == dynamic_extent) {
+      const auto& sm = getStateManager(this->material, this->stage);
+      const auto gsize = sm.gradients_stride;
+      this->buffer.resize(gsize);
+    }
+  }
 
   template <size_type GradientsSize>
   bool
@@ -218,16 +209,6 @@ namespace mfem_mgis {
       return sm.gradients_stride;
     } else {
       return GradientsSize;
-    }
-  }
-
-  template <size_type GradientsSize>
-  void RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-      GradientsSize>::allocateWorkspace() {
-    if constexpr (GradientsSize == dynamic_extent) {
-      const auto& sm = getStateManager(this->material, this->stage);
-      const auto gsize = sm.gradients_stride;
-      this->buffer.resize(gsize);
     }
   }
 

@@ -24,7 +24,6 @@ namespace mfem_mgis {
     if (!e.check(ctx)) {
       return false;
     }
-    allocateWorkspace(e);
     //
     const auto qspace = f.getPartialQuadratureSpace();
     const auto ne = qspace.getNumberOfIntegrationPoints();
@@ -54,7 +53,6 @@ namespace mfem_mgis {
     if (!e.check(ctx)) {
       return false;
     }
-    e.allocateWorkspace();
     //
     const auto qspace = f.getPartialQuadratureSpace();
     const auto ne = qspace.getNumberOfIntegrationPoints();

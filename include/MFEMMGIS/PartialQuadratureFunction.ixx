@@ -89,16 +89,35 @@ namespace mfem_mgis {
     return this->getIntegrationPointValues(e, i);
   }
 
-  inline real* PartialQuadratureFunction::data(const size_type o) {
+  inline PartialQuadratureFunctionView::PartialQuadratureFunctionView() =
+      default;
+
+  inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
+      std::shared_ptr<const PartialQuadratureSpace> s,
+      const size_type ds,
+      const size_type db,
+      const size_type dsize)
+      : ImmutablePartialQuadratureFunctionView(s, ds, db, dsize) {
+  }  // end of PartialQuadratureFunctionView
+
+  inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
+      std::shared_ptr<const PartialQuadratureSpace> s,
+      std::span<real> v,
+      const size_type db,
+      const size_type ds)
+      : ImmutablePartialQuadratureFunctionView(s, v, db, ds),
+        mutable_values(v) {}  // end of PartialQuadratureFunctionView
+
+  inline real* PartialQuadratureFunctionView::data(const size_type o) {
     return this->mutable_values.data() + this->getDataOffset(o);
   }  // end of getIntegrationPointValues
 
-  inline real& PartialQuadratureFunction::getIntegrationPointValue(
+  inline real& PartialQuadratureFunctionView::getIntegrationPointValue(
       const size_type o) {
     return *(this->mutable_values.data() + this->getDataOffset(o));
   }  // end of getIntegrationPointValues
 
-  inline std::span<real> PartialQuadratureFunction::getIntegrationPointValues(
+  inline std::span<real> PartialQuadratureFunctionView::getIntegrationPointValues(
       const size_type o) {
     return std::span<real>(this->mutable_values.data() + this->getDataOffset(o),
                            this->data_size);
@@ -106,24 +125,33 @@ namespace mfem_mgis {
 
   template <size_type N>
   inline std::span<real, N>
-  PartialQuadratureFunction::getIntegrationPointValues(const size_type o) {
+  PartialQuadratureFunctionView::getIntegrationPointValues(const size_type o) {
     return std::span<real, N>(
         this->mutable_values.data() + this->getDataOffset(o), this->data_size);
   }  // end of getIntegrationPointValues
 
-  inline std::span<real> PartialQuadratureFunction::operator()(
+  inline std::span<real> PartialQuadratureFunctionView::operator()(
       const size_type o) {
     return this->getIntegrationPointValues(o);
   }
 
-  inline std::span<real> PartialQuadratureFunction::operator()(
+  inline std::span<real> PartialQuadratureFunctionView::operator()(
       const size_type e, const size_type i) {
     return this->getIntegrationPointValues(e, i);
   }
 
-  inline std::span<real> PartialQuadratureFunction::getValues() {
+  inline std::span<real> PartialQuadratureFunctionView::getValues() {
     return this->mutable_values;
   }
+
+  inline PartialQuadratureFunctionView PartialQuadratureFunction::view() {
+    return *this;
+  }  // end of view
+
+  inline ImmutablePartialQuadratureFunctionView
+  PartialQuadratureFunction::view() const {
+    return *this;
+  }  // end of view
 
 #ifdef MGIS_FUNCTION_SUPPORT
 
@@ -132,14 +160,19 @@ namespace mfem_mgis {
     return true;
   }  // end of check
 
-  constexpr void allocateWorkspace(
-      ImmutablePartialQuadratureFunctionView&) noexcept {
-  }  // end of allocateWorkspace
-
   inline mgis::size_type getNumberOfComponents(
       const ImmutablePartialQuadratureFunctionView& f) noexcept {
     return static_cast<mgis::size_type>(f.getNumberOfComponents());
   }  // end of getNumberOfComponents
+
+  inline PartialQuadratureFunctionView view(PartialQuadratureFunction& f) {
+    return f.view();
+  }  // end of view
+
+  inline ImmutablePartialQuadratureFunctionView view(
+      const PartialQuadratureFunction& f) {
+    return f.view();
+  }  // end of view
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 

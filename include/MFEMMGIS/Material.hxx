@@ -267,8 +267,6 @@ namespace mfem_mgis {
 
   bool check(AbstractErrorHandler &, const RotationMatrixEvaluator &);
 
-  constexpr void allocateWorkspace(RotationMatrixEvaluator &) noexcept;
-
   constexpr mgis::size_type getNumberOfComponents(
       const RotationMatrixEvaluator &) noexcept;
 

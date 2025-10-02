@@ -38,9 +38,6 @@ namespace mfem_mgis {
     return e.check(eh);
   }  // end of check
 
-  constexpr void allocateWorkspace(RotationMatrixEvaluator &) noexcept {
-  }  // end of allocateWorkspace
-
   constexpr mgis::size_type getNumberOfComponents(
       const RotationMatrixEvaluator &) noexcept {
     return 9u;

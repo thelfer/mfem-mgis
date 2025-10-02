@@ -45,9 +45,6 @@ namespace mfem_mgis {
       AbstractErrorHandler&,
       const RotationMatrixPartialQuadratureFunctionEvalutor&);
 
-  constexpr void allocateWorkspace(
-      RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept;
-
   [[nodiscard]] constexpr mgis::size_type getNumberOfComponents(
       const RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept;
 
@@ -68,8 +65,6 @@ namespace mfem_mgis {
         const;
     //! \brief perform consistency checks
     [[nodiscard]] bool check(AbstractErrorHandler&) const;
-    //! \brief allocate internal workspace
-    void allocateWorkspace();
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
     // access operator
@@ -98,11 +93,6 @@ namespace mfem_mgis {
       AbstractErrorHandler&,
       const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
           ThermodynamicForcesSize>&);
-  //! \brief allocate internal workspace
-  template <size_type ThermodynamicForcesSize>
-  void allocateWorkspace(
-      RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-          ThermodynamicForcesSize>&);
   //! \brief return the number of components
   template <size_type ThermodynamicForcesSize>
   mgis::size_type getNumberOfComponents(
@@ -123,8 +113,6 @@ namespace mfem_mgis {
         const Material::StateSelection = Material::END_OF_TIME_STEP);
     //! \brief perform consistency checks
     [[nodiscard]] bool check(AbstractErrorHandler&) const;
-    //! \brief allocate internal workspace
-    void allocateWorkspace();
     //! \brief return the underlying partial quadrature space
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const;
@@ -155,10 +143,6 @@ namespace mfem_mgis {
       AbstractErrorHandler&,
       const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
           GradientsSize>&);
-  //! \brief allocate internal workspace
-  template <size_type GradientsSize>
-  void allocateWorkspace(
-      RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>&);
   //! \brief return the number of components
   template <size_type GradientsSize>
   mgis::size_type getNumberOfComponents(
