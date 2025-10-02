@@ -1,8 +1,0 @@
-var qt_operations_8hxx =
-[
-    [ "tfel::math::ComputeUnaryOperationResult< ScalarTag, UnaryOperatorTag, Quantity< UnitType, ValueType, OwnershipPolicy >, OpNeg >", "structtfel_1_1math_1_1_compute_unary_operation_result_3_01_scalar_tag_00_01_unary_operator_tag_0fa876882e5124a3c55170380c0c41e1d.html", "structtfel_1_1math_1_1_compute_unary_operation_result_3_01_scalar_tag_00_01_unary_operator_tag_0fa876882e5124a3c55170380c0c41e1d" ],
-    [ "tfel::math::ResultType< Quantity< UnitType, ValueType, OwnershipPolicy >, Quantity< UnitType, ValueType2, OwnershipPolicy2 >, OpPlus >", "structtfel_1_1math_1_1_result_type_3_01_quantity_3_01_unit_type_00_01_value_type_00_01_ownershipa72b6dced6862bfdb76c80f28cc56335.html", null ],
-    [ "tfel::math::ResultType< Quantity< UnitType, ValueType, OwnershipPolicy >, Quantity< UnitType, ValueType2, OwnershipPolicy2 >, OpMinus >", "structtfel_1_1math_1_1_result_type_3_01_quantity_3_01_unit_type_00_01_value_type_00_01_ownership5351a0fa7c5e44e9399482d760dfd419.html", null ],
-    [ "tfel::math::ResultType< Quantity< UnitType, ValueType, OwnershipPolicy >, Quantity< UnitType2, ValueType2, OwnershipPolicy2 >, OpMult >", "structtfel_1_1math_1_1_result_type_3_01_quantity_3_01_unit_type_00_01_value_type_00_01_ownership05c8ae73377b5d6ab444cda441ff7b47.html", null ],
-    [ "tfel::math::ResultType< Quantity< UnitType, ValueType, OwnershipPolicy >, Quantity< UnitType2, ValueType2, OwnershipPolicy2 >, OpDiv >", "structtfel_1_1math_1_1_result_type_3_01_quantity_3_01_unit_type_00_01_value_type_00_01_ownership73d45feb931368ef50f5532812f46f8d.html", null ]
-];
