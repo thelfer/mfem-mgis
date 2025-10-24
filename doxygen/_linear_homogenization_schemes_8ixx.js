@@ -1,0 +1,28 @@
+var _linear_homogenization_schemes_8ixx =
+[
+    [ "tfel::material::homogenization::elasticity::EllipsoidMeanLocalisator< N, StressType >", "structtfel_1_1material_1_1homogenization_1_1elasticity_1_1_ellipsoid_mean_localisator.html", null ],
+    [ "computeDiluteScheme", "_linear_homogenization_schemes_8ixx.html#a98921c3d70215225567a6a60a05e7dcd", null ],
+    [ "computeIsotropicDiluteScheme", "_linear_homogenization_schemes_8ixx.html#a94253a03a59ea63988dba7689e67175c", null ],
+    [ "computeIsotropicDiluteScheme", "_linear_homogenization_schemes_8ixx.html#a6a99aa9d7db3babde542baa5ed400751", null ],
+    [ "computeIsotropicMoriTanakaScheme", "_linear_homogenization_schemes_8ixx.html#abad026bff2594da8a4bb401e1234b1e7", null ],
+    [ "computeIsotropicMoriTanakaScheme", "_linear_homogenization_schemes_8ixx.html#a4877b4614f6f050b6cafc2517fa6fe9a", null ],
+    [ "computeIsotropicPCWScheme", "_linear_homogenization_schemes_8ixx.html#aca4b72626f9293e461fe6e4612a25a1e", null ],
+    [ "computeIsotropicPCWScheme", "_linear_homogenization_schemes_8ixx.html#a13f769cb2ebd7f5ef99a9509755c820c", null ],
+    [ "computeMoriTanakaScheme", "_linear_homogenization_schemes_8ixx.html#a3fb0176a737bb871dafbfceb5244f88c", null ],
+    [ "computeOrientedDiluteScheme", "_linear_homogenization_schemes_8ixx.html#adedbfae238b5466bdf77a407c97855e2", null ],
+    [ "computeOrientedDiluteScheme", "_linear_homogenization_schemes_8ixx.html#a29cc902c14ca9ef9dd5d574b9f508d01", null ],
+    [ "computeOrientedMoriTanakaScheme", "_linear_homogenization_schemes_8ixx.html#a81ec11d7c34717bfa2fa3fb3db6f5a29", null ],
+    [ "computeOrientedPCWScheme", "_linear_homogenization_schemes_8ixx.html#a4860c8384c43875e7e22bffa230f98ba", null ],
+    [ "computeOrientedPCWScheme", "_linear_homogenization_schemes_8ixx.html#a80c9771c8da90178b0e3d5acd6b39dda", null ],
+    [ "computePCWScheme", "_linear_homogenization_schemes_8ixx.html#a4ec9c338ecf6ce3333afe44326d6adb8", null ],
+    [ "computeSphereDiluteScheme", "_linear_homogenization_schemes_8ixx.html#aa073fd61356d8ea383f2579595ebe851", null ],
+    [ "computeSphereDiluteScheme", "_linear_homogenization_schemes_8ixx.html#a3c078a5e7eb2a6a8cefb0108ae0b61ed", null ],
+    [ "computeSphereMoriTanakaScheme", "_linear_homogenization_schemes_8ixx.html#a2a57b788a00760111604114a7666b694", null ],
+    [ "computeSphereMoriTanakaScheme", "_linear_homogenization_schemes_8ixx.html#a87c50ecb6fa4158b16eb726cf4a21362", null ],
+    [ "computeTransverseIsotropicDiluteScheme", "_linear_homogenization_schemes_8ixx.html#af6987bc297e9185149cd0ec51982a7b7", null ],
+    [ "computeTransverseIsotropicDiluteScheme", "_linear_homogenization_schemes_8ixx.html#aa3104bdb6404a95d675555e0e8151321", null ],
+    [ "computeTransverseIsotropicMoriTanakaScheme", "_linear_homogenization_schemes_8ixx.html#a74c06a3101105a79b02679f153ea7c47", null ],
+    [ "computeTransverseIsotropicMoriTanakaScheme", "_linear_homogenization_schemes_8ixx.html#af9847ee3c228933912ba34ad3bab7ac5", null ],
+    [ "computeTransverseIsotropicPCWScheme", "_linear_homogenization_schemes_8ixx.html#a1a6c262be06c5af2287a40b5a1f25d6e", null ],
+    [ "computeTransverseIsotropicPCWScheme", "_linear_homogenization_schemes_8ixx.html#a69c7758618b10fe50996838d368bba56", null ]
+];
