@@ -31,7 +31,10 @@ jobs:
       run: sudo apt-get install mpich
     - name: Install libfabric
       run: sudo apt-get install libfabric-dev
-
+    - name: Get Spack repo [required by mgis]
+      run: |
+        git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
+        spack repo add spack-repo-mfem-mgis
     - name: Install Packages
       run: |
         spack compiler find
