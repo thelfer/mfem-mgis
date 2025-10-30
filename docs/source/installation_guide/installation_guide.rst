@@ -259,23 +259,22 @@ Create a new directory and useful paths
 Download Spack, mfem-mgis, and mfem-mgis-examples (not required)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-How to download Spack:
+Before proceeding, make sure to source Spack and clear your local ``~/.spack`` repository.
+Download Spack and the git directories of ``mfem-mgis`` and ``mfem-mgis-examples``:
 
 .. code-block:: bash
 
    cd $MY_DIR
    git clone --depth=2 --branch=v1.0.1 https://github.com/spack/spack.git
+   rm -r ~/.spack
    export SPACK_ROOT=$PWD/spack
+   source ${SPACK_ROOT}/share/spack/setup-env.sh
+   cd ${SPACK_ROOT}
+   git clone --branch=develop https://github.com/spack/spack-packages.git
+   spack repo set --destination "$(PWD)/spack-packages" builtin
+   cd ..
    git clone https://github.com/thelfer/mfem-mgis.git
    git clone https://github.com/latug0/mfem-mgis-examples.git
-
-Before proceeding, make sure to source Spack and clear your local ``~/.spack`` repository (warning).
-
-
-.. code-block:: bash
-
-   rm -r ~/.spack
-   source ${SPACK_ROOT}/share/spack/setup-env.sh
 
 Create a Spack Mirror on Your Machine (Local)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -331,8 +330,9 @@ Load the required modules on Topaze:
 
 .. code-block:: bash
 
-   module load gnu/11.1.0
+   module load gnu/12.3.0
    module load mpi
+   module load cmake/3.29.6
 
 Install mfem-mgis on Topaze
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -342,21 +342,57 @@ files are automatically removed after 3 months.
 
 **Setup spack**
 
+If you had a previous installation of ``spack``, please clean the environment to avoid any conflicts 
+
+.. code-block:: bash
+
+   rm -rf ~/.spack
+
+Now extract the files and set-up the bootstrapping
+
 .. code-block:: bash
 
    cd $MY_DEST
    tar xvf archive.tar.gz
    source $PWD/spack/share/spack/setup-env.sh
+   spack repo set --destination "${PWD}/spack/spack-packages" builtin
    spack bootstrap reset -y
    spack bootstrap add --scope=site --trust local-binaries $PWD/my_bootstrap/metadata/binaries/
    spack bootstrap add --scope=site --trust local-sources $PWD/my_bootstrap/metadata/sources/
+   spack buildcache update-index $PWD/my_bootstrap/bootstrap_cache
    spack bootstrap disable --scope=site github-actions-v0.5
    spack bootstrap disable --scope=site github-actions-v0.6
    spack bootstrap disable --scope=site spack-install
    spack bootstrap root $PWD/spack/bootstrap
    spack repo add spack-repo-mfem-mgis/
+
+Now you can look for the compilers
+
+.. code-block:: bash
+   spack compiler find
+
+and remove the unnecessary ones ``spack`` might have found by editign the configuration file, e.g., 
+
+.. code-block:: bash
+
+   vim $HOME/.spack/packages.yaml
+
+Now everything is set to bootstrap
+
+.. code-block:: bash
+
    spack bootstrap now
    spack bootstrap status
+
+If everything goes well, you will obtain something like
+
+.. code-block:: bash
+
+   Spack v1.0.2 - python@3.6
+
+   [PASS] Core Functionalities
+
+   [PASS] Binary packages
 
 **Export SPACK Variables**
 
@@ -383,12 +419,13 @@ the following commands:
 
 .. code-block:: bash
 
-   module load gnu/12.3.0 mpi hwloc cmake
+   module load gnu/12.3.0 mpi hwloc cmake/3.29.6
    spack compiler find
    spack external find hwloc
    spack external find cmake
    spack external find openssh
    spack external find openmpi
+   
    spack install mfem-mgis%gcc@12.3.0
 
 Install MFEM-MGIS-example on Topaze
