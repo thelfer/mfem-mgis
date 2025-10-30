@@ -1,4 +1,0 @@
-var structcalculix_1_1_calculi_x_behaviour_handler_1_1_gradient_initialiser_without_stress_free_expansion =
-[
-    [ "BV", "structcalculix_1_1_calculi_x_behaviour_handler_1_1_gradient_initialiser_without_stress_free_expansion.html#a36ba237be02503097c96c74e98e975b5", null ]
-];

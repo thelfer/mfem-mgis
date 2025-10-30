@@ -1,4 +1,0 @@
-var _orthotropic_bidimensional_micromorphic_damage_behaviour_integrator_8hxx =
-[
-    [ "mfem_mgis::OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator", "structmfem__mgis_1_1_orthotropic_bidimensional_micromorphic_damage_behaviour_integrator.html", "structmfem__mgis_1_1_orthotropic_bidimensional_micromorphic_damage_behaviour_integrator" ]
-];

@@ -1,4 +1,0 @@
-var structtfel_1_1typetraits_1_1_real_part_type_3_01const_01tfel_1_1math_1_1_quantity_3_01_unit_type06bfe17f8b9907e94370130dabd28a13 =
-[
-    [ "type", "structtfel_1_1typetraits_1_1_real_part_type_3_01const_01tfel_1_1math_1_1_quantity_3_01_unit_type06bfe17f8b9907e94370130dabd28a13.html#a8eb04898b4504c1f8e2afc59ab0c2a4e", null ]
-];

@@ -17,6 +17,7 @@
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -47,8 +48,61 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Commented Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#polycrystal">Polycrystal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#problem-definition">Problem definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-generation">Mesh generation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mesh-generation-options">Mesh generation options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh-polycrystal-composed-of-5-crystals">Mesh Polycrystal composed of 5 crystals</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#simulation-options">Simulation options</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#main-options">Main options</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#results-post-processing">Results &amp; Post-processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#check-results">Check Results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#plot-and-compare">Plot and Compare:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#check-the-values">Check the Values</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#simulation-of-pressurized-bubbles">Simulation of pressurized bubbles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#problem-description">Problem description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#link-to-transient-fission-gas-release">Link to transient fission gas release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-test-case">The test-case</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#modify-the-geometry-for-the-single-bubble-case-and-mesh-it">Modify the geometry for the single bubble case and mesh it</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#set-up-the-physical-problem">Set-up the physical problem</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#verification-against-the-analytical-solution">Verification against the analytical solution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cermet-simulation">Cermet simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Mesh generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#small-example">Small Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#large-example">Large Example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#run-your-simulation">Run your simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#command-line-usage">Command-line Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-to-run-it">How to Run it</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#results">Results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Plot and Compare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Check the Values</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#tensiletest">TensileTest</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#description">Description:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Description:</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#problem-solved">Problem Solved</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-this-simulation">Run This Simulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#available-options">Available options</a></li>
@@ -56,26 +110,26 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ssna303-example-2d-and-3d">Ssna303 Example (2D and 3D)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#satoh">Satoh</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Description:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Problem solved</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Description:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Problem solved</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-the-simulation">Run the simulation</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#representative-volume-element-with-elastic-inclusions">Representative Volume Element with Elastic inclusions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#build-the-mesh">Build the mesh</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Run the Simulation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id4">Available options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Run the Simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id11">Available options</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id5">Problem solved</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Problem solved</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-simulation-rve-mox">How to run the simulation “RVE MOX”</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id6">Build the mesh</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">Run the simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Build the mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Run the simulation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#run-a-minimal-version-of-the-simulation">Run a minimal version of the simulation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id8">Available options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id15">Available options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#parallel-computing-mode">Parallel computing mode</a></li>
 </ul>
 </li>
@@ -84,6 +138,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#display-results-with-gnuplot">Display results with gnuplot</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 </ul>
@@ -120,18 +175,713 @@
 <p>All the examples presented in this section can be found in the git repositories: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples">https://github.com/latug0/mfem-mgis-examples</a> and <a class="reference external" href="https://github.com/rprat-pro/mm-opera-hpc">https://github.com/rprat-pro/mm-opera-hpc</a> (developed as part of operaHPC project).</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#tensiletest" id="id10">TensileTest</a></p></li>
-<li><p><a class="reference internal" href="#ssna303-example-2d-and-3d" id="id11">Ssna303 Example (2D and 3D)</a></p></li>
-<li><p><a class="reference internal" href="#satoh" id="id12">Satoh</a></p></li>
-<li><p><a class="reference internal" href="#representative-volume-element-with-elastic-inclusions" id="id13">Representative Volume Element with Elastic inclusions</a></p></li>
-<li><p><a class="reference internal" href="#representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications" id="id14">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></p></li>
+<li><p><a class="reference internal" href="#polycrystal" id="id18">Polycrystal</a></p></li>
+<li><p><a class="reference internal" href="#simulation-of-pressurized-bubbles" id="id19">Simulation of pressurized bubbles</a></p></li>
+<li><p><a class="reference internal" href="#cermet-simulation" id="id20">Cermet simulation</a></p></li>
+<li><p><a class="reference internal" href="#tensiletest" id="id21">TensileTest</a></p></li>
+<li><p><a class="reference internal" href="#ssna303-example-2d-and-3d" id="id22">Ssna303 Example (2D and 3D)</a></p></li>
+<li><p><a class="reference internal" href="#satoh" id="id23">Satoh</a></p></li>
+<li><p><a class="reference internal" href="#representative-volume-element-with-elastic-inclusions" id="id24">Representative Volume Element with Elastic inclusions</a></p></li>
+<li><p><a class="reference internal" href="#representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications" id="id25">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></p></li>
 </ul>
 </nav>
-<section id="tensiletest">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink">TensileTest</a><a class="headerlink" href="#tensiletest" title="Link to this heading"></a></h2>
-<p>website : <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex1">https://github.com/latug0/mfem-mgis-examples/tree/master/ex1</a></p>
+<section id="polycrystal">
+<h2><a class="toc-backref" href="#id18" role="doc-backlink">Polycrystal</a><a class="headerlink" href="#polycrystal" title="Link to this heading"></a></h2>
+<p>Repository: <code class="docutils literal notranslate"><span class="pre">https://github.com/rprat-pro/mm-opera-hpc/tree/main/polycrystal</span></code></p>
+<img alt="Stress-strain comparison" class="align-center" src="../_images/polycrystal.png" />
+<section id="problem-definition">
+<h3>Problem definition<a class="headerlink" href="#problem-definition" title="Link to this heading"></a></h3>
+<p>This test case illustrates the simulation of a <strong>Representative Volume Element (RVE)</strong> of a polycrystal made of uranium dioxide (UO₂). The objective is to study the mechanical response of the material under uniaxial loading. This example also implements a fixed-point algorithm that enables the simulation of a uniaxial compression/tensile test with periodic boundary conditions.</p>
+<p><strong>Boundary conditions</strong></p>
+<ul class="simple">
+<li><p>Periodic boundary conditions are applied on the RVE faces.</p></li>
+<li><p>The loading is imposed in one direction (axial component <span class="math notranslate nohighlight">\(F_{zz}\)</span> of the macroscopic deformation gradient). The off-diagonal components of the macroscopic deformation gradient are set to zero.</p></li>
+<li><p>The macroscopic unknowns <span class="math notranslate nohighlight">\(F_{xx}\)</span> and <span class="math notranslate nohighlight">\(F_{zz}\)</span> are determined via a fixed-point algorithm imposing <span class="math notranslate nohighlight">\(S_{xx}=S_{yy}=0\)</span> (macroscopic components of the Cauchy stress tensor).</p></li>
+<li><p>The main verification result is the stress-strain curve: <span class="math notranslate nohighlight">\(S_{zz}\)</span> (Cauchy) versus <span class="math notranslate nohighlight">\(F_{xx}\)</span>.</p></li>
+</ul>
+<p>Numerical and physical parameters</p>
+<ul class="simple">
+<li><p><strong>Finite element order:</strong> 1 (linear interpolation)</p></li>
+<li><p><strong>Finite element space:</strong> <span class="math notranslate nohighlight">\(H^1\)</span></p></li>
+<li><p><strong>Simulation duration:</strong> 200 s</p></li>
+<li><p><strong>Number of time steps:</strong> 600</p></li>
+</ul>
+<p><strong>Constitutive law (crystal)</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">UO₂</span></code> crystal plasticity law used in this example is described in reference <a class="footnote-reference brackets" href="#portelette2018" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, and the corresponding MFront file is available on the MMM GitHub repository. In the case of uranium dioxide, the crystal symmetry is cubic, and the corresponding orthotropic elastic properties used in the crystal plasticity law are:</p>
+<ul class="simple">
+<li><p>Young’s modulus = 222.e9 Pa</p></li>
+<li><p>Poisson’s ratio = 0.27</p></li>
+<li><p>Shear modulus = 54.e9 Pa</p></li>
+</ul>
+<p>The orthotropic basis of each grain is provided as input material data, precomputed from the grain Euler angles. The fixed-point algorithm uses the homogenized elastic properties of the polycrystal to predict the displacement gradient required to converge toward a uniaxial tensile test. These macroscopic properties are derived from the single-crystal elastic constants given above, taking the mean values of the Voigt and Reuss bounds for an isotropic polycrystal (see <cite>MacroscropicElasticMaterialProperties.cxx</cite> in the repository).</p>
+</section>
+<section id="mesh-generation">
+<h3>Mesh generation<a class="headerlink" href="#mesh-generation" title="Link to this heading"></a></h3>
+<p>This section explains how to generate a sample mesh using the <strong>Merope</strong> toolkit <a class="footnote-reference brackets" href="#josien2024" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Before running the script, ensure that the environment variable <cite>MEROPE_DIR</cite> is properly loaded:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">MEROPE_DIR</span><span class="si">}</span>/Env_Merope.sh
+</pre></div>
+</div>
+<p>Then, generate the mesh in two steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">MEROPE_DIR</span><span class="si">}</span>/Env_Merope.sh
+python3<span class="w"> </span>mesh/5crystals.py<span class="w"> </span><span class="c1"># generates 5crystals.geo</span>
+gmsh<span class="w"> </span>-3<span class="w"> </span>5crystals.geo<span class="w">     </span><span class="c1"># generates 5crystals.msh</span>
+</pre></div>
+</div>
+<p>You will obtain a 3D mesh (<cite>5crystals.msh</cite>) of a polycrystalline sample composed of 5 grains.</p>
+<section id="mesh-generation-options">
+<h4>Mesh generation options<a class="headerlink" href="#mesh-generation-options" title="Link to this heading"></a></h4>
+<p>The following parameters are set in the <code class="docutils literal notranslate"><span class="pre">mesh/5crystals.py</span></code> script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>        <span class="c1"># Dimensions of the RVE box</span>
+<span class="n">nbSpheres</span> <span class="o">=</span> <span class="mi">5</span>        <span class="c1"># Number of grains (polycrystal composed of 5 crystals)</span>
+<span class="n">distMin</span> <span class="o">=</span> <span class="mf">0.4</span>        <span class="c1"># Minimum distance between sphere centers</span>
+<span class="n">randomSeed</span> <span class="o">=</span> <span class="mi">0</span>       <span class="c1"># Random seed for reproducibility</span>
+<span class="n">MeshOrder</span> <span class="o">=</span> <span class="mi">1</span>        <span class="c1"># Polynomial order of elements</span>
+<span class="n">MeshSize</span> <span class="o">=</span> <span class="mf">0.05</span>      <span class="c1"># Target mesh size</span>
+</pre></div>
+</div>
+<p>The resulting polycrystal is composed of 5 grains.</p>
+</section>
+<section id="mesh-polycrystal-composed-of-5-crystals">
+<h4>Mesh Polycrystal composed of 5 crystals<a class="headerlink" href="#mesh-polycrystal-composed-of-5-crystals" title="Link to this heading"></a></h4>
+<img alt="../_images/5crystalsGmsh.png" class="align-center" src="../_images/5crystalsGmsh.png" />
+</section>
+</section>
+<section id="simulation-options">
+<h3>Simulation options<a class="headerlink" href="#simulation-options" title="Link to this heading"></a></h3>
+<p>The main executable for this test case is <strong>uniaxial-polycrystal</strong>. Its command-line options are:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uniaxial-polycrystal<span class="w"> </span>--help
+</pre></div>
+</div>
+<section id="main-options">
+<h4>Main options<a class="headerlink" href="#main-options" title="Link to this heading"></a></h4>
+<table class="docutils align-default" id="id16">
+<caption><span class="caption-text">Executable options</span><a class="headerlink" href="#id16" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>Print the help message and exit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--mesh</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh/5crystals.msh</span></code></p></td>
+<td><p>Mesh file to use.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--vect</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh/vectors_5crystals.txt</span></code></p></td>
+<td><p>Vector file to use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--library</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/libBehaviour.so</span></code></p></td>
+<td><p>Material library.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--behaviour</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Mono_UO2_Cosh_Jaco3</span></code></p></td>
+<td><p>Mechanical behaviour.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--order</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Finite element order (polynomial degree).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--refinement</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Mesh refinement level.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--verbosity-level</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Output verbosity level.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">&lt;double&gt;,</span> <span class="pre">--duration</span> <span class="pre">&lt;double&gt;</span></code></p></td>
+<td><p>double</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">200</span></code></p></td>
+<td><p>Simulation duration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--nstep</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">600</span></code></p></td>
+<td><p>Number of time steps.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--linear-solver</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HyprePCG</span></code></p></td>
+<td><p>Linear solver to use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--linear-solver-preconditioner</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HypreBoomerAMG</span></code></p></td>
+<td><p>Preconditioner for the linear solver. Use <code class="docutils literal notranslate"><span class="pre">none</span></code> to disable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--macroscopic-stress-output-file</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uniaxial-polycrystal.res</span></code></p></td>
+<td><p>Output file containing the evolution of the deformation gradient and the Cauchy stress.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--enable-post-processings</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Execute post-processing steps.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--enable-export-von-Mises-stress</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Export von Mises stress.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--enable-export-first_eigen_stress</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Export the first eigen stress.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To generate the grain orientation vectors, use the <code class="docutils literal notranslate"><span class="pre">randomVectorGeneration</span></code> tool provided in the distribution. This ensures a consistent and physically realistic initialization of crystallographic orientations.</p>
+</div>
+<img alt="../_images/5crystals.png" class="align-center" src="../_images/5crystals.png" />
+</section>
+</section>
+<section id="results-post-processing">
+<h3>Results &amp; Post-processing<a class="headerlink" href="#results-post-processing" title="Link to this heading"></a></h3>
+<p>You can run the simulation in parallel using MPI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">16</span><span class="w"> </span>./uniaxial-polycrystal
+</pre></div>
+</div>
+</section>
+<section id="check-results">
+<h3>Check Results<a class="headerlink" href="#check-results" title="Link to this heading"></a></h3>
+<p>By default, the simulation generates the file <code class="docutils literal notranslate"><span class="pre">uniaxial-polycrystal.res</span></code>.</p>
+<section id="plot-and-compare">
+<h4>Plot and Compare:<a class="headerlink" href="#plot-and-compare" title="Link to this heading"></a></h4>
+<p>To visualize and compare the results:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plot_polycrystal_results.py
+</pre></div>
+</div>
+<p>This script generates the figure <cite>plot_polycrystal.png</cite> (Figure 6), showing a comparison between Cast3M and MFEM-MGIS results. The Cast3M curve shows minor oscillations due to time-step discretization. The MFEM-MGIS implicit formulation (full Newton algorithm using tangent stiffness) exhibits robust quadratic convergence and excellent parallel performance.</p>
+<img alt="../_images/plot_polycrystal.png" src="../_images/plot_polycrystal.png" />
+</section>
+<section id="check-the-values">
+<h4>Check the Values<a class="headerlink" href="#check-the-values" title="Link to this heading"></a></h4>
+<p>To verify simulation results:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>check_polycrystal_restults.py
+</pre></div>
+</div>
+<p>Expected output: <code class="docutils literal notranslate"><span class="pre">Check</span> <span class="pre">PASS</span></code>.</p>
+<p>Example detailed output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>    Time     MFEM/MGIS       CAST3M  RelDiff_% Status
+ 0      1.0  6.041066e+07   63100000.0   4.451762     OK
+ 1      2.0  7.737121e+07   79000000.0   2.105167     OK
+ 2      3.0  8.327457e+07   84300000.0   1.231384     OK
+ 3      4.0  8.583679e+07   86600000.0   0.889139     OK
+ 4      5.0  8.730071e+07   87900000.0   0.686468     OK
+ ..     ...           ...          ...        ...    ...
+595  199.0  1.062465e+08  106000000.0  -0.231979     OK
+596  199.0  1.062465e+08  106000000.0  -0.231979     OK
+597  200.0  1.062661e+08  106000000.0  -0.250424     OK
+598  200.0  1.062661e+08  106000000.0  -0.250424     OK
+599  200.0  1.062661e+08  106000000.0  -0.250424     OK
+</pre></div>
+</div>
+<p>This table shows the comparison between simulated Cauchy stress values and the reference Cast3M results, with relative differences and status indicators.</p>
+</section>
+</section>
+</section>
+<section id="simulation-of-pressurized-bubbles">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink">Simulation of pressurized bubbles</a><a class="headerlink" href="#simulation-of-pressurized-bubbles" title="Link to this heading"></a></h2>
+<img alt="../_images/bubbles.png" class="align-center" src="../_images/bubbles.png" />
+<p>Repository: <code class="docutils literal notranslate"><span class="pre">https://github.com/rprat-pro/mm-opera-hpc/tree/main/bubble</span></code></p>
+<section id="problem-description">
+<h3>Problem description<a class="headerlink" href="#problem-description" title="Link to this heading"></a></h3>
+<p>The default example is one spherical porosity in a quasi-infinite medium. The boundary
+conditions for the problem are periodical, and we consider a null macroscopic displacement
+gradient.</p>
+<p>In the general case, the null periodic displacement boundary condition prevents the
+volume expansion with a non-zero macroscopic hydrostatic stress. The latter can be
+derived from the periodic elastic stress field by</p>
+<div class="math notranslate nohighlight">
+\[p_{hyd} \;=\; -\dfrac{1}{3}\,\mathrm{tr}\!\left(\dfrac{1}{V}\int_V
+\overline{\overline{\sigma}}\,\mathrm{d}V\right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(V\)</span> is the volume of the RVE and <span class="math notranslate nohighlight">\(\overline{\overline{\sigma}}\)</span>
+the Cauchy stress tensor. The corresponding internal stress field induced by an
+internal pressure equal to <span class="math notranslate nohighlight">\(p_{in}-p_{hyd}\)</span> in the porosities and a stress-free
+periodic boundary condition can be derived from the elastic superposition principle</p>
+<div class="math notranslate nohighlight">
+\[\overline{\overline{\sigma}}\!\left(p_{in}-p_{hyd}, 0\right)
+\;=\;
+\overline{\overline{\sigma}}\!\left(p_{in},p_{hyd}\right)
+\;+\; p_{hyd}\,\overline{\overline{I}}\]</div>
+<p>with <span class="math notranslate nohighlight">\(\overline{\overline{I}}\)</span> being the identity tensor.</p>
+</section>
+<section id="link-to-transient-fission-gas-release">
+<h3>Link to transient fission gas release<a class="headerlink" href="#link-to-transient-fission-gas-release" title="Link to this heading"></a></h3>
+<p>Fission gas stored in high burnup structure (HBS) porosities into nuclear fuel can be
+released due to an overfragmentation mechanism under certain conditions: we can use the
+present model to investigate this phenomenon. The fracture assessment is done based on a
+purely elastic calculation: from the stress tensor we calculate the principal stresses,
+and we assess all the physical points where the following relationship is satisfied:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_I^{\max}\big|_i (p_{in}) \;&gt;\; \sigma_R\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma_I^{\max}\big|_i (p_{in})\)</span> is the maximal value of the first principal
+stress near the bubble <span class="math notranslate nohighlight">\(i\)</span> submitted to the pressure <span class="math notranslate nohighlight">\(p_{in}\)</span> and
+<span class="math notranslate nohighlight">\(\sigma_R\)</span> the rupture stress giving the critical pressure leading to crack
+initiation. For a bubble <span class="math notranslate nohighlight">\(i\)</span>, the maximal value of the first principal stress
+<span class="math notranslate nohighlight">\(\sigma_I^{\max}\big|_i\)</span> corresponds to the maximal value at a distance
+<span class="math notranslate nohighlight">\(R+\delta\)</span> from the centre of the bubble, with <span class="math notranslate nohighlight">\(R\)</span> the radius of the bubble
+and <span class="math notranslate nohighlight">\(\delta\)</span> the distance needed to reach the first Gauss integration point around
+the bubble in the finite element mesh.</p>
+<p>The fractional fission gas release for bubbles having all the same internal pressure
+<span class="math notranslate nohighlight">\(p_{int}\)</span> can be calculated as follows</p>
+<div class="math notranslate nohighlight">
+\[FGR \;=\; \dfrac{\sum_i \left[\,V_i \mid \left(\sigma_I^{\max}\big|_i
+\left(p_{in}\right)\right) &gt; \sigma_R \right]}{\sum_{i=1}^n V_i}\]</div>
+<p>under the assumption that, just after crack initiation, its propagation occurs under an
+unstable condition, effectively enabling the release of the whole amount of gas contained
+in the bubble outside the HBS volume element.</p>
+</section>
+<section id="the-test-case">
+<h3>The test-case<a class="headerlink" href="#the-test-case" title="Link to this heading"></a></h3>
+<p>The default example is constituted by a single spherical porosity in a quasi-infinite
+medium. The finite element solution can be compared with an analytical solution giving
+the elastic stress field as a function of the internal pressure, the bubble radius, and
+the distance from the bubble. As mentioned above, the boundary conditions for the problem
+are periodical, and we consider a null macroscopic displacement gradient, which in turn
+generates a uniform compressive hydrostatic pressure on the REV. In this case with one
+porosity in a quasi-infinite medium, the compressive hydrostatic pressure is negligible,
+in agreement with the analytical solution of the equation shown above.</p>
+<section id="modify-the-geometry-for-the-single-bubble-case-and-mesh-it">
+<h4>Modify the geometry for the single bubble case and mesh it<a class="headerlink" href="#modify-the-geometry-for-the-single-bubble-case-and-mesh-it" title="Link to this heading"></a></h4>
+<p>The geometry for the test case is contained in the file <code class="docutils literal notranslate"><span class="pre">.geo</span></code> stored in the <code class="docutils literal notranslate"><span class="pre">mesh</span></code>
+folder, and considers a sphere of radius equal to 400 nm at the centre of a (periodic)
+cube of 10 µm of size. For a more handy management of the geometry and of the mesh, the
+units in the geometry file are expressed in <span class="math notranslate nohighlight">\(\mathrm{\mu m}\)</span>. One can modify it and
+use it as an input for <code class="docutils literal notranslate"><span class="pre">gmsh</span></code> to generate the computational mesh for the case by:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gmsh<span class="w"> </span>-3<span class="w"> </span>single_sphere.geo
+</pre></div>
+</div>
+<p>A file <code class="docutils literal notranslate"><span class="pre">.msh</span></code> is already provided in the folder <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, generated based on the
+aforementioned geometry file. We have seen some slight differences in the final mesh based
+on the version of <code class="docutils literal notranslate"><span class="pre">gmsh</span></code> employed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the bubble center, radius, or the surface label are modified, the corresponding data
+stored in <code class="docutils literal notranslate"><span class="pre">single_bubble.txt</span></code> must also be changed.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">single_bubble_ci.txt</span></code> is used for GitHub continuous integration.</p>
+</div>
+</section>
+</section>
+<section id="set-up-the-physical-problem">
+<h3>Set-up the physical problem<a class="headerlink" href="#set-up-the-physical-problem" title="Link to this heading"></a></h3>
+<p>The simulation considers an empty (i.e., not meshed) cavity, on whose surface we impose an
+arbitrary uniform pressure (unitary by default). The medium is described by a purely
+elastic constitutive relationship, characterized by two elastic constants:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(E = 150\ \mathrm{N}\ \mu\mathrm{m}^{-2}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\nu = 0.3\)</span></p></li>
+</ul>
+<p>The elastic modulus is rescaled to coherently describe the geometry in micrometers, rather
+than in S.I. units. This choice is done to facilitate the creation of more complex
+geometries when using <code class="docutils literal notranslate"><span class="pre">Mérope</span></code>, given the characteristic length scale of the considered
+inclusions.</p>
+<p>The geometry is meshed using quadratic elements, to better describe the spherical
+inclusions contained in the representative elementary volume (REV). Despite <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>
+allowing sub-, super-, and isoparametric analyses, we recommend to stick at least to the
+isoparametric choice (i.e., not subparametric) for the polynomial shape functions.</p>
+<p>The boundary conditions for the problem are periodical, and we consider a null macroscopic
+displacement gradient, which in turn generates a uniform compressive hydrostatic pressure
+on the REV.</p>
+<section id="parameters">
+<h4>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h4>
+<p>Command-line Usage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Usage:<span class="w"> </span>./test-bubble<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>...
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 10.0%" />
+<col style="width: 20.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>Print the help message and exit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--mesh</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh/single_sphere.msh</span></code></p></td>
+<td><p>Mesh file to use.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--library</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/libBehaviour.so</span></code></p></td>
+<td><p>Material behaviour library.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--bubble-file</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh/single_bubble.txt</span></code></p></td>
+<td><p>File containing the bubble definitions.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--order</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Finite element order (polynomial degree).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--refinement</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Refinement level of the mesh (default = 0).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--post-processing</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Run the post-processing step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--verbosity-level</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Verbosity level of the output.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The command to execute the test-case is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">6</span><span class="w"> </span>./test-bubble
+</pre></div>
+</div>
+<p>Below we show a contour plot of the <span class="math notranslate nohighlight">\(YY\)</span> component of the stress tensor (upper
+half of the cube) and of the first principal stress (bottom half of the cube).</p>
+<img alt="../_images/bubble.png" class="align-center" src="../_images/bubble.png" />
+</section>
+</section>
+<section id="verification-against-the-analytical-solution">
+<h3>Verification against the analytical solution<a class="headerlink" href="#verification-against-the-analytical-solution" title="Link to this heading"></a></h3>
+<p>The problem of a pressurized spherical inclusion in an infinite elastic medium has a
+closed-form solution for the expressions of the hoop stress as a function of the distance
+from the sphere center:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{\theta\theta}(r) \;=\; \dfrac{p_{in}\,R_b^3}{2\,r^3}\]</div>
+<p>where <span class="math notranslate nohighlight">\(p_{in}\)</span> is the internal pressure, <span class="math notranslate nohighlight">\(R_b\)</span> the bubble radius, and the
+expression holds for <span class="math notranslate nohighlight">\(r &gt; R_b\)</span>.</p>
+<p>The script available in <code class="docutils literal notranslate"><span class="pre">verification/bubble</span></code> can be used to compare the analytical
+solution to the MMM one:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>mmm_vs_analytical.py
+</pre></div>
+</div>
+<p>The comparison between the computational results and the analytical solution is showed below.</p>
+<img alt="../_images/comparison_analytical_mmm.png" class="align-center" src="../_images/comparison_analytical_mmm.png" />
+</section>
+</section>
+<section id="cermet-simulation">
+<h2><a class="toc-backref" href="#id20" role="doc-backlink">Cermet simulation</a><a class="headerlink" href="#cermet-simulation" title="Link to this heading"></a></h2>
+<img alt="../_images/cermet.png" class="align-center" src="../_images/cermet.png" />
+<p>Repository: <code class="docutils literal notranslate"><span class="pre">https://github.com/rprat-pro/mm-opera-hpc/tree/main/cermet</span></code></p>
 <section id="description">
-<h3>Description:<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
+<h3>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
+<p>This case is similar to the <code class="docutils literal notranslate"><span class="pre">UO2</span></code> polycrystal with the addition of a metallic interface
+at the grain boundary. In the Gmsh mesh each grain has a material ID (from 2 to
+<span class="math notranslate nohighlight">\(N_{\text{grain}} + 1\)</span>), as well as its orientation needed for the orthotropic
+basis. The metallic interface has the material ID equal to 1, and is considered to be made
+of an isotropic elasto-viscoplastic material. In addition to the mechanical analysis, this
+example implements a fixed-point algorithm enabling the simulation of a uniaxial
+compression/tensile test with periodic boundary conditions.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><p><strong>Boundary conditions:</strong> periodic boundary conditions are applied on the RVE faces.
+The loading is imposed in one direction, ensuring compatibility and equilibrium across
+periodic faces. More precisely, the axial component <span class="math notranslate nohighlight">\(F_{zz}\)</span> of the macroscopic
+deformation gradient is imposed. The off-diagonal components of the macroscopic
+deformation gradient are set to zero.
+The components <span class="math notranslate nohighlight">\(F_{xx}\)</span> and <span class="math notranslate nohighlight">\(F_{yy}\)</span> are the unknowns, determined via the
+fixed-point algorithm imposing null values for the components <span class="math notranslate nohighlight">\(S_{xx}\)</span> and
+<span class="math notranslate nohighlight">\(S_{yy}\)</span> of the macroscopic Cauchy stress tensor.
+The main result used for verification is a stress-strain curve with the evolution of the
+axial component <span class="math notranslate nohighlight">\(S_{zz}\)</span> of the Cauchy stress as a function of <span class="math notranslate nohighlight">\(F_{xx}\)</span>.</p></li>
+<li><p><strong>[Crystal] Constitutive law:</strong>
+The UO₂ crystal plasticity law used in the example is detailed in the reference <a class="footnote-reference brackets" href="#portelette2018" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
+The corresponding MFront file is available on the MMM GitHub repository.
+For uranium dioxide, the crystal symmetry is cubic, with the following orthotropic
+elastic properties:</p>
+<ul class="simple">
+<li><p>Young’s modulus = <span class="math notranslate nohighlight">\(222\times10^9\ \text{Pa}\)</span></p></li>
+<li><p>Poisson ratio = 0.27</p></li>
+<li><p>Shear modulus = <span class="math notranslate nohighlight">\(54\times10^9\ \text{Pa}\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>[Metallic Interface] Constitutive law:</strong>
+The Norton creep law used for the interface is derived from the elasto-viscoplastic
+properties of chromium coatings used in eATF claddings, as proposed in the literature.
+The corresponding MFront file is available on the MMM GitHub repository.</p></li>
+<li><p><strong>Elastic properties:</strong>
+- Young’s modulus = <span class="math notranslate nohighlight">\(276\times10^9\ \text{Pa}\)</span>
+- Shear modulus = <span class="math notranslate nohighlight">\(54\times10^9\ \text{Pa}\)</span></p></li>
+<li><p><strong>Norton creep law:</strong></p>
+<div class="math notranslate nohighlight">
+\[\dot{\varepsilon}_{eq} =
+\frac{A D_0 \exp\!\left(-\frac{Q}{R T}\right)}{b^2}
+\left( \frac{\sigma_{eq}}{C} \right)^n\]</div>
+<p>with the parameters:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(A = 2.5\times10^{11}\)</span> [a.u.]</p></li>
+<li><p><span class="math notranslate nohighlight">\(n = 4.75\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(Q = 3.0627\times10^{5}\)</span> [a.u.]</p></li>
+<li><p><span class="math notranslate nohighlight">\(D_0 = 1.55\times10^{-5}\)</span> [a.u.]</p></li>
+<li><p><span class="math notranslate nohighlight">\(b = 2.5\times10^{-10}\)</span> [a.u.]</p></li>
+</ul>
+</li>
+<li><p><strong>Finite element order:</strong> 1 (linear interpolation)</p></li>
+<li><p><strong>Finite element space:</strong> H1</p></li>
+<li><p><strong>Simulation duration:</strong> 200 s</p></li>
+<li><p><strong>Number of time steps:</strong> 500</p></li>
+<li><p><strong>Linear solver:</strong> HyprePCG (solver / preconditioner)</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Mesh generation<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>This section explains how to generate a sample mesh with <code class="docutils literal notranslate"><span class="pre">Merope</span></code>.</p>
+<p>Before running the script, make sure that the environment variable
+<code class="docutils literal notranslate"><span class="pre">MEROPE_DIR</span></code> is properly loaded.</p>
+<p>Then, you can generate the mesh in two steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">MEROPE_DIR</span><span class="si">}</span>/Env_Merope.sh
+python3<span class="w"> </span>mesh/5grains.py<span class="w">    </span><span class="c1"># generate 5grains.geo</span>
+gmsh<span class="w"> </span>-3<span class="w"> </span>5grains.geo<span class="w">        </span><span class="c1"># generate 5grains.msh</span>
+</pre></div>
+</div>
+<p>You will obtain a 3D mesh (<code class="docutils literal notranslate"><span class="pre">5grains.msh</span></code>) of a polycrystalline sample with 5 grains.</p>
+</section>
+<section id="options">
+<h3>Options<a class="headerlink" href="#options" title="Link to this heading"></a></h3>
+<p><strong>Mesh Generation Examples</strong></p>
+<p>The mesh can be customized by adjusting the input parameters in the Python script.</p>
+<p>Below are two examples:</p>
+<section id="small-example">
+<h4>Small Example<a class="headerlink" href="#small-example" title="Link to this heading"></a></h4>
+<p>This setup generates a small polycrystalline mesh (Gmsh version <code class="docutils literal notranslate"><span class="pre">11.1</span></code>):</p>
+<ul class="simple">
+<li><p>5 grains</p></li>
+<li><p>12,992 nodes</p></li>
+<li><p>88,687 elements</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">nbSpheres</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">distMin</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">randomSeed</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">layer</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">MeshOrder</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">MeshSize</span> <span class="o">=</span> <span class="mf">0.05</span>
+</pre></div>
+</div>
+<img alt="Cermet Case (5 grains)" class="align-center" src="../_images/cermet-5grains.png" />
+<img alt="Cermet Mesh Visualization" class="align-center" src="../_images/cermet-5grains-gmsh.png" />
+</section>
+<section id="large-example">
+<h4>Large Example<a class="headerlink" href="#large-example" title="Link to this heading"></a></h4>
+<p>This setup generates a realistic polycrystalline mesh with:</p>
+<ul class="simple">
+<li><p>250 grains</p></li>
+<li><p>12,913,361 nodes</p></li>
+<li><p>86,213,779 elements</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">nbSpheres</span> <span class="o">=</span> <span class="mi">250</span>
+<span class="n">distMin</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">randomSeed</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">layer</span> <span class="o">=</span> <span class="mf">0.04</span>
+<span class="n">MeshOrder</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">MeshSize</span> <span class="o">=</span> <span class="mf">0.02</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="run-your-simulation">
+<h3>Run your simulation<a class="headerlink" href="#run-your-simulation" title="Link to this heading"></a></h3>
+<section id="command-line-usage">
+<h4>Command-line Usage<a class="headerlink" href="#command-line-usage" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Usage:<span class="w"> </span>./cermet<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>...
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.8%" />
+<col style="width: 8.3%" />
+<col style="width: 20.8%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>Print the help message and exit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--mesh</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh/5grains.msh</span></code></p></td>
+<td><p>Mesh file to use.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--order</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Finite element order (polynomial degree).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--refinement</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Refinement level of the mesh (default = 1).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--post-processing</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Run the post-processing step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--verbosity-level</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Verbosity level of the output.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">&lt;double&gt;,</span> <span class="pre">--duration</span> <span class="pre">&lt;double&gt;</span></code></p></td>
+<td><p>double</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">200</span></code></p></td>
+<td><p>Duration of the simulation (default = 5).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--nstep</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">400</span></code></p></td>
+<td><p>Number of simulation steps (default = 40).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--file</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">vectors_5grains.txt</span></code></p></td>
+<td><p>Vector file to use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--macroscopic-stress-output-file</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cermet.res</span></code></p></td>
+<td><p>Main output file containing:
+- Evolution of the diagonal components of the deformation gradient.
+- Evolution of the diagonal components of the Cauchy stress.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-to-run-it">
+<h4>How to Run it<a class="headerlink" href="#how-to-run-it" title="Link to this heading"></a></h4>
+<p>You can run the simulation in parallel using MPI.
+Below are two examples.</p>
+<p><strong>Basic Test</strong></p>
+<p>Runs a short simulation with:</p>
+<ul class="simple">
+<li><p>Duration = 0.5 s</p></li>
+<li><p>1 timestep</p></li>
+<li><p>Mesh = 5grains.msh</p></li>
+<li><p>Refinement level = 0</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./cermet<span class="w"> </span>--duration<span class="w"> </span><span class="m">0</span>.5<span class="w"> </span>--nstep<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p><strong>Full Test</strong></p>
+<p>Runs a longer simulation with:</p>
+<ul class="simple">
+<li><p>Duration = 200 s</p></li>
+<li><p>400 timesteps</p></li>
+<li><p>Custom mesh (<code class="docutils literal notranslate"><span class="pre">yourmesh.msh</span></code>)</p></li>
+<li><p>Refinement level = 1</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./cermet<span class="w"> </span>--duration<span class="w"> </span><span class="m">200</span><span class="w"> </span>--nstep<span class="w"> </span><span class="m">400</span><span class="w"> </span>-r<span class="w"> </span><span class="m">1</span><span class="w"> </span>--mesh<span class="w"> </span>yourmesh.msh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="results">
+<h3>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h3>
+<p>By default, the simulation generates the file <code class="docutils literal notranslate"><span class="pre">cermet.res</span></code> when running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./cermet
+</pre></div>
+</div>
+<p>To validate the results, the Cauchy stress component in the z-direction
+(<span class="math notranslate nohighlight">\(\overline{\sigma}_{zz}\)</span>) can be compared with reference values obtained from
+Cast3M.</p>
+<section id="id5">
+<h4>Plot and Compare<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<p>To visualize and compare the results, run the following Python script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plot_cermet_results.py
+</pre></div>
+</div>
+<p>This script generates a figure named <code class="docutils literal notranslate"><span class="pre">plot_cermet.png</span></code> as shown below.
+In this figure, we observe good agreement between Cast3M and MFEM-MGIS results.
+As observed for the polycrystal test case, there are some oscillations in the Cast3M
+solution, which is of poorer quality compared to the MFEM-MGIS results.
+The main conclusion is that the implicit formulation of MFEM-MGIS (full Newton algorithm
+using the tangent stiffness) is highly performant—thanks to quadratic convergence and
+parallelization—and provides a high-quality solution.
+For verification, the number of time steps has been significantly increased to minimize
+the oscillations observed in Cast3M.</p>
+<img alt="Comparison MFEM-MGIS vs Cast3M" class="align-center" src="../_images/plot_cermet.png" />
+</section>
+<section id="id6">
+<h4>Check the Values<a class="headerlink" href="#id6" title="Link to this heading"></a></h4>
+<p>To verify the simulation results, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">check_cermet_restults</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The expected output is: <code class="docutils literal notranslate"><span class="pre">Check</span> <span class="pre">PASS</span></code>.</p>
+<p>Example of the detailed output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>      Time     MFEM/MGIS      CAST3M  RelDiff_% Status
+0      0.4  2.837174e+07  29462000.0   3.842755     OK
+1      0.8  4.101172e+07  41798000.0   1.917200     OK
+2      1.2  4.674008e+07  47113000.0   0.797856     OK
+3      1.6  5.042402e+07  50687000.0   0.521535     OK
+4      2.0  5.321536e+07  53452000.0   0.444677     OK
+..     ...           ...         ...        ...    ...
+495  198.4  8.775101e+07  87802000.0   0.058103     OK
+496  198.8  8.775917e+07  87724000.0  -0.040076     OK
+497  199.2  8.776730e+07  87804000.0   0.041820     OK
+498  199.6  8.777539e+07  87814000.0   0.043988     OK
+499  200.0  8.778345e+07  87737000.0  -0.052917     OK
+
+                        [500 rows x 5 columns]
+                        Check PASS.
+</pre></div>
+</div>
+<p>This table shows the comparison between the simulated Cauchy stress values and the
+reference Cast3M results, along with the relative difference and a status check.</p>
+</section>
+</section>
+</section>
+<section id="tensiletest">
+<h2><a class="toc-backref" href="#id21" role="doc-backlink">TensileTest</a><a class="headerlink" href="#tensiletest" title="Link to this heading"></a></h2>
+<p>website : <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex1">https://github.com/latug0/mfem-mgis-examples/tree/master/ex1</a></p>
+<section id="id7">
+<h3>Description:<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <figure class="align-default">
 <img alt="Illustration of the start of the TensileTest simulation." src="../_images/ex1Start.png" />
 </figure>
@@ -214,7 +964,7 @@ inclusion.msh)</p></td>
 </section>
 </section>
 <section id="ssna303-example-2d-and-3d">
-<h2><a class="toc-backref" href="#id11" role="doc-backlink">Ssna303 Example (2D and 3D)</a><a class="headerlink" href="#ssna303-example-2d-and-3d" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id22" role="doc-backlink">Ssna303 Example (2D and 3D)</a><a class="headerlink" href="#ssna303-example-2d-and-3d" title="Link to this heading"></a></h2>
 <p>This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on a notched beam modeled by finite-strain plastic behavior. See the tutorial section.</p>
 <ul class="simple">
 <li><p>website 2D example: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex2">https://github.com/latug0/mfem-mgis-examples/tree/master/ex2</a></p></li>
@@ -228,17 +978,17 @@ inclusion.msh)</p></td>
 </figure>
 </section>
 <section id="satoh">
-<h2><a class="toc-backref" href="#id12" role="doc-backlink">Satoh</a><a class="headerlink" href="#satoh" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id23" role="doc-backlink">Satoh</a><a class="headerlink" href="#satoh" title="Link to this heading"></a></h2>
 <p>website: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex5">https://github.com/latug0/mfem-mgis-examples/tree/master/ex5</a></p>
-<section id="id1">
-<h3>Description:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="id8">
+<h3>Description:<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <p>Modelling plate of length 1 in plane strain clamped on the left and right boundaries and submitted to a parabolic thermal gradient along the x-axis. (source code 5)</p>
 <figure class="align-default">
 <img alt="Illustration of the displacement of the plate." src="../_images/SatohTest.png" />
 </figure>
 </section>
-<section id="id2">
-<h3>Problem solved<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id9">
+<h3>Problem solved<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>This test models a 2D plate of lenght 1 in plane strain clamped on the left
 and right boundaries and submitted to a parabolic thermal gradient along the
 x-axis:
@@ -277,7 +1027,7 @@ Element:
 </section>
 </section>
 <section id="representative-volume-element-with-elastic-inclusions">
-<h2><a class="toc-backref" href="#id13" role="doc-backlink">Representative Volume Element with Elastic inclusions</a><a class="headerlink" href="#representative-volume-element-with-elastic-inclusions" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id24" role="doc-backlink">Representative Volume Element with Elastic inclusions</a><a class="headerlink" href="#representative-volume-element-with-elastic-inclusions" title="Link to this heading"></a></h2>
 <p>Simulation of a Representative Volume Element (RVE) with a non-linear elastic behavior law. A geometry mesh is provided : “inclusions_49.geo”. The mesh can be generated using the following command: gmsh -3 inclusions_49.geo. By modifying the parameters within the .geo file, such as the number of spheres and the size of the element mesh, you can control and customize the simulation accordingly. (code source: ex6)</p>
 <figure class="align-default">
 <img alt="Slice of a RVE with 49 spheres." src="../_images/ex6half.png" />
@@ -293,13 +1043,13 @@ gmsh<span class="w"> </span>-3<span class="w"> </span>inclusions_49.geo
 </pre></div>
 </div>
 </section>
-<section id="id3">
-<h3>Run the Simulation<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<section id="id10">
+<h3>Run the Simulation<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./rve<span class="w"> </span>--mesh<span class="w"> </span>inclusions_49.msh<span class="w"> </span>--verbosity-level<span class="w"> </span><span class="m">0</span>
 </pre></div>
 </div>
-<section id="id4">
-<h4>Available options<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<section id="id11">
+<h4>Available options<a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
 <table class="docutils align-default">
@@ -332,13 +1082,13 @@ inclusion.msh)</p></td>
 </section>
 </section>
 <section id="representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications">
-<h2><a class="toc-backref" href="#id14" role="doc-backlink">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a><a class="headerlink" href="#representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id25" role="doc-backlink">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a><a class="headerlink" href="#representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications" title="Link to this heading"></a></h2>
 <p>This simulation represents an RVE of MOx (Mixed Oxide) material under
 uniform macroscopic deformation. The aim of this simulation is to
 reproduce and compare the results obtained by (Fauque et al., 2021;
 Masson et al., 2020) who used an FFT method. (source code: ex7)</p>
-<section id="id5">
-<h3>Problem solved<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="id12">
+<h3>Problem solved<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Problem : RVE MOx 2 phases with elasto-viscoplastic behavior laws
 
 Parameters :
@@ -369,18 +1119,18 @@ Element :
 - Order 2
 </pre></div>
 </div>
-<figure class="align-default" id="id9">
+<figure class="align-default" id="id17">
 <img alt="Illustration of a RVE with 634 spheres after 5 seconds." src="../_images/mox-order2.png" />
 <figcaption>
-<p><span class="caption-text">Illustration of a RVE with 634 spheres after 5 seconds.</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+<p><span class="caption-text">Illustration of a RVE with 634 spheres after 5 seconds.</span><a class="headerlink" href="#id17" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="how-to-run-the-simulation-rve-mox">
 <h3>How to run the simulation “RVE MOX”<a class="headerlink" href="#how-to-run-the-simulation-rve-mox" title="Link to this heading"></a></h3>
 </section>
-<section id="id6">
-<h3>Build the mesh<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id13">
+<h3>Build the mesh<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <p>The mesh is generated with MEROPE and GMSH through the following steps:</p>
 <ul class="simple">
 <li><p>First step, use MEROPE to generate a <code class="docutils literal notranslate"><span class="pre">.geo</span></code> file using the RSA
@@ -399,8 +1149,8 @@ gmsh<span class="w"> </span>-3<span class="w"> </span>OneSphere.geo
 </pre></div>
 </div>
 </section>
-<section id="id7">
-<h3>Run the simulation<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id14">
+<h3>Run the simulation<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <section id="run-a-minimal-version-of-the-simulation">
 <h4>Run a minimal version of the simulation<a class="headerlink" href="#run-a-minimal-version-of-the-simulation" title="Link to this heading"></a></h4>
 <p>In order to run the simulation in sequential computing mode, use the
@@ -414,8 +1164,8 @@ command line:</p>
 </pre></div>
 </div>
 </section>
-<section id="id8">
-<h4>Available options<a class="headerlink" href="#id8" title="Link to this heading"></a></h4>
+<section id="id15">
+<h4>Available options<a class="headerlink" href="#id15" title="Link to this heading"></a></h4>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
 <table class="docutils align-default">
@@ -500,6 +1250,24 @@ gnuplot&gt;<span class="w"> </span>replot<span class="w"> </span><span class="s2
 </pre></div>
 </div>
 </section>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="josien2024" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Josien, M.
+<em>Mérope: A microstructure generator for simulation of heterogeneous materials.</em>
+<em>Journal of Computational Science</em>, <strong>81</strong>, 102359 (2024).</p>
+</aside>
+<aside class="footnote brackets" id="portelette2018" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p>Portelette, L., Amodeo, J., Madec, R., <em>et al.</em>
+<em>Crystal viscoplastic modeling of UO₂ single crystal.</em>
+<em>Journal of Nuclear Materials</em>, <strong>510</strong>, 635–643 (2018).</p>
+</aside>
+</aside>
 </section>
 </section>
 </section>
