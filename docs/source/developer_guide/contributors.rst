@@ -6,3 +6,4 @@ Contributors
 - Guillaume Latu (Computer science, HPC)
 - Raphaël Prat (Computer science, HPC)
 - Maxence Wangermez (Mechanics)
+- Tommaso Barani (Physicist)
