@@ -248,6 +248,218 @@ References
 [2] PORTELETTE, Luc, AMODEO, Jonathan, MADEC, Ronan, et al. *Crystal viscoplastic modeling of UO2 single crystal*. Journal of Nuclear Materials, 2018, vol. 510, p. 635-643.
 
 
+Simulation of pressurized bubbles
+=================================
+
+.. image:: img/bubbles.png
+   :align: center
+
+Repository: ``https://github.com/rprat-pro/mm-opera-hpc/tree/main/bubble``
+
+Problem description
+-------------------
+
+The default example is one spherical porosity in a quasi-infinite medium. The boundary
+conditions for the problem are periodical, and we consider a null macroscopic displacement
+gradient.
+
+In the general case, the null periodic displacement boundary condition prevents the
+volume expansion with a non-zero macroscopic hydrostatic stress. The latter can be
+derived from the periodic elastic stress field by
+
+.. math::
+
+   p_{hyd} \;=\; -\dfrac{1}{3}\,\mathrm{tr}\!\left(\dfrac{1}{V}\int_V
+   \overline{\overline{\sigma}}\,\mathrm{d}V\right)
+
+where :math:`V` is the volume of the RVE and :math:`\overline{\overline{\sigma}}`
+the Cauchy stress tensor. The corresponding internal stress field induced by an
+internal pressure equal to :math:`p_{in}-p_{hyd}` in the porosities and a stress-free
+periodic boundary condition can be derived from the elastic superposition principle
+
+.. math::
+
+   \overline{\overline{\sigma}}\!\left(p_{in}-p_{hyd}, 0\right)
+   \;=\;
+   \overline{\overline{\sigma}}\!\left(p_{in},p_{hyd}\right)
+   \;+\; p_{hyd}\,\overline{\overline{I}}
+
+with :math:`\overline{\overline{I}}` being the identity tensor.
+
+Link to transient fission gas release
+-------------------------------------
+
+Fission gas stored in high burnup structure (HBS) porosities into nuclear fuel can be
+released due to an overfragmentation mechanism under certain conditions: we can use the
+present model to investigate this phenomenon. The fracture assessment is done based on a
+purely elastic calculation: from the stress tensor we calculate the principal stresses,
+and we assess all the physical points where the following relationship is satisfied:
+
+.. math::
+
+   \sigma_I^{\max}\big|_i (p_{in}) \;>\; \sigma_R
+
+where :math:`\sigma_I^{\max}\big|_i (p_{in})` is the maximal value of the first principal
+stress near the bubble :math:`i` submitted to the pressure :math:`p_{in}` and
+:math:`\sigma_R` the rupture stress giving the critical pressure leading to crack
+initiation. For a bubble :math:`i`, the maximal value of the first principal stress
+:math:`\sigma_I^{\max}\big|_i` corresponds to the maximal value at a distance
+:math:`R+\delta` from the centre of the bubble, with :math:`R` the radius of the bubble
+and :math:`\delta` the distance needed to reach the first Gauss integration point around
+the bubble in the finite element mesh.
+
+The fractional fission gas release for bubbles having all the same internal pressure
+:math:`p_{int}` can be calculated as follows
+
+.. math::
+
+   FGR \;=\; \dfrac{\sum_i \left[\,V_i \mid \left(\sigma_I^{\max}\big|_i
+   \left(p_{in}\right)\right) > \sigma_R \right]}{\sum_{i=1}^n V_i}
+
+under the assumption that, just after crack initiation, its propagation occurs under an
+unstable condition, effectively enabling the release of the whole amount of gas contained
+in the bubble outside the HBS volume element.
+
+The test-case
+-------------
+
+The default example is constituted by a single spherical porosity in a quasi-infinite
+medium. The finite element solution can be compared with an analytical solution giving
+the elastic stress field as a function of the internal pressure, the bubble radius, and
+the distance from the bubble. As mentioned above, the boundary conditions for the problem
+are periodical, and we consider a null macroscopic displacement gradient, which in turn
+generates a uniform compressive hydrostatic pressure on the REV. In this case with one
+porosity in a quasi-infinite medium, the compressive hydrostatic pressure is negligible,
+in agreement with the analytical solution of the equation shown above.
+
+Modify the geometry for the single bubble case and mesh it
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The geometry for the test case is contained in the file ``.geo`` stored in the ``mesh``
+folder, and considers a sphere of radius equal to 400 nm at the centre of a (periodic)
+cube of 10 µm of size. For a more handy management of the geometry and of the mesh, the
+units in the geometry file are expressed in :math:`\mathrm{\mu m}`. One can modify it and
+use it as an input for ``gmsh`` to generate the computational mesh for the case by::
+
+   gmsh -3 single_sphere.geo
+
+A file ``.msh`` is already provided in the folder ``mesh``, generated based on the
+aforementioned geometry file. We have seen some slight differences in the final mesh based
+on the version of ``gmsh`` employed.
+
+.. note::
+   If the bubble center, radius, or the surface label are modified, the corresponding data
+   stored in ``single_bubble.txt`` must also be changed.
+
+.. note::
+   ``single_bubble_ci.txt`` is used for GitHub continuous integration.
+
+Set-up the physical problem
+---------------------------
+
+The simulation considers an empty (i.e., not meshed) cavity, on whose surface we impose an
+arbitrary uniform pressure (unitary by default). The medium is described by a purely
+elastic constitutive relationship, characterized by two elastic constants:
+
+- :math:`E = 150\ \mathrm{N}\ \mu\mathrm{m}^{-2}`
+- :math:`\nu = 0.3`
+
+The elastic modulus is rescaled to coherently describe the geometry in micrometers, rather
+than in S.I. units. This choice is done to facilitate the creation of more complex
+geometries when using ``Mérope``, given the characteristic length scale of the considered
+inclusions.
+
+The geometry is meshed using quadratic elements, to better describe the spherical
+inclusions contained in the representative elementary volume (REV). Despite ``MFEM``
+allowing sub-, super-, and isoparametric analyses, we recommend to stick at least to the
+isoparametric choice (i.e., not subparametric) for the polynomial shape functions.
+
+The boundary conditions for the problem are periodical, and we consider a null macroscopic
+displacement gradient, which in turn generates a uniform compressive hydrostatic pressure
+on the REV.
+
+Parameters
+^^^^^^^^^^
+
+Command-line Usage::
+
+   Usage: ./test-bubble [options] ...
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 10 20 50
+
+   * - Option
+     - Type
+     - Default
+     - Description
+   * - ``-h, --help``
+     - —
+     - —
+     - Print the help message and exit.
+   * - ``-m <string>, --mesh <string>``
+     - string
+     - ``mesh/single_sphere.msh``
+     - Mesh file to use.
+   * - ``-l <string>, --library <string>``
+     - string
+     - ``src/libBehaviour.so``
+     - Material behaviour library.
+   * - ``-f <string>, --bubble-file <string>``
+     - string
+     - ``mesh/single_bubble.txt``
+     - File containing the bubble definitions.
+   * - ``-o <int>, --order <int>``
+     - int
+     - ``2``
+     - Finite element order (polynomial degree).
+   * - ``-r <int>, --refinement <int>``
+     - int
+     - ``0``
+     - Refinement level of the mesh (default = 0).
+   * - ``-p <int>, --post-processing <int>``
+     - int
+     - ``1``
+     - Run the post-processing step.
+   * - ``-v <int>, --verbosity-level <int>``
+     - int
+     - ``0``
+     - Verbosity level of the output.
+
+The command to execute the test-case is::
+
+   mpirun -n 6 ./test-bubble
+
+Below we show a contour plot of the :math:`YY` component of the stress tensor (upper
+half of the cube) and of the first principal stress (bottom half of the cube).
+
+.. image:: img/bubble.png
+   :align: center
+
+Verification against the analytical solution
+--------------------------------------------
+
+The problem of a pressurized spherical inclusion in an infinite elastic medium has a
+closed-form solution for the expressions of the hoop stress as a function of the distance
+from the sphere center:
+
+.. math::
+
+   \sigma_{\theta\theta}(r) \;=\; \dfrac{p_{in}\,R_b^3}{2\,r^3}
+
+where :math:`p_{in}` is the internal pressure, :math:`R_b` the bubble radius, and the
+expression holds for :math:`r > R_b`.
+
+The script available in ``verification/bubble`` can be used to compare the analytical
+solution to the MMM one::
+
+   python3 mmm_vs_analytical.py
+
+The comparison between the computational results and the analytical solution is showed below.
+
+.. image:: img/comparison_analytical_mmm.png
+   :align: center
+
 
 TensileTest
 ===========
