@@ -357,7 +357,7 @@ The simulation considers an empty (i.e., not meshed) cavity, on whose surface we
 arbitrary uniform pressure (unitary by default). The medium is described by a purely
 elastic constitutive relationship, characterized by two elastic constants:
 
-- :math:`E = 150\ \mathrm{N}\ \mu\mathrm{m}^{-2}`
+- :math:`E = 150\ \mathrm{N}\ \mu\mathrm{m}^{-3}`
 - :math:`\nu = 0.3`
 
 The elastic modulus is rescaled to coherently describe the geometry in micrometers, rather
