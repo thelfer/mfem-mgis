@@ -369,6 +369,7 @@ Now extract the files and set-up the bootstrapping
 Now you can look for the compilers
 
 .. code-block:: bash
+
    spack compiler find
 
 and remove the unnecessary ones ``spack`` might have found by editign the configuration file, e.g., 
