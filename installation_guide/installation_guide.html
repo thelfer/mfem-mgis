@@ -328,17 +328,19 @@ these steps to get started.</p>
 </section>
 <section id="download-spack-mfem-mgis-and-mfem-mgis-examples-not-required">
 <h3>Download Spack, mfem-mgis, and mfem-mgis-examples (not required)<a class="headerlink" href="#download-spack-mfem-mgis-and-mfem-mgis-examples-not-required" title="Link to this heading"></a></h3>
-<p>How to download Spack:</p>
+<p>Before proceeding, make sure to source Spack and clear your local <code class="docutils literal notranslate"><span class="pre">~/.spack</span></code> repository.
+Download Spack and the git directories of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> and <code class="docutils literal notranslate"><span class="pre">mfem-mgis-examples</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$MY_DIR</span>
 git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="o">=</span><span class="m">2</span><span class="w"> </span>--branch<span class="o">=</span>v1.0.1<span class="w"> </span>https://github.com/spack/spack.git
+rm<span class="w"> </span>-r<span class="w"> </span>~/.spack
 <span class="nb">export</span><span class="w"> </span><span class="nv">SPACK_ROOT</span><span class="o">=</span><span class="nv">$PWD</span>/spack
+<span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>/share/spack/setup-env.sh
+<span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>
+git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="o">=</span>develop<span class="w"> </span>https://github.com/spack/spack-packages.git
+spack<span class="w"> </span>repo<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--destination<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>PWD<span class="k">)</span><span class="s2">/spack-packages&quot;</span><span class="w"> </span><span class="nb">builtin</span>
+<span class="nb">cd</span><span class="w"> </span>..
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/thelfer/mfem-mgis.git
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/latug0/mfem-mgis-examples.git
-</pre></div>
-</div>
-<p>Before proceeding, make sure to source Spack and clear your local <code class="docutils literal notranslate"><span class="pre">~/.spack</span></code> repository (warning).</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-r<span class="w"> </span>~/.spack
-<span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>/share/spack/setup-env.sh
 </pre></div>
 </div>
 </section>
@@ -380,8 +382,9 @@ scp<span class="w"> </span>archive.tar.gz<span class="w"> </span><span class="nv
 </pre></div>
 </div>
 <p>Load the required modules on Topaze:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>gnu/11.1.0
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>gnu/12.3.0
 module<span class="w"> </span>load<span class="w"> </span>mpi
+module<span class="w"> </span>load<span class="w"> </span>cmake/3.29.6
 </pre></div>
 </div>
 </section>
@@ -390,19 +393,45 @@ module<span class="w"> </span>load<span class="w"> </span>mpi
 <p>Note that the installation is performed in your scratch directory, and
 files are automatically removed after 3 months.</p>
 <p><strong>Setup spack</strong></p>
+<p>If you had a previous installation of <code class="docutils literal notranslate"><span class="pre">spack</span></code>, please clean the environment to avoid any conflicts</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-rf<span class="w"> </span>~/.spack
+</pre></div>
+</div>
+<p>Now extract the files and set-up the bootstrapping</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$MY_DEST</span>
 tar<span class="w"> </span>xvf<span class="w"> </span>archive.tar.gz
 <span class="nb">source</span><span class="w"> </span><span class="nv">$PWD</span>/spack/share/spack/setup-env.sh
+spack<span class="w"> </span>repo<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--destination<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/spack/spack-packages&quot;</span><span class="w"> </span><span class="nb">builtin</span>
 spack<span class="w"> </span>bootstrap<span class="w"> </span>reset<span class="w"> </span>-y
 spack<span class="w"> </span>bootstrap<span class="w"> </span>add<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>--trust<span class="w"> </span>local-binaries<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/metadata/binaries/
 spack<span class="w"> </span>bootstrap<span class="w"> </span>add<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>--trust<span class="w"> </span>local-sources<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/metadata/sources/
+spack<span class="w"> </span>buildcache<span class="w"> </span>update-index<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/bootstrap_cache
 spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>github-actions-v0.5
 spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>github-actions-v0.6
 spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>spack-install
 spack<span class="w"> </span>bootstrap<span class="w"> </span>root<span class="w"> </span><span class="nv">$PWD</span>/spack/bootstrap
 spack<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>spack-repo-mfem-mgis/
-spack<span class="w"> </span>bootstrap<span class="w"> </span>now
+</pre></div>
+</div>
+<p>Now you can look for the compilers</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>compiler<span class="w"> </span>find
+</pre></div>
+</div>
+<p>and remove the unnecessary ones <code class="docutils literal notranslate"><span class="pre">spack</span></code> might have found by editign the configuration file, e.g.,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vim<span class="w"> </span><span class="nv">$HOME</span>/.spack/packages.yaml
+</pre></div>
+</div>
+<p>Now everything is set to bootstrap</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>bootstrap<span class="w"> </span>now
 spack<span class="w"> </span>bootstrap<span class="w"> </span>status
+</pre></div>
+</div>
+<p>If everything goes well, you will obtain something like</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Spack<span class="w"> </span>v1.0.2<span class="w"> </span>-<span class="w"> </span>python@3.6
+
+<span class="o">[</span>PASS<span class="o">]</span><span class="w"> </span>Core<span class="w"> </span>Functionalities
+
+<span class="o">[</span>PASS<span class="o">]</span><span class="w"> </span>Binary<span class="w"> </span>packages
 </pre></div>
 </div>
 <p><strong>Export SPACK Variables</strong></p>
@@ -422,12 +451,13 @@ spack<span class="w"> </span>mirror<span class="w"> </span>add<span class="w"> <
 </pre></div>
 </div>
 <p><strong>Run installation</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>gnu/12.3.0<span class="w"> </span>mpi<span class="w"> </span>hwloc<span class="w"> </span>cmake
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>gnu/12.3.0<span class="w"> </span>mpi<span class="w"> </span>hwloc<span class="w"> </span>cmake/3.29.6
 spack<span class="w"> </span>compiler<span class="w"> </span>find
 spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>hwloc
 spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>cmake
 spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>openssh
 spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>openmpi
+
 spack<span class="w"> </span>install<span class="w"> </span>mfem-mgis%gcc@12.3.0
 </pre></div>
 </div>
