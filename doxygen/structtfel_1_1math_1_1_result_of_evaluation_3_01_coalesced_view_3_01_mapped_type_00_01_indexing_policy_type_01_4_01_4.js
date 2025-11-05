@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1_result_of_evaluation_3_01_coalesced_view_3_01_mapped_type_00_01_indexing_policy_type_01_4_01_4 =
-[
-    [ "type", "structtfel_1_1math_1_1_result_of_evaluation_3_01_coalesced_view_3_01_mapped_type_00_01_indexing_policy_type_01_4_01_4.html#a169c681cf60fce0940c61f13e1fe3f0e", null ]
-];

@@ -1,5 +1,0 @@
-var structtfel_1_1math_1_1_fixed_size_array_derivative_traits_3_01_fixed_size_array_derivative_3_01_array1_00_01_array2_01_4_01_4 =
-[
-    [ "type1", "structtfel_1_1math_1_1_fixed_size_array_derivative_traits_3_01_fixed_size_array_derivative_3_01_array1_00_01_array2_01_4_01_4.html#a3eb6636155c31258e148244131732dda", null ],
-    [ "type2", "structtfel_1_1math_1_1_fixed_size_array_derivative_traits_3_01_fixed_size_array_derivative_3_01_array1_00_01_array2_01_4_01_4.html#a9e5e83380c4f99e84259cc352a3bf1a9", null ]
-];
