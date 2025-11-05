@@ -372,7 +372,7 @@ Now you can look for the compilers
 
    spack compiler find
 
-and remove the unnecessary ones ``spack`` might have found by editign the configuration file, e.g., 
+and remove the unnecessary ones ``spack`` might have found by editing the configuration file, e.g., 
 
 .. code-block:: bash
 
