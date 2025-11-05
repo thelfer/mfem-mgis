@@ -254,7 +254,7 @@ Create a new directory and useful paths
    mkdir topaze-dir && cd topaze-dir
    export MY_DIR=$PWD
    export MY_LOG=YOURLOGIN
-   export MY_DEST=/ccc/scratch/cont002/den/YOURLOGIN/mini-test
+   export MY_DEST=/ccc/scratch/cont002/den/${MY_LOG}/mini-test
 
 Download Spack, mfem-mgis, and mfem-mgis-examples (not required)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
