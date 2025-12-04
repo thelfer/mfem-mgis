@@ -113,7 +113,7 @@ We performed tests on 3 problem sizes: 80M ddl, 190M ddl and 664M ddl.
 
 .. note::
 
-  Un test de faisabilité de cette simulation a aussi était réalisé sûr plus de 5.3 milliards de ddl.
+  A feasibility test of this simulation was also carried out on more than 5.3 billion ddl.
 
 
 80M ddl
