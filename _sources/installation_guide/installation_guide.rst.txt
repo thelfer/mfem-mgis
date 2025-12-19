@@ -41,7 +41,7 @@ First, clone the Spack repository from GitHub.
 
 .. code:: sh
 
-   git clone --depth=2 --branch=v1.0.1 https://github.com/spack/spack.git
+   git clone --depth=2 --branch=v1.1.0 https://github.com/spack/spack.git
 
 .. note::
 
@@ -265,7 +265,7 @@ Download Spack and the git directories of ``mfem-mgis`` and ``mfem-mgis-examples
 .. code-block:: bash
 
    cd $MY_DIR
-   git clone --depth=2 --branch=v1.0.1 https://github.com/spack/spack.git
+   git clone --depth=2 --branch=v1.1.0 https://github.com/spack/spack.git
    rm -r ~/.spack
    export SPACK_ROOT=$PWD/spack
    source ${SPACK_ROOT}/share/spack/setup-env.sh
