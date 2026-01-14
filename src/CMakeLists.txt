@@ -55,7 +55,8 @@ list(APPEND MFEMMGIS_SOURCES
   BidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
-  TransientHeatTransferBehaviourIntegrator.cxx)
+  TransientHeatTransferBehaviourIntegrator.cxx
+  L2Projection.cxx)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES

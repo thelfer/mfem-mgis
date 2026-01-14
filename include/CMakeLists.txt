@@ -52,6 +52,7 @@ mfem_mgis_header(MFEMMGIS NewtonSolver.hxx)
 mfem_mgis_header(MFEMMGIS AnalyticalTests.hxx)
 mfem_mgis_header(MFEMMGIS BoundaryUtilities.hxx)
 mfem_mgis_header(MFEMMGIS BoundaryUtilities.ixx)
+mfem_mgis_header(MFEMMGIS L2Projection.hxx)
 mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.hxx)
 mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.ixx)
 
