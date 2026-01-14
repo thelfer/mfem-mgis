@@ -196,6 +196,40 @@ namespace mfem_mgis {
       const Material&,
       const Material::StateSelection);
 
+  /*!
+   * \brief compute the Cauchy stress.
+   *
+   * \note This function is only valid for finite strain behaviours
+   * \note This function currently does not work in plane stress.
+   *
+   * \return the Cauchy stress in the global frame
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] s: selection of the state considered (beginnig of time step, end
+   * of time step)
+   */
+  MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
+  computeCauchyStress(Context&,
+                                   const Material&,
+                                   const Material::StateSelection);
+  /*!
+   * \brief compute the Cauchy stress.
+   *
+   * \note This function is only valid for finite strain behaviours
+   * \note This function currently does not work in plane stress.
+   *
+   * \return the Cauchy stress in the global frame
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] s: selection of the state considered (beginnig of time step, end
+   * of time step)
+   */
+  MFEM_MGIS_EXPORT bool computeCauchyStress(
+      Context&,
+      PartialQuadratureFunction&,
+      const Material&,
+      const Material::StateSelection);
+
 #endif /* MGIS_FUNCTION_SUPPORT */
 
 }  // namespace mfem_mgis
