@@ -154,25 +154,29 @@ namespace mfem_mgis {
     }
     if (ds < 0) {
       raise(
-          "ImmutablePartialQuadratureFunctionView::ImmutablePartialQuadratureFunctionView: invalid "
+          "ImmutablePartialQuadratureFunctionView::"
+          "ImmutablePartialQuadratureFunctionView: invalid "
           "data size");
     }
     const auto d = std::div(static_cast<size_type>(v.size()),
                             this->qspace->getNumberOfIntegrationPoints());
     if ((d.rem != 0) || (d.quot <= 0)) {
       raise(
-          "ImmutablePartialQuadratureFunctionView::ImmutablePartialQuadratureFunctionView: invalid "
+          "ImmutablePartialQuadratureFunctionView::"
+          "ImmutablePartialQuadratureFunctionView: invalid "
           "values size");
     }
     this->data_stride = d.quot;
     if (this->data_begin >= this->data_stride) {
       raise(
-          "ImmutablePartialQuadratureFunctionView::ImmutablePartialQuadratureFunctionView: invalid "
+          "ImmutablePartialQuadratureFunctionView::"
+          "ImmutablePartialQuadratureFunctionView: invalid "
           "start of the data");
     }
     if (this->data_begin + this->data_size > this->data_stride) {
       raise(
-          "ImmutablePartialQuadratureFunctionView::ImmutablePartialQuadratureFunctionView: invalid "
+          "ImmutablePartialQuadratureFunctionView::"
+          "ImmutablePartialQuadratureFunctionView: invalid "
           "data range is outside the stride size");
     }
     this->immutable_values = v;
@@ -317,12 +321,13 @@ namespace mfem_mgis {
     }
   }  // end of copy
 
-  real* PartialQuadratureFunctionView::data(const size_type e, const size_type i) {
+  real* PartialQuadratureFunctionView::data(const size_type e,
+                                            const size_type i) {
     return this->data(this->qspace->getOffset(e) + i);
   }  // end of getIntegrationPointValues
 
-  real& PartialQuadratureFunctionView::getIntegrationPointValue(const size_type e,
-                                                            const size_type i) {
+  real& PartialQuadratureFunctionView::getIntegrationPointValue(
+      const size_type e, const size_type i) {
     return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
   }  // end of getIntegrationPointValues
 
@@ -352,6 +357,39 @@ namespace mfem_mgis {
         }
       }
     }
+    /*!
+     * \brief constructor
+     * \param[in] ids_mapping:  mapping for the current mesh id to the ids of
+     * the main mesh used to index the function views
+     * \param[in] fcts: functions
+     */
+    PartialQuadratureFunctionsCoefficientBase(
+        const mfem::Array<int>& ids_mapping,
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+      if (fcts.empty()) {
+        raise("no functions defined");
+      }
+      const auto n = fcts.at(0).getNumberOfComponents();
+      for (const auto& f : fcts) {
+        const auto mid = [&ids_mapping, f]() -> size_type {
+          const auto qspace = f.getPartialQuadratureSpace();
+          const auto fid = qspace.getId();
+          const auto r = ids_mapping.Find(fid);
+          if (r == -1) {
+            raise("global identifier '" + std::to_string(fid) +
+                  "' is not part of the mappping provided");
+          }
+          return r;
+        }();
+        if (!this->functions.insert({mid, f}).second) {
+          raise("multiple functions defined for material '" +
+                std::to_string(mid) + "'");
+        }
+        if (n != f.getNumberOfComponents()) {
+          raise("inconsistent number of components");
+        }
+      }
+    }
     //
     PartialQuadratureFunctionsCoefficientBase(
         PartialQuadratureFunctionsCoefficientBase&&) = default;
@@ -372,15 +410,29 @@ namespace mfem_mgis {
       : public PartialQuadratureFunctionsCoefficientBase,
         public mfem::Coefficient {
     //
-    PartialQuadratureFunctionsScalarCoefficient(
-        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : PartialQuadratureFunctionsCoefficientBase(fcts) {
-      for (const auto& [mid, f] : functions) {
+    static void checkConsistency(
+        attributes::Throwing,
+        const std::unordered_map<size_type,
+                                 ImmutablePartialQuadratureFunctionView>&
+            fcts) {
+      for (const auto& [mid, f] : fcts) {
         static_cast<void>(mid);
         if (f.getNumberOfComponents() != 1) {
           raise("non scalar function given");
         }
       }
+    }
+    //
+    PartialQuadratureFunctionsScalarCoefficient(
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
+        : PartialQuadratureFunctionsCoefficientBase(fcts) {
+      checkConsistency(throwing, this->functions);
+    }
+    PartialQuadratureFunctionsScalarCoefficient(
+        const mfem::Array<int>& ids_mapping,
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
+        : PartialQuadratureFunctionsCoefficientBase(ids_mapping, fcts) {
+      checkConsistency(throwing, this->functions);
     }
     //
     PartialQuadratureFunctionsScalarCoefficient(
@@ -410,6 +462,12 @@ namespace mfem_mgis {
     PartialQuadratureFunctionsVectorCoefficient(
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
         : PartialQuadratureFunctionsCoefficientBase(fcts),
+          mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()) {}
+    //
+    PartialQuadratureFunctionsVectorCoefficient(
+        const mfem::Array<int>& ids_mapping,
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
+        : PartialQuadratureFunctionsCoefficientBase(ids_mapping, fcts),
           mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()) {}
     //
     PartialQuadratureFunctionsVectorCoefficient(
@@ -645,10 +703,12 @@ namespace mfem_mgis {
       raise("inconsistent grid function");
     }
     if (n == 1u) {
-      auto c = PartialQuadratureFunctionsScalarCoefficient(fcts);
+      auto c = PartialQuadratureFunctionsScalarCoefficient(
+          mesh.GetParentElementIDMap(), fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     } else {
-      auto c = PartialQuadratureFunctionsVectorCoefficient(fcts);
+      auto c = PartialQuadratureFunctionsVectorCoefficient(
+          mesh.GetParentElementIDMap(), fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     }
   }

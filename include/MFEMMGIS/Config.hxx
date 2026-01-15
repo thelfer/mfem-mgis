@@ -50,6 +50,16 @@ namespace mfem_mgis {
   using mgis::Context;
 #endif /* MGIS_FUNCTION_SUPPORT*/
 
+  namespace attributes {
+    //! \brief a simple alias
+    using Throwing = ::mgis::attributes::ThrowingAttribute<true>;
+    //! \brief a simple alias
+    using Unsafe = ::mgis::attributes::UnsafeAttribute;
+  }  // namespace attributes
+  //
+  inline constexpr auto unsafe = ::mgis::attributes::UnsafeAttribute{};
+  inline constexpr auto throwing = ::mgis::attributes::ThrowingAttribute<true>{};
+
   //! \brief a simple alias
   using size_type = int;
 
