@@ -111,29 +111,35 @@ namespace mfem_mgis {
         public ParaviewExportIntegrationPointResultsAtNodesBase {
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] params: parameters passed to the post-processing
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
         const Parameters &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] d: functions to be exported
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
         const ExportedFunctionsDescription &,
         const std::string &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] ds: functions to be exported
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);

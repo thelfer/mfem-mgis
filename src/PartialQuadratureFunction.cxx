@@ -357,39 +357,6 @@ namespace mfem_mgis {
         }
       }
     }
-    /*!
-     * \brief constructor
-     * \param[in] ids_mapping:  mapping for the current mesh id to the ids of
-     * the main mesh used to index the function views
-     * \param[in] fcts: functions
-     */
-    PartialQuadratureFunctionsCoefficientBase(
-        const mfem::Array<int>& ids_mapping,
-        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
-      if (fcts.empty()) {
-        raise("no functions defined");
-      }
-      const auto n = fcts.at(0).getNumberOfComponents();
-      for (const auto& f : fcts) {
-        const auto mid = [&ids_mapping, f]() -> size_type {
-          const auto qspace = f.getPartialQuadratureSpace();
-          const auto fid = qspace.getId();
-          const auto r = ids_mapping.Find(fid);
-          if (r == -1) {
-            raise("global identifier '" + std::to_string(fid) +
-                  "' is not part of the mappping provided");
-          }
-          return r;
-        }();
-        if (!this->functions.insert({mid, f}).second) {
-          raise("multiple functions defined for material '" +
-                std::to_string(mid) + "'");
-        }
-        if (n != f.getNumberOfComponents()) {
-          raise("inconsistent number of components");
-        }
-      }
-    }
     //
     PartialQuadratureFunctionsCoefficientBase(
         PartialQuadratureFunctionsCoefficientBase&&) = default;
@@ -402,15 +369,8 @@ namespace mfem_mgis {
     ~PartialQuadratureFunctionsCoefficientBase() = default;
 
    protected:
-    std::unordered_map<size_type, ImmutablePartialQuadratureFunctionView>
-        functions;
-  };  // end of PartialQuadratureFunctionsCoefficientBase
-
-  struct PartialQuadratureFunctionsScalarCoefficient
-      : public PartialQuadratureFunctionsCoefficientBase,
-        public mfem::Coefficient {
     //
-    static void checkConsistency(
+    static void doScalarFunctionsChecks(
         attributes::Throwing,
         const std::unordered_map<size_type,
                                  ImmutablePartialQuadratureFunctionView>&
@@ -421,18 +381,20 @@ namespace mfem_mgis {
           raise("non scalar function given");
         }
       }
-    }
+    }  // end of checkScalarFunction
+
+    std::unordered_map<size_type, ImmutablePartialQuadratureFunctionView>
+        functions;
+  };  // end of PartialQuadratureFunctionsCoefficientBase
+
+  struct PartialQuadratureFunctionsScalarCoefficient final
+      : public PartialQuadratureFunctionsCoefficientBase,
+        public mfem::Coefficient {
     //
     PartialQuadratureFunctionsScalarCoefficient(
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
         : PartialQuadratureFunctionsCoefficientBase(fcts) {
-      checkConsistency(throwing, this->functions);
-    }
-    PartialQuadratureFunctionsScalarCoefficient(
-        const mfem::Array<int>& ids_mapping,
-        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : PartialQuadratureFunctionsCoefficientBase(ids_mapping, fcts) {
-      checkConsistency(throwing, this->functions);
+      doScalarFunctionsChecks(throwing, this->functions);
     }
     //
     PartialQuadratureFunctionsScalarCoefficient(
@@ -455,19 +417,47 @@ namespace mfem_mgis {
     }  // end of Eval
   };
 
-  struct PartialQuadratureFunctionsVectorCoefficient
+  struct PartialQuadratureFunctionsScalarCoefficientII final
+      : public PartialQuadratureFunctionsCoefficientBase,
+        public mfem::Coefficient {
+    //
+    PartialQuadratureFunctionsScalarCoefficientII(
+        const mfem::Array<int>& m,
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
+        : PartialQuadratureFunctionsCoefficientBase(fcts), elts_mapping(m) {
+      doScalarFunctionsChecks(throwing, this->functions);
+    }
+    //
+    PartialQuadratureFunctionsScalarCoefficientII(
+        PartialQuadratureFunctionsScalarCoefficientII&&) = default;
+    PartialQuadratureFunctionsScalarCoefficientII(
+        const PartialQuadratureFunctionsScalarCoefficientII&) = default;
+    PartialQuadratureFunctionsScalarCoefficientII& operator=(
+        PartialQuadratureFunctionsScalarCoefficientII&&) = default;
+    PartialQuadratureFunctionsScalarCoefficientII& operator=(
+        const PartialQuadratureFunctionsScalarCoefficientII&) = default;
+    //
+    double Eval(mfem::ElementTransformation& tr,
+                const mfem::IntegrationPoint& i) override {
+      const auto mid = tr.Attribute;
+      const auto p = this->functions.find(mid);
+      if (p == this->functions.end()) {
+        return 0.;
+      }
+      const auto n = this->elts_mapping[tr.ElementNo];
+      return p->second.getIntegrationPointValue(n, i.index);
+    }  // end of Eval
+   private:
+    const mfem::Array<int>& elts_mapping;
+  };
+
+  struct PartialQuadratureFunctionsVectorCoefficient final
       : public PartialQuadratureFunctionsCoefficientBase,
         public mfem::VectorCoefficient {
     //
     PartialQuadratureFunctionsVectorCoefficient(
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
         : PartialQuadratureFunctionsCoefficientBase(fcts),
-          mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()) {}
-    //
-    PartialQuadratureFunctionsVectorCoefficient(
-        const mfem::Array<int>& ids_mapping,
-        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : PartialQuadratureFunctionsCoefficientBase(ids_mapping, fcts),
           mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()) {}
     //
     PartialQuadratureFunctionsVectorCoefficient(
@@ -496,13 +486,54 @@ namespace mfem_mgis {
     }  // end of Eval
   };
 
+  struct PartialQuadratureFunctionsVectorCoefficientII final
+      : public PartialQuadratureFunctionsCoefficientBase,
+        public mfem::VectorCoefficient {
+    //
+    PartialQuadratureFunctionsVectorCoefficientII(
+        const mfem::Array<int>& m,
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
+        : PartialQuadratureFunctionsCoefficientBase(fcts),
+          mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()),
+          elts_mapping(m) {}
+    //
+    PartialQuadratureFunctionsVectorCoefficientII(
+        PartialQuadratureFunctionsVectorCoefficientII&&) = default;
+    PartialQuadratureFunctionsVectorCoefficientII(
+        const PartialQuadratureFunctionsVectorCoefficientII&) = default;
+    PartialQuadratureFunctionsVectorCoefficientII& operator=(
+        PartialQuadratureFunctionsVectorCoefficientII&&) = default;
+    PartialQuadratureFunctionsVectorCoefficientII& operator=(
+        const PartialQuadratureFunctionsVectorCoefficientII&) = default;
+    //
+    void Eval(mfem::Vector& values,
+              mfem::ElementTransformation& tr,
+              const mfem::IntegrationPoint& ip) override {
+      const auto mid = tr.Attribute;
+      const auto p = this->functions.find(mid);
+      if (p == this->functions.end()) {
+        values = 0.;
+      } else {
+        const auto n = this->elts_mapping[tr.ElementNo];
+        const auto rvalues = p->second.getIntegrationPointValues(n, ip.index);
+        for (size_type i = 0; i != this->GetVDim(); ++i) {
+          values[i] = rvalues[i];
+        }
+      }
+    }  // end of Eval
+
+   private:
+    const mfem::Array<int>& elts_mapping;
+  };
+
   template <bool parallel>
-  static std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
-                   std::unique_ptr<GridFunction<parallel>>>
+  static std::optional<std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
+                                 std::unique_ptr<GridFunction<parallel>>>>
   makeGridFunction_impl(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
     if (fcts.empty()) {
-      raise("no functions defined");
+      return ctx.registerErrorMessage("no functions defined");
     }
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
@@ -512,33 +543,36 @@ namespace mfem_mgis {
     auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
         const_cast<Mesh<parallel>*>(&mesh), fes.FEColl(), n, fes.GetOrdering());
     auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
-    return {std::move(fespace), std::move(f)};
+    return std::make_pair(std::move(fespace), std::move(f));
   }
 
   template <>
-  std::pair<std::unique_ptr<FiniteElementSpace<true>>,
-            std::unique_ptr<GridFunction<true>>>
+  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<true>>,
+                          std::unique_ptr<GridFunction<true>>>>
   makeGridFunction<true>(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
-    return makeGridFunction_impl<true>(fcts);
+    return makeGridFunction_impl<true>(ctx, fcts);
   }
 
   template <>
-  std::pair<std::unique_ptr<FiniteElementSpace<false>>,
-            std::unique_ptr<GridFunction<false>>>
+  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<false>>,
+                          std::unique_ptr<GridFunction<false>>>>
   makeGridFunction<false>(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
-    return makeGridFunction_impl<false>(fcts);
+    return makeGridFunction_impl<false>(ctx, fcts);
   }
 
   template <bool parallel>
-  static std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
-                   std::unique_ptr<GridFunction<parallel>>>
+  static std::optional<std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
+                                 std::unique_ptr<GridFunction<parallel>>>>
   makeGridFunction_impl(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<parallel>& mesh) {
     if (fcts.empty()) {
-      raise("no functions defined");
+      return ctx.registerErrorMessage("no functions defined");
     }
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
@@ -547,35 +581,38 @@ namespace mfem_mgis {
     auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
         const_cast<Mesh<parallel>*>(&mesh), fes.FEColl(), n, fes.GetOrdering());
     auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
-    return {std::move(fespace), std::move(f)};
+    return std::make_pair(std::move(fespace), std::move(f));
   }
 
   template <>
-  std::pair<std::unique_ptr<FiniteElementSpace<true>>,
-            std::unique_ptr<GridFunction<true>>>
+  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<true>>,
+                          std::unique_ptr<GridFunction<true>>>>
   makeGridFunction<true>(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<true>& mesh) {
-    return makeGridFunction_impl<true>(fcts, mesh);
+    return makeGridFunction_impl<true>(ctx, fcts, mesh);
   }
 
   template <>
-  std::pair<std::unique_ptr<FiniteElementSpace<false>>,
-            std::unique_ptr<GridFunction<false>>>
+  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<false>>,
+                          std::unique_ptr<GridFunction<false>>>>
   makeGridFunction<false>(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<false>& mesh) {
-    return makeGridFunction_impl<false>(fcts, mesh);
+    return makeGridFunction_impl<false>(ctx, fcts, mesh);
   }
 
   template <bool parallel>
-  static std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
-                   std::unique_ptr<GridFunction<parallel>>>
+  static std::optional<std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
+                                 std::unique_ptr<GridFunction<parallel>>>>
   makeGridFunction_impl(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<parallel>& mesh) {
     if (fcts.empty()) {
-      raise("no functions defined");
+      return ctx.registerErrorMessage("no functions defined");
     }
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
@@ -585,25 +622,27 @@ namespace mfem_mgis {
         const_cast<SubMesh<parallel>*>(&mesh), fes.FEColl(), n,
         fes.GetOrdering());
     auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
-    return {std::move(fespace), std::move(f)};
+    return std::make_pair(std::move(fespace), std::move(f));
   }
 
   template <>
-  std::pair<std::unique_ptr<FiniteElementSpace<true>>,
-            std::unique_ptr<GridFunction<true>>>
+  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<true>>,
+                          std::unique_ptr<GridFunction<true>>>>
   makeGridFunction<true>(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<true>& mesh) {
-    return makeGridFunction_impl<true>(fcts, mesh);
+    return makeGridFunction_impl<true>(ctx, fcts, mesh);
   }
 
   template <>
-  std::pair<std::unique_ptr<FiniteElementSpace<false>>,
-            std::unique_ptr<GridFunction<false>>>
+  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<false>>,
+                          std::unique_ptr<GridFunction<false>>>>
   makeGridFunction<false>(
+      Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<false>& mesh) {
-    return makeGridFunction_impl<false>(fcts, mesh);
+    return makeGridFunction_impl<false>(ctx, fcts, mesh);
   }
 
   template <bool parallel>
@@ -703,11 +742,11 @@ namespace mfem_mgis {
       raise("inconsistent grid function");
     }
     if (n == 1u) {
-      auto c = PartialQuadratureFunctionsScalarCoefficient(
+      auto c = PartialQuadratureFunctionsScalarCoefficientII(
           mesh.GetParentElementIDMap(), fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     } else {
-      auto c = PartialQuadratureFunctionsVectorCoefficient(
+      auto c = PartialQuadratureFunctionsVectorCoefficientII(
           mesh.GetParentElementIDMap(), fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     }
