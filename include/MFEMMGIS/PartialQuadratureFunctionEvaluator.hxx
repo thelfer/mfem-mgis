@@ -37,7 +37,6 @@ namespace mfem_mgis {
     const Material& material;
   };  // end of RotationMatrixPartialQuadratureFunctionEvalutor
 
-
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
       const RotationMatrixPartialQuadratureFunctionEvalutor&);
 
@@ -163,7 +162,7 @@ namespace mfem_mgis {
 
 #include "MFEMMGIS/PartialQuadratureFunctionEvaluator.ixx"
 
-namespace mfem_mgis{
+namespace mfem_mgis {
 
   static_assert(mgis::function::EvaluatorConcept<
                 RotationMatrixPartialQuadratureFunctionEvalutor>);
@@ -180,6 +179,6 @@ namespace mfem_mgis{
   static_assert(!mgis::function::FunctionConcept<
                 RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<>>);
 
-}
+}  // namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_HXX */

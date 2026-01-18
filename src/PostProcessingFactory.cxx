@@ -62,9 +62,10 @@ namespace mfem_mgis {
         "ParaviewExportIntegrationPointResultsAtNodes",
         [](NonLinearEvolutionProblemImplementation<true>& p,
            const Parameters& params) {
+          auto ctx = Context{};
           return std::make_unique<
               ParaviewExportIntegrationPointResultsAtNodesImplementation<true>>(
-              p, params);
+              ctx, p, params);
         });
     this->add("ComputeResultantForceOnBoundary",
               [](NonLinearEvolutionProblemImplementation<true>& p,
@@ -138,9 +139,10 @@ namespace mfem_mgis {
     this->add("ParaviewExportIntegrationPointResultsAtNodes",
               [](NonLinearEvolutionProblemImplementation<false>& p,
                  const Parameters& params) {
+                auto ctx = Context{};
                 return std::make_unique<
                     ParaviewExportIntegrationPointResultsAtNodesImplementation<
-                        false>>(p, params);
+                        false>>(ctx, p, params);
               });
     this->add("ComputeResultantForceOnBoundary",
               [](NonLinearEvolutionProblemImplementation<false>& p,
