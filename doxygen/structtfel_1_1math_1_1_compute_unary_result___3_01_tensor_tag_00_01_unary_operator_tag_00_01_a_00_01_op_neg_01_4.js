@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1_compute_unary_result___3_01_tensor_tag_00_01_unary_operator_tag_00_01_a_00_01_op_neg_01_4 =
-[
-    [ "DummyHandle", "structtfel_1_1math_1_1_compute_unary_result___3_01_tensor_tag_00_01_unary_operator_tag_00_01_a_03e8041f47bb57ab6694a0fd44bc8591a.html", null ]
-];
