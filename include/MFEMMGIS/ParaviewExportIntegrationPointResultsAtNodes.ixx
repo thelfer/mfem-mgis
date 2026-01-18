@@ -20,6 +20,7 @@ namespace mfem_mgis {
   template <bool parallel>
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
       ParaviewExportIntegrationPointResultsAtNodesImplementation(
+          Context& ctx,
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const Parameters& params)
       : ParaviewExportIntegrationPointResultsAtNodesBase(
@@ -37,16 +38,27 @@ namespace mfem_mgis {
           "no results to export declared");
     }
     //
-    auto add_result = [this, &p](const std::string& rn) {
+    auto add_result = [this, &p, &ctx](const std::string& rn) {
       auto r = MaterialIntegrationPointResult{};
       r.name = rn;
       this->getResultDescription(r, p);
       if (this->submesh.get() == nullptr) {
-        std::tie(r.fespace, r.f) = makeGridFunction<parallel>(
-            this->getPartialQuadratureFunctionViews(p, r), p.getMesh());
+        auto or2 = makeGridFunction<parallel>(
+            ctx, this->getPartialQuadratureFunctionViews(p, r), p.getMesh());
+        if (isInvalid(or2)) {
+          raise(ctx.getErrorMessage());
+        }
+        r.fespace = std::move(or2->first);
+        r.f = std::move(or2->second);
       } else {
-        std::tie(r.fespace, r.f) = makeGridFunction<parallel>(
-            this->getPartialQuadratureFunctionViews(p, r), *(this->submesh));
+        auto or2 = makeGridFunction<parallel>(
+            ctx, this->getPartialQuadratureFunctionViews(p, r),
+            *(this->submesh));
+        if (isInvalid(or2)) {
+          raise(ctx.getErrorMessage());
+        }
+        r.fespace = std::move(or2->first);
+        r.f = std::move(or2->second);
       }
       // registring
       this->exporter.RegisterField(r.name, r.f.get());
@@ -65,16 +77,18 @@ namespace mfem_mgis {
   template <bool parallel>
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
       ParaviewExportIntegrationPointResultsAtNodesImplementation(
+          Context& ctx,
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const ExportedFunctionsDescription& d,
           const std::string& n)
       : ParaviewExportIntegrationPointResultsAtNodesImplementation(
-            p, std::vector<ExportedFunctionsDescription>(1, d), n) {
+            ctx, p, std::vector<ExportedFunctionsDescription>(1, d), n) {
   }  // end of ParaviewExportIntegrationPointResultsAtNodesImplementation
 
   template <bool parallel>
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
       ParaviewExportIntegrationPointResultsAtNodesImplementation(
+          Context& ctx,
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const std::vector<ExportedFunctionsDescription>& ds,
           const std::string& n)
@@ -87,17 +101,26 @@ namespace mfem_mgis {
       this->createSubMesh(p);
       this->exporter.SetMesh(this->submesh.get());
     }
-    //
     for (const auto& d : ds) {
       auto fcts = std::make_unique<ExportedFunctions>();
       fcts->name = d.name;
       fcts->functions = d.functions;
       if (this->submesh.get() == nullptr) {
+        auto ores =
+            makeGridFunction<parallel>(ctx, fcts->functions, p.getMesh());
+        if (isInvalid(ores)) {
+          raise(ctx.getErrorMessage());
+        }
         std::tie(fcts->grid_function_fespace, fcts->grid_function) =
-            makeGridFunction<parallel>(fcts->functions, p.getMesh());
+            std::move(*ores);
       } else {
+        auto ores =
+            makeGridFunction<parallel>(ctx, fcts->functions, *(this->submesh));
+        if (isInvalid(ores)) {
+          raise(ctx.getErrorMessage());
+        }
         std::tie(fcts->grid_function_fespace, fcts->grid_function) =
-            makeGridFunction<parallel>(fcts->functions, *(this->submesh));
+            std::move(*ores);
       }
       // registring
       this->exporter.RegisterField(fcts->name, fcts->grid_function.get());

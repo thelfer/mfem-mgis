@@ -12,9 +12,8 @@
 #include <cstdlib>
 #include "MGIS/Config.hxx"
 #include "MGIS/Raise.hxx"
-#ifdef MGIS_FUNCTION_SUPPORT
 #include "MGIS/Context.hxx"
-#endif /* MGIS_FUNCTION_SUPPORT*/
+#include "MGIS/InvalidResult.hxx"
 
 #include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
@@ -45,10 +44,21 @@
 
 namespace mfem_mgis {
 
-#ifdef MGIS_FUNCTION_SUPPORT
   using mgis::AbstractErrorHandler;
   using mgis::Context;
-#endif /* MGIS_FUNCTION_SUPPORT*/
+  using mgis::isInvalid;
+  using mgis::isValid;
+
+  namespace attributes {
+    //! \brief a simple alias
+    using Throwing = ::mgis::attributes::ThrowingAttribute<true>;
+    //! \brief a simple alias
+    using Unsafe = ::mgis::attributes::UnsafeAttribute;
+  }  // namespace attributes
+  //
+  inline constexpr auto unsafe = ::mgis::attributes::UnsafeAttribute{};
+  inline constexpr auto throwing =
+      ::mgis::attributes::ThrowingAttribute<true>{};
 
   //! \brief a simple alias
   using size_type = int;
