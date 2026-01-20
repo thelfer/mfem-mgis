@@ -17,9 +17,6 @@ namespace mfem_mgis {
 
   // forward declaration
   struct Parameters;
-  // forward declaration
-  template <bool parallel>
-  struct NonLinearEvolutionProblemImplementation;
 
   /*!
    * \brief result from the linear solver factories
@@ -44,7 +41,7 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT LinearSolverFactory<true> {
     //! a simple alias
     using Generator = std::function<LinearSolverHandler(
-        NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>;
+        FiniteElementSpace<true>&, const Parameters&)>;
     //! \return the unique instance of the class
     static LinearSolverFactory& getFactory();
     /*!
@@ -60,7 +57,7 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the post-processing
      */
     LinearSolverHandler generate(std::string_view,
-                                 NonLinearEvolutionProblemImplementation<true>&,
+                                 FiniteElementSpace<true>&,
                                  const Parameters&) const;
 
    private:
@@ -79,7 +76,7 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT LinearSolverFactory<false> {
     //! a simple alias
     using Generator = std::function<LinearSolverHandler(
-        NonLinearEvolutionProblemImplementation<false>&, const Parameters&)>;
+        FiniteElementSpace<false>&, const Parameters&)>;
     //! \return the unique instance of the class
     static LinearSolverFactory& getFactory();
     /*!
@@ -96,7 +93,7 @@ namespace mfem_mgis {
      */
     LinearSolverHandler generate(
         std::string_view,
-        NonLinearEvolutionProblemImplementation<false>&,
+        FiniteElementSpace<false>&,
         const Parameters&) const;
 
    private:
