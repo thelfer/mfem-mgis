@@ -440,7 +440,10 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("uninitialized result");
     }
     if (r.result->FESpace() != r.fe_space.get()) {
-      return ctx.registerErrorMessage("incosistent finite element space");
+      return ctx.registerErrorMessage("inconsistent finite element space");
+    }
+    if (l.linear_solver == nullptr) {
+      return ctx.registerErrorMessage("uninitialized linear solver");
     }
     // check consistency
     if (fcts.empty()) {

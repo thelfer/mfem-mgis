@@ -186,6 +186,29 @@ if(MFEM_MGIS_HAVE_TFEL)
 	add_stationary_non_linear_heat_transfer_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
+  add_executable(L2ProjectionTest
+    EXCLUDE_FROM_ALL
+    L2ProjectionTest.cxx)
+  target_include_directories(L2ProjectionTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(L2ProjectionTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check L2ProjectionTest)
+  
+  function(add_l2_projection_test nsolver)
+    set(test "L2ProjectionTest-${nsolver}")
+    set(L2ProjectionTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MiehePhaseFieldDamage" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test}  COMMAND ./L2ProjectionTest ${L2ProjectionTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./L2ProjectionTest ${L2ProjectionTestParameters} "--parallel" "1")
+  endfunction(add_l2_projection_test)
+
+  add_l2_projection_test(0)
+
+  if(MFEM_USE_SUITESPARSE)
+          message(STATUS "micromorphic_damage_2d has been disabled with SUITE SPARSE")
+          #add_micromorphic_damage_2d_test(2)
+  endif(MFEM_USE_SUITESPARSE)
+
   add_executable(MicromorphicDamage2DTest
     EXCLUDE_FROM_ALL
     MicromorphicDamage2DTest.cxx)
