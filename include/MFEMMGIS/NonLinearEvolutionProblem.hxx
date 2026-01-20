@@ -79,6 +79,8 @@ namespace mfem_mgis {
     mfem::Vector &getUnknownsAtEndOfTheTimeStep() override;
     const mfem::Vector &getUnknownsAtEndOfTheTimeStep() const override;
     void setSolverParameters(const Parameters &) override;
+    [[nodiscard]] bool setLinearSolver(Context &,
+                                       LinearSolverHandler) noexcept override;
     void setLinearSolver(std::string_view, const Parameters &) override;
     void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;

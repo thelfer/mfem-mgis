@@ -14,6 +14,7 @@
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis::unit_tests {
@@ -78,22 +79,24 @@ namespace mfem_mgis::unit_tests {
     // args.PrintOptions(mfem_mgis::getOutputStream());
   }  // end of parseCommandLineOptions
 
-  template <typename TestParametersT>
-  [[maybe_unused]] static void setLinearSolver(
-      mfem_mgis::NonLinearEvolutionProblem& problem,
+  template <bool parallel, typename TestParametersT>
+  static mfem_mgis::LinearSolverHandler getLinearSolver(
+      mfem_mgis::Context& ctx,
+      mfem_mgis::FiniteElementSpace<parallel>& fespace,
       const TestParametersT& parameters) {
+    auto& f = LinearSolverFactory<parallel>::getFactory();
     // preconditionner hypreBoomerAMG
-    auto options = mfem_mgis::Parameters{{"VerbosityLevel", 0}};
-    auto amg =
+    const auto options = mfem_mgis::Parameters{{"VerbosityLevel", 0}};
+    const auto amg =
         mfem_mgis::Parameters{{"Name", "HypreBoomerAMG"}, {"Options", options}};
-    auto ilu = mfem_mgis::Parameters{
+    const auto ilu = mfem_mgis::Parameters{
         {"Name", "HypreILU"},
         {"Options", mfem_mgis::Parameters{{"HypreILULevelOfFill", 1}}}};
-    auto diagscale =
+    const auto diagscale =
         mfem_mgis::Parameters{{"Name", "HypreDiagScale"}, {"Options", options}};
-    auto parasail =
+    const auto parasail =
         mfem_mgis::Parameters{{"Name", "HypreParaSails"}, {"Options", options}};
-    auto euclid =
+    const auto euclid =
         mfem_mgis::Parameters{{"Name", "HypreEuclid"}, {"Options", options}};
 
     bool is_default_test_case = parameters.linearsolver == 0;
@@ -107,65 +110,88 @@ namespace mfem_mgis::unit_tests {
 #endif
     is_default_test_case |=
         (parameters.parallel == 0 && parameters.linearsolver > 3);
-
     // default solver
     if (is_default_test_case) {
-      if (parameters.parallel == 0) {
-        problem.setLinearSolver("CGSolver",
-                                {{"VerbosityLevel", 1},
-                                 {"AbsoluteTolerance", 1e-12},
-                                 {"RelativeTolerance", 1e-12},
-                                 {"MaximumNumberOfIterations", 5000}});
+      if constexpr (parallel) {
+        return f.generate(ctx, "CGSolver", fespace,
+                          {{"VerbosityLevel", 1},
+                           {"AbsoluteTolerance", 1e-12},
+                           {"RelativeTolerance", 1e-12},
+                           {"MaximumNumberOfIterations", 5000}});
       } else {
-        problem.setLinearSolver(
-            "CGSolver",
-            {
-                {"VerbosityLevel", 1},
-                {"AbsoluteTolerance", 1e-12},
-                {"RelativeTolerance", 1e-12},
-                {"MaximumNumberOfIterations", 5000}  //,
-                //						{"Preconditioner",amg}
-            });
+        return f.generate(ctx, "CGSolver", fespace,
+                          {{"VerbosityLevel", 1},
+                           {"AbsoluteTolerance", 1e-12},
+                           {"RelativeTolerance", 1e-12},
+                           {"MaximumNumberOfIterations", 5000}});
       }
     } else if (parameters.linearsolver == 1) {
-      problem.setLinearSolver("GMRESSolver",
-                              {{"VerbosityLevel", 1},
-                               {"AbsoluteTolerance", 1e-12},
-                               {"RelativeTolerance", 1e-12},
-                               {"MaximumNumberOfIterations", 100000}});
+      return f.generate(ctx, "GMRESSolver", fespace,
+                        {{"VerbosityLevel", 1},
+                         {"AbsoluteTolerance", 1e-12},
+                         {"RelativeTolerance", 1e-12},
+                         {"MaximumNumberOfIterations", 100000}});
 #ifdef MFEM_USE_SUITESPARSE
-    } else if (parameters.parallel == 0 && parameters.linearsolver == 2) {
-      problem.setLinearSolver("UMFPackSolver", {});
+    } else if (!parallel && parameters.linearsolver == 2) {
+      return f.generate(ctx, "UMFPackSolver", fespace, {});
 #endif
 #ifdef MFEM_USE_MUMPS
-    } else if (parameters.parallel == 0 && parameters.linearsolver == 3) {
-      problem.setLinearSolver("MUMPSSolver", {{"Symmetric", true}});
+    } else if (parallel && parameters.linearsolver == 3) {
+      return f.generate(ctx, "MUMPSSolver", fespace, {{"Symmetric", true}});
 #endif
-    } else if (parameters.linearsolver == 2) {
-      problem.setLinearSolver("HypreFGMRES",
-                              {{"VerbosityLevel", 1},
-                               {"Tolerance", 1e-12},
-                               {"Preconditioner", ilu},
-                               {"MaximumNumberOfIterations", 5000}});
-    } else if (parameters.linearsolver == 3) {
-      problem.setLinearSolver("HyprePCG",
-                              {{"VerbosityLevel", 1},
-                               {"Tolerance", 1e-12},
-                               {"Preconditioner", diagscale},
-                               {"MaximumNumberOfIterations", 5000}});
-    } else if (parameters.linearsolver == 4) {
-      problem.setLinearSolver("HypreGMRES",
-                              {{"VerbosityLevel", 1},
-                               {"Tolerance", 1e-12},
-                               //{"Preconditioner", parasail},
-                               {"MaximumNumberOfIterations", 5000}});
-    } else if (parameters.linearsolver == 5) {
-      problem.setLinearSolver("HypreGMRES",
-                              {{"VerbosityLevel", 1},
-                               {"Tolerance", 1e-12},
-                               {"MaximumNumberOfIterations", 5000}});
-    } else {
-      mfem_mgis::getErrorStream() << "unsupported linear solver\n";
+    } else if (parallel && parameters.linearsolver == 2) {
+      return f.generate(ctx, "HypreFGMRES", fespace,
+                        {{"VerbosityLevel", 1},
+                         {"Tolerance", 1e-12},
+                         {"Preconditioner", ilu},
+                         {"MaximumNumberOfIterations", 5000}});
+    } else if (parallel && parameters.linearsolver == 3) {
+      return f.generate(ctx, "HyprePCG", fespace,
+                        {{"VerbosityLevel", 1},
+                         {"Tolerance", 1e-12},
+                         {"Preconditioner", diagscale},
+                         {"MaximumNumberOfIterations", 5000}});
+    } else if (parallel && parameters.linearsolver == 4) {
+      return f.generate(ctx, "HypreGMRES", fespace,
+                        {{"VerbosityLevel", 1},
+                         {"Tolerance", 1e-12},
+                         //{"Preconditioner", parasail},
+                         {"MaximumNumberOfIterations", 5000}});
+    } else if (parallel && parameters.linearsolver == 5) {
+      return f.generate(ctx, "HypreGMRES", fespace,
+                        {{"VerbosityLevel", 1},
+                         {"Tolerance", 1e-12},
+                         {"MaximumNumberOfIterations", 5000}});
+    }
+    return ctx.registerErrorMessage("unsupported linear solver");
+  }  // end of getLinearSolver
+
+  template <typename TestParametersT>
+  [[maybe_unused]] static void setLinearSolver(
+      mfem_mgis::NonLinearEvolutionProblem& problem,
+      const TestParametersT& parameters) {
+    auto ctx = Context{};
+    auto s =
+        [&] {
+          if (parameters.parallel == 1) {
+#ifdef MFEM_USE_MPI
+            auto& fespace = problem.getFiniteElementDiscretization()
+                                .getFiniteElementSpace<true>();
+            return getLinearSolver<true>(ctx, fespace, parameters);
+#else
+            reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+          }
+          auto& fespace = problem.getFiniteElementDiscretization()
+                              .getFiniteElementSpace<false>();
+          return getLinearSolver<false>(ctx, fespace, parameters);
+        }();
+    if (isInvalid(s)) {
+      mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
+      mfem_mgis::abort(EXIT_FAILURE);
+    }
+    if (!problem.setLinearSolver(ctx, std::move(s))) {
+      mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
       mfem_mgis::abort(EXIT_FAILURE);
     }
   }  // end of setLinearSolver
@@ -293,6 +319,6 @@ namespace mfem_mgis::unit_tests {
     return r;
   }
 
-}  // end of namespace mfem_mgis::unit_tests
+  }  // end of namespace mfem_mgis::unit_tests
 
 #endif /* LIB_MFEM_MGIS_UNITTESTINGUTILITIES_HXX */

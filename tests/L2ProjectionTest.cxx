@@ -51,7 +51,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
        {"FiniteElementOrder", params.order},
        {"UnknownsSize", 1},
        {"NumberOfUniformRefinements", params.parallel ? 1 : 0},
-       {"Parallel", bool(params.parallel)}}};
+       {"Parallel", parallel}}};
   auto space = std::make_shared<PartialQuadratureSpace>(
       fed, 5,
       [](const mfem::FiniteElement& e,
@@ -62,7 +62,11 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
       });
   auto fct = PartialQuadratureFunction::evaluate(
       space, [](const real x, const real y) noexcept { return cos(x) * y; });
-  auto s = LinearSolverHandler{};
+  auto s = mfem_mgis::unit_tests::getLinearSolver<parallel>(
+      ctx, fed.getFiniteElementSpace<parallel>(), params);
+  if (isInvalid(s)) {
+    return false;
+  }
   const auto oresult = computeL2Projection<parallel>(ctx, s, {*fct});
   if (isInvalid(oresult)) {
     return false;

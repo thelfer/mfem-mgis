@@ -31,6 +31,7 @@ list(APPEND MFEMMGIS_SOURCES
   NonLinearEvolutionProblem.cxx
   PeriodicNonLinearEvolutionProblem.cxx
   SolverUtilities.cxx
+  LinearSolverHandler.cxx
   LinearSolverFactory.cxx
   NewtonSolver.cxx
   AnalyticalTests.cxx
