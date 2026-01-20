@@ -15,16 +15,34 @@
 
 namespace mfem_mgis {
 
-  // forward declaration
-  struct Parameters;
-
   /*!
    * \brief result from the linear solver factories
    */
-  struct LinearSolverHandler {
+  struct [[nodiscard]] LinearSolverHandler {
     std::unique_ptr<LinearSolver> linear_solver;
     std::unique_ptr<LinearSolverPreconditioner> preconditioner;
   };  // end of LinearSolverHandler
+
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isInvalid(
+      const LinearSolverHandler&) noexcept;
+
+}  // end of namespace mfem_mgis
+
+namespace mgis::internal {
+
+  //! \brief partial specialisation for boolean values
+  template <>
+  struct InvalidValueTraits<mfem_mgis::LinearSolverHandler> {
+    static constexpr bool isSpecialized = true;
+    static mfem_mgis::LinearSolverHandler getValue() noexcept { return {}; }
+  };
+
+}  // end of namespace mgis::internal
+
+namespace mfem_mgis {
+
+  // forward declaration
+  struct Parameters;
 
   /*!
    * \brief an abstract factory for behaviour integrators
@@ -41,22 +59,25 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT LinearSolverFactory<true> {
     //! a simple alias
     using Generator = std::function<LinearSolverHandler(
-        FiniteElementSpace<true>&, const Parameters&)>;
+        Context&, FiniteElementSpace<true>&, const Parameters&)>;
     //! \return the unique instance of the class
     static LinearSolverFactory& getFactory();
     /*!
      * \brief register a new post-processing
+     * \param[in] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] g: generator of the post-processing
      */
-    void add(std::string_view, Generator);
+    [[nodiscard]] bool add(Context&, std::string_view, Generator) noexcept;
     /*!
      * \return the requested post-processing
+     * \param[in] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] p: problem to be solved
      * \param[in] params: parameters passed to the post-processing
      */
-    LinearSolverHandler generate(std::string_view,
+    LinearSolverHandler generate(Context&,
+                                 std::string_view,
                                  FiniteElementSpace<true>&,
                                  const Parameters&) const;
 
@@ -76,25 +97,27 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT LinearSolverFactory<false> {
     //! a simple alias
     using Generator = std::function<LinearSolverHandler(
-        FiniteElementSpace<false>&, const Parameters&)>;
+        Context&, FiniteElementSpace<false>&, const Parameters&)>;
     //! \return the unique instance of the class
     static LinearSolverFactory& getFactory();
     /*!
      * \brief register a new post-processing
+     * \param[in] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] g: generator of the post-processing
      */
-    void add(std::string_view, Generator);
+    [[nodiscard]] bool add(Context&, std::string_view, Generator) noexcept;
     /*!
      * \return the requested post-processing
+     * \param[in] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] p: problem to be solved
      * \param[in] params: parameters passed to the post-processing
      */
-    LinearSolverHandler generate(
-        std::string_view,
-        FiniteElementSpace<false>&,
-        const Parameters&) const;
+    LinearSolverHandler generate(Context&,
+                                 std::string_view,
+                                 FiniteElementSpace<false>&,
+                                 const Parameters&) const;
 
    private:
     //! \brief default destructor

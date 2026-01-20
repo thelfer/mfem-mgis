@@ -24,10 +24,14 @@
 
 namespace mfem_mgis {
 
+  bool isInvalid(const LinearSolverHandler& s) noexcept {
+    return isInvalid(s.linear_solver);
+  } // end of isInvalid
+
 #ifdef MFEM_USE_MPI
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreBoomerAMGPreconditioner(
-      FiniteElementSpace<true>& fespace, const Parameters& opts) {
+      Context& ctx, FiniteElementSpace<true>& fespace, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     auto amg = std::make_unique<mfem::HypreBoomerAMG>();
     checkParameters(opts, {"Strategy", Problem::SolverVerbosityLevel});
@@ -40,7 +44,7 @@ namespace mfem_mgis {
         const auto o = fespace.GetOrdering();
         amg->SetSystemsOptions(m->Dimension(), o == mfem::Ordering::byNODES);
       } else if (strategy != "None") {
-        raise(
+        return ctx.registerErrorMessage(
             "setLinearSolverParameters: "
             "invalid strategy '" +
             strategy + "' for preconditioner HypreBoomerAMG");
@@ -53,7 +57,7 @@ namespace mfem_mgis {
   }  // end of setHypreBoomerAMGPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreEuclidPreconditioner(
-      FiniteElementSpace<true>&, const Parameters& opts) {
+      Context&, FiniteElementSpace<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     auto euclid = std::make_unique<mfem::HypreEuclid>(MPI_COMM_WORLD);
     checkParameters(opts, {Problem::SolverVerbosityLevel});
@@ -64,7 +68,7 @@ namespace mfem_mgis {
   }  // end of setHypreEuclidPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreILUPreconditioner(
-      FiniteElementSpace<true>&, const Parameters& opts) {
+      Context&, FiniteElementSpace<true>&, const Parameters& opts) {
 #if MFEM_HYPRE_VERSION >= 21900
     using Problem = AbstractNonLinearEvolutionProblem;
     bool verbose = contains(opts, Problem::SolverVerbosityLevel);
@@ -88,7 +92,7 @@ namespace mfem_mgis {
   }    // end of setHypreILUPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreParaSailsPreconditioner(
-      FiniteElementSpace<true>&, const Parameters& opts) {
+      Context&, FiniteElementSpace<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     auto ps = std::make_unique<mfem::HypreParaSails>(MPI_COMM_WORLD);
     checkParameters(opts, {Problem::SolverVerbosityLevel});
@@ -99,7 +103,7 @@ namespace mfem_mgis {
   }  // end of setHypreParaSailsPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreDiagScalePreconditioner(
-      FiniteElementSpace<true>&, const Parameters& opts) {
+      Context&, FiniteElementSpace<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     // auto ps = std::make_unique<mfem::HypreDiagScale>(MPI_COMM_WORLD);
     auto ps = std::make_unique<mfem::HypreDiagScale>();
@@ -109,23 +113,29 @@ namespace mfem_mgis {
 #else /* MFEM_USE_MPI */
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
-  setHypreBoomerAMGPreconditioner(FiniteElementSpace<true>&,
+  setHypreBoomerAMGPreconditioner(Context&,
+                                  FiniteElementSpace<true>&,
                                   const Parameters&) {
     reportUnsupportedParallelComputations();
   }  // end of setHypreBoomerAMGPreconditioner
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
-  setHypreEuclidPreconditioner(FiniteElementSpace<true>&, const Parameters&) {
+  setHypreEuclidPreconditioner(Context&,
+                               FiniteElementSpace<true>&,
+                               const Parameters&) {
     reportUnsupportedParallelComputations();
   }  // end of setHypreEuclidPreconditioner
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
-  setHypreILUPreconditioner(FiniteElementSpace<true>&, const Parameters&) {
+  setHypreILUPreconditioner(Context&,
+                            FiniteElementSpace<true>&,
+                            const Parameters&) {
     reportUnsupportedParallelComputations();
   }  // end of setHypreILUPreconditioner
 
   [[noreturn]] std::unique_ptr<LinearSolverPreconditioner>
-  setHypreParaSailsPreconditioner(FiniteElementSpace<true>&,
+  setHypreParaSailsPreconditioner(Context&,
+                                  FiniteElementSpace<true>&,
                                   const Parameters&) {
     reportUnsupportedParallelComputations();
   }  // end of setHypreParaSailsPreconditioner
@@ -134,12 +144,14 @@ namespace mfem_mgis {
 
   template <bool parallel>
   std::unique_ptr<LinearSolverPreconditioner> getLinearSolverPreconditioner(
-      FiniteElementSpace<parallel>& fespace, const Parameters& pr) {
+      Context& ctx,
+      FiniteElementSpace<parallel>& fespace,
+      const Parameters& pr) {
     checkParameters(pr, {"Name", "Options"});
     const auto name = get<std::string>(pr, "Name");
     if (name == "None") {
       if (contains(pr, "Options")) {
-        raise(
+        return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "no options expected for preconditioner '" +
             name + "'");
@@ -148,50 +160,50 @@ namespace mfem_mgis {
     } else if (name == "HypreBoomerAMG") {
       if constexpr (parallel) {
         return setHypreBoomerAMGPreconditioner(
-            fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
       } else {
-        raise(
+        return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreBoomerAMG' is only available in parallel");
       }
     } else if (name == "HypreEuclid") {
       if constexpr (parallel) {
         return setHypreEuclidPreconditioner(
-            fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
       } else {
-        raise(
+        return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreEuclid' is only available in parallel");
       }
     } else if (name == "HypreILU") {
       if constexpr (parallel) {
         return setHypreILUPreconditioner(
-            fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
       } else {
-        raise(
+        return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreILU' is only available in parallel");
       }
     } else if (name == "HypreParaSails") {
       if constexpr (parallel) {
         return setHypreParaSailsPreconditioner(
-            fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
       } else {
-        raise(
+        return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreParaSails' is only available in parallel");
       }
     } else if (name == "HypreDiagScale") {
       if constexpr (parallel) {
         return setHypreDiagScalePreconditioner(
-            fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
       } else {
-        raise(
+        return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreDiagScale' is only available in parallel");
       }
     } else {
-      raise(
+      return ctx.registerErrorMessage(
           "setLinearSolverPreconditioner: "
           "unsupported preconditioner '" +
           name + "'");
@@ -200,10 +212,11 @@ namespace mfem_mgis {
   }  // end of getLinearSolverPreconditioner
 
   template <bool parallel>
-  std::unique_ptr<LinearSolverPreconditioner> setLinearSolverParameters(
-      mfem::IterativeSolver& s,
-      FiniteElementSpace<parallel>& fespace,
-      const Parameters& params) {
+  static std::optional<std::unique_ptr<LinearSolverPreconditioner>>
+  setLinearSolverParameters(Context& ctx,
+                            mfem::IterativeSolver& s,
+                            FiniteElementSpace<parallel>& fespace,
+                            const Parameters& params) {
     const char* const Preconditioner = "Preconditioner";
     s.iterative_mode = false;
     auto allowed_parameters = getIterativeSolverParametersList();
@@ -212,19 +225,23 @@ namespace mfem_mgis {
     setSolverParameters(s, extract(params, getIterativeSolverParametersList()));
     if (contains(params, Preconditioner)) {
       const auto pr = get<Parameters>(params, Preconditioner);
-      auto prec = getLinearSolverPreconditioner<parallel>(fespace, pr);
+      auto prec = getLinearSolverPreconditioner<parallel>(ctx, fespace, pr);
+      if (isInvalid(prec)) {
+        return {};
+      }
       s.SetPreconditioner(*prec);
       return prec;
     }
-    return {};
+    return std::unique_ptr<LinearSolverPreconditioner>{};
   }  // end of setLinearSolverParameters
 
 #ifdef MFEM_USE_MPI
 
-  std::function<LinearSolverHandler(FiniteElementSpace<true>&,
-                                    const Parameters&)>
+  std::function<LinearSolverHandler(
+      Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHyprePCGSolverGenerator() {
-    return [](FiniteElementSpace<true>& fespace, const Parameters& params) {
+    return [](Context& ctx, FiniteElementSpace<true>& fespace,
+              const Parameters& params) -> LinearSolverHandler {
       using Problem = AbstractNonLinearEvolutionProblem;
       const char* const SolverTolerance = "Tolerance";
       const char* const Preconditioner = "Preconditioner";
@@ -247,11 +264,14 @@ namespace mfem_mgis {
       auto prec = std::unique_ptr<mfem::Solver>{};
       if (contains(params, Preconditioner)) {
         const auto pr = get<Parameters>(params, Preconditioner);
-        prec = getLinearSolverPreconditioner<true>(fespace, pr);
+        prec = getLinearSolverPreconditioner<true>(ctx, fespace, pr);
+        if (isInvalid(prec)) {
+          return {};
+        }
         auto* const hypre_prec =
             dynamic_cast<mfem::HypreSolver* const>(prec.get());
         if (hypre_prec == nullptr) {
-          mgis::raise(
+          return ctx.registerErrorMessage(
               "buildHyprePCGSolverGenerator: only Hypre preconditioners "
               "allowed with "
               "the HyprePCG linear solver");
@@ -262,10 +282,11 @@ namespace mfem_mgis {
     };
   }  // end of buildHyprePCGSolverGenerator
 
-  std::function<LinearSolverHandler(FiniteElementSpace<true>&,
-                                    const Parameters&)>
+  std::function<LinearSolverHandler(
+      Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHypreGMRESSolverGenerator() {
-    return [](FiniteElementSpace<true>& fespace, const Parameters& params) {
+    return [](Context& ctx, FiniteElementSpace<true>& fespace,
+              const Parameters& params) -> LinearSolverHandler {
       using Problem = AbstractNonLinearEvolutionProblem;
       const char* const SolverTolerance = "Tolerance";
       const char* const Preconditioner = "Preconditioner";
@@ -295,11 +316,14 @@ namespace mfem_mgis {
       auto prec = std::unique_ptr<mfem::Solver>{};
       if (contains(params, Preconditioner)) {
         const auto pr = get<Parameters>(params, Preconditioner);
-        prec = getLinearSolverPreconditioner<true>(fespace, pr);
+        prec = getLinearSolverPreconditioner<true>(ctx, fespace, pr);
+        if (isInvalid(prec)) {
+          return {};
+        }
         auto* const hypre_prec =
             dynamic_cast<mfem::HypreSolver* const>(prec.get());
         if (hypre_prec == nullptr) {
-          mgis::raise(
+          return ctx.registerErrorMessage(
               "buildHypreGMRESSolverGenerator: only Hypre preconditioners "
               "allowed with "
               "the HypreGMRES linear solver");
@@ -310,10 +334,11 @@ namespace mfem_mgis {
     };
   }  // end of buildHypreGMRESSolverGenerator
 
-  std::function<LinearSolverHandler(FiniteElementSpace<true>&,
-                                    const Parameters&)>
+  std::function<LinearSolverHandler(
+      Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHypreFGMRESSolverGenerator() {
-    return [](FiniteElementSpace<true>& fespace, const Parameters& params) {
+    return [](Context& ctx, FiniteElementSpace<true>& fespace,
+              const Parameters& params) -> LinearSolverHandler {
       using Problem = AbstractNonLinearEvolutionProblem;
       const char* const SolverTolerance = "Tolerance";
       const char* const Preconditioner = "Preconditioner";
@@ -343,11 +368,14 @@ namespace mfem_mgis {
       auto prec = std::unique_ptr<mfem::Solver>{};
       if (contains(params, Preconditioner)) {
         const auto pr = get<Parameters>(params, Preconditioner);
-        prec = getLinearSolverPreconditioner<true>(fespace, pr);
+        prec = getLinearSolverPreconditioner<true>(ctx, fespace, pr);
+        if (isInvalid(prec)) {
+          return {};
+        }
         auto* const hypre_prec =
             dynamic_cast<mfem::HypreSolver* const>(prec.get());
         if (hypre_prec == nullptr) {
-          mgis::raise(
+          return ctx.registerErrorMessage(
               "buildHypreFGMRESSolverGenerator: only Hypre preconditioners "
               "allowed with "
               "the HypreFGMRES linear solver");
@@ -360,49 +388,57 @@ namespace mfem_mgis {
 
 #else
 
-  std::function<LinearSolverHandler(FiniteElementSpace<true>&,
-                                    const Parameters&)>
+  std::function<LinearSolverHandler(
+      Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHyprePCGSolverGenerator();
 
-  std::function<LinearSolverHandler(FiniteElementSpace<true>&,
-                                    const Parameters&)>
+  std::function<LinearSolverHandler(
+      Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHypreGMRESSolverGenerator();
 
-  std::function<LinearSolverHandler(FiniteElementSpace<true>&,
-                                    const Parameters&)>
+  std::function<LinearSolverHandler(
+      Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHypreFGMRESSolverGenerator();
 
 #endif
 
   template <bool parallel, typename LinearSolverType>
-  std::function<LinearSolverHandler(FiniteElementSpace<parallel>&,
-                                    const Parameters&)>
+  std::function<LinearSolverHandler(
+      Context& , FiniteElementSpace<parallel>&, const Parameters&)>
   buildIterativeSolverGenerator() {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
-      return [](FiniteElementSpace<true>& fespace, const Parameters& params) {
+      return [](Context& ctx, FiniteElementSpace<true>& fespace,
+                const Parameters& params) {
         auto s = std::make_unique<LinearSolverType>(MPI_COMM_WORLD);
-        auto prec = setLinearSolverParameters<true>(*s, fespace, params);
-        return LinearSolverHandler{std::move(s), std::move(prec)};
+        auto oprec = setLinearSolverParameters<true>(ctx, *s, fespace, params);
+        if (isInvalid(oprec)) {
+          return LinearSolverHandler{};
+        }
+        return LinearSolverHandler{std::move(s), std::move(*oprec)};
       };
 #else  /* MFEM_USE_MPI */
       return {};
 #endif /* MFEM_USE_MPI */
     } else {
-      return [](FiniteElementSpace<false>& fespace, const Parameters& params) {
+      return [](Context& ctx, FiniteElementSpace<false>& fespace,
+                const Parameters& params) {
         auto s = std::make_unique<LinearSolverType>();
-        auto prec = setLinearSolverParameters<false>(*s, fespace, params);
-        return LinearSolverHandler{std::move(s), std::move(prec)};
+        auto oprec = setLinearSolverParameters<false>(ctx, *s, fespace, params);
+        if (isInvalid(oprec)) {
+          return LinearSolverHandler{};
+        }
+        return LinearSolverHandler{std::move(s), std::move(*oprec)};
       };
     }
   }  // end of buildIterativeSolverGenerator
 
 #ifdef MFEM_USE_MUMPS
 
-  std::function<LinearSolverHandler(FiniteElementSpace<true>&,
-                                    const Parameters&)>
+  std::function<LinearSolverHandler(
+      Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildMUMPSSolverGenerator() {
-    return [](FiniteElementSpace<true>&, const Parameters& params) {
+    return [](Context&, FiniteElementSpace<true>&, const Parameters& params) {
       checkParameters(params, {"Symmetric", "PositiveDefinite"});
       auto s = std::make_unique<mfem::MUMPSSolver>(MPI_COMM_WORLD);
       const auto symmetric = get_if<bool>(params, "Symmetric", false);
@@ -432,31 +468,48 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static void declareDefaultSolvers(LinearSolverFactory<parallel>& f) {
-    f.add("CGSolver",
-          buildIterativeSolverGenerator<parallel, mfem::CGSolver>());
-    f.add("GMRESSolver",
-          buildIterativeSolverGenerator<parallel, mfem::GMRESSolver>());
-    f.add("BiCGSTABSolver",
-          buildIterativeSolverGenerator<parallel, mfem::BiCGSTABSolver>());
-    f.add("MINRESSolver",
-          buildIterativeSolverGenerator<parallel, mfem::MINRESSolver>());
-    f.add("SLISolver",
-          buildIterativeSolverGenerator<parallel, mfem::SLISolver>());
+    auto ctx = Context{};
+    auto success = true;
+    success = success &&
+              f.add(ctx, "CGSolver",
+                    buildIterativeSolverGenerator<parallel, mfem::CGSolver>());
+    success =
+        success &&
+        f.add(ctx, "GMRESSolver",
+              buildIterativeSolverGenerator<parallel, mfem::GMRESSolver>());
+    success =
+        success &&
+        f.add(ctx, "BiCGSTABSolver",
+              buildIterativeSolverGenerator<parallel, mfem::BiCGSTABSolver>());
+    success =
+        success &&
+        f.add(ctx, "MINRESSolver",
+              buildIterativeSolverGenerator<parallel, mfem::MINRESSolver>());
+    success = success &&
+              f.add(ctx, "SLISolver",
+                    buildIterativeSolverGenerator<parallel, mfem::SLISolver>());
     if constexpr (parallel) {
 #ifdef MFEM_USE_MUMPS
-      f.add("MUMPSSolver", buildMUMPSSolverGenerator());
+      success =
+          success && f.add(ctx, "MUMPSSolver", buildMUMPSSolverGenerator());
 #endif
-      f.add("HyprePCG", buildHyprePCGSolverGenerator());
-      f.add("HypreGMRES", buildHypreGMRESSolverGenerator());
-      f.add("HypreFGMRES", buildHypreFGMRESSolverGenerator());
+      success =
+          success && f.add(ctx, "HyprePCG", buildHyprePCGSolverGenerator());
+      success =
+          success && f.add(ctx, "HypreGMRES", buildHypreGMRESSolverGenerator());
+      success = success &&
+                f.add(ctx, "HypreFGMRES", buildHypreFGMRESSolverGenerator());
     }
     if constexpr (!parallel) {
 #ifdef MFEM_USE_SUITESPARSE
-      f.add("UMFPackSolver", [](FiniteElementSpace<false>&, const Parameters&) {
-        return LinearSolverHandler{
-            std::make_unique<mfem::UMFPackSolver>(),
-            std::unique_ptr<LinearSolverPreconditioner>{}};
-      });
+      success =
+          success &&
+          f.add(ctx, "UMFPackSolver",
+                [](Context&, FiniteElementSpace<false>&, const Parameters&) {
+                  return LinearSolverHandler{
+                      std::make_unique<mfem::UMFPackSolver>(),
+                      std::unique_ptr<LinearSolverPreconditioner>{}};
+                });
 #endif
     }
   }  // end of declareDefaultSolvers
@@ -468,19 +521,23 @@ namespace mfem_mgis {
     return factory;
   }  // end of getFactory
 
-  void LinearSolverFactory<true>::add(std::string_view n, Generator g) {
+  bool LinearSolverFactory<true>::add(Context& ctx,
+                                      std::string_view n,
+                                      Generator g) noexcept {
     const auto pg = this->generators.find(n);
     if (pg != this->generators.end()) {
       std::string msg("LinearSolverFactory<true>::add: ");
       msg += "a linear solver called '";
       msg += n;
       msg += "' has already been declared";
-      raise(msg);
+      return ctx.registerErrorMessage(msg);
     }
     this->generators.insert({std::string(n), std::move(g)});
+    return true;
   }  // end of add
 
   LinearSolverHandler LinearSolverFactory<true>::generate(
+      Context& ctx,
       std::string_view n,
       FiniteElementSpace<true>& fespace,
       const Parameters& params) const {
@@ -493,19 +550,19 @@ namespace mfem_mgis {
       for (const auto& g : this->generators) {
         msg += " " + g.first;
       }
-      raise(msg);
+      return ctx.registerErrorMessage(msg);
     }
     const auto& g = pg->second;
     LinearSolverHandler s;
     try {
-      s = g(fespace, params);
+      s = g(ctx, fespace, params);
     } catch (std::exception& e) {
       std::string msg("LinearSolverFactory<false>::generate: ");
       msg += "error while generating no linear '";
       msg += n;
       msg += "'\n";
       msg += e.what();
-      raise(msg);
+      return ctx.registerErrorMessage(msg);
     }
     return s;
   }  // end of generate
@@ -523,19 +580,23 @@ namespace mfem_mgis {
     return factory;
   }  // end of getFactory
 
-  void LinearSolverFactory<false>::add(std::string_view n, Generator g) {
+  bool LinearSolverFactory<false>::add(Context& ctx,
+                                       std::string_view n,
+                                       Generator g) noexcept {
     const auto pg = this->generators.find(n);
     if (pg != this->generators.end()) {
       std::string msg("LinearSolverFactory<false>::add: ");
       msg += "a linear solver called '";
       msg += n;
       msg += "' has already been declared";
-      raise(msg);
+      return ctx.registerErrorMessage(msg);
     }
     this->generators.insert({std::string(n), std::move(g)});
+    return true;
   }  // end of add
 
   LinearSolverHandler LinearSolverFactory<false>::generate(
+      Context& ctx,
       std::string_view n,
       FiniteElementSpace<false>& fespace,
       const Parameters& params) const {
@@ -548,19 +609,19 @@ namespace mfem_mgis {
       for (const auto& g : this->generators) {
         msg += " " + g.first;
       }
-      raise(msg);
+      return ctx.registerErrorMessage(msg);
     }
     const auto& g = pg->second;
     LinearSolverHandler s;
     try {
-      s = g(fespace, params);
+      s = g(ctx, fespace, params);
     } catch (std::exception& e) {
       std::string msg("LinearSolverFactory<false>::generate: ");
       msg += "error while generating no linear '";
       msg += n;
       msg += "'\n";
       msg += e.what();
-      raise(msg);
+      return ctx.registerErrorMessage(msg);
     }
     return s;
   }  // end of generate

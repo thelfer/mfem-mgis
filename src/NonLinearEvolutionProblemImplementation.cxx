@@ -115,9 +115,14 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
       std::string_view n, const Parameters& p) {
+    auto ctx = Context{};
     const auto& f = LinearSolverFactory<true>::getFactory();
     auto& fespace = this->getFiniteElementSpace();
-    this->updateLinearSolver(f.generate(n, fespace, p));
+    auto s = f.generate(ctx, n, fespace, p);
+    if (isInvalid(s)) {
+      raise(ctx.getErrorMessage());
+    }
+    this->updateLinearSolver(std::move(s));
   }  // end of setLinearSolver
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
@@ -263,9 +268,14 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       std::string_view n, const Parameters& p) {
+    auto ctx = Context{};
     const auto& f = LinearSolverFactory<false>::getFactory();
     auto& fespace = this->getFiniteElementSpace();
-    this->updateLinearSolver(f.generate(n, fespace, p));
+    auto s = f.generate(ctx, n, fespace, p);
+    if (isInvalid(s)) {
+      raise(ctx.getErrorMessage());
+    }
+    this->updateLinearSolver(std::move(s));
   }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::integrate(
