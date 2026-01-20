@@ -27,7 +27,7 @@ namespace mfem_mgis {
 
   bool isInvalid(const LinearSolverHandler& s) noexcept {
     return isInvalid(s.linear_solver);
-  } // end of isInvalid
+  }  // end of isInvalid
 
 #ifdef MFEM_USE_MPI
 
@@ -405,7 +405,7 @@ namespace mfem_mgis {
 
   template <bool parallel, typename LinearSolverType>
   std::function<LinearSolverHandler(
-      Context& , FiniteElementSpace<parallel>&, const Parameters&)>
+      Context&, FiniteElementSpace<parallel>&, const Parameters&)>
   buildIterativeSolverGenerator() {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
