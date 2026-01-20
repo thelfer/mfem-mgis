@@ -17,6 +17,7 @@
 #include "mfem/linalg/mumps.hpp"
 #endif
 #include "MGIS/Raise.hxx"
+#include "MGIS/Contract.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
@@ -469,47 +470,39 @@ namespace mfem_mgis {
   template <bool parallel>
   static void declareDefaultSolvers(LinearSolverFactory<parallel>& f) {
     auto ctx = Context{};
-    auto success = true;
-    success = success &&
-              f.add(ctx, "CGSolver",
-                    buildIterativeSolverGenerator<parallel, mfem::CGSolver>());
-    success =
-        success &&
-        f.add(ctx, "GMRESSolver",
-              buildIterativeSolverGenerator<parallel, mfem::GMRESSolver>());
-    success =
-        success &&
+    auto check = [&ctx](const bool b) {
+      if (!b) {
+        auto eh = mgis::ContractViolationHandler{};
+        eh.registerErrorMessage(ctx.getErrorMessage().c_str());
+      }
+    };
+    check(f.add(ctx, "CGSolver",
+                buildIterativeSolverGenerator<parallel, mfem::CGSolver>()));
+    check(f.add(ctx, "GMRESSolver",
+                buildIterativeSolverGenerator<parallel, mfem::GMRESSolver>()));
+    check(
         f.add(ctx, "BiCGSTABSolver",
-              buildIterativeSolverGenerator<parallel, mfem::BiCGSTABSolver>());
-    success =
-        success &&
-        f.add(ctx, "MINRESSolver",
-              buildIterativeSolverGenerator<parallel, mfem::MINRESSolver>());
-    success = success &&
-              f.add(ctx, "SLISolver",
-                    buildIterativeSolverGenerator<parallel, mfem::SLISolver>());
+              buildIterativeSolverGenerator<parallel, mfem::BiCGSTABSolver>()));
+    check(f.add(ctx, "MINRESSolver",
+                buildIterativeSolverGenerator<parallel, mfem::MINRESSolver>()));
+    check(f.add(ctx, "SLISolver",
+                buildIterativeSolverGenerator<parallel, mfem::SLISolver>()));
     if constexpr (parallel) {
 #ifdef MFEM_USE_MUMPS
-      success =
-          success && f.add(ctx, "MUMPSSolver", buildMUMPSSolverGenerator());
+      check(f.add(ctx, "MUMPSSolver", buildMUMPSSolverGenerator()));
 #endif
-      success =
-          success && f.add(ctx, "HyprePCG", buildHyprePCGSolverGenerator());
-      success =
-          success && f.add(ctx, "HypreGMRES", buildHypreGMRESSolverGenerator());
-      success = success &&
-                f.add(ctx, "HypreFGMRES", buildHypreFGMRESSolverGenerator());
+      check(f.add(ctx, "HyprePCG", buildHyprePCGSolverGenerator()));
+      check(f.add(ctx, "HypreGMRES", buildHypreGMRESSolverGenerator()));
+      check(f.add(ctx, "HypreFGMRES", buildHypreFGMRESSolverGenerator()));
     }
     if constexpr (!parallel) {
 #ifdef MFEM_USE_SUITESPARSE
-      success =
-          success &&
-          f.add(ctx, "UMFPackSolver",
-                [](Context&, FiniteElementSpace<false>&, const Parameters&) {
-                  return LinearSolverHandler{
-                      std::make_unique<mfem::UMFPackSolver>(),
-                      std::unique_ptr<LinearSolverPreconditioner>{}};
-                });
+      check(f.add(ctx, "UMFPackSolver",
+                  [](Context&, FiniteElementSpace<false>&, const Parameters&) {
+                    return LinearSolverHandler{
+                        std::make_unique<mfem::UMFPackSolver>(),
+                        std::unique_ptr<LinearSolverPreconditioner>{}};
+                  }));
 #endif
     }
   }  // end of declareDefaultSolvers
@@ -526,7 +519,7 @@ namespace mfem_mgis {
                                       Generator g) noexcept {
     const auto pg = this->generators.find(n);
     if (pg != this->generators.end()) {
-      std::string msg("LinearSolverFactory<true>::add: ");
+      auto msg = std::string{"LinearSolverFactory<true>::add: "};
       msg += "a linear solver called '";
       msg += n;
       msg += "' has already been declared";
@@ -546,7 +539,7 @@ namespace mfem_mgis {
       std::string msg("LinearSolverFactory<true>::generate: ");
       msg += "no linear solver called '";
       msg += n;
-      msg += "' declared. Here is the list of avaible linear solvers:";
+      msg += "' declared. Here is the list of available linear solvers:";
       for (const auto& g : this->generators) {
         msg += " " + g.first;
       }
@@ -585,7 +578,7 @@ namespace mfem_mgis {
                                        Generator g) noexcept {
     const auto pg = this->generators.find(n);
     if (pg != this->generators.end()) {
-      std::string msg("LinearSolverFactory<false>::add: ");
+      auto msg = std::string{"LinearSolverFactory<false>::add: "};
       msg += "a linear solver called '";
       msg += n;
       msg += "' has already been declared";
@@ -605,7 +598,7 @@ namespace mfem_mgis {
       std::string msg("LinearSolverFactory<false>::generate: ");
       msg += "no linear solver called '";
       msg += n;
-      msg += "' declared. Here is the list of avaible linear solvers:";
+      msg += "' declared. Here is the list of available linear solvers:";
       for (const auto& g : this->generators) {
         msg += " " + g.first;
       }
