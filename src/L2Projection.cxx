@@ -396,53 +396,13 @@ namespace mfem_mgis {
     const size_type component;
   };
 
-  struct VectorL2ProjectionBilinearFormIntegrator final
-      : public mfem::BilinearFormIntegrator {
-    //
-    VectorL2ProjectionBilinearFormIntegrator(
-        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : nc(fcts.at(0).getNumberOfComponents()) {}
-    //
-    void AssembleElementMatrix(const mfem::FiniteElement& el,
-                               mfem::ElementTransformation& Trans,
-                               mfem::DenseMatrix& elmat) override {
-      const int nd = el.GetDof();
-      elmat.SetSize(nd * (this->nc));
-      shape.SetSize(nd);
-      partelmat.SetSize(nd);
-      //
-      const auto* ir = GetIntegrationRule(el, Trans);
-      if (ir == NULL) {
-        const auto order = 2 * el.GetOrder() + Trans.OrderW();
-        ir = &mfem::IntRules.Get(el.GetGeomType(), order);
-      }
-      //
-      elmat = 0.0;
-      for (size_type s = 0; s < ir->GetNPoints(); s++) {
-        const auto& ip = ir->IntPoint(s);
-        Trans.SetIntPoint(&ip);
-        el.CalcPhysShape(Trans, shape);
-        const auto norm = ip.weight * Trans.Weight();
-        MultVVt(shape, partelmat);
-        partelmat *= norm;
-        for (size_type k = 0; k < this->nc; k++) {
-          elmat.AddMatrix(partelmat, nd * k, nd * k);
-        }
-      }
-    }  // end of AssembleElementMatrix
-   private:
-    mfem::Vector shape;
-    mfem::DenseMatrix partelmat;
-    //! \brief number of components
-    const int nc;
-  };
-
   template <bool parallel>
-  static bool updateL2Projection_impl(
+  [[nodiscard]] static bool checkUpdateFunctionsArguments(
       Context& ctx,
-      L2ProjectionResult<parallel>& r,
+      ImplicitGradientRegularizationResult<parallel>& r,
       LinearSolverHandler& l,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+      const std::vector<ImmutablePartialQuadratureFunctionView>&
+          fcts) noexcept {
     // checks
     if ((r.fe_space == nullptr) || (r.result == nullptr)) {
       return ctx.registerErrorMessage("uninitialized result");
@@ -484,6 +444,21 @@ namespace mfem_mgis {
             std::to_string(id) + "'");
       }
     }
+    return true;
+  }  // end of checkUpdateFunctionsArguments
+
+  template <bool parallel>
+  static bool updatePartialQuadratureRegularization_impl(
+      Context& ctx,
+      L2ProjectionResult<parallel>& r,
+      LinearSolverHandler& l,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      std::function<void(BilinearForm<parallel>&)>
+          add_regularization_operator) {
+    if (!checkUpdateFunctionsArguments(ctx, r, l, fcts)) {
+      return false;
+    }
+    const auto& mesh = *(r.fe_space->GetMesh());
     //
     *(r.result) = real{};
     //
@@ -522,11 +497,11 @@ namespace mfem_mgis {
       local_gridfunction = std::make_unique<GridFunction<parallel>>(fespace);
       return local_gridfunction.get();
     }();
-    // resolutions
     // Mass matrix
     BilinearForm<parallel> a(fespace);
-    a.AddDomainIntegrator(new mfem::MassIntegrator);
+    add_regularization_operator(a);
     a.Assemble();
+    // resolutions
     for (size_type c = 0; c != r.fe_space->GetVDim(); ++c) {
       // initialize the solution, if need
       if (r.fe_space->GetVDim() != 1) {
@@ -587,6 +562,18 @@ namespace mfem_mgis {
       }
     }
     return true;
+  }  // end of updatePartialQuadratureRegularization_impl
+
+  template <bool parallel>
+  static bool updateL2Projection_impl(
+      Context& ctx,
+      L2ProjectionResult<parallel>& r,
+      LinearSolverHandler& l,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+    return updatePartialQuadratureRegularization_impl<parallel>(
+        ctx, r, l, fcts, [](BilinearForm<parallel>& a) {
+          a.AddDomainIntegrator(new mfem::MassIntegrator);
+        });
   }  // end of updateL2Projection_impl
 
   template <>
@@ -651,5 +638,86 @@ namespace mfem_mgis {
           fcts) noexcept {
     return computeL2Projection_impl<false>(ctx, l, fcts);
   }  // end of computeL2Projection
+
+  template <bool parallel>
+  [[nodiscard]] static bool updateImplicitGradientRegularization_impl(
+      Context& ctx,
+      ImplicitGradientRegularizationResult<parallel>& r,
+      LinearSolverHandler& l,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real lc) noexcept {
+    return updatePartialQuadratureRegularization_impl<parallel>(
+        ctx, r, l, fcts, [](BilinearForm<parallel>& a) {
+          a.AddDomainIntegrator(new mfem::MassIntegrator);
+        });
+  }  // end of updateImplicitGradientRegularization_impl
+
+  template <>
+  bool updateImplicitGradientRegularization<true>(
+      Context& ctx,
+      ImplicitGradientRegularizationResult<true>& r,
+      LinearSolverHandler& l,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real lc) noexcept {
+#ifdef MFEM_USE_MPI
+    return updateImplicitGradientRegularization_impl<true>(ctx, r, l, fcts, lc);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+  }    // end of updateImplicitGradientRegularization
+
+  template <>
+  bool updateImplicitGradientRegularization<false>(
+      Context& ctx,
+      ImplicitGradientRegularizationResult<false>& r,
+      LinearSolverHandler& l,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real lc) noexcept {
+    return updateImplicitGradientRegularization_impl<false>(ctx, r, l, fcts,
+                                                            lc);
+  }  // end of updateImplicitGradientRegularization
+
+  template <bool parallel>
+  static std::optional<ImplicitGradientRegularizationResult<parallel>>
+  computeImplicitGradientRegularization_impl(
+      Context& ctx,
+      LinearSolverHandler& l,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real lc) noexcept {
+    auto ores = createL2ProjectionResult<parallel>(ctx, fcts);
+    if (isInvalid(ores)) {
+      return {};
+    }
+    const auto ok =
+        updateImplicitGradientRegularization<parallel>(ctx, *ores, l, fcts, lc);
+    if (!ok) {
+      return {};
+    }
+    return ores;
+  }  // end of computeImplicitGradientRegularization_impl
+
+  template <>
+  std::optional<ImplicitGradientRegularizationResult<true>>
+  computeImplicitGradientRegularization<true>(
+      Context& ctx,
+      LinearSolverHandler& l,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real lc) noexcept {
+#ifdef MFEM_USE_MPI
+    return computeImplicitGradientRegularization_impl<true>(ctx, l, fcts, lc);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+  }    // end of computeImplicitGradientRegularization
+
+  template <>
+  std::optional<ImplicitGradientRegularizationResult<false>>
+  computeImplicitGradientRegularization<false>(
+      Context& ctx,
+      LinearSolverHandler& l,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real lc) noexcept {
+    return computeImplicitGradientRegularization_impl<false>(ctx, l, fcts, lc);
+  }  // end of computeImplicitGradientRegularization
 
 }  // end of namespace mfem_mgis
