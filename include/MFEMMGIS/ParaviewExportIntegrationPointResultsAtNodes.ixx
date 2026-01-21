@@ -186,7 +186,7 @@ namespace mfem_mgis {
   template <bool parallel>
   ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<parallel>::
       ParaviewExportIntegrationPointPostProcessingsResultsAtNodes(
-          NonLinearEvolutionProblemImplementation<true>& p,
+          NonLinearEvolutionProblemImplementation<parallel>& p,
           std::string_view n,
           const std::vector<size_type> mids,
           const size_type nc,

@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "mfem/general/optparser.hpp"
+#include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 #include "MFEMMGIS/L2Projection.hxx"
@@ -50,7 +51,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", params.order},
        {"UnknownsSize", 1},
-       {"NumberOfUniformRefinements", params.parallel ? 1 : 0},
+       {"NumberOfUniformRefinements", parallel ? 1 : 0},
        {"Parallel", parallel}}};
   auto space = std::make_shared<PartialQuadratureSpace>(
       fed, 5,
@@ -71,6 +72,21 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   if (isInvalid(oresult)) {
     return false;
   }
+  mfem::ParaViewDataCollection exporter("Result");
+  if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+    exporter.SetMesh(&(fed.getMesh<true>()));
+#else /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+  } else {
+    exporter.SetMesh(&(fed.getMesh<false>()));
+  }
+  exporter.SetDataFormat(mfem::VTKFormat::BINARY);
+  exporter.RegisterField("Result", oresult->result.get());
+  exporter.SetCycle(1);
+  exporter.SetTime(1);
+  exporter.Save();
   return true;
 }  // end of test
 
@@ -83,7 +99,11 @@ int main(int argc, char** argv) {
   parseCommandLineOptions(params, argc, argv);
   const auto success = [&ctx, &params] {
     if (params.parallel) {
+#ifdef MFEM_USE_MPI
       return test<true>(ctx, params);
+#else /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
     }
     return test<false>(ctx, params);
   }();
