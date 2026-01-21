@@ -25,6 +25,10 @@
 
 namespace mfem_mgis {
 
+  bool isInvalid(const LinearSolverHandler& s) noexcept {
+    return isInvalid(s.linear_solver);
+  }  // end of isInvalid
+
 #ifdef MFEM_USE_MPI
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreBoomerAMGPreconditioner(
