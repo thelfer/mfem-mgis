@@ -396,47 +396,6 @@ namespace mfem_mgis {
     const size_type component;
   };
 
-  struct VectorL2ProjectionBilinearFormIntegrator final
-      : public mfem::BilinearFormIntegrator {
-    //
-    VectorL2ProjectionBilinearFormIntegrator(
-        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : nc(fcts.at(0).getNumberOfComponents()) {}
-    //
-    void AssembleElementMatrix(const mfem::FiniteElement& el,
-                               mfem::ElementTransformation& Trans,
-                               mfem::DenseMatrix& elmat) override {
-      const int nd = el.GetDof();
-      elmat.SetSize(nd * (this->nc));
-      shape.SetSize(nd);
-      partelmat.SetSize(nd);
-      //
-      const auto* ir = GetIntegrationRule(el, Trans);
-      if (ir == NULL) {
-        const auto order = 2 * el.GetOrder() + Trans.OrderW();
-        ir = &mfem::IntRules.Get(el.GetGeomType(), order);
-      }
-      //
-      elmat = 0.0;
-      for (size_type s = 0; s < ir->GetNPoints(); s++) {
-        const auto& ip = ir->IntPoint(s);
-        Trans.SetIntPoint(&ip);
-        el.CalcPhysShape(Trans, shape);
-        const auto norm = ip.weight * Trans.Weight();
-        MultVVt(shape, partelmat);
-        partelmat *= norm;
-        for (size_type k = 0; k < this->nc; k++) {
-          elmat.AddMatrix(partelmat, nd * k, nd * k);
-        }
-      }
-    }  // end of AssembleElementMatrix
-   private:
-    mfem::Vector shape;
-    mfem::DenseMatrix partelmat;
-    //! \brief number of components
-    const int nc;
-  };
-
   template <bool parallel>
   static bool updateL2Projection_impl(
       Context& ctx,
