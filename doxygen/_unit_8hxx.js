@@ -1,4 +1,0 @@
-var _unit_8hxx =
-[
-    [ "tfel::math::Unit< std::integral_constant< int, N1 >, std::integral_constant< int, N2 >, std::integral_constant< int, N3 >, std::integral_constant< int, N4 >, std::integral_constant< int, N5 >, std::integral_constant< int, N6 >, std::integral_constant< int, N7 >, std::integral_constant< unsigned int, D1 >, std::integral_constant< unsigned int, D2 >, std::integral_constant< unsigned int, D3 >, std::integral_constant< unsigned int, D4 >, std::integral_constant< unsigned int, D5 >, std::integral_constant< unsigned int, D6 >, std::integral_constant< unsigned int, D7 > >", "structtfel_1_1math_1_1_unit_3_01std_1_1integral__constant_3_01int_00_01_n1_01_4_00_01std_1_1inte22245c37637fc2ae3e1f4d95f396757e.html", null ]
-];
