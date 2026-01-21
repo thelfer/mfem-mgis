@@ -145,9 +145,9 @@ namespace mfem_mgis {
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-    return areDefinedOnWholeMesh_impl<true>(ctx, fcts);
+      return areDefinedOnWholeMesh_impl<true>(ctx, fcts);
 #else  /* MFEM_USE_MPI */
-    reportUnsupportedParallelComputations();
+      reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     }
     return areDefinedOnWholeMesh_impl<false>(ctx, fcts);
@@ -186,7 +186,7 @@ namespace mfem_mgis {
     // create sub mesh
     auto ids = mfem::Array<int>{};
     for (const auto& f : fcts) {
-      const auto& qspace = f.getPartialQuadratureSpace(); 
+      const auto& qspace = f.getPartialQuadratureSpace();
       const auto id = qspace.getId();
       ids.Append(id);
     }
@@ -226,6 +226,7 @@ namespace mfem_mgis {
     L2ProjectionFormIntegratorBase(
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
         : functions(makeFunctionsMapping(throwing, fcts)) {}
+
    private:
     [[nodiscard]] static std::
         unordered_map<size_type, ImmutablePartialQuadratureFunctionView>
@@ -319,74 +320,80 @@ namespace mfem_mgis {
     const mfem::Array<int> elts_mapping;
   };
 
-  //   struct VectorL2ProjectionRHSFormIntegrator final
-  //       : public L2ProjectionFormIntegratorBase,
-  //         public mfem::LinearFormIntegrator {
-  //     //
-  //     using L2ProjectionFormIntegratorBase::L2ProjectionFormIntegratorBase;
-  //     //
-  //     void AssembleRHSElementVect(const mfem::FiniteElement& e,
-  //                                 mfem::ElementTransformation& tr,
-  //                                 mfem::Vector& elvect) override {
-  //       const auto m = tr.Attribute;
-  //       const auto& f = this->functions.at(m);
-  //       const int dof = e.GetDof();
-  //       //
-  //       shape.SetSize(dof);  // vector of size dof
-  //       elvect.SetSize(dof);
-  //       elvect = 0.0;
-  //       //
-  //       const auto& ir = f.getPartialQuadratureSpace().getIntegrationRule(e,
-  //       tr);
-  //       //
-  //       for (int i = 0; i < ir.GetNPoints(); i++) {
-  //         const auto& ip = ir.IntPoint(i);
-  //         tr.SetIntPoint(&ip);
-  //         const auto v =
-  //             tr.Weight() * f.getIntegrationPointValue(tr.ElementNo, i);
-  //         e.CalcPhysShape(tr, shape);
-  //         add(elvect, ip.weight * v, shape, elvect);
-  //       }
-  //     }  // end of AssembleRHSElementVect
-  //   };
-  //
-  //   struct VectorL2ProjectionRHSFormIntegratorII final
-  //       : public L2ProjectionFormIntegratorBase,
-  //         public mfem::LinearFormIntegrator {
-  //     //
-  //     VectorL2ProjectionRHSFormIntegratorII(
-  //         const mfem::Array<int>& m,
-  //         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-  //         : L2ProjectionFormIntegratorBase(fcts), elts_mapping(m) {}
-  //
-  //     //
-  //     void AssembleRHSElementVect(const mfem::FiniteElement& e,
-  //                                 mfem::ElementTransformation& tr,
-  //                                 mfem::Vector& elvect) override {
-  //       const auto m = tr.Attribute;
-  //       const auto& f = this->functions.at(m);
-  //       const int dof = e.GetDof();
-  //       //
-  //       shape.SetSize(dof);  // vector of size dof
-  //       elvect.SetSize(dof);
-  //       elvect = 0.0;
-  //       //
-  //       const auto& ir = f.getPartialQuadratureSpace().getIntegrationRule(e,
-  //       tr);
-  //       //
-  //       for (int i = 0; i < ir.GetNPoints(); i++) {
-  //         const auto& ip = ir.IntPoint(i);
-  //         tr.SetIntPoint(&ip);
-  //         const auto n = elts_mapping[tr.ElementNo];
-  //         const auto v = tr.Weight() * f.getIntegrationPointValue(n, i);
-  //         e.CalcPhysShape(tr, shape);
-  //         add(elvect, ip.weight * v, shape, elvect);
-  //       }
-  //     }  // end of AssembleRHSElementVect
-  //
-  //    private:
-  //     const mfem::Array<int> elts_mapping;
-  //   };
+  struct ComponentL2ProjectionRHSFormIntegrator final
+      : public L2ProjectionFormIntegratorBase,
+        public mfem::LinearFormIntegrator {
+    //
+    ComponentL2ProjectionRHSFormIntegrator(
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+        const size_type c)
+        : L2ProjectionFormIntegratorBase(fcts), component(c) {}
+    //
+    void AssembleRHSElementVect(const mfem::FiniteElement& e,
+                                mfem::ElementTransformation& tr,
+                                mfem::Vector& elvect) override {
+      const auto m = tr.Attribute;
+      const auto& f = this->functions.at(m);
+      const int dof = e.GetDof();
+      //
+      shape.SetSize(dof);  // vector of size dof
+      elvect.SetSize(dof);
+      elvect = 0.0;
+      //
+      const auto& ir = f.getPartialQuadratureSpace().getIntegrationRule(e, tr);
+      //
+      for (int i = 0; i < ir.GetNPoints(); i++) {
+        const auto& ip = ir.IntPoint(i);
+        tr.SetIntPoint(&ip);
+        const auto v = tr.Weight() * (f.getIntegrationPointValues(
+                                         tr.ElementNo, i)[this->component]);
+        e.CalcPhysShape(tr, shape);
+        add(elvect, ip.weight * v, shape, elvect);
+      }
+    }  // end of AssembleRHSElementVect
+   private:
+    const size_type component;
+  };
+
+  struct ComponentL2ProjectionRHSFormIntegratorII final
+      : public L2ProjectionFormIntegratorBase,
+        public mfem::LinearFormIntegrator {
+    //
+    ComponentL2ProjectionRHSFormIntegratorII(
+        const mfem::Array<int>& m,
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+        const size_type c)
+        : L2ProjectionFormIntegratorBase(fcts), elts_mapping(m), component(c) {}
+
+    //
+    void AssembleRHSElementVect(const mfem::FiniteElement& e,
+                                mfem::ElementTransformation& tr,
+                                mfem::Vector& elvect) override {
+      const auto m = tr.Attribute;
+      const auto& f = this->functions.at(m);
+      const int dof = e.GetDof();
+      //
+      shape.SetSize(dof);  // vector of size dof
+      elvect.SetSize(dof);
+      elvect = 0.0;
+      //
+      const auto& ir = f.getPartialQuadratureSpace().getIntegrationRule(e, tr);
+      //
+      for (int i = 0; i < ir.GetNPoints(); i++) {
+        const auto& ip = ir.IntPoint(i);
+        tr.SetIntPoint(&ip);
+        const auto n = elts_mapping[tr.ElementNo];
+        const auto v =
+            tr.Weight() * (f.getIntegrationPointValues(n, i)[this->component]);
+        e.CalcPhysShape(tr, shape);
+        add(elvect, ip.weight * v, shape, elvect);
+      }
+    }  // end of AssembleRHSElementVect
+
+   private:
+    const mfem::Array<int> elts_mapping;
+    const size_type component;
+  };
 
   struct VectorL2ProjectionBilinearFormIntegrator final
       : public mfem::BilinearFormIntegrator {
@@ -477,43 +484,110 @@ namespace mfem_mgis {
       }
     }
     //
-    *(r.result) = 0.0;
-    // right-hand side
-    LinearForm<parallel> b(r.fe_space.get());
-    if (r.fe_space->GetVDim() == 1) {
-      if (r.submesh != nullptr) {
-        b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegratorII(
-            r.submesh->GetParentElementIDMap(), fcts));
-      } else {
-        b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegrator(fcts));
+    *(r.result) = real{};
+    //
+    // Here begin the tricky part. In order to reduce the computational cost,
+    // we will make the projection component by component. But of course, if the
+    // functions are scalar, we do want to avoid creating a temporary finite
+    // element space or a copy of the projection in *(r.result).
+    //
+    // Thus we introduce:
+    // -  local_fespace and local_gridfunction which are only allocated
+    // -  fespace and x which points with the finite element space and grid
+    //    function used for the resolution
+    //
+    auto local_fespace = std::unique_ptr<FiniteElementSpace<parallel>>{};
+    auto* const fespace = [&r, &local_fespace, &mesh] {
+      if (r.fe_space->GetVDim() == 1) {
+        return r.fe_space.get();
       }
-    } else {
-      return ctx.registerErrorMessage(
-          "multi-components projections is not supported yet");
-    }
-    b.Assemble();
+      if constexpr (parallel) {
+        local_fespace = std::make_unique<FiniteElementSpace<parallel>>(
+            r.fe_space->GetParMesh(), r.fe_space->FEColl(), 1,
+            r.fe_space->GetOrdering());
+      } else {
+        local_fespace = std::make_unique<FiniteElementSpace<parallel>>(
+            r.fe_space->GetMesh(), r.fe_space->FEColl(), 1,
+            r.fe_space->GetOrdering());
+      }
+      return local_fespace.get();
+    }();
+    //
+    auto local_gridfunction = std::unique_ptr<GridFunction<parallel>>{};
+    auto* const x = [&r, &local_gridfunction, &fespace] {
+      if (r.fe_space->GetVDim() == 1) {
+        return r.result.get();
+      }
+      local_gridfunction = std::make_unique<GridFunction<parallel>>(fespace);
+      return local_gridfunction.get();
+    }();
+    // resolutions
+    LinearForm<parallel> b(fespace);
     // Mass matrix
-    BilinearForm<parallel> a(r.fe_space.get());
+    BilinearForm<parallel> a(fespace);
     if (r.fe_space->GetVDim() == 1) {
       a.AddDomainIntegrator(new mfem::MassIntegrator);
     } else {
       a.AddDomainIntegrator(new VectorL2ProjectionBilinearFormIntegrator(fcts));
     }
     a.Assemble();
-    // resolution
-    mfem::Array<int> boundary_dofs;
-    std::conditional_t<parallel, mfem::HypreParMatrix, mfem::SparseMatrix> A;
-    mfem::Vector B, X;
-    a.FormLinearSystem(boundary_dofs, *(r.result), b, A, X, B);
-    l.linear_solver->SetOperator(A);
-    l.linear_solver->Mult(B, X);
-    auto* const isolver = dynamic_cast<IterativeSolver*>(l.linear_solver.get());
-    if (isolver != nullptr) {
-      if (!isolver->GetConverged()) {
-        return ctx.registerErrorMessage("linear solver failed");
+    for (size_type c = 0; c != r.fe_space->GetVDim(); ++c) {
+      // initialize the solution, if need
+      if (r.fe_space->GetVDim() != 1) {
+        *x = real{};
+      }
+      // right-hand side
+      if (r.fe_space->GetVDim() == 1) {
+        if (r.submesh != nullptr) {
+          b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegratorII(
+              r.submesh->GetParentElementIDMap(), fcts));
+        } else {
+          b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegrator(fcts));
+        }
+      } else {
+        if (r.submesh != nullptr) {
+          b.AddDomainIntegrator(new ComponentL2ProjectionRHSFormIntegratorII(
+              r.submesh->GetParentElementIDMap(), fcts, c));
+        } else {
+          b.AddDomainIntegrator(
+              new ComponentL2ProjectionRHSFormIntegrator(fcts, c));
+        }
+      }
+      b.Assemble();
+      // resolution
+      mfem::Array<int> boundary_dofs;
+      std::conditional_t<parallel, mfem::HypreParMatrix, mfem::SparseMatrix> A;
+      mfem::Vector B, X;
+      a.FormLinearSystem(boundary_dofs, *x, b, A, X, B);
+      l.linear_solver->SetOperator(A);
+      l.linear_solver->Mult(B, X);
+      auto* const isolver =
+          dynamic_cast<IterativeSolver*>(l.linear_solver.get());
+      if (isolver != nullptr) {
+        if (!isolver->GetConverged()) {
+          return ctx.registerErrorMessage("linear solver failed");
+        }
+      }
+      a.RecoverFEMSolution(X, b, *x);
+      // copy solution to r.result, if needed
+      if (r.fe_space->GetVDim() != 1) {
+        auto& dest = *(r.result);
+        const auto& src = *(x);
+        const auto bynodes =
+            (r.fe_space->GetOrdering() == mfem::Ordering::byNODES);
+        if (bynodes) {
+          const auto n = x->Size();
+          for (size_type idx = 0; idx != n; ++idx) {
+            dest[n * c + idx] = src[idx];
+          }
+        } else {
+          const auto n = r.fe_space->GetVDim();
+          for (size_type idx = 0; idx != x->Size(); ++idx) {
+            dest[idx * n + c] = src[idx];
+          }
+        }
       }
     }
-    a.RecoverFEMSolution(X, b, *(r.result));
     return true;
   }  // end of updateL2Projection_impl
 
@@ -551,7 +625,7 @@ namespace mfem_mgis {
     if (isInvalid(ores)) {
       return {};
     }
-    const auto ok = updateL2Projection<parallel>(ctx, * ores, l, fcts);
+    const auto ok = updateL2Projection<parallel>(ctx, *ores, l, fcts);
     if (!ok) {
       return {};
     }
@@ -569,7 +643,7 @@ namespace mfem_mgis {
 #else  /* MFEM_USE_MPI */
     reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
-  }  // end of computeL2Projection
+  }    // end of computeL2Projection
 
   template <>
   std::optional<L2ProjectionResult<false>> computeL2Projection<false>(
@@ -580,4 +654,4 @@ namespace mfem_mgis {
     return computeL2Projection_impl<false>(ctx, l, fcts);
   }  // end of computeL2Projection
 
-  }  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

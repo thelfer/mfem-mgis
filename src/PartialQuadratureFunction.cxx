@@ -555,7 +555,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts);
 #else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }
 
@@ -598,7 +598,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts, mesh);
 #else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }
 
@@ -643,7 +643,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts, mesh);
 #else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }
 
@@ -689,7 +689,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     updateGridFunction_impl<true>(f, fcts);
 #else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }
 
@@ -733,7 +733,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     updateGridFunction_impl<true>(f, fcts, mesh);
 #else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }
 
@@ -780,7 +780,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     updateGridFunction_impl<true>(f, fcts, mesh);
 #else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }
 

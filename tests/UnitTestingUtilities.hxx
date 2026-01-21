@@ -171,21 +171,20 @@ namespace mfem_mgis::unit_tests {
       mfem_mgis::NonLinearEvolutionProblem& problem,
       const TestParametersT& parameters) {
     auto ctx = Context{};
-    auto s =
-        [&] {
-          if (parameters.parallel == 1) {
+    auto s = [&] {
+      if (parameters.parallel == 1) {
 #ifdef MFEM_USE_MPI
-            auto& fespace = problem.getFiniteElementDiscretization()
-                                .getFiniteElementSpace<true>();
-            return getLinearSolver<true>(ctx, fespace, parameters);
+        auto& fespace = problem.getFiniteElementDiscretization()
+                            .getFiniteElementSpace<true>();
+        return getLinearSolver<true>(ctx, fespace, parameters);
 #else
-            reportUnsupportedParallelComputations();
+        reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
-          }
-          auto& fespace = problem.getFiniteElementDiscretization()
-                              .getFiniteElementSpace<false>();
-          return getLinearSolver<false>(ctx, fespace, parameters);
-        }();
+      }
+      auto& fespace = problem.getFiniteElementDiscretization()
+                          .getFiniteElementSpace<false>();
+      return getLinearSolver<false>(ctx, fespace, parameters);
+    }();
     if (isInvalid(s)) {
       mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
       mfem_mgis::abort(EXIT_FAILURE);
@@ -319,6 +318,6 @@ namespace mfem_mgis::unit_tests {
     return r;
   }
 
-  }  // end of namespace mfem_mgis::unit_tests
+}  // end of namespace mfem_mgis::unit_tests
 
 #endif /* LIB_MFEM_MGIS_UNITTESTINGUTILITIES_HXX */

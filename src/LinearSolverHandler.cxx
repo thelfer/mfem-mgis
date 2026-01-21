@@ -1,6 +1,6 @@
 /*!
  * \file   src/LinearSolverHandler.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   20/01/2026
  */
@@ -12,4 +12,4 @@ namespace mfem_mgis {
     return isInvalid(s.linear_solver);
   }  // end of isInvalid
 
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

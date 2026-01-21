@@ -129,7 +129,6 @@ namespace mfem_mgis {
   using LinearSolverPreconditioner = mfem::Solver;
   //!
 
-
 }  // namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_MFEM_FORWARD_HXX */

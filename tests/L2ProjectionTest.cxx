@@ -76,8 +76,8 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
     exporter.SetMesh(&(fed.getMesh<true>()));
-#else /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   } else {
     exporter.SetMesh(&(fed.getMesh<false>()));
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
     if (params.parallel) {
 #ifdef MFEM_USE_MPI
       return test<true>(ctx, params);
-#else /* MFEM_USE_MPI */
+#else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     }
