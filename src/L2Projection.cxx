@@ -345,8 +345,9 @@ namespace mfem_mgis {
       for (int i = 0; i < ir.GetNPoints(); i++) {
         const auto& ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
-        const auto v = tr.Weight() * (f.getIntegrationPointValues(
-                                         tr.ElementNo, i)[this->component]);
+        const auto fv =
+            f.getIntegrationPointValues(tr.ElementNo, i)[this->component];
+        const auto v = tr.Weight() * fv;
         e.CalcPhysShape(tr, shape);
         add(elvect, ip.weight * v, shape, elvect);
       }
@@ -383,8 +384,8 @@ namespace mfem_mgis {
         const auto& ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
         const auto n = elts_mapping[tr.ElementNo];
-        const auto v =
-            tr.Weight() * (f.getIntegrationPointValues(n, i)[this->component]);
+        const auto fv = f.getIntegrationPointValues(n, i)[this->component];
+        const auto v = tr.Weight() * fv;
         e.CalcPhysShape(tr, shape);
         add(elvect, ip.weight * v, shape, elvect);
       }
@@ -522,14 +523,9 @@ namespace mfem_mgis {
       return local_gridfunction.get();
     }();
     // resolutions
-    LinearForm<parallel> b(fespace);
     // Mass matrix
     BilinearForm<parallel> a(fespace);
-    if (r.fe_space->GetVDim() == 1) {
-      a.AddDomainIntegrator(new mfem::MassIntegrator);
-    } else {
-      a.AddDomainIntegrator(new VectorL2ProjectionBilinearFormIntegrator(fcts));
-    }
+    a.AddDomainIntegrator(new mfem::MassIntegrator);
     a.Assemble();
     for (size_type c = 0; c != r.fe_space->GetVDim(); ++c) {
       // initialize the solution, if need
@@ -537,6 +533,7 @@ namespace mfem_mgis {
         *x = real{};
       }
       // right-hand side
+      LinearForm<parallel> b(fespace);
       if (r.fe_space->GetVDim() == 1) {
         if (r.submesh != nullptr) {
           b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegratorII(
@@ -577,8 +574,9 @@ namespace mfem_mgis {
             (r.fe_space->GetOrdering() == mfem::Ordering::byNODES);
         if (bynodes) {
           const auto n = x->Size();
+          const auto offset = x->Size() * c;
           for (size_type idx = 0; idx != n; ++idx) {
-            dest[n * c + idx] = src[idx];
+            dest[offset + idx] = src[idx];
           }
         } else {
           const auto n = r.fe_space->GetVDim();
