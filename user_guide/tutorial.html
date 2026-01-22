@@ -78,6 +78,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release_notes/release_notes.html">Release notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../commented_examples/commented_examples.html">Commented Examples</a></li>
@@ -177,7 +178,7 @@ the beam ((y=h)).</p>
 <h4>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h4>
 <p>The material of the notched beam is described by a simple isotropic
 elasto-plastic behaviour with isotropic hardening in the logarithmic
-space <span id="id1">[<a class="reference internal" href="../index.html#id6" title="C. Miehe, N. Apel, and M. Lambrecht. Anisotropic additive plasticity in the logarithmic strain space: modular kinematic formulation and implementation based on incremental minimization principles for standard materials. Computer Methods in Applied Mechanics and Engineering, 191(47–48):5383–5425, November 2002. URL: http://www.sciencedirect.com/science/article/pii/S0045782502004383, doi:10.1016/S0045-7825(02)00438-3.">MAL02</a>]</span> and is implemented using the <a class="reference external" href="http://tfel.sourceforge.net">MFront</a>
+space <span id="id1">[<a class="reference internal" href="../index.html#id5" title="C. Miehe, N. Apel, and M. Lambrecht. Anisotropic additive plasticity in the logarithmic strain space: modular kinematic formulation and implementation based on incremental minimization principles for standard materials. Computer Methods in Applied Mechanics and Engineering, 191(47–48):5383–5425, November 2002. URL: http://www.sciencedirect.com/science/article/pii/S0045782502004383, doi:10.1016/S0045-7825(02)00438-3.">MAL02</a>]</span> and is implemented using the <a class="reference external" href="http://tfel.sourceforge.net">MFront</a>
 code generator.</p>
 <p>This behaviour is characterized by four parameters:</p>
 <ul class="simple">
@@ -385,7 +386,7 @@ problems can be plugged in at runtime if needed.</p></li>
 may be either an integer or a string. In the later case, the string
 is interpreted as a regular expression, a feature introduced by the
 <code class="docutils literal notranslate"><span class="pre">Licos</span></code> fuel performance code and which proved very pratical in
-many cases <span id="id2">[<a class="reference internal" href="../index.html#id5" title="Thomas Helfer, Syriac Bejaoui, and Bruno Michel. Licos, a fuel performance code for innovative fuel elements or experimental devices design. Nuclear Engineering and Design, 294:117–136, 2015-12-01. URL: http://www.sciencedirect.com/science/article/pii/S0029549315003842 (visited on 2015-11-30), doi:10.1016/j.nucengdes.2015.07.070.">HBM01</a>]</span>.</p></li>
+many cases <span id="id2">[<a class="reference internal" href="../index.html#id4" title="Thomas Helfer, Syriac Bejaoui, and Bruno Michel. Licos, a fuel performance code for innovative fuel elements or experimental devices design. Nuclear Engineering and Design, 294:117–136, 2015-12-01. URL: http://www.sciencedirect.com/science/article/pii/S0029549315003842 (visited on 2015-11-30), doi:10.1016/j.nucengdes.2015.07.070.">HBM01</a>]</span>.</p></li>
 <li><p>The shared library containing the behaviour to be used.</p></li>
 <li><p>The name of the behaviour to be used.</p></li>
 </ul>
@@ -393,7 +394,7 @@ many cases <span id="id2">[<a class="reference internal" href="../index.html#id5
 <div><p><strong>Information associated with the behaviour and automatic memory
 management</strong></p>
 <p>Thanks to the <code class="docutils literal notranslate"><span class="pre">`MGIS</span></code>
-project <span id="id3">[<a class="reference internal" href="../index.html#id8" title="Thomas Helfer, Jeremy Bleyer, Tero Frondelius, Ivan Yashchuk, Thomas Nagel, and Dmitri Naumov. The `MFrontGenericInterfaceSupport` project. Journal of Open Source Software, 5(48):2003, 2020. Publisher: The Open Journal. URL: https://doi.org/10.21105/joss.02003, doi:10.21105/joss.02003.">HBF+20</a>]</span>, all the information
+project <span id="id3">[<a class="reference internal" href="../index.html#id7" title="Thomas Helfer, Jeremy Bleyer, Tero Frondelius, Ivan Yashchuk, Thomas Nagel, and Dmitri Naumov. The `MFrontGenericInterfaceSupport` project. Journal of Open Source Software, 5(48):2003, 2020. Publisher: The Open Journal. URL: https://doi.org/10.21105/joss.02003, doi:10.21105/joss.02003.">HBF+20</a>]</span>, all the information
 related to the mechanical behaviour is retrieved, including:</p>
 <ul class="simple">
 <li><p>The type of behaviour (finite strain mechanical behaviour is this
@@ -418,7 +419,7 @@ beginning of the time step and at the end of time step:</p>
 <p>Defining the temperature is required by all <code class="docutils literal notranslate"><span class="pre">MFront</span></code> behaviours.</p>
 <p>The object returned a by the <code class="docutils literal notranslate"><span class="pre">getMaterial</span></code> method returns a thin
 wrapper around the <code class="docutils literal notranslate"><span class="pre">MaterialDataManager</span></code> provided by the <a class="reference external" href="https://thelfer.github.io/mfem-mgis/index.html">MGIS</a> project
-<span id="id4">[<a class="reference internal" href="../index.html#id8" title="Thomas Helfer, Jeremy Bleyer, Tero Frondelius, Ivan Yashchuk, Thomas Nagel, and Dmitri Naumov. The `MFrontGenericInterfaceSupport` project. Journal of Open Source Software, 5(48):2003, 2020. Publisher: The Open Journal. URL: https://doi.org/10.21105/joss.02003, doi:10.21105/joss.02003.">HBF+20</a>]</span>.</p>
+<span id="id4">[<a class="reference internal" href="../index.html#id7" title="Thomas Helfer, Jeremy Bleyer, Tero Frondelius, Ivan Yashchuk, Thomas Nagel, and Dmitri Naumov. The `MFrontGenericInterfaceSupport` project. Journal of Open Source Software, 5(48):2003, 2020. Publisher: The Open Journal. URL: https://doi.org/10.21105/joss.02003, doi:10.21105/joss.02003.">HBF+20</a>]</span>.</p>
 <p>In the previous lines, <code class="docutils literal notranslate"><span class="pre">m1.s0</span></code> and <code class="docutils literal notranslate"><span class="pre">m1.s1</span></code> denotes respectively the
 state of the material at the beginning of the time step and at the end
 of the time step.</p>

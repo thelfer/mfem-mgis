@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partial quadrature functions &mdash; The MFEM MGIS project  documentation</title>
+  <title>Release notes &mdash; The MFEM MGIS project  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Mechanical post-processings" href="../mechanical_postprocessings.html" />
-    <link rel="prev" title="Post-processings" href="../post_processings.html" /> 
+    <link rel="next" title="Release notes of Version 1.1" href="release_notes-1.1.html" />
+    <link rel="prev" title="Mesh Reader" href="../mesh.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,18 +51,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../behaviour_integrators.html">Behaviour integrators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../boundary_conditions.html">Boundary conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../post_processings.html">Post-processings</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Partial quadrature functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#extrapolating-quadrature-functions-at-nodes">Extrapolating quadrature functions at nodes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#available-functions">Available functions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#rotatethermodynamicforcestoglobalframe"><code class="code highlight c++ docutils literal highlight-c++"><span class="n">rotateThermodynamicForcesToGlobalFrame</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_functions.html">Partial quadrature functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mechanical_postprocessings.html">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release_notes/release_notes.html">Release notes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Release notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="release_notes-1.1.html">Release notes of Version 1.1</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../commented_examples/commented_examples.html">Commented Examples</a></li>
@@ -84,9 +80,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../user_guide.html">User guide</a></li>
-      <li class="breadcrumb-item active">Partial quadrature functions</li>
+      <li class="breadcrumb-item active">Release notes</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/user_guide/partial_quadrature_functions/partial_quadrature_functions.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/user_guide/release_notes/release_notes.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -94,41 +90,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="partial-quadrature-functions">
-<span id="mfem-mgis-partial-quadrature-functions"></span><h1>Partial quadrature functions<a class="headerlink" href="#partial-quadrature-functions" title="Link to this heading"></a></h1>
-<p>Partial quadrature functions map quadrature points to values. A partial
-quadrature function is defined on the quadrature points associated with
-a unique material.</p>
-<section id="extrapolating-quadrature-functions-at-nodes">
-<h2>Extrapolating quadrature functions at nodes<a class="headerlink" href="#extrapolating-quadrature-functions-at-nodes" title="Link to this heading"></a></h2>
-<p>Using a so-called <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code>, a set of partial quadrature
-functions, each associated with a distinct material, can be extrapolated
-at nodes:</p>
-<ul class="simple">
-<li><p>the <cite>makeGridFunction</cite> creates the <cite>GridFunction</cite> and the associated
-finite element space.</p></li>
-<li><p>the <cite>updateGridFunction</cite> fills the <cite>GridFunction</cite> with the values of
-the partial quadrature functions.</p></li>
+  <section id="release-notes">
+<span id="mfem-mgis-release-notes"></span><h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release_notes-1.1.html">Release notes of Version 1.1</a></li>
 </ul>
-<p>A <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> being an <cite>MFEM</cite> object, the reader may refer to
-the <cite>MFEM</cite> documentation for further details. In particular, a
-<code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> can easily be exported to <cite>Paraview</cite> using
-<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MFEM</span></code>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">ParaViewDataCollection</span></code>.</p>
-</section>
-<section id="available-functions">
-<h2>Available functions<a class="headerlink" href="#available-functions" title="Link to this heading"></a></h2>
-<section id="rotatethermodynamicforcestoglobalframe">
-<h3><code class="code highlight c++ docutils literal highlight-c++"><span class="n">rotateThermodynamicForcesToGlobalFrame</span></code><a class="headerlink" href="#rotatethermodynamicforcestoglobalframe" title="Link to this heading"></a></h3>
-</section>
-</section>
+</div>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../post_processings.html" class="btn btn-neutral float-left" title="Post-processings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../mechanical_postprocessings.html" class="btn btn-neutral float-right" title="Mechanical post-processings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../mesh.html" class="btn btn-neutral float-left" title="Mesh Reader" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="release_notes-1.1.html" class="btn btn-neutral float-right" title="Release notes of Version 1.1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
