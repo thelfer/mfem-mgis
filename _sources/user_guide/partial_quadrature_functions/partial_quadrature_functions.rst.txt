@@ -42,7 +42,6 @@ union of the domains of the quadrature functions.
 
 For vectorial functions, the projection is computed component-wise.
 
-
 Available functions
 -------------------
 
