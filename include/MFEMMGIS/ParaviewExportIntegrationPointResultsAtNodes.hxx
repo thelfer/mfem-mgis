@@ -230,7 +230,9 @@ namespace mfem_mgis {
    private:
     std::variant<
         std::monostate,
+#ifdef MFEM_USE_MPI
         ParaviewExportIntegrationPointResultsAtNodesImplementation<true>,
+#endif /* MFEM_USE_MPI */
         ParaviewExportIntegrationPointResultsAtNodesImplementation<false>>
         implementations;
   };
@@ -274,7 +276,7 @@ namespace mfem_mgis {
      * \param[in] d: output directory
      */
     ParaviewExportIntegrationPointPostProcessingsResultsAtNodes(
-        NonLinearEvolutionProblemImplementation<true> &,
+        NonLinearEvolutionProblemImplementation<parallel> &,
         std::string_view,
         const std::vector<size_type>,
         const size_type,

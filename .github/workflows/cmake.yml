@@ -39,7 +39,7 @@ jobs:
       run: |
         spack compiler find
         spack external find openmpi mpich libfabric
-        spack install mfem+mpi+suite-sparse+mumps@4.7.0%gcc@12.4.0
+        spack install mfem+mpi+suite-sparse+mumps@4.8.0%gcc@12.4.0
         spack install tfel@master:~python~python_bindings%gcc@12.4.0
         spack install mgis@master:+c~fortran~python%gcc@12.4.0
 

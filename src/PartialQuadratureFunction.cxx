@@ -552,7 +552,11 @@ namespace mfem_mgis {
   makeGridFunction<true>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+#ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }
 
   template <>
@@ -591,7 +595,11 @@ namespace mfem_mgis {
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<true>& mesh) {
+#ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts, mesh);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }
 
   template <>
@@ -632,7 +640,11 @@ namespace mfem_mgis {
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<true>& mesh) {
+#ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts, mesh);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }
 
   template <>
@@ -674,7 +686,11 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT void updateGridFunction<true>(
       GridFunction<true>& f,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+#ifdef MFEM_USE_MPI
     updateGridFunction_impl<true>(f, fcts);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }
 
   template <>
@@ -714,7 +730,11 @@ namespace mfem_mgis {
       GridFunction<true>& f,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<true>& mesh) {
+#ifdef MFEM_USE_MPI
     updateGridFunction_impl<true>(f, fcts, mesh);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }
 
   template <>
@@ -757,7 +777,11 @@ namespace mfem_mgis {
       GridFunction<true>& f,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<true>& mesh) {
+#ifdef MFEM_USE_MPI
     updateGridFunction_impl<true>(f, fcts, mesh);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }
 
   template <>

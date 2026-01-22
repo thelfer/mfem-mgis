@@ -13,6 +13,7 @@
 #include <memory>
 #include <functional>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/LinearSolverHandler.hxx"
 #include "MFEMMGIS/NonLinearResolutionOutput.hxx"
 
 namespace mfem_mgis {
@@ -55,18 +56,19 @@ namespace mfem_mgis {
      * \param[in] params: parameters
      *
      * The following parameters are allowed:
-     *
-     * -
      */
     virtual void setSolverParameters(const Parameters &) = 0;
     /*!
-     * \brief set the solver parameters
+     * \brief set the linear solver
+     * \param[in] ctx: execution context
+     * \param[in] s: linear solver
+     */
+    [[nodiscard]] virtual bool setLinearSolver(
+        Context &, LinearSolverHandler) noexcept = 0;
+    /*!
+     * \brief set the linear solver
      * \param[in] n: name of the linear solver
      * \param[in] params: parameters
-     *
-     * The following parameters are allowed:
-     *
-     * -
      */
     virtual void setLinearSolver(std::string_view, const Parameters &) = 0;
     /*!
