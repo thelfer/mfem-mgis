@@ -204,6 +204,24 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_l2_projection_test(0)
 
+  add_executable(ImplicitGradientRegularizationTest
+    EXCLUDE_FROM_ALL
+    ImplicitGradientRegularizationTest.cxx)
+  target_include_directories(ImplicitGradientRegularizationTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(ImplicitGradientRegularizationTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check ImplicitGradientRegularizationTest)
+  
+  function(add_implicit_gradient_regularization_test nsolver)
+    set(test "ImplicitGradientRegularizationTest-${nsolver}")
+    set(ImplicitGradientRegularizationTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test}  COMMAND ./ImplicitGradientRegularizationTest ${ImplicitGradientRegularizationTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./ImplicitGradientRegularizationTest ${ImplicitGradientRegularizationTestParameters} "--parallel" "1")
+  endfunction(add_implicit_gradient_regularization_test)
+
+  add_implicit_gradient_regularization_test(0)
+
   if(MFEM_USE_SUITESPARSE)
           message(STATUS "micromorphic_damage_2d has been disabled with SUITE SPARSE")
           #add_micromorphic_damage_2d_test(2)
@@ -249,9 +267,9 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   function(add_micromorphic_damage_2d_test2 nsolver)
     set(test "MicromorphicDamage2DTest2-${nsolver}")
-    set(MicromorphicDamage2DTest2Parameteres "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MicromorphicDamageII" "--linearsolver" "${nsolver}")
-    add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameteres} "--parallel" "0")
-    add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameteres} "--parallel" "1")
+    set(MicromorphicDamage2DTest2Parameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MicromorphicDamageII" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameters} "--parallel" "0")
+    add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest

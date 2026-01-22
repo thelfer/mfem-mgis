@@ -497,7 +497,7 @@ namespace mfem_mgis {
       local_gridfunction = std::make_unique<GridFunction<parallel>>(fespace);
       return local_gridfunction.get();
     }();
-    // Mass matrix
+    // Regularization operator
     BilinearForm<parallel> a(fespace);
     add_regularization_operator(a);
     a.Assemble();
@@ -646,9 +646,11 @@ namespace mfem_mgis {
       LinearSolverHandler& l,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const real lc) noexcept {
+    auto c = mfem::ConstantCoefficient(lc * lc);
     return updatePartialQuadratureRegularization_impl<parallel>(
-        ctx, r, l, fcts, [](BilinearForm<parallel>& a) {
+        ctx, r, l, fcts, [&c](BilinearForm<parallel>& a) {
           a.AddDomainIntegrator(new mfem::MassIntegrator);
+          a.AddDomainIntegrator(new mfem::DiffusionIntegrator(c));
         });
   }  // end of updateImplicitGradientRegularization_impl
 
