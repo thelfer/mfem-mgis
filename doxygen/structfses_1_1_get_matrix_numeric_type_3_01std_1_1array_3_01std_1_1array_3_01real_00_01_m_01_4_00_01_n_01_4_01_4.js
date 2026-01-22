@@ -1,4 +1,0 @@
-var structfses_1_1_get_matrix_numeric_type_3_01std_1_1array_3_01std_1_1array_3_01real_00_01_m_01_4_00_01_n_01_4_01_4 =
-[
-    [ "type", "structfses_1_1_get_matrix_numeric_type_3_01std_1_1array_3_01std_1_1array_3_01real_00_01_m_01_4_00_01_n_01_4_01_4.html#a76323f4e5c82551b7c879ca4e452367d", null ]
-];

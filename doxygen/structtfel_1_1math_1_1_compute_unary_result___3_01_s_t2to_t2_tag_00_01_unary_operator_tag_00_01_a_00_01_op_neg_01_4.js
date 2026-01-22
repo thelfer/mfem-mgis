@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1_compute_unary_result___3_01_s_t2to_t2_tag_00_01_unary_operator_tag_00_01_a_00_01_op_neg_01_4 =
-[
-    [ "DummyHandle", "structtfel_1_1math_1_1_compute_unary_result___3_01_s_t2to_t2_tag_00_01_unary_operator_tag_00_01_c95b8e4b30080e224c9a3970a897beec.html", null ]
-];

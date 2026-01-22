@@ -17,6 +17,7 @@
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -53,7 +54,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../post_processings.html">Post-processings</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Partial quadrature functions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#extrapolating-quadrature-functions-at-nodes">Extrapolating quadrature functions at nodes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#available-functions">Available functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#projecting-quadrature-functions-at-nodes">Projecting quadrature functions at nodes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#available-functions">Available functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-of-usage">Example of usage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implicit-gradient-regularization">Implicit gradient regularization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Available functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous-functions">Miscellaneous functions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#rotatethermodynamicforcestoglobalframe"><code class="code highlight c++ docutils literal highlight-c++"><span class="n">rotateThermodynamicForcesToGlobalFrame</span></code></a></li>
 </ul>
 </li>
@@ -104,18 +114,71 @@ a unique material.</p>
 functions, each associated with a distinct material, can be extrapolated
 at nodes:</p>
 <ul class="simple">
-<li><p>the <cite>makeGridFunction</cite> creates the <cite>GridFunction</cite> and the associated
+<li><p>the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">makeGridFunction</span></code> creates the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> and the associated
 finite element space.</p></li>
-<li><p>the <cite>updateGridFunction</cite> fills the <cite>GridFunction</cite> with the values of
+<li><p>the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code> fills the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> with the values of
 the partial quadrature functions.</p></li>
 </ul>
-<p>A <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> being an <cite>MFEM</cite> object, the reader may refer to
-the <cite>MFEM</cite> documentation for further details. In particular, a
+<p>A <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> being an <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MFEM</span></code> object, the reader may refer
+to the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MFEM</span></code> documentation for further details. In particular, a
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> can easily be exported to <cite>Paraview</cite> using
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MFEM</span></code>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">ParaViewDataCollection</span></code>.</p>
 </section>
+<section id="projecting-quadrature-functions-at-nodes">
+<h2>Projecting quadrature functions at nodes<a class="headerlink" href="#projecting-quadrature-functions-at-nodes" title="Link to this heading"></a></h2>
+<p>The <span class="math notranslate nohighlight">\(L_{2}\)</span> projection <span class="math notranslate nohighlight">\(\bar{f}\)</span> of a scalar quadrature
+function <span class="math notranslate nohighlight">\(f\)</span> is obtained by minimizing the following functional:</p>
+<div class="math notranslate nohighlight">
+\[\int_{\Omega} \left(\bar{f}-f\right)^{2}\,\mathrm{d}\,V\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega\)</span> is the domain on which <cite>f</cite> is defined.</p>
+<p>For a set of quadrature functions, the projection is computed on the
+union of the domains of the quadrature functions.</p>
+<p>For vectorial functions, the projection is computed component-wise.</p>
 <section id="available-functions">
-<h2>Available functions<a class="headerlink" href="#available-functions" title="Link to this heading"></a></h2>
+<h3>Available functions<a class="headerlink" href="#available-functions" title="Link to this heading"></a></h3>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeL2Projection</span></code> function allows projecting a set of
+quadrature functions on nodes by minimizing the <span class="math notranslate nohighlight">\(L_{2}\)</span> norm of
+the projection and the values of the quadrature functions.</p>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeL2Projection</span></code> internally calls successively the
+functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2ProjectionResult</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateL2Projection</span></code>.
+Those functions can be used directly if the projection has to be
+performed several times.</p>
+</section>
+<section id="example-of-usage">
+<h3>Example of usage<a class="headerlink" href="#example-of-usage" title="Link to this heading"></a></h3>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LinearFactor</span><span class="o">&lt;</span><span class="n">parallel</span><span class="o">&gt;::</span><span class="n">getFactory</span><span class="p">();</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">fct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PartialQuadratureFunction</span><span class="o">::</span><span class="n">evaluate</span><span class="p">(</span>
+<span class="w">    </span><span class="n">fespace</span><span class="p">,</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">real</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">real</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">os</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">generate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MUMPSSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fespace</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">oresult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">computeL2Projection</span><span class="o">&lt;</span><span class="n">parallel</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">os</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="o">*</span><span class="n">fct</span><span class="p">});</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="implicit-gradient-regularization">
+<h2>Implicit gradient regularization<a class="headerlink" href="#implicit-gradient-regularization" title="Link to this heading"></a></h2>
+<p>For a scalar function <span class="math notranslate nohighlight">\(f\)</span>, the implicit gradient regularization
+<span class="math notranslate nohighlight">\(\bar{f}\)</span> is defined as the solution of:</p>
+<div class="math notranslate nohighlight">
+\[\bar{f}-l_{c}^{2}\cdot\Delta\bar{f}=f\]</div>
+<p>where <span class="math notranslate nohighlight">\(l_{c}\)</span> is a characteristic length.</p>
+<p>See <span id="id1">[<a class="reference internal" href="../../index.html#id4" title="R. H. J. Peerlings, R. De Borst, W. a. M. Brekelmans, and J. H. P. De Vree. Gradient enhanced damage for quasi-brittle materials. International Journal for Numerical Methods in Engineering, 39(19):3391–3403, 1996. _eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D. URL: https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D (visited on 2026-01-22), doi:10.1002/(SICI)1097-0207(19961015)39:19&lt;3391::AID-NME7&gt;3.0.CO;2-D.">PDBBDV96</a>]</span> for details.</p>
+<p>For a vectorial function, the implicit gradient regularization is
+computed component-wise.</p>
+<section id="id2">
+<h3>Available functions<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> function allows
+projecting a set of quadrature functions on nodes by minimizing the
+<span class="math notranslate nohighlight">\(L_{2}\)</span> norm of the projection and the values of the quadrature
+functions.</p>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> internally calls
+successively the functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2Projection</span></code> and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateImplicitGradientRegularization</span></code>. Those functions can be used
+directly if the projection has to be performed several times.</p>
+</section>
+</section>
+<section id="miscellaneous-functions">
+<h2>Miscellaneous functions<a class="headerlink" href="#miscellaneous-functions" title="Link to this heading"></a></h2>
 <section id="rotatethermodynamicforcestoglobalframe">
 <h3><code class="code highlight c++ docutils literal highlight-c++"><span class="n">rotateThermodynamicForcesToGlobalFrame</span></code><a class="headerlink" href="#rotatethermodynamicforcestoglobalframe" title="Link to this heading"></a></h3>
 </section>
