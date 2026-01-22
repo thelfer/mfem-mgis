@@ -1,0 +1,4 @@
+var structtfel_1_1math_1_1internals_1_1_make_const_view_reference_3_01_quantity_3_01_unit_type_00_0186076dae8a7dab984498ac418c8262f1 =
+[
+    [ "type", "structtfel_1_1math_1_1internals_1_1_make_const_view_reference_3_01_quantity_3_01_unit_type_00_0186076dae8a7dab984498ac418c8262f1.html#aea1ba23a1bf3abe1c43904e26400d3ce", null ]
+];
