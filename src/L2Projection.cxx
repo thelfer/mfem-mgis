@@ -399,7 +399,7 @@ namespace mfem_mgis {
   template <bool parallel>
   [[nodiscard]] static bool checkUpdateFunctionsArguments(
       Context& ctx,
-      ImplicitGradientRegularizationResult<parallel>& r,
+      L2ProjectionResult<parallel>& r,
       LinearSolverHandler& l,
       const std::vector<ImmutablePartialQuadratureFunctionView>&
           fcts) noexcept {
