@@ -86,7 +86,7 @@ namespace mfem_mgis {
     const auto& fed0 =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
     const auto& mesh = fed0.getMesh<parallel>();
-    const auto& elts_attributes = mesh.GetElementAttributes();
+    const auto& elts_attributes = mesh.attributes;
     auto ids = std::vector<size_type>();
     ids.reserve(fcts.size());
     for (const auto& f : fcts) {
@@ -129,7 +129,7 @@ namespace mfem_mgis {
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
     const auto& mesh = fed.getMesh<parallel>();
-    const auto& elts_attributes = mesh.GetElementAttributes();
+    const auto& elts_attributes = mesh.attributes;
     return elts_attributes.Size() == static_cast<size_type>(fcts.size());
   }  // end of areDefinedOnWholeMesh_impl
 
@@ -425,7 +425,7 @@ namespace mfem_mgis {
     }
     //
     const auto& mesh = *(r.fe_space->GetMesh());
-    const auto& elts_attributes = mesh.GetElementAttributes();
+    const auto& elts_attributes = mesh.attributes;
     for (int i = 0; i != elts_attributes.Size(); ++i) {
       const auto id = elts_attributes[i];
       const auto found = [&id, &fcts] {
