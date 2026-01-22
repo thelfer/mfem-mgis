@@ -95,11 +95,6 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
 template <bool parallel>
 bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
   using namespace mfem_mgis;
-  if constexpr (parallel) {
-    std::cout << "test2<true>\n";
-  } else {
-    std::cout << "test2<false>\n";
-  }
   auto fed = FiniteElementDiscretization{
       {{"MeshFileName", params.mesh_file},
        {"FiniteElementFamily", "H1"},
@@ -124,10 +119,6 @@ bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
   auto f1_values = f1->getValues();
   auto f2_values = f2->getValues();
   auto fct_values = fct->getValues();
-  std::cout << "min: "
-            << *(std::min_element(f2_values.begin(), f2_values.end())) << '\n';
-  std::cout << "max: "
-            << *(std::max_element(f2_values.begin(), f2_values.end())) << '\n';
   for (size_type idx = 0; idx != space->getNumberOfIntegrationPoints(); ++idx) {
     fct_values[2 * idx] = f1_values[idx];
     fct_values[2 * idx + 1] = f2_values[idx];
