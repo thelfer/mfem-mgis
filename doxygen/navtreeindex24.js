@@ -1,5 +1,11 @@
 var NAVTREEINDEX24 =
 {
+"structmfront_1_1_behaviour_brick_factory.html#a077029550d5195ca5cefee79ada7ad09":[4,0,11,11,9],
+"structmfront_1_1_behaviour_brick_factory.html#a119afc4491e1dde3cccfff9a9f38c407":[4,0,11,11,7],
+"structmfront_1_1_behaviour_brick_factory.html#a2d7f6f6049fe59dc890508aef3bff3c2":[4,0,11,11,1],
+"structmfront_1_1_behaviour_brick_factory.html#a4e91ea2446640088c76844529a6702a1":[4,0,11,11,6],
+"structmfront_1_1_behaviour_brick_factory.html#a519576f28ecdc1f48465a3615e119d5f":[4,0,11,11,5],
+"structmfront_1_1_behaviour_brick_factory.html#a614ef26c3ce91e32b6e2f2f0df600060":[4,0,11,11,4],
 "structmfront_1_1_behaviour_brick_factory.html#a64a25c76b018fe200e7bb104589e752a":[4,0,11,11,0],
 "structmfront_1_1_behaviour_brick_factory.html#a8f065aa982fb8c483355435fc9269895":[4,0,11,11,8],
 "structmfront_1_1_behaviour_brick_factory.html#a98a9af5cc4851dbf8cda4d9b61f6e91d":[4,0,11,11,2],
@@ -243,11 +249,5 @@ var NAVTREEINDEX24 =
 "structmfront_1_1_behaviour_d_s_l_common.html#af86913fef300be22f5ff329402af6f39":[4,0,11,16,170],
 "structmfront_1_1_behaviour_d_s_l_common.html#af94c4db75518614efe52b8457050a64b":[4,0,11,16,178],
 "structmfront_1_1_behaviour_d_s_l_common.html#afa62185cf3b14b9986a86a3bd166d15e":[4,0,11,16,142],
-"structmfront_1_1_behaviour_d_s_l_common.html#afadceff9c136c68efc057016afcff73d":[4,0,11,16,21],
-"structmfront_1_1_behaviour_d_s_l_common.html#afc0d3e3963b88213ce0accbdd6dc7c7c":[4,0,11,16,153],
-"structmfront_1_1_behaviour_d_s_l_common_1_1_code_block_options.html":[4,0,11,16,0],
-"structmfront_1_1_behaviour_d_s_l_common_1_1_code_block_options.html#a35c5688b6edd58479cd1e12a4c22656f":[4,0,11,16,0,3],
-"structmfront_1_1_behaviour_d_s_l_common_1_1_code_block_options.html#a3bdf94432d3a4b215255b9f39fa171b4":[4,0,11,16,0,0],
-"structmfront_1_1_behaviour_d_s_l_common_1_1_code_block_options.html#a51f5f761fea37572dabc1b091a7f7898":[4,0,11,16,0,1],
-"structmfront_1_1_behaviour_d_s_l_common_1_1_code_block_options.html#a6d8ddf46fd4e0ed110546482cd6a07b8":[4,0,11,16,0,5]
+"structmfront_1_1_behaviour_d_s_l_common.html#afadceff9c136c68efc057016afcff73d":[4,0,11,16,21]
 };

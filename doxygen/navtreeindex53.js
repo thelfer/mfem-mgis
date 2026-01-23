@@ -1,5 +1,11 @@
 var NAVTREEINDEX53 =
 {
+"structtfel_1_1math_1_1array__holder.html#a7eecd24bea7e2b9185ed277be104f81f":[4,0,16,5,9,2],
+"structtfel_1_1math_1_1dot_product.html":[4,0,16,5,192],
+"structtfel_1_1math_1_1dot_product_3_010u_01_4.html":[4,0,16,5,194],
+"structtfel_1_1math_1_1fsarray.html":[4,0,16,5,297],
+"structtfel_1_1math_1_1fsarray.html#a021171a2712c1e667494d344bbf8962d":[4,0,16,5,297,2],
+"structtfel_1_1math_1_1fsarray.html#a1b27dde80428340a82dec2dc28ab3365":[4,0,16,5,297,1],
 "structtfel_1_1math_1_1fsarray.html#a88d27fbe58b5b9591330b78566a33e93":[4,0,16,5,297,0],
 "structtfel_1_1math_1_1fsarray.html#aa3a12f25a34534a164d74f3fae9ecad1":[4,0,16,5,297,3],
 "structtfel_1_1math_1_1fsarray.html#af77d882b152796d8c003d6d1c3007f6a":[4,0,16,5,297,4],
@@ -243,11 +249,5 @@ var NAVTREEINDEX53 =
 "structtfel_1_1math_1_1parser_1_1_binary_operation.html#afbe9a99233ee02d1c9b92a7a7fb2871f":[4,0,16,5,3,1,3],
 "structtfel_1_1math_1_1parser_1_1_binary_operation_base.html":[4,0,16,5,3,2],
 "structtfel_1_1math_1_1parser_1_1_conditional_expr.html":[4,0,16,5,3,3],
-"structtfel_1_1math_1_1parser_1_1_conditional_expr.html#a26cb600ed6a1f48f5bbb15f459a37f8d":[4,0,16,5,3,3,2],
-"structtfel_1_1math_1_1parser_1_1_conditional_expr.html#a74da3046261a7e820ae30e830c784976":[4,0,16,5,3,3,1],
-"structtfel_1_1math_1_1parser_1_1_conditional_expr.html#a777d94a422c329b6147b86ca95d64448":[4,0,16,5,3,3,4],
-"structtfel_1_1math_1_1parser_1_1_conditional_expr.html#ad11515c211474e9875f500c27751502d":[4,0,16,5,3,3,0],
-"structtfel_1_1math_1_1parser_1_1_conditional_expr.html#adf16fbfdf6106dbfe21d2a235b38f9c0":[4,0,16,5,3,3,3],
-"structtfel_1_1math_1_1parser_1_1_constant_external_function.html":[4,0,16,5,3,4],
-"structtfel_1_1math_1_1parser_1_1_differentiated_function_expr.html":[4,0,16,5,3,5]
+"structtfel_1_1math_1_1parser_1_1_conditional_expr.html#a26cb600ed6a1f48f5bbb15f459a37f8d":[4,0,16,5,3,3,2]
 };

@@ -101,6 +101,7 @@ var namespacemfem__mgis =
     [ "GetResultType", "namespacemfem__mgis.html#aaf138934cdbd61fef36d0af9f2fbe3c8", null ],
     [ "GridFunction", "namespacemfem__mgis.html#a635e6b6265fe66128b71f8645049d212", null ],
     [ "Hypothesis", "namespacemfem__mgis.html#a915e172b595d0784f01c7dd361a8bd60", null ],
+    [ "ImplicitGradientRegularizationResult", "namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae", null ],
     [ "IterativeSolver", "namespacemfem__mgis.html#ad3b1bd6f967c6c58ae2164b884396dd8", null ],
     [ "LinearForm", "namespacemfem__mgis.html#a03e82f0b94a681b66e06e96a416b3738", null ],
     [ "LinearSolver", "namespacemfem__mgis.html#aefa0d77e7956dfd3aa58b5a348850982", null ],
@@ -138,6 +139,7 @@ var namespacemfem__mgis =
     [ "checkParameters", "namespacemfem__mgis.html#ad2f3481f869352215bc4e6fa878d805e", null ],
     [ "compareToAnalyticalSolution", "namespacemfem__mgis.html#af77832b16f1034313c3e6d5fa0903aeb", null ],
     [ "computeDissipatedEnergy", "namespacemfem__mgis.html#a9573dd5a43ef3626a2aa125a4ca93c42", null ],
+    [ "computeImplicitGradientRegularization", "namespacemfem__mgis.html#a02704c734d28929ce399e4ae4c1422e6", null ],
     [ "computeIntegral", "namespacemfem__mgis.html#a343063ce4d75ebf0c02db2ca28f1b179", null ],
     [ "computeIntegral", "namespacemfem__mgis.html#aedf030c8a534c9d6388bafc6df6b5557", null ],
     [ "computeL2ErrorAgainstAnalyticalSolution", "namespacemfem__mgis.html#a8b0612837eb9bf8d9f96e8d6b5f41464", null ],
@@ -212,6 +214,7 @@ var namespacemfem__mgis =
     [ "updateGridFunction", "namespacemfem__mgis.html#a9704fadf9e4c587b2032a5d5fb83a9a6", null ],
     [ "updateGridFunction", "namespacemfem__mgis.html#ae4b55bc34613cffde682efc7fb5693f0", null ],
     [ "updateGridFunction", "namespacemfem__mgis.html#a199e3d6b66eebdfeffa3bd4af8e797fc", null ],
+    [ "updateImplicitGradientRegularization", "namespacemfem__mgis.html#a42fdc44b689d11bf17308c2bcead81da", null ],
     [ "updateL2Projection", "namespacemfem__mgis.html#aa958deed1cfab01318fd0e85d4825a87", null ],
     [ "usePETSc", "namespacemfem__mgis.html#a2ff7adfdf020de05197c6479a2dc243b", null ]
 ];

@@ -1,5 +1,11 @@
 var NAVTREEINDEX35 =
 {
+"structmfront_1_1bbrick_1_1_stress_criterion.html#aad3673ac688098f6a62f02d638b6cf22":[4,0,11,0,54,11],
+"structmfront_1_1bbrick_1_1_stress_criterion.html#abcc9891769f1f17a1e8cb5c57b262a1f":[4,0,11,0,54,17],
+"structmfront_1_1bbrick_1_1_stress_criterion.html#ac0f54c5cda84ddca4f5216db97e7d42a":[4,0,11,0,54,19],
+"structmfront_1_1bbrick_1_1_stress_criterion.html#adab02ec99a27200cad1ab59f6bfba6df":[4,0,11,0,54,20],
+"structmfront_1_1bbrick_1_1_stress_criterion.html#af3f6e7f46da21f69f8c78dd0ff5c8c35":[4,0,11,0,54,9],
+"structmfront_1_1bbrick_1_1_stress_criterion.html#af57e8e33dafe22022ec5d9532ccaf6fc":[4,0,11,0,54,16],
 "structmfront_1_1bbrick_1_1_stress_criterion_base.html":[4,0,11,0,55],
 "structmfront_1_1bbrick_1_1_stress_criterion_base.html#a2dd42e2a454800d3e650863f46acb0bb":[4,0,11,0,55,3],
 "structmfront_1_1bbrick_1_1_stress_criterion_base.html#a66eea27481bca51905e9f46aab54c695":[4,0,11,0,55,0],
@@ -243,11 +249,5 @@ var NAVTREEINDEX35 =
 "structmgis_1_1attributes_1_1_throwing_attribute.html":[4,0,12,0,0],
 "structmgis_1_1attributes_1_1_unsafe_attribute.html":[4,0,12,0,1],
 "structmgis_1_1behaviour_1_1_behaviour.html":[4,0,12,1,1],
-"structmgis_1_1behaviour_1_1_behaviour.html#a24d3cfc175eb047f362662a197b89fa2":[4,0,12,1,1,1],
-"structmgis_1_1behaviour_1_1_behaviour.html#a270f6e4b5e686442396569a9ff1403bd":[4,0,12,1,1,8],
-"structmgis_1_1behaviour_1_1_behaviour.html#a35e213e689e6190062a2212414cb8beb":[4,0,12,1,1,13],
-"structmgis_1_1behaviour_1_1_behaviour.html#a35fdc9698a08d83366d39c7f298164b1":[4,0,12,1,1,11],
-"structmgis_1_1behaviour_1_1_behaviour.html#a411426f6f5a01d37ca73d183fd366fa2":[4,0,12,1,1,4],
-"structmgis_1_1behaviour_1_1_behaviour.html#a4476a5f4d20e24e3f4c63a957393e82b":[4,0,12,1,1,12],
-"structmgis_1_1behaviour_1_1_behaviour.html#a4e551f1924c6d2da5e77723da7643f3b":[4,0,12,1,1,3]
+"structmgis_1_1behaviour_1_1_behaviour.html#a24d3cfc175eb047f362662a197b89fa2":[4,0,12,1,1,1]
 };

@@ -1,5 +1,11 @@
 var NAVTREEINDEX45 =
 {
+"structtfel_1_1material_1_1_get_default_stiffness_tensor_alteration_characteristic_3_01_modellingc93a157759639c2ff240bdee7dd34105.html":[4,0,16,4,47],
+"structtfel_1_1material_1_1_get_default_stiffness_tensor_alteration_characteristic_3_01_modellingd276170b62645a82c325df209c188abb.html":[4,0,16,4,46],
+"structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html":[4,0,16,4,48],
+"structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#a169d1825466ec29de26a28371e8975f9":[4,0,16,4,48,5],
+"structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#a31764032298fca5fdf6d44b49360345c":[4,0,16,4,48,0],
+"structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#a3ba5c982114e3ad1fe5771ec482c6430":[4,0,16,4,48,1],
 "structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#a60b7f18715022a7af9c3799965250de3":[4,0,16,4,48,3],
 "structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#abd9029b9db45e62719c246acfc400c1e":[4,0,16,4,48,2],
 "structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#aea5e9ceed26e6df01c9afee4c65840ff":[4,0,16,4,48,4],
@@ -243,11 +249,5 @@ var NAVTREEINDEX45 =
 "structtfel_1_1material_1_1_slip_systems_description.html#a4eeb3983b8e0d02d5598b72259a9ec7b":[4,0,16,4,97,37],
 "structtfel_1_1material_1_1_slip_systems_description.html#a55d2d52248b506ed9b3b3ae400341794":[4,0,16,4,97,31],
 "structtfel_1_1material_1_1_slip_systems_description.html#a5b59633b9119fcd0ecd971bf9f50a1ca":[4,0,16,4,97,38],
-"structtfel_1_1material_1_1_slip_systems_description.html#a60192fd5051c803a4a4f91adf785fd14":[4,0,16,4,97,28],
-"structtfel_1_1material_1_1_slip_systems_description.html#a663a835e81755adfcd2239e0fa7753f9":[4,0,16,4,97,14],
-"structtfel_1_1material_1_1_slip_systems_description.html#a6775004cd83bc72c178944f6f269d180":[4,0,16,4,97,21],
-"structtfel_1_1material_1_1_slip_systems_description.html#a6d13f15f7fd1aa9a6175f244bea0f78e":[4,0,16,4,97,19],
-"structtfel_1_1material_1_1_slip_systems_description.html#a6d3e041b4fb5aa4ffa723fbe4cb9934a":[4,0,16,4,97,15],
-"structtfel_1_1material_1_1_slip_systems_description.html#a708db22ebae348df753f779ccc534d7e":[4,0,16,4,97,40],
-"structtfel_1_1material_1_1_slip_systems_description.html#a7674eeb77aef139fb35f3525187da72b":[4,0,16,4,97,35]
+"structtfel_1_1material_1_1_slip_systems_description.html#a60192fd5051c803a4a4f91adf785fd14":[4,0,16,4,97,28]
 };

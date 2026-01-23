@@ -395,6 +395,11 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>real</b> = <a class=
 using&#160;</td><td class="memItemRight" valign="bottom"><b>MainFunctionArguments</b> = char **</td></tr>
 <tr class="memdesc:af57871a527a6e0d72a95122dd686f19f"><td class="mdescLeft">&#160;</td><td class="mdescRight">a simple alias <br /></td></tr>
 <tr class="separator:af57871a527a6e0d72a95122dd686f19f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af40c446f462999002ee8572b07b525ae" id="r_af40c446f462999002ee8572b07b525ae"><td class="memTemplParams" colspan="2"><a id="af40c446f462999002ee8572b07b525ae" name="af40c446f462999002ee8572b07b525ae"></a>
+template&lt;bool parallel&gt; </td></tr>
+<tr class="memitem:af40c446f462999002ee8572b07b525ae"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ImplicitGradientRegularizationResult</b> = <a class="el" href="structmfem__mgis_1_1_l2_projection_result.html">L2ProjectionResult</a>&lt; parallel &gt;</td></tr>
+<tr class="memdesc:af40c446f462999002ee8572b07b525ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">a simple alias <br /></td></tr>
+<tr class="separator:af40c446f462999002ee8572b07b525ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae8e6f8927adfc5d3f2ed838209824483" id="r_ae8e6f8927adfc5d3f2ed838209824483"><td class="memItemLeft" align="right" valign="top"><a id="ae8e6f8927adfc5d3f2ed838209824483" name="ae8e6f8927adfc5d3f2ed838209824483"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>FiniteElementCollection</b> = mfem::FiniteElementCollection</td></tr>
 <tr class="memdesc:ae8e6f8927adfc5d3f2ed838209824483"><td class="mdescLeft">&#160;</td><td class="mdescRight">brief a simple alias <br /></td></tr>
@@ -665,6 +670,30 @@ template&lt;&gt; </td></tr>
 template&lt;&gt; </td></tr>
 <tr class="memitem:afc9c4f063958a6260a629fa4da04f933"><td class="memTemplItemLeft" align="right" valign="top">MFEM_MGIS_EXPORT std::optional&lt; <a class="el" href="structmfem__mgis_1_1_l2_projection_result.html">L2ProjectionResult</a>&lt; false &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>computeL2Projection&lt; false &gt;</b> (<a class="el" href="structmgis_1_1_context.html">Context</a> &amp;, <a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;, const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;) noexcept</td></tr>
 <tr class="separator:afc9c4f063958a6260a629fa4da04f933"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42fdc44b689d11bf17308c2bcead81da" id="r_a42fdc44b689d11bf17308c2bcead81da"><td class="memTemplParams" colspan="2">template&lt;bool parallel&gt; </td></tr>
+<tr class="memitem:a42fdc44b689d11bf17308c2bcead81da"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemfem__mgis.html#a42fdc44b689d11bf17308c2bcead81da">updateImplicitGradientRegularization</a> (<a class="el" href="structmgis_1_1_context.html">Context</a> &amp;, <a class="el" href="namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae">ImplicitGradientRegularizationResult</a>&lt; parallel &gt; &amp;, <a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;, const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;, const <a class="el" href="namespacemfem__mgis.html#aee59940f912d12c96b219f5a92ddaf3c">real</a>) noexcept</td></tr>
+<tr class="memdesc:a42fdc44b689d11bf17308c2bcead81da"><td class="mdescLeft">&#160;</td><td class="mdescRight">update the implicit gradient regularisation of the given partial quadrature fields on nodes.  <br /></td></tr>
+<tr class="separator:a42fdc44b689d11bf17308c2bcead81da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e7281e1693c86c96e5e092380d9a916" id="r_a1e7281e1693c86c96e5e092380d9a916"><td class="memItemLeft" align="right" valign="top"><a id="a1e7281e1693c86c96e5e092380d9a916" name="a1e7281e1693c86c96e5e092380d9a916"></a>
+template&lt;&gt; </td></tr>
+<tr class="memitem:a1e7281e1693c86c96e5e092380d9a916"><td class="memTemplItemLeft" align="right" valign="top">MFEM_MGIS_EXPORT bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>updateImplicitGradientRegularization&lt; true &gt;</b> (<a class="el" href="structmgis_1_1_context.html">Context</a> &amp;, <a class="el" href="namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae">ImplicitGradientRegularizationResult</a>&lt; true &gt; &amp;, <a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;, const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;, const <a class="el" href="namespacemfem__mgis.html#aee59940f912d12c96b219f5a92ddaf3c">real</a>) noexcept</td></tr>
+<tr class="separator:a1e7281e1693c86c96e5e092380d9a916"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d5fdfaae329501dad55b6ddd81a569a" id="r_a8d5fdfaae329501dad55b6ddd81a569a"><td class="memItemLeft" align="right" valign="top"><a id="a8d5fdfaae329501dad55b6ddd81a569a" name="a8d5fdfaae329501dad55b6ddd81a569a"></a>
+template&lt;&gt; </td></tr>
+<tr class="memitem:a8d5fdfaae329501dad55b6ddd81a569a"><td class="memTemplItemLeft" align="right" valign="top">MFEM_MGIS_EXPORT bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>updateImplicitGradientRegularization&lt; false &gt;</b> (<a class="el" href="structmgis_1_1_context.html">Context</a> &amp;, <a class="el" href="namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae">ImplicitGradientRegularizationResult</a>&lt; false &gt; &amp;, <a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;, const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;, const <a class="el" href="namespacemfem__mgis.html#aee59940f912d12c96b219f5a92ddaf3c">real</a>) noexcept</td></tr>
+<tr class="separator:a8d5fdfaae329501dad55b6ddd81a569a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02704c734d28929ce399e4ae4c1422e6" id="r_a02704c734d28929ce399e4ae4c1422e6"><td class="memTemplParams" colspan="2">template&lt;bool parallel&gt; </td></tr>
+<tr class="memitem:a02704c734d28929ce399e4ae4c1422e6"><td class="memTemplItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae">ImplicitGradientRegularizationResult</a>&lt; parallel &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemfem__mgis.html#a02704c734d28929ce399e4ae4c1422e6">computeImplicitGradientRegularization</a> (<a class="el" href="structmgis_1_1_context.html">Context</a> &amp;, <a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;, const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;, const <a class="el" href="namespacemfem__mgis.html#aee59940f912d12c96b219f5a92ddaf3c">real</a>) noexcept</td></tr>
+<tr class="memdesc:a02704c734d28929ce399e4ae4c1422e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">compute the implicit gradient regularisation of the given partial quadrature fields on nodes. This function first calls <code>createL2ProjectionResult</code> and then <code>updateImplicitGradientRegularization</code>.  <br /></td></tr>
+<tr class="separator:a02704c734d28929ce399e4ae4c1422e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add3b866cb1b2cea2b14c58ca86a2751c" id="r_add3b866cb1b2cea2b14c58ca86a2751c"><td class="memItemLeft" align="right" valign="top"><a id="add3b866cb1b2cea2b14c58ca86a2751c" name="add3b866cb1b2cea2b14c58ca86a2751c"></a>
+template&lt;&gt; </td></tr>
+<tr class="memitem:add3b866cb1b2cea2b14c58ca86a2751c"><td class="memTemplItemLeft" align="right" valign="top">MFEM_MGIS_EXPORT std::optional&lt; <a class="el" href="namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae">ImplicitGradientRegularizationResult</a>&lt; true &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>computeImplicitGradientRegularization&lt; true &gt;</b> (<a class="el" href="structmgis_1_1_context.html">Context</a> &amp;, <a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;, const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;, const <a class="el" href="namespacemfem__mgis.html#aee59940f912d12c96b219f5a92ddaf3c">real</a>) noexcept</td></tr>
+<tr class="separator:add3b866cb1b2cea2b14c58ca86a2751c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b2861a1b03a550ebc6ad2d78556ab43" id="r_a6b2861a1b03a550ebc6ad2d78556ab43"><td class="memItemLeft" align="right" valign="top"><a id="a6b2861a1b03a550ebc6ad2d78556ab43" name="a6b2861a1b03a550ebc6ad2d78556ab43"></a>
+template&lt;&gt; </td></tr>
+<tr class="memitem:a6b2861a1b03a550ebc6ad2d78556ab43"><td class="memTemplItemLeft" align="right" valign="top">MFEM_MGIS_EXPORT std::optional&lt; <a class="el" href="namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae">ImplicitGradientRegularizationResult</a>&lt; false &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>computeImplicitGradientRegularization&lt; false &gt;</b> (<a class="el" href="structmgis_1_1_context.html">Context</a> &amp;, <a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;, const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;, const <a class="el" href="namespacemfem__mgis.html#aee59940f912d12c96b219f5a92ddaf3c">real</a>) noexcept</td></tr>
+<tr class="separator:a6b2861a1b03a550ebc6ad2d78556ab43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12fab3676cf714105443cbab13840492" id="r_a12fab3676cf714105443cbab13840492"><td class="memItemLeft" align="right" valign="top"><a id="a12fab3676cf714105443cbab13840492" name="a12fab3676cf714105443cbab13840492"></a>
 MFEM_MGIS_EXPORT bool&#160;</td><td class="memItemRight" valign="bottom"><b>isInvalid</b> (const <a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;) noexcept</td></tr>
 <tr class="separator:a12fab3676cf714105443cbab13840492"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1560,6 +1589,67 @@ template&lt;PartialQuadratureFunctionEvaluatorConcept EvaluatorType1, PartialQua
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">bi</td><td>behaviour integrator </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">s</td><td>selection of the state </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a02704c734d28929ce399e4ae4c1422e6" name="a02704c734d28929ce399e4ae4c1422e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02704c734d28929ce399e4ae4c1422e6">&#9670;&#160;</a></span>computeImplicitGradientRegularization()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;bool parallel&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::optional&lt; <a class="el" href="namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae">ImplicitGradientRegularizationResult</a>&lt; parallel &gt; &gt; mfem_mgis::computeImplicitGradientRegularization </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structmgis_1_1_context.html">Context</a> &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacemfem__mgis.html#aee59940f912d12c96b219f5a92ddaf3c">real</a>&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>compute the implicit gradient regularisation of the given partial quadrature fields on nodes. This function first calls <code>createL2ProjectionResult</code> and then <code>updateImplicitGradientRegularization</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ctx</td><td>execution context </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">l</td><td>linear solver handler </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fcts</td><td>functions to be reguarlized </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">l</td><td>characteristic length </td></tr>
   </table>
   </dd>
 </dl>
@@ -3854,6 +3944,82 @@ template&lt;bool parallel&gt; </div>
 
 </div>
 </div>
+<a id="a42fdc44b689d11bf17308c2bcead81da" name="a42fdc44b689d11bf17308c2bcead81da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42fdc44b689d11bf17308c2bcead81da">&#9670;&#160;</a></span>updateImplicitGradientRegularization()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;bool parallel&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool mfem_mgis::updateImplicitGradientRegularization </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structmgis_1_1_context.html">Context</a> &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacemfem__mgis.html#af40c446f462999002ee8572b07b525ae">ImplicitGradientRegularizationResult</a>&lt; parallel &gt; &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structmfem__mgis_1_1_linear_solver_handler.html">LinearSolverHandler</a> &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structmfem__mgis_1_1_immutable_partial_quadrature_function_view.html">ImmutablePartialQuadratureFunctionView</a> &gt; &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacemfem__mgis.html#aee59940f912d12c96b219f5a92ddaf3c">real</a>&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>update the implicit gradient regularisation of the given partial quadrature fields on nodes. </p>
+<p>For a scalar function \(f\), the implicit gradient regularization \(\bar{f}\) is defined as the solution of:</p>
+<p class="formulaDsp">
+\[
+\bar{f}-l^{2}\cdot\Delta\bar{f}=f
+\]
+</p>
+<p>where \(l\) is a characteristic length.</p>
+<p>See Peerling et al. for details.</p>
+<p>Peerlings, R.H.J., de Borst, R., Brekelmans, W.A.M. and de Vree, J.H.P. (1996). Gradient-Enhanced Damage for Quasi-brittle Materials, International Journal for Numerical Methods in Engineering, 39: 3391 3403.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ctx</td><td>execution context </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">l</td><td>linear solver handler </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fcts</td><td>functions to be reguarlized </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">l</td><td>characteristic length </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="aa958deed1cfab01318fd0e85d4825a87" name="aa958deed1cfab01318fd0e85d4825a87"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa958deed1cfab01318fd0e85d4825a87">&#9670;&#160;</a></span>updateL2Projection()</h2>
 
@@ -3986,7 +4152,7 @@ template&lt;bool parallel&gt; </div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacemfem__mgis.html">mfem_mgis</a></li>
-    <li class="footer">Generated on Fri Jan 23 2026 13:16:34 for mfem-mgis by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jan 23 2026 13:45:34 for mfem-mgis by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,5 +1,11 @@
 var NAVTREEINDEX43 =
 {
+"structmtest_1_1_solver.html#ad683b668b85b47dc0fe931a574cb794d":[4,0,13,76,1],
+"structmtest_1_1_solver_options.html":[4,0,13,77],
+"structmtest_1_1_solver_options.html#a016afec745a32546d6cd603ca7650f03":[4,0,13,77,6],
+"structmtest_1_1_solver_options.html#a111ee215787e21b2b9e6ee02bb1dc75b":[4,0,13,77,1],
+"structmtest_1_1_solver_options.html#a16bc8b65ed0b80bc3a46d1b0e1b36159":[4,0,13,77,12],
+"structmtest_1_1_solver_options.html#a35c4b8db50154fb5107ba5e44f46cf6e":[4,0,13,77,11],
 "structmtest_1_1_solver_options.html#a4311590ce5eb5c9af27b117a6ed931aa":[4,0,13,77,8],
 "structmtest_1_1_solver_options.html#a58a1b392437f55c4827fffc74e350900":[4,0,13,77,4],
 "structmtest_1_1_solver_options.html#a5e9d0d54b163e90196bf15331f41d0f9":[4,0,13,77,3],
@@ -243,11 +249,5 @@ var NAVTREEINDEX43 =
 "structnumodis_1_1_i_burgers.html#ab4078181ac13a029397e0a35e07cdaf5":[4,0,14,9,2],
 "structnumodis_1_1_i_burgers.html#ab5bff521ca02fb169732e5ecda7026c5":[4,0,14,9,0],
 "structnumodis_1_1_i_burgers.html#adbfa6c2c023d167a1892b700ae813f50":[4,0,14,9,1],
-"structnumodis_1_1_i_burgers.html#ae464af71b4ad08cdbf89c9601dda0dbd":[4,0,14,9,5],
-"structnumodis_1_1_i_direction.html":[4,0,14,10],
-"structnumodis_1_1_i_direction.html#a3a53b7bb46395fc71438363bef049190":[4,0,14,10,3],
-"structnumodis_1_1_i_direction.html#a52e40da435448acbc94292b1248f3d4c":[4,0,14,10,4],
-"structnumodis_1_1_i_direction.html#a5cf566e04e785c3c78bf7581e68a0345":[4,0,14,10,6],
-"structnumodis_1_1_i_direction.html#a7b8f981b459fc8ed1a6d62a34cce1319":[4,0,14,10,1],
-"structnumodis_1_1_i_direction.html#a84b622f9ad09549bafa76cd146160480":[4,0,14,10,0]
+"structnumodis_1_1_i_burgers.html#ae464af71b4ad08cdbf89c9601dda0dbd":[4,0,14,9,5]
 };

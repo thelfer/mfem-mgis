@@ -1,5 +1,11 @@
 var NAVTREEINDEX44 =
 {
+"structnumodis_1_1_i_direction.html":[4,0,14,10],
+"structnumodis_1_1_i_direction.html#a3a53b7bb46395fc71438363bef049190":[4,0,14,10,3],
+"structnumodis_1_1_i_direction.html#a52e40da435448acbc94292b1248f3d4c":[4,0,14,10,4],
+"structnumodis_1_1_i_direction.html#a5cf566e04e785c3c78bf7581e68a0345":[4,0,14,10,6],
+"structnumodis_1_1_i_direction.html#a7b8f981b459fc8ed1a6d62a34cce1319":[4,0,14,10,1],
+"structnumodis_1_1_i_direction.html#a84b622f9ad09549bafa76cd146160480":[4,0,14,10,0],
 "structnumodis_1_1_i_direction.html#aa8232d59a9dafc27e9041dfbc7e816ad":[4,0,14,10,7],
 "structnumodis_1_1_i_direction.html#acb1abef62da1c480f13f9b52f84f9d53":[4,0,14,10,5],
 "structnumodis_1_1_i_direction.html#ad0f951d205bc7cf993a42a363d43a170":[4,0,14,10,2],
@@ -243,11 +249,5 @@ var NAVTREEINDEX44 =
 "structtfel_1_1material_1_1_finite_strain_behaviour_tangent_operator_type_3_01_finite_strain_behade6b72b22579ffd489a7f30b482afd01.html#a2cc3a4ef9fb8c7b22dc72d689ac8674a":[4,0,16,4,35,0],
 "structtfel_1_1material_1_1_finite_strain_behaviour_tangent_operator_type_3_01_finite_strain_behaea30a731155d3ce8383c2b3ae08913df.html":[4,0,16,4,32],
 "structtfel_1_1material_1_1_finite_strain_behaviour_tangent_operator_type_3_01_finite_strain_behaea30a731155d3ce8383c2b3ae08913df.html#a329b3d8c0b0836fcfa30b8c03ff31569":[4,0,16,4,32,0],
-"structtfel_1_1material_1_1_get_default_stiffness_tensor_alteration_characteristic.html":[4,0,16,4,45],
-"structtfel_1_1material_1_1_get_default_stiffness_tensor_alteration_characteristic_3_01_modellingc93a157759639c2ff240bdee7dd34105.html":[4,0,16,4,47],
-"structtfel_1_1material_1_1_get_default_stiffness_tensor_alteration_characteristic_3_01_modellingd276170b62645a82c325df209c188abb.html":[4,0,16,4,46],
-"structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html":[4,0,16,4,48],
-"structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#a169d1825466ec29de26a28371e8975f9":[4,0,16,4,48,5],
-"structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#a31764032298fca5fdf6d44b49360345c":[4,0,16,4,48,0],
-"structtfel_1_1material_1_1_gurson_tvergaard_needleman1982_stress_criterion_parameters.html#a3ba5c982114e3ad1fe5771ec482c6430":[4,0,16,4,48,1]
+"structtfel_1_1material_1_1_get_default_stiffness_tensor_alteration_characteristic.html":[4,0,16,4,45]
 };

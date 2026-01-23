@@ -1,5 +1,11 @@
 var NAVTREEINDEX52 =
 {
+"structtfel_1_1math_1_1_t2to_t2_tag.html":[4,0,16,5,558],
+"structtfel_1_1math_1_1_t2to_t2_tensor_product_expr.html":[4,0,16,5,559],
+"structtfel_1_1math_1_1_t_matrix_t_matrix_expr.html":[4,0,16,5,598],
+"structtfel_1_1math_1_1_t_matrix_t_matrix_expr_1_1_column_const_iterator.html":[4,0,16,5,598,0],
+"structtfel_1_1math_1_1_t_matrix_t_matrix_expr_1_1_row_const_iterator.html":[4,0,16,5,598,1],
+"structtfel_1_1math_1_1_t_matrix_t_matrix_expr_1_1_row_const_iterator.html#a60162b5bb2611a42f5b7972ec28772f9":[4,0,16,5,598,1,1],
 "structtfel_1_1math_1_1_t_matrix_t_matrix_expr_1_1_row_const_iterator.html#a75a4b1eb2ce6626758c090c71b56e70d":[4,0,16,5,598,1,2],
 "structtfel_1_1math_1_1_t_matrix_t_matrix_expr_1_1_row_const_iterator.html#af0ec8c42e970e022eead491a45fa47da":[4,0,16,5,598,1,0],
 "structtfel_1_1math_1_1_t_matrix_t_vector_expr.html":[4,0,16,5,599],
@@ -243,11 +249,5 @@ var NAVTREEINDEX52 =
 "structtfel_1_1math_1_1anderson_1_1_covariance_matrix.html#afaa1fc1dda83303dbd5e11cb0fd4b1bc":[4,0,16,5,0,0,2],
 "structtfel_1_1math_1_1array__holder.html":[4,0,16,5,9],
 "structtfel_1_1math_1_1array__holder.html#a14f7887fb121ca5df21278c25a1e0cae":[4,0,16,5,9,1],
-"structtfel_1_1math_1_1array__holder.html#a430b0c12071a1fd3cf8d6ad71cba9d9b":[4,0,16,5,9,0],
-"structtfel_1_1math_1_1array__holder.html#a7eecd24bea7e2b9185ed277be104f81f":[4,0,16,5,9,2],
-"structtfel_1_1math_1_1dot_product.html":[4,0,16,5,192],
-"structtfel_1_1math_1_1dot_product_3_010u_01_4.html":[4,0,16,5,194],
-"structtfel_1_1math_1_1fsarray.html":[4,0,16,5,297],
-"structtfel_1_1math_1_1fsarray.html#a021171a2712c1e667494d344bbf8962d":[4,0,16,5,297,2],
-"structtfel_1_1math_1_1fsarray.html#a1b27dde80428340a82dec2dc28ab3365":[4,0,16,5,297,1]
+"structtfel_1_1math_1_1array__holder.html#a430b0c12071a1fd3cf8d6ad71cba9d9b":[4,0,16,5,9,0]
 };

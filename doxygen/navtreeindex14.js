@@ -1,5 +1,11 @@
 var NAVTREEINDEX14 =
 {
+"structaster_1_1_aster_orthotropic_small_strain_behaviour_handler3_d.html":[4,0,2,55],
+"structaster_1_1_aster_reduce_tangent_operator.html":[4,0,2,56],
+"structaster_1_1_aster_reduce_tangent_operator_3_011u_01_4.html":[4,0,2,57],
+"structaster_1_1_aster_reduce_tangent_operator_3_012u_01_4.html":[4,0,2,58],
+"structaster_1_1_aster_rotation_matrix2_d.html":[4,0,2,59],
+"structaster_1_1_aster_rotation_matrix3_d.html":[4,0,2,60],
 "structaster_1_1_aster_tangent_operator.html":[4,0,2,61],
 "structaster_1_1_aster_tangent_operator_flag.html":[4,0,2,62],
 "structaster_1_1_aster_tangent_operator_flag_3_01aster_1_1_c_o_h_e_s_i_v_e_z_o_n_e_m_o_d_e_l_00_0f25977e0bc30c576ce67ccbd8c5878ed.html":[4,0,2,63],
@@ -243,11 +249,5 @@ var NAVTREEINDEX14 =
 "structdianafea_1_1_diana_f_e_a_behaviour_handler_1_1_gradient_initialiser_without_stress_free_expansion.html#a618cb8d05f32557659dafb39c660bd3b":[4,0,6,0,1,0],
 "structdianafea_1_1_diana_f_e_a_behaviour_handler_1_1_integrator.html":[4,0,6,0,3],
 "structdianafea_1_1_diana_f_e_a_behaviour_handler_1_1_integrator.html#ab66e5d26b78cd97bc426045a6209b025":[4,0,6,0,3,1],
-"structdianafea_1_1_diana_f_e_a_behaviour_handler_1_1_integrator.html#ae334ccbd0c079f47040f0f2f1c3b351a":[4,0,6,0,3,0],
-"structdianafea_1_1_diana_f_e_a_behaviour_handler_1_1_stiffness_operator_initializer.html":[4,0,6,0,4],
-"structdianafea_1_1_diana_f_e_a_behaviour_handler_1_1_thermal_expansion_coefficient_tensor_initializer.html":[4,0,6,0,5],
-"structdianafea_1_1_diana_f_e_a_compute_stiffness_tensor.html":[4,0,6,1],
-"structdianafea_1_1_diana_f_e_a_compute_stiffness_tensor_3_01dianafea_1_1_s_t_a_n_d_a_r_d_f_i_n_ibd2a7d40612a01230d7b5a73a1db2327.html":[4,0,6,2],
-"structdianafea_1_1_diana_f_e_a_compute_stiffness_tensor_3_01dianafea_1_1_s_t_a_n_d_a_r_d_s_t_r_a0ad0c0421057065f6bedabfb20d0f253.html":[4,0,6,5],
-"structdianafea_1_1_diana_f_e_a_compute_stiffness_tensor_3_01dianafea_1_1_s_t_a_n_d_a_r_d_s_t_r_a0f86057419d637841b9aa203943a0d47.html":[4,0,6,3]
+"structdianafea_1_1_diana_f_e_a_behaviour_handler_1_1_integrator.html#ae334ccbd0c079f47040f0f2f1c3b351a":[4,0,6,0,3,0]
 };
