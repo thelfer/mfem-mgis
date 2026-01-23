@@ -1,4 +1,0 @@
-var structtfel_1_1typetraits_1_1internals_1_1_promote_numerics_greater___3_01int_00_01long_01int_01_4 =
-[
-    [ "type", "structtfel_1_1typetraits_1_1internals_1_1_promote_numerics_greater___3_01int_00_01long_01int_01_4.html#a96a9d0ae72593ba9c29d09d4ba897902", null ]
-];

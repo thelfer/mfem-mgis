@@ -23,12 +23,13 @@ For vectorial functions, the projection is computed component-wise.
 
 The :cxx:`computeL2Projection` function allows projecting a set of
 quadrature functions on nodes by minimizing the :math:`L_{2}` norm of
-the projection and the values of the quadrature functions.
+the difference of the projection and the values of the quadrature
+functions.
 
-The :cxx:`computeL2Projection` internally calls successively the
-functions :cxx:`createL2ProjectionResult` and :cxx:`updateL2Projection`.
-Those functions can be used directly if the projection has to be
-performed several times.
+The :cxx:`computeL2Projection` internally function calls successively
+the functions :cxx:`createL2ProjectionResult` and
+:cxx:`updateL2Projection`. Those functions can be used directly if the
+projection has to be performed several times.
 
 Implicit gradient regularization
 --------------------------------
@@ -48,18 +49,18 @@ For a vectorial function, the implicit gradient regularization is
 computed component-wise.
 
 The :cxx:`computeImplicitGradientRegularization` function allows
-projecting a set of quadrature functions on nodes by minimizing the
-:math:`L_{2}` norm of the projection and the values of the quadrature
-functions.
+projecting a set of quadrature functions on nodes by solving the
+previous equation.
 
-The :cxx:`computeImplicitGradientRegularization` internally calls
-successively the functions :cxx:`createL2Projection` and
+The :cxx:`computeImplicitGradientRegularization` function internally
+calls successively the functions :cxx:`createL2Projection` and
 :cxx:`updateImplicitGradientRegularization`. Those functions can be used
 directly if the projection has to be performed several times.
 
 Issues fixed
 ============
 
+- Issue 167: Allow tensorial external state variables
 - Issue 162: Change the API of :cxx:`LinearSolverFactory`
 - Issue 159: [fix] :cxx:`upgradeGridFunction` seems wrong for grid
   functions defined on a :cxx:`SubMesh` ￼ Status: Closed (completed).

@@ -110,11 +110,12 @@ union of the domains of the quadrature functions.</p>
 <p>For vectorial functions, the projection is computed component-wise.</p>
 <p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeL2Projection</span></code> function allows projecting a set of
 quadrature functions on nodes by minimizing the <span class="math notranslate nohighlight">\(L_{2}\)</span> norm of
-the projection and the values of the quadrature functions.</p>
-<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeL2Projection</span></code> internally calls successively the
-functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2ProjectionResult</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateL2Projection</span></code>.
-Those functions can be used directly if the projection has to be
-performed several times.</p>
+the difference of the projection and the values of the quadrature
+functions.</p>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeL2Projection</span></code> internally function calls successively
+the functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2ProjectionResult</span></code> and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateL2Projection</span></code>. Those functions can be used directly if the
+projection has to be performed several times.</p>
 <section id="implicit-gradient-regularization">
 <h3>Implicit gradient regularization<a class="headerlink" href="#implicit-gradient-regularization" title="Link to this heading"></a></h3>
 <p>For a scalar function <span class="math notranslate nohighlight">\(f\)</span>, the implicit gradient regularization
@@ -126,11 +127,10 @@ performed several times.</p>
 <p>For a vectorial function, the implicit gradient regularization is
 computed component-wise.</p>
 <p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> function allows
-projecting a set of quadrature functions on nodes by minimizing the
-<span class="math notranslate nohighlight">\(L_{2}\)</span> norm of the projection and the values of the quadrature
-functions.</p>
-<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> internally calls
-successively the functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2Projection</span></code> and
+projecting a set of quadrature functions on nodes by solving the
+previous equation.</p>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> function internally
+calls successively the functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2Projection</span></code> and
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateImplicitGradientRegularization</span></code>. Those functions can be used
 directly if the projection has to be performed several times.</p>
 </section>
@@ -138,6 +138,7 @@ directly if the projection has to be performed several times.</p>
 <section id="issues-fixed">
 <h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p>Issue 167: Allow tensorial external state variables</p></li>
 <li><p>Issue 162: Change the API of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">LinearSolverFactory</span></code></p></li>
 <li><p>Issue 159: [fix] <code class="code highlight c++ docutils literal highlight-c++"><span class="n">upgradeGridFunction</span></code> seems wrong for grid
 functions defined on a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">SubMesh</span></code> ￼ Status: Closed (completed).</p></li>
