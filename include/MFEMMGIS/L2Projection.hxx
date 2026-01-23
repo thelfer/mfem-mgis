@@ -100,6 +100,94 @@ namespace mfem_mgis {
       LinearSolverHandler&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
 
+  //! \brief a simple alias
+  template <bool parallel>
+  using ImplicitGradientRegularizationResult = L2ProjectionResult<parallel>;
+
+  /*!
+   * \brief update the implicit gradient regularisation of the given partial
+   * quadrature fields on nodes.
+   *
+   * For a scalar function \f$f\f$, the implicit gradient regularization
+   * \f$\bar{f}\f$
+   * is defined as the solution of:
+   *
+   * \f[
+   * \bar{f}-l^{2}\cdot\Delta\bar{f}=f
+   * \f]
+   *
+   * where \f$l\f$ is a characteristic length.
+   *
+   * See Peerling et al. for details.
+   *
+   * Peerlings, R.H.J., de Borst, R., Brekelmans, W.A.M. and de Vree, J.H.P.
+   * (1996). Gradient-Enhanced Damage for Quasi-brittle Materials, International
+   * Journal for Numerical Methods in Engineering, 39: 3391 3403.
+   *
+   * \param[in] ctx: execution context
+   * \param[in] l: linear solver handler
+   * \param[in] fcts: functions to be reguarlized
+   * \param[in] l: characteristic length
+   */
+  template <bool parallel>
+  [[nodiscard]] bool updateImplicitGradientRegularization(
+      Context&,
+      ImplicitGradientRegularizationResult<parallel>&,
+      LinearSolverHandler&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const real) noexcept;
+  //
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] bool
+  updateImplicitGradientRegularization<true>(
+      Context&,
+      ImplicitGradientRegularizationResult<true>&,
+      LinearSolverHandler&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const real) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] bool
+  updateImplicitGradientRegularization<false>(
+      Context&,
+      ImplicitGradientRegularizationResult<false>&,
+      LinearSolverHandler&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const real) noexcept;
+  /*!
+   * \brief compute the implicit gradient regularisation of the given partial
+   * quadrature fields on nodes. This function first calls
+   * `createL2ProjectionResult` and then `updateImplicitGradientRegularization`.
+   *
+   * \param[in] ctx: execution context
+   * \param[in] l: linear solver handler
+   * \param[in] fcts: functions to be reguarlized
+   * \param[in] l: characteristic length
+   */
+  template <bool parallel>
+  std::optional<ImplicitGradientRegularizationResult<parallel>>
+  computeImplicitGradientRegularization(
+      Context&,
+      LinearSolverHandler&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const real) noexcept;
+  //
+  template <>
+  MFEM_MGIS_EXPORT
+      [[nodiscard]] std::optional<ImplicitGradientRegularizationResult<true>>
+      computeImplicitGradientRegularization<true>(
+          Context&,
+          LinearSolverHandler&,
+          const std::vector<ImmutablePartialQuadratureFunctionView>&,
+          const real) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT
+      [[nodiscard]] std::optional<ImplicitGradientRegularizationResult<false>>
+      computeImplicitGradientRegularization<false>(
+          Context&,
+          LinearSolverHandler&,
+          const std::vector<ImmutablePartialQuadratureFunctionView>&,
+          const real) noexcept;
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEMMGIS_L2PROJECTION_HXX */

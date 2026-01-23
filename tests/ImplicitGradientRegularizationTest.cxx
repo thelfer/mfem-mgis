@@ -1,5 +1,5 @@
 /*!
- * \file   tests/L2ProjectionTest.cxx
+ * \file   tests/ImplicitGradientRegularizationTest.cxx
  * \brief
  * \author Thomas Helfer
  * \date   20/01/2026
@@ -47,6 +47,8 @@ static void parseCommandLineOptions(TestParameters& params,
 template <bool parallel>
 bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   using namespace mfem_mgis;
+  constexpr auto pi = mfem_mgis::real{3.14159265358979323846};
+  constexpr auto l0 = mfem_mgis::real{0.1};
   auto fed = FiniteElementDiscretization{
       {{"MeshFileName", params.mesh_file},
        {"FiniteElementFamily", "H1"},
@@ -63,92 +65,29 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
         return mfem::IntRules.Get(e.GetGeomType(), order);
       });
   auto fct = PartialQuadratureFunction::evaluate(
-      space, [](const real x, const real y) noexcept { return cos(x) * y; });
-  auto s = mfem_mgis::unit_tests::getLinearSolver<parallel>(
-      ctx, fed.getFiniteElementSpace<parallel>(), params);
-  if (isInvalid(s)) {
-    return false;
-  }
-  const auto oresult = computeL2Projection<parallel>(ctx, s, {*fct});
-  if (isInvalid(oresult)) {
-    return false;
-  }
-  mfem::ParaViewDataCollection exporter("Result-test1");
-  if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-    exporter.SetMesh(&(fed.getMesh<true>()));
-#else  /* MFEM_USE_MPI */
-    reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-  } else {
-    exporter.SetMesh(&(fed.getMesh<false>()));
-  }
-  exporter.SetDataFormat(mfem::VTKFormat::BINARY);
-  exporter.RegisterField("Result", oresult->result.get());
-  exporter.SetCycle(1);
-  exporter.SetTime(1);
-  exporter.Save();
-  return true;
-}  // end of test
-
-// multi-component test
-template <bool parallel>
-bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
-  using namespace mfem_mgis;
-  auto fed = FiniteElementDiscretization{
-      {{"MeshFileName", params.mesh_file},
-       {"FiniteElementFamily", "H1"},
-       {"FiniteElementOrder", params.order},
-       {"UnknownsSize", 1},
-       {"NumberOfUniformRefinements", parallel ? 1 : 0},
-       {"Parallel", parallel}}};
-  auto space = std::make_shared<PartialQuadratureSpace>(
-      fed, 5,
-      [](const mfem::FiniteElement& e,
-         const mfem::ElementTransformation& tr) noexcept
-      -> const mfem::IntegrationRule& {
-        const auto order = 2 * tr.OrderGrad(&e);
-        return mfem::IntRules.Get(e.GetGeomType(), order);
+      space, [](const real x, const real) noexcept {
+        const auto c = std::cos(4 * pi * x);
+        return (1 + l0 * l0 * 16 * pi * pi) * c;
       });
-  auto f1 = PartialQuadratureFunction::evaluate(
-      space, [](const real x, const real y) noexcept { return cos(x) * y; });
-  auto f2 = PartialQuadratureFunction::evaluate(
-      space,
-      [](const real x, const real y) noexcept { return exp(-x) * y * y; });
-  auto fct = std::make_shared<PartialQuadratureFunction>(space, 2);
-  auto f1_values = f1->getValues();
-  auto f2_values = f2->getValues();
-  auto fct_values = fct->getValues();
-  for (size_type idx = 0; idx != space->getNumberOfIntegrationPoints(); ++idx) {
-    fct_values[2 * idx] = f1_values[idx];
-    fct_values[2 * idx + 1] = f2_values[idx];
-  }
   auto s = mfem_mgis::unit_tests::getLinearSolver<parallel>(
       ctx, fed.getFiniteElementSpace<parallel>(), params);
   if (isInvalid(s)) {
     return false;
   }
-  const auto oresult = computeL2Projection<parallel>(ctx, s, {*fct});
+  const auto oresult =
+      computeImplicitGradientRegularization<parallel>(ctx, s, {*fct}, l0);
   if (isInvalid(oresult)) {
     return false;
   }
-  mfem::ParaViewDataCollection exporter("Result-test2");
-  if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-    exporter.SetMesh(&(fed.getMesh<true>()));
-#else  /* MFEM_USE_MPI */
-    reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-  } else {
-    exporter.SetMesh(&(fed.getMesh<false>()));
-  }
-  exporter.SetDataFormat(mfem::VTKFormat::BINARY);
-  exporter.RegisterField("Result", oresult->result.get());
-  exporter.SetCycle(1);
-  exporter.SetTime(1);
-  exporter.Save();
-  return true;
-}  // end of test2
+  const auto& r = *(oresult->result);
+  // comparison to analytical solution
+  auto solution = mfem::VectorFunctionCoefficient{
+      1, [](const mfem::Vector& x, mfem::Vector& u) {
+        u[0] = std::cos(4 * pi * x[0]);
+      }};
+  const auto e = r.ComputeL2Error(solution);
+  return e < 4e-6;
+}  // end of test
 
 int main(int argc, char** argv) {
   using namespace mfem_mgis;
@@ -167,17 +106,7 @@ int main(int argc, char** argv) {
     }
     return test<false>(ctx, params);
   }();
-  const auto success2 = [&ctx, &params] {
-    if (params.parallel) {
-#ifdef MFEM_USE_MPI
-      return test2<true>(ctx, params);
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    }
-    return test2<false>(ctx, params);
-  }();
-  if (!(success && success2)) {
+  if (!success) {
     std::cerr << ctx.getErrorMessage() << std::endl;
     return EXIT_FAILURE;
   }
