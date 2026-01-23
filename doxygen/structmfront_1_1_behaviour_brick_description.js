@@ -1,0 +1,26 @@
+var structmfront_1_1_behaviour_brick_description =
+[
+    [ "BehaviourSymmetryType", "structmfront_1_1_behaviour_brick_description.html#a91216209166373711b40526cb8614dd4", null ],
+    [ "BehaviourType", "structmfront_1_1_behaviour_brick_description.html#a4dc19388f2f4c7bb1491a75412914465", null ],
+    [ "Hypothesis", "structmfront_1_1_behaviour_brick_description.html#a6975934df33ae443e2e3b27106bf9f5d", null ],
+    [ "IntegrationScheme", "structmfront_1_1_behaviour_brick_description.html#af4c6ddbbb9ef831fb64389c515e4c5fb", null ],
+    [ "ModellingHypothesis", "structmfront_1_1_behaviour_brick_description.html#ae9448e8c1f9df31a90bf4dda09228397", null ],
+    [ "BehaviourBrickDescription", "structmfront_1_1_behaviour_brick_description.html#a0d29edc3f4ecc96baf05e319ef2f33a9", null ],
+    [ "BehaviourBrickDescription", "structmfront_1_1_behaviour_brick_description.html#ad166e4385f18e584f5c770531a939c99", null ],
+    [ "BehaviourBrickDescription", "structmfront_1_1_behaviour_brick_description.html#ae29df8beafcf8738506a8ba22934bdfb", null ],
+    [ "~BehaviourBrickDescription", "structmfront_1_1_behaviour_brick_description.html#a47ef9dc4345d2e094b0a616324a562b0", null ],
+    [ "operator=", "structmfront_1_1_behaviour_brick_description.html#a31ebe7b685fdc7f00ed043204b3c268e", null ],
+    [ "operator=", "structmfront_1_1_behaviour_brick_description.html#a72e82b6a9f6de5d940c453205dff4a04", null ],
+    [ "allowCrystalStructureDefinition", "structmfront_1_1_behaviour_brick_description.html#a1300c6bca283fdb207d6c43ecc149d2c", null ],
+    [ "allowElasticPropertiesDefinition", "structmfront_1_1_behaviour_brick_description.html#ae34b9d16edb25a1b51487dd54109ec03", null ],
+    [ "allowElasticPropertiesDefinitionAsBrickOptions", "structmfront_1_1_behaviour_brick_description.html#a048e6e3b0dae9216706822573fb1735b", null ],
+    [ "allowStiffnessTensorDefinition", "structmfront_1_1_behaviour_brick_description.html#a6389232afc8e88ebaef76f3b048f44cc", null ],
+    [ "behaviourType", "structmfront_1_1_behaviour_brick_description.html#af68630107f6cd66f1f6046e1c78f5956", null ],
+    [ "integrationScheme", "structmfront_1_1_behaviour_brick_description.html#a627396259a4fa4529afd90d3484a019c", null ],
+    [ "managedCodeBlocks", "structmfront_1_1_behaviour_brick_description.html#a27386aacc3147a7b92206774bab424a0", null ],
+    [ "managedIntegrationVariables", "structmfront_1_1_behaviour_brick_description.html#a971abfc470c6a789351b3f1bbaf0de5f", null ],
+    [ "requireCrystalStructureDefinition", "structmfront_1_1_behaviour_brick_description.html#a2f17d61a8dbee36fc04ad5697c241f52", null ],
+    [ "requireStiffnessTensorDefinition", "structmfront_1_1_behaviour_brick_description.html#a122a0341759cfa777c5da05f86e79783", null ],
+    [ "supportedBehaviourSymmetries", "structmfront_1_1_behaviour_brick_description.html#a49df723306885c7aa3ae39aa3f6e866c", null ],
+    [ "supportedModellingHypotheses", "structmfront_1_1_behaviour_brick_description.html#afd2d5504c35384d1b013445f5a037308", null ]
+];
