@@ -69,19 +69,20 @@ namespace mfem_mgis {
     // This lambda function builds an *evaluator*. Its role is to fill up
     // the `v` vector
     auto dispatch =
-        [](std::vector<real>& v,
-           std::map<std::string,
-                    std::variant<real, std::span<real>, std::vector<real>>>&
-               values,
-           const std::vector<mgis::behaviour::Variable>& ds) {
-          raise_if(ds.size() != v.size(), "integrate: ill allocated memory");
+        [this](std::vector<real>& v,
+               std::map<std::string,
+                        std::variant<real, std::span<real>, std::vector<real>>>&
+                   values,
+               const std::vector<mgis::behaviour::Variable>& ds) {
+          const auto h = this->getMaterial().b.hypothesis;
+          raise_if(v.size() != mgis::behaviour::getArraySize(
+                                   ds, h),
+                   "integrate: ill allocated memory");
           // evaluators
-          std::vector<std::tuple<size_type, real*>> evs;
+          auto evs = std::vector<std::tuple<size_type, size_type, const real*>>{};
           auto i = mgis::size_type{};
           for (const auto& d : ds) {
-            if (d.type != mgis::behaviour::Variable::SCALAR) {
-              raise("integrate: invalid type for variable '" + d.name + "'");
-            }
+            const auto vsize = mgis::behaviour::getVariableSize(d, h);
             auto p = values.find(d.name);
             if (p == values.end()) {
               auto msg = std::string{"integrate: no variable named '" + d.name +
@@ -99,20 +100,41 @@ namespace mfem_mgis {
             // depending on the type of p->second, we are branching
             // on one of the following procedure:
             if (std::holds_alternative<real>(p->second)) {
+              if (vsize != 1) {
+                raise("invalid number of values given for variable '" +
+                      d.name + "'");
+              }
               // if uniform field, copy p->second into v[i]
               // `evs` will be untouched.
               v[i] = std::get<real>(p->second);
             } else if (std::holds_alternative<std::span<real>>(p->second)) {
-              // if we have a span, we store in evs this span for future use
-              evs.push_back(std::make_tuple(
-                  i, std::get<std::span<real>>(p->second).data()));
+              const auto& variable_values = std::get<std::span<real>>(p->second);
+              if (variable_values.size()==v.size()) {
+                std::copy(variable_values.begin(), variable_values.end(), v.begin() + i);
+              } else {
+                raise_if(
+                    variable_values.size() != vsize * (this->n),
+                    "invalid number of variable values given for variable '" +
+                        d.name + "'");
+                // if we have a span, we store in evs this span for future use
+                evs.push_back(
+                    std::make_tuple(i, vsize, variable_values.data()));
+              }
             } else {
-              // if we have a vector, we store in evs this vector for future
-              // use
-              evs.push_back(std::make_tuple(
-                  i, std::get<std::vector<real>>(p->second).data()));
+              const auto& variable_values = std::get<std::vector<real>>(p->second);
+              if (variable_values.size()==v.size()) {
+                std::copy(variable_values.begin(), variable_values.end(), v.begin() + i);
+              } else {
+                raise_if(
+                    variable_values.size() != vsize * (this->n),
+                    "invalid number of variable values given for variable '" +
+                        d.name + "'");
+                // if we have a vector, we store in evs this vector for future
+                // use
+                evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
+              }
             }
-            ++i;
+            i += vsize;
           }
           return evs;
         };  // end of dispatch
@@ -148,13 +170,20 @@ namespace mfem_mgis {
     // Fill vector `v` with material properties or external state variables.
     // Evaluators are used to deal with both uniform or spatially
     // variable quantities.
-    auto eval = [](std::vector<real>& v,
-                   const std::vector<std::tuple<size_type, real*>>& evs,
-                   const size_type i) {
-      for (const auto& [offset, values] : evs) {
-        v[offset] = values[i];
-      }
-    };  // end of eval
+    auto eval =
+        [](std::vector<real>& v,
+           const std::vector<std::tuple<size_type, size_type, const real*>>& evs,
+           const size_type i) {
+          for (const auto& [offset, size, values] : evs) {
+            if (size == 1) {
+              v[offset] = values[i];
+            } else {
+              const auto b_ptr = values + i * size;
+              const auto e_ptr = values + (i + 1) * size;
+              std::copy(b_ptr, e_ptr, v.begin() + offset);
+            }
+          }
+        };  // end of eval
     eval(this->wks.mps, this->wks.mps_evaluators, ip);
     eval(this->wks.esvs0, this->wks.esvs0_evaluators, ip);
     eval(this->wks.esvs1, this->wks.esvs1_evaluators, ip);

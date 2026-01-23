@@ -88,17 +88,19 @@ namespace mfem_mgis {
        * \brief evaluators for the material properties at the end of the time
        * step
        */
-      std::vector<std::tuple<size_type, real*>> mps_evaluators;
+      std::vector<std::tuple<size_type, size_type, const real*>> mps_evaluators;
       /*!
        * \brief evaluators for the external state variables at the beginning of
        * the time step
        */
-      std::vector<std::tuple<size_type, real*>> esvs0_evaluators;
+      std::vector<std::tuple<size_type, size_type, const real*>>
+          esvs0_evaluators;
       /*!
        * \brief evaluators for the external state variables at the end of
        * the time step
        */
-      std::vector<std::tuple<size_type, real*>> esvs1_evaluators;
+      std::vector<std::tuple<size_type, size_type, const real*>>
+          esvs1_evaluators;
     } wks;
     //! \brief time increment for the given time step
     real time_increment;
