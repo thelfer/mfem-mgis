@@ -47,9 +47,9 @@ Available functions
 
 The :cxx:`computeL2Projection` function allows projecting a set of
 quadrature functions on nodes by minimizing the :math:`L_{2}` norm of
-the projection and the values of the quadrature functions.
+the difference of the projection and the values of the quadrature functions.
 
-The :cxx:`computeL2Projection` internally calls successively the
+The :cxx:`computeL2Projection` function internally calls successively the
 functions :cxx:`createL2ProjectionResult` and :cxx:`updateL2Projection`.
 Those functions can be used directly if the projection has to be
 performed several times.
@@ -85,12 +85,10 @@ computed component-wise.
 Available functions
 -------------------
 
-The :cxx:`computeImplicitGradientRegularization` function allows
-projecting a set of quadrature functions on nodes by minimizing the
-:math:`L_{2}` norm of the projection and the values of the quadrature
-functions.
+The :cxx:`computeImplicitGradientRegularization` function solves
+the previous equation to determine :math:`\bar{f}`.
 
-The :cxx:`computeImplicitGradientRegularization` internally calls
+The :cxx:`computeImplicitGradientRegularization` function internally calls
 successively the functions :cxx:`createL2Projection` and
 :cxx:`updateImplicitGradientRegularization`. Those functions can be used
 directly if the projection has to be performed several times.
