@@ -68,76 +68,73 @@ namespace mfem_mgis {
      */
     // This lambda function builds an *evaluator*. Its role is to fill up
     // the `v` vector
-    auto dispatch =
-        [this](std::vector<real>& v,
-               std::map<std::string,
-                        std::variant<real, std::span<real>, std::vector<real>>>&
-                   values,
-               const std::vector<mgis::behaviour::Variable>& ds) {
-          const auto h = this->getMaterial().b.hypothesis;
-          raise_if(v.size() != mgis::behaviour::getArraySize(
-                                   ds, h),
-                   "integrate: ill allocated memory");
-          // evaluators
-          auto evs = std::vector<std::tuple<size_type, size_type, const real*>>{};
-          auto i = mgis::size_type{};
-          for (const auto& d : ds) {
-            const auto vsize = mgis::behaviour::getVariableSize(d, h);
-            auto p = values.find(d.name);
-            if (p == values.end()) {
-              auto msg = std::string{"integrate: no variable named '" + d.name +
-                                     "' declared"};
-              if (!values.empty()) {
-                msg += "\nThe following variables were declared: ";
-                for (const auto& vs : values) {
-                  msg += "\n- " + vs.first;
-                }
-              } else {
-                msg += "\nNo variable declared.";
-              }
-              raise(msg);
+    auto dispatch = [this](std::vector<real>& v,
+                           std::map<std::string,
+                                    std::variant<real, std::span<real>,
+                                                 std::vector<real>>>& values,
+                           const std::vector<mgis::behaviour::Variable>& ds) {
+      const auto h = this->getMaterial().b.hypothesis;
+      raise_if(v.size() != mgis::behaviour::getArraySize(ds, h),
+               "integrate: ill allocated memory");
+      // evaluators
+      auto evs = std::vector<std::tuple<size_type, size_type, const real*>>{};
+      auto i = mgis::size_type{};
+      for (const auto& d : ds) {
+        const auto vsize = mgis::behaviour::getVariableSize(d, h);
+        auto p = values.find(d.name);
+        if (p == values.end()) {
+          auto msg = std::string{"integrate: no variable named '" + d.name +
+                                 "' declared"};
+          if (!values.empty()) {
+            msg += "\nThe following variables were declared: ";
+            for (const auto& vs : values) {
+              msg += "\n- " + vs.first;
             }
-            // depending on the type of p->second, we are branching
-            // on one of the following procedure:
-            if (std::holds_alternative<real>(p->second)) {
-              if (vsize != 1) {
-                raise("invalid number of values given for variable '" +
-                      d.name + "'");
-              }
-              // if uniform field, copy p->second into v[i]
-              // `evs` will be untouched.
-              v[i] = std::get<real>(p->second);
-            } else if (std::holds_alternative<std::span<real>>(p->second)) {
-              const auto& variable_values = std::get<std::span<real>>(p->second);
-              if (variable_values.size()==v.size()) {
-                std::copy(variable_values.begin(), variable_values.end(), v.begin() + i);
-              } else {
-                raise_if(
-                    variable_values.size() != vsize * (this->n),
-                    "invalid number of variable values given for variable '" +
-                        d.name + "'");
-                // if we have a span, we store in evs this span for future use
-                evs.push_back(
-                    std::make_tuple(i, vsize, variable_values.data()));
-              }
-            } else {
-              const auto& variable_values = std::get<std::vector<real>>(p->second);
-              if (variable_values.size()==v.size()) {
-                std::copy(variable_values.begin(), variable_values.end(), v.begin() + i);
-              } else {
-                raise_if(
-                    variable_values.size() != vsize * (this->n),
-                    "invalid number of variable values given for variable '" +
-                        d.name + "'");
-                // if we have a vector, we store in evs this vector for future
-                // use
-                evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
-              }
-            }
-            i += vsize;
+          } else {
+            msg += "\nNo variable declared.";
           }
-          return evs;
-        };  // end of dispatch
+          raise(msg);
+        }
+        // depending on the type of p->second, we are branching
+        // on one of the following procedure:
+        if (std::holds_alternative<real>(p->second)) {
+          if (vsize != 1) {
+            raise("invalid number of values given for variable '" + d.name +
+                  "'");
+          }
+          // if uniform field, copy p->second into v[i]
+          // `evs` will be untouched.
+          v[i] = std::get<real>(p->second);
+        } else if (std::holds_alternative<std::span<real>>(p->second)) {
+          const auto& variable_values = std::get<std::span<real>>(p->second);
+          if (variable_values.size() == v.size()) {
+            std::copy(variable_values.begin(), variable_values.end(),
+                      v.begin() + i);
+          } else {
+            raise_if(variable_values.size() != vsize * (this->n),
+                     "invalid number of variable values given for variable '" +
+                         d.name + "'");
+            // if we have a span, we store in evs this span for future use
+            evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
+          }
+        } else {
+          const auto& variable_values = std::get<std::vector<real>>(p->second);
+          if (variable_values.size() == v.size()) {
+            std::copy(variable_values.begin(), variable_values.end(),
+                      v.begin() + i);
+          } else {
+            raise_if(variable_values.size() != vsize * (this->n),
+                     "invalid number of variable values given for variable '" +
+                         d.name + "'");
+            // if we have a vector, we store in evs this vector for future
+            // use
+            evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
+          }
+        }
+        i += vsize;
+      }
+      return evs;
+    };  // end of dispatch
     // The `b` field refers to MGIS MaterialDataManager class, which
     // is an ancestor class of the current BehaviourIntegratorBase class.
     this->wks.mps_evaluators =
@@ -172,7 +169,8 @@ namespace mfem_mgis {
     // variable quantities.
     auto eval =
         [](std::vector<real>& v,
-           const std::vector<std::tuple<size_type, size_type, const real*>>& evs,
+           const std::vector<std::tuple<size_type, size_type, const real*>>&
+               evs,
            const size_type i) {
           for (const auto& [offset, size, values] : evs) {
             if (size == 1) {
