@@ -98,6 +98,10 @@ namespace mfem_mgis {
     const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
     mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
     const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
+    [[nodiscard]] mfem::Vector& getUnknowns(
+        const TimeStepStage) noexcept override;
+    [[nodiscard]] const mfem::Vector& getUnknowns(
+        const TimeStepStage) const noexcept override;
     void setSolverParameters(const Parameters&) override;
     void setMaterialsNames(const std::map<size_type, std::string>&) override;
     void setBoundariesNames(const std::map<size_type, std::string>&) override;

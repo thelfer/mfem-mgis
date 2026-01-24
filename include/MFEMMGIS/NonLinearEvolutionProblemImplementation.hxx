@@ -76,6 +76,10 @@ namespace mfem_mgis {
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
     void executePostProcessings(const real, const real) override;
+    [[nodiscard]] GridFunction<true>& getUnknownsAsGridFunction(
+        const TimeStepStage) noexcept;
+    [[nodiscard]] const GridFunction<true>& getUnknownsAsGridFunction(
+        const TimeStepStage) const noexcept;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -85,6 +89,16 @@ namespace mfem_mgis {
         std::vector<size_type>) override;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
+    /*!
+     * \brief grid functions that wraps the unknowns at the beginning of the
+     * time step
+     */
+    GridFunction<true> unknowns0;
+    /*!
+     * \brief grid functions that wraps the unknowns at the end of the
+     * time step
+     */
+    GridFunction<true> unknowns1;
   };  // end of struct NonLinearEvolutionProblemImplementation
 
 #endif /* MFEM_USE_MPI */
@@ -132,6 +146,11 @@ namespace mfem_mgis {
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
     void executePostProcessings(const real, const real) override;
+    //
+    [[nodiscard]] GridFunction<false>& getUnknownsAsGridFunction(
+        const TimeStepStage) noexcept;
+    [[nodiscard]] const GridFunction<false>& getUnknownsAsGridFunction(
+        const TimeStepStage) const noexcept;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -141,6 +160,16 @@ namespace mfem_mgis {
         std::vector<size_type>) override;
     //! \brief registred post-processings
     std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
+    /*!
+     * \brief grid functions that wraps the unknowns at the beginning of the
+     * time step
+     */
+    GridFunction<false> unknowns0;
+    /*!
+     * \brief grid functions that wraps the unknowns at the end of the
+     * time step
+     */
+    GridFunction<false> unknowns1;
   };  // end of struct NonLinearEvolutionProblemImplementation
 
   /*!

@@ -63,21 +63,30 @@ namespace mfem_mgis {
                               const Parameters & = Parameters());
     //! \return the implementation
     template <bool parallel>
-    NonLinearEvolutionProblemImplementation<parallel> &getImplementation();
+    [[nodiscard]] NonLinearEvolutionProblemImplementation<parallel>
+        &getImplementation();
     //! \return the implementation
     template <bool parallel>
-    const NonLinearEvolutionProblemImplementation<parallel> &getImplementation()
-        const;
+    [[nodiscard]] const NonLinearEvolutionProblemImplementation<parallel>
+        &getImplementation() const;
     //
-    FiniteElementDiscretization &getFiniteElementDiscretization() override;
-    const FiniteElementDiscretization &getFiniteElementDiscretization()
+    [[nodiscard]]  FiniteElementDiscretization &getFiniteElementDiscretization() override;
+    [[nodiscard]]  const FiniteElementDiscretization &getFiniteElementDiscretization()
         const override;
-    std::shared_ptr<FiniteElementDiscretization>
+    [[nodiscard]] std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
-    mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() override;
-    const mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() const override;
-    mfem::Vector &getUnknownsAtEndOfTheTimeStep() override;
-    const mfem::Vector &getUnknownsAtEndOfTheTimeStep() const override;
+    [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &
+    getUnknownsAtBeginningOfTheTimeStep() override;
+    [[nodiscard, deprecated("use getUnknowns instead")]] const mfem::Vector &
+    getUnknownsAtBeginningOfTheTimeStep() const override;
+    [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &
+    getUnknownsAtEndOfTheTimeStep() override;
+    [[nodiscard, deprecated("use getUnknowns instead")]] const mfem::Vector &
+    getUnknownsAtEndOfTheTimeStep() const override;
+    [[nodiscard]] mfem::Vector &getUnknowns(
+        const TimeStepStage) noexcept override;
+    [[nodiscard]] const mfem::Vector &getUnknowns(
+        const TimeStepStage) const noexcept override;
     void setSolverParameters(const Parameters &) override;
     [[nodiscard]] bool setLinearSolver(Context &,
                                        LinearSolverHandler) noexcept override;

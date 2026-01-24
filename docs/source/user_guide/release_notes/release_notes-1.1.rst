@@ -57,9 +57,30 @@ calls successively the functions :cxx:`createL2Projection` and
 :cxx:`updateImplicitGradientRegularization`. Those functions can be used
 directly if the projection has to be performed several times.
 
+Application programming interface
+=================================
+
+New functions and methods
+-------------------------
+
+- :cxx:`getUnknownsAsGridFunction` has been added to
+  :cxx:`NonLinearEvolutionProblemImplementation<true>` and
+  :cxx:`NonLinearEvolutionProblemImplementation<false>`.
+
+Deprecated functions and methods
+--------------------------------
+
+- :cxx:`getUnknownsAtTheBeginningOfTheTimeStep` and
+  :cxx:`getUnknownsAtTheEndOfTheTimeStep` are deprecated in favor of
+  :cxx:`getUnknowns` in :cxx:`AbstractNonLinearEvolutionProblem`,
+  :cxx:`NonLinearEvolutionProblem`, and
+  :cxx:`NonLinearEvolutionProblemImplementationBase`.
+
 Issues fixed
 ============
 
+- Issue 167: Add helper methods to wrap the unknowns of a non linear
+  evolution problem as :cxx:`GridFunctions`
 - Issue 167: Allow tensorial external state variables
 - Issue 162: Change the API of :cxx:`LinearSolverFactory`
 - Issue 159: [fix] :cxx:`upgradeGridFunction` seems wrong for grid

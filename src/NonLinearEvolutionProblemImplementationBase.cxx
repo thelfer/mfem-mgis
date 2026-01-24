@@ -98,6 +98,22 @@ namespace mfem_mgis {
     return this->u1;
   }  // end of getUnknownsAtEndOfTheTimeStep
 
+  mfem::Vector& NonLinearEvolutionProblemImplementationBase::getUnknowns(
+      const TimeStepStage ts) noexcept {
+    if (ts == bts) {
+      return this->u0;
+    }
+    return this->u1;
+  }  // end of getUnknowns
+
+  const mfem::Vector& NonLinearEvolutionProblemImplementationBase::getUnknowns(
+      const TimeStepStage ts) const noexcept {
+    if (ts == bts) {
+      return this->u0;
+    }
+    return this->u1;
+  }  // end of getUnknowns
+
   void NonLinearEvolutionProblemImplementationBase::revert() {
     this->u1 = this->u0;
     if (this->mgis_integrator != nullptr) {

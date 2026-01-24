@@ -13,6 +13,7 @@
 #include <memory>
 #include <functional>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/TimeStepStage.hxx"
 #include "MFEMMGIS/LinearSolverHandler.hxx"
 #include "MFEMMGIS/NonLinearResolutionOutput.hxx"
 
@@ -36,21 +37,36 @@ namespace mfem_mgis {
     static const char *const SolverAbsoluteTolerance;
     static const char *const SolverMaximumNumberOfIterations;
     //! \return the underlying finite element discretization
-    virtual FiniteElementDiscretization &getFiniteElementDiscretization() = 0;
+    [[nodiscard]] virtual FiniteElementDiscretization &
+    getFiniteElementDiscretization() = 0;
     //! \return the underlying finite element discretization
-    virtual const FiniteElementDiscretization &getFiniteElementDiscretization()
-        const = 0;
+    [[nodiscard]] virtual const FiniteElementDiscretization &
+    getFiniteElementDiscretization() const = 0;
     //! \return the underlying finite element discretization
-    virtual std::shared_ptr<FiniteElementDiscretization>
+    [[nodiscard]] virtual std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() = 0;
     //! \return the unknowns at the beginning of the time step
-    virtual mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() = 0;
+    [[nodiscard, deprecated("use getUnknowns instead")]]  //
+    virtual mfem::Vector &
+    getUnknownsAtBeginningOfTheTimeStep() = 0;
     //! \return the unknowns at the beginning of the time step
-    virtual const mfem::Vector &getUnknownsAtBeginningOfTheTimeStep() const = 0;
+    [[nodiscard, deprecated("use getUnknowns instead")]]  //
+    virtual const mfem::Vector &
+    getUnknownsAtBeginningOfTheTimeStep() const = 0;
     //! \return the unknowns at the end of the time step
-    virtual mfem::Vector &getUnknownsAtEndOfTheTimeStep() = 0;
+    [[nodiscard, deprecated("use getUnknowns instead")]]  //
+    virtual mfem::Vector &
+    getUnknownsAtEndOfTheTimeStep() = 0;
     //! \return the unknowns at the end of the time step
-    virtual const mfem::Vector &getUnknownsAtEndOfTheTimeStep() const = 0;
+    [[nodiscard, deprecated("use getUnknowns instead")]]  //
+    virtual const mfem::Vector &
+    getUnknownsAtEndOfTheTimeStep() const = 0;
+    //! \return the unknowns at the end of the time step
+    [[nodiscard]] virtual mfem::Vector &getUnknowns(
+        const TimeStepStage) noexcept = 0;
+    //! \return the unknowns at the end of the time step
+    [[nodiscard]] virtual const mfem::Vector &getUnknowns(
+        const TimeStepStage) const noexcept = 0;
     /*!
      * \brief set the solver parameters
      * \param[in] params: parameters
