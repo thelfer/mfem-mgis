@@ -62,22 +62,21 @@ namespace mfem_mgis {
 
   //! \brief a simple alias
   using size_type = int;
-
+  /*!
+   * \brief constant used to determine if a function view has not a number of
+   * components knwon at compile-time size
+   */
   inline constexpr size_type dynamic_extent =
       std::numeric_limits<size_type>::max();
-
   //! \brief alias to the numeric type used
   using real = mgis::real;
-
   /*!
    * \brief this function can be called to report that the parallel computation
    * are not supported.
    */
   MFEM_MGIS_EXPORT [[noreturn]] void reportUnsupportedParallelComputations();
-
   //! \brief a simple alias
   using MainFunctionArguments = char**;
-
   /*!
    * \brief function that must be called to initialize `mfem-mgis`.
    * \param[in] argc: number of arguments
@@ -92,13 +91,9 @@ namespace mfem_mgis {
    * This call is optional if the code exits normally.
    */
   MFEM_MGIS_EXPORT void finalize();
-  /*!
-   * \brief gives MPI rank.
-   */
+  //! \return the MPI rank.
   MFEM_MGIS_EXPORT int getMPIrank();
-  /*!
-   * \brief gives MPI global communicator size.
-   */
+  //! \return the MPI global communicator size.
   MFEM_MGIS_EXPORT int getMPIsize();
 
   /*!

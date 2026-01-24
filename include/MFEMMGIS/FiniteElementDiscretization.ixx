@@ -49,6 +49,46 @@ namespace mfem_mgis {
   }  // end of getMesh
 
   template <bool parallel>
+  std::shared_ptr<Mesh<parallel>>
+  FiniteElementDiscretization::getMeshPointer() {
+    if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+      if (!this->parallel_mesh.get()) {
+        FiniteElementDiscretization::reportInvalidParallelMesh();
+      }
+      return this->parallel_mesh;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      if (!this->sequential_mesh.get()) {
+        FiniteElementDiscretization::reportInvalidSequentialMesh();
+      }
+      return this->sequential_mesh;
+    }
+  }  // end of getMeshPointer
+
+  template <bool parallel>
+  std::shared_ptr<const Mesh<parallel>>
+  FiniteElementDiscretization::getMeshPointer() const {
+    if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+      if (!this->parallel_mesh.get()) {
+        FiniteElementDiscretization::reportInvalidParallelMesh();
+      }
+      return this->parallel_mesh;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      if (!this->sequential_mesh.get()) {
+        FiniteElementDiscretization::reportInvalidSequentialMesh();
+      }
+      return this->sequential_mesh;
+    }
+  }  // end of getMeshPointer
+
+  template <bool parallel>
   inline FiniteElementSpace<parallel>&
   FiniteElementDiscretization::getFiniteElementSpace() {
     if constexpr (parallel) {
