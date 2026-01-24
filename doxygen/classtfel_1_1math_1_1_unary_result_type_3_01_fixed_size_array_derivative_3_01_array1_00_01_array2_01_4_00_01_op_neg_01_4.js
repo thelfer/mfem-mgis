@@ -1,4 +1,0 @@
-var classtfel_1_1math_1_1_unary_result_type_3_01_fixed_size_array_derivative_3_01_array1_00_01_array2_01_4_00_01_op_neg_01_4 =
-[
-    [ "type", "classtfel_1_1math_1_1_unary_result_type_3_01_fixed_size_array_derivative_3_01_array1_00_01_array2_01_4_00_01_op_neg_01_4.html#aa22dcfa6c89b2a483e97a9b6cf6b4a43", null ]
-];
