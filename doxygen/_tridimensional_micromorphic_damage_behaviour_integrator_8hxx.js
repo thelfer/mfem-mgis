@@ -1,4 +1,0 @@
-var _tridimensional_micromorphic_damage_behaviour_integrator_8hxx =
-[
-    [ "mfem_mgis::TridimensionalMicromorphicDamageBehaviourIntegrator", "structmfem__mgis_1_1_tridimensional_micromorphic_damage_behaviour_integrator.html", "structmfem__mgis_1_1_tridimensional_micromorphic_damage_behaviour_integrator" ]
-];

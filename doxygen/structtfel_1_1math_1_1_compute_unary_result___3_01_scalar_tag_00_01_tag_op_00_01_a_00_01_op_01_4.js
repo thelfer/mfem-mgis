@@ -1,4 +1,0 @@
-var structtfel_1_1math_1_1_compute_unary_result___3_01_scalar_tag_00_01_tag_op_00_01_a_00_01_op_01_4 =
-[
-    [ "Handle", "structtfel_1_1math_1_1_compute_unary_result___3_01_scalar_tag_00_01_tag_op_00_01_a_00_01_op_01_4.html#a4e1c9d942a88a5ccc32440823c528419", null ]
-];

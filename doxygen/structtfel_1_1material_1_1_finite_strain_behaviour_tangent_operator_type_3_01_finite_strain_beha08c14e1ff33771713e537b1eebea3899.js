@@ -1,4 +1,0 @@
-var structtfel_1_1material_1_1_finite_strain_behaviour_tangent_operator_type_3_01_finite_strain_beha08c14e1ff33771713e537b1eebea3899 =
-[
-    [ "type", "structtfel_1_1material_1_1_finite_strain_behaviour_tangent_operator_type_3_01_finite_strain_beha08c14e1ff33771713e537b1eebea3899.html#a15060fad385d34bf282048832f7425c5", null ]
-];
