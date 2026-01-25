@@ -63,10 +63,11 @@ namespace mfem_mgis {
           "egrator::setup: "
           "external state variable 'Temperature' is not defined");
     }
-    if (std::holds_alternative<std::span<real>>(pev->second)) {
-      this->uesv = std::get<std::span<real>>(pev->second).data();
-    } else if (std::holds_alternative<std::vector<real>>(pev->second)) {
-      this->uesv = std::get<std::vector<real>>(pev->second).data();
+    auto& value = pev->second.value;
+    if (std::holds_alternative<std::span<real>>(value)) {
+      this->uesv = std::get<std::span<real>>(value).data();
+    } else if (std::holds_alternative<std::vector<real>>(value)) {
+      this->uesv = std::get<std::vector<real>>(value).data();
     } else {
       raise(
           "OrthotropicTridimensionalStationaryNonLinearHeatTransferBehaviourInt"
