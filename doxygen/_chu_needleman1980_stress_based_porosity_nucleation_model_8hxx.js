@@ -1,0 +1,4 @@
+var _chu_needleman1980_stress_based_porosity_nucleation_model_8hxx =
+[
+    [ "mfront::bbrick::ChuNeedleman1980StressBasedPorosityNucleationModel", "structmfront_1_1bbrick_1_1_chu_needleman1980_stress_based_porosity_nucleation_model.html", "structmfront_1_1bbrick_1_1_chu_needleman1980_stress_based_porosity_nucleation_model" ]
+];
