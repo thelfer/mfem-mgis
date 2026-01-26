@@ -53,14 +53,19 @@
 <li class="toctree-l2"><a class="reference internal" href="../boundary_conditions.html">Boundary conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../post_processings.html">Post-processings</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Partial quadrature functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#extrapolating-quadrature-functions-at-nodes">Extrapolating quadrature functions at nodes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#projecting-quadrature-functions-at-nodes">Projecting quadrature functions at nodes</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#available-functions">Available functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#projection-of-a-grid-function-to-a-partial-quadrature-function">Projection of a grid function to a partial quadrature function</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#example-of-usage">Example of usage</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#extrapolating-quadrature-functions-at-nodes">Extrapolating quadrature functions at nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#projecting-quadrature-functions-at-nodes">Projecting quadrature functions at nodes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#available-functions">Available functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Example of usage</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#implicit-gradient-regularization">Implicit gradient regularization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id2">Available functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Available functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Example of usage</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#miscellaneous-functions">Miscellaneous functions</a><ul>
@@ -109,6 +114,17 @@
 <p>Partial quadrature functions map quadrature points to values. A partial
 quadrature function is defined on the quadrature points associated with
 a unique material.</p>
+<section id="projection-of-a-grid-function-to-a-partial-quadrature-function">
+<h2>Projection of a grid function to a partial quadrature function<a class="headerlink" href="#projection-of-a-grid-function-to-a-partial-quadrature-function" title="Link to this heading"></a></h2>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">update</span></code> function allows projecting a grid function to a
+partial quadrature function.</p>
+<section id="example-of-usage">
+<h3>Example of usage<a class="headerlink" href="#example-of-usage" title="Link to this heading"></a></h3>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">update</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
 <section id="extrapolating-quadrature-functions-at-nodes">
 <h2>Extrapolating quadrature functions at nodes<a class="headerlink" href="#extrapolating-quadrature-functions-at-nodes" title="Link to this heading"></a></h2>
 <p>Using a so-called <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code>, a set of partial quadrature
@@ -145,13 +161,13 @@ functions <code class="code highlight c++ docutils literal highlight-c++"><span 
 Those functions can be used directly if the projection has to be
 performed several times.</p>
 </section>
-<section id="example-of-usage">
-<h3>Example of usage<a class="headerlink" href="#example-of-usage" title="Link to this heading"></a></h3>
+<section id="id1">
+<h3>Example of usage<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LinearFactor</span><span class="o">&lt;</span><span class="n">parallel</span><span class="o">&gt;::</span><span class="n">getFactory</span><span class="p">();</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">fct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PartialQuadratureFunction</span><span class="o">::</span><span class="n">evaluate</span><span class="p">(</span>
 <span class="w">    </span><span class="n">fespace</span><span class="p">,</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">real</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">real</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">os</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">generate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MUMPSSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fespace</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
-<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">oresult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">computeL2Projection</span><span class="o">&lt;</span><span class="n">parallel</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">os</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="o">*</span><span class="n">fct</span><span class="p">});</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">oresult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">computeL2Projection</span><span class="o">&lt;</span><span class="n">parallel</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">os</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="o">*</span><span class="n">fct</span><span class="p">});</span>
 </pre></div>
 </div>
 </section>
@@ -163,17 +179,30 @@ performed several times.</p>
 <div class="math notranslate nohighlight">
 \[\bar{f}-l_{c}^{2}\cdot\Delta\bar{f}=f\]</div>
 <p>where <span class="math notranslate nohighlight">\(l_{c}\)</span> is a characteristic length.</p>
-<p>See <span id="id1">[<a class="reference internal" href="../../index.html#id4" title="R. H. J. Peerlings, R. De Borst, W. a. M. Brekelmans, and J. H. P. De Vree. Gradient enhanced damage for quasi-brittle materials. International Journal for Numerical Methods in Engineering, 39(19):3391–3403, 1996. _eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D. URL: https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D (visited on 2026-01-22), doi:10.1002/(SICI)1097-0207(19961015)39:19&lt;3391::AID-NME7&gt;3.0.CO;2-D.">PDBBDV96</a>]</span> for details.</p>
+<p>See <span id="id2">[<a class="reference internal" href="../../index.html#id4" title="R. H. J. Peerlings, R. De Borst, W. a. M. Brekelmans, and J. H. P. De Vree. Gradient enhanced damage for quasi-brittle materials. International Journal for Numerical Methods in Engineering, 39(19):3391–3403, 1996. _eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D. URL: https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D (visited on 2026-01-22), doi:10.1002/(SICI)1097-0207(19961015)39:19&lt;3391::AID-NME7&gt;3.0.CO;2-D.">PDBBDV96</a>]</span> for details.</p>
 <p>For a vectorial function, the implicit gradient regularization is
 computed component-wise.</p>
-<section id="id2">
-<h3>Available functions<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id3">
+<h3>Available functions<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> function solves
 the previous equation to determine <span class="math notranslate nohighlight">\(\bar{f}\)</span>.</p>
 <p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> function internally calls
 successively the functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2Projection</span></code> and
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateImplicitGradientRegularization</span></code>. Those functions can be used
 directly if the projection has to be performed several times.</p>
+</section>
+<section id="id4">
+<h3>Example of usage<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">fct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PartialQuadratureFunction</span><span class="o">::</span><span class="n">evaluate</span><span class="p">(</span>
+<span class="w">    </span><span class="n">space</span><span class="p">,</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">real</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">real</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cos</span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pi</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="p">);</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">l0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pi</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pi</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">os</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">generate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MUMPSSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fespace</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">oresult</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">computeImplicitGradientRegularization</span><span class="o">&lt;</span><span class="n">parallel</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">os</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="o">*</span><span class="n">fct</span><span class="p">},</span><span class="w"> </span><span class="n">l0</span><span class="p">);</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="miscellaneous-functions">

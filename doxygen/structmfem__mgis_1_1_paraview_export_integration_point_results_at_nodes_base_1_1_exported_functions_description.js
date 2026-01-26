@@ -1,5 +1,0 @@
-var structmfem__mgis_1_1_paraview_export_integration_point_results_at_nodes_base_1_1_exported_functions_description =
-[
-    [ "functions", "structmfem__mgis_1_1_paraview_export_integration_point_results_at_nodes_base_1_1_exported_functions_description.html#a96b21a3a14f996a44b7afb41f0e81fda", null ],
-    [ "name", "structmfem__mgis_1_1_paraview_export_integration_point_results_at_nodes_base_1_1_exported_functions_description.html#acf08607e26d1cff7364696aa2ce2e7f8", null ]
-];
