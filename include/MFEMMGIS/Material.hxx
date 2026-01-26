@@ -37,8 +37,6 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT Material : mgis::behaviour::MaterialDataManager {
     /*!
-     * \brief a simple alias introduced for backward compatibility with earlier
-     * versions of MFEM/MGIS
      */
     using StateSelection = TimeStepStage;
     //
