@@ -101,13 +101,6 @@
 <span id="mfem-mgis-release-notes-1-1"></span><h1>Release notes of Version 1.1<a class="headerlink" href="#release-notes-of-version-1-1" title="Link to this heading"></a></h1>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading"></a></h2>
-<section id="projection-of-a-grid-function-to-a-partial-quadrature-function">
-<h3>Projection of a grid function to a partial quadrature function<a class="headerlink" href="#projection-of-a-grid-function-to-a-partial-quadrature-function" title="Link to this heading"></a></h3>
-<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">update</span></code> function allows projecting a grid function to a
-partial quadrature function.</p>
-</section>
-<section id="l-2-projection-of-a-partial-quadrature-function-to-a-grid-function">
-<h3><span class="math notranslate nohighlight">\(L_{2}\)</span> projection of a partial quadrature function to a grid function<a class="headerlink" href="#l-2-projection-of-a-partial-quadrature-function-to-a-grid-function" title="Link to this heading"></a></h3>
 <p>The <span class="math notranslate nohighlight">\(L_{2}\)</span> projection <span class="math notranslate nohighlight">\(\bar{f}\)</span> of a scalar quadrature
 function <span class="math notranslate nohighlight">\(f\)</span> is obtained by minimizing the following functional:</p>
 <div class="math notranslate nohighlight">
@@ -124,7 +117,6 @@ functions.</p>
 the functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2ProjectionResult</span></code> and
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateL2Projection</span></code>. Those functions can be used directly if the
 projection has to be performed several times.</p>
-</section>
 <section id="implicit-gradient-regularization">
 <h3>Implicit gradient regularization<a class="headerlink" href="#implicit-gradient-regularization" title="Link to this heading"></a></h3>
 <p>For a scalar function <span class="math notranslate nohighlight">\(f\)</span>, the implicit gradient regularization
@@ -151,11 +143,7 @@ directly if the projection has to be performed several times.</p>
 <ul class="simple">
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">getUnknownsAsGridFunction</span></code> has been added to
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">NonLinearEvolutionProblemImplementation</span><span class="o">&lt;</span><span class="nb">true</span><span class="o">&gt;</span></code> and
-<code class="code highlight c++ docutils literal highlight-c++"><span class="n">NonLinearEvolutionProblemImplementation</span><span class="o">&lt;</span><span class="nb">false</span><span class="o">&gt;</span></code>. See Issue 168
-for details.</p></li>
-<li><p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">update</span></code> allows to update the values for a
-<cite>PartialQuadratureFunction</cite> from the values of a <cite>GridFunction</cite>. See
-Issue 169 for details.</p></li>
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">NonLinearEvolutionProblemImplementation</span><span class="o">&lt;</span><span class="nb">false</span><span class="o">&gt;</span></code>.</p></li>
 </ul>
 </section>
 <section id="deprecated-functions-and-methods">
@@ -172,10 +160,8 @@ Issue 169 for details.</p></li>
 <section id="issues-fixed">
 <h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Issue 169: Add the ability to project a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> to a
-<code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureFunction</span></code>.</p></li>
-<li><p>Issue 168: Add helper methods to wrap the unknowns of a non linear
-evolution problem as <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code>.</p></li>
+<li><p>Issue 167: Add helper methods to wrap the unknowns of a non linear
+evolution problem as <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunctions</span></code></p></li>
 <li><p>Issue 167: Allow tensorial external state variables</p></li>
 <li><p>Issue 162: Change the API of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">LinearSolverFactory</span></code></p></li>
 <li><p>Issue 159: [fix] <code class="code highlight c++ docutils literal highlight-c++"><span class="n">upgradeGridFunction</span></code> seems wrong for grid
