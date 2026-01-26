@@ -22,6 +22,7 @@
 #include "MGIS/Behaviour/MaterialDataManager.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
+#include "MFEMMGIS/TimeStepStage.hxx"
 #include "MFEMMGIS/RotationMatrix.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 
@@ -36,12 +37,13 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT Material : mgis::behaviour::MaterialDataManager {
     /*!
-     * \brief a small enumeration
      */
-    enum StateSelection {
-      BEGINNING_OF_TIME_STEP,
-      END_OF_TIME_STEP,
-    };
+    using StateSelection = TimeStepStage;
+    //
+    static constexpr TimeStepStage BEGINNING_OF_TIME_STEP =
+        TimeStepStage::BEGINNING_OF_TIME_STEP;
+    static constexpr TimeStepStage END_OF_TIME_STEP =
+        TimeStepStage::END_OF_TIME_STEP;
     /*!
      * \brief constructor
      * \param[in] s: quadrature space

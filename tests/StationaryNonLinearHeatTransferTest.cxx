@@ -39,8 +39,8 @@ int main(int argc, char** argv) {
          {"Hypothesis", "Tridimensional"},
          {"Parallel", bool(parameters.parallel)}});
     //
-    problem.getUnknownsAtBeginningOfTheTimeStep() = 293.15;
-    problem.getUnknownsAtEndOfTheTimeStep() = 293.15;
+    problem.getUnknowns(mfem_mgis::bts) = 293.15;
+    problem.getUnknowns(mfem_mgis::ets) = 293.15;
     // materials
     problem.addBehaviourIntegrator("StationaryNonLinearHeatTransfer", 1,
                                    parameters.library, parameters.behaviour);
