@@ -21,8 +21,8 @@ BUp.setGlossaryName("BurnUp (at.%)");
 Ta.setEntryName("ActivationTemperature");
 
 @Integrator {
-  const real Tm = T1 + dT / 2;
+  const real Tm = T + dT / 2;
   const real A = max(5.e-3, -1.26e-2 + 1.8e-5 * Tm);
   const real expTm = 1. + exp(-Ta / Tm);
-  s += A * (exp(-3.e-2 * (BUp + dBup) * expTm) - exp(-3.e-2 * BUp * expTm));
+  s += A * (exp(-3.e-2 * (BUp + dBUp) * expTm) - exp(-3.e-2 * BUp * expTm));
 }
