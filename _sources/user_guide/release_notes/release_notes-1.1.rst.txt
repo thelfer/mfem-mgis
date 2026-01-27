@@ -7,16 +7,6 @@ Release notes of Version 1.1
 New features
 ============
 
-Projection of a grid function to a partial quadrature function
---------------------------------------------------------------
-
-The :cxx:`update` function allows projecting a grid function to a
-partial quadrature function.
-
-
-:math:`L_{2}` projection of a partial quadrature function to a grid function
-----------------------------------------------------------------------------
-
 The :math:`L_{2}` projection :math:`\bar{f}` of a scalar quadrature
 function :math:`f` is obtained by minimizing the following functional:
 
@@ -75,11 +65,7 @@ New functions and methods
 
 - :cxx:`getUnknownsAsGridFunction` has been added to
   :cxx:`NonLinearEvolutionProblemImplementation<true>` and
-  :cxx:`NonLinearEvolutionProblemImplementation<false>`. See Issue 168
-  for details.
-- The :cxx:`update` allows to update the values for a
-  `PartialQuadratureFunction` from the values of a `GridFunction`. See
-  Issue 169 for details.
+  :cxx:`NonLinearEvolutionProblemImplementation<false>`.
 
 Deprecated functions and methods
 --------------------------------
@@ -93,10 +79,8 @@ Deprecated functions and methods
 Issues fixed
 ============
 
-- Issue 169: Add the ability to project a :cxx:`GridFunction` to a
-  :cxx:`PartialQuadratureFunction`.
-- Issue 168: Add helper methods to wrap the unknowns of a non linear
-  evolution problem as :cxx:`GridFunction`.
+- Issue 167: Add helper methods to wrap the unknowns of a non linear
+  evolution problem as :cxx:`GridFunctions`
 - Issue 167: Allow tensorial external state variables
 - Issue 162: Change the API of :cxx:`LinearSolverFactory`
 - Issue 159: [fix] :cxx:`upgradeGridFunction` seems wrong for grid

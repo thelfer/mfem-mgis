@@ -8,19 +8,6 @@ Partial quadrature functions map quadrature points to values. A partial
 quadrature function is defined on the quadrature points associated with
 a unique material.
 
-Projection of a grid function to a partial quadrature function
-==============================================================
-
-The :cxx:`update` function allows projecting a grid function to a
-partial quadrature function.
-
-Example of usage
-----------------
-
-.. code:: c++
-   
-   const auto success = update(ctx, dest, src);
-
 Extrapolating quadrature functions at nodes
 ===========================================
 
@@ -76,7 +63,7 @@ Example of usage
    auto fct = PartialQuadratureFunction::evaluate(
        fespace, [](const real x, const real y) noexcept { return cos(x) * y; });
    auto os = f.generate(ctx, "MUMPSSolver", fespace, {});
-   const auto oresult = computeL2Projection<parallel>(ctx, *os, {*fct});
+   const auto oresult = computeL2Projection<parallel>(ctx, os, {*fct});
 
 Implicit gradient regularization
 ================================
@@ -105,21 +92,6 @@ The :cxx:`computeImplicitGradientRegularization` function internally calls
 successively the functions :cxx:`createL2Projection` and
 :cxx:`updateImplicitGradientRegularization`. Those functions can be used
 directly if the projection has to be performed several times.
-
-Example of usage
-----------------
-
-.. code-block:: c++
-
-   auto fct = PartialQuadratureFunction::evaluate(
-       space, [](const real x, const real) noexcept {
-         const auto c = std::cos(4 * pi * x);
-         return (1 + l0 * l0 * 16 * pi * pi) * c;
-       });
-   auto os = f.generate(ctx, "MUMPSSolver", fespace, {});
-   const auto oresult =
-       computeImplicitGradientRegularization<parallel>(ctx, *os, {*fct}, l0);
-
 
 Miscellaneous functions
 =======================
