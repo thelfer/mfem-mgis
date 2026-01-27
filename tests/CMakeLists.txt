@@ -204,6 +204,24 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_l2_projection_test(0)
 
+  add_executable(GridFunctionTest
+    EXCLUDE_FROM_ALL
+    GridFunctionTest.cxx)
+  target_include_directories(GridFunctionTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(GridFunctionTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check GridFunctionTest)
+  
+  function(add_grid_function_test)
+    set(test "GridFunctionTest")
+    set(GridFunctionTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh")
+    add_test(NAME ${test}  COMMAND ./GridFunctionTest ${GridFunctionTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./GridFunctionTest ${GridFunctionTestParameters} "--parallel" "1")
+  endfunction(add_grid_function_test)
+
+  add_grid_function_test(0)
+
   add_executable(ImplicitGradientRegularizationTest
     EXCLUDE_FROM_ALL
     ImplicitGradientRegularizationTest.cxx)

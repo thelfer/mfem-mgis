@@ -527,6 +527,84 @@ namespace mfem_mgis {
   };
 
   template <bool parallel>
+  [[nodiscard]] static bool update_impl(
+      Context& ctx,
+      PartialQuadratureFunctionView& dest,
+      const GridFunction<parallel>& src) noexcept {
+    const auto& qspace = dest.getPartialQuadratureSpace();
+    const auto& fed = qspace.getFiniteElementDiscretization();
+    if constexpr (parallel) {
+      if (!fed.describesAParallelComputation()) {
+        return ctx.registerErrorMessage(
+            "partial quadrature function is not built on a parallel finite "
+            "element space");
+      }
+    } else {
+      if (fed.describesAParallelComputation()) {
+        return ctx.registerErrorMessage(
+            "partial quadrature function is built on a parallel finite "
+            "element space");
+      }
+    }
+    const auto& fespace = fed.getFiniteElementSpace<parallel>();
+    if (&(fespace) != src.FESpace()) {
+      return ctx.registerErrorMessage("unmatched finite element space");
+    }
+    if (dest.getNumberOfComponents() != src.VectorDim()) {
+      return ctx.registerErrorMessage(
+          "unmatched number of components (" +
+          std::to_string(dest.getNumberOfComponents()) +
+          " for the quadrature function and " +
+          std::to_string(src.VectorDim()) + " for the grid function)");
+    }
+    if (dest.getNumberOfComponents() == 1) {
+      // scalar case
+      for (const auto& [i, offset] : qspace.getOffsets()) {
+        static_cast<void>(offset);
+        const auto& fe = *(fespace.GetFE(i));
+        auto& tr = *(fespace.GetElementTransformation(i));
+        const auto& ir = qspace.getIntegrationRule(fe, tr);
+        for (size_type g = 0; g != ir.GetNPoints(); ++g) {
+          // get the gradients of the shape functions
+          const auto& ip = ir.IntPoint(g);
+          tr.SetIntPoint(&ip);
+          dest.getIntegrationPointValue(i, g) = src.GetValue(tr, ip);
+        }
+      }
+    } else {
+      // vectorial case
+      const auto nc = dest.getNumberOfComponents();
+      for (const auto& [i, offset] : qspace.getOffsets()) {
+        static_cast<void>(offset);
+        const auto& fe = *(fespace.GetFE(i));
+        auto& tr = *(fespace.GetElementTransformation(i));
+        const auto& ir = qspace.getIntegrationRule(fe, tr);
+        for (size_type g = 0; g != ir.GetNPoints(); ++g) {
+          // get the gradients of the shape functions
+          const auto& ip = ir.IntPoint(g);
+          tr.SetIntPoint(&ip);
+          auto v = dest.getIntegrationPointValues(i, g);
+          auto tmp = mfem::Vector(v.data(), nc);
+          src.GetVectorValue(tr, ip, tmp);
+        }
+      }
+    }
+    return true;
+  }  // end of update_impl
+
+  bool update(Context& ctx,
+              PartialQuadratureFunctionView& dest,
+              const GridFunction<true>& src) noexcept {
+    return update_impl<true>(ctx, dest, src);
+  }  // end of update
+
+  bool update(Context& ctx,
+              PartialQuadratureFunctionView& dest,
+              const GridFunction<false>& src) noexcept {
+    return update_impl<false>(ctx, dest, src);
+  }  // end of update
+
+  template <bool parallel>
   static std::optional<std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
                                  std::unique_ptr<GridFunction<parallel>>>>
   makeGridFunction_impl(

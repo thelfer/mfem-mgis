@@ -70,9 +70,10 @@ namespace mfem_mgis {
     [[nodiscard]] const NonLinearEvolutionProblemImplementation<parallel>
         &getImplementation() const;
     //
-    [[nodiscard]]  FiniteElementDiscretization &getFiniteElementDiscretization() override;
-    [[nodiscard]]  const FiniteElementDiscretization &getFiniteElementDiscretization()
-        const override;
+    [[nodiscard]] FiniteElementDiscretization &getFiniteElementDiscretization()
+        override;
+    [[nodiscard]] const FiniteElementDiscretization &
+    getFiniteElementDiscretization() const override;
     [[nodiscard]] std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
     [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &

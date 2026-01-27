@@ -101,7 +101,7 @@ namespace mfem_mgis {
         offsets;
     //! \brief number of quadrature points associated with elements
     std::unordered_map<size_type,  // element number (global numbering)
-                       size_type>  // offset
+                       size_type>  // number of quadrature points
         number_of_quadrature_points;
     //! \brief material identifier
     size_type id;

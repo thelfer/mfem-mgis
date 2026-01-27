@@ -63,7 +63,7 @@ namespace mfem_mgis {
           "egrator::setup: "
           "external state variable 'Temperature' is not defined");
     }
-    auto& value = pev->second.value;
+    auto &value = pev->second.value;
     if (std::holds_alternative<std::span<real>>(value)) {
       this->uesv = std::get<std::span<real>>(value).data();
     } else if (std::holds_alternative<std::vector<real>>(value)) {
