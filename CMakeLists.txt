@@ -33,6 +33,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # MFEM
+if(MFEM_DIR)
+  set(MFEM_MGIS_MFEM_DIR "${MFEM_DIR}")
+endif(MFEM_DIR)
 find_package(MFEM REQUIRED)
 
 if (MFEM_USE_MPI)
