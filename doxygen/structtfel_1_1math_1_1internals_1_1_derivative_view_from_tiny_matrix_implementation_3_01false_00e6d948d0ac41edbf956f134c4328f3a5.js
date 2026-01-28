@@ -1,5 +1,0 @@
-var structtfel_1_1math_1_1internals_1_1_derivative_view_from_tiny_matrix_implementation_3_01false_00e6d948d0ac41edbf956f134c4328f3a5 =
-[
-    [ "derivative_base_type", "structtfel_1_1math_1_1internals_1_1_derivative_view_from_tiny_matrix_implementation_3_01false_00e6d948d0ac41edbf956f134c4328f3a5.html#adbf14a475964e2d53bcb003466d4c160", null ],
-    [ "size_type", "structtfel_1_1math_1_1internals_1_1_derivative_view_from_tiny_matrix_implementation_3_01false_00e6d948d0ac41edbf956f134c4328f3a5.html#a4a0c2c61f18c674d2a6b7e303a6b05fc", null ]
-];
