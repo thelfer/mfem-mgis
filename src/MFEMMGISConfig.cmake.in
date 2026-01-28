@@ -3,12 +3,22 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 if (NOT TARGET MFEM::mfem)
-  find_package(MFEM REQUIRED)
+  set(MFEM_MODULE_PATH "@MFEM_DIR@")
+  if(MFEM_DIR)
+    set(MFEM_MODULE_PATH "${MFEM_DIR}")
+  if(MFEM_DIR)
+  find_package(MFEM REQUIRED
+               HINTS "${CMAKE_CURRENT_LIST_DIR}" "${MFEM_MODULE_PATH}")
 endif(NOT TARGET MFEM::mfem)
 
 # Require MGIS
 if (NOT TARGET mgis::MFrontGenericInterface)
-  find_package(MFrontGenericInterface REQUIRED)
+  set(MGIS_MODULE_PATH "@MGIS_DIR@")
+  if(MFrontGenericInterface_DIR)
+    set(MFEM_MODULE_PATH "${MFEM_DIR}")
+  endif(MFrontGenericInterface_DIR)
+  find_package(MFrontGenericInterface REQUIRED
+               HINTS "${CMAKE_CURRENT_LIST_DIR}" "${MGIS_MODULE_PATH}")
 endif(NOT TARGET mgis::MFrontGenericInterface)
 
 include("${CMAKE_CURRENT_LIST_DIR}/MFEMMGISTargets.cmake")
