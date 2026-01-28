@@ -3,14 +3,15 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 if (NOT TARGET MFEM::mfem)
-  set(MFEM_MODULE_PATH "@MFEM_MGIS_MFEM_DIR@")
+  # using our own FindMFEM.cmake file is a bit of a pain
+  # as we can't use the HINTS option of find_package.
+  # However definining explicitely MFEM_DIR seem to work as expected
   if(MFEM_DIR)
-    set(MFEM_MODULE_PATH "${MFEM_DIR}")
-   elseif(DEFINED ENV{${MFEM_DIR}})
-     set(MFEM_MODULE_PATH "$ENV{MFEM_DIR}")
+  elseif(DEFINED ENV{${MFEM_DIR}})
+  else()
+    set(MFEM_DIR "@MFEM_MGIS_MFEM_DIR@")
   endif(MFEM_DIR)
-  find_package(MFEM REQUIRED
-               HINTS "${CMAKE_CURRENT_LIST_DIR}" "${MFEM_MODULE_PATH}")
+  find_package(MFEM REQUIRED)
 
   if (@MFEM_USE_MPI@)
     find_package(MPI REQUIRED)
