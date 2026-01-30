@@ -76,4 +76,4 @@ jobs:
         publish_branch: master
         publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
         external_repository: thelfer/thelfer.github.io
-        destination_dir: mgis/doxygen/
+        destination_dir: mfem-mgis-doxygen/
