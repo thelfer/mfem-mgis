@@ -2,8 +2,9 @@ name: Doxygen
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 permissions:
   contents: write
@@ -71,7 +72,8 @@ jobs:
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:
-        personal_token: ${{ secrets.GITHUB_TOKEN }}        
-        publish_branch: gh-pages
+        personal_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
+        publish_branch: master
         publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
-        destination_dir: doxygen/
+        external_repository: thelfer/thelfer.github.io
+        destination_dir: mgis/doxygen/
