@@ -31,14 +31,14 @@ endif(NOT TARGET MFEM::mfem)
 
 # Require MGIS
 if (NOT TARGET mgis::MFrontGenericInterface)
-  set(MGIS_MODULE_PATH "@MFrontGenericInterface_DIR@")
+  set(_MGIS_MODULE_PATH "@MFrontGenericInterface_DIR@")
   if(MFrontGenericInterface_DIR)
-    set(MGIS_MODULE_PATH "${MFrontGenericInterface_DIR}")
+    set(_MGIS_MODULE_PATH "${MFrontGenericInterface_DIR}")
    elseif(DEFINED ENV{${MFrontGenericInterface_DIR}})
-     set(MGIS_MODULE_PATH "$ENV{MFrontGenericInterface_DIR}")
+     set(_MGIS_MODULE_PATH "$ENV{MFrontGenericInterface_DIR}")
   endif(MFrontGenericInterface_DIR)
   find_package(MFrontGenericInterface REQUIRED
-               HINTS "${CMAKE_CURRENT_LIST_DIR}" "${MGIS_MODULE_PATH}")
+               HINTS "${CMAKE_CURRENT_LIST_DIR}" "${_MGIS_MODULE_PATH}")
 endif(NOT TARGET mgis::MFrontGenericInterface)
 
 include("${CMAKE_CURRENT_LIST_DIR}/MFEMMGISTargets.cmake")
