@@ -58,7 +58,7 @@ jobs:
       shell: spack-sh {0}    
       run:  |
         spack load mfem 
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -Denable-doxygen-doc=ON \
+        cmake -B ${{github.workspace}}/mfem-mgis/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -Denable-doxygen-doc=ON \
               -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
               -DMFEM_DIR=`spack location -i mfem` \
@@ -67,13 +67,13 @@ jobs:
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake                 
     
     - name: Generate doxygen
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target doc-html 
+      run: cmake --build ${{github.workspace}}/mfem-mgis/build --config ${{env.BUILD_TYPE}} --target doc-html 
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:
         personal_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
         publish_branch: master
-        publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
+        publish_dir: ${{github.workspace}}/mfem-mgis/build/docs/doxygen/html/ 
         external_repository: thelfer/thelfer.github.io
         destination_dir: mfem-mgis-doxygen/
