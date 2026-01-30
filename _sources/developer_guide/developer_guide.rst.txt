@@ -4,7 +4,11 @@
 Developer guide
 ===============
 
-This project is written in ``C++-17``.
+This project is written in ``C++-20``.
+
+The `doxygen` documentation is available on `this page <doxygen>`_.
+    
+.. _doxygen: https://thelfer.github.io/mfem-mgis-doxygen/index.html
 
 .. toctree::
    :maxdepth: 1
