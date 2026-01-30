@@ -35,9 +35,6 @@ jobs:
       run: sudo apt-get install doxygen graphviz -y
       shell: bash
 
-    - name: Install mpich
-      run: sudo apt-get install mpich
-
     - name: Install libfabric
       run: sudo apt-get install libfabric-dev
       
@@ -49,10 +46,10 @@ jobs:
     - name: Install Packages
       run: |
         spack compiler find
-        spack external find openmpi mpich libfabric
-        spack install mfem+mpi+suite-sparse+mumps@4.7.0%gcc@12.4.0
+        spack external find libfabric
+        spack install mfem~mpi~suite-sparse~mumps@4.7.0%gcc@12.4.0
         spack install tfel@master:~python~python_bindings%gcc@12.4.0
-        spack install mgis@master:+c~fortran~python%gcc@12.4.0
+        spack install mgis@master:~c~fortran~python%gcc@12.4.0
 
     - name: Configure CMake
       shell: spack-sh {0}    
@@ -62,7 +59,6 @@ jobs:
               -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
               -DMFEM_DIR=`spack location -i mfem` \
-              -DHYPRE_DIR=`spack location -i hypre` \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake                 
     
