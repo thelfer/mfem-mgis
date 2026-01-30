@@ -6,10 +6,8 @@ Developer guide
 
 This project is written in ``C++-20``.
 
-The `doxygen` documentation is available on `this page <doxygen>`_.
+The `doxygen` documentation is available on `this page <https://thelfer.github.io/mfem-mgis-doxygen/index.html>`_.
     
-.. _doxygen: https://thelfer.github.io/mfem-mgis-doxygen/index.html
-
 .. toctree::
    :maxdepth: 1
 
