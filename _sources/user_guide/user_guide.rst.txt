@@ -17,3 +17,4 @@ User guide
    glossary.rst  
    mesh.rst  
    release_notes/release_notes.rst
+   tests/unit_tests.rst
