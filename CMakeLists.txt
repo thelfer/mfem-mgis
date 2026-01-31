@@ -33,6 +33,12 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # MFEM
+if(MFEM_DIR)
+  # MFEM_DIR is modified by FindMFEM.cmake..
+  # Don't know why, so in doubt we save the value
+  # in your own variable
+  set(MFEM_MGIS_MFEM_DIR "${MFEM_DIR}")
+endif(MFEM_DIR)
 find_package(MFEM REQUIRED)
 
 if (MFEM_USE_MPI)
@@ -43,13 +49,13 @@ if (MFEM_USE_MPI)
   include_directories(SYSTEM ${METIS_INCLUDE_DIRS})
 endif(MFEM_USE_MPI)
 
-# MFontGenericInterface
-find_package (MFrontGenericInterface REQUIRED)
-
 # Support for OpenMP
 if(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP) 
   find_package(OpenMP REQUIRED)
 endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
+
+# MFontGenericInterface
+find_package (MFrontGenericInterface REQUIRED)
  
 # find mfront for testing purposes
 include(cmake/modules/tfel.cmake)  

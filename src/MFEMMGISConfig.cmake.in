@@ -3,12 +3,42 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 if (NOT TARGET MFEM::mfem)
+  # using our own FindMFEM.cmake file is a bit of a pain
+  # as we can't use the HINTS option of find_package.
+  # However definining explicitely MFEM_DIR seem to work as expected
+  if(MFEM_DIR)
+  elseif(DEFINED ENV{${MFEM_DIR}})
+  else()
+    set(MFEM_DIR "@MFEM_MGIS_MFEM_DIR@")
+  endif(MFEM_DIR)
   find_package(MFEM REQUIRED)
+
+  if (@MFEM_USE_MPI@)
+    find_package(MPI REQUIRED)
+    # The following include directories are automatically filled within FindMFEM.cmake
+    include_directories(SYSTEM @HYPRE_INCLUDE_DIRS@)
+    include_directories(SYSTEM @METIS_INCLUDE_DIRS@)
+  endif(@MFEM_USE_MPI@)
+
+  # Support for OpenMP
+  if(@MFEM_USE_OPENMP@)
+    find_package(OpenMP REQUIRED)
+  elseif(@MFEM_USE_LEGACY_OPENMP@)
+    find_package(OpenMP REQUIRED)
+  endif(@MFEM_USE_OPENMP@)
+
 endif(NOT TARGET MFEM::mfem)
 
 # Require MGIS
 if (NOT TARGET mgis::MFrontGenericInterface)
-  find_package(MFrontGenericInterface REQUIRED)
+  set(_MGIS_MODULE_PATH "@MFrontGenericInterface_DIR@")
+  if(MFrontGenericInterface_DIR)
+    set(_MGIS_MODULE_PATH "${MFrontGenericInterface_DIR}")
+   elseif(DEFINED ENV{${MFrontGenericInterface_DIR}})
+     set(_MGIS_MODULE_PATH "$ENV{MFrontGenericInterface_DIR}")
+  endif(MFrontGenericInterface_DIR)
+  find_package(MFrontGenericInterface REQUIRED
+               HINTS "${CMAKE_CURRENT_LIST_DIR}" "${_MGIS_MODULE_PATH}")
 endif(NOT TARGET mgis::MFrontGenericInterface)
 
 include("${CMAKE_CURRENT_LIST_DIR}/MFEMMGISTargets.cmake")
