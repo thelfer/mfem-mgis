@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(mfem-mgis
-  VERSION 0.2
+  VERSION 1.1.0
   DESCRIPTION "The aim of the MFEM/MGIS project is to provide a C++ library to build advanced mechanical simulation based on MFront behaviours with MFEM.")
 
 include(cmake/modules/mfem-mgis.cmake)

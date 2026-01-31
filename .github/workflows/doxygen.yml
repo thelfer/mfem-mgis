@@ -2,8 +2,9 @@ name: Doxygen
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 permissions:
   contents: write
@@ -34,9 +35,6 @@ jobs:
       run: sudo apt-get install doxygen graphviz -y
       shell: bash
 
-    - name: Install mpich
-      run: sudo apt-get install mpich
-
     - name: Install libfabric
       run: sudo apt-get install libfabric-dev
       
@@ -48,30 +46,30 @@ jobs:
     - name: Install Packages
       run: |
         spack compiler find
-        spack external find openmpi mpich libfabric
-        spack install mfem+mpi+suite-sparse+mumps@4.7.0%gcc@12.4.0
+        spack external find libfabric
+        spack install mfem~mpi+suite-sparse~mumps@4.7.0%gcc@12.4.0
         spack install tfel@master:~python~python_bindings%gcc@12.4.0
-        spack install mgis@master:+c~fortran~python%gcc@12.4.0
+        spack install mgis@master:~c~fortran~python%gcc@12.4.0
 
     - name: Configure CMake
       shell: spack-sh {0}    
       run:  |
         spack load mfem 
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -Denable-doxygen-doc=ON \
+        cmake -B ${{github.workspace}}/mfem-mgis/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -Denable-doxygen-doc=ON \
               -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
               -DMFEM_DIR=`spack location -i mfem` \
-              -DHYPRE_DIR=`spack location -i hypre` \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake                 
     
     - name: Generate doxygen
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target doc-html 
+      run: cmake --build ${{github.workspace}}/mfem-mgis/build --config ${{env.BUILD_TYPE}} --target doc-html 
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:
-        personal_token: ${{ secrets.GITHUB_TOKEN }}        
-        publish_branch: gh-pages
-        publish_dir: ${{github.workspace}}/build/docs/doxygen/html/ 
-        destination_dir: doxygen/
+        personal_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
+        publish_branch: master
+        publish_dir: ${{github.workspace}}/mfem-mgis/build/docs/doxygen/html/ 
+        external_repository: thelfer/thelfer.github.io
+        destination_dir: mfem-mgis-doxygen/
