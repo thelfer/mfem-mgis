@@ -4,6 +4,14 @@
 Release notes of Version 1.1
 ============================
 
+Documentation
+=============
+
+Doxygen documentation
+---------------------
+
+The `doxygen` documentation is available on `this page <https://thelfer.github.io/mfem-mgis-doxygen/index.html>`_.
+
 New features
 ============
 
@@ -93,6 +101,7 @@ Deprecated functions and methods
 Issues fixed
 ============
 
+- Issue 179: Deployment of the `doxygen` documentation
 - Issue 169: Add the ability to project a :cxx:`GridFunction` to a
   :cxx:`PartialQuadratureFunction`.
 - Issue 168: Add helper methods to wrap the unknowns of a non linear
