@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>List of unit tests &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Commented Examples" href="../../commented_examples/commented_examples.html" />
+    <link rel="prev" title="Release notes of Version 1.1" href="../release_notes/release_notes-1.1.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user_guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tutorial.html">A tutorial introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html">Overview and main concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../behaviour_integrators.html">Behaviour integrators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundary_conditions.html">Boundary conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../post_processings.html">Post-processings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_functions.html">Partial quadrature functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mechanical_postprocessings.html">Mechanical post-processings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/release_notes.html">Release notes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">List of unit tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mechanical-tests">Mechanical tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#heat-transfer">Heat transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#micromorphic-damage">Micromorphic damage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unit-tests">Unit tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commented_examples/commented_examples.html">Commented Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/developer_guide.html">Developer guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../user_guide.html">User guide</a></li>
+      <li class="breadcrumb-item active">List of unit tests</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/user_guide/tests/unit_tests.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="list-of-unit-tests">
+<span id="mfem-mgis-list-unit-tests"></span><h1>List of unit tests<a class="headerlink" href="#list-of-unit-tests" title="Link to this heading"></a></h1>
+<section id="mechanical-tests">
+<h2>Mechanical tests<a class="headerlink" href="#mechanical-tests" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><cite>UniaxialTensileTest</cite>: a simple test on a unit cube to test various
+behaviours:
+- an orthotropic elastic behaviour,
+- a simple isotropic behaviour,
+- one of the Mazars damage behaviours,
+- the Saint-Venant-Kirchhoff hyperelastic behaviour
+The results are compared to reference results</p></li>
+<li><p><cite>RveNonLinearElastic</cite>: a test of a Representative Volume Element using
+an elastic behavior law</p></li>
+<li><p><cite>RveNonLinearElasticV2</cite>: same test using another constructor of the
+PeriodicNonLinearEvolutionProblem class</p></li>
+<li><p><cite>ImposedPressureTest</cite>: a simple test to check that the imposed
+pressure boundary condition works as expected.</p></li>
+<li><p><cite>MixedOxideFuels</cite>: a simple test of a RVE using an elasto-viscoplastic
+law, the full simulation is available at <cite>ex7</cite> in the
+<cite>mfem-mgis-examples</cite> github repository.</p></li>
+<li><p><cite>SatohTest</cite>: this test models a 2D plate of lenght 1 in plane strain
+clamped on the left and right boundaries and submitted to a parabolic
+thermal gradient along the x-axis:
+- the temperature profile is minimal on the left and right boundaries
+- the temperature profile is maximal for x = 0.5
+This example shows how to define an external state variable using an
+analytical profile.</p></li>
+</ul>
+</section>
+<section id="heat-transfer">
+<h2>Heat transfer<a class="headerlink" href="#heat-transfer" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><cite>StationaryNonLinearHeatTransferTest</cite>: a simple test checking that the
+stationary nonlinear heat transfer behaviour integrator works as
+exepected.</p></li>
+</ul>
+</section>
+<section id="micromorphic-damage">
+<h2>Micromorphic damage<a class="headerlink" href="#micromorphic-damage" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><cite>MicromorphicDamage2DTest</cite>: this test compares the calculation make
+with the micromorphic with damage behaviour integrator a manufacturaed
+solution in 2D.</p></li>
+<li><p><cite>MicromorphicDamage2DTest2</cite>: this test set describes the failure of a
+bar using an alternate minimization algorithm between a mechanical
+model and a model describing damage evolution in 2D.</p></li>
+<li><p><cite>MicromorphicDamage3DTest</cite>: this test set describes the failure of a
+bar using an alternate minimization algorithm between a mechanical
+model and a model describing damage evolution in 2D. solution.</p></li>
+</ul>
+</section>
+<section id="unit-tests">
+<h2>Unit tests<a class="headerlink" href="#unit-tests" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><cite>PostProSubMesh</cite>: This test provides some tests of ParaviewExportResults</p></li>
+<li><p><cite>PeriodicTest</cite>: This test provides some tests of periodic features</p></li>
+<li><p><cite>ParallelReadMode</cite>: This test checks that the reader can read
+correctly a splitted mesh.</p></li>
+<li><p><cite>PartialQuadratureFunctionTest</cite>: This test provides some tests on
+partial quadrature functions.</p></li>
+<li><p><cite>GridFunctionTest</cite>: test the <cite>update</cite> function which projects a
+<cite>GridFunction</cite> on a partial quadrature function.</p></li>
+<li><p><cite>L2ProjectionTest</cite>: test the <cite>computeL2Projection</cite> function which
+projects a partial quadrature function on a <cite>GridFunction</cite>.</p></li>
+<li><p><cite>ImplicitGradientRegularizationTest</cite>: test the
+<cite>computeImplicitGradientRegularization</cite> which computes the implicit
+gradient regularization of a partial quadrature function.</p></li>
+</ul>
+<p>&lt;!–
+## Benchmark</p>
+<ul class="simple">
+<li><p><cite>elasticity</cite>: pure elastic test base</p></li>
+</ul>
+<p>–&gt;</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../release_notes/release_notes-1.1.html" class="btn btn-neutral float-left" title="Release notes of Version 1.1" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../commented_examples/commented_examples.html" class="btn btn-neutral float-right" title="Commented Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
