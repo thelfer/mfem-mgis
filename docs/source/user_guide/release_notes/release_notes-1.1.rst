@@ -101,7 +101,11 @@ Deprecated functions and methods
 Issues fixed
 ============
 
-- Issue 179: Deployment of the `doxygen` documentation
+- Issue 178: Deployment of the `doxygen` documentation
+- Issue 176: Modify `MFEMMGISConfig.cmake.in` to define `TFEL_DIR` and
+  `MFrontGenericInterface_DIR` using by default the values passed to
+  `cmake` at the configuration stage
+- Issue 175: Update `tests/README.md`
 - Issue 169: Add the ability to project a :cxx:`GridFunction` to a
   :cxx:`PartialQuadratureFunction`.
 - Issue 168: Add helper methods to wrap the unknowns of a non linear

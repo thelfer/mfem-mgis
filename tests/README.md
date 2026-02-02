@@ -1,6 +1,5 @@
-# A brief description of the unit-tests
-
-## Mechanical tests
+Mechanical tests
+================
 
 - `UniaxialTensileTest`: a simple test on a unit cube to test various
   behaviours:
@@ -9,11 +8,15 @@
   - one of the Mazars damage behaviours,
   - the Saint-Venant-Kirchhoff hyperelastic behaviour
   The results are compared to reference results
-- `RveNonLinearElastic`: a test of a Representative Volume Element using an elastic behavior law
-- `RveNonLinearElasticV2`: same test using another constructor of the PeriodicNonLinearEvolutionProblem class
+- `RveNonLinearElastic`: a test of a Representative Volume Element using
+  an elastic behavior law
+- `RveNonLinearElasticV2`: same test using another constructor of the
+  PeriodicNonLinearEvolutionProblem class
 - `ImposedPressureTest`: a simple test to check that the imposed
   pressure boundary condition works as expected.
-- `MixedOxideFuels`: a simple test of a RVE using an elasto-viscoplastic law, the full simulation is available at `ex7` in the `mfem-mgis-examples` github repository.
+- `MixedOxideFuels`: a simple test of a RVE using an elasto-viscoplastic
+  law, the full simulation is available at `ex7` in the
+  `mfem-mgis-examples` github repository.
 - `SatohTest`: this test models a 2D plate of lenght 1 in plane strain
   clamped on the left and right boundaries and submitted to a parabolic
   thermal gradient along the x-axis:
@@ -22,13 +25,15 @@
   This example shows how to define an external state variable using an
   analytical profile.
 	   
-## Heat transfer
+Heat transfer
+=============
 
 - `StationaryNonLinearHeatTransferTest`: a simple test checking that the
   stationary nonlinear heat transfer behaviour integrator works as
   exepected.
 
-## Micromorphic damage
+Micromorphic damage
+===================
 
 - `MicromorphicDamage2DTest`: this test compares the calculation make
   with the micromorphic with damage behaviour integrator a manufacturaed
@@ -40,13 +45,26 @@
   bar using an alternate minimization algorithm between a mechanical
   model and a model describing damage evolution in 2D. solution.
 
-## Unit tests
+Unit tests
+==========
 
 - `PostProSubMesh`: This test provides some tests of ParaviewExportResults 
 - `PeriodicTest`: This test provides some tests of periodic features 
-- `ParallelReadMode`: This test checks that the reader can read correctly a splitted mesh
-- `PartialQuadratureFunctionTest`:  This test provides some tests
-  on partial quadrature functions.
+- `ParallelReadMode`: This test checks that the reader can read
+  correctly a splitted mesh.
+- `PartialQuadratureFunctionTest`: This test provides some tests on
+  partial quadrature functions.
+- `GridFunctionTest`: test the `update` function which projects a
+  `GridFunction` on a partial quadrature function.
+- `L2ProjectionTest`: test the `computeL2Projection` function which
+  projects a partial quadrature function on a `GridFunction`.
+- `ImplicitGradientRegularizationTest`: test the
+  `computeImplicitGradientRegularization` which computes the implicit
+  gradient regularization of a partial quadrature function.
 
+<!--
+## Benchmark
 
+- `elasticity`: pure elastic test base 
 
+-->
