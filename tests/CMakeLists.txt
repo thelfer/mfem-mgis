@@ -30,7 +30,8 @@ if(MFEM_MGIS_HAVE_TFEL)
     MicromorphicDamageII
     StationaryNonLinearHeatTransfer
     ImplicitNortonThreshold
-    ElasticitySatohTest)
+    ElasticitySatohTest
+    UO2Shrinkage_RAPHAEL2008)
 
   set(SatohTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh" "--library" "$<TARGET_FILE:BehaviourTest>")
   add_test_case_mpi(SatohTest SatohTestParameters)
@@ -185,6 +186,24 @@ if(MFEM_MGIS_HAVE_TFEL)
   if(MFEM_USE_SUITESPARSE)
 	add_stationary_non_linear_heat_transfer_test(2)
   endif(MFEM_USE_SUITESPARSE)
+
+  add_executable(PointWiseModelTest
+    EXCLUDE_FROM_ALL
+    PointWiseModelTest.cxx)
+  target_include_directories(PointWiseModelTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(PointWiseModelTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check PointWiseModelTest)
+  
+  function(add_point_wise_model_test)
+    set(test "PointWiseModelTest-${nsolver}")
+    set(PointWiseModelTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh")
+    add_test(NAME ${test}  COMMAND ./PointWiseModelTest ${PointWiseModelTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./PointWiseModelTest ${PointWiseModelTestParameters} "--parallel" "1")
+  endfunction(add_point_wise_model_test)
+
+  add_point_wise_model_test()
 
   add_executable(L2ProjectionTest
     EXCLUDE_FROM_ALL
