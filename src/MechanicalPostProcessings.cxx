@@ -5,7 +5,7 @@
  * \date   22/05/2025
  */
 
-#include "MGIS/Function/Mechanics.hxx"
+#include "MGIS/Function/TFEL/Mechanics.hxx"
 #include "MFEMMGIS/MechanicalPostProcessings.hxx"
 
 namespace mfem_mgis {
