@@ -117,8 +117,8 @@ namespace mfem_mgis {
     return *(this->mutable_values.data() + this->getDataOffset(o));
   }  // end of getIntegrationPointValues
 
-  inline std::span<real> PartialQuadratureFunctionView::getIntegrationPointValues(
-      const size_type o) {
+  inline std::span<real>
+  PartialQuadratureFunctionView::getIntegrationPointValues(const size_type o) {
     return std::span<real>(this->mutable_values.data() + this->getDataOffset(o),
                            this->data_size);
   }  // end of getIntegrationPointValues

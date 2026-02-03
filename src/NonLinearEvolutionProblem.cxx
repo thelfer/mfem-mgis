@@ -106,10 +106,25 @@ namespace mfem_mgis {
     return this->pimpl->getUnknownsAtEndOfTheTimeStep();
   }  // end of getUnknownsAtEndOfTheTimeStep
 
+  mfem::Vector& NonLinearEvolutionProblem::getUnknowns(
+      const TimeStepStage ts) noexcept {
+    return this->pimpl->getUnknowns(ts);
+  }  // end of getUnknownsAtEndOfTheTimeStep
+
+  const mfem::Vector& NonLinearEvolutionProblem::getUnknowns(
+      const TimeStepStage ts) const noexcept {
+    return this->pimpl->getUnknowns(ts);
+  }  // end of getUnknownsAtEndOfTheTimeStep
+
   void NonLinearEvolutionProblem::setSolverParameters(
       const Parameters& params) {
     return this->pimpl->setSolverParameters(params);
   }  // end of setSolverParameters
+
+  bool NonLinearEvolutionProblem::setLinearSolver(
+      Context& ctx, LinearSolverHandler s) noexcept {
+    return this->pimpl->setLinearSolver(ctx, std::move(s));
+  }  // end of setLinearSolver
 
   void NonLinearEvolutionProblem::setLinearSolver(std::string_view n,
                                                   const Parameters& params) {

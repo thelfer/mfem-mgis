@@ -61,7 +61,9 @@ namespace mfem_mgis {
           const Hypothesis h,
           const Parameters& p)
       : NonLinearEvolutionProblemImplementationBase(fed, h, p),
-        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())) {
+        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())),
+        unknowns0(&(fed->getFiniteElementSpace<true>()), this->u0),
+        unknowns1(&(fed->getFiniteElementSpace<true>()), this->u1) {
     if (this->fe_discretization->getMesh<true>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       raise(
@@ -113,10 +115,25 @@ namespace mfem_mgis {
     this->postprocessings.push_back(f.generate(n, *this, p));
   }  // end of addPostProcessing
 
+  bool NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
+      Context& ctx, LinearSolverHandler s) noexcept {
+    if (isInvalid(s)) {
+      return ctx.registerErrorMessage("invalid linear solver");
+    }
+    this->updateLinearSolver(std::move(s));
+    return true;
+  }
+
   void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
       std::string_view n, const Parameters& p) {
+    auto ctx = Context{};
     const auto& f = LinearSolverFactory<true>::getFactory();
-    this->updateLinearSolver(f.generate(n, *this, p));
+    auto& fespace = this->getFiniteElementSpace();
+    auto s = f.generate(ctx, n, fespace, p);
+    if (isInvalid(s)) {
+      raise(ctx.getErrorMessage());
+    }
+    this->updateLinearSolver(std::move(s));
   }  // end of setLinearSolver
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
@@ -180,6 +197,22 @@ namespace mfem_mgis {
     this->SetEssentialTrueDofs(tmp);
   }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
 
+  GridFunction<true>& NonLinearEvolutionProblemImplementation<
+      true>::getUnknownsAsGridFunction(const TimeStepStage ts) noexcept {
+    if (ts == bts) {
+      return this->unknowns0;
+    }
+    return this->unknowns1;
+  }  // end of getUnknownsAsGridFunction
+
+  const GridFunction<true>& NonLinearEvolutionProblemImplementation<
+      true>::getUnknownsAsGridFunction(const TimeStepStage ts) const noexcept {
+    if (ts == bts) {
+      return this->unknowns0;
+    }
+    return this->unknowns1;
+  }  // end of getUnknownsAsGridFunction
+
   NonLinearEvolutionProblemImplementation<
       true>::~NonLinearEvolutionProblemImplementation() = default;
 
@@ -191,7 +224,9 @@ namespace mfem_mgis {
           const Hypothesis h,
           const Parameters& p)
       : NonLinearEvolutionProblemImplementationBase(fed, h, p),
-        mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())) {
+        mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())),
+        unknowns0(&(fed->getFiniteElementSpace<false>()), this->u0),
+        unknowns1(&(fed->getFiniteElementSpace<false>()), this->u1) {
     this->solver = std::make_unique<NewtonSolver>(*this);
     if (this->fe_discretization->getMesh<false>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
@@ -260,10 +295,25 @@ namespace mfem_mgis {
     return this->fe_discretization->getFiniteElementSpace<false>();
   }  // end of getFiniteElementSpace
 
+  bool NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
+      Context& ctx, LinearSolverHandler s) noexcept {
+    if (isInvalid(s)) {
+      return ctx.registerErrorMessage("invalid linear solver");
+    }
+    this->updateLinearSolver(std::move(s));
+    return true;
+  }
+
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       std::string_view n, const Parameters& p) {
+    auto ctx = Context{};
     const auto& f = LinearSolverFactory<false>::getFactory();
-    this->updateLinearSolver(f.generate(n, *this, p));
+    auto& fespace = this->getFiniteElementSpace();
+    auto s = f.generate(ctx, n, fespace, p);
+    if (isInvalid(s)) {
+      raise(ctx.getErrorMessage());
+    }
+    this->updateLinearSolver(std::move(s));
   }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::integrate(
@@ -293,6 +343,22 @@ namespace mfem_mgis {
     auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
     this->SetEssentialTrueDofs(tmp);
   }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
+
+  GridFunction<false>& NonLinearEvolutionProblemImplementation<
+      false>::getUnknownsAsGridFunction(const TimeStepStage ts) noexcept {
+    if (ts == bts) {
+      return this->unknowns0;
+    }
+    return this->unknowns1;
+  }  // end of getUnknownsAsGridFunction
+
+  const GridFunction<false>& NonLinearEvolutionProblemImplementation<
+      false>::getUnknownsAsGridFunction(const TimeStepStage ts) const noexcept {
+    if (ts == bts) {
+      return this->unknowns0;
+    }
+    return this->unknowns1;
+  }  // end of getUnknownsAsGridFunction
 
   NonLinearEvolutionProblemImplementation<
       false>::~NonLinearEvolutionProblemImplementation() = default;

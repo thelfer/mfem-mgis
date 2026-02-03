@@ -12,9 +12,8 @@
 #include <cstdlib>
 #include "MGIS/Config.hxx"
 #include "MGIS/Raise.hxx"
-#ifdef MGIS_FUNCTION_SUPPORT
 #include "MGIS/Context.hxx"
-#endif /* MGIS_FUNCTION_SUPPORT*/
+#include "MGIS/InvalidResult.hxx"
 
 #include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
@@ -45,29 +44,39 @@
 
 namespace mfem_mgis {
 
-#ifdef MGIS_FUNCTION_SUPPORT
   using mgis::AbstractErrorHandler;
   using mgis::Context;
-#endif /* MGIS_FUNCTION_SUPPORT*/
+  using mgis::isInvalid;
+  using mgis::isValid;
+
+  namespace attributes {
+    //! \brief a simple alias
+    using Throwing = ::mgis::attributes::ThrowingAttribute<true>;
+    //! \brief a simple alias
+    using Unsafe = ::mgis::attributes::UnsafeAttribute;
+  }  // namespace attributes
+  //
+  inline constexpr auto unsafe = ::mgis::attributes::UnsafeAttribute{};
+  inline constexpr auto throwing =
+      ::mgis::attributes::ThrowingAttribute<true>{};
 
   //! \brief a simple alias
   using size_type = int;
-
+  /*!
+   * \brief constant used to determine if a function view has not a number of
+   * components knwon at compile-time size
+   */
   inline constexpr size_type dynamic_extent =
       std::numeric_limits<size_type>::max();
-
   //! \brief alias to the numeric type used
   using real = mgis::real;
-
   /*!
    * \brief this function can be called to report that the parallel computation
    * are not supported.
    */
   MFEM_MGIS_EXPORT [[noreturn]] void reportUnsupportedParallelComputations();
-
   //! \brief a simple alias
   using MainFunctionArguments = char**;
-
   /*!
    * \brief function that must be called to initialize `mfem-mgis`.
    * \param[in] argc: number of arguments
@@ -82,13 +91,9 @@ namespace mfem_mgis {
    * This call is optional if the code exits normally.
    */
   MFEM_MGIS_EXPORT void finalize();
-  /*!
-   * \brief gives MPI rank.
-   */
+  //! \return the MPI rank.
   MFEM_MGIS_EXPORT int getMPIrank();
-  /*!
-   * \brief gives MPI global communicator size.
-   */
+  //! \return the MPI global communicator size.
   MFEM_MGIS_EXPORT int getMPIsize();
 
   /*!

@@ -40,7 +40,7 @@ namespace mfem_mgis {
         result(&p.getFiniteElementSpace()),
         cycle(0) {
     CatchTimeSection("ParaviewExportResults::Constructor");
-    auto& u1 = p.getUnknownsAtEndOfTheTimeStep();
+    auto& u1 = p.getUnknowns(ets);
     this->result.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
 
     /** Default, the mesh is the entire mesh */

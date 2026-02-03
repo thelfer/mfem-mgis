@@ -25,6 +25,8 @@ namespace mfem {
   class FiniteElement;
   class ElementTransformation;
   class IntegrationRule;
+  class LinearForm;
+  class BilinearForm;
   class NonlinearForm;
   class NonlinearFormIntegrator;
   class ParGridFunction;
@@ -32,13 +34,18 @@ namespace mfem {
   class ParSubMesh;
   class ParFiniteElementSpace;
   class ParNonlinearForm;
+  class ParLinearForm;
+  class ParBilinearForm;
   class Solver;
   class IterativeSolver;
   class IntegrationPoint;
   //
   template <class>
   class Array;
-
+  //
+  class SparseMatrix;
+  class HypreParMatrix;
+  //
 #ifdef MFEM_USE_PETSC
   class PetscNonlinearSolver;
 #endif /* MFEM_USE_PETSC */
@@ -76,6 +83,22 @@ namespace mfem_mgis {
                                                 mfem::FiniteElementSpace>;
   /*!
    * \brief a simple alias used to select the `MFEM` class representing a
+   * linear form depending if a parallel computation is considered or not.
+   * \tparam parallel: flag stating if a parallel computation is considered.
+   */
+  template <bool parallel>
+  using LinearForm =
+      std::conditional_t<parallel, mfem::ParLinearForm, mfem::LinearForm>;
+  /*!
+   * \brief a simple alias used to select the `MFEM` class representing a
+   * linear form depending if a parallel computation is considered or not.
+   * \tparam parallel: flag stating if a parallel computation is considered.
+   */
+  template <bool parallel>
+  using BilinearForm =
+      std::conditional_t<parallel, mfem::ParBilinearForm, mfem::BilinearForm>;
+  /*!
+   * \brief a simple alias used to select the `MFEM` class representing a
    * non linear form depending if a parallel computation is considered or
    * not.
    * \tparam parallel: flag stating if a parallel computation is considered.
@@ -104,6 +127,7 @@ namespace mfem_mgis {
   using IterativeSolver = mfem::IterativeSolver;
   //! \brief a simple alias
   using LinearSolverPreconditioner = mfem::Solver;
+  //!
 
 }  // namespace mfem_mgis
 

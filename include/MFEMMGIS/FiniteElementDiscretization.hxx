@@ -131,12 +131,12 @@ namespace mfem_mgis {
      * \return the material identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */
-    size_type getMaterialIdentifier(const Parameter&) const;
+    [[nodiscard]] size_type getMaterialIdentifier(const Parameter&) const;
     /*!
      * \return the material identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */
-    size_type getBoundaryIdentifier(const Parameter&) const;
+    [[nodiscard]] size_type getBoundaryIdentifier(const Parameter&) const;
     /*!
      * \return the list of materials identifiers described by the given
      * parameter.
@@ -152,7 +152,8 @@ namespace mfem_mgis {
      * Strings are intepreted as regular expressions which allows the selection
      * of materials by names.
      */
-    std::vector<size_type> getMaterialsIdentifiers(const Parameter&) const;
+    [[nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
+        const Parameter&) const;
     /*!
      * \return the list of boundaries identifiers described by the given
      * parameter.
@@ -168,27 +169,35 @@ namespace mfem_mgis {
      * Strings are intepreted as regular expressions which allows the selection
      * of boundaries by names.
      */
-    std::vector<size_type> getBoundariesIdentifiers(const Parameter&) const;
-    /*!
-     * \brief set material names
-     * \param[in] m: material names
-     */
+    [[nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
+        const Parameter&) const;
     //! \return the mesh
     template <bool parallel>
-    Mesh<parallel>& getMesh();
+    [[nodiscard]] Mesh<parallel>& getMesh();
     //! \return the mesh
     template <bool parallel>
-    const Mesh<parallel>& getMesh() const;
+    [[nodiscard]] const Mesh<parallel>& getMesh() const;
+    //! \return the mesh
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMeshPointer();
+    //! \return the mesh
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<const Mesh<parallel>> getMeshPointer() const;
     //! \return the finite element space
     template <bool parallel>
-    FiniteElementSpace<parallel>& getFiniteElementSpace();
+    [[nodiscard]] FiniteElementSpace<parallel>& getFiniteElementSpace();
     //! \return the finite element space
     template <bool parallel>
-    const FiniteElementSpace<parallel>& getFiniteElementSpace() const;
+    [[nodiscard]] const FiniteElementSpace<parallel>& getFiniteElementSpace()
+        const;
     //! \return the finite element collection
-    const FiniteElementCollection& getFiniteElementCollection() const;
+    [[nodiscard]] const FiniteElementCollection& getFiniteElementCollection()
+        const noexcept;
+    //! \return the finite element collection
+    [[nodiscard]] std::shared_ptr<const FiniteElementCollection>
+    getFiniteElementCollectionPointer() const noexcept;
     //! \return if this object is built to run parallel computations
-    bool describesAParallelComputation() const;
+    [[nodiscard]] bool describesAParallelComputation() const;
     //! \brief destructor
     ~FiniteElementDiscretization();
 

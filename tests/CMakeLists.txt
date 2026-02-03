@@ -186,6 +186,65 @@ if(MFEM_MGIS_HAVE_TFEL)
 	add_stationary_non_linear_heat_transfer_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
+  add_executable(L2ProjectionTest
+    EXCLUDE_FROM_ALL
+    L2ProjectionTest.cxx)
+  target_include_directories(L2ProjectionTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(L2ProjectionTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check L2ProjectionTest)
+  
+  function(add_l2_projection_test nsolver)
+    set(test "L2ProjectionTest-${nsolver}")
+    set(L2ProjectionTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test}  COMMAND ./L2ProjectionTest ${L2ProjectionTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./L2ProjectionTest ${L2ProjectionTestParameters} "--parallel" "1")
+  endfunction(add_l2_projection_test)
+
+  add_l2_projection_test(0)
+
+  add_executable(GridFunctionTest
+    EXCLUDE_FROM_ALL
+    GridFunctionTest.cxx)
+  target_include_directories(GridFunctionTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(GridFunctionTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check GridFunctionTest)
+  
+  function(add_grid_function_test)
+    set(test "GridFunctionTest")
+    set(GridFunctionTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh")
+    add_test(NAME ${test}  COMMAND ./GridFunctionTest ${GridFunctionTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./GridFunctionTest ${GridFunctionTestParameters} "--parallel" "1")
+  endfunction(add_grid_function_test)
+
+  add_grid_function_test(0)
+
+  add_executable(ImplicitGradientRegularizationTest
+    EXCLUDE_FROM_ALL
+    ImplicitGradientRegularizationTest.cxx)
+  target_include_directories(ImplicitGradientRegularizationTest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(ImplicitGradientRegularizationTest
+    PRIVATE MFEMMGIS)
+  add_dependencies(check ImplicitGradientRegularizationTest)
+  
+  function(add_implicit_gradient_regularization_test nsolver)
+    set(test "ImplicitGradientRegularizationTest-${nsolver}")
+    set(ImplicitGradientRegularizationTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test}  COMMAND ./ImplicitGradientRegularizationTest ${ImplicitGradientRegularizationTestParameters} "--parallel" "0")
+    add_test(NAME ${test}P  COMMAND mpirun -n 2 ./ImplicitGradientRegularizationTest ${ImplicitGradientRegularizationTestParameters} "--parallel" "1")
+  endfunction(add_implicit_gradient_regularization_test)
+
+  add_implicit_gradient_regularization_test(0)
+
+  if(MFEM_USE_SUITESPARSE)
+          message(STATUS "micromorphic_damage_2d has been disabled with SUITE SPARSE")
+          #add_micromorphic_damage_2d_test(2)
+  endif(MFEM_USE_SUITESPARSE)
+
   add_executable(MicromorphicDamage2DTest
     EXCLUDE_FROM_ALL
     MicromorphicDamage2DTest.cxx)
@@ -226,9 +285,9 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   function(add_micromorphic_damage_2d_test2 nsolver)
     set(test "MicromorphicDamage2DTest2-${nsolver}")
-    set(MicromorphicDamage2DTest2Parameteres "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MicromorphicDamageII" "--linearsolver" "${nsolver}")
-    add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameteres} "--parallel" "0")
-    add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameteres} "--parallel" "1")
+    set(MicromorphicDamage2DTest2Parameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "MicromorphicDamageII" "--linearsolver" "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameters} "--parallel" "0")
+    add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest2 ${MicromorphicDamage2DTest2Parameters} "--parallel" "1")
     if((CMAKE_HOST_WIN32) AND (NOT MSYS))
       set_property(TEST ${test}
         PROPERTY DEPENDS BehaviourTest

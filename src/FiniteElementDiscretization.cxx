@@ -248,7 +248,7 @@ namespace mfem_mgis {
     } else {
       if (mesh_mode == "Restart") {
         raise(
-            "Aborting. The option '--restart' is not handled while running a "
+            "Aborting. The option 'Restart' is not handled while running a "
             "sequential program");
       }
       this->sequential_mesh = loadMeshSequential(mesh_file, 0, 1, true);
@@ -382,8 +382,14 @@ namespace mfem_mgis {
   }    // end of describesAParallelComputation
 
   const FiniteElementCollection&
-  FiniteElementDiscretization::getFiniteElementCollection() const {
+  FiniteElementDiscretization::getFiniteElementCollection() const noexcept {
     return *(this->fec);
+  }  // end of getFiniteElementCollection
+
+  std::shared_ptr<const FiniteElementCollection>
+  FiniteElementDiscretization::getFiniteElementCollectionPointer()
+      const noexcept {
+    return this->fec;
   }  // end of getFiniteElementCollection
 
   static bool isValidMeshObjectName(const std::string& n) {

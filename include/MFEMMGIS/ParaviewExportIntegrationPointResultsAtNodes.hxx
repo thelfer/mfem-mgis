@@ -111,29 +111,35 @@ namespace mfem_mgis {
         public ParaviewExportIntegrationPointResultsAtNodesBase {
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] params: parameters passed to the post-processing
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
         const Parameters &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] d: functions to be exported
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
         const ExportedFunctionsDescription &,
         const std::string &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] ds: functions to be exported
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);
@@ -224,7 +230,9 @@ namespace mfem_mgis {
    private:
     std::variant<
         std::monostate,
+#ifdef MFEM_USE_MPI
         ParaviewExportIntegrationPointResultsAtNodesImplementation<true>,
+#endif /* MFEM_USE_MPI */
         ParaviewExportIntegrationPointResultsAtNodesImplementation<false>>
         implementations;
   };
@@ -268,7 +276,7 @@ namespace mfem_mgis {
      * \param[in] d: output directory
      */
     ParaviewExportIntegrationPointPostProcessingsResultsAtNodes(
-        NonLinearEvolutionProblemImplementation<true> &,
+        NonLinearEvolutionProblemImplementation<parallel> &,
         std::string_view,
         const std::vector<size_type>,
         const size_type,

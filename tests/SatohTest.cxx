@@ -177,7 +177,9 @@ int main(int argc, char** argv) {
   if (p.parallel == 0) {
     dumpPartialQuadratureFunction<false>(output, pr);
   } else {
+#ifdef MFEM_USE_MPI
     dumpPartialQuadratureFunction<true>(output, pr);
+#endif
   }
   //
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
