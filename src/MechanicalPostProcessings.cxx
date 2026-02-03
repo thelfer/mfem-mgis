@@ -533,11 +533,10 @@ namespace mfem_mgis {
   }  // end of computeCauchyStressInGlobalFrame
 
   template <unsigned short N>
-  static bool computeCauchyStress_impl(
-      Context& ctx,
-      PartialQuadratureFunction& sig,
-      const Material& m,
-      const Material::StateSelection s) {
+  static bool computeCauchyStress_impl(Context& ctx,
+                                       PartialQuadratureFunction& sig,
+                                       const Material& m,
+                                       const Material::StateSelection s) {
     using namespace mgis::function;
     const auto F = getGradient(m, "DeformationGradient", s);
     const auto pk1 = getThermodynamicForce(m, "FirstPiolaKirchhoffStress", s);
