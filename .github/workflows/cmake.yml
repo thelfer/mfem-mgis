@@ -69,6 +69,7 @@ jobs:
     - name: clone MFEM-MGIS-EXAMPLES
       run: git clone https://github.com/latug0/mfem-mgis-examples.git
     - name: CMake && Compile MFEM-MGIS-EXAMPLES
+      shell: spack-sh {0} 
       run: |
         spack load mfem 
         spack load mgis
@@ -83,6 +84,7 @@ jobs:
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake
         cmake ${{github.workspace}}/build-mfem-mgis-examples --config Coverage
     - name: Run MFEM-MGIS-EXAMPLES
+      shell: spack-sh {0} 
       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
       run: |
         ctest --rerun-failed --output-on-failure
