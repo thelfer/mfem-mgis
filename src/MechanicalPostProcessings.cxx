@@ -5,7 +5,7 @@
  * \date   22/05/2025
  */
 
-#include "MGIS/Function/Mechanics.hxx"
+#include "MGIS/Function/TFEL/Mechanics.hxx"
 #include "MFEMMGIS/MechanicalPostProcessings.hxx"
 
 namespace mfem_mgis {
@@ -527,6 +527,82 @@ namespace mfem_mgis {
     PartialQuadratureFunction sig(m.getPartialQuadratureSpacePointer(),
                                   stress_size);
     if (!computeCauchyStressInGlobalFrame(ctx, sig, m, s)) {
+      return {};
+    }
+    return sig;
+  }  // end of computeCauchyStressInGlobalFrame
+
+  template <unsigned short N>
+  static bool computeCauchyStress_impl(Context& ctx,
+                                       PartialQuadratureFunction& sig,
+                                       const Material& m,
+                                       const Material::StateSelection s) {
+    using namespace mgis::function;
+    const auto F = getGradient(m, "DeformationGradient", s);
+    const auto pk1 = getThermodynamicForce(m, "FirstPiolaKirchhoffStress", s);
+    auto sview = sig | as_stensor<N>;
+    const auto ok = pk1 | as_tensor<N> |  //
+                    from_pk1_to_cauchy(F | as_tensor<N>) | sview;
+    if (!ok) {
+      return ctx.registerErrorMessage(
+          "computeCauchyStress: computation of the Cauchy "
+          "stress in the global frame failed");
+    }
+    return true;
+  }  // end of computeCauchyStress_impl
+
+  bool computeCauchyStress(Context& ctx,
+                           PartialQuadratureFunction& sig,
+                           const Material& m,
+                           const Material::StateSelection s) {
+    if (sig.getPartialQuadratureSpacePointer() !=
+        m.getPartialQuadratureSpacePointer()) {
+      return ctx.registerErrorMessage(
+          "computeEigenStresses: quadrature function is not defined "
+          "on the given material");
+    }
+    if (m.b.btype !=
+        mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+      return ctx.registerErrorMessage(
+          "computeCauchyStress: not a finite strain behaviour");
+    }
+    if (m.b.hypothesis == Hypothesis::PLANESTRAIN) {
+      if (sig.getNumberOfComponents() != 4) {
+        return ctx.registerErrorMessage(
+            "computeCauchyStress: invalid quadrature function "
+            "size");
+      }
+      return computeCauchyStress_impl<2>(ctx, sig, m, s);
+    } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
+      if (sig.getNumberOfComponents() != 6) {
+        return ctx.registerErrorMessage(
+            "computeCauchyStress: invalid quadrature function "
+            "size");
+      }
+      return computeCauchyStress_impl<3>(ctx, sig, m, s);
+    } else {
+      return ctx.registerErrorMessage(
+          "computeCauchyStress: unsupported modelling "
+          "hypothesis");
+    }
+    return true;
+  }  // end of computeCauchyStress
+
+  std::optional<PartialQuadratureFunction> computeCauchyStress(
+      Context& ctx, const Material& m, const Material::StateSelection s) {
+    auto stress_size = size_type{};
+    if (m.b.hypothesis == Hypothesis::PLANESTRAIN) {
+      stress_size = 4;
+    } else if (m.b.hypothesis == Hypothesis::TRIDIMENSIONAL) {
+      stress_size = 6;
+    } else {
+      return ctx.registerErrorMessage(
+          "computeCauchyStress: unsupported modelling "
+          "hypothesis");
+    }
+    PartialQuadratureFunction sig(m.getPartialQuadratureSpacePointer(),
+                                  stress_size);
+    if (!computeCauchyStress(ctx, sig, m, s)) {
       return {};
     }
     return sig;
