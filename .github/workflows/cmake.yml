@@ -49,16 +49,18 @@ jobs:
         spack load mfem 
         spack load mgis
         cmake -B ${{github.workspace}}/coverage \
+              -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install/mfem-mgis \
               -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
               -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
               -DMFEM_DIR=`spack location -i mfem` \
               -DHYPRE_DIR=`spack location -i hypre` \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-              -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake        
+              -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake
 
     - name: Build MFEM-MGIS [coverage]
-      run: cmake --build ${{github.workspace}}/coverage --config Coverage
+      run: cmake --build ${{github.workspace}}/coverage --config Coverage --target install -j $(nproc)
+      
     - name: Run examples 
       shell: spack-sh {0}    
       working-directory: ${{github.workspace}}/coverage
@@ -68,6 +70,7 @@ jobs:
         make check
     - name: clone MFEM-MGIS-EXAMPLES
       run: git clone https://github.com/latug0/mfem-mgis-examples.git
+      
     - name: CMake && Compile MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
       run: |
@@ -80,9 +83,11 @@ jobs:
               -DCMAKE_CXX_COMPILER=g++-12 \
               -DMFEM_DIR=`spack location -i mfem` \
               -DHYPRE_DIR=`spack location -i hypre` \
+              -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake
         cmake ${{github.workspace}}/build-mfem-mgis-examples --config Coverage
+        
     - name: Run MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
