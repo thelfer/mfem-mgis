@@ -59,7 +59,7 @@ jobs:
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake
 
     - name: Build MFEM-MGIS [coverage]
-      run: cmake --build ${{github.workspace}}/coverage --config Coverage --target install -j $(nproc)
+      run: cmake --build ${{github.workspace}}/coverage --target install -j $(nproc)
       
     - name: Run examples 
       shell: spack-sh {0}    
