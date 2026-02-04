@@ -16,7 +16,7 @@ namespace mfem_mgis {
   }  // end of getRotationMatrixAtIntegrationPoint
 
   inline mgis::behaviour::MaterialStateManager &getStateManager(
-      Material &m, const Material::StateSelection s) {
+      Material &m, const Material::StateSelection s) noexcept {
     if (s == Material::END_OF_TIME_STEP) {
       return m.s1;
     }
@@ -24,7 +24,7 @@ namespace mfem_mgis {
   }
 
   inline const mgis::behaviour::MaterialStateManager &getStateManager(
-      const Material &m, const Material::StateSelection s) {
+      const Material &m, const Material::StateSelection s) noexcept {
     if (s == Material::END_OF_TIME_STEP) {
       return m.s1;
     }

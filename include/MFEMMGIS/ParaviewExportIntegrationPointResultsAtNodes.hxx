@@ -268,6 +268,7 @@ namespace mfem_mgis {
       : public PostProcessing<parallel> {
     /*!
      * \brief constructor
+     * \param[in] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] n: name of the field
      * \param[in] mids: material identifier
@@ -276,6 +277,7 @@ namespace mfem_mgis {
      * \param[in] d: output directory
      */
     ParaviewExportIntegrationPointPostProcessingsResultsAtNodes(
+								Context&,
         NonLinearEvolutionProblemImplementation<parallel> &,
         std::string_view,
         const std::vector<size_type>,
