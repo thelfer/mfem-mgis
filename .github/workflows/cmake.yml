@@ -56,7 +56,7 @@ jobs:
               -DMFEM_DIR=`spack location -i mfem` \
               -DHYPRE_DIR=`spack location -i hypre` \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-              -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake
+              -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
 
     - name: Build MFEM-MGIS [coverage]
       run: cmake --build ${{github.workspace}}/coverage --target install -j $(nproc)
