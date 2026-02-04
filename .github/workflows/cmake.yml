@@ -78,15 +78,12 @@ jobs:
         spack load mgis
         cmake -S ${{github.workspace}}/mfem-mgis-examples\
               -B ${{github.workspace}}/build-mfem-mgis-examples \
-              -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
-              -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_C_COMPILER=gcc-12 \
+              -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
-              -DMFEM_DIR=`spack location -i mfem` \
-              -DHYPRE_DIR=`spack location -i hypre` \
               -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake
-        cmake ${{github.workspace}}/build-mfem-mgis-examples --config Coverage
+        cmake --build ${{github.workspace}}/build-mfem-mgis-examples
         
     - name: Run MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
