@@ -83,7 +83,7 @@ jobs:
               -DCMAKE_CXX_COMPILER=g++-12 \
               -DMFEM_DIR=`spack location -i mfem` \
               -DHYPRE_DIR=`spack location -i hypre` \
-              -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis \
+              -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake
         cmake ${{github.workspace}}/build-mfem-mgis-examples --config Coverage
