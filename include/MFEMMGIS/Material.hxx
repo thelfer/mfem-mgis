@@ -129,10 +129,10 @@ namespace mfem_mgis {
    * \param[in] n: name of the gradient
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] PartialQuadratureFunction
-  getGradient(Material &,
-              const std::string_view,
-              const Material::StateSelection = Material::END_OF_TIME_STEP);
+  MFEM_MGIS_EXPORT [[nodiscard]] PartialQuadratureFunction getGradient(
+      Material &,
+      const std::string_view,
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function for the given gradient
    * \param[in] m: material
@@ -149,7 +149,8 @@ namespace mfem_mgis {
    * \param[in] n: name of the thermodynamic force
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] PartialQuadratureFunction getThermodynamicForce(
+  MFEM_MGIS_EXPORT [[nodiscard]] PartialQuadratureFunction
+  getThermodynamicForce(
       Material &,
       const std::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
@@ -159,7 +160,8 @@ namespace mfem_mgis {
    * \param[in] n: name of the thermodynamic force
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] ImmutablePartialQuadratureFunctionView getThermodynamicForce(
+  MFEM_MGIS_EXPORT [[nodiscard]] ImmutablePartialQuadratureFunctionView
+  getThermodynamicForce(
       const Material &,
       const std::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
@@ -169,7 +171,8 @@ namespace mfem_mgis {
    * \param[in] n: name of the state variable
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] PartialQuadratureFunction getInternalStateVariable(
+  MFEM_MGIS_EXPORT [[nodiscard]] PartialQuadratureFunction
+  getInternalStateVariable(
       Material &,
       const std::string_view,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
@@ -189,32 +192,37 @@ namespace mfem_mgis {
    * \param[in] m: material
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction> getStoredEnergy(
-      Material &, const Material::StateSelection = Material::END_OF_TIME_STEP);
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
+  getStoredEnergy(Material &,
+                  const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function holding the stored energy
    * \param[in] m: material
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
-  getStoredEnergy(const Material &,
-                  const Material::StateSelection = Material::END_OF_TIME_STEP);
+  MFEM_MGIS_EXPORT
+      [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
+      getStoredEnergy(
+          const Material &,
+          const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function holding the dissipated energy
    * \param[in] m: material
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction> getDissipatedEnergy(
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
+  getDissipatedEnergy(
       Material &, const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function holding the dissipated energy
    * \param[in] m: material
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
-  getDissipatedEnergy(
-      const Material &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
+  MFEM_MGIS_EXPORT
+      [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
+      getDissipatedEnergy(
+          const Material &,
+          const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return the stored energy by the whole material if the behaviour computes
    * it, zero otherwise
