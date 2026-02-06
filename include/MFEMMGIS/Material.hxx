@@ -201,10 +201,9 @@ namespace mfem_mgis {
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT
-      [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
-      getStoredEnergy(
-          const Material &,
-          const Material::StateSelection = Material::END_OF_TIME_STEP);
+  [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
+  getStoredEnergy(const Material &,
+                  const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return a partial quadrature function holding the dissipated energy
    * \param[in] m: material
@@ -219,10 +218,10 @@ namespace mfem_mgis {
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT
-      [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
-      getDissipatedEnergy(
-          const Material &,
-          const Material::StateSelection = Material::END_OF_TIME_STEP);
+  [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
+  getDissipatedEnergy(
+      const Material &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return the stored energy by the whole material if the behaviour computes
    * it, zero otherwise

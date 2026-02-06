@@ -128,6 +128,30 @@ namespace mfem_mgis {
      */
     void setBoundariesNames(const std::map<size_type, std::string>&);
     /*!
+     * \return the material name associated with the given identifier, if it is
+     * defined. If not defined, an empty string is returned
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] id: material identifier
+     *
+     * \note the method only fails is the material identifier is defined in the
+     * mesh
+     */
+    [[nodiscard]] std::optional<std::string> getMaterialName(
+        Context&, const size_type) const noexcept;
+    /*!
+     * \return the boundary name associated with the given identifier, if it is
+     * defined. If not defined, an empty string is returned
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] id: boundary identifier
+     *
+     * \note the method only fails is the boundary identifier is defined in the
+     * mesh
+     */
+    [[nodiscard]] std::optional<std::string> getBoundaryName(
+        Context&, const size_type) const noexcept;
+    /*!
      * \return the material identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */

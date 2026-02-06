@@ -54,6 +54,10 @@ namespace mfem_mgis {
     return s.getNumberOfIntegrationPoints();
   }  // end of getSpaceSize
 
+  inline size_type getNumberOfElements(const PartialQuadratureSpace& s) {
+    return s.getNumberOfIntegrationPoints();
+  }  // end of getNumberOfElements
+
   inline size_type getNumberOfCells(const PartialQuadratureSpace& s) {
     return s.getNumberOfElements();
   }  // end of getNumberOfCells

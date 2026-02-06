@@ -87,6 +87,140 @@ namespace mfem_mgis {
     return this->fe_discretization;
   }  // end of getFiniteElementDiscretization
 
+  std::optional<size_type> PartialQuadratureSpace::getNumberOfQuadraturePoints(
+      Context& ctx, const size_type e) const noexcept {
+    const auto p = this->number_of_quadrature_points.find(e);
+    if (p == this->number_of_quadrature_points.end()) {
+      return ctx.registerErrorMessage("invalid element index '" +
+                                      std::to_string(e) + "'");
+    }
+    return p->second;
+  }  // end of getNumberOfQuadraturePoints
+
   PartialQuadratureSpace::~PartialQuadratureSpace() = default;
+
+  template <bool parallel>
+  [[nodiscard]] static std::optional<std::map<mfem::Geometry::Type, size_type>>
+  getNumberOfQuadraturePointsByGeometricElementType(
+      Context& ctx, const PartialQuadratureSpace& s) noexcept {
+    const auto& fed = s.getFiniteElementDiscretization();
+    const auto& mesh = fed.getMesh<parallel>();
+    auto qmapping = std::map<mfem::Geometry::Type, size_type>{};
+    for (const auto [e, o] : s.getOffsets()) {
+      const auto gtype = mesh.GetElementGeometry(e);
+      if (qmapping.contains(gtype)) {
+        continue;
+      }
+      const auto on = s.getNumberOfQuadraturePoints(ctx, e);
+      if (isInvalid(on)) {
+        return {};
+      }
+      qmapping.insert({gtype, *on});
+    }
+    return qmapping;
+  }  // end of getNumberOfQuadraturePointsByGeometricElementType
+
+  std::optional<PartialQuadratureSpaceInformation> getInformation(
+      Context& ctx, const PartialQuadratureSpace& s) noexcept {
+    const auto& fed = s.getFiniteElementDiscretization();
+    auto info = PartialQuadratureSpaceInformation{};
+    info.identifier = s.getId();
+    const auto oname = fed.getMaterialName(ctx, s.getId());
+    if (isInvalid(oname)) {
+      return {};
+    }
+    info.name = *oname;
+    info.number_of_finite_elements = getNumberOfCells(s);
+    info.number_of_quadrature_points = getNumberOfElements(s);
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto oqmapping =
+          getNumberOfQuadraturePointsByGeometricElementType<true>(ctx, s);
+      if (isInvalid(oqmapping)) {
+        return {};
+      }
+      info.number_of_quadrature_points_by_geometric_type = *oqmapping;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      const auto oqmapping =
+          getNumberOfQuadraturePointsByGeometricElementType<false>(ctx, s);
+      if (isInvalid(oqmapping)) {
+        return {};
+      }
+      info.number_of_quadrature_points_by_geometric_type = *oqmapping;
+    }
+    return info;
+  }  // end of getInformation
+
+  [[nodiscard]] static std::optional<std::string_view> to_string(
+      Context& ctx, const mfem::Geometry::Type t) noexcept {
+    if (t == mfem::Geometry::INVALID) {
+      return ctx.registerErrorMessage("invalid geometric type");
+    } else if (t == mfem::Geometry::POINT) {
+      return "POINT";
+    } else if (t == mfem::Geometry::SEGMENT) {
+      return "SEGMENT";
+    } else if (t == mfem::Geometry::TRIANGLE) {
+      return "TRIANGLE";
+    } else if (t == mfem::Geometry::SQUARE) {
+      return "QUADRANGLE (SQUARE)";
+    } else if (t == mfem::Geometry::TETRAHEDRON) {
+      return "TETRAHEDRON";
+    } else if (t == mfem::Geometry::CUBE) {
+      return "HEXAHEDRON (CUBE)";
+    } else if (t == mfem::Geometry::PRISM) {
+      return "PRISM";
+    } else if (t == mfem::Geometry::PYRAMID) {
+      return "PYRAMID";
+    }
+    return ctx.registerErrorMessage("unsupported geometric type");
+  }  // end of to_string
+
+  bool info(Context& ctx,
+            std::ostream& os,
+            const PartialQuadratureSpace& s) noexcept {
+    auto oinfo = getInformation(ctx, s);
+    if (isInvalid(oinfo)) {
+      return false;
+    }
+    return info(ctx, os, *oinfo);
+  }  // end of info
+
+  bool info(Context& ctx,
+            std::ostream& os,
+            const PartialQuadratureSpaceInformation& info) noexcept {
+    auto success = true;
+    os << "- material:";
+    if (!info.name.empty()) {
+      os << " '" << info.name << "' ";
+    }
+    os << " " << std::to_string(info.identifier) << '\n';
+    os << "- number of elements: " << info.number_of_finite_elements << '\n';
+    os << "- number of quadrature points: "
+       << info.number_of_quadrature_points << '\n';
+    if (!info.number_of_quadrature_points_by_geometric_type.empty()) {
+      os << "- number of quadrature points per element type:\n";
+      for (const auto& [g, n] :
+           info.number_of_quadrature_points_by_geometric_type) {
+        const auto ogn = to_string(ctx, g);
+        const auto ok = isValid(ogn);
+        if (ok) {
+          os << "  - " << *ogn << ": " << n << '\n';
+        }
+        success = success && ok;
+      }
+    }
+    return success;
+  }  // end of info
+
+  //   std::optional<PartialQuadratureSpaceInformation> synchronize(
+  //       Context& ctx, const PartialQuadratureSpaceInformation&) noexcept {
+  //
+  //       MPI_Gather(&local, 1, MPI_INT, list.data(), 1, MPI_INT, 0,
+  //                  MPI_COMM_WORLD);  // master rank is 0
+  //
+  //  }  // end of synchronize
 
 }  // end of namespace mfem_mgis
