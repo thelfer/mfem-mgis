@@ -16,7 +16,7 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief base class for behaviour integrators
+   * \brief base class for behaviour integrators based on MFront
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : BehaviourIntegrator,
                                                     Material {
@@ -29,6 +29,10 @@ namespace mfem_mgis {
     Material& getMaterial() override;
     const Material& getMaterial() const override;
     void setMacroscopicGradients(std::span<const real>) override;
+    [[nodiscard]] bool requiresCurrentSolutionForResidualAssembly()
+        const noexcept override;
+    [[nodiscard]] bool requiresCurrentSolutionForJacobianAssembly()
+        const noexcept override;
     //! \brief destructor
     ~BehaviourIntegratorBase() override;
 

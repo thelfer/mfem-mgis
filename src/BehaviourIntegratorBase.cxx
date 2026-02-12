@@ -246,6 +246,16 @@ namespace mfem_mgis {
     Material::setMacroscopicGradients(g);
   }  // end of setMacroscopicGradients
 
+  bool BehaviourIntegratorBase::requiresCurrentSolutionForResidualAssembly()
+      const noexcept {
+    return false;
+  }  // end of requiresCurrentSolutionForResidualAssembly
+
+  bool BehaviourIntegratorBase::requiresCurrentSolutionForJacobianAssembly()
+      const noexcept {
+    return false;
+  }  // end of requiresCurrentSolutionForJacobianAssembly
+
   BehaviourIntegratorBase::~BehaviourIntegratorBase() = default;
 
 }  // end of namespace mfem_mgis

@@ -7,12 +7,16 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "mfem/fem/linearform.hpp"
+#include "mfem/fem/bilinearform.hpp"
+#ifdef MFEM_USE_MPI
+#include "mfem/mesh/pmesh.hpp"
+#endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/BehaviourIntegrator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
-#include "mfem/mesh/pmesh.hpp"
 
 namespace mfem_mgis {
 
@@ -33,11 +37,139 @@ namespace mfem_mgis {
     }
   }  // end if checkIfBehaviourIntegratorIsDefined
 
+  struct InternalForcesIntegrator final
+      : public LinearFormIntegrator {
+#ifdef MFEM_USE_MPI
+    /*!
+     * \brief constructor
+     * \param[in] u: unknown
+     * \param[in] fes: finite element space
+     * \param[in] bis: behaviour integrators
+     */
+    InternalForcesIntegrator(
+        const FiniteElementSpace<true>& fes,
+        const mfem::Vector& u,
+        std::vector<std::unique_ptr<BehaviourIntegrator>>& bis)
+        : pfespace(&fes), unknowns(u), behaviour_integrators(bis) {}
+#endif /* MFEM_USE_MPI */
+    /*!
+     * \brief constructor
+     * \param[in] u: unknown
+     * \param[in] fes: finite element space
+     * \param[in] bis: behaviour integrators
+     */
+    InternalForcesIntegrator(
+        const FiniteElementSpace<false>& fes,
+        const mfem::Vector& u,
+        std::vector<std::unique_ptr<BehaviourIntegrator>>& bis)
+        : fespace(&fes), unknowns(u), behaviour_integrators(bis) {}
+    //
+    void AssembleRHSElementVect(const mfem::FiniteElement& e,
+                                mfem::ElementTransformation& tr,
+                                mfem::Vector& F) override {
+      const auto m = tr.Attribute;
+      const auto& bi = this->behaviour_integrators[m];
+      checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementVector", m);
+      if (bi->requiresCurrentSolutionForResidualAssembly()) {
+        auto vdofs = mfem::Array<int>{};
+#ifdef MFEM_USE_MPI
+        if (pfespace != nullptr) {
+          pfespace->GetElementVDofs(tr.ElementNo, vdofs);
+        } else {
+          fespace->GetElementVDofs(tr.ElementNo, vdofs);
+        }
+#else  /* MFEM_USE_MPI */
+        fespace->GetElementVDofs(tr.ElementNo, vdofs);
+#endif /* MFEM_USE_MPI */
+        this->unknowns.GetSubVector(vdofs, this->Ue);
+      }
+      bi->updateResidual(F, e, tr, this->Ue);
+    }  // end of AssembleRHSElementVect
+
+   private:
+#ifdef MFEM_USE_MPI
+    //! \brief pointer to the finite element space for parallel resolutions
+    const FiniteElementSpace<true>* const pfespace = nullptr;
+#endif /* MFEM_USE_MPI */
+    //! \brief pointer to the finite element space for sequential resolutions
+    const FiniteElementSpace<false>* const fespace = nullptr;
+    //! \brief unknowns
+    const mfem::Vector& unknowns;
+    //! \brief temporary vector containing the unknown of the current element
+    mfem::Vector Ue;    
+    //! \brief list of behaviour integrators
+    std::vector<std::unique_ptr<BehaviourIntegrator>>& behaviour_integrators;
+  };
+
+  struct StiffnessMatrixIntegrator final
+      : public BilinearFormIntegrator {
+#ifdef MFEM_USE_MPI
+    /*!
+     * \brief constructor
+     * \param[in] u: unknown
+     * \param[in] fes: finite element space
+     * \param[in] bis: behaviour integrators
+     */
+    StiffnessMatrixIntegrator(
+        const FiniteElementSpace<true>& fes,
+        const mfem::Vector& u,
+        std::vector<std::unique_ptr<BehaviourIntegrator>>& bis)
+        : pfespace(&fes), unknowns(u), behaviour_integrators(bis) {}
+#endif /* MFEM_USE_MPI */
+    /*!
+     * \brief constructor
+     * \param[in] u: unknown
+     * \param[in] fes: finite element space
+     * \param[in] bis: behaviour integrators
+     */
+    StiffnessMatrixIntegrator(
+        const FiniteElementSpace<false>& fes,
+        const mfem::Vector& u,
+        std::vector<std::unique_ptr<BehaviourIntegrator>>& bis)
+        : fespace(&fes), unknowns(u), behaviour_integrators(bis) {}
+    //
+    void AssembleElementMatrix(const mfem::FiniteElement& e,
+                               mfem::ElementTransformation& tr,
+                               mfem::DenseMatrix& K) override {
+      const auto m = tr.Attribute;
+      const auto& bi = this->behaviour_integrators[m];
+      checkIfBehaviourIntegratorIsDefined(bi.get(), "AssembleElementGrad", m);
+      if (bi->requiresCurrentSolutionForJacobianAssembly()) {
+        auto vdofs = mfem::Array<int>{};
+#ifdef MFEM_USE_MPI
+        if (pfespace != nullptr) {
+          pfespace->GetElementVDofs(tr.ElementNo, vdofs);
+        } else {
+          fespace->GetElementVDofs(tr.ElementNo, vdofs);
+        }
+#else  /* MFEM_USE_MPI */
+        fespace->GetElementVDofs(tr.ElementNo, vdofs);
+#endif /* MFEM_USE_MPI */
+        this->unknowns.GetSubVector(vdofs, this->Ue);
+      }
+      bi->updateJacobian(K, e, tr, this->Ue);
+    }  // end of AssembleElementMatrix
+
+   private:
+#ifdef MFEM_USE_MPI
+    //! \brief pointer to the finite element space for parallel resolutions
+    const FiniteElementSpace<true>* const pfespace = nullptr;
+#endif /* MFEM_USE_MPI */
+    //! \brief pointer to the finite element space for sequential resolutions
+    const FiniteElementSpace<false>* const fespace = nullptr;
+    //! \brief unknowns
+    const mfem::Vector& unknowns;
+    //! \brief temporary vector containing the unknown of the current element
+    mfem::Vector Ue;    
+    //! \brief list of behaviour integrators
+    std::vector<std::unique_ptr<BehaviourIntegrator>>& behaviour_integrators;
+  };  // end of StiffnessMatrixIntegrator
+
   MultiMaterialNonLinearIntegrator::MultiMaterialNonLinearIntegrator(
       std::shared_ptr<const FiniteElementDiscretization> fed,
       const Hypothesis h)
       : fe_discretization(fed), hypothesis(h) {
-    if (fed->describesAParallelComputation()) {
+    if (this->fe_discretization->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       const auto& mesh = this->fe_discretization->getMesh<true>();
       // shifting by one allows to directly use the material id to get
@@ -191,6 +323,29 @@ namespace mfem_mgis {
     }
     return mids;
   }  // end of getAssignedMaterialsIdentifiers
+
+  MultiMaterialNonLinearIntegrator::LinearizedOperators
+  MultiMaterialNonLinearIntegrator::getLinearizedOperators(const mfem::Vector& u) {
+    if (this->fe_discretization->describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto& fespace =
+          this->fe_discretization->getFiniteElementSpace<true>();
+      return LinearizedOperators{
+          .K = std::make_unique<StiffnessMatrixIntegrator>(
+              fespace, u, this->behaviour_integrators),
+          .Fi = std::make_unique<InternalForcesIntegrator>(
+              fespace, u, this->behaviour_integrators)};
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto& fespace =
+        this->fe_discretization->getFiniteElementSpace<false>();
+    return LinearizedOperators{.K = std::make_unique<StiffnessMatrixIntegrator>(
+                                   fespace, u, this->behaviour_integrators),
+                               .Fi = std::make_unique<InternalForcesIntegrator>(
+                                   fespace, u, this->behaviour_integrators)};
+  }  // end of getLinearizedOperators
 
   MultiMaterialNonLinearIntegrator::~MultiMaterialNonLinearIntegrator() =
       default;

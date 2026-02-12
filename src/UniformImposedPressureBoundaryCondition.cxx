@@ -43,8 +43,7 @@ namespace mfem_mgis {
       : public UniformImposedPressureBoundaryCondition::
             UniformImposedPressureNonlinearFormIntegratorBase {
     //! \brief constructor
-    UniformImposedPressureNonlinearFormIntegrator() {
-    }  // end of UniformImposedPressureNonlinearFormIntegrator
+    UniformImposedPressureNonlinearFormIntegrator() = default;
     // MFEM API
     void AssembleElementVector(const mfem::FiniteElement &e,
                                mfem::ElementTransformation &tr,

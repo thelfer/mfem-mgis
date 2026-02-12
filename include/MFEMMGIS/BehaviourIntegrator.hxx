@@ -140,6 +140,20 @@ namespace mfem_mgis {
      * \param[in] g: macroscopic gradients
      */
     virtual void setMacroscopicGradients(std::span<const real>) = 0;
+    /*!
+     * \return if the current solution is required for assembling the residual
+     * \note this is required when creating a linear operator evaluating the
+     * the residual
+     */
+    [[nodiscard]] virtual bool requiresCurrentSolutionForResidualAssembly()
+        const noexcept = 0;
+    /*!
+     * \return if the current solution is required for assembling the jacobian
+     * \note this is required when creating a linear operator evaluating the
+     * the residual
+     */
+    [[nodiscard]] virtual bool requiresCurrentSolutionForJacobianAssembly()
+        const noexcept = 0;
     //! \brief destructor
     virtual ~BehaviourIntegrator();
   };  // end of struct BehaviourIntegrator
