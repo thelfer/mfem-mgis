@@ -1,3 +1,4 @@
+
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx
  * \brief
@@ -29,7 +30,7 @@ namespace mfem_mgis {
   // forward declaration
   struct Material;
   // forward declaration
-  struct BehaviourIntegrator;
+  struct AbstractBehaviourIntegrator;
   // forward declaration
   struct MultiMaterialNonLinearIntegrator;
   // forward declaration
@@ -114,9 +115,10 @@ namespace mfem_mgis {
         const Parameter&) const override;
     const Material& getMaterial(const Parameter&) const override;
     Material& getMaterial(const Parameter&) override;
-    const BehaviourIntegrator& getBehaviourIntegrator(
+    const AbstractBehaviourIntegrator& getBehaviourIntegrator(
         const size_type) const override;
-    BehaviourIntegrator& getBehaviourIntegrator(const size_type) override;
+    AbstractBehaviourIntegrator& getBehaviourIntegrator(
+        const size_type) override;
     void addBehaviourIntegrator(const std::string&,
                                 const Parameter&,
                                 const std::string&,

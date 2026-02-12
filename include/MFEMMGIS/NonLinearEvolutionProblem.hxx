@@ -120,9 +120,10 @@ namespace mfem_mgis {
         const Parameter &) const override;
     const Material &getMaterial(const Parameter &) const override;
     Material &getMaterial(const Parameter &) override;
-    const BehaviourIntegrator &getBehaviourIntegrator(
+    const AbstractBehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const override;
-    BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
+    AbstractBehaviourIntegrator &getBehaviourIntegrator(
+        const size_type) override;
     void revert() override;
     void update() override;
     NonLinearResolutionOutput solve(const real, const real) override;

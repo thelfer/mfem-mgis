@@ -24,7 +24,7 @@ namespace mfem_mgis {
   struct Parameters;
   struct FiniteElementDiscretization;
   struct DirichletBoundaryCondition;
-  struct BehaviourIntegrator;
+  struct AbstractBehaviourIntegrator;
   struct Material;
   struct AbstractBoundaryCondition;
 
@@ -179,13 +179,14 @@ namespace mfem_mgis {
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    virtual const BehaviourIntegrator &getBehaviourIntegrator(
+    virtual const AbstractBehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const = 0;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    virtual BehaviourIntegrator &getBehaviourIntegrator(const size_type) = 0;
+    virtual AbstractBehaviourIntegrator &getBehaviourIntegrator(
+        const size_type) = 0;
     /*!
      * \brief add a boundary condition
      * \param[in] f: boundary condition

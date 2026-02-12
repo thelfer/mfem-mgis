@@ -220,13 +220,13 @@ namespace mfem_mgis {
     return this->pimpl->getMaterial(m);
   }  // end of getMaterial
 
-  const BehaviourIntegrator& NonLinearEvolutionProblem::getBehaviourIntegrator(
-      const size_type m) const {
+  const AbstractBehaviourIntegrator&
+  NonLinearEvolutionProblem::getBehaviourIntegrator(const size_type m) const {
     return this->pimpl->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 
-  BehaviourIntegrator& NonLinearEvolutionProblem::getBehaviourIntegrator(
-      const size_type m) {
+  AbstractBehaviourIntegrator&
+  NonLinearEvolutionProblem::getBehaviourIntegrator(const size_type m) {
     return this->pimpl->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 

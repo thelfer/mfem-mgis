@@ -9,7 +9,7 @@
 #define LIB_MFEM_MGIS_NONLINEAREVOLUTIONPROBLEMIMPLEMENTATION_IXX
 
 #include "MFEMMGIS/Material.hxx"
-#include "MFEMMGIS/BehaviourIntegrator.hxx"
+#include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
 namespace mfem_mgis {

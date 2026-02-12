@@ -1,5 +1,5 @@
 /*!
- * \file   src/BehaviourIntegrator.cxx
+ * \file   src/AbstractBehaviourIntegrator.cxx
  * \brief
  * \author Thomas Helfer
  * \date   27/08/2020
@@ -15,15 +15,15 @@
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
-#include "MFEMMGIS/BehaviourIntegrator.hxx"
+#include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
-  BehaviourIntegrator::~BehaviourIntegrator() = default;
+  AbstractBehaviourIntegrator::~AbstractBehaviourIntegrator() = default;
 
   template <bool parallel, typename Functor>
-  static void performLoopOverIntegrationPoints(Functor& f,
-                                               const BehaviourIntegrator& bi) {
+  static void performLoopOverIntegrationPoints(
+      Functor& f, const AbstractBehaviourIntegrator& bi) {
     const auto& qspace = bi.getPartialQuadratureSpace();
     const auto& fespace = qspace.getFiniteElementDiscretization()
                               .getFiniteElementSpace<parallel>();
@@ -41,7 +41,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static real BehaviourIntegrator_computeMeasure(
-      const BehaviourIntegrator& bi) {
+      const AbstractBehaviourIntegrator& bi) {
     auto r = real{};
     auto integrate =
         [&r, &bi](const mfem::FiniteElement&, mfem::ElementTransformation& tr,
@@ -52,7 +52,7 @@ namespace mfem_mgis {
     return r;
   }  // end of BehaviourIntegrator_computeMeasure
 
-  real computeMeasure(const BehaviourIntegrator& bi) {
+  real computeMeasure(const AbstractBehaviourIntegrator& bi) {
     const auto& qspace = bi.getPartialQuadratureSpace();
     const auto& fed = qspace.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
@@ -70,7 +70,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static real BehaviourIntegrator_computeScalarIntegral(
-      const BehaviourIntegrator& bi,
+      const AbstractBehaviourIntegrator& bi,
       const ImmutablePartialQuadratureFunctionView& f) {
     const auto* const values = f.getValues().data() + f.getDataOffset();
     auto r = real{};
@@ -98,7 +98,7 @@ namespace mfem_mgis {
   }  // end of BehaviourIntegrator_computeScalarIntegral
 
   template <>
-  real computeIntegral(const BehaviourIntegrator& bi,
+  real computeIntegral(const AbstractBehaviourIntegrator& bi,
                        const ImmutablePartialQuadratureFunctionView& f) {
     const auto& qspace = f.getPartialQuadratureSpace();
     if (&qspace != &(bi.getPartialQuadratureSpace())) {

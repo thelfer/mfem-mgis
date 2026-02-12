@@ -202,7 +202,7 @@ namespace mfem_mgis {
     return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
   }  // end of getMaterial
 
-  const BehaviourIntegrator&
+  const AbstractBehaviourIntegrator&
   NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
       const size_type m) const {
     checkMultiMaterialSupportEnabled("getBehaviourIntegrator",
@@ -210,7 +210,7 @@ namespace mfem_mgis {
     return this->mgis_integrator->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 
-  BehaviourIntegrator&
+  AbstractBehaviourIntegrator&
   NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
       const size_type m) {
     checkMultiMaterialSupportEnabled("getBehaviourIntegrator",

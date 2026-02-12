@@ -13,7 +13,7 @@
 #include "mfem/mesh/pmesh.hpp"
 #endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/IntegrationType.hxx"
-#include "MFEMMGIS/BehaviourIntegrator.hxx"
+#include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorFactory.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
@@ -27,7 +27,7 @@ namespace mfem_mgis {
    * \param[in] m: material id
    */
   static void checkIfBehaviourIntegratorIsDefined(
-      const BehaviourIntegrator* const i,
+      const AbstractBehaviourIntegrator* const i,
       const char* const n,
       const size_type m) {
     if (i == nullptr) {
@@ -37,8 +37,7 @@ namespace mfem_mgis {
     }
   }  // end if checkIfBehaviourIntegratorIsDefined
 
-  struct InternalForcesIntegrator final
-      : public LinearFormIntegrator {
+  struct InternalForcesIntegrator final : public LinearFormIntegrator {
 #ifdef MFEM_USE_MPI
     /*!
      * \brief constructor
@@ -49,7 +48,7 @@ namespace mfem_mgis {
     InternalForcesIntegrator(
         const FiniteElementSpace<true>& fes,
         const mfem::Vector& u,
-        std::vector<std::unique_ptr<BehaviourIntegrator>>& bis)
+        std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>& bis)
         : pfespace(&fes), unknowns(u), behaviour_integrators(bis) {}
 #endif /* MFEM_USE_MPI */
     /*!
@@ -61,7 +60,7 @@ namespace mfem_mgis {
     InternalForcesIntegrator(
         const FiniteElementSpace<false>& fes,
         const mfem::Vector& u,
-        std::vector<std::unique_ptr<BehaviourIntegrator>>& bis)
+        std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>& bis)
         : fespace(&fes), unknowns(u), behaviour_integrators(bis) {}
     //
     void AssembleRHSElementVect(const mfem::FiniteElement& e,
@@ -96,13 +95,13 @@ namespace mfem_mgis {
     //! \brief unknowns
     const mfem::Vector& unknowns;
     //! \brief temporary vector containing the unknown of the current element
-    mfem::Vector Ue;    
+    mfem::Vector Ue;
     //! \brief list of behaviour integrators
-    std::vector<std::unique_ptr<BehaviourIntegrator>>& behaviour_integrators;
+    std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>&
+        behaviour_integrators;
   };
 
-  struct StiffnessMatrixIntegrator final
-      : public BilinearFormIntegrator {
+  struct StiffnessMatrixIntegrator final : public BilinearFormIntegrator {
 #ifdef MFEM_USE_MPI
     /*!
      * \brief constructor
@@ -113,7 +112,7 @@ namespace mfem_mgis {
     StiffnessMatrixIntegrator(
         const FiniteElementSpace<true>& fes,
         const mfem::Vector& u,
-        std::vector<std::unique_ptr<BehaviourIntegrator>>& bis)
+        std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>& bis)
         : pfespace(&fes), unknowns(u), behaviour_integrators(bis) {}
 #endif /* MFEM_USE_MPI */
     /*!
@@ -125,7 +124,7 @@ namespace mfem_mgis {
     StiffnessMatrixIntegrator(
         const FiniteElementSpace<false>& fes,
         const mfem::Vector& u,
-        std::vector<std::unique_ptr<BehaviourIntegrator>>& bis)
+        std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>& bis)
         : fespace(&fes), unknowns(u), behaviour_integrators(bis) {}
     //
     void AssembleElementMatrix(const mfem::FiniteElement& e,
@@ -160,9 +159,10 @@ namespace mfem_mgis {
     //! \brief unknowns
     const mfem::Vector& unknowns;
     //! \brief temporary vector containing the unknown of the current element
-    mfem::Vector Ue;    
+    mfem::Vector Ue;
     //! \brief list of behaviour integrators
-    std::vector<std::unique_ptr<BehaviourIntegrator>>& behaviour_integrators;
+    std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>&
+        behaviour_integrators;
   };  // end of StiffnessMatrixIntegrator
 
   MultiMaterialNonLinearIntegrator::MultiMaterialNonLinearIntegrator(
@@ -257,7 +257,7 @@ namespace mfem_mgis {
     return bi->getMaterial();
   }  // end of getMaterial
 
-  const BehaviourIntegrator&
+  const AbstractBehaviourIntegrator&
   MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
       const size_type m) const {
     const auto& bi = this->behaviour_integrators[m];
@@ -265,8 +265,8 @@ namespace mfem_mgis {
     return *bi;
   }  // end of getBehaviourIntegrator
 
-  BehaviourIntegrator& MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
-      const size_type m) {
+  AbstractBehaviourIntegrator&
+  MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(const size_type m) {
     const auto& bi = this->behaviour_integrators[m];
     checkIfBehaviourIntegratorIsDefined(bi.get(), "getBehaviourIntegrator", m);
     return *bi;
@@ -325,7 +325,8 @@ namespace mfem_mgis {
   }  // end of getAssignedMaterialsIdentifiers
 
   MultiMaterialNonLinearIntegrator::LinearizedOperators
-  MultiMaterialNonLinearIntegrator::getLinearizedOperators(const mfem::Vector& u) {
+  MultiMaterialNonLinearIntegrator::getLinearizedOperators(
+      const mfem::Vector& u) {
     if (this->fe_discretization->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       const auto& fespace =

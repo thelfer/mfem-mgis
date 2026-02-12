@@ -1,12 +1,12 @@
 /*!
- * \file   MFEMMGIS/BehaviourIntegrator.hxx
+ * \file   MFEMMGIS/AbstractBehaviourIntegrator.hxx
  * \brief
  * \author Thomas Helfer
  * \date   27/08/2020
  */
 
-#ifndef LIB_MFEM_MGIS_BEHAVIOURINTEGRATOR_HXX
-#define LIB_MFEM_MGIS_BEHAVIOURINTEGRATOR_HXX
+#ifndef LIB_MFEM_MGIS_ABSTRACTBEHAVIOURINTEGRATOR_HXX
+#define LIB_MFEM_MGIS_ABSTRACTBEHAVIOURINTEGRATOR_HXX
 
 #include <array>
 #include <memory>
@@ -31,7 +31,7 @@ namespace mfem_mgis {
    *   `updateResidual` method).
    * - compute the stiffness matrix (see the `updateJacobian` method).
    */
-  struct MFEM_MGIS_EXPORT BehaviourIntegrator {
+  struct MFEM_MGIS_EXPORT AbstractBehaviourIntegrator {
     /*!
      * \brief set the time increment
      * \param[in] dt: time increment
@@ -155,22 +155,22 @@ namespace mfem_mgis {
     [[nodiscard]] virtual bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept = 0;
     //! \brief destructor
-    virtual ~BehaviourIntegrator();
-  };  // end of struct BehaviourIntegrator
+    virtual ~AbstractBehaviourIntegrator();
+  };  // end of struct AbstractBehaviourIntegrator
 
   /*!
    * \return the measure of the mesh (volume in 3D and axisymmetrical
    * hypotheses, surface in other bidimensional hypotheses) on which is built
    * the behaviour integrator. \param[in] bi: behaviour integrator
    */
-  MFEM_MGIS_EXPORT real computeMeasure(const BehaviourIntegrator &);
+  MFEM_MGIS_EXPORT real computeMeasure(const AbstractBehaviourIntegrator &);
 
   /*!
    * \return the integral of a partial quadrature function
    * \param[in] f: function
    */
   template <typename ValueType>
-  ValueType computeIntegral(const BehaviourIntegrator &,
+  ValueType computeIntegral(const AbstractBehaviourIntegrator &,
                             const ImmutablePartialQuadratureFunctionView &);
   /*!
    * \return the integral of a partial quadrature function
@@ -179,9 +179,9 @@ namespace mfem_mgis {
    */
   template <>
   MFEM_MGIS_EXPORT real
-  computeIntegral(const BehaviourIntegrator &,
+  computeIntegral(const AbstractBehaviourIntegrator &,
                   const ImmutablePartialQuadratureFunctionView &);
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_BEHAVIOURINTEGRATOR_HXX */
+#endif /* LIB_MFEM_MGIS_ABSTRACTBEHAVIOURINTEGRATOR_HXX */

@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MGIS/Behaviour/RotationMatrix.hxx"
-#include "MFEMMGIS/BehaviourIntegrator.hxx"
+#include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/Material.hxx"
 
@@ -301,7 +301,7 @@ namespace mfem_mgis {
         m.getPartialQuadratureSpacePointer(), sm.dissipated_energies, 0, 1);
   }  // end of getDissipatedEnergy
 
-  real computeStoredEnergy(const BehaviourIntegrator &bi,
+  real computeStoredEnergy(const AbstractBehaviourIntegrator &bi,
                            const Material::StateSelection s) {
     if (!bi.hasMaterial()) {
       raise("computeStoredEnergy: behaviour integrator has no material");
@@ -313,7 +313,7 @@ namespace mfem_mgis {
     return {};
   }
 
-  real computeDissipatedEnergy(const BehaviourIntegrator &bi,
+  real computeDissipatedEnergy(const AbstractBehaviourIntegrator &bi,
                                const Material::StateSelection s) {
     if (!bi.hasMaterial()) {
       raise("computeDissipatedEnergy: behaviour integrator has no material");

@@ -21,7 +21,7 @@ namespace mfem_mgis {
   // forward declaration
   struct FiniteElementDiscretization;
   // forward declaration
-  struct BehaviourIntegrator;
+  struct AbstractBehaviourIntegrator;
 
   /*!
    * \brief base class for non linear integrators based on an MGIS' behaviours.
@@ -105,13 +105,14 @@ namespace mfem_mgis {
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    virtual const BehaviourIntegrator &getBehaviourIntegrator(
+    virtual const AbstractBehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    virtual BehaviourIntegrator &getBehaviourIntegrator(const size_type);
+    virtual AbstractBehaviourIntegrator &getBehaviourIntegrator(
+        const size_type);
     /*!
      * \brief revert the internal state variables.
      *
@@ -160,7 +161,8 @@ namespace mfem_mgis {
      * \brief mapping between the material integrator and the behaviour
      * integrator.
      */
-    std::vector<std::unique_ptr<BehaviourIntegrator>> behaviour_integrators;
+    std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>
+        behaviour_integrators;
   };  // end of MultiMaterialNonLinearIntegrator
 
 }  // end of namespace mfem_mgis

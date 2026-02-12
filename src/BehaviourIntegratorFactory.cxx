@@ -67,7 +67,7 @@ namespace mfem_mgis {
         "Mechanics",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
             if (b->symmetry == Behaviour::ISOTROPIC) {
               return std::make_unique<
@@ -80,7 +80,7 @@ namespace mfem_mgis {
           } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
             raise("invalid behaviour type");
           }
-          auto bi = [&]() -> std::unique_ptr<BehaviourIntegrator> {
+          auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
             if (b->symmetry == Behaviour::ISOTROPIC) {
               return std::make_unique<
                   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
@@ -98,7 +98,7 @@ namespace mfem_mgis {
         "StationaryNonLinearHeatTransfer",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->btype != Behaviour::GENERALBEHAVIOUR) {
             raise("invalid behaviour type");
           }
@@ -115,7 +115,7 @@ namespace mfem_mgis {
         "TransientHeatTransfer",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->btype != Behaviour::GENERALBEHAVIOUR) {
             raise("invalid behaviour type");
           }
@@ -143,7 +143,7 @@ namespace mfem_mgis {
         "Mechanics",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
             if (b->symmetry == Behaviour::ISOTROPIC) {
               return std::make_unique<
@@ -156,7 +156,7 @@ namespace mfem_mgis {
           } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
             raise("invalid behaviour type");
           }
-          auto bi = [&]() -> std::unique_ptr<BehaviourIntegrator> {
+          auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
             if (b->symmetry == Behaviour::ISOTROPIC) {
               return std::make_unique<
                   IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
@@ -174,7 +174,7 @@ namespace mfem_mgis {
         "StationaryNonLinearHeatTransfer",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->btype != Behaviour::GENERALBEHAVIOUR) {
             raise("invalid behaviour type");
           }
@@ -191,7 +191,7 @@ namespace mfem_mgis {
         "MicromorphicDamage",  //
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->symmetry == Behaviour::ISOTROPIC) {
             return std::make_unique<
                 BidimensionalMicromorphicDamageBehaviourIntegrator>(
@@ -215,7 +215,7 @@ namespace mfem_mgis {
         "Mechanics",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
             if (b->symmetry == Behaviour::ISOTROPIC) {
               return std::make_unique<
@@ -228,7 +228,7 @@ namespace mfem_mgis {
           } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
             raise("invalid behaviour type");
           }
-          auto bi = [&]() -> std::unique_ptr<BehaviourIntegrator> {
+          auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
             if (b->symmetry == Behaviour::ISOTROPIC) {
               return std::make_unique<
                   IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
@@ -246,7 +246,7 @@ namespace mfem_mgis {
         "StationaryNonLinearHeatTransfer",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->btype != Behaviour::GENERALBEHAVIOUR) {
             raise("invalid behaviour type");
           }
@@ -263,7 +263,7 @@ namespace mfem_mgis {
         "MicromorphicDamage",  //
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<BehaviourIntegrator> {
+            -> std::unique_ptr<AbstractBehaviourIntegrator> {
           if (b->symmetry == Behaviour::ISOTROPIC) {
             return std::make_unique<
                 BidimensionalMicromorphicDamageBehaviourIntegrator>(
@@ -323,7 +323,8 @@ namespace mfem_mgis {
     this->generators.insert({n, g});
   }  // end of BehaviourIntegratorFactory::addGenerator
 
-  std::unique_ptr<BehaviourIntegrator> BehaviourIntegratorFactory::generate(
+  std::unique_ptr<AbstractBehaviourIntegrator>
+  BehaviourIntegratorFactory::generate(
       const std::string& n,
       const FiniteElementDiscretization& fed,
       const size_type m,
