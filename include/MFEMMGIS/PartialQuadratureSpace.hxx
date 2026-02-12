@@ -265,6 +265,14 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool info(
       Context &, std::ostream &, const PartialQuadratureSpace &) noexcept;
+  /*!
+   * \brief synchronize information of all processes
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in] info: information to be shared
+   */
+  std::optional<PartialQuadratureSpaceInformation> synchronize(
+      Context &ctx, const PartialQuadratureSpaceInformation &) noexcept;
 
 }  // end of  namespace mfem_mgis
 

@@ -13,6 +13,9 @@
 #include "mfem/fem/pfespace.hpp"
 #endif /* MFEM_USE_MPI */
 #include "MGIS/Raise.hxx"
+#ifdef MFEM_USE_MPI
+#include "MFEMMGIS/MPI.hxx"
+#endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
@@ -198,8 +201,8 @@ namespace mfem_mgis {
     }
     os << " " << std::to_string(info.identifier) << '\n';
     os << "- number of elements: " << info.number_of_finite_elements << '\n';
-    os << "- number of quadrature points: "
-       << info.number_of_quadrature_points << '\n';
+    os << "- number of quadrature points: " << info.number_of_quadrature_points
+       << '\n';
     if (!info.number_of_quadrature_points_by_geometric_type.empty()) {
       os << "- number of quadrature points per element type:\n";
       for (const auto& [g, n] :
@@ -215,12 +218,46 @@ namespace mfem_mgis {
     return success;
   }  // end of info
 
-  //   std::optional<PartialQuadratureSpaceInformation> synchronize(
-  //       Context& ctx, const PartialQuadratureSpaceInformation&) noexcept {
-  //
-  //       MPI_Gather(&local, 1, MPI_INT, list.data(), 1, MPI_INT, 0,
-  //                  MPI_COMM_WORLD);  // master rank is 0
-  //
-  //  }  // end of synchronize
+  std::optional<PartialQuadratureSpaceInformation> synchronize(
+      Context& ctx, const PartialQuadratureSpaceInformation& info) noexcept {
+#ifdef MFEM_USE_MPI
+    auto r = PartialQuadratureSpaceInformation{};
+    int nprocesses;
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocesses);
+    std::vector<size_type> ids(nprocesses);
+    MPI_Allgather(&(info.identifier), 1, mpi_type<size_type>, ids.data(), 1,
+                  mpi_type<size_type>, MPI_COMM_WORLD);
+    if (std::adjacent_find(ids.begin(), ids.end(), std::not_equal_to<>()) !=
+        ids.end()) {
+      return ctx.registerErrorMessage(
+          "the given information do not refer to the same material on all "
+          "processes");
+    }
+    //           n, as_mpi_datatype<T>::value(), MPI_COMM_WORLD);
+    //     int MPI_Allreduce(const void* sendbuf, void* recvbuf, int count,
+    //                       MPI_Datatype datatype, MPI_Op op, MPI_Comm comm);
+    // get all ids
+    //     using T = typename C::value_type;
+    //     Index n = getSize(buf);
+    //     Vector<T> output(MPI::nProc() * n);
+    //
+    //     Int ierr;
+    //     if constexpr (std::is_fundamental_v<T>) {
+    //       ierr = MPI_Allgather(
+    //           buf.data(), n, as_mpi_datatype<T>::value(), output.data(),
+    //           n, as_mpi_datatype<T>::value(), MPI_COMM_WORLD);
+    //     }
+    //     else {
+    //       ierr = MPI_Allgather(buf.data(), n * sizeof(T), MPI_BYTE,
+    //       output.data(), n * sizeof(T), MPI_BYTE, MPI_COMM_WORLD);
+    //     }
+    //     MPI::check(ierr);
+    //
+    //     return output;
+    return r;
+#else  /* MFEM_USE_MPI */
+    return info;
+#endif /* MFEM_USE_MPI */
+  }    // end of synchronize
 
 }  // end of namespace mfem_mgis
