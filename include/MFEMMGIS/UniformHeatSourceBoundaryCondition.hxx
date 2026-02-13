@@ -59,13 +59,23 @@ namespace mfem_mgis {
     void addNonlinearFormIntegrator(NonlinearForm<true>&) override;
 #endif /* MFEM_USE_MPI */
     void addNonlinearFormIntegrator(NonlinearForm<false>&) override;
+#ifdef MFEM_USE_MPI
+    void addLinearFormIntegrator(LinearForm<true>&,
+                                 const real,
+                                 const real) override;
+#endif /* MFEM_USE_MPI */
+    void addLinearFormIntegrator(LinearForm<false>&,
+                                 const real,
+                                 const real) override;
     void setup(const real, const real) override;
     //! \brief destructor
     virtual ~UniformHeatSourceBoundaryCondition();
 
    protected:
     //! \brief internal structure
-    struct UniformHeatSourceNonlinearFormIntegratorBase;
+    struct UniformHeatSourceFormIntegratorBase;
+    //! \brief internal structure
+    struct UniformHeatSourceLinearFormIntegrator;
     //! \brief internal structure
     struct UniformHeatSourceNonlinearFormIntegrator;
     //! \brief finite element discretization
@@ -75,9 +85,9 @@ namespace mfem_mgis {
     //
     mfem::Array<mfem_mgis::size_type> materials_markers;
     //! \brief function returning the value of the heat source
-    std::function<real(const real)> prfct;
+    std::function<real(const real)> qfct;
     //! \brief underlying integrator
-    UniformHeatSourceNonlinearFormIntegratorBase* const nfi = nullptr;
+    UniformHeatSourceNonlinearFormIntegrator* const nfi = nullptr;
     //
     bool shallFreeIntegrator = true;
   };  // end of UniformHeatSourceBoundaryCondition

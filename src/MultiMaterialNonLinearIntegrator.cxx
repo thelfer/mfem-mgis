@@ -324,8 +324,7 @@ namespace mfem_mgis {
     return mids;
   }  // end of getAssignedMaterialsIdentifiers
 
-  MultiMaterialNonLinearIntegrator::LinearizedOperators
-  MultiMaterialNonLinearIntegrator::getLinearizedOperators(
+  LinearizedOperators MultiMaterialNonLinearIntegrator::getLinearizedOperators(
       const mfem::Vector& u) {
     if (this->fe_discretization->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI

@@ -256,6 +256,12 @@ namespace mfem_mgis {
     return ddofs;
   }  // end of getEssentialDegreesOfFreedom
 
+  [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
+  NonLinearEvolutionProblemImplementationBase::
+      getDirichletBoundaryConditions() noexcept {
+    return this->dirichlet_boundary_conditions;
+  }  // end of getDirichletBoundaryConditions
+
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
     CatchTimeSection("NLEPIB::setup");
@@ -315,6 +321,16 @@ namespace mfem_mgis {
     this->updateLinearSolver(std::move(s.linear_solver),
                              std::move(s.preconditioner));
   }  // end of updateLinearSolver
+
+  std::optional<LinearizedOperators>
+  NonLinearEvolutionProblemImplementationBase::getLinearizedOperators(
+      Context& ctx, const mfem::Vector& U) noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return ctx.registerErrorMessage(
+          "no multiple material integrator defined");
+    }
+    return this->mgis_integrator->getLinearizedOperators(U);
+  }  // end of getLinearizedOperators
 
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {

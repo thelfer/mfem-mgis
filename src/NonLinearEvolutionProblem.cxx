@@ -131,12 +131,34 @@ namespace mfem_mgis {
     this->pimpl->setLinearSolver(n, params);
   }  // end of setLinearSolver
 
+  const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
+  NonLinearEvolutionProblem::getDirichletBoundaryConditions() noexcept {
+    return this->pimpl->getDirichletBoundaryConditions();
+  } // end of getDirichletBoundaryConditions
+
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
     CatchTimeSection("NLEP::solve");
     this->setup(t, dt);
     return this->pimpl->solve(t, dt);
   }  // end of solve
+
+  bool NonLinearEvolutionProblem::integrate(const mfem::Vector& U,
+                                            const IntegrationType it) {
+    CatchTimeSection("NLEP::integrate");
+    return this->pimpl->integrate(U, it);
+  }  // end of solve
+
+  std::vector<size_type>
+  NonLinearEvolutionProblem::getEssentialDegreesOfFreedom() const {
+    return this->pimpl->getEssentialDegreesOfFreedom();
+  }  // end of getEssentialDegreesOfFreedom
+
+  std::optional<LinearizedOperators>
+  NonLinearEvolutionProblem::getLinearizedOperators(
+      Context& ctx, const mfem::Vector& U) noexcept {
+    return this->pimpl->getLinearizedOperators(ctx, U);
+  } // end of getLinearizedOperators
 
   void NonLinearEvolutionProblem::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {
@@ -238,7 +260,8 @@ namespace mfem_mgis {
     this->pimpl->revert();
   }  // end of revert
 
-  void NonLinearEvolutionProblem::setup(const real, const real) {
+  void NonLinearEvolutionProblem::setup(const real t, const real dt) {
+    this->pimpl->setup(t, dt);
   }  // end of setup
 
   template <bool parallel>
