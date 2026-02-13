@@ -129,7 +129,7 @@ namespace mfem_mgis {
       NonlinearForm<true> &f) {
     auto &m = this->finiteElementDiscretization->getMesh<true>();
     this->materials_markers =
-        mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
+        mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
     this->materials_markers = 0;
     for (const auto &mid : mids) {
       this->materials_markers[mid - 1] = 1;
@@ -143,7 +143,7 @@ namespace mfem_mgis {
       NonlinearForm<false> &f) {
     auto &m = this->finiteElementDiscretization->getMesh<false>();
     this->materials_markers =
-        mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
+        mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
     this->materials_markers = 0;
     for (const auto &mid : mids) {
       this->materials_markers[mid - 1] = 1;
