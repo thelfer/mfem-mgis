@@ -17,11 +17,12 @@
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="List of unit tests" href="../tests/unit_tests.html" />
-    <link rel="prev" title="Release notes of Version 1.0.4" href="release_notes-1.0.4.html" /> 
+    <link rel="prev" title="Release notes" href="release_notes.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,8 +57,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="release_notes.html">Release notes</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="release_notes-1.0.4.html">Release notes of Version 1.0.4</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Release notes of Version 1.1</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Release notes of Version 1.1</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-features">New features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#application-programming-interface">Application programming interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#issues-fixed">Issues fixed</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../tests/unit_tests.html">List of unit tests</a></li>
@@ -95,20 +101,110 @@
              
   <section id="release-notes-of-version-1-1">
 <span id="mfem-mgis-release-notes-1-1"></span><h1>Release notes of Version 1.1<a class="headerlink" href="#release-notes-of-version-1-1" title="Link to this heading"></a></h1>
-<p>This version inherits from all the features introduced in:</p>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h2>
+<section id="doxygen-documentation">
+<h3>Doxygen documentation<a class="headerlink" href="#doxygen-documentation" title="Link to this heading"></a></h3>
+<p>The <cite>doxygen</cite> documentation is available on <a class="reference external" href="https://thelfer.github.io/mfem-mgis-doxygen/index.html">this page</a>.</p>
+</section>
+</section>
+<section id="new-features">
+<h2>New features<a class="headerlink" href="#new-features" title="Link to this heading"></a></h2>
+<section id="projection-of-a-grid-function-to-a-partial-quadrature-function">
+<h3>Projection of a grid function to a partial quadrature function<a class="headerlink" href="#projection-of-a-grid-function-to-a-partial-quadrature-function" title="Link to this heading"></a></h3>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">update</span></code> function allows projecting a grid function to a
+partial quadrature function.</p>
+</section>
+<section id="l-2-projection-of-a-partial-quadrature-function-to-a-grid-function">
+<h3><span class="math notranslate nohighlight">\(L_{2}\)</span> projection of a partial quadrature function to a grid function<a class="headerlink" href="#l-2-projection-of-a-partial-quadrature-function-to-a-grid-function" title="Link to this heading"></a></h3>
+<p>The <span class="math notranslate nohighlight">\(L_{2}\)</span> projection <span class="math notranslate nohighlight">\(\bar{f}\)</span> of a scalar quadrature
+function <span class="math notranslate nohighlight">\(f\)</span> is obtained by minimizing the following functional:</p>
+<div class="math notranslate nohighlight">
+\[\int_{\Omega} \left(\bar{f}-f\right)^{2}\,\mathrm{d}\,V\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega\)</span> is the domain on which <cite>f</cite> is defined.</p>
+<p>For a set of quadrature functions, the projection is computed on the
+union of the domains of the quadrature functions.</p>
+<p>For vectorial functions, the projection is computed component-wise.</p>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeL2Projection</span></code> function allows projecting a set of
+quadrature functions on nodes by minimizing the <span class="math notranslate nohighlight">\(L_{2}\)</span> norm of
+the difference of the projection and the values of the quadrature
+functions.</p>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeL2Projection</span></code> internally function calls successively
+the functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2ProjectionResult</span></code> and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateL2Projection</span></code>. Those functions can be used directly if the
+projection has to be performed several times.</p>
+</section>
+<section id="implicit-gradient-regularization">
+<h3>Implicit gradient regularization<a class="headerlink" href="#implicit-gradient-regularization" title="Link to this heading"></a></h3>
+<p>For a scalar function <span class="math notranslate nohighlight">\(f\)</span>, the implicit gradient regularization
+<span class="math notranslate nohighlight">\(\bar{f}\)</span> is defined as the solution of:</p>
+<div class="math notranslate nohighlight">
+\[\bar{f}-l_{c}^{2}\cdot\Delta\bar{f}=f\]</div>
+<p>where <span class="math notranslate nohighlight">\(l_{c}\)</span> is a characteristic length.</p>
+<p>See <span id="id1">[<a class="reference internal" href="../../index.html#id4" title="R. H. J. Peerlings, R. De Borst, W. a. M. Brekelmans, and J. H. P. De Vree. Gradient enhanced damage for quasi-brittle materials. International Journal for Numerical Methods in Engineering, 39(19):3391–3403, 1996. _eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D. URL: https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D (visited on 2026-01-22), doi:10.1002/(SICI)1097-0207(19961015)39:19&lt;3391::AID-NME7&gt;3.0.CO;2-D.">PDBBDV96</a>]</span> for details.</p>
+<p>For a vectorial function, the implicit gradient regularization is
+computed component-wise.</p>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> function allows
+projecting a set of quadrature functions on nodes by solving the
+previous equation.</p>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeImplicitGradientRegularization</span></code> function internally
+calls successively the functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">createL2Projection</span></code> and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateImplicitGradientRegularization</span></code>. Those functions can be used
+directly if the projection has to be performed several times.</p>
+</section>
+</section>
+<section id="application-programming-interface">
+<h2>Application programming interface<a class="headerlink" href="#application-programming-interface" title="Link to this heading"></a></h2>
+<section id="new-functions-and-methods">
+<h3>New functions and methods<a class="headerlink" href="#new-functions-and-methods" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Version 1.0.1</p></li>
-<li><p>Version 1.0.2</p></li>
-<li><p>Version 1.0.3</p></li>
-<li><p><a class="reference internal" href="release_notes-1.0.4.html#mfem-mgis-release-notes-1-0-4"><span class="std std-ref">Release notes of Version 1.0.4</span></a></p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">getUnknownsAsGridFunction</span></code> has been added to
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">NonLinearEvolutionProblemImplementation</span><span class="o">&lt;</span><span class="nb">true</span><span class="o">&gt;</span></code> and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">NonLinearEvolutionProblemImplementation</span><span class="o">&lt;</span><span class="nb">false</span><span class="o">&gt;</span></code>. See Issue 168
+for details.</p></li>
+<li><p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">update</span></code> allows to update the values for a
+<cite>PartialQuadratureFunction</cite> from the values of a <cite>GridFunction</cite>. See
+Issue 169 for details.</p></li>
 </ul>
+</section>
+<section id="deprecated-functions-and-methods">
+<h3>Deprecated functions and methods<a class="headerlink" href="#deprecated-functions-and-methods" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">getUnknownsAtTheBeginningOfTheTimeStep</span></code> and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">getUnknownsAtTheEndOfTheTimeStep</span></code> are deprecated in favor of
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">getUnknowns</span></code> in <code class="code highlight c++ docutils literal highlight-c++"><span class="n">AbstractNonLinearEvolutionProblem</span></code>,
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">NonLinearEvolutionProblem</span></code>, and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">NonLinearEvolutionProblemImplementationBase</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="issues-fixed">
+<h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Issue 178: Deployment of the <cite>doxygen</cite> documentation</p></li>
+<li><p>Issue 176: Modify <cite>MFEMMGISConfig.cmake.in</cite> to define <cite>TFEL_DIR</cite> and
+<cite>MFrontGenericInterface_DIR</cite> using by default the values passed to
+<cite>cmake</cite> at the configuration stage</p></li>
+<li><p>Issue 175: Update <cite>tests/README.md</cite></p></li>
+<li><p>Issue 169: Add the ability to project a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> to a
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureFunction</span></code>.</p></li>
+<li><p>Issue 168: Add helper methods to wrap the unknowns of a non linear
+evolution problem as <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code>.</p></li>
+<li><p>Issue 167: Allow tensorial external state variables</p></li>
+<li><p>Issue 162: Change the API of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">LinearSolverFactory</span></code></p></li>
+<li><p>Issue 159: [fix] <code class="code highlight c++ docutils literal highlight-c++"><span class="n">upgradeGridFunction</span></code> seems wrong for grid
+functions defined on a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">SubMesh</span></code> ￼ Status: Closed (completed).</p></li>
+<li><p>Issue 152: [post-processing] Add support for projecting ip fields at
+nodes using L2 projection</p></li>
+</ul>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="release_notes-1.0.4.html" class="btn btn-neutral float-left" title="Release notes of Version 1.0.4" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="release_notes.html" class="btn btn-neutral float-left" title="Release notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../tests/unit_tests.html" class="btn btn-neutral float-right" title="List of unit tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
