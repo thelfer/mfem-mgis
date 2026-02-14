@@ -26,12 +26,10 @@ namespace mfem_mgis {
 
   //! \brief nonlinear form implementing a uniform imposed pressure
   struct UniformImposedPressureBoundaryCondition::
-      UniformImposedPressureFormIntegratorBase
-      {
+      UniformImposedPressureFormIntegratorBase {
     //! \brief constructor
     UniformImposedPressureFormIntegratorBase()
-        : pressure(0) {
-    }  // end of UniformImposedPressureFormIntegratorBase
+        : pressure(0) {}  // end of UniformImposedPressureFormIntegratorBase
     void setPressure(const real pr) { this->pressure = pr; }
     //! \brief destructor
     virtual ~UniformImposedPressureFormIntegratorBase() = default;
@@ -115,7 +113,7 @@ namespace mfem_mgis {
       }
       return ir;
     }  // end of getIntegrationRule
-  }; // end of struct UniformImposedPressureBoundaryCondition
+  };   // end of struct UniformImposedPressureBoundaryCondition
 
   //! \brief nonlinear form implementing a uniform imposed pressure
   struct UniformImposedPressureBoundaryCondition::

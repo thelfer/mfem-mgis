@@ -35,8 +35,15 @@
 namespace mfem_mgis {
 
   template <bool parallel>
-  [[nodiscard]] std::optional<mfem_mgis::GridFunction<parallel>>
-  computePrediction(
+  struct PredictionResult {
+    //! \brief prediction of the increment of the unknowns
+    mfem_mgis::GridFunction<parallel> du;
+    //! \brief initial residual, if available
+    const real initial_residual_norm;
+  };
+
+  template <bool parallel>
+  [[nodiscard]] std::optional<PredictionResult<parallel>> computePrediction(
       mfem_mgis::Context& ctx,
       mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& p,
       LinearSolver& ls,
@@ -85,21 +92,27 @@ namespace mfem_mgis {
     }
     //
     a.FormLinearSystem(edofs_list, du, b, A, X, B);
+    const auto norm = [&B] {
+      if constexpr (parallel) {
+        return std::sqrt(InnerProduct(MPI_COMM_WORLD, B, B));
+      } else {
+        return std::sqrt(InnerProduct(B, B));
+      }
+    }();
     ls.SetOperator(A);
     ls.Mult(B, X);
     // check for convergence
     const auto usesIterativeLinearSolver =
         dynamic_cast<const IterativeSolver*>(&ls) != nullptr;
     if (usesIterativeLinearSolver) {
-      const auto &isolver=
-          static_cast<const mfem::IterativeSolver &>(ls);
+      const auto& isolver = static_cast<const mfem::IterativeSolver&>(ls);
       if (!isolver.GetConverged()) {
         return ctx.registerErrorMessage("linear solver did not converge");
       }
     }
     //
     a.RecoverFEMSolution(X, b, du);
-    return du;
+    return PredictionResult<parallel>{.du = du, .initial_residual_norm = norm};
   }  // end of computePrediction
 
   /*!
@@ -165,24 +178,20 @@ namespace mfem_mgis {
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
-  bool NonLinearEvolutionProblemImplementation<true>::computePrediction(
+  std::optional<real>
+  NonLinearEvolutionProblemImplementation<true>::computePrediction(
       Context& ctx, const real t, const real dt) noexcept {
-#ifdef MFEM_USE_PETSC
-    if (usePETSc()) {
-      return true;
-    }
-#endif /* MFEM_USE_PETSC */
     if (this->linear_solver.get() == nullptr) {
       return ctx.registerErrorMessage("linear solver not initialized");
     }
-    const auto odu = ::mfem_mgis::computePrediction<true>(
+    const auto oresult = ::mfem_mgis::computePrediction<true>(
         ctx, *this, *(this->linear_solver), t, dt);
-    if (isInvalid(odu)) {
-      return false;
+    if (isInvalid(oresult)) {
+      return {};
     }
     this->u1 = this->u0;
-    this->u1 += *odu;
-    return true;
+    this->u1 += oresult->du;
+    return oresult->initial_residual_norm;
   }  // end of computePrediction
 
   void NonLinearEvolutionProblemImplementation<true>::Mult(
@@ -338,24 +347,20 @@ namespace mfem_mgis {
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
-  bool NonLinearEvolutionProblemImplementation<false>::computePrediction(
+  std::optional<real>
+  NonLinearEvolutionProblemImplementation<false>::computePrediction(
       Context& ctx, const real t, const real dt) noexcept {
-#ifdef MFEM_USE_PETSC
-    if (usePETSc()) {
-      return true;
-    }
-#endif /* MFEM_USE_PETSC */
     if (this->linear_solver.get() == nullptr) {
       return ctx.registerErrorMessage("linear solver not initialized");
     }
-    const auto odu = ::mfem_mgis::computePrediction<false>(
+    const auto oresult = ::mfem_mgis::computePrediction<false>(
         ctx, *this, *(this->linear_solver), t, dt);
-    if (isInvalid(odu)) {
-      return false;
+    if (isInvalid(oresult)) {
+      return {};
     }
     this->u1 = this->u0;
-    this->u1 += *odu;
-    return true;
+    this->u1 += oresult->du;
+    return oresult->initial_residual_norm;
   }  // end of computePrediction
 
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(

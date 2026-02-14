@@ -28,8 +28,7 @@ namespace mfem_mgis {
       UniformHeatSourceFormIntegratorBase {
     //! \brief constructor
     UniformHeatSourceFormIntegratorBase()
-        : heat_source(0) {
-    }  // end of UniformHeatSourceFormIntegratorBase
+        : heat_source(0) {}  // end of UniformHeatSourceFormIntegratorBase
     void setHeatSource(const real pr) { this->heat_source = pr; }
     //! \brief destructor
     virtual ~UniformHeatSourceFormIntegratorBase() = default;
@@ -142,7 +141,7 @@ namespace mfem_mgis {
       }
       return ir;
     }  // end of getIntegrationRule
-  };  // end of UniformHeatSourceNonlinearFormIntegrator
+  };   // end of UniformHeatSourceNonlinearFormIntegrator
 
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
       AbstractNonLinearEvolutionProblem &p, const Parameters &params)

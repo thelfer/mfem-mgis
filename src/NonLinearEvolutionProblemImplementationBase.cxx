@@ -340,7 +340,8 @@ namespace mfem_mgis {
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     NonLinearResolutionOutput output;
-    if (!this->computePrediction(ctx, t, dt)) {
+    const auto onorm = this->computePrediction(ctx, t, dt);
+    if (isInvalid(onorm)) {
       output.status = false;
       return output;
     }
@@ -360,9 +361,14 @@ namespace mfem_mgis {
       raise("Support for PETSc is deactivated");
 #endif /* MFEM_USE_PETSC */
     } else {
+      if (!this->solver->setReferenceResidualNorm(ctx, *onorm)) {
+        output.status = false;
+        return output;
+      }
       this->solver->Mult(this->u0, this->u1);
       fill_output(*(this->solver));
       output.initial_residual_norm = this->solver->GetInitialNorm();
+      this->solver->unsetReferenceResidualNorm();
     }
     return output;
   }  // end of solve

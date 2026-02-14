@@ -134,7 +134,7 @@ namespace mfem_mgis {
   const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
   NonLinearEvolutionProblem::getDirichletBoundaryConditions() noexcept {
     return this->pimpl->getDirichletBoundaryConditions();
-  } // end of getDirichletBoundaryConditions
+  }  // end of getDirichletBoundaryConditions
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
@@ -158,7 +158,7 @@ namespace mfem_mgis {
   NonLinearEvolutionProblem::getLinearizedOperators(
       Context& ctx, const mfem::Vector& U) noexcept {
     return this->pimpl->getLinearizedOperators(ctx, U);
-  } // end of getLinearizedOperators
+  }  // end of getLinearizedOperators
 
   void NonLinearEvolutionProblem::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {

@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
   //
   problem.addBehaviourIntegrator("Mechanics", 1, library, "Elasticity");
   auto &m1 = problem.getMaterial(1);
-  for (auto* ps : {&m1.s0, &m1.s1}) {
+  for (auto *ps : {&m1.s0, &m1.s1}) {
     mgis::behaviour::setMaterialProperty(*ps, "FirstLameCoefficient", 100);
     mgis::behaviour::setMaterialProperty(*ps, "ShearModulus", 75);
     mgis::behaviour::setExternalStateVariable(*ps, "Temperature", 293.15);
