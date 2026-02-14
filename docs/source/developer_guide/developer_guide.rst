@@ -11,7 +11,6 @@ The `doxygen` documentation is available on `this page <https://thelfer.github.i
 .. toctree::
    :maxdepth: 1
 
-   changelog.rst
    benchmark.rst
    contributing_guide.rst
    contributors.rst
