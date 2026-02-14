@@ -8,6 +8,15 @@
 #ifdef MFEM_USE_PETSC
 #include "mfem/linalg/petsc.hpp"
 #endif MFEM_USE_PETSC
+#include "mfem/linalg/sparsemat.hpp"
+#include "mfem/fem/linearform.hpp"
+#include "mfem/fem/bilinearform.hpp"
+#include "mfem/fem/bilininteg.hpp"
+#include "mfem/fem/lininteg.hpp"
+#ifdef MFEM_USE_MPI
+#include "mfem/fem/plinearform.hpp"
+#include "mfem/fem/pbilinearform.hpp"
+#endif /* MFEM_USE_MPI */
 
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameters.hxx"
@@ -24,6 +33,70 @@
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
+
+  template <bool parallel>
+  [[nodiscard]] std::optional<mfem_mgis::GridFunction<parallel>>
+  computePrediction(
+      mfem_mgis::Context& ctx,
+      mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& p,
+      LinearSolver& ls,
+      const real t,
+      const real dt) noexcept {
+    const auto& u0 = p.getUnknowns(mfem_mgis::bts);
+    const auto success = p.integrate(
+        u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+    if (!success) {
+      return ctx.registerErrorMessage("integration failure");
+    }
+    auto operators = p.getLinearizedOperators(ctx, u0);
+    if (isInvalid(operators)) {
+      return {};
+    }
+    auto& fed = p.getFiniteElementDiscretization();
+    auto& fespace = fed.template getFiniteElementSpace<parallel>();
+    //
+    mfem_mgis::GridFunction<parallel> du(&fespace);
+    du = 0.0;
+    auto a = mfem_mgis::BilinearForm<parallel>(&fespace);
+    a.AddDomainIntegrator(operators->K.release());
+    a.Assemble();
+    auto b = mfem_mgis::LinearForm<parallel>(&fespace);
+    b.AddDomainIntegrator(operators->Fi.release());
+    b.Assemble();
+    //
+    auto A = [] {
+      if constexpr (parallel) {
+        return mfem::HypreParMatrix{};
+      } else {
+        return mfem::SparseMatrix{};
+      }
+    }();
+    mfem::Vector B, X;
+    //
+    auto essential_dofs = p.getEssentialDegreesOfFreedom();
+    auto edofs_list = mfem::Array<mfem_mgis::size_type>(essential_dofs.data(),
+                                                        essential_dofs.size());
+    for (const auto& bc : p.getDirichletBoundaryConditions()) {
+      bc->setImposedValuesIncrements(du, t, t + dt);
+    }
+    //
+    a.FormLinearSystem(edofs_list, du, b, A, X, B);
+    ls.SetOperator(A);
+    ls.Mult(B, X);
+    // check for convergence
+    const auto usesIterativeLinearSolver =
+        dynamic_cast<const IterativeSolver*>(&ls) != nullptr;
+    if (usesIterativeLinearSolver) {
+      const auto &isolver=
+          static_cast<const mfem::IterativeSolver &>(ls);
+      if (!isolver.GetConverged()) {
+        return ctx.registerErrorMessage("linear solver did not converge");
+      }
+    }
+    //
+    a.RecoverFEMSolution(X, b, du);
+    return du;
+  }  // end of computePrediction
 
   /*!
    * \brief post-processing defined by an std::function
@@ -87,6 +160,26 @@ namespace mfem_mgis {
       this->AddDomainIntegrator(this->mgis_integrator);
     }
   }  // end of NonLinearEvolutionProblemImplementation
+
+  bool NonLinearEvolutionProblemImplementation<true>::computePrediction(
+      Context& ctx, const real t, const real dt) noexcept {
+#ifdef MFEM_USE_PETSC
+    if (usePETSc()) {
+      return true;
+    }
+#endif /* MFEM_USE_PETSC */
+    if (this->linear_solver.get() == nullptr) {
+      return ctx.registerErrorMessage("linear solver not initialized");
+    }
+    const auto odu = ::mfem_mgis::computePrediction<true>(
+        ctx, *this, *(this->linear_solver), t, dt);
+    if (isInvalid(odu)) {
+      return false;
+    }
+    this->u1 = this->u0;
+    this->u1 += *odu;
+    return true;
+  }  // end of computePrediction
 
   void NonLinearEvolutionProblemImplementation<true>::Mult(
       const mfem::Vector& u, mfem::Vector& r) const {
@@ -240,6 +333,26 @@ namespace mfem_mgis {
       this->AddDomainIntegrator(this->mgis_integrator);
     }
   }  // end of NonLinearEvolutionProblemImplementation
+
+  bool NonLinearEvolutionProblemImplementation<false>::computePrediction(
+      Context& ctx, const real t, const real dt) noexcept {
+#ifdef MFEM_USE_PETSC
+    if (usePETSc()) {
+      return true;
+    }
+#endif /* MFEM_USE_PETSC */
+    if (this->linear_solver.get() == nullptr) {
+      return ctx.registerErrorMessage("linear solver not initialized");
+    }
+    const auto odu = ::mfem_mgis::computePrediction<false>(
+        ctx, *this, *(this->linear_solver), t, dt);
+    if (isInvalid(odu)) {
+      return false;
+    }
+    this->u1 = this->u0;
+    this->u1 += *odu;
+    return true;
+  }  // end of computePrediction
 
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition> bc) {

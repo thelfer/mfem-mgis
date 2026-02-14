@@ -86,6 +86,9 @@ namespace mfem_mgis {
 
    protected:
     //
+    [[nodiscard]] bool computePrediction(Context&,
+                                         const real,
+                                         const real) noexcept override;
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
     //! \brief registred post-processings
@@ -158,6 +161,9 @@ namespace mfem_mgis {
 
    protected:
     //
+    [[nodiscard]] bool computePrediction(Context&,
+                                         const real,
+                                         const real) noexcept override;
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
     //! \brief registred post-processings

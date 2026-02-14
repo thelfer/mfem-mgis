@@ -153,10 +153,13 @@ namespace mfem_mgis {
     virtual void setTimeIncrement(const real);
     /*!
      * \brief compute prediction
+     * \param[in] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void computePrediction(const real, const real);
+    [[nodiscard]] virtual bool computePrediction(Context&,
+                                                 const real,
+                                                 const real) = 0;
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief list of boundary conditions
