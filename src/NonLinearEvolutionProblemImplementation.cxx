@@ -43,8 +43,12 @@ namespace mfem_mgis {
       const real t,
       const real dt) noexcept {
     const auto& u0 = p.getUnknowns(mfem_mgis::bts);
-    const auto success = p.integrate(
+    auto success = p.integrate(
         u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+    if constexpr (parallel) {
+      MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
+                    MPI_COMM_WORLD);
+    }
     if (!success) {
       return ctx.registerErrorMessage("integration failure");
     }
