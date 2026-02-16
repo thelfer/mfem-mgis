@@ -101,15 +101,6 @@ int main(int argc, char** argv) {
     // solving the problem in 1 time step
     auto r = mfem_mgis::unit_tests::solve(problem, parameters, 0, 1, 1);
     const auto& s = problem.getMaterial(1).s1;
-    std::cout << "strain: ";
-    std::copy(s.gradients.begin(), s.gradients.end(),
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << std::endl;
-    std::cout << "stress: ";
-    std::copy(s.thermodynamic_forces.begin(), s.thermodynamic_forces.end(),
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << std::endl;
-
     // save the results curve
     mfem_mgis::unit_tests::saveResults(
         "ImposedPressureTest-" + std::string(parameters.behaviour) + ".txt", r);
