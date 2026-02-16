@@ -113,9 +113,9 @@ namespace mfem_mgis {
     if (!this->reference_residual_norm.has_value()) {
       this->reference_residual_norm = norm;
     }
-    // this data member is not used, but we define it by consistency
+    // this data member is not used, but we define it by
+    // consistency
     this->initial_norm = *(this->reference_residual_norm);
-    //
     const auto norm_goal =
         std::max(rel_tol * (*(this->reference_residual_norm)), abs_tol);
     auto it = size_type{};
