@@ -228,7 +228,8 @@ namespace mfem_mgis {
     v.K[0] = static_cast<int>(it);
     const auto r = mgis::behaviour::integrate(v, this->b);
     if (!((r == 0) || (r == 1))) {
-      std::cerr << "behaviour integration failed: " << error_msg << std::endl;
+      std::cerr << "behaviour integration failed: " << error_msg
+                << "(exit value: " << r << ")" << std::endl;
     }
     return (r == 0) || (r == 1);
   }  // end of BehaviourIntegratorBase::integrate
