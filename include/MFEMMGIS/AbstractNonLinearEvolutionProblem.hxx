@@ -30,13 +30,13 @@ namespace mfem_mgis {
   struct AbstractBoundaryCondition;
   enum struct IntegrationType;
 
-  enum struct PredictionStrategy { NO_PREDICTION, ELASTIC_PREDICTION };
+  enum struct PredictionStrategy { DEFAULT_PREDICTION, ELASTIC_PREDICTION };
 
   /*!
    * \brief prediction policy
    */
   struct [[nodiscard]] PredictionPolicy {
-    PredictionStrategy strategy = PredictionStrategy::NO_PREDICTION;
+    PredictionStrategy strategy = PredictionStrategy::DEFAULT_PREDICTION;
   }; // end of PredictionPolicy
 
   /*!
