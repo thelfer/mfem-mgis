@@ -114,77 +114,77 @@ template <bool parallel>
 }  // end of computePrediction
 
 int main(int argc, char *argv[]) {
-    //
-    mfem_mgis::initialize(argc, argv);
-    // parse command-line options.
-    const char *mesh_file = nullptr;
-    const char *library = nullptr;
-    int order = 1;
-    int parallel = 0;
+  //
+  mfem_mgis::initialize(argc, argv);
+  // parse command-line options.
+  const char *mesh_file = nullptr;
+  const char *library = nullptr;
+  int order = 1;
+  int parallel = 0;
 
-    mfem::OptionsParser args(argc, argv);
-    args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
-    args.AddOption(&library, "-l", "--library",
-                   "library containing the behaviour.");
-    args.AddOption(&order, "-o", "--order",
-                   "Finite element order (polynomial degree).");
-    args.AddOption(&parallel, "-p", "--parallel",
-                   "choose between serial (-p 0) and parallel (-p 1)");
-    args.Parse();
-    if (!args.Good()) {
-      args.PrintUsage(mfem_mgis::getOutputStream());
-      return EXIT_FAILURE;
-    }
-    if (mesh_file == nullptr) {
-      mfem_mgis::getOutputStream() << "no mesh file specified\n";
-      args.PrintUsage(mfem_mgis::getOutputStream());
-      return EXIT_FAILURE;
-    }
-    if (library == nullptr) {
-      mfem_mgis::getOutputStream() << "no library specified\n";
-      args.PrintUsage(mfem_mgis::getOutputStream());
-      return EXIT_FAILURE;
-    }
-    args.PrintOptions(mfem_mgis::getOutputStream());
-    //
-    auto ctx = mfem_mgis::Context{};
-    mfem_mgis::NonLinearEvolutionProblem problem(
-        {{"MeshFileName", mesh_file},
-         {"FiniteElementFamily", "H1"},
-         {"FiniteElementOrder", order},
-         {"UnknownsSize", 3},
-         {"NumberOfUniformRefinements", 2},  // faster for testing
-         //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-         {"Hypothesis", "Tridimensional"},
-         {"Parallel", bool(parallel)}});
-    //
-    problem.addBehaviourIntegrator("Mechanics", 1, library, "Elasticity");
-    auto &m1 = problem.getMaterial(1);
-    for (auto *ps : {&m1.s0, &m1.s1}) {
-      mgis::behaviour::setMaterialProperty(*ps, "FirstLameCoefficient", 100e9);
-      mgis::behaviour::setMaterialProperty(*ps, "ShearModulus", 75e9);
-      mgis::behaviour::setExternalStateVariable(*ps, "Temperature", 293.15);
-    }
-    problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 1, 1));
-    problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 2, 2));
-    problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 5, 0));
-    problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 3, 0,
-            [](const auto t) noexcept { return 3e-2 * t; }));
-    //
-    if (parallel) {
+  mfem::OptionsParser args(argc, argv);
+  args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
+  args.AddOption(&library, "-l", "--library",
+                 "library containing the behaviour.");
+  args.AddOption(&order, "-o", "--order",
+                 "Finite element order (polynomial degree).");
+  args.AddOption(&parallel, "-p", "--parallel",
+                 "choose between serial (-p 0) and parallel (-p 1)");
+  args.Parse();
+  if (!args.Good()) {
+    args.PrintUsage(mfem_mgis::getOutputStream());
+    return EXIT_FAILURE;
+  }
+  if (mesh_file == nullptr) {
+    mfem_mgis::getOutputStream() << "no mesh file specified\n";
+    args.PrintUsage(mfem_mgis::getOutputStream());
+    return EXIT_FAILURE;
+  }
+  if (library == nullptr) {
+    mfem_mgis::getOutputStream() << "no library specified\n";
+    args.PrintUsage(mfem_mgis::getOutputStream());
+    return EXIT_FAILURE;
+  }
+  args.PrintOptions(mfem_mgis::getOutputStream());
+  //
+  auto ctx = mfem_mgis::Context{};
+  mfem_mgis::NonLinearEvolutionProblem problem(
+      {{"MeshFileName", mesh_file},
+       {"FiniteElementFamily", "H1"},
+       {"FiniteElementOrder", order},
+       {"UnknownsSize", 3},
+       {"NumberOfUniformRefinements", 2},  // faster for testing
+       //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
+       {"Hypothesis", "Tridimensional"},
+       {"Parallel", bool(parallel)}});
+  //
+  problem.addBehaviourIntegrator("Mechanics", 1, library, "Elasticity");
+  auto &m1 = problem.getMaterial(1);
+  for (auto *ps : {&m1.s0, &m1.s1}) {
+    mgis::behaviour::setMaterialProperty(*ps, "FirstLameCoefficient", 100e9);
+    mgis::behaviour::setMaterialProperty(*ps, "ShearModulus", 75e9);
+    mgis::behaviour::setExternalStateVariable(*ps, "Temperature", 293.15);
+  }
+  problem.addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          problem.getFiniteElementDiscretizationPointer(), 1, 1));
+  problem.addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          problem.getFiniteElementDiscretizationPointer(), 2, 2));
+  problem.addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          problem.getFiniteElementDiscretizationPointer(), 5, 0));
+  problem.addBoundaryCondition(
+      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          problem.getFiniteElementDiscretizationPointer(), 3, 0,
+          [](const auto t) noexcept { return 3e-2 * t; }));
+  //
+  if (parallel) {
 #ifdef MFEM_USE_MPI
-      auto du = computePrediction<true>(ctx, problem);
-      export_prediction<true>(problem, du);
+    auto du = computePrediction<true>(ctx, problem);
+    export_prediction<true>(problem, du);
 #else  /* MFEM_USE_MPI */
-      return EXIT_FAILURE;
+    return EXIT_FAILURE;
 #endif /* MFEM_USE_MPI */
   } else {
     auto du = computePrediction<false>(ctx, problem);

@@ -345,7 +345,8 @@ namespace mfem_mgis {
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     NonLinearResolutionOutput output;
-    if (this->prediction_policy.strategy == PredictionStrategy::ELASTIC_PREDICTION) {
+    if (this->prediction_policy.strategy ==
+        PredictionStrategy::ELASTIC_PREDICTION) {
       const auto onorm = this->computePrediction(ctx, t, dt);
       if (isInvalid(onorm)) {
         output.status = false;
