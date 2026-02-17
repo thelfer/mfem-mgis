@@ -131,6 +131,7 @@ namespace mfem_mgis {
         std::unique_ptr<DirichletBoundaryCondition>>&
     getDirichletBoundaryConditions() noexcept override;
     void setup(const real, const real) override;
+    void setPredictionPolicy(const PredictionPolicy &) noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(const real,
                                                   const real) override;
     void revert() override;
@@ -143,6 +144,8 @@ namespace mfem_mgis {
      * \brief declare the degrees of freedom handled by Dirichlet boundary
      * conditions.
      * \param[in] dofs: list of degrees of freedom
+     *
+     * \note copy is required to create a mutable mfem::Array
      */
     virtual void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) = 0;
@@ -193,9 +196,10 @@ namespace mfem_mgis {
     MultiMaterialNonLinearIntegrator* const mgis_integrator = nullptr;
     //! \brief registred boundary conditions
     std::vector<std::unique_ptr<AbstractBoundaryCondition>> boundary_conditions;
+    //! \brief prediction policy
+    PredictionPolicy prediction_policy;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
-
   };  // end of struct NonLinearEvolutionProblemImplementationBase
 
 }  // end of namespace mfem_mgis

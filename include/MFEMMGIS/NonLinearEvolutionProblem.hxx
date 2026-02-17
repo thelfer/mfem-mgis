@@ -92,6 +92,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool setLinearSolver(Context &,
                                        LinearSolverHandler) noexcept override;
     void setLinearSolver(std::string_view, const Parameters &) override;
+    void setPredictionPolicy(const PredictionPolicy &) noexcept override;
     void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
     void addBoundaryCondition(

@@ -131,6 +131,11 @@ namespace mfem_mgis {
     this->pimpl->setLinearSolver(n, params);
   }  // end of setLinearSolver
 
+  void NonLinearEvolutionProblem::setPredictionPolicy(
+      const PredictionPolicy& p) noexcept {
+    this->pimpl->setPredictionPolicy(p);
+  }  // end of setPredictionPolicy
+
   const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
   NonLinearEvolutionProblem::getDirichletBoundaryConditions() noexcept {
     return this->pimpl->getDirichletBoundaryConditions();

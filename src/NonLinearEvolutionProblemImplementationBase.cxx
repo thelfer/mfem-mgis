@@ -248,12 +248,12 @@ namespace mfem_mgis {
   std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getEssentialDegreesOfFreedom()
       const {
-    auto ddofs = std::vector<mfem_mgis::size_type>{};
+    auto all_dofs = std::vector<mfem_mgis::size_type>{};
     for (const auto& bc : this->dirichlet_boundary_conditions) {
       auto dofs = bc->getHandledDegreesOfFreedom();
-      ddofs.insert(ddofs.end(), dofs.begin(), dofs.end());
+      all_dofs.insert(all_dofs.end(), dofs.begin(), dofs.end());
     }
-    return ddofs;
+    return all_dofs;
   }  // end of getEssentialDegreesOfFreedom
 
   [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
@@ -332,6 +332,11 @@ namespace mfem_mgis {
     return this->mgis_integrator->getLinearizedOperators(U);
   }  // end of getLinearizedOperators
 
+  void NonLinearEvolutionProblemImplementationBase::setPredictionPolicy(
+      const PredictionPolicy& p) noexcept {
+    this->prediction_policy = p;
+  }  // end of setPredictionPolicy
+
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {
 #pragma message("local context")
@@ -340,10 +345,18 @@ namespace mfem_mgis {
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     NonLinearResolutionOutput output;
-    const auto onorm = this->computePrediction(ctx, t, dt);
-    if (isInvalid(onorm)) {
-      output.status = false;
-      return output;
+    if (this->prediction_policy.strategy == PredictionStrategy::ELASTIC_PREDICTION) {
+      const auto onorm = this->computePrediction(ctx, t, dt);
+      if (isInvalid(onorm)) {
+        output.status = false;
+        return output;
+      }
+      if (!usePETSc()) {
+        if (!this->solver->setReferenceResidualNorm(ctx, *onorm)) {
+          output.status = false;
+          return output;
+        }
+      }
     }
     auto fill_output = [&output](auto& s) {
       output.status = s.GetConverged();
@@ -361,10 +374,6 @@ namespace mfem_mgis {
       raise("Support for PETSc is deactivated");
 #endif /* MFEM_USE_PETSC */
     } else {
-      if (!this->solver->setReferenceResidualNorm(ctx, *onorm)) {
-        output.status = false;
-        return output;
-      }
       this->solver->Mult(this->u0, this->u1);
       fill_output(*(this->solver));
       output.initial_residual_norm = this->solver->GetInitialNorm();
