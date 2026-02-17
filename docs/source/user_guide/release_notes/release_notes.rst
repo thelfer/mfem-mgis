@@ -8,3 +8,5 @@ Release notes
    :maxdepth: 1
 
    release_notes-1.1.rst
+   release_notes-1.0.4.rst
+   release_notes-1.0.0.rst
