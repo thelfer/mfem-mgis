@@ -137,9 +137,14 @@ namespace mfem_mgis {
   }  // end of setPredictionPolicy
 
   const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
-  NonLinearEvolutionProblem::getDirichletBoundaryConditions() noexcept {
+  NonLinearEvolutionProblem::getDirichletBoundaryConditions() const noexcept {
     return this->pimpl->getDirichletBoundaryConditions();
   }  // end of getDirichletBoundaryConditions
+
+  const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
+  NonLinearEvolutionProblem::getBoundaryConditions() const noexcept {
+    return this->pimpl->getBoundaryConditions();
+  }  // end of getBoundaryConditions
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
@@ -203,6 +208,11 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<AbstractBoundaryCondition> f) {
     this->pimpl->addBoundaryCondition(std::move(f));
+  }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblem::addBoundaryCondition(
+      Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    return this->pimpl->addBoundaryCondition(ctx, std::move(f));
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblem::addBoundaryCondition(

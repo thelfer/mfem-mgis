@@ -56,17 +56,25 @@ namespace mfem_mgis {
         std::function<real(const real)>);
     //
 #ifdef MFEM_USE_MPI
-    void addNonlinearFormIntegrator(NonlinearForm<true>&) override;
+    [[nodiscard]] bool addNonlinearFormIntegrator(
+        Context&, NonlinearForm<true>&, const mfem::Vector&) noexcept override;
 #endif /* MFEM_USE_MPI */
-    void addNonlinearFormIntegrator(NonlinearForm<false>&) override;
+    [[nodiscard]] bool addNonlinearFormIntegrator(
+        Context&, NonlinearForm<false>&, const mfem::Vector&) noexcept override;
 #ifdef MFEM_USE_MPI
-    void addLinearFormIntegrator(LinearForm<true>&,
-                                 const real,
-                                 const real) override;
+    [[nodiscard]] bool addLinearFormIntegrators(Context&,
+                                                BilinearForm<true>&,
+                                                LinearForm<true>&,
+                                                const mfem::Vector&,
+                                                const real,
+                                                const real) noexcept override;
 #endif /* MFEM_USE_MPI */
-    void addLinearFormIntegrator(LinearForm<false>&,
-                                 const real,
-                                 const real) override;
+    [[nodiscard]] bool addLinearFormIntegrators(Context&,
+                                                BilinearForm<false>&,
+                                                LinearForm<false>&,
+                                                const mfem::Vector&,
+                                                const real,
+                                                const real) noexcept override;
     void setup(const real, const real) override;
     //! \brief destructor
     virtual ~UniformHeatSourceBoundaryCondition();

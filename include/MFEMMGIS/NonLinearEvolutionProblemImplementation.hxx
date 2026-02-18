@@ -60,8 +60,10 @@ namespace mfem_mgis {
     void Mult(const mfem::Vector&, mfem::Vector&) const override;
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
-    void addBoundaryCondition(
+    [[deprecated]] void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
@@ -133,8 +135,10 @@ namespace mfem_mgis {
     //
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
-    void addBoundaryCondition(
+    [[deprecated]] void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
