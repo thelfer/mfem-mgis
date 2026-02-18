@@ -338,10 +338,21 @@ namespace mfem_mgis {
     return this->mgis_integrator->getLinearizedOperators(U);
   }  // end of getLinearizedOperators
 
+  [[nodiscard]] bool NonLinearEvolutionProblemImplementationBase::
+      areStiffnessOperatorsFromLastIterationAvailable() const noexcept {
+    return this->hasStiffnessOperatorsBeenComputed;
+  }  // end of areStiffnessOperatorsFromLastIterationAvailable
+
   void NonLinearEvolutionProblemImplementationBase::setPredictionPolicy(
       const PredictionPolicy& p) noexcept {
     this->prediction_policy = p;
   }  // end of setPredictionPolicy
+
+  PredictionPolicy
+  NonLinearEvolutionProblemImplementationBase::getPredictionPolicy()
+      const noexcept {
+    return this->prediction_policy;
+  }  // end of getPredictionPolicy
 
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {
@@ -351,8 +362,8 @@ namespace mfem_mgis {
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     NonLinearResolutionOutput output;
-    if (this->prediction_policy.strategy ==
-        PredictionStrategy::ELASTIC_PREDICTION) {
+    if (this->prediction_policy.strategy !=
+        PredictionStrategy::DEFAULT_PREDICTION) {
       const auto onorm = this->computePrediction(ctx, t, dt);
       if (isInvalid(onorm)) {
         output.status = false;

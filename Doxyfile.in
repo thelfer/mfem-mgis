@@ -691,7 +691,7 @@ LAYOUT_FILE            =
 # LATEX_BIB_STYLE. To use this feature you need bibtex and perl available in the
 # search path. See also \cite for info how to create references.
 
-CITE_BIB_FILES         =
+CITE_BIB_FILES         = @PROJECT_SOURCE_DIR@/docs/source/bibliography.bib
 
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages
@@ -1454,7 +1454,7 @@ MATHJAX_EXTENSIONS     =
 # example see the documentation.
 # This tag requires that the tag USE_MATHJAX is set to YES.
 
-MATHJAX_CODEFILE       =
+MATHJAX_CODEFILE       =  @PROJECT_SOURCE_DIR@/docs/doxygen/mathjax-extracommands.js
 
 # When the SEARCHENGINE tag is enabled doxygen will generate a search box for
 # the HTML output. The underlying search engine uses javascript and DHTML and

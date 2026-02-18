@@ -44,6 +44,36 @@ namespace mfem_mgis {
     const real initial_residual_norm;
   };
 
+  [[nodiscard]] IntegrationType convertToIntegrationType(
+      const PredictionOperator o) noexcept {
+    if (o == PredictionOperator::ELASTIC) {
+      return IntegrationType::PREDICTION_ELASTIC_OPERATOR;
+    } else if (o == PredictionOperator::SECANT) {
+      return IntegrationType::PREDICTION_SECANT_OPERATOR;
+    } else if (o == PredictionOperator::TANGENT) {
+      return IntegrationType::PREDICTION_TANGENT_OPERATOR;
+    }
+    abort(
+        "convertToIntegrationType: internal error, "
+        "unsupported prediction operator");
+  }  // end of convertToIntegrationType
+
+  [[nodiscard]] IntegrationType convertToIntegrationType(
+      const IntegrationOperator o) noexcept {
+    if (o == IntegrationOperator::ELASTIC) {
+      return IntegrationType::INTEGRATION_ELASTIC_OPERATOR;
+    } else if (o == IntegrationOperator::SECANT) {
+      return IntegrationType::INTEGRATION_SECANT_OPERATOR;
+    } else if (o == IntegrationOperator::TANGENT) {
+      return IntegrationType::INTEGRATION_TANGENT_OPERATOR;
+    } else if (o == IntegrationOperator::CONSISTENT_TANGENT) {
+      return IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR;
+    }
+    abort(
+        "convertToIntegrationType: internal error, "
+        "unsupported integration operator");
+  }  // end of convertToIntegrationType
+
   template <bool parallel>
   [[nodiscard]] std::optional<PredictionResult<parallel>> computePrediction(
       mfem_mgis::Context& ctx,
@@ -54,8 +84,22 @@ namespace mfem_mgis {
     auto& fed = p.getFiniteElementDiscretization();
     auto& fespace = fed.template getFiniteElementSpace<parallel>();
     const auto& u0 = p.getUnknowns(mfem_mgis::bts);
-    auto success = p.integrate(
-        u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+    auto success = [&p, &u0] {
+      const auto policy = p.getPredictionPolicy();
+      if (policy.strategy ==
+          PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION) {
+        if (policy.prediction_operator ==
+            PredictionOperator::LAST_ITERATE_OPERATOR) {
+          return p.integrate(
+              u0, convertToIntegrationType(PredictionOperator::ELASTIC));
+        } else {
+          return p.integrate(
+              u0, convertToIntegrationType(policy.prediction_operator));
+        }
+      }
+      return p.integrate(u0,
+                         convertToIntegrationType(policy.integration_operator));
+    }();
     if constexpr (parallel) {
       MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
                     fespace.GetComm());
@@ -63,6 +107,7 @@ namespace mfem_mgis {
     if (!success) {
       return ctx.registerErrorMessage("integration failure");
     }
+    //
     auto operators = p.getLinearizedOperators(ctx, u0);
     if (isInvalid(operators)) {
       return {};
@@ -345,6 +390,10 @@ namespace mfem_mgis {
     }
     MPI_Allreduce(MPI_IN_PLACE, &noerror, 1, MPI_C_BOOL, MPI_LAND,
                   MPI_COMM_WORLD);
+    if ((!noerror) &&
+        (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR)) {
+      this->hasStiffnessOperatorsBeenComputed = true;
+    }
     return noerror;
   }  // end of integrate
 
@@ -519,6 +568,9 @@ namespace mfem_mgis {
       if (!this->mgis_integrator->integrate(e, tr, ue, it)) {
         return false;
       }
+    }
+    if (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR) {
+      this->hasStiffnessOperatorsBeenComputed = true;
     }
     return true;
   }  // end of integrate

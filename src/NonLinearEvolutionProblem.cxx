@@ -126,6 +126,12 @@ namespace mfem_mgis {
     return this->pimpl->setLinearSolver(ctx, std::move(s));
   }  // end of setLinearSolver
 
+  bool
+  NonLinearEvolutionProblem::areStiffnessOperatorsFromLastIterationAvailable()
+      const noexcept {
+    return this->pimpl->areStiffnessOperatorsFromLastIterationAvailable();
+  }  // end of areStiffnessOperatorsFromLastIterationAvailable
+
   void NonLinearEvolutionProblem::setLinearSolver(std::string_view n,
                                                   const Parameters& params) {
     this->pimpl->setLinearSolver(n, params);
@@ -135,6 +141,11 @@ namespace mfem_mgis {
       const PredictionPolicy& p) noexcept {
     this->pimpl->setPredictionPolicy(p);
   }  // end of setPredictionPolicy
+
+  PredictionPolicy NonLinearEvolutionProblem::getPredictionPolicy()
+      const noexcept {
+    return this->pimpl->getPredictionPolicy();
+  }  // end of getPredictionPolicy
 
   const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
   NonLinearEvolutionProblem::getDirichletBoundaryConditions() const noexcept {
