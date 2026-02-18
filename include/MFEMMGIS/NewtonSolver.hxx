@@ -9,6 +9,7 @@
 #define LIB_MFEM_MGIS_NEWTONSOLVER_HXX
 
 #include <vector>
+#include <optional>
 #include <functional>
 #include "mfem/linalg/solvers.hpp"
 #include "MFEMMGIS/Config.hxx"
@@ -53,10 +54,17 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      */
     void computeResidual(mfem::Vector &, const mfem::Vector &) const;
+    /*!
+     * \brief set the reference value for the norm of the residual.
+     */
+    [[nodiscard]] virtual bool setReferenceResidualNorm(Context &,
+                                                        const real) noexcept;
+    //! \brief unset the reference residual norm
+    virtual void unsetReferenceResidualNorm() noexcept;
     //! \return the jacobian of the system
     mfem::Operator &getJacobian(const mfem::Vector &) const;
     //! \brief get initial norm
-    virtual real GetInitialNorm() const;
+    [[nodiscard]] virtual real GetInitialNorm() const;
     //
     [[noreturn]] void SetPreconditioner(Solver &) override;
     [[noreturn]] void SetOperator(const mfem::Operator &) override;
@@ -76,8 +84,14 @@ namespace mfem_mgis {
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
-    //! \brief norm of the first estimation of the residual
-    mutable real initial_norm;
+    /*!
+     * \brief data containing the reference value for the norm of the residual.
+     *
+     * \note This value can be set before calling `Mult` when a prediction of
+     * the solution is made. If this value is not set, it is set to the value of
+     * the residual at the first iteration.
+     */
+    mutable std::optional<real> reference_residual_norm;
   };  // end of struct NewtonSolver
 
 }  // end of namespace mfem_mgis

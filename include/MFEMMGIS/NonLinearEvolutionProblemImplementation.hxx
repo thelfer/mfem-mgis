@@ -68,7 +68,8 @@ namespace mfem_mgis {
      */
     virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
     //
-    bool integrate(const mfem::Vector&, const IntegrationType) override;
+    [[nodiscard]] bool integrate(const mfem::Vector&,
+                                 const IntegrationType) override;
     [[nodiscard]] bool setLinearSolver(Context&,
                                        LinearSolverHandler) noexcept override;
     void setLinearSolver(std::string_view, const Parameters&) override;
@@ -85,6 +86,8 @@ namespace mfem_mgis {
 
    protected:
     //
+    [[nodiscard]] std::optional<real> computePrediction(
+        Context&, const real, const real) noexcept override;
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
     //! \brief registred post-processings
@@ -141,7 +144,8 @@ namespace mfem_mgis {
     [[nodiscard]] bool setLinearSolver(Context&,
                                        LinearSolverHandler) noexcept override;
     void setLinearSolver(std::string_view, const Parameters&) override;
-    bool integrate(const mfem::Vector&, const IntegrationType) override;
+    [[nodiscard]] bool integrate(const mfem::Vector&,
+                                 const IntegrationType) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
@@ -156,6 +160,8 @@ namespace mfem_mgis {
 
    protected:
     //
+    [[nodiscard]] std::optional<real> computePrediction(
+        Context&, const real, const real) noexcept override;
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
     //! \brief registred post-processings

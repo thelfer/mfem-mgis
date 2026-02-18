@@ -28,7 +28,6 @@ namespace mfem {
   class LinearForm;
   class BilinearForm;
   class NonlinearForm;
-  class NonlinearFormIntegrator;
   class ParGridFunction;
   class ParMesh;
   class ParSubMesh;
@@ -36,6 +35,9 @@ namespace mfem {
   class ParNonlinearForm;
   class ParLinearForm;
   class ParBilinearForm;
+  class LinearFormIntegrator;
+  class BilinearFormIntegrator;
+  class NonlinearFormIntegrator;
   class Solver;
   class IterativeSolver;
   class IntegrationPoint;
@@ -107,10 +109,18 @@ namespace mfem_mgis {
   using NonlinearForm =
       std::conditional_t<parallel, mfem::ParNonlinearForm, mfem::NonlinearForm>;
   /*!
-   * \brief a simple alias used to select the `MFEM` class representing a
-   * non linear form integrator depending if a parallel computation is
-   * considered or not.
-   * \tparam parallel: flag stating if a parallel computation is considered.
+   * \brief a simple alias used to the `MFEM` class representing a
+   * linear form integrator.
+   */
+  using LinearFormIntegrator = mfem::LinearFormIntegrator;
+  /*!
+   * \brief a simple alias used to the `MFEM` class representing a
+   * bilinear form integrator.
+   */
+  using BilinearFormIntegrator = mfem::BilinearFormIntegrator;
+  /*!
+   * \brief a simple alias to the `MFEM` class representing a
+   * non linear form integrator.
    */
   using NonlinearFormIntegrator = mfem::NonlinearFormIntegrator;
   /*!

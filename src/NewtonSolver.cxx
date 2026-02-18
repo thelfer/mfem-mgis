@@ -66,8 +66,25 @@ namespace mfem_mgis {
   }  // end of setLinearSolver
 
   real NewtonSolver::GetInitialNorm() const {
-    return this->initial_norm;
+    if (this->reference_residual_norm.has_value()) {
+      return *(this->reference_residual_norm);
+    }
+    return real{};
   }  // end of GetInitialNorm
+
+  bool NewtonSolver::setReferenceResidualNorm(Context &ctx,
+                                              const real v) noexcept {
+    if (v <= 0) {
+      return ctx.registerErrorMessage(
+          "negative value given for the reference norm of the residual");
+    }
+    this->reference_residual_norm = v;
+    return true;
+  }  // end of setReferenceResidualNorm
+
+  void NewtonSolver::unsetReferenceResidualNorm() noexcept {
+    this->reference_residual_norm.reset();
+  }  // end of unsetReferenceResidualNorm
 
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     CatchTimeSection("NS::Mult");
@@ -92,12 +109,16 @@ namespace mfem_mgis {
       this->converged = 0;
       return;
     }
-    this->initial_norm = updateResidual();
-
-    //
-    const auto norm_goal = std::max(rel_tol * (this->initial_norm), abs_tol);
+    auto norm = updateResidual();
+    if (!this->reference_residual_norm.has_value()) {
+      this->reference_residual_norm = norm;
+    }
+    // this data member is not used, but we define it by
+    // consistency
+    this->initial_norm = *(this->reference_residual_norm);
+    const auto norm_goal =
+        std::max(rel_tol * (*(this->reference_residual_norm)), abs_tol);
     auto it = size_type{};
-    auto norm = this->initial_norm;
 
     while (true) {
       CatchTimeSection("NS::Mult::WhileLoop");
@@ -108,7 +129,8 @@ namespace mfem_mgis {
                     << " : ||r|| = " << norm;
         if (it > 0) {
           if (mfem_mgis::getMPIrank() == 0)
-            mfem::out << ", ||r||/||r_0|| = " << norm / (this->initial_norm);
+            mfem::out << ", ||r||/||r_0|| = "
+                      << norm / (*(this->reference_residual_norm));
         }
         if (mfem_mgis::getMPIrank() == 0) mfem::out << '\n';
       }
