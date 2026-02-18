@@ -12,8 +12,9 @@ User guide
    behaviour_integrators.rst
    boundary_conditions.rst
    post_processings.rst  
-   partial_quadrature_functions/partial_quadrature_functions.rst
    mechanical_postprocessings.rst  
+   nonlinear_algorithms.rst
+   partial_quadrature_functions/partial_quadrature_functions.rst
    glossary.rst  
    mesh.rst  
    release_notes/release_notes.rst
