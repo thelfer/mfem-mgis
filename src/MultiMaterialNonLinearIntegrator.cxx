@@ -333,7 +333,7 @@ namespace mfem_mgis {
       return LinearizedOperators{
           .K = std::make_unique<StiffnessMatrixIntegrator>(
               fespace, u, this->behaviour_integrators),
-          .Fi = std::make_unique<InternalForcesIntegrator>(
+          .mFi = std::make_unique<InternalForcesIntegrator>(
               fespace, u, this->behaviour_integrators)};
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
@@ -341,10 +341,11 @@ namespace mfem_mgis {
     }
     const auto& fespace =
         this->fe_discretization->getFiniteElementSpace<false>();
-    return LinearizedOperators{.K = std::make_unique<StiffnessMatrixIntegrator>(
-                                   fespace, u, this->behaviour_integrators),
-                               .Fi = std::make_unique<InternalForcesIntegrator>(
-                                   fespace, u, this->behaviour_integrators)};
+    return LinearizedOperators{
+        .K = std::make_unique<StiffnessMatrixIntegrator>(
+            fespace, u, this->behaviour_integrators),
+        .mFi = std::make_unique<InternalForcesIntegrator>(
+            fespace, u, this->behaviour_integrators)};
   }  // end of getLinearizedOperators
 
   MultiMaterialNonLinearIntegrator::~MultiMaterialNonLinearIntegrator() =

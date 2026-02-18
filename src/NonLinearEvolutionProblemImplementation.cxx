@@ -72,9 +72,18 @@ namespace mfem_mgis {
     *du = 0.0;
     auto a = mfem_mgis::BilinearForm<parallel>(&fespace);
     a.AddDomainIntegrator(operators->K.release());
-    a.Assemble();
     auto b = mfem_mgis::LinearForm<parallel>(&fespace);
-    b.AddDomainIntegrator(operators->Fi.release());
+    if (operators->mFi.get() != nullptr) {
+      b.AddDomainIntegrator(operators->mFi.release());
+    }
+    //
+    for (const auto& bc : p.getBoundaryConditions()) {
+      if (!bc->addLinearFormIntegrators(ctx, a, b, u0, t, dt)) {
+        return {};
+      }
+    }
+    //
+    a.Assemble();
     b.Assemble();
     //
     auto A = [] {
@@ -100,12 +109,6 @@ namespace mfem_mgis {
     } else {
       for (const auto& bc : p.getDirichletBoundaryConditions()) {
         bc->setImposedValuesIncrements(*du, t, t + dt);
-      }
-    }
-    //
-    for (const auto& bc : p.getBoundaryConditions()) {
-      if (!bc->addLinearFormIntegrators(ctx, a, b, u0, t, dt)) {
-        return {};
       }
     }
     //

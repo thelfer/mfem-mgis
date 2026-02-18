@@ -45,8 +45,8 @@ namespace mfem_mgis {
   struct [[nodiscard]] LinearizedOperators {
     //! \brief stiffness matrix
     std::unique_ptr<BilinearFormIntegrator> K;
-    //! \brief inner forces
-    std::unique_ptr<LinearFormIntegrator> Fi;
+    //! \brief opposite of the inner forces
+    std::unique_ptr<LinearFormIntegrator> mFi;
   };
 
   /*!
