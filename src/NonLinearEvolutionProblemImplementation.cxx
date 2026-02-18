@@ -103,6 +103,12 @@ namespace mfem_mgis {
       }
     }
     //
+    for (const auto& bc : p.getBoundaryConditions()) {
+      if (!bc->addLinearFormIntegrators(ctx, a, b, u0, t, dt)) {
+        return {};
+      }
+    }
+    //
     a.FormLinearSystem(edofs_list, *du, b, A, X, B);
     const auto norm = [&B, &fespace] {
       if constexpr (parallel) {
@@ -238,8 +244,19 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
       std::unique_ptr<AbstractBoundaryCondition> f) {
-    f->addNonlinearFormIntegrator(*this);
+    auto ctx = Context{};
+    if (!this->addBoundaryCondition(ctx, std::move(f))) {
+      raise(ctx.getErrorMessage());
+    }
+  }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
+      Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    if (!f->addNonlinearFormIntegrator(ctx, *this, this->u1)) {
+      return false;
+    }
     this->boundary_conditions.push_back(std::move(f));
+    return true;
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
@@ -403,8 +420,19 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
       std::unique_ptr<AbstractBoundaryCondition> f) {
-    f->addNonlinearFormIntegrator(*this);
+    auto ctx = Context{};
+    if (!this->addBoundaryCondition(ctx, std::move(f))) {
+      raise(ctx.getErrorMessage());
+    }
+  }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
+      Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    if (!f->addNonlinearFormIntegrator(ctx, *this, this->u1)) {
+      return false;
+    }
     this->boundary_conditions.push_back(std::move(f));
+    return true;
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
