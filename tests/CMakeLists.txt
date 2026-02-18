@@ -197,7 +197,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_dependencies(check PointWiseModelTest)
   
   function(add_point_wise_model_test)
-    set(test "PointWiseModelTest-${nsolver}")
+    set(test "PointWiseModelTest")
     set(PointWiseModelTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh")
     add_test(NAME ${test}  COMMAND ./PointWiseModelTest ${PointWiseModelTestParameters} "--parallel" "0")
     add_test(NAME ${test}P  COMMAND mpirun -n 2 ./PointWiseModelTest ${PointWiseModelTestParameters} "--parallel" "1")
