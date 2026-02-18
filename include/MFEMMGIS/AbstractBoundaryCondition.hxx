@@ -30,6 +30,28 @@ namespace mfem_mgis {
      * \param[in] f: form
      */
     virtual void addNonlinearFormIntegrator(NonlinearForm<false>&) = 0;
+#ifdef MFEM_USE_MPI
+    /*!
+     * \brief add the linear form integrator describing the
+     * the boundary condition
+     * \param[in] f: form
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    virtual void addLinearFormIntegrator(LinearForm<true>&,
+                                         const real,
+                                         const real) = 0;
+#endif /* MFEM_USE_MPI */
+    /*!
+     * \brief add the linear form integrator describing the
+     * the boundary condition
+     * \param[in] f: form
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    virtual void addLinearFormIntegrator(LinearForm<false>&,
+                                         const real,
+                                         const real) = 0;
     /*!
      * \brief method call at the beginning of each resolution
      * \param[in] t: time at the beginning of the time step

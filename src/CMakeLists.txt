@@ -1,3 +1,4 @@
+
 set(MFEMMGIS_SOURCES)
 list(APPEND MFEMMGIS_SOURCES
   Config.cxx
@@ -10,7 +11,7 @@ list(APPEND MFEMMGIS_SOURCES
   PartialQuadratureFunctionUtilities.cxx
   Behaviour.cxx
   Material.cxx
-  BehaviourIntegrator.cxx
+  AbstractBehaviourIntegrator.cxx
   BehaviourIntegratorBase.cxx
   BehaviourIntegratorFactory.cxx
   MultiMaterialNonLinearIntegrator.cxx

@@ -13,6 +13,7 @@
 #include "mfem/fem/nonlininteg.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {
 
@@ -21,13 +22,13 @@ namespace mfem_mgis {
   // forward declaration
   struct FiniteElementDiscretization;
   // forward declaration
-  struct BehaviourIntegrator;
+  struct AbstractBehaviourIntegrator;
 
   /*!
    * \brief base class for non linear integrators based on an MGIS' behaviours.
    * This class manages an mapping associating a material and its identifier
    */
-  struct MFEM_MGIS_EXPORT MultiMaterialNonLinearIntegrator final
+  struct MFEM_MGIS_EXPORT [[nodiscard]] MultiMaterialNonLinearIntegrator final
       : public NonlinearFormIntegrator {
     //! \brief a simple alias
     using Behaviour = mgis::behaviour::Behaviour;
@@ -96,13 +97,14 @@ namespace mfem_mgis {
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    virtual const BehaviourIntegrator &getBehaviourIntegrator(
+    virtual const AbstractBehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    virtual BehaviourIntegrator &getBehaviourIntegrator(const size_type);
+    virtual AbstractBehaviourIntegrator &getBehaviourIntegrator(
+        const size_type);
     /*!
      * \brief revert the internal state variables.
      *
@@ -129,7 +131,16 @@ namespace mfem_mgis {
      * integrator has been defined.
      */
     virtual std::vector<size_type> getAssignedMaterialsIdentifiers() const;
-
+    /*!
+     * \return linearized operators
+     * \param[in] u: current estimate of the unknowns
+     * \note: those linearized operators used the consistent tangent operators
+     * and thermodynamic forces computed by the integration. The user is
+     * responible for calling the behaviour integration before using those
+     * operators
+     */
+    [[nodiscard]] virtual LinearizedOperators getLinearizedOperators(
+        const mfem::Vector &);
     //! \brief destructor
     virtual ~MultiMaterialNonLinearIntegrator();
 
@@ -142,7 +153,8 @@ namespace mfem_mgis {
      * \brief mapping between the material integrator and the behaviour
      * integrator.
      */
-    std::vector<std::unique_ptr<BehaviourIntegrator>> behaviour_integrators;
+    std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>
+        behaviour_integrators;
   };  // end of MultiMaterialNonLinearIntegrator
 
 }  // end of namespace mfem_mgis

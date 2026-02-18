@@ -74,7 +74,8 @@ jobs:
     - name: CMake && Compile MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
       run: |
-        spack load mfem 
+        spack load mfem
+        spack load tfel
         spack load mgis
         cmake -S ${{github.workspace}}/mfem-mgis-examples\
               -B ${{github.workspace}}/build-mfem-mgis-examples \

@@ -1,8 +1,14 @@
-.. _mfem_mgis_release_notes_1_1:
+.. _mfem_mgis_release_notes_1_0_4:
 
-============================
-Release notes of Version 1.1
-============================
+==============================
+Release notes of Version 1.0.4
+==============================
+
+Version 1.0.4 has been released on February 13, 2026.
+It is meant to work with:
+
+- Tag `TFEL-5.2dev-MFEMMGIS-1.0.4` of the `TFEL`'s project,
+- Tag `MFrontGenericInterfaceSupport-3.2dev-MFEMMGIS-1.0.4` of the `MGIS`'s project.
 
 Documentation
 =============
@@ -101,6 +107,8 @@ Deprecated functions and methods
 Issues fixed
 ============
 
+- Issue 186: [CI] Integrate OperaHPC CI in MFEM/MGIS
+- Issue 182: [CI] intergrate mfem-mgis-examples examples
 - Issue 178: Deployment of the `doxygen` documentation
 - Issue 176: Modify `MFEMMGISConfig.cmake.in` to define `TFEL_DIR` and
   `MFrontGenericInterface_DIR` using by default the values passed to
@@ -111,8 +119,11 @@ Issues fixed
 - Issue 168: Add helper methods to wrap the unknowns of a non linear
   evolution problem as :cxx:`GridFunction`.
 - Issue 167: Allow tensorial external state variables
+- Issue 165: [auxiliary task] Add support for the computation of the
+  implicit gradient regularization of quadrature functions
 - Issue 162: Change the API of :cxx:`LinearSolverFactory`
 - Issue 159: [fix] :cxx:`upgradeGridFunction` seems wrong for grid
   functions defined on a :cxx:`SubMesh` ￼ Status: Closed (completed).
+- Issue 158: [mechanics] Add standard post-processings
 - Issue 152: [post-processing] Add support for projecting ip fields at
   nodes using L2 projection

@@ -1,0 +1,28 @@
+@DSL      DefaultModel;
+@Model    Shrinkage_RAPHAEL2008;
+@Material UO2;
+@Author   F. Michel;
+@Date     02/2010;
+@Description{
+  "ÉTUDE ET MODELISATION DE LA DENSIFICATION EN PILE DES "
+  "OXYDES NUCLEAIRES UO2 ET MOX "
+  "BOULORÉ Antoine "
+  "PhD Thesis "
+  "15 Mars 2001 "
+}
+
+@AuxiliaryStateVariable real s;
+s.setEntryName("Shrinkage");
+
+@ExternalStateVariable real BUp;
+BUp.setGlossaryName("BurnUp (at.%)");
+
+@Parameter temperature Ta = 750;
+Ta.setEntryName("ActivationTemperature");
+
+@Integrator {
+  const real Tm = T + dT / 2;
+  const real A = max(5.e-3, -1.26e-2 + 1.8e-5 * Tm);
+  const real expTm = 1. + exp(-Ta / Tm);
+  s += A * (exp(-3.e-2 * (BUp + dBUp) * expTm) - exp(-3.e-2 * BUp * expTm));
+}

@@ -92,6 +92,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool setLinearSolver(Context &,
                                        LinearSolverHandler) noexcept override;
     void setLinearSolver(std::string_view, const Parameters &) override;
+    void setPredictionPolicy(const PredictionPolicy &) noexcept override;
     void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
     void addBoundaryCondition(
@@ -111,31 +112,38 @@ namespace mfem_mgis {
                                 const std::string &) override;
     void setMaterialsNames(const std::map<size_type, std::string> &) override;
     void setBoundariesNames(const std::map<size_type, std::string> &) override;
-    std::vector<size_type> getAssignedMaterialsIdentifiers() const override;
-    size_type getMaterialIdentifier(const Parameter &) const override;
-    size_type getBoundaryIdentifier(const Parameter &) const override;
-    std::vector<size_type> getMaterialsIdentifiers(
+    [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
+        const override;
+    [[nodiscard]] size_type getMaterialIdentifier(
         const Parameter &) const override;
-    std::vector<size_type> getBoundariesIdentifiers(
+    [[nodiscard]] size_type getBoundaryIdentifier(
         const Parameter &) const override;
-    const Material &getMaterial(const Parameter &) const override;
-    Material &getMaterial(const Parameter &) override;
-    const BehaviourIntegrator &getBehaviourIntegrator(
+    [[nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
+        const Parameter &) const override;
+    [[nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
+        const Parameter &) const override;
+    [[nodiscard]] const Material &getMaterial(const Parameter &) const override;
+    [[nodiscard]] Material &getMaterial(const Parameter &) override;
+    [[nodiscard]] const AbstractBehaviourIntegrator &getBehaviourIntegrator(
         const size_type) const override;
-    BehaviourIntegrator &getBehaviourIntegrator(const size_type) override;
+    [[nodiscard]] AbstractBehaviourIntegrator &getBehaviourIntegrator(
+        const size_type) override;
+    std::vector<size_type> getEssentialDegreesOfFreedom() const override;
+    [[nodiscard]] bool integrate(const mfem::Vector &,
+                                 const IntegrationType) override;
+    [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
+        Context &, const mfem::Vector &) noexcept override;
+    [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>
+        &getDirichletBoundaryConditions() noexcept override;
+    void setup(const real, const real) override;
+    [[nodiscard]] NonLinearResolutionOutput solve(const real,
+                                                  const real) override;
     void revert() override;
     void update() override;
-    NonLinearResolutionOutput solve(const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 
    protected:
-    /*!
-     * \brief method called before each resolution
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     */
-    virtual void setup(const real, const real);
     //! \brief implementation of the non linear problem
     std::unique_ptr<AbstractNonLinearEvolutionProblem> pimpl;
   };  // end of struct NonLinearEvolutionProblem

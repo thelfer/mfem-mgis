@@ -13,7 +13,7 @@
 #include <functional>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Behaviour.hxx"
-#include "MFEMMGIS/BehaviourIntegrator.hxx"
+#include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
 
@@ -25,10 +25,11 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegratorFactory {
     //! a simple alias
-    using Generator = std::function<std::unique_ptr<BehaviourIntegrator>(
-        const FiniteElementDiscretization&,
-        const size_type,
-        std::unique_ptr<const Behaviour>)>;
+    using Generator =
+        std::function<std::unique_ptr<AbstractBehaviourIntegrator>(
+            const FiniteElementDiscretization&,
+            const size_type,
+            std::unique_ptr<const Behaviour>)>;
     /*!
      * \return the unique instance of this class for the given hypothesis
      * \param[in] h: modelling hypothesis
@@ -57,7 +58,7 @@ namespace mfem_mgis {
      * \param[in] m: material attribute.
      * \param[in] b: behaviour
      */
-    std::unique_ptr<BehaviourIntegrator> generate(
+    std::unique_ptr<AbstractBehaviourIntegrator> generate(
         const std::string&,
         const FiniteElementDiscretization&,
         const size_type,

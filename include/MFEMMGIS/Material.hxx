@@ -30,7 +30,7 @@ namespace mfem_mgis {
 
   // forward declarations
   struct PartialQuadratureSpace;
-  struct BehaviourIntegrator;
+  struct AbstractBehaviourIntegrator;
 
   /*!
    * \brief a simple structure describing a material an the associated data.
@@ -229,7 +229,7 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state
    */
   MFEM_MGIS_EXPORT [[nodiscard]] real computeStoredEnergy(
-      const BehaviourIntegrator &,
+      const AbstractBehaviourIntegrator &,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
   /*!
    * \return the stored energy if the behaviour computes it, zero otherwise
@@ -237,7 +237,7 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state
    */
   MFEM_MGIS_EXPORT [[nodiscard]] real computeDissipatedEnergy(
-      const BehaviourIntegrator &,
+      const AbstractBehaviourIntegrator &,
       const Material::StateSelection = Material::END_OF_TIME_STEP);
 
   [[nodiscard]] mgis::behaviour::MaterialStateManager &getStateManager(
