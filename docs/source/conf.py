@@ -63,6 +63,19 @@ html_static_path = []
 def setup(app):
     app.add_css_file('css/custom.css')
 
+mathjax3_config = {
+    "tex": {
+        "macros": {
+            "paren": ["{\\left(#1\\right)}", 1],  # parenthesis
+            "transpose": ["{\\left.#1\\right.^{T}}", 1],  # transposition
+            "bts": ["{\\left.#1\\right|_{\\mathrm{bts}}}", 1],  # beginning of time step
+            "ets": ["{\\left.#1\\right|_{\\mathrm{ets}}}", 1],  # end of time step
+        }
+    }
+}
+# ending_point_mathjax
+
+
 rst_prolog = """
 .. role:: cxx(code)
     :language: c++

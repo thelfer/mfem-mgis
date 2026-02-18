@@ -56,16 +56,34 @@ namespace mfem_mgis {
         std::function<real(const real)>);
     //
 #ifdef MFEM_USE_MPI
-    void addNonlinearFormIntegrator(NonlinearForm<true>&) override;
+    [[nodiscard]] bool addNonlinearFormIntegrator(
+        Context&, NonlinearForm<true>&, const mfem::Vector&) noexcept override;
 #endif /* MFEM_USE_MPI */
-    void addNonlinearFormIntegrator(NonlinearForm<false>&) override;
+    [[nodiscard]] bool addNonlinearFormIntegrator(
+        Context&, NonlinearForm<false>&, const mfem::Vector&) noexcept override;
+#ifdef MFEM_USE_MPI
+    [[nodiscard]] bool addLinearFormIntegrators(Context&,
+                                                BilinearForm<true>&,
+                                                LinearForm<true>&,
+                                                const mfem::Vector&,
+                                                const real,
+                                                const real) noexcept override;
+#endif /* MFEM_USE_MPI */
+    [[nodiscard]] bool addLinearFormIntegrators(Context&,
+                                                BilinearForm<false>&,
+                                                LinearForm<false>&,
+                                                const mfem::Vector&,
+                                                const real,
+                                                const real) noexcept override;
     void setup(const real, const real) override;
     //! \brief destructor
     virtual ~UniformHeatSourceBoundaryCondition();
 
    protected:
     //! \brief internal structure
-    struct UniformHeatSourceNonlinearFormIntegratorBase;
+    struct UniformHeatSourceFormIntegratorBase;
+    //! \brief internal structure
+    struct UniformHeatSourceLinearFormIntegrator;
     //! \brief internal structure
     struct UniformHeatSourceNonlinearFormIntegrator;
     //! \brief finite element discretization
@@ -75,9 +93,9 @@ namespace mfem_mgis {
     //
     mfem::Array<mfem_mgis::size_type> materials_markers;
     //! \brief function returning the value of the heat source
-    std::function<real(const real)> prfct;
+    std::function<real(const real)> qfct;
     //! \brief underlying integrator
-    UniformHeatSourceNonlinearFormIntegratorBase* const nfi = nullptr;
+    UniformHeatSourceNonlinearFormIntegrator* const nfi = nullptr;
     //
     bool shallFreeIntegrator = true;
   };  // end of UniformHeatSourceBoundaryCondition

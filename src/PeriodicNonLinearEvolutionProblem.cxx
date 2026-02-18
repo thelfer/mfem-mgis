@@ -308,6 +308,11 @@ namespace mfem_mgis {
     NonLinearEvolutionProblem::addBoundaryCondition(std::move(f));
   }  // end of addBoundaryCondition
 
+  bool PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
+      Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    return NonLinearEvolutionProblem::addBoundaryCondition(ctx, std::move(f));
+  }  // end of addBoundaryCondition
+
   void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<DirichletBoundaryCondition>) {
     raise(

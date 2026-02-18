@@ -1,3 +1,4 @@
+
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx
  * \brief
@@ -29,7 +30,7 @@ namespace mfem_mgis {
   // forward declaration
   struct Material;
   // forward declaration
-  struct BehaviourIntegrator;
+  struct AbstractBehaviourIntegrator;
   // forward declaration
   struct MultiMaterialNonLinearIntegrator;
   // forward declaration
@@ -114,29 +115,39 @@ namespace mfem_mgis {
         const Parameter&) const override;
     const Material& getMaterial(const Parameter&) const override;
     Material& getMaterial(const Parameter&) override;
-    const BehaviourIntegrator& getBehaviourIntegrator(
+    const AbstractBehaviourIntegrator& getBehaviourIntegrator(
         const size_type) const override;
-    BehaviourIntegrator& getBehaviourIntegrator(const size_type) override;
+    AbstractBehaviourIntegrator& getBehaviourIntegrator(
+        const size_type) override;
     void addBehaviourIntegrator(const std::string&,
                                 const Parameter&,
                                 const std::string&,
                                 const std::string&) override;
+    [[nodiscard]] std::vector<size_type> getEssentialDegreesOfFreedom()
+        const override;
+    [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
+        Context&, const mfem::Vector&) noexcept override;
+    [[nodiscard]] const std::vector<
+        std::unique_ptr<DirichletBoundaryCondition>>&
+    getDirichletBoundaryConditions() const noexcept override;
+    [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
+    getBoundaryConditions() const noexcept override;
+    void setup(const real, const real) override;
+    void setPredictionPolicy(const PredictionPolicy&) noexcept override;
+    [[nodiscard]] NonLinearResolutionOutput solve(const real,
+                                                  const real) override;
     void revert() override;
     void update() override;
-    NonLinearResolutionOutput solve(const real, const real) override;
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 
    protected:
     /*!
-     * \return the list of the degrees of freedom handled by Dirichlet boundary
-     * conditions.
-     */
-    virtual std::vector<size_type> getEssentialDegreesOfFreedom() const;
-    /*!
      * \brief declare the degrees of freedom handled by Dirichlet boundary
      * conditions.
      * \param[in] dofs: list of degrees of freedom
+     *
+     * \note copy is required to create a mutable mfem::Array
      */
     virtual void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) = 0;
@@ -146,24 +157,13 @@ namespace mfem_mgis {
      */
     virtual void setTimeIncrement(const real);
     /*!
-     * \brief method called before each resolution
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     */
-    virtual void setup(const real, const real);
-    /*!
      * \brief compute prediction
+     * \param[in] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void computePrediction(const real, const real);
-    /*!
-     * \brief integrate the behaviour for given estimate of the unknowns at
-     * the end of the time step.
-     * \param[in] u: current estimate of the unknowns
-     * \param[in] it: integration type
-     */
-    virtual bool integrate(const mfem::Vector&, const IntegrationType) = 0;
+    [[nodiscard]] virtual std::optional<real> computePrediction(
+        Context&, const real, const real) noexcept = 0;
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief list of boundary conditions
@@ -198,9 +198,10 @@ namespace mfem_mgis {
     MultiMaterialNonLinearIntegrator* const mgis_integrator = nullptr;
     //! \brief registred boundary conditions
     std::vector<std::unique_ptr<AbstractBoundaryCondition>> boundary_conditions;
+    //! \brief prediction policy
+    PredictionPolicy prediction_policy;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
-
   };  // end of struct NonLinearEvolutionProblemImplementationBase
 
 }  // end of namespace mfem_mgis

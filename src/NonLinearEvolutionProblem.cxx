@@ -131,12 +131,44 @@ namespace mfem_mgis {
     this->pimpl->setLinearSolver(n, params);
   }  // end of setLinearSolver
 
+  void NonLinearEvolutionProblem::setPredictionPolicy(
+      const PredictionPolicy& p) noexcept {
+    this->pimpl->setPredictionPolicy(p);
+  }  // end of setPredictionPolicy
+
+  const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
+  NonLinearEvolutionProblem::getDirichletBoundaryConditions() const noexcept {
+    return this->pimpl->getDirichletBoundaryConditions();
+  }  // end of getDirichletBoundaryConditions
+
+  const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
+  NonLinearEvolutionProblem::getBoundaryConditions() const noexcept {
+    return this->pimpl->getBoundaryConditions();
+  }  // end of getBoundaryConditions
+
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
     CatchTimeSection("NLEP::solve");
     this->setup(t, dt);
     return this->pimpl->solve(t, dt);
   }  // end of solve
+
+  bool NonLinearEvolutionProblem::integrate(const mfem::Vector& U,
+                                            const IntegrationType it) {
+    CatchTimeSection("NLEP::integrate");
+    return this->pimpl->integrate(U, it);
+  }  // end of solve
+
+  std::vector<size_type>
+  NonLinearEvolutionProblem::getEssentialDegreesOfFreedom() const {
+    return this->pimpl->getEssentialDegreesOfFreedom();
+  }  // end of getEssentialDegreesOfFreedom
+
+  std::optional<LinearizedOperators>
+  NonLinearEvolutionProblem::getLinearizedOperators(
+      Context& ctx, const mfem::Vector& U) noexcept {
+    return this->pimpl->getLinearizedOperators(ctx, U);
+  }  // end of getLinearizedOperators
 
   void NonLinearEvolutionProblem::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {
@@ -176,6 +208,11 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<AbstractBoundaryCondition> f) {
     this->pimpl->addBoundaryCondition(std::move(f));
+  }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblem::addBoundaryCondition(
+      Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    return this->pimpl->addBoundaryCondition(ctx, std::move(f));
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
@@ -220,13 +257,13 @@ namespace mfem_mgis {
     return this->pimpl->getMaterial(m);
   }  // end of getMaterial
 
-  const BehaviourIntegrator& NonLinearEvolutionProblem::getBehaviourIntegrator(
-      const size_type m) const {
+  const AbstractBehaviourIntegrator&
+  NonLinearEvolutionProblem::getBehaviourIntegrator(const size_type m) const {
     return this->pimpl->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 
-  BehaviourIntegrator& NonLinearEvolutionProblem::getBehaviourIntegrator(
-      const size_type m) {
+  AbstractBehaviourIntegrator&
+  NonLinearEvolutionProblem::getBehaviourIntegrator(const size_type m) {
     return this->pimpl->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 
@@ -238,7 +275,8 @@ namespace mfem_mgis {
     this->pimpl->revert();
   }  // end of revert
 
-  void NonLinearEvolutionProblem::setup(const real, const real) {
+  void NonLinearEvolutionProblem::setup(const real t, const real dt) {
+    this->pimpl->setup(t, dt);
   }  // end of setup
 
   template <bool parallel>

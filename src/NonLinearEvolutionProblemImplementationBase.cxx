@@ -202,7 +202,7 @@ namespace mfem_mgis {
     return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
   }  // end of getMaterial
 
-  const BehaviourIntegrator&
+  const AbstractBehaviourIntegrator&
   NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
       const size_type m) const {
     checkMultiMaterialSupportEnabled("getBehaviourIntegrator",
@@ -210,7 +210,7 @@ namespace mfem_mgis {
     return this->mgis_integrator->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 
-  BehaviourIntegrator&
+  AbstractBehaviourIntegrator&
   NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
       const size_type m) {
     checkMultiMaterialSupportEnabled("getBehaviourIntegrator",
@@ -248,13 +248,25 @@ namespace mfem_mgis {
   std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getEssentialDegreesOfFreedom()
       const {
-    auto ddofs = std::vector<mfem_mgis::size_type>{};
+    auto all_dofs = std::vector<mfem_mgis::size_type>{};
     for (const auto& bc : this->dirichlet_boundary_conditions) {
       auto dofs = bc->getHandledDegreesOfFreedom();
-      ddofs.insert(ddofs.end(), dofs.begin(), dofs.end());
+      all_dofs.insert(all_dofs.end(), dofs.begin(), dofs.end());
     }
-    return ddofs;
+    return all_dofs;
   }  // end of getEssentialDegreesOfFreedom
+
+  [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
+  NonLinearEvolutionProblemImplementationBase::getDirichletBoundaryConditions()
+      const noexcept {
+    return this->dirichlet_boundary_conditions;
+  }  // end of getDirichletBoundaryConditions
+
+  const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
+  NonLinearEvolutionProblemImplementationBase::getBoundaryConditions()
+      const noexcept {
+    return this->boundary_conditions;
+  }  // end of getBoundaryConditions
 
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
@@ -316,14 +328,44 @@ namespace mfem_mgis {
                              std::move(s.preconditioner));
   }  // end of updateLinearSolver
 
+  std::optional<LinearizedOperators>
+  NonLinearEvolutionProblemImplementationBase::getLinearizedOperators(
+      Context& ctx, const mfem::Vector& U) noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return ctx.registerErrorMessage(
+          "no multiple material integrator defined");
+    }
+    return this->mgis_integrator->getLinearizedOperators(U);
+  }  // end of getLinearizedOperators
+
+  void NonLinearEvolutionProblemImplementationBase::setPredictionPolicy(
+      const PredictionPolicy& p) noexcept {
+    this->prediction_policy = p;
+  }  // end of setPredictionPolicy
+
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {
+#pragma message("local context")
+    auto ctx = Context{};
     CatchTimeSection("NLEPIB::solve");
     this->setTimeIncrement(dt);
     this->setup(t, dt);
-    //    this->computePrediction(t, dt);
     NonLinearResolutionOutput output;
-    auto file_output = [&output](auto& s) {
+    if (this->prediction_policy.strategy ==
+        PredictionStrategy::ELASTIC_PREDICTION) {
+      const auto onorm = this->computePrediction(ctx, t, dt);
+      if (isInvalid(onorm)) {
+        output.status = false;
+        return output;
+      }
+      if (!usePETSc()) {
+        if (!this->solver->setReferenceResidualNorm(ctx, *onorm)) {
+          output.status = false;
+          return output;
+        }
+      }
+    }
+    auto fill_output = [&output](auto& s) {
       output.status = s.GetConverged();
       output.iterations = s.GetNumIterations();
       output.final_residual_norm = s.GetFinalNorm();
@@ -334,50 +376,18 @@ namespace mfem_mgis {
       // PETSc solver somehow "requires" zero as a first argument of Mult.
       // If it is not the case, one should take care of memory management.
       this->petsc_solver->Mult(zero, this->u1);
-      file_output(*(this->petsc_solver));
+      fill_output(*(this->petsc_solver));
 #else  /* MFEM_USE_PETSC */
       raise("Support for PETSc is deactivated");
 #endif /* MFEM_USE_PETSC */
     } else {
       this->solver->Mult(this->u0, this->u1);
-      file_output(*(this->solver));
+      fill_output(*(this->solver));
       output.initial_residual_norm = this->solver->GetInitialNorm();
+      this->solver->unsetReferenceResidualNorm();
     }
     return output;
   }  // end of solve
-
-  void NonLinearEvolutionProblemImplementationBase::computePrediction(
-      const real /*t*/, const real /*dt*/) {
-    // if (mgis_integrator == nullptr) {
-    //   return;
-    // }
-    // constexpr auto it = IntegrationType::PREDICTION_ELASTIC_OPERATOR;
-    // if (!this->integrate(this->u0, it)) {
-    //   return;
-    // }
-    // mfem::Vector du(this->u1.Size());
-    // mfem::Vector r(this->u1.Size());
-    // r = 0.;
-    // du = 0.;
-    // //
-    // // unmarked Dirichlet boundary conditions
-    // const auto ddofs = this->getEssentialDegreesOfFreedom();
-    // this->markDegreesOfFreedomHandledByDirichletBoundaryConditions({});
-    // auto& K = this->solver->getJacobian(this->u0);
-    // for (const auto& bc : this->dirichlet_boundary_conditions) {
-    //   bc->setImposedValuesIncrements(du, t, t + dt);
-    // }
-
-    // // solve the tangent problem
-    // this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(ddofs);
-    // for (const auto& bc : this->dirichlet_boundary_conditions) {
-    //   bc->setImposedValuesIncrements(r, t, t + dt);
-    // }
-    // if (this->solver->computeNewtonCorrection(du, r, this->u0)) {
-    //   this->u1 = this->u0;
-    //   this->u1 += du;
-    // }
-  }  // end of computePrediction
 
   NonLinearEvolutionProblemImplementationBase::
       ~NonLinearEvolutionProblemImplementationBase() = default;

@@ -186,7 +186,7 @@ namespace mfem_mgis {
   template <bool parallel>
   ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<parallel>::
       ParaviewExportIntegrationPointPostProcessingsResultsAtNodes(
-								  Context& ctx,
+          Context& ctx,
           NonLinearEvolutionProblemImplementation<parallel>& p,
           std::string_view n,
           const std::vector<size_type> mids,
@@ -195,7 +195,8 @@ namespace mfem_mgis {
           std::string_view d)
       : functions(buildPartialQuadratureFunctionsSet(p, mids, nc)),
         update_function(f),
-        exporter(ctx, p,
+        exporter(ctx,
+                 p,
                  makeExportedFunctionsDescription(n, this->functions),
                  std::string{d}) {
   }  // end of

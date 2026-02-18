@@ -56,17 +56,35 @@ namespace mfem_mgis {
         std::function<real(const real)>);
     //
 #ifdef MFEM_USE_MPI
-    void addNonlinearFormIntegrator(NonlinearForm<true>&) override;
+    [[nodiscard]] bool addNonlinearFormIntegrator(
+        Context&, NonlinearForm<true>&, const mfem::Vector&) noexcept override;
 #endif /* MFEM_USE_MPI */
-    void addNonlinearFormIntegrator(NonlinearForm<false>&) override;
+    [[nodiscard]] bool addNonlinearFormIntegrator(
+        Context&, NonlinearForm<false>&, const mfem::Vector&) noexcept override;
+#ifdef MFEM_USE_MPI
+    [[nodiscard]] bool addLinearFormIntegrators(Context&,
+                                                BilinearForm<true>&,
+                                                LinearForm<true>&,
+                                                const mfem::Vector&,
+                                                const real,
+                                                const real) noexcept override;
+#endif /* MFEM_USE_MPI */
+    [[nodiscard]] bool addLinearFormIntegrators(Context&,
+                                                BilinearForm<false>&,
+                                                LinearForm<false>&,
+                                                const mfem::Vector&,
+                                                const real,
+                                                const real) noexcept override;
     void setup(const real, const real) override;
     //! \brief destructor
     virtual ~UniformImposedPressureBoundaryCondition();
 
    protected:
     //! \brief internal structure
-    struct UniformImposedPressureNonlinearFormIntegratorBase;
-    //! \brief internal structure
+    struct UniformImposedPressureFormIntegratorBase;
+    //! \brief linear form to impose the internal structure
+    struct UniformImposedPressureLinearFormIntegrator;
+    //! \brief non linear form to impose the internal structure
     struct UniformImposedPressureNonlinearFormIntegrator;
     //! \brief finite element discretization
     std::shared_ptr<FiniteElementDiscretization> finiteElementDiscretization;
@@ -77,7 +95,7 @@ namespace mfem_mgis {
     //! \brief function returning the value of the imposed pressure
     std::function<real(const real)> prfct;
     //! \brief underlying integrator
-    UniformImposedPressureNonlinearFormIntegratorBase* const nfi = nullptr;
+    UniformImposedPressureNonlinearFormIntegrator* const nfi = nullptr;
     //
     bool shallFreeIntegrator = true;
   };  // end of UniformImposedPressureBoundaryCondition
