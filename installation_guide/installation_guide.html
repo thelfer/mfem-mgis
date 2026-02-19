@@ -337,7 +337,7 @@ rm<span class="w"> </span>-r<span class="w"> </span>~/.spack
 <span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>/share/spack/setup-env.sh
 <span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>
 git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="o">=</span>develop<span class="w"> </span>https://github.com/spack/spack-packages.git
-spack<span class="w"> </span>repo<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--destination<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>PWD<span class="k">)</span><span class="s2">/spack-packages&quot;</span><span class="w"> </span><span class="nb">builtin</span>
+spack<span class="w"> </span>repo<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--destination<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/spack-packages&quot;</span><span class="w"> </span><span class="nb">builtin</span>
 <span class="nb">cd</span><span class="w"> </span>..
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/thelfer/mfem-mgis.git
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/latug0/mfem-mgis-examples.git

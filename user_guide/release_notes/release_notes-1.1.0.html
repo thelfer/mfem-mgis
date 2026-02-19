@@ -55,13 +55,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../post_processings.html">Post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mechanical_postprocessings.html">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_functions.html">Partial quadrature functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="release_notes.html">Release notes</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Release notes of Version 1.1</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#new-features">New features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#issues-fixed">Issues fixed</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="release_notes-1.0.4.html">Release notes of Version 1.0.4</a></li>
@@ -120,14 +119,8 @@
 <li><p><a class="reference internal" href="#available-strategies" id="id3">Available strategies</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#retrieving-information-on-a-partial-quadrature-space" id="id4">Retrieving information on a partial quadrature space</a></p>
-<ul>
-<li><p><a class="reference internal" href="#example-of-usage" id="id5">Example of usage</a></p></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id6">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="new-features">
@@ -184,42 +177,6 @@ applies to all physics.</p>
 </section>
 </section>
 </section>
-<section id="retrieving-information-on-a-partial-quadrature-space">
-<h3>Retrieving information on a partial quadrature space<a class="headerlink" href="#retrieving-information-on-a-partial-quadrature-space" title="Link to this heading"></a></h3>
-<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpaceInformation</span></code> structure contains some
-relevant information about a partial quadrature space:</p>
-<ul class="simple">
-<li><p>the identifier and the name of the underlying material,</p></li>
-<li><p>the total number of elements,</p></li>
-<li><p>the total number of integration points,</p></li>
-<li><p>the number of elements points per geometric type.</p></li>
-<li><p>the number of quadrature points per geometric type.</p></li>
-</ul>
-<p>This structure is created by:</p>
-<ul class="simple">
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">getLocalInformation</span></code>, which returns the information relative to
-the current process.</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">getInformation</span></code>, which returns the information gathered from all
-processes.</p></li>
-</ul>
-<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpaceInformation</span></code> structure can be printed to
-an output stream using the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function.</p>
-<section id="example-of-usage">
-<h4>Example of usage<a class="headerlink" href="#example-of-usage" title="Link to this heading"></a></h4>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">qspace</span><span class="w"> </span><span class="o">=</span>
-<span class="w">   </span><span class="n">problem</span><span class="p">.</span><span class="n">getBehaviourIntegrator</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">getPartialQuadratureSpace</span><span class="p">();</span>
-<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">info</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">,</span><span class="w"> </span><span class="n">qspace</span><span class="p">);</span>
-</pre></div>
-</div>
-</section>
-</section>
-</section>
-<section id="issues-fixed">
-<h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Issue</p></li>
-<li><p>Issue 149: work on the prediction of the solution</p></li>
-</ul>
 </section>
 </section>
 

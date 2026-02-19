@@ -271,7 +271,7 @@ Download Spack and the git directories of ``mfem-mgis`` and ``mfem-mgis-examples
    source ${SPACK_ROOT}/share/spack/setup-env.sh
    cd ${SPACK_ROOT}
    git clone --branch=develop https://github.com/spack/spack-packages.git
-   spack repo set --destination "$(PWD)/spack-packages" builtin
+   spack repo set --destination "${PWD}/spack-packages" builtin
    cd ..
    git clone https://github.com/thelfer/mfem-mgis.git
    git clone https://github.com/latug0/mfem-mgis-examples.git
