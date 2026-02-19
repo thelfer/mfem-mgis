@@ -11,6 +11,7 @@
 #include <type_traits>
 #include "mfem/config/config.hpp"
 #include "mfem/general/globals.hpp"
+#include "mfem/fem/geom.hpp"
 
 namespace mfem {
 

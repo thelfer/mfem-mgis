@@ -46,7 +46,5 @@ int main(int argc, char** argv) {
   auto p = getInternalStateVariable(m1, "EquivalentStrain");
   success = e.getNumberOfComponents() >= 0 && s.getNumberOfComponents() >= 0 &&
             p.getNumberOfComponents() >= 0;
-  ;
-
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
