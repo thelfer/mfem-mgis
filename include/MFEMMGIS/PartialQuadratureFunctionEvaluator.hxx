@@ -9,8 +9,8 @@ b * \author Thomas Helfer
 #define LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_HXX
 
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/Buffer.hxx"
 #include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/Utilities/Buffer.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
