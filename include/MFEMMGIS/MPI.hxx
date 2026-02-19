@@ -19,7 +19,7 @@ namespace mfem_mgis {
 
   template <typename T>
   inline constexpr auto mpi_type = [] {
-    if constexpr (std::is_enum_v<T>) { 
+    if constexpr (std::is_enum_v<T>) {
       return mpi_type<std::underlying_type_t<T>>;
     } else if constexpr (std::same_as<T, bool>) {
       return MPI_CXX_BOOL;
@@ -77,7 +77,7 @@ namespace mfem_mgis {
     }
   }();
 
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
 #endif /* MFEM_USE_MPI */
 

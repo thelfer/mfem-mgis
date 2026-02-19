@@ -103,6 +103,20 @@ namespace mfem_mgis {
   PartialQuadratureSpace::~PartialQuadratureSpace() = default;
 
   template <bool parallel>
+  [[nodiscard]] static std::map<mfem::Geometry::Type, size_type>
+  getNumberOfElementsByGeometricElementType(
+      const PartialQuadratureSpace& s) noexcept {
+    const auto& fed = s.getFiniteElementDiscretization();
+    const auto& mesh = fed.getMesh<parallel>();
+    auto emapping = std::map<mfem::Geometry::Type, size_type>{};
+    for (const auto [e, o] : s.getOffsets()) {
+      const auto gtype = mesh.GetElementGeometry(e);
+      ++(emapping[gtype]);
+    }
+    return emapping;
+  }  // end of getNumberOfElementsByGeometricElementType
+
+  template <bool parallel>
   [[nodiscard]] static std::optional<std::map<mfem::Geometry::Type, size_type>>
   getNumberOfQuadraturePointsByGeometricElementType(
       Context& ctx, const PartialQuadratureSpace& s) noexcept {
@@ -123,7 +137,7 @@ namespace mfem_mgis {
     return qmapping;
   }  // end of getNumberOfQuadraturePointsByGeometricElementType
 
-  std::optional<PartialQuadratureSpaceInformation> getInformation(
+  std::optional<PartialQuadratureSpaceInformation> getLocalInformation(
       Context& ctx, const PartialQuadratureSpace& s) noexcept {
     const auto& fed = s.getFiniteElementDiscretization();
     auto info = PartialQuadratureSpaceInformation{};
@@ -133,10 +147,12 @@ namespace mfem_mgis {
       return {};
     }
     info.name = *oname;
-    info.number_of_finite_elements = getNumberOfCells(s);
+    info.number_of_cells = getNumberOfCells(s);
     info.number_of_quadrature_points = getNumberOfElements(s);
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
+      info.number_of_cells_by_geometric_type =
+          getNumberOfElementsByGeometricElementType<true>(s);
       const auto oqmapping =
           getNumberOfQuadraturePointsByGeometricElementType<true>(ctx, s);
       if (isInvalid(oqmapping)) {
@@ -147,6 +163,8 @@ namespace mfem_mgis {
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
+      info.number_of_cells_by_geometric_type =
+          getNumberOfElementsByGeometricElementType<false>(s);
       const auto oqmapping =
           getNumberOfQuadraturePointsByGeometricElementType<false>(ctx, s);
       if (isInvalid(oqmapping)) {
@@ -155,6 +173,23 @@ namespace mfem_mgis {
       info.number_of_quadrature_points_by_geometric_type = *oqmapping;
     }
     return info;
+  }  // end of getLocalInformation
+
+  std::optional<PartialQuadratureSpaceInformation> getInformation(
+      Context& ctx, const PartialQuadratureSpace& s) noexcept {
+    auto linfo = getLocalInformation(ctx, s);
+    if (isInvalid(linfo)) {
+      return {};
+    }
+    const auto& fed = s.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      return synchronize(ctx, *linfo);
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    return linfo;
   }  // end of getInformation
 
   [[nodiscard]] static std::optional<std::string_view> to_string(
@@ -168,11 +203,11 @@ namespace mfem_mgis {
     } else if (t == mfem::Geometry::TRIANGLE) {
       return "TRIANGLE";
     } else if (t == mfem::Geometry::SQUARE) {
-      return "QUADRANGLE (SQUARE)";
+      return "QUADRANGLE (mfem::Geometry::SQUARE)";
     } else if (t == mfem::Geometry::TETRAHEDRON) {
       return "TETRAHEDRON";
     } else if (t == mfem::Geometry::CUBE) {
-      return "HEXAHEDRON (CUBE)";
+      return "HEXAHEDRON (mfem::Geometry::CUBE)";
     } else if (t == mfem::Geometry::PRISM) {
       return "PRISM";
     } else if (t == mfem::Geometry::PYRAMID) {
@@ -195,16 +230,27 @@ namespace mfem_mgis {
             std::ostream& os,
             const PartialQuadratureSpaceInformation& info) noexcept {
     auto success = true;
-    os << "- material:";
+    os << "- material or boundary identifier:";
     if (!info.name.empty()) {
       os << " '" << info.name << "' ";
     }
     os << " " << std::to_string(info.identifier) << '\n';
-    os << "- number of elements: " << info.number_of_finite_elements << '\n';
+    os << "- number of elements: " << info.number_of_cells << '\n';
     os << "- number of quadrature points: " << info.number_of_quadrature_points
        << '\n';
+    if (!info.number_of_cells_by_geometric_type.empty()) {
+      os << "- number of elements per geometric type:\n";
+      for (const auto& [g, n] : info.number_of_cells_by_geometric_type) {
+        const auto ogn = to_string(ctx, g);
+        const auto ok = isValid(ogn);
+        if (ok) {
+          os << "  - " << *ogn << ": " << n << '\n';
+        }
+        success = success && ok;
+      }
+    }
     if (!info.number_of_quadrature_points_by_geometric_type.empty()) {
-      os << "- number of quadrature points per element type:\n";
+      os << "- number of quadrature points per geometric type:\n";
       for (const auto& [g, n] :
            info.number_of_quadrature_points_by_geometric_type) {
         const auto ogn = to_string(ctx, g);
@@ -222,6 +268,7 @@ namespace mfem_mgis {
       Context& ctx, const PartialQuadratureSpaceInformation& info) noexcept {
 #ifdef MFEM_USE_MPI
     auto r = PartialQuadratureSpaceInformation{};
+    // paranoïc check
     int nprocesses;
     MPI_Comm_size(MPI_COMM_WORLD, &nprocesses);
     std::vector<size_type> ids(nprocesses);
@@ -233,27 +280,67 @@ namespace mfem_mgis {
           "the given information do not refer to the same material on all "
           "processes");
     }
-    //           n, as_mpi_datatype<T>::value(), MPI_COMM_WORLD);
-    //     int MPI_Allreduce(const void* sendbuf, void* recvbuf, int count,
-    //                       MPI_Datatype datatype, MPI_Op op, MPI_Comm comm);
-    // get all ids
-    //     using T = typename C::value_type;
-    //     Index n = getSize(buf);
-    //     Vector<T> output(MPI::nProc() * n);
+    r.identifier = info.identifier;
+    // assuming the name is the same on all process as the identifier is
+    r.name = info.name;
     //
-    //     Int ierr;
-    //     if constexpr (std::is_fundamental_v<T>) {
-    //       ierr = MPI_Allgather(
-    //           buf.data(), n, as_mpi_datatype<T>::value(), output.data(),
-    //           n, as_mpi_datatype<T>::value(), MPI_COMM_WORLD);
-    //     }
-    //     else {
-    //       ierr = MPI_Allgather(buf.data(), n * sizeof(T), MPI_BYTE,
-    //       output.data(), n * sizeof(T), MPI_BYTE, MPI_COMM_WORLD);
-    //     }
-    //     MPI::check(ierr);
+    r.number_of_cells = info.number_of_cells;
+    MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_cells), 1,
+                  mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);
+    r.number_of_quadrature_points = info.number_of_quadrature_points;
+    MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_quadrature_points), 1,
+                  mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);
     //
-    //     return output;
+    auto nelts = std::array<size_type, mfem::Geometry::NumGeom>{};
+    for (const auto [g, n] : info.number_of_cells_by_geometric_type) {
+      nelts[static_cast<std::size_t>(g)] = n;
+    }
+    MPI_Allreduce(MPI_IN_PLACE, nelts.data(), mfem::Geometry::NumGeom,
+                  mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);
+    for (size_type i = 0; const auto& n : nelts) {
+      if (n != 0) {
+        r.number_of_cells_by_geometric_type.insert(
+            {static_cast<mfem::Geometry::Type>(i), n});
+      }
+      ++i;
+    }
+    //
+    auto nqpoints = std::array<size_type, mfem::Geometry::NumGeom>{};
+    for (const auto [g, n] :
+         info.number_of_quadrature_points_by_geometric_type) {
+      nqpoints[static_cast<std::size_t>(g)] = n;
+    }
+    for (size_type g = 0; auto& n : nqpoints) {
+      std::vector<size_type> all_nqpoints(nprocesses);
+      MPI_Allgather(&n, 1, mpi_type<size_type>, all_nqpoints.data(), 1,
+                    mpi_type<size_type>, MPI_COMM_WORLD);
+      const auto pmax =
+          std::max_element(all_nqpoints.begin(), all_nqpoints.end());
+      if (pmax == all_nqpoints.end()) {  // avoid warning
+        abort("internal error");
+      };
+      // paranoïac check
+      for (const auto& n2 : all_nqpoints) {
+        if ((n2 != 0) && (n2 != *pmax)) {
+          const auto ogn = to_string(ctx, static_cast<mfem::Geometry::Type>(g));
+          if (!isValid(ogn)) {
+            return {};
+          }
+          return ctx.registerErrorMessage(
+              "the number of quadrature points for geometric type '" +
+              std::string{*ogn} + "' is not the same on all processes");
+        }
+      }
+      n = *pmax;
+      ++g;
+    }
+    for (size_type i = 0; const auto& n : nqpoints) {
+      if (n != 0) {
+        r.number_of_quadrature_points_by_geometric_type.insert(
+            {static_cast<mfem::Geometry::Type>(i), n});
+      }
+      ++i;
+    }
     return r;
 #else  /* MFEM_USE_MPI */
     return info;

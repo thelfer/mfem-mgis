@@ -216,15 +216,24 @@ namespace mgis::function {
 
 namespace mfem_mgis {
 
+  /*!
+   * \brief structure describing information about a partial quadrature space
+   */
   struct PartialQuadratureSpaceInformation {
     //! \brief identifier of the underlying material
     size_type identifier;
     //! \brief name of the material, if defined
     std::string name;
-    //! \brief number of finite elements
-    size_type number_of_finite_elements;
+    //! \brief number of cells (finite elements)
+    size_type number_of_cells;
     //! \brief number of quadrature points
     size_type number_of_quadrature_points;
+    /*!
+     * \brief mapping giving for each geometric type in the partial quadrature
+     * space the number of elements
+     */
+    std::map<mfem::Geometry::Type, size_type>
+        number_of_cells_by_geometric_type;
     /*!
      * \brief mapping giving for each geometric type in the partial quadrature
      * space the number of quadrature points
@@ -241,11 +250,21 @@ namespace mfem_mgis {
    * \param[in] s: partial quadrature space
    */
   MFEM_MGIS_EXPORT
+  [[nodiscard]] std::optional<PartialQuadratureSpaceInformation>
+  getLocalInformation(Context &, const PartialQuadratureSpace &) noexcept;
+  /*!
+   * \return information about the partial quadrature space, gathered from all
+   * processes
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in] s: partial quadrature space
+   */
+  MFEM_MGIS_EXPORT
   [[nodiscard]] std::optional<PartialQuadratureSpaceInformation> getInformation(
       Context &, const PartialQuadratureSpace &) noexcept;
   /*!
-   * \brief write information about the partial quadrature space in the output
-   * stream
+   * \brief write information, gathered from all processes in parallel, about
+   * the partial quadrature space in the output stream
    *
    * \param[in, out] ctx: execution context
    * \param[out] os: output stream
@@ -256,8 +275,8 @@ namespace mfem_mgis {
       std::ostream &,
       const PartialQuadratureSpaceInformation &) noexcept;
   /*!
-   * \brief write information about the partial quadrature space in the output
-   * stream
+   * \brief write information, gathered from all processes in parallel, about
+   * the partial quadrature space in the output stream
    *
    * \param[in, out] ctx: execution context
    * \param[out] os: output stream
