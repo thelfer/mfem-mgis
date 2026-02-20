@@ -57,7 +57,6 @@ mfem_mgis_header(MFEMMGIS L2Projection.hxx)
 mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.hxx)
 mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.ixx)
 mfem_mgis_header(MFEMMGIS/Utilities Buffer.hxx)
-mfem_mgis_header(MFEMMGIS/Utilities OptionalReference.hxx)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   mfem_mgis_header(MFEMMGIS MechanicalPostProcessings.hxx)

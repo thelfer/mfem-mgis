@@ -106,7 +106,7 @@ namespace mfem_mgis {
         const std::function<void(const real, const real)> &) override;
     void addPostProcessing(std::string_view, const Parameters &) override;
     void executePostProcessings(const real, const real) override;
-    [[nodiscard]] std::map<size_type, size_type> addBehaviourIntegrator(
+    std::map<size_type, size_type> addBehaviourIntegrator(
         const std::string &,
         const Parameter &,
         const std::string &,

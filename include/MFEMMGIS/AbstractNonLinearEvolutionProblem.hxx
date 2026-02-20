@@ -17,7 +17,6 @@
 #include "MFEMMGIS/TimeStepStage.hxx"
 #include "MFEMMGIS/LinearSolverHandler.hxx"
 #include "MFEMMGIS/NonLinearResolutionOutput.hxx"
-#include "MFEMMGIS/Utilities/OptionalReference.hxx"
 
 namespace mfem_mgis {
 
@@ -158,7 +157,7 @@ namespace mfem_mgis {
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
-    [[nodiscard]] virtual std::map<size_type, size_type> addBehaviourIntegrator(
+    virtual std::map<size_type, size_type> addBehaviourIntegrator(
         const std::string &,
         const Parameter &,
         const std::string &,

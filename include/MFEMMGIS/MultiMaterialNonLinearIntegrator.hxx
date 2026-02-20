@@ -13,7 +13,6 @@
 #include "mfem/fem/nonlininteg.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Material.hxx"
-#include "MFEMMGIS/Utilities/OptionalReference.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {

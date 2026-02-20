@@ -125,7 +125,7 @@ namespace mfem_mgis {
         Context&, const Parameter&, const size_type) const noexcept override;
     OptionalReference<AbstractBehaviourIntegrator> getBehaviourIntegrator(
         Context&, const Parameter&, const size_type) noexcept override;
-    [[nodiscard]] std::map<size_type, size_type> addBehaviourIntegrator(
+    std::map<size_type, size_type> addBehaviourIntegrator(
         const std::string&,
         const Parameter&,
         const std::string&,
