@@ -74,38 +74,53 @@ namespace mfem_mgis {
      */
     virtual void setup(const real, const real);
     /*!
-     * \brief add a new material
+     * \brief add a new behaviour integrator
+     * \return the behaviour integrator identifier
      * \param[in] n: name of the behaviour integrator
      * \param[in] m: material id
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
-    virtual void addBehaviourIntegrator(const std::string &,
-                                        const size_type,
-                                        const std::string &,
-                                        const std::string &);
+    [[nodiscard]] virtual size_type addBehaviourIntegrator(const std::string &,
+                                                           const size_type,
+                                                           const std::string &,
+                                                           const std::string &);
     /*!
      * \return the material with the given id
+     * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \param[in] b: behaviour id
      */
-    virtual const Material &getMaterial(const size_type) const;
+    [[nodiscard]] virtual OptionalReference<const Material> getMaterial(
+        Context &, const size_type, const size_type) const noexcept;
     /*!
      * \return the material with the given id
+     * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \param[in] b: behaviour id
      */
-    virtual Material &getMaterial(const size_type);
+    [[nodiscard]] virtual OptionalReference<Material> getMaterial(
+        Context &, const size_type, const size_type) noexcept;
     /*!
      * \return the behaviour integrator with the given material id
+     * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \param[in] b: behaviour id
      */
-    virtual const AbstractBehaviourIntegrator &getBehaviourIntegrator(
-        const size_type) const;
+    [[nodiscard]] virtual OptionalReference<const AbstractBehaviourIntegrator>
+    getBehaviourIntegrator(Context &,
+                           const size_type,
+                           const size_type) const noexcept;
     /*!
      * \return the behaviour integrator with the given material id
+     * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \param[in] b: behaviour id
      */
-    virtual AbstractBehaviourIntegrator &getBehaviourIntegrator(
-        const size_type);
+    [[nodiscard]] virtual OptionalReference<AbstractBehaviourIntegrator>
+    getBehaviourIntegrator(Context &,
+                           const size_type,
+                           const size_type) noexcept;
     /*!
      * \brief revert the internal state variables.
      *
@@ -142,6 +157,29 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual LinearizedOperators getLinearizedOperators(
         const mfem::Vector &);
+    /*!
+     * \return the material with the given id for the first behaviour integrator
+     * \param[in] m: material id
+     */
+    [[nodiscard, deprecated]] virtual const Material &getMaterial(
+        const size_type) const;
+    /*!
+     * \return the material with the given id for the first behaviour integrator
+     * \param[in] m: material id
+     */
+    [[nodiscard, deprecated]] virtual Material &getMaterial(const size_type);
+    /*!
+     * \return the first behaviour integrator with the given material id
+     * \param[in] m: material id
+     */
+    [[nodiscard, deprecated]] virtual const AbstractBehaviourIntegrator &
+    getBehaviourIntegrator(const size_type) const;
+    /*!
+     * \return the first behaviour integrator with the given material id
+     * \param[in] m: material id
+     */
+    [[nodiscard, deprecated]] virtual AbstractBehaviourIntegrator &
+    getBehaviourIntegrator(const size_type);
     //! \brief destructor
     virtual ~MultiMaterialNonLinearIntegrator();
 
@@ -151,10 +189,10 @@ namespace mfem_mgis {
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
     /*!
-     * \brief mapping between the material integrator and the behaviour
-     * integrator.
+     * \brief mapping between the material identifiers and the behaviour
+     * integrators.
      */
-    std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>
+    std::vector<std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>>
         behaviour_integrators;
   };  // end of MultiMaterialNonLinearIntegrator
 

@@ -26,7 +26,7 @@ namespace mfem_mgis {
    * std::experimental::observer_ptr proposal
    */
   template <typename ValueType>
-  struct OptionalReference {
+  struct [[nodiscard]] OptionalReference {
     //
     using element_type = ValueType;
     using pointer = ValueType*;
@@ -36,7 +36,7 @@ namespace mfem_mgis {
 
     constexpr OptionalReference(std::nullptr_t) noexcept : ptr(nullptr) {}
 
-    constexpr explicit OptionalReference(pointer p) noexcept : ptr(p) {}
+    constexpr OptionalReference(pointer p) noexcept : ptr(p) {}
 
     template <typename ValueType2>
     requires(std::is_convertible<ValueType2*, ValueType*>::value)  //
@@ -94,7 +94,13 @@ namespace mfem_mgis {
   }
 
   template <typename ValueType>
-  [[nodiscard]] constexpr OptionalReference<ValueType> make_observer(
+  [[nodiscard]] constexpr OptionalReference<ValueType> make_optional_reference(
+      ValueType& p) noexcept {
+    return OptionalReference<ValueType>(&p);
+  }
+
+  template <typename ValueType>
+  [[nodiscard]] constexpr OptionalReference<ValueType> make_optional_reference(
       ValueType* p) noexcept {
     return OptionalReference<ValueType>(p);
   }
