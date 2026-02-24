@@ -13,6 +13,7 @@
 #include "MGIS/Config.hxx"
 #include "MGIS/Raise.hxx"
 #include "MGIS/Context.hxx"
+#include "MGIS/LogStream.hxx"
 #include "MGIS/InvalidResult.hxx"
 
 #include "MFEMMGIS/MGISForward.hxx"
@@ -48,6 +49,11 @@ namespace mfem_mgis {
   using mgis::Context;
   using mgis::isInvalid;
   using mgis::isValid;
+
+  using mgis::debug;
+  using mgis::warning;
+  using mgis::getDefaultLogStream;
+  using mgis::setDefaultLogStream;
 
   namespace attributes {
     //! \brief a simple alias

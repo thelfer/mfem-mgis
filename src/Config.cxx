@@ -161,6 +161,7 @@ namespace mfem_mgis {
     static bool first = true;
     if (first) {
       mgis::setExceptionHandler(exit_on_failure);
+      mgis::setDefaultLogStream(mfem_mgis::getOutputStream());
       MPI_Init(&argc, &argv);
       if (getMPIrank() != 0) {
         mfem::out.Disable();

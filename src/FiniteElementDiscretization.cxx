@@ -5,11 +5,12 @@
  * \date 16/12/2020
  */
 
-#include <iostream>
+#include <regex>
 #include <cctype>
 #include <utility>
-#include <regex>
 #include <fstream>
+#include <iostream>
+#include <algorithm>
 #include <mfem/mesh/mesh.hpp>
 #include <mfem/fem/fespace.hpp>
 #ifdef MFEM_USE_MPI
@@ -22,6 +23,17 @@
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 
 namespace mfem_mgis {
+
+  //! \brief remove extra spaces on the rigth
+  [[nodiscard]] static std::string trim_right(const std::string& s) noexcept {
+    auto r = std::string{s};
+    r.erase(std::find_if(
+                r.rbegin(), r.rend(),
+                [](std::string::value_type ch) { return !std::isspace(ch); })
+                .base(),
+            r.end());
+    return r;
+  };
 
 #ifdef MFEM_USE_MED
 
@@ -106,6 +118,121 @@ namespace mfem_mgis {
     return std::shared_ptr<Mesh<true>>(nullptr);
 #endif
   }  // end of loadMeshParallel
+
+  template <bool parallel>
+  static void updateNamesFromAttributesSets(
+      attributes::Throwing,
+      std::map<size_type, std::string>& materials_names,
+      std::map<size_type, std::string>& boundaries_names,
+      const Mesh<parallel>& mesh) {
+    auto count = [](std::map<size_type, std::string>& names,
+                    const std::string& name) {
+      auto c = size_type{};
+      for (const auto& [id, n] : names) {
+        static_cast<void>(id);
+        if (n == name) {
+          ++c;
+        }
+      }
+      return c;
+    };
+    // checks
+    for (const auto& [id, n] : materials_names) {
+      if (count(materials_names, n) != 1) {
+        raise("material name '" + n + "' multiply defined");
+      }
+      if (count(boundaries_names, n) != 0) {
+        raise("material name '" + n + "' also defined as a boundary name");
+      }
+    }
+    for (const auto& [id, n] : boundaries_names) {
+      // the name can't also be a material name, we checked that in the previous
+      // loop
+      if (count(boundaries_names, n) != 1) {
+        raise("boundary name '" + n + "' multiply defined");
+      }
+    }
+    //
+    const auto& attr_sets = mesh.attribute_sets;
+    const auto& bdr_attr_sets = mesh.bdr_attribute_sets;
+    const auto mnames = attr_sets.GetAttributeSetNames();
+    const auto bnames = bdr_attr_sets.GetAttributeSetNames();
+    for (const auto& an : attr_sets.GetAttributeSetNames()) {
+      if (!attr_sets.AttributeSetExists(an)) {
+        // This seems very unlikely
+        continue;
+      }
+      if (!bdr_attr_sets.AttributeSetExists(an)) {
+        warning(getDefaultLogStream(), "ignoring attribute set '", an,
+                "' whose name is also associated to a boundary attribute "
+                "set");
+        continue;
+      }
+      const auto& mids = attr_sets.GetAttributeSet(an);
+      if (mids.Size() != 1) {
+        warning(getDefaultLogStream(), "ignoring attribute set '", an,
+                "' which is associated to multiple materials");
+        continue;
+      }
+      // attributes may have extra spaces on the right.
+      // At this stage, I don't know if it comes from MED convertion of GMSH,
+      // but it is better to get rid of them
+      const auto n = trim_right(an);
+      if (count(boundaries_names, n) != 0) {
+        warning(getDefaultLogStream(), "ignoring attribute set '", n,
+                "' which is associated by the user to a boundary");
+        continue;
+      }
+      if (count(materials_names, n) != 0) {
+        warning(getDefaultLogStream(), "ignoring attribute set '", n,
+                "' which is already associated by the user to a material");
+        continue;
+      }
+      if (materials_names.find(mids[0]) != materials_names.end()) {
+        warning(getDefaultLogStream(), "ignoring attribute set '", n,
+                "' for material (", mids[0],
+                ") which is already names by the user to a material");
+        continue;
+      }
+      materials_names.insert({mids[0], n});
+    }
+    for (const auto& an : bdr_attr_sets.GetAttributeSetNames()) {
+      if (!bdr_attr_sets.AttributeSetExists(an)) {
+        // This seems very unlikely
+        continue;
+      }
+      if (!attr_sets.AttributeSetExists(an)) {
+        warning(getDefaultLogStream(), "ignoring boundary attribute set '", an,
+                "' whose name is also associated to a material attribute "
+                "set");
+        continue;
+      }
+      const auto& bids = bdr_attr_sets.GetAttributeSet(an);
+      if (bids.Size() != 1) {
+        warning(getDefaultLogStream(), "ignoring boundary attribute set '", an,
+                "' which is associated to multiple materials");
+        continue;
+      }
+      const auto n = trim_right(an);
+      if (count(boundaries_names, n) != 0) {
+        warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
+                "' which is associated by the user to a boundary");
+        continue;
+      }
+      if (count(materials_names, n) != 0) {
+        warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
+                "' which is already associated by the user to a material");
+        continue;
+      }
+      if (boundaries_names.find(bids[0]) != boundaries_names.end()) {
+        warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
+                "' for material (", bids[0],
+                ") which is already names by the user to a material");
+        continue;
+      }
+      boundaries_names.insert({bids[0], n});
+    }
+  }  // end of updateNamesFromAttributesSets
 
   const char* const FiniteElementDiscretization::Parallel = "Parallel";
   const char* const FiniteElementDiscretization::MeshFileName = "MeshFileName";
@@ -216,7 +343,6 @@ namespace mfem_mgis {
         params, FiniteElementDiscretization::MeshReadMode, "FromScratch");
     if (parallel) {
 #ifdef MFEM_USE_MPI
-
       size_type ref_level = 0;
       if (mesh_mode == "FromScratch") {
         auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
@@ -289,13 +415,32 @@ namespace mfem_mgis {
           this->sequential_mesh.get(), this->fec.get(), u_size);
     }
     // declaring materials and boundaries
-    if (contains(params, FiniteElementDiscretization::Materials)) {
-      this->setMaterialsNames(extractMap(
-          get<Parameters>(params, FiniteElementDiscretization::Materials)));
+    auto mnames = [&params, extractMap]() -> std::map<size_type, std::string> {
+      if (contains(params, FiniteElementDiscretization::Materials)) {
+        return extractMap(
+            get<Parameters>(params, FiniteElementDiscretization::Materials));
+      }
+      return {};
+    }();
+    auto bnames = [&params, extractMap]() -> std::map<size_type, std::string> {
+      if (contains(params, FiniteElementDiscretization::Boundaries)) {
+        return extractMap(
+            get<Parameters>(params, FiniteElementDiscretization::Boundaries));
+      }
+      return {};
+    }();
+    if (parallel) {
+      updateNamesFromAttributesSets<true>(throwing, mnames, bnames,
+                                          *(this->parallel_mesh));
+    } else {
+      updateNamesFromAttributesSets<false>(throwing, mnames, bnames,
+                                           *(this->sequential_mesh));
     }
-    if (contains(params, FiniteElementDiscretization::Boundaries)) {
-      this->setBoundariesNames(extractMap(
-          get<Parameters>(params, FiniteElementDiscretization::Boundaries)));
+    if (!mnames.empty()) {
+      this->setMaterialsNames(mnames);
+    }
+    if (!bnames.empty()) {
+      this->setBoundariesNames(bnames);
     }
   }  // end of FiniteElementDiscretization
 
