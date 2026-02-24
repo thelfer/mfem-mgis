@@ -162,7 +162,7 @@ namespace mfem_mgis {
         // This seems very unlikely
         continue;
       }
-      if (!bdr_attr_sets.AttributeSetExists(an)) {
+      if (bdr_attr_sets.AttributeSetExists(an)) {
         warning(getDefaultLogStream(), "ignoring attribute set '", an,
                 "' whose name is also associated to a boundary attribute "
                 "set");
@@ -201,7 +201,7 @@ namespace mfem_mgis {
         // This seems very unlikely
         continue;
       }
-      if (!attr_sets.AttributeSetExists(an)) {
+      if (attr_sets.AttributeSetExists(an)) {
         warning(getDefaultLogStream(), "ignoring boundary attribute set '", an,
                 "' whose name is also associated to a material attribute "
                 "set");
@@ -745,6 +745,16 @@ namespace mfem_mgis {
     raise("getMaterialIdentifier: no boundary named '" + n + "'");
   }  // end of getBoundaryIdentifier
 
+  std::map<size_type, std::string>
+  FiniteElementDiscretization::getMaterialsNames() const noexcept {
+    return this->materials_names;
+  } // end of getMaterialsNames
+
+  std::map<size_type, std::string>
+  FiniteElementDiscretization::getBoundariesNames() const noexcept {
+    return this->boundaries_names;
+  } // end of getBoundariesNames
+
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;
 
   size_type getTrueVSize(const FiniteElementDiscretization& fed) {
@@ -768,5 +778,28 @@ namespace mfem_mgis {
     }
     return fed.getMesh<false>().SpaceDimension();
   }  // end of getSpaceDimension
+
+  template <>
+  void getInformation<FiniteElementDiscretization>(
+      std::ostream& os, const FiniteElementDiscretization& fed) noexcept {
+    const auto& mnames = fed.getMaterialsNames();
+    os << "# Mesh\n\n"
+       << "- space dimension: " << getSpaceDimension(fed);
+    if (!mnames.empty()) {
+      os << "\n\n## Materials\n";
+      for (const auto& [id, n] : mnames) {
+        os << "\n- '" << n << "' associated with identifier (" << id << ")";
+      }
+    }
+    const auto& bnames = fed.getBoundariesNames();
+    if (!bnames.empty()) {
+      os << "\n\n## Boundaries\n";
+      for (const auto& [id, n] : bnames) {
+        os << "\n- '" << n << "' associated with identifier (" << id << ")";
+      }
+    }
+    os << "\n\n# Finite element space\n\n"
+       << "- true vector size: " << getTrueVSize(fed) << '\n';
+  }  // end of info
 
 }  // end of namespace mfem_mgis

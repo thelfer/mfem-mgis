@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "MFEMMGIS/Info.hxx"
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
@@ -198,6 +199,18 @@ namespace mfem_mgis {
     getFiniteElementCollectionPointer() const noexcept;
     //! \return if this object is built to run parallel computations
     [[nodiscard]] bool describesAParallelComputation() const;
+    /*!
+     * \brief return the names of the materials (and their mapping with their
+     * identifiers
+     */
+    [[nodiscard]] std::map<size_type, std::string> getMaterialsNames()
+        const noexcept;
+    /*!
+     * \brief return the names of the boundaries (and their mapping with their
+     * identifiers
+     */
+    [[nodiscard]] std::map<size_type, std::string> getBoundariesNames()
+        const noexcept;
     //! \brief destructor
     ~FiniteElementDiscretization();
 
@@ -245,6 +258,16 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT const mfem::Array<size_type>& getBoundariesAttributes(
       const FiniteElementDiscretization&);
+
+  /*!
+   * \brief display information about a finite element discretization
+   *
+   * \param[out] os: output stream
+   * \param[in] fed: finite element discretization
+   */
+  template <>
+  MFEM_MGIS_EXPORT void getInformation<FiniteElementDiscretization>(
+      std::ostream&, const FiniteElementDiscretization&) noexcept;
 
 }  // end of namespace mfem_mgis
 
