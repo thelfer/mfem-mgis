@@ -95,6 +95,10 @@ namespace mfem_mgis {
         const override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
+    [[nodiscard]] bool setMaterialsNames(
+        Context&, const std::map<size_type, std::string>&) noexcept override;
+    [[nodiscard]] bool setBoundariesNames(
+        Context&, const std::map<size_type, std::string>&) noexcept override;
     mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
     const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
     mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;

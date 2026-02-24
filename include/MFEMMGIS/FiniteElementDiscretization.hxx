@@ -119,6 +119,20 @@ namespace mfem_mgis {
                                 std::shared_ptr<const FiniteElementCollection>,
                                 std::unique_ptr<FiniteElementSpace<false>>);
     /*!
+     * \brief set material names
+     * \param[in, out] ctx: execution context
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[nodiscard]] bool setMaterialsNames(
+        Context&, const std::map<size_type, std::string>&) noexcept;
+    /*!
+     * \brief set material names
+     * \param[in, out] ctx: execution context
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[nodiscard]] bool setBoundariesNames(
+        Context&, const std::map<size_type, std::string>&) noexcept;
+    /*!
      * \return the material name associated with the given identifier, if it is
      * defined. If not defined, an empty string is returned
      *

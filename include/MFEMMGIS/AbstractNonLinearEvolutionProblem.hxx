@@ -57,6 +57,20 @@ namespace mfem_mgis {
     static const char *const SolverRelativeTolerance;
     static const char *const SolverAbsoluteTolerance;
     static const char *const SolverMaximumNumberOfIterations;
+    /*!
+     * \brief set the names of the materials
+     * \param[in, out] ctx: execution context
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[nodiscard]] virtual bool setMaterialsNames(
+        Context &, const std::map<size_type, std::string> &) noexcept = 0;
+    /*!
+     * \brief set the names of the boundaries
+     * \param[in, out] ctx: execution context
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[nodiscard]] virtual bool setBoundariesNames(
+        Context &, const std::map<size_type, std::string> &) noexcept = 0;
     //! \return the underlying finite element discretization
     [[nodiscard]] virtual FiniteElementDiscretization &
     getFiniteElementDiscretization() = 0;
@@ -66,22 +80,6 @@ namespace mfem_mgis {
     //! \return the underlying finite element discretization
     [[nodiscard]] virtual std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() = 0;
-    //! \return the unknowns at the beginning of the time step
-    [[nodiscard, deprecated("use getUnknowns instead")]]  //
-    virtual mfem::Vector &
-    getUnknownsAtBeginningOfTheTimeStep() = 0;
-    //! \return the unknowns at the beginning of the time step
-    [[nodiscard, deprecated("use getUnknowns instead")]]  //
-    virtual const mfem::Vector &
-    getUnknownsAtBeginningOfTheTimeStep() const = 0;
-    //! \return the unknowns at the end of the time step
-    [[nodiscard, deprecated("use getUnknowns instead")]]  //
-    virtual mfem::Vector &
-    getUnknownsAtEndOfTheTimeStep() = 0;
-    //! \return the unknowns at the end of the time step
-    [[nodiscard, deprecated("use getUnknowns instead")]]  //
-    virtual const mfem::Vector &
-    getUnknownsAtEndOfTheTimeStep() const = 0;
     //! \return the unknowns at the end of the time step
     [[nodiscard]] virtual mfem::Vector &getUnknowns(
         const TimeStepStage) noexcept = 0;
@@ -264,6 +262,22 @@ namespace mfem_mgis {
     virtual void revert() = 0;
     //! \brief update the state to the end of the time step.
     virtual void update() = 0;
+    //! \return the unknowns at the beginning of the time step
+    [[nodiscard, deprecated("use getUnknowns instead")]]  //
+    virtual mfem::Vector &
+    getUnknownsAtBeginningOfTheTimeStep() = 0;
+    //! \return the unknowns at the beginning of the time step
+    [[nodiscard, deprecated("use getUnknowns instead")]]  //
+    virtual const mfem::Vector &
+    getUnknownsAtBeginningOfTheTimeStep() const = 0;
+    //! \return the unknowns at the end of the time step
+    [[nodiscard, deprecated("use getUnknowns instead")]]  //
+    virtual mfem::Vector &
+    getUnknownsAtEndOfTheTimeStep() = 0;
+    //! \return the unknowns at the end of the time step
+    [[nodiscard, deprecated("use getUnknowns instead")]]  //
+    virtual const mfem::Vector &
+    getUnknownsAtEndOfTheTimeStep() const = 0;
     /*!
      * \brief set material names
      * \param[in] ids: mapping between mesh identifiers and names

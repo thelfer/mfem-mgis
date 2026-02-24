@@ -33,7 +33,7 @@ namespace mfem_mgis {
                 .base(),
             r.end());
     return r;
-  };
+  }
 
 #ifdef MFEM_USE_MED
 
@@ -521,10 +521,10 @@ namespace mfem_mgis {
                                            *(this->sequential_mesh));
     }
     if (!mnames.empty()) {
-      this->setMaterialsNames(mnames);
+      this->setMaterialsNames(throwing, mnames);
     }
     if (!bnames.empty()) {
-      this->setBoundariesNames(bnames);
+      this->setBoundariesNames(throwing, bnames);
     }
   }  // end of FiniteElementDiscretization
 
@@ -621,6 +621,26 @@ namespace mfem_mgis {
     return this->fec;
   }  // end of getFiniteElementCollection
 
+  bool FiniteElementDiscretization::setMaterialsNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    try {
+      this->setMaterialsNames(throwing, ids);
+    } catch (...) {
+      return registerExceptionInErrorBacktrace(ctx);
+    }
+    return true;
+  }  // end of setMaterialsNames
+
+  bool FiniteElementDiscretization::setBoundariesNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    try {
+      this->setBoundariesNames(throwing, ids);
+    } catch (...) {
+      return registerExceptionInErrorBacktrace(ctx);
+    }
+    return true;
+  }  // end of setBoundariesNames
+
   void FiniteElementDiscretization::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {
     this->setMaterialsNames(throwing, ids);
@@ -685,7 +705,7 @@ namespace mfem_mgis {
     return {id};
   }  // end of selectMeshObjectsIdentifiers
 
-  std::vector<size_type> selectMeshObjectsIdentifiers(
+  [[nodiscard]] static std::vector<size_type> selectMeshObjectsIdentifiers(
       const std::map<size_type, std::string>& names,
       const std::string& id,
       const std::string& t,
@@ -701,13 +721,13 @@ namespace mfem_mgis {
       if (r.empty()) {
         raise(m + ": no " + t + " matching regular expression '" + id + "'");
       }
-    } catch (std::exception& e) {
+    } catch (std::exception&) {
       raise(m + ": invalid regular expression '" + id + "'");
     }
     return r;
   }  // end of selectMeshObjectsIdentifiers
 
-  std::vector<size_type> selectMeshObjectsIdentifiers(
+  [[nodiscard]] static std::vector<size_type> selectMeshObjectsIdentifiers(
       const mfem::Array<size_type>& attributes,
       const std::map<size_type, std::string>& names,
       const std::vector<Parameter>& ids,

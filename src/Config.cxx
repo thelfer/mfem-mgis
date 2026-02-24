@@ -145,7 +145,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  static void exit_on_failure() {
+  [[noreturn]] static void exit_on_failure() {
     try {
       throw;
     } catch (std::exception& e) {
@@ -154,7 +154,6 @@ namespace mfem_mgis {
       mfem_mgis::getErrorStream() << "unknown exception thrown";
     }
     abort();
-    std::abort();
   }  // end of exit_on_failure
 
   void initialize(int& argc, MainFunctionArguments& argv) {
@@ -186,13 +185,11 @@ namespace mfem_mgis {
 
   void abort(const int error) {
     Finalizer::get().abort(error);
-    std::exit(error);
   }  // end of abort
 
   void abort(const char* const msg, const int error) {
     mfem_mgis::getErrorStream() << msg << '\n';
     Finalizer::get().abort(error);
-    std::exit(error);
   }  // end of abort
 
   void declareDefaultOptions(mfem::OptionsParser& parser) {

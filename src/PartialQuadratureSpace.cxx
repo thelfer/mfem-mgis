@@ -322,7 +322,7 @@ namespace mfem_mgis {
           std::max_element(all_nqpoints.begin(), all_nqpoints.end());
       if (pmax == all_nqpoints.end()) {  // avoid warning
         abort("internal error");
-      };
+      }
       // paranoïac check
       for (const auto& n2 : all_nqpoints) {
         if ((n2 != 0) && (n2 != *pmax)) {
