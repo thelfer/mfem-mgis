@@ -119,16 +119,6 @@ namespace mfem_mgis {
                                 std::shared_ptr<const FiniteElementCollection>,
                                 std::unique_ptr<FiniteElementSpace<false>>);
     /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    void setMaterialsNames(const std::map<size_type, std::string>&);
-    /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    void setBoundariesNames(const std::map<size_type, std::string>&);
-    /*!
      * \return the material name associated with the given identifier, if it is
      * defined. If not defined, an empty string is returned
      *
@@ -235,10 +225,36 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::map<size_type, std::string> getBoundariesNames()
         const noexcept;
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[deprecated]] void setMaterialsNames(
+        const std::map<size_type, std::string>&);
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[deprecated]] void setBoundariesNames(
+        const std::map<size_type, std::string>&);
     //! \brief destructor
     ~FiniteElementDiscretization();
 
    private:
+    /*!
+     * \brief set names of materials
+     * \param[in] 1: dummy parameter indicated that this function may throw
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    void setMaterialsNames(attributes::Throwing,
+                           const std::map<size_type, std::string>&);
+    /*!
+     * \brief set names of boundaries
+     * \param[in] 1: dummy parameter indicated that this function may throw
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    void setBoundariesNames(attributes::Throwing,
+                            const std::map<size_type, std::string>&);
     //! \brief mesh
 #ifdef MFEM_USE_MPI
     std::shared_ptr<Mesh<true>> parallel_mesh;

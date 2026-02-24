@@ -160,18 +160,6 @@ namespace mfem_mgis {
                                         const std::string &,
                                         const std::string &) = 0;
     /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    virtual void setMaterialsNames(
-        const std::map<size_type, std::string> &) = 0;
-    /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    virtual void setBoundariesNames(
-        const std::map<size_type, std::string> &) = 0;
-    /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
      */
@@ -276,6 +264,18 @@ namespace mfem_mgis {
     virtual void revert() = 0;
     //! \brief update the state to the end of the time step.
     virtual void update() = 0;
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[deprecated]] virtual void setMaterialsNames(
+        const std::map<size_type, std::string> &) = 0;
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[deprecated]] virtual void setBoundariesNames(
+        const std::map<size_type, std::string> &) = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblem();
   };  // end of struct AbstractNonLinearEvolutionProblem

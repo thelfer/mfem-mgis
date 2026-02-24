@@ -110,8 +110,6 @@ namespace mfem_mgis {
                                 const Parameter &,
                                 const std::string &,
                                 const std::string &) override;
-    void setMaterialsNames(const std::map<size_type, std::string> &) override;
-    void setBoundariesNames(const std::map<size_type, std::string> &) override;
     [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
         const override;
     [[nodiscard]] size_type getMaterialIdentifier(
@@ -140,6 +138,11 @@ namespace mfem_mgis {
                                                   const real) override;
     void revert() override;
     void update() override;
+    //
+    [[deprecated]] void setMaterialsNames(
+        const std::map<size_type, std::string> &) override;
+    [[deprecated]] void setBoundariesNames(
+        const std::map<size_type, std::string> &) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 

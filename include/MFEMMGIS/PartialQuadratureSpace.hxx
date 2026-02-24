@@ -233,8 +233,7 @@ namespace mfem_mgis {
      * \brief mapping giving for each geometric type in the partial quadrature
      * space the number of elements
      */
-    std::map<mfem::Geometry::Type, size_type>
-        number_of_cells_by_geometric_type;
+    std::map<mfem::Geometry::Type, size_type> number_of_cells_by_geometric_type;
     /*!
      * \brief mapping giving for each geometric type in the partial quadrature
      * space the number of quadrature points

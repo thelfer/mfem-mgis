@@ -119,23 +119,97 @@ namespace mfem_mgis {
 #endif
   }  // end of loadMeshParallel
 
+  static bool isValidMeshObjectName(const std::string& n) {
+    if (n.empty()) {
+      return false;
+    }
+    auto p = n.begin();
+    if (std::isdigit(*p)) {
+      return false;
+    }
+    for (; p != n.end(); ++p) {
+      if ((!std::isalpha(*p)) && (!(std::isdigit(*p))) && (*p != '_')) {
+        return false;
+      }
+      if (std::isspace(*p)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of isValidMeshObjectName
+
+  [[nodiscard]] static size_type count(
+      const std::map<size_type, std::string>& names,
+      const std::string& name) noexcept {
+    auto c = size_type{};
+    for (const auto& [id, n] : names) {
+      static_cast<void>(id);
+      if (n == name) {
+        ++c;
+      }
+    }
+    return c;
+  }  // end of count
+
+  [[nodiscard]] static std::optional<size_type> key(
+      const std::map<size_type, std::string>& names,
+      const std::string& name) noexcept {
+    for (const auto& [id, n] : names) {
+      if (n == name) {
+        return id;
+      }
+    }
+    return {};
+  }  // end of key
+
+  static void setMeshObjectNames(attributes::Throwing,
+                                 std::map<size_type, std::string>& ids,
+                                 const std::map<size_type, std::string>& nids,
+                                 const mfem::Array<size_type>& attributes,
+                                 const std::string& m,
+                                 const std::string& t) {
+    // checks that the given identifiers are ok
+    for (const auto& [a, n] : nids) {
+      if (count(nids, n) != 1) {
+        raise(m + ": name " + n + " multiply defined");
+      }
+      if (attributes.Find(a) == -1) {
+        raise(m + ": no " + t + " associated with attribute '" +
+              std::to_string(a) + "'");
+      }
+      if (!isValidMeshObjectName(n)) {
+        raise(m + ": " + n + " is not a valid " + t + " identifier");
+      }
+      auto oa = key(ids, n);
+      if (oa.has_value()) {
+        if (*oa != a) {
+          raise(m + ": name " + n + " is already associated to another " + t);
+        }
+      }
+      const auto p = ids.find(a);
+      if (p != ids.end()) {
+        if (p->second != n) {
+          warning(getDefaultLogStream(), m, ": overwritting ", t, " name '",
+                  p->second, "' by '", n, "'");
+        }
+      }
+    }
+    for (const auto& [a, n] : nids) {
+      const auto p = ids.find(a);
+      if (p != ids.end()) {
+        ids.erase(p);
+      }
+    }
+    // declaring attributes
+    ids.insert(nids.begin(), nids.end());
+  }  // end of setMeshObjectNames
+
   template <bool parallel>
   static void updateNamesFromAttributesSets(
       attributes::Throwing,
       std::map<size_type, std::string>& materials_names,
       std::map<size_type, std::string>& boundaries_names,
       const Mesh<parallel>& mesh) {
-    auto count = [](std::map<size_type, std::string>& names,
-                    const std::string& name) {
-      auto c = size_type{};
-      for (const auto& [id, n] : names) {
-        static_cast<void>(id);
-        if (n == name) {
-          ++c;
-        }
-      }
-      return c;
-    };
     // checks
     for (const auto& [id, n] : materials_names) {
       if (count(materials_names, n) != 1) {
@@ -194,6 +268,11 @@ namespace mfem_mgis {
                 ") which is already names by the user to a material");
         continue;
       }
+      if (!isValidMeshObjectName(n)) {
+        warning(getDefaultLogStream(), "ignoring attribute set '", n,
+                "' for material (", mids[0], ") as it is not a valid name");
+        continue;
+      }
       materials_names.insert({mids[0], n});
     }
     for (const auto& an : bdr_attr_sets.GetAttributeSetNames()) {
@@ -228,6 +307,11 @@ namespace mfem_mgis {
         warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
                 "' for material (", bids[0],
                 ") which is already names by the user to a material");
+        continue;
+      }
+      if (!isValidMeshObjectName(n)) {
+        warning(getDefaultLogStream(), "ignoring attribute set '", n,
+                "' for boundary (", bids[0], ") as it is not a valid name");
         continue;
       }
       boundaries_names.insert({bids[0], n});
@@ -537,59 +621,26 @@ namespace mfem_mgis {
     return this->fec;
   }  // end of getFiniteElementCollection
 
-  static bool isValidMeshObjectName(const std::string& n) {
-    if (n.empty()) {
-      return false;
-    }
-    auto p = n.begin();
-    if (std::isdigit(*p)) {
-      return false;
-    }
-    for (; p != n.end(); ++p) {
-      if ((!std::isalpha(*p)) && (!(std::isdigit(*p))) && (*p != '_')) {
-        return false;
-      }
-      if (std::isspace(*p)) {
-        return false;
-      }
-    }
-    return true;
-  }  // end of isValidMeshObjectName
-
-  static void setMeshObjectNames(std::map<size_type, std::string>& ids,
-                                 const std::map<size_type, std::string>& nids,
-                                 const mfem::Array<size_type>& attributes,
-                                 const std::string& m,
-                                 const std::string& t) {
-    // checks that the given identifiers are ok
-    for (const auto& [a, n] : nids) {
-      if (attributes.Find(a) == -1) {
-        raise(m + ": no " + t + " associated with attribute '" +
-              std::to_string(a) + "'");
-      }
-      if (!isValidMeshObjectName(n)) {
-        raise(m + ": " + n + " is not a valid " + t + " identifier");
-      }
-      const auto p = ids.find(a);
-      if (p != ids.end()) {
-        raise(m + ": a name has already been associated with " + t + " " +
-              std::to_string(a) + " ('" + p->second + "') ");
-      }
-    }
-    // declaring attributes
-    ids.insert(nids.begin(), nids.end());
-  }  // end of setMeshObjectNames
-
   void FiniteElementDiscretization::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {
-    setMeshObjectNames(this->materials_names, ids,
+    this->setMaterialsNames(throwing, ids);
+  }  // end of setMaterialsNames
+
+  void FiniteElementDiscretization::setBoundariesNames(
+      const std::map<size_type, std::string>& ids) {
+    this->setBoundariesNames(throwing, ids);
+  }  // end of setBoundariesNames
+
+  void FiniteElementDiscretization::setMaterialsNames(
+      attributes::Throwing, const std::map<size_type, std::string>& ids) {
+    setMeshObjectNames(throwing, this->materials_names, ids,
                        getMaterialsAttributes(*this), "setMaterialsNames",
                        "material");
   }  // end of setMaterialsNames
 
   void FiniteElementDiscretization::setBoundariesNames(
-      const std::map<size_type, std::string>& ids) {
-    setMeshObjectNames(this->boundaries_names, ids,
+      attributes::Throwing, const std::map<size_type, std::string>& ids) {
+    setMeshObjectNames(throwing, this->boundaries_names, ids,
                        getBoundariesAttributes(*this), "setBoundariesNames",
                        "boundary");
   }  // end of setBoundariesNames
