@@ -53,7 +53,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../post_processings.html">Post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mechanical_postprocessings.html">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_functions.html">Partial quadrature functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release_notes/release_notes.html">Release notes</a></li>
@@ -61,6 +61,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mechanical-tests">Mechanical tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#heat-transfer">Heat transfer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#micromorphic-damage">Micromorphic damage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#point-wise-models">Point-wise models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#unit-tests">Unit tests</a></li>
 </ul>
 </li>
@@ -147,6 +148,14 @@ bar using an alternate minimization algorithm between a mechanical
 model and a model describing damage evolution in 2D. solution.</p></li>
 </ul>
 </section>
+<section id="point-wise-models">
+<h2>Point-wise models<a class="headerlink" href="#point-wise-models" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <cite>PointWiseModelTest</cite>: this test shows how to evaluate a simple
+model of shrinkage of Uranium dioxide under irradiation on a partial
+quadrature space</p></li>
+</ul>
+</section>
 <section id="unit-tests">
 <h2>Unit tests<a class="headerlink" href="#unit-tests" title="Link to this heading"></a></h2>
 <ul class="simple">
@@ -154,6 +163,8 @@ model and a model describing damage evolution in 2D. solution.</p></li>
 <li><p><cite>PeriodicTest</cite>: This test provides some tests of periodic features</p></li>
 <li><p><cite>ParallelReadMode</cite>: This test checks that the reader can read
 correctly a splitted mesh.</p></li>
+<li><p><cite>PartialQuadratureSpaceTest</cite>: This test provides some tests on
+partial quadrature spaces.</p></li>
 <li><p><cite>PartialQuadratureFunctionTest</cite>: This test provides some tests on
 partial quadrature functions.</p></li>
 <li><p><cite>GridFunctionTest</cite>: test the <cite>update</cite> function which projects a
