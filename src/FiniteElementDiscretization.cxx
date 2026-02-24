@@ -594,6 +594,34 @@ namespace mfem_mgis {
                        "boundary");
   }  // end of setBoundariesNames
 
+  std::optional<std::string> FiniteElementDiscretization::getMaterialName(
+      Context& ctx, const size_type id) const noexcept {
+    const auto& mids = getMaterialsAttributes(*this);
+    if (mids.Find(id) == -1) {
+      return ctx.registerErrorMessage("no material id '" + std::to_string(id) +
+                                      "' defined in the mesh");
+    }
+    const auto p = this->materials_names.find(id);
+    if (p == this->materials_names.end()) {
+      return std::string{};
+    }
+    return p->second;
+  }  // end of getMaterialName
+
+  std::optional<std::string> FiniteElementDiscretization::getBoundaryName(
+      Context& ctx, const size_type id) const noexcept {
+    const auto& bids = getBoundariesAttributes(*this);
+    if (bids.Find(id) == -1) {
+      return ctx.registerErrorMessage("no boundary id '" + std::to_string(id) +
+                                      "' defined in the mesh");
+    }
+    const auto p = this->boundaries_names.find(id);
+    if (p == this->boundaries_names.end()) {
+      return std::string{};
+    }
+    return p->second;
+  }  // end of getBoundaryName
+
   static std::vector<size_type> selectMeshObjectsIdentifiers(
       const mfem::Array<size_type>& attributes,
       const size_type id,
