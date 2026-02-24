@@ -216,19 +216,23 @@ namespace mfem_mgis {
     return ctx.registerErrorMessage("unsupported geometric type");
   }  // end of to_string
 
-  bool info(Context& ctx,
-            std::ostream& os,
-            const PartialQuadratureSpace& s) noexcept {
+  template <>
+  bool getInformation<PartialQuadratureSpace>(
+      Context& ctx,
+      std::ostream& os,
+      const PartialQuadratureSpace& s) noexcept {
     auto oinfo = getInformation(ctx, s);
     if (isInvalid(oinfo)) {
       return false;
     }
-    return info(ctx, os, *oinfo);
-  }  // end of info
+    return getInformation(ctx, os, *oinfo);
+  }  // end of getInformation
 
-  bool info(Context& ctx,
-            std::ostream& os,
-            const PartialQuadratureSpaceInformation& info) noexcept {
+  template <>
+  bool getInformation<PartialQuadratureSpaceInformation>(
+      Context& ctx,
+      std::ostream& os,
+      const PartialQuadratureSpaceInformation& info) noexcept {
     auto success = true;
     os << "- material or boundary identifier:";
     if (!info.name.empty()) {
@@ -262,7 +266,7 @@ namespace mfem_mgis {
       }
     }
     return success;
-  }  // end of info
+  }  // end of getInformation
 
   std::optional<PartialQuadratureSpaceInformation> synchronize(
       Context& ctx, const PartialQuadratureSpaceInformation& info) noexcept {
@@ -285,8 +289,8 @@ namespace mfem_mgis {
     r.name = info.name;
     //
     r.number_of_cells = info.number_of_cells;
-    MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_cells), 1,
-                  mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_cells), 1, mpi_type<size_type>,
+                  MPI_SUM, MPI_COMM_WORLD);
     r.number_of_quadrature_points = info.number_of_quadrature_points;
     MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_quadrature_points), 1,
                   mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);

@@ -19,37 +19,32 @@ namespace mfem_mgis {
    * \brief print information in the given log stream
    *
    * \param[out] os: output stream
+   * \param[in, out] os: output stream
    * \param[in, out] t: object for which information are requested
    *
    * \note by default, getInformation does nothing. This function is meant to be
    * overloaded.
    */
   template <typename T>
-  void getInformation(std::ostream&, const T&) noexcept;
+  [[nodiscard]] bool getInformation(Context&, std::ostream&, const T&) noexcept;
 
   /*!
    * \brief print information in the default log stream
-   *
-   * \param[in, out] t: object for which information are requested
-   */
-  template <typename T>
-  void info(const T&) noexcept;
-  /*!
-   * \brief print information in the given stream
-   *
-   * \param[out] os: output stream
-   * \param[in, out] t: object for which information are requested
-   */
-  template <typename T>
-  void info(std::ostream&, const T&) noexcept;
-  /*!
-   * \brief print information in the log stream associated with the context
    *
    * \param[in, out] ctx: execution context
    * \param[in, out] t: object for which information are requested
    */
   template <typename T>
-  void info(Context&, const T&) noexcept;
+  bool info(Context&, const T&) noexcept;
+  /*!
+   * \brief print information in the default log stream
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in, out] os: output stream
+   * \param[in] t: object for which information are requested
+   */
+  template <typename T>
+  bool info(Context&, const T&) noexcept;
 
 }  // end of namespace mfem_mgis
 

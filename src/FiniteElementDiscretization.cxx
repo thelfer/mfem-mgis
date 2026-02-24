@@ -776,12 +776,12 @@ namespace mfem_mgis {
   std::map<size_type, std::string>
   FiniteElementDiscretization::getMaterialsNames() const noexcept {
     return this->materials_names;
-  } // end of getMaterialsNames
+  }  // end of getMaterialsNames
 
   std::map<size_type, std::string>
   FiniteElementDiscretization::getBoundariesNames() const noexcept {
     return this->boundaries_names;
-  } // end of getBoundariesNames
+  }  // end of getBoundariesNames
 
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;
 
@@ -808,8 +808,10 @@ namespace mfem_mgis {
   }  // end of getSpaceDimension
 
   template <>
-  void getInformation<FiniteElementDiscretization>(
-      std::ostream& os, const FiniteElementDiscretization& fed) noexcept {
+  bool getInformation<FiniteElementDiscretization>(
+      Context&,
+      std::ostream& os,
+      const FiniteElementDiscretization& fed) noexcept {
     const auto& mnames = fed.getMaterialsNames();
     os << "# Mesh\n\n"
        << "- space dimension: " << getSpaceDimension(fed);
@@ -828,6 +830,7 @@ namespace mfem_mgis {
     }
     os << "\n\n# Finite element space\n\n"
        << "- true vector size: " << getTrueVSize(fed) << '\n';
+    return true;
   }  // end of info
 
 }  // end of namespace mfem_mgis

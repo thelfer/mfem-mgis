@@ -11,22 +11,18 @@
 namespace mfem_mgis {
 
   template <typename T>
-  void getInformation(std::ostream&, const T&) noexcept {
+  bool getInformation(Context&, std::ostream&, const T&) noexcept {
+    return true;
   }  // end of getInformation
 
   template <typename T>
-  void info(const T& t) noexcept {
-    ::mfem_mgis::getInformation(getDefaultLogStream(), t);
+  bool info(Context& ctx, std::ostream& os, const T& t) noexcept {
+    return ::mfem_mgis::getInformation(ctx, os, t);
   }  // end of info
 
   template <typename T>
-  void info(std::ostream& os, const T& t) noexcept {
-    ::mfem_mgis::getInformation(os, t);
-  }  // end of info
-
-  template <typename T>
-  void info(Context& ctx, const T& t) noexcept {
-    ::mfem_mgis::getInformation(ctx.log(), t);
+  bool info(Context& ctx, const T& t) noexcept {
+    return ::mfem_mgis::getInformation(ctx, ctx.log(), t);
   }  // end of info
 
 }  // end of namespace mfem_mgis

@@ -51,9 +51,9 @@ namespace mfem_mgis {
   using mgis::isValid;
 
   using mgis::debug;
-  using mgis::warning;
   using mgis::getDefaultLogStream;
   using mgis::setDefaultLogStream;
+  using mgis::warning;
 
   namespace attributes {
     //! \brief a simple alias

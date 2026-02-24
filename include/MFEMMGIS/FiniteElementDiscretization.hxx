@@ -286,12 +286,13 @@ namespace mfem_mgis {
   /*!
    * \brief display information about a finite element discretization
    *
+   * \param[in, out] ctx: execution context
    * \param[out] os: output stream
    * \param[in] fed: finite element discretization
    */
   template <>
-  MFEM_MGIS_EXPORT void getInformation<FiniteElementDiscretization>(
-      std::ostream&, const FiniteElementDiscretization&) noexcept;
+  MFEM_MGIS_EXPORT bool getInformation<FiniteElementDiscretization>(
+      Context&, std::ostream&, const FiniteElementDiscretization&) noexcept;
 
 }  // end of namespace mfem_mgis
 
