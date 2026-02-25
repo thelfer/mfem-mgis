@@ -95,6 +95,10 @@ namespace mfem_mgis {
         const override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
+    [[nodiscard]] bool setMaterialsNames(
+        Context&, const std::map<size_type, std::string>&) noexcept override;
+    [[nodiscard]] bool setBoundariesNames(
+        Context&, const std::map<size_type, std::string>&) noexcept override;
     mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
     const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
     mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
@@ -104,8 +108,6 @@ namespace mfem_mgis {
     [[nodiscard]] const mfem::Vector& getUnknowns(
         const TimeStepStage) const noexcept override;
     void setSolverParameters(const Parameters&) override;
-    void setMaterialsNames(const std::map<size_type, std::string>&) override;
-    void setBoundariesNames(const std::map<size_type, std::string>&) override;
     std::vector<size_type> getAssignedMaterialsIdentifiers() const override;
     size_type getMaterialIdentifier(const Parameter&) const override;
     size_type getBoundaryIdentifier(const Parameter&) const override;
@@ -142,6 +144,11 @@ namespace mfem_mgis {
                                                   const real) override;
     void revert() override;
     void update() override;
+    //
+    [[deprecated]] void setMaterialsNames(
+        const std::map<size_type, std::string>&) override;
+    [[deprecated]] void setBoundariesNames(
+        const std::map<size_type, std::string>&) override;
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 

@@ -14,8 +14,9 @@ User guide
    post_processings.rst  
    mechanical_postprocessings.rst  
    nonlinear_algorithms.rst
-   partial_quadrature_functions/partial_quadrature_functions.rst
-   glossary.rst  
+   partial_quadrature_functions/partial_quadrature_spaces_and_functions.rst
+   glossary.rst
    mesh.rst  
+   help.rst
    release_notes/release_notes.rst
    tests/unit_tests.rst

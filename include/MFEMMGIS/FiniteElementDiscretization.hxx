@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "MFEMMGIS/Info.hxx"
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
@@ -119,14 +120,42 @@ namespace mfem_mgis {
                                 std::unique_ptr<FiniteElementSpace<false>>);
     /*!
      * \brief set material names
+     * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
      */
-    void setMaterialsNames(const std::map<size_type, std::string>&);
+    [[nodiscard]] bool setMaterialsNames(
+        Context&, const std::map<size_type, std::string>&) noexcept;
     /*!
      * \brief set material names
+     * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
      */
-    void setBoundariesNames(const std::map<size_type, std::string>&);
+    [[nodiscard]] bool setBoundariesNames(
+        Context&, const std::map<size_type, std::string>&) noexcept;
+    /*!
+     * \return the material name associated with the given identifier, if it is
+     * defined. If not defined, an empty string is returned
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] id: material identifier
+     *
+     * \note the method only fails is the material identifier is defined in the
+     * mesh
+     */
+    [[nodiscard]] std::optional<std::string> getMaterialName(
+        Context&, const size_type) const noexcept;
+    /*!
+     * \return the boundary name associated with the given identifier, if it is
+     * defined. If not defined, an empty string is returned
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] id: boundary identifier
+     *
+     * \note the method only fails is the boundary identifier is defined in the
+     * mesh
+     */
+    [[nodiscard]] std::optional<std::string> getBoundaryName(
+        Context&, const size_type) const noexcept;
     /*!
      * \return the material identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
@@ -198,10 +227,48 @@ namespace mfem_mgis {
     getFiniteElementCollectionPointer() const noexcept;
     //! \return if this object is built to run parallel computations
     [[nodiscard]] bool describesAParallelComputation() const;
+    /*!
+     * \brief return the names of the materials (and their mapping with their
+     * identifiers
+     */
+    [[nodiscard]] std::map<size_type, std::string> getMaterialsNames()
+        const noexcept;
+    /*!
+     * \brief return the names of the boundaries (and their mapping with their
+     * identifiers
+     */
+    [[nodiscard]] std::map<size_type, std::string> getBoundariesNames()
+        const noexcept;
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[deprecated]] void setMaterialsNames(
+        const std::map<size_type, std::string>&);
+    /*!
+     * \brief set material names
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    [[deprecated]] void setBoundariesNames(
+        const std::map<size_type, std::string>&);
     //! \brief destructor
     ~FiniteElementDiscretization();
 
    private:
+    /*!
+     * \brief set names of materials
+     * \param[in] 1: dummy parameter indicated that this function may throw
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    void setMaterialsNames(attributes::Throwing,
+                           const std::map<size_type, std::string>&);
+    /*!
+     * \brief set names of boundaries
+     * \param[in] 1: dummy parameter indicated that this function may throw
+     * \param[in] ids: mapping between mesh identifiers and names
+     */
+    void setBoundariesNames(attributes::Throwing,
+                            const std::map<size_type, std::string>&);
     //! \brief mesh
 #ifdef MFEM_USE_MPI
     std::shared_ptr<Mesh<true>> parallel_mesh;
@@ -245,6 +312,17 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT const mfem::Array<size_type>& getBoundariesAttributes(
       const FiniteElementDiscretization&);
+
+  /*!
+   * \brief display information about a finite element discretization
+   *
+   * \param[in, out] ctx: execution context
+   * \param[out] os: output stream
+   * \param[in] fed: finite element discretization
+   */
+  template <>
+  MFEM_MGIS_EXPORT bool getInformation<FiniteElementDiscretization>(
+      Context&, std::ostream&, const FiniteElementDiscretization&) noexcept;
 
 }  // end of namespace mfem_mgis
 

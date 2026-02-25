@@ -8,7 +8,9 @@
 #ifndef LIB_MFEM_MGIS_PARTIALQUADRATURESPACE_HXX
 #define LIB_MFEM_MGIS_PARTIALQUADRATURESPACE_HXX
 
+#include <map>
 #include <memory>
+#include <iosfwd>
 #include <variant>
 #include <functional>
 #include <unordered_map>
@@ -18,6 +20,7 @@
 #endif /* MGIS_FUNCTION_SUPPORT */
 
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/Info.hxx"
 
 namespace mfem_mgis {
 
@@ -69,10 +72,18 @@ namespace mfem_mgis {
      * element
      * \param[in] e: index of the finite element
      */
-    size_type getNumberOfQuadraturePoints(const size_type) const;
+    [[nodiscard]] size_type getNumberOfQuadraturePoints(const size_type) const;
     /*!
-     * \brief return the hash table associating global element numbers and local
-     * offsets.
+     * \brief return the number of quadrature points for the given finite
+     * element
+     * \param[in, out] ctx: execution context
+     * \param[in] e: index of the finite element
+     */
+    [[nodiscard]] std::optional<size_type> getNumberOfQuadraturePoints(
+        Context &, const size_type) const noexcept;
+    /*!
+     * \brief return the hash table associating global element numbers and
+     * local offsets.
      */
     const std::unordered_map<size_type, size_type> &getOffsets() const;
     /*!
@@ -130,7 +141,7 @@ namespace mfem_mgis {
    * \note this method is equivalent to `getNumberOfIntegrationPoints`
    * \note this is as requirement of mgis::function::SpaceConcept
    */
-  size_type getSpaceSize(const PartialQuadratureSpace &);
+  [[nodiscard]] size_type getSpaceSize(const PartialQuadratureSpace &);
   /*!
    * \brief return the number of quadrature points
    *
@@ -139,8 +150,7 @@ namespace mfem_mgis {
    * \note this is as
    * requirement of mgis::function::QuadratureSpaceConcept
    */
-  size_type getNumberOfElements(const PartialQuadratureSpace &);
-
+  [[nodiscard]] size_type getNumberOfElements(const PartialQuadratureSpace &);
   /*!
    * \brief return the number of finite elements associated identifier
    *
@@ -148,14 +158,15 @@ namespace mfem_mgis {
    * `PartialQuadratureSpace::getNumberOfElements`
    * \note this is as requirement of mgis::function::QuadratureSpaceConcept
    */
-  size_type getNumberOfCells(const PartialQuadratureSpace &);
+  [[nodiscard]] size_type getNumberOfCells(const PartialQuadratureSpace &);
   /*!
    * \brief return the number of quadrature points for the given finite
    * element
    * \param[in] e: index of the finite element
    */
-  size_type getNumberOfQuadraturePoints(const PartialQuadratureSpace &,
-                                        const size_type);
+  [[nodiscard]] size_type getNumberOfQuadraturePoints(
+      const PartialQuadratureSpace &, const size_type);
+
 }  // namespace mfem_mgis
 
 namespace mgis::function {
@@ -203,6 +214,89 @@ namespace mgis::function {
 }  // end of namespace mgis::function
 
 #endif /* MGIS_FUNCTION_SUPPORT */
+
+namespace mfem_mgis {
+
+  /*!
+   * \brief structure describing information about a partial quadrature space
+   */
+  struct PartialQuadratureSpaceInformation {
+    //! \brief identifier of the underlying material
+    size_type identifier;
+    //! \brief name of the material, if defined
+    std::string name;
+    //! \brief number of cells (finite elements)
+    size_type number_of_cells;
+    //! \brief number of quadrature points
+    size_type number_of_quadrature_points;
+    /*!
+     * \brief mapping giving for each geometric type in the partial quadrature
+     * space the number of elements
+     */
+    std::map<mfem::Geometry::Type, size_type> number_of_cells_by_geometric_type;
+    /*!
+     * \brief mapping giving for each geometric type in the partial quadrature
+     * space the number of quadrature points
+     */
+    std::map<mfem::Geometry::Type, size_type>
+        number_of_quadrature_points_by_geometric_type;
+  };  // end of PartialQuadratureSpaceInformation
+
+  /*!
+   * \return information about the partial quadrature space on the current
+   * process
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in] s: partial quadrature space
+   */
+  MFEM_MGIS_EXPORT
+  [[nodiscard]] std::optional<PartialQuadratureSpaceInformation>
+  getLocalInformation(Context &, const PartialQuadratureSpace &) noexcept;
+  /*!
+   * \return information about the partial quadrature space, gathered from all
+   * processes
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in] s: partial quadrature space
+   */
+  MFEM_MGIS_EXPORT
+  [[nodiscard]] std::optional<PartialQuadratureSpaceInformation> getInformation(
+      Context &, const PartialQuadratureSpace &) noexcept;
+  /*!
+   * \brief write information, gathered from all processes in parallel, about
+   * the partial quadrature space in the output stream
+   *
+   * \param[in, out] ctx: execution context
+   * \param[out] os: output stream
+   * \param[in] info: information to be displayed
+   */
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] bool
+  getInformation<PartialQuadratureSpaceInformation>(
+      Context &,
+      std::ostream &,
+      const PartialQuadratureSpaceInformation &) noexcept;
+  /*!
+   * \brief write information, gathered from all processes in parallel, about
+   * the partial quadrature space in the output stream
+   *
+   * \param[in, out] ctx: execution context
+   * \param[out] os: output stream
+   * \param[in] s: partial quadrature space
+   */
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] bool getInformation<PartialQuadratureSpace>(
+      Context &, std::ostream &, const PartialQuadratureSpace &) noexcept;
+  /*!
+   * \brief synchronize information of all processes
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in] info: information to be shared
+   */
+  std::optional<PartialQuadratureSpaceInformation> synchronize(
+      Context &ctx, const PartialQuadratureSpaceInformation &) noexcept;
+
+}  // end of  namespace mfem_mgis
 
 #include "MFEMMGIS/PartialQuadratureSpace.ixx"
 

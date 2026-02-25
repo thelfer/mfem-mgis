@@ -31,7 +31,7 @@ namespace mfem_mgis {
         MPI_Reduce(&in, &res, 1, MPI_INT64_T, MPI_SUM, 0, MPI_COMM_WORLD);
 #endif
         return res;
-      };
+      }
 
       bool is_master() {
 #ifdef MFEM_USE_MPI
@@ -54,7 +54,7 @@ namespace mfem_mgis {
 #endif
       }
 
-    };  // namespace Utils
+    }  // namespace Utils
 
     namespace timers {
       using duration = std::chrono::duration<double>;
@@ -282,7 +282,7 @@ namespace mfem_mgis {
       Profiler::timer::end_global_timer<ROOT>();
       Profiler::OutputManager::writeFile();
     }
-  };  // namespace Profiler
+  }  // namespace Profiler
 
   namespace timer {
     TimeSection::TimeSection(duration* acc) {
@@ -304,7 +304,7 @@ namespace mfem_mgis {
       auto& current_timer = Profiler::timers::get_timer<CURRENT>();
       current_timer = current_timer->get_mother();
     }
-  };  // namespace timer
+  }  // namespace timer
 
   namespace OutputManager {
     std::string build_name() {
@@ -396,6 +396,5 @@ namespace mfem_mgis {
       recursive_call(my_write, root_timer, myFile);
     }
   }  // namespace OutputManager
-};   // namespace mfem_mgis
-}
-;  // namespace Profiler
+}  // namespace mfem_mgis
+}  // namespace Profiler
