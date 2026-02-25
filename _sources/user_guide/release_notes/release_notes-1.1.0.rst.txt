@@ -170,6 +170,5 @@ Example of usage
 Issues fixed
 ============
 
-- Issue 
 - Issue 149: work on the prediction of the solution
 
