@@ -13,9 +13,7 @@
 #include "mfem/fem/pfespace.hpp"
 #endif /* MFEM_USE_MPI */
 #include "MGIS/Raise.hxx"
-#ifdef MFEM_USE_MPI
 #include "MFEMMGIS/MPI.hxx"
-#endif /* MFEM_USE_MPI */
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
