@@ -22,9 +22,8 @@ method, as follows:
 
 .. code-block:: c++
 
-   // use the elastic operator by default
    mechanics.setPredictionPolicy(
-      {.strategy = PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION});
+      {.strategy = PredictionStrategy::ELASTIC_PREDICTION});
 
 Available strategies
 --------------------
@@ -43,20 +42,20 @@ step.
    gradients or the strain in the neighboring elements of boundaries where
    evolving displacements are imposed.
    
-Prediction for the state at the beginning of the time step (:cxx:`PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION`)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Elastic prediction (:cxx:`PredictionStrategy::ELASTIC_PREDICTION`)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The prediction for the state at the beginning of the time step strategy
-determines the increment of the displacement :math:`\Delta\,\mathbb{u}`
-by solving the following linear system:
+The :cxx:`ElasticPrediction` strategy determines the increment of the
+displacement :math:`\Delta\,\mathbb{u}` by solving the following linear
+system:
 
 .. math::
 
-   \mathbb{K}\,\cdot\,\Delta\,\mathbb{u} = \ets{\mathbb{F}_{e}}-\bts{\mathbb{F}_{i}}
+   \mathbb{K}_{e}\,\cdot\,\Delta\,\mathbb{u} = \ets{\mathbb{F}_{e}}-\bts{\mathbb{F}_{i}}
 
 where:
 
-- :math:`\mathbb{K}_{e}` denotes one of the prediction operator (see below).
+- :math:`\mathbb{K}_{e}` denotes the elastic stiffness matrix.
 - :math:`\bts{\mathbb{F}_{e}}` denotes the external forces at the beginning
   of the time step.
 - :math:`\bts{\mathbb{F}_{i}}` denotes the inner forces at the beginning
@@ -68,60 +67,3 @@ where:
 
    Although the wording explicitly refers to mechanics, this equation
    applies to all physics.
-
-The following prediction operators can be chosen:
-
-- :cxx:`PredictionOperator::ELASTIC`: the elastic operator
-- :cxx:`PredictionOperator::SECANT`: the secant operator is typically
-  defined by the elastic operator
-- :cxx:`PredictionOperator::TANGENT_PREDICTION`: the tangent operator,
-  defined by the time-continuous derivative of the thermodynamic force
-  with respect to the gradients.
-- :cxx:`PredictionOperator::LAST_ITERATE_OPERATOR`: this operator reuses
-  the one computed at the last iteration of the previous time step. At
-  the first time step, the elastic operator is used.
-
-Prediction based on a behaviour integration with constant gradients (:cxx:`PredictionStrategy::CONSTANT_GRADIENTS_INTEGRATION_PREDICTION`)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The :cxx:`CONSTANT_GRADIENTS_INTEGRATION` strategy determines the
-increment of the unknown :math:`\Delta\,{u}` by solving the following
-linear system:
-     
-.. math::
-
-   \tilde{\mathbb{K}}\,\cdot\,\Delta\,\mathbb{u} =
-   \ets{\mathbb{F}_{e}}-\ets{\tilde{\mathbb{F}}_{i}}
-     
-where:
-     
-- :math:`\tilde{\mathbb{K}}` denotes the operator computed at the end of
-  the behaviour integration.
-- :math:`\bts{\mathbb{F}_{e}}` denotes the external forces at the
-  beginning of the time step.
-- :math:`\ets{\tilde{\mathbb{F}}_{i}}` denotes an approximation inner
-  forces at the end of the time step computed by assuming that the
-  gradients are constant over the time (and thus egal to their values at
-  the beginning of the time step).
-- :math:`\Delta\,\mathbb{u}` is submitted to the the increment of the
-  imposed Dirichlet boundary conditions.
-
-The behaviour integration allows taking into account:
-
-- the evolution of stress-free strain over the time step (thermal
-  expansion, swelling, etc..),
-- the viscoplastic relaxation of the stress. This relaxation can be
-  discarded by integrating the behaviour with a null time step.
-
-The following operators are available:
-
-- :cxx:`IntegrationOperator::ELASTIC`: the elastic operator,
-- :cxx:`IntegrationOperator::SECANT`: the secant operator is typically
-  defined by the elastic operator affected by damage,
-- :cxx:`IntegrationOperator::TANGENT`: the tangent operator, defined by
-  the time-continuous derivative of the thermodynamic force with respect
-  to the gradients,
-- :cxx:`IntegrationOperator::CONSISTENT_TANGENT`: the constistent
-  tangent operator, defined by the derivative of the thermodynamic force
-  with respect to the gradients at the end of the time step. See
- :cite:`simo_consistent_1985` for details.

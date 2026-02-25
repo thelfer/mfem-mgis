@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Glossary Of Parameters" href="../glossary.html" />
-    <link rel="prev" title="Available nonlinear algorithms" href="../nonlinear_algorithms.html" /> 
+    <link rel="prev" title="Partial quadrature spaces" href="partial_quadrature_spaces.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,24 +55,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../post_processings.html">Post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mechanical_postprocessings.html">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Partial quadrature functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#projection-of-a-grid-function-to-a-partial-quadrature-function">Projection of a grid function to a partial quadrature function</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#example-of-usage">Example of usage</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#extrapolating-quadrature-functions-at-nodes">Extrapolating quadrature functions at nodes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#projecting-quadrature-functions-at-nodes">Projecting quadrature functions at nodes</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#available-functions">Available functions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id1">Example of usage</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#implicit-gradient-regularization">Implicit gradient regularization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id3">Available functions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id4">Example of usage</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#miscellaneous-functions">Miscellaneous functions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#rotatethermodynamicforcestoglobalframe"><code class="code highlight c++ docutils literal highlight-c++"><span class="n">rotateThermodynamicForcesToGlobalFrame</span></code></a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="partial_quadrature_spaces.html">Partial quadrature spaces</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Partial quadrature functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#projection-of-a-grid-function-to-a-partial-quadrature-function">Projection of a grid function to a partial quadrature function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extrapolating-quadrature-functions-at-nodes">Extrapolating quadrature functions at nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#projecting-quadrature-functions-at-nodes">Projecting quadrature functions at nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implicit-gradient-regularization">Implicit gradient regularization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#miscellaneous-functions">Miscellaneous functions</a></li>
 </ul>
 </li>
 </ul>
@@ -102,6 +92,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../user_guide.html">User guide</a></li>
+          <li class="breadcrumb-item"><a href="partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
       <li class="breadcrumb-item active">Partial quadrature functions</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/user_guide/partial_quadrature_functions/partial_quadrature_functions.rst.txt" rel="nofollow"> View page source</a>
@@ -182,7 +173,7 @@ performed several times.</p>
 <div class="math notranslate nohighlight">
 \[\bar{f}-l_{c}^{2}\cdot\Delta\bar{f}=f\]</div>
 <p>where <span class="math notranslate nohighlight">\(l_{c}\)</span> is a characteristic length.</p>
-<p>See <span id="id2">[<a class="reference internal" href="../../index.html#id5" title="R. H. J. Peerlings, R. De Borst, W. a. M. Brekelmans, and J. H. P. De Vree. Gradient enhanced damage for quasi-brittle materials. International Journal for Numerical Methods in Engineering, 39(19):3391–3403, 1996. _eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D. URL: https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D (visited on 2026-01-22), doi:10.1002/(SICI)1097-0207(19961015)39:19&lt;3391::AID-NME7&gt;3.0.CO;2-D.">PDBBDV96</a>]</span> for details.</p>
+<p>See <span id="id2">[<a class="reference internal" href="../../index.html#id4" title="R. H. J. Peerlings, R. De Borst, W. a. M. Brekelmans, and J. H. P. De Vree. Gradient enhanced damage for quasi-brittle materials. International Journal for Numerical Methods in Engineering, 39(19):3391–3403, 1996. _eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D. URL: https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291097-0207%2819961015%2939%3A19%3C3391%3A%3AAID-NME7%3E3.0.CO%3B2-D (visited on 2026-01-22), doi:10.1002/(SICI)1097-0207(19961015)39:19&lt;3391::AID-NME7&gt;3.0.CO;2-D.">PDBBDV96</a>]</span> for details.</p>
 <p>For a vectorial function, the implicit gradient regularization is
 computed component-wise.</p>
 <section id="id3">
@@ -220,7 +211,7 @@ directly if the projection has to be performed several times.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../nonlinear_algorithms.html" class="btn btn-neutral float-left" title="Available nonlinear algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="partial_quadrature_spaces.html" class="btn btn-neutral float-left" title="Partial quadrature spaces" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../glossary.html" class="btn btn-neutral float-right" title="Glossary Of Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
