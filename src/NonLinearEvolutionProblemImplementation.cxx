@@ -106,10 +106,12 @@ namespace mfem_mgis {
       return p.integrate(
           u0, convertToIntegrationType(policy.integration_operator), ndt);
     }();
+#ifdef MFEM_USE_MPI
     if constexpr (parallel) {
       MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
                     fespace.GetComm());
     }
+#endif /* MFEM_USE_MPI */
     if (!success) {
       return ctx.registerErrorMessage("integration failure");
     }
@@ -138,11 +140,15 @@ namespace mfem_mgis {
     b.Assemble();
     //
     auto A = [] {
+#ifdef MFEM_USE_MPI
       if constexpr (parallel) {
         return mfem::HypreParMatrix{};
       } else {
         return mfem::SparseMatrix{};
       }
+#else
+      return mfem::SparseMatrix{};
+#endif /* MFEM_USE_MPI */
     }();
     mfem::Vector B, X;
     //

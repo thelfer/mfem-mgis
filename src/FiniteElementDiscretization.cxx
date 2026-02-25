@@ -113,9 +113,9 @@ namespace mfem_mgis {
 #else
     std::cout
         << "Aborting. The option Restart is not compatible with sequential run."
+        << "Enable to load mesh file '" << mesh_name << "'\n"
         << std::endl;
     std::abort();
-    return std::shared_ptr<Mesh<true>>(nullptr);
 #endif
   }  // end of loadMeshParallel
 
