@@ -319,15 +319,18 @@ namespace mfem_mgis {
     virtual NonLinearResolutionOutput solve(const real, const real) = 0;
     /*!
      * \brief add a new behaviour integrator
+     * \return a mapping between the material id and the identifier of the
+     * behaviour integrator
      * \param[in] n: name of the behaviour integrator
      * \param[in] m: material ids
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
-    virtual void addBehaviourIntegrator(const std::string &,
-                                        const Parameter &,
-                                        const std::string &,
-                                        const std::string &) = 0;
+    virtual std::map<size_type, size_type> addBehaviourIntegrator(
+        const std::string &,
+        const Parameter &,
+        const std::string &,
+        const std::string &) = 0;
     /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
@@ -335,17 +338,30 @@ namespace mfem_mgis {
     virtual std::vector<size_type> getAssignedMaterialsIdentifiers() const = 0;
     /*!
      * \return the material identifier by the given parameter.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: material name or identifier
+     *
      * \note The parameter may hold an integer or a string.
      */
-    virtual size_type getMaterialIdentifier(const Parameter &) const = 0;
+    [[nodiscard]] virtual std::optional<size_type> getMaterialIdentifier(
+        Context &, const Parameter &) const noexcept = 0;
     /*!
      * \return the material identifier by the given parameter.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: material name or identifier
+     *
      * \note The parameter may hold an integer or a string.
      */
-    virtual size_type getBoundaryIdentifier(const Parameter &) const = 0;
+    [[nodiscard]] virtual std::optional<size_type> getBoundaryIdentifier(
+        Context &, const Parameter &) const noexcept = 0;
     /*!
      * \return the list of materials identifiers described by the given
      * parameter.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: material name or identifier
      *
      * \note The parameter may hold:
      *
@@ -358,11 +374,14 @@ namespace mfem_mgis {
      * Strings are intepreted as regular expressions which allows the selection
      * of materials by names.
      */
-    virtual std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter &) const = 0;
+    [[nodiscard]] virtual std::optional<std::vector<size_type>>
+    getMaterialsIdentifiers(Context &, const Parameter &) const noexcept = 0;
     /*!
      * \return the list of boundaries identifiers described by the given
      * parameter.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: material name or identifier
      *
      * \note The parameter may hold:
      *
@@ -375,30 +394,45 @@ namespace mfem_mgis {
      * Strings are intepreted as regular expressions which allows the selection
      * of boundaries by names.
      */
-    virtual std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter &) const = 0;
+    [[nodiscard]] virtual std::optional<std::vector<size_type>>
+    getBoundariesIdentifiers(Context &, const Parameter &) const noexcept = 0;
     /*!
      * \return the material with the given id
+     * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \param[in] b: behaviour integrator id
      */
-    virtual const Material &getMaterial(const Parameter &) const = 0;
+    virtual OptionalReference<const Material> getMaterial(
+        Context &, const Parameter &, const size_type) const = 0;
     /*!
      * \return the material with the given id
+     * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \param[in] b: behaviour integrator id
      */
-    virtual Material &getMaterial(const Parameter &) = 0;
+    virtual OptionalReference<Material> getMaterial(Context &,
+                                                    const Parameter &,
+                                                    const size_type) = 0;
     /*!
      * \return the behaviour integrator with the given material id
+     * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \param[in] b: behaviour integrator id
      */
-    virtual const AbstractBehaviourIntegrator &getBehaviourIntegrator(
-        const size_type) const = 0;
+    virtual OptionalReference<const AbstractBehaviourIntegrator>
+    getBehaviourIntegrator(Context &,
+                           const Parameter &,
+                           const size_type) const = 0;
     /*!
      * \return the behaviour integrator with the given material id
+     * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \param[in] b: behaviour integrator id
      */
-    virtual AbstractBehaviourIntegrator &getBehaviourIntegrator(
-        const size_type) = 0;
+    virtual OptionalReference<AbstractBehaviourIntegrator>
+    getBehaviourIntegrator(Context &,
+                           const Parameter &,
+                           const size_type) noexcept = 0;
     /*!
      * \brief add a boundary condition
      * \param[in] f: boundary condition
@@ -468,6 +502,75 @@ namespace mfem_mgis {
      */
     [[deprecated]] virtual void setBoundariesNames(
         const std::map<size_type, std::string> &) = 0;
+    /*!
+     * \return the material identifier by the given parameter.
+     * \note The parameter may hold an integer or a string.
+     */
+    [[deprecated]] virtual size_type getMaterialIdentifier(
+        const Parameter &) const = 0;
+    /*!
+     * \return the material identifier by the given parameter.
+     * \note The parameter may hold an integer or a string.
+     */
+    [[deprecated]] virtual size_type getBoundaryIdentifier(
+        const Parameter &) const = 0;
+    /*!
+     * \return the list of materials identifiers described by the given
+     * parameter.
+     *
+     * \note The parameter may hold:
+     *
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     *
+     * Integers are directly intepreted as materials identifiers.
+     *
+     * Strings are intepreted as regular expressions which allows the selection
+     * of materials by names.
+     */
+    [[deprecated]] virtual std::vector<size_type> getMaterialsIdentifiers(
+        const Parameter &) const = 0;
+    /*!
+     * \return the list of boundaries identifiers described by the given
+     * parameter.
+     *
+     * \note The parameter may hold:
+     *
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     *
+     * Integers are directly intepreted as boundaries identifiers.
+     *
+     * Strings are intepreted as regular expressions which allows the selection
+     * of boundaries by names.
+     */
+    [[deprecated]] virtual std::vector<size_type> getBoundariesIdentifiers(
+        const Parameter &) const = 0;
+    /*!
+     * \return the material with the given id for the first behaviour integrator
+     * \param[in] m: material id
+     */
+    [[deprecated]] virtual const Material &getMaterial(
+        const Parameter &) const = 0;
+    /*!
+     * \return the material with the given id for the first behaviour integrator
+     * \param[in] m: material id
+     */
+    [[deprecated]] virtual Material &getMaterial(const Parameter &) = 0;
+    /*!
+     * \return the first behaviour integrator with the given material id
+     * \param[in] m: material id
+     */
+    [[deprecated]] virtual const AbstractBehaviourIntegrator &
+    getBehaviourIntegrator(const size_type) const = 0;
+    /*!
+     * \return the first behaviour integrator with the given material id
+     * \param[in] m: material id
+     */
+    [[deprecated]] virtual AbstractBehaviourIntegrator &getBehaviourIntegrator(
+        const size_type) = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblem();
   };  // end of struct AbstractNonLinearEvolutionProblem

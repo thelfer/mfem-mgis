@@ -780,6 +780,48 @@ namespace mfem_mgis {
     return selectMeshObjectsIdentifiers(attributes, names, ids, t, m);
   }  // end of selectMeshObjectsIdentifiers
 
+  std::optional<std::vector<size_type>>
+  FiniteElementDiscretization::getMaterialsIdentifiers(
+      Context& ctx, const Parameter& p) const noexcept {
+    try {
+      return this->getMaterialsIdentifiers(p);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of getMaterialsIdentifiers
+
+  std::optional<std::vector<size_type>>
+  FiniteElementDiscretization::getBoundariesIdentifiers(
+      Context& ctx, const Parameter& p) const noexcept {
+    try {
+      return this->getBoundariesIdentifiers(p);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of getBoundariesIdentifiers
+
+  std::optional<size_type> FiniteElementDiscretization::getMaterialIdentifier(
+      Context& ctx, const Parameter& p) const noexcept {
+    try {
+      return this->getMaterialIdentifier(p);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of getMaterialIdentifier
+
+  std::optional<size_type> FiniteElementDiscretization::getBoundaryIdentifier(
+      Context& ctx, const Parameter& p) const noexcept {
+    try {
+      return this->getBoundaryIdentifier(p);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of getBoundaryIdentifier
+
   std::vector<size_type> FiniteElementDiscretization::getMaterialsIdentifiers(
       const Parameter& p) const {
     return selectMeshObjectsIdentifiers(getMaterialsAttributes(*this),
