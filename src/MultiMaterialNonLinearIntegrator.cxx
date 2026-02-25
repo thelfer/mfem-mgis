@@ -347,9 +347,11 @@ namespace mfem_mgis {
   }  // end of getBehaviourIntegrator
 
   real MultiMaterialNonLinearIntegrator::getTimeIncrement() const noexcept {
-    for (auto& bi : this->behaviour_integrators) {
-      if (bi != nullptr) {
-        return bi->getTimeIncrement();
+    for (auto& bis : this->behaviour_integrators) {
+      for (auto& bi : bis) {
+	if (bi != nullptr) {
+	  return bi->getTimeIncrement();
+	}
       }
     }
     return real{};
