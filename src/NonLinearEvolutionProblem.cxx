@@ -126,6 +126,12 @@ namespace mfem_mgis {
     return this->pimpl->setLinearSolver(ctx, std::move(s));
   }  // end of setLinearSolver
 
+  bool
+  NonLinearEvolutionProblem::areStiffnessOperatorsFromLastIterationAvailable()
+      const noexcept {
+    return this->pimpl->areStiffnessOperatorsFromLastIterationAvailable();
+  }  // end of areStiffnessOperatorsFromLastIterationAvailable
+
   void NonLinearEvolutionProblem::setLinearSolver(std::string_view n,
                                                   const Parameters& params) {
     this->pimpl->setLinearSolver(n, params);
@@ -136,10 +142,20 @@ namespace mfem_mgis {
     this->pimpl->setPredictionPolicy(p);
   }  // end of setPredictionPolicy
 
+  PredictionPolicy NonLinearEvolutionProblem::getPredictionPolicy()
+      const noexcept {
+    return this->pimpl->getPredictionPolicy();
+  }  // end of getPredictionPolicy
+
   const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
-  NonLinearEvolutionProblem::getDirichletBoundaryConditions() noexcept {
+  NonLinearEvolutionProblem::getDirichletBoundaryConditions() const noexcept {
     return this->pimpl->getDirichletBoundaryConditions();
   }  // end of getDirichletBoundaryConditions
+
+  const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
+  NonLinearEvolutionProblem::getBoundaryConditions() const noexcept {
+    return this->pimpl->getBoundaryConditions();
+  }  // end of getBoundaryConditions
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
@@ -149,9 +165,10 @@ namespace mfem_mgis {
   }  // end of solve
 
   bool NonLinearEvolutionProblem::integrate(const mfem::Vector& U,
-                                            const IntegrationType it) {
+                                            const IntegrationType it,
+                                            const std::optional<real> odt) {
     CatchTimeSection("NLEP::integrate");
-    return this->pimpl->integrate(U, it);
+    return this->pimpl->integrate(U, it, odt);
   }  // end of solve
 
   std::vector<size_type>
@@ -203,6 +220,11 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<AbstractBoundaryCondition> f) {
     this->pimpl->addBoundaryCondition(std::move(f));
+  }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblem::addBoundaryCondition(
+      Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    return this->pimpl->addBoundaryCondition(ctx, std::move(f));
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblem::addBoundaryCondition(

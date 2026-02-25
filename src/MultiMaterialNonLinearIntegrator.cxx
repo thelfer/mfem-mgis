@@ -272,6 +272,15 @@ namespace mfem_mgis {
     return *bi;
   }  // end of getBehaviourIntegrator
 
+  real MultiMaterialNonLinearIntegrator::getTimeIncrement() const noexcept {
+    for (auto& bi : this->behaviour_integrators) {
+      if (bi != nullptr) {
+        return bi->getTimeIncrement();
+      }
+    }
+    return real{};
+  }  // end of setTimeIncrement
+
   void MultiMaterialNonLinearIntegrator::setTimeIncrement(const real dt) {
     for (auto& bi : this->behaviour_integrators) {
       if (bi != nullptr) {
@@ -333,7 +342,7 @@ namespace mfem_mgis {
       return LinearizedOperators{
           .K = std::make_unique<StiffnessMatrixIntegrator>(
               fespace, u, this->behaviour_integrators),
-          .Fi = std::make_unique<InternalForcesIntegrator>(
+          .mFi = std::make_unique<InternalForcesIntegrator>(
               fespace, u, this->behaviour_integrators)};
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
@@ -341,10 +350,11 @@ namespace mfem_mgis {
     }
     const auto& fespace =
         this->fe_discretization->getFiniteElementSpace<false>();
-    return LinearizedOperators{.K = std::make_unique<StiffnessMatrixIntegrator>(
-                                   fespace, u, this->behaviour_integrators),
-                               .Fi = std::make_unique<InternalForcesIntegrator>(
-                                   fespace, u, this->behaviour_integrators)};
+    return LinearizedOperators{
+        .K = std::make_unique<StiffnessMatrixIntegrator>(
+            fespace, u, this->behaviour_integrators),
+        .mFi = std::make_unique<InternalForcesIntegrator>(
+            fespace, u, this->behaviour_integrators)};
   }  // end of getLinearizedOperators
 
   MultiMaterialNonLinearIntegrator::~MultiMaterialNonLinearIntegrator() =

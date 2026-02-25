@@ -125,13 +125,19 @@ namespace mfem_mgis {
                                 const std::string&) override;
     [[nodiscard]] std::vector<size_type> getEssentialDegreesOfFreedom()
         const override;
+    [[nodiscard]] bool areStiffnessOperatorsFromLastIterationAvailable()
+        const noexcept override;
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
         Context&, const mfem::Vector&) noexcept override;
     [[nodiscard]] const std::vector<
         std::unique_ptr<DirichletBoundaryCondition>>&
-    getDirichletBoundaryConditions() noexcept override;
+    getDirichletBoundaryConditions() const noexcept override;
+    [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
+    getBoundaryConditions() const noexcept override;
     void setup(const real, const real) override;
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
+    [[nodiscard]] PredictionPolicy getPredictionPolicy()
+        const noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(const real,
                                                   const real) override;
     void revert() override;
@@ -175,6 +181,8 @@ namespace mfem_mgis {
      * i.e. at the first call of the `solve` method.
      */
     bool initialization_phase = true;
+    //! \brief
+    bool hasStiffnessOperatorsBeenComputed = false;
     //! \brief unknowns at the beginning of the time step
     mfem::Vector u0;
     //! \brief unknowns at the end of the time step

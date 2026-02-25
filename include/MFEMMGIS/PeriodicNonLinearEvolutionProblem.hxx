@@ -99,10 +99,11 @@ namespace mfem_mgis {
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>,
         const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
-
     // disable adding boundary conditions
     void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     [[noreturn]] void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     /*!

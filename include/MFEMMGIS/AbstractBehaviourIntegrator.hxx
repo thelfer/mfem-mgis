@@ -32,6 +32,8 @@ namespace mfem_mgis {
    * - compute the stiffness matrix (see the `updateJacobian` method).
    */
   struct MFEM_MGIS_EXPORT AbstractBehaviourIntegrator {
+    //! \return the current time increment
+    virtual real getTimeIncrement() const noexcept = 0;
     /*!
      * \brief set the time increment
      * \param[in] dt: time increment
