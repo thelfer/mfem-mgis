@@ -135,3 +135,41 @@ The following operators are available:
   tangent operator, defined by the derivative of the thermodynamic force
   with respect to the gradients at the end of the time step. See
   :cite:`simo_consistent_1985` for details.
+
+Retrieving information on a partial quadrature space
+----------------------------------------------------
+
+The :cxx:`PartialQuadratureSpaceInformation` structure contains some
+relevant information about a partial quadrature space:
+
+- the identifier and the name of the underlying material,
+- the total number of elements,
+- the total number of integration points,
+- the number of elements points per geometric type.
+- the number of quadrature points per geometric type.
+
+This structure is created by:
+
+- :cxx:`getLocalInformation`, which returns the information relative to
+  the current process.
+- :cxx:`getInformation`, which returns the information gathered from all
+  processes.
+
+The :cxx:`PartialQuadratureSpaceInformation` structure can be printed to
+an output stream using the :cxx:`info` function.
+
+Example of usage
+^^^^^^^^^^^^^^^^
+
+.. code:: c++
+
+   const auto& qspace =
+      problem.getBehaviourIntegrator(1).getPartialQuadratureSpace();
+   const auto success = mfem_mgis::info(ctx, std::cout, qspace);
+
+Issues fixed
+============
+
+- Issue 
+- Issue 149: work on the prediction of the solution
+
