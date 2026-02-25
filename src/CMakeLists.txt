@@ -2,6 +2,7 @@
 set(MFEMMGIS_SOURCES)
 list(APPEND MFEMMGIS_SOURCES
   Config.cxx
+  MPI.cxx
   Profiler.cxx
   Parameter.cxx
   Parameters.cxx
