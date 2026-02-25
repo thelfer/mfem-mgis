@@ -136,7 +136,8 @@ namespace mfem_mgis {
     getBoundaryConditions() const noexcept override;
     void setup(const real, const real) override;
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
-    [[nodiscard]] PredictionPolicy getPredictionPolicy() const noexcept override;
+    [[nodiscard]] PredictionPolicy getPredictionPolicy()
+        const noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(const real,
                                                   const real) override;
     void revert() override;

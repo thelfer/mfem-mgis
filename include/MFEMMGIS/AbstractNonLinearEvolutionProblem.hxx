@@ -286,8 +286,12 @@ namespace mfem_mgis {
      * the end of the time step.
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
+     * \param[in] odt: optional value for the time step. If invalid, the real
+     * time step is used.
      */
-    virtual bool integrate(const mfem::Vector &, const IntegrationType) = 0;
+    virtual bool integrate(const mfem::Vector &,
+                           const IntegrationType,
+                           const std::optional<real>) = 0;
     /*!
      * \brief return the linearised operators
      * \note the integrate method shall be call appropriately before calling

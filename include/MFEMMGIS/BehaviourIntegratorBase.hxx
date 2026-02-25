@@ -20,6 +20,7 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : AbstractBehaviourIntegrator,
                                                     Material {
+    real getTimeIncrement() const noexcept override;
     void setTimeIncrement(const real) override;
     const PartialQuadratureSpace& getPartialQuadratureSpace() const override;
     void setup(const real, const real) override;

@@ -84,21 +84,27 @@ namespace mfem_mgis {
     auto& fed = p.getFiniteElementDiscretization();
     auto& fespace = fed.template getFiniteElementSpace<parallel>();
     const auto& u0 = p.getUnknowns(mfem_mgis::bts);
-    auto success = [&p, &u0] {
+    auto success = [&p, &u0, dt] {
       const auto policy = p.getPredictionPolicy();
       if (policy.strategy ==
           PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION) {
         if (policy.prediction_operator ==
             PredictionOperator::LAST_ITERATE_OPERATOR) {
           return p.integrate(
-              u0, convertToIntegrationType(PredictionOperator::ELASTIC));
+              u0, convertToIntegrationType(PredictionOperator::ELASTIC), {});
         } else {
           return p.integrate(
-              u0, convertToIntegrationType(policy.prediction_operator));
+              u0, convertToIntegrationType(policy.prediction_operator), {});
         }
       }
-      return p.integrate(u0,
-                         convertToIntegrationType(policy.integration_operator));
+      const auto ndt = [&policy, dt] {
+        if (policy.null_time_increment) {
+          return real{};
+        }
+        return dt;
+      }();
+      return p.integrate(
+          u0, convertToIntegrationType(policy.integration_operator), ndt);
     }();
     if constexpr (parallel) {
       MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
@@ -372,9 +378,15 @@ namespace mfem_mgis {
   }  // end of getFiniteElementSpace
 
   bool NonLinearEvolutionProblemImplementation<true>::integrate(
-      const mfem::Vector& u, const IntegrationType it) {
+      const mfem::Vector& u,
+      const IntegrationType it,
+      const std::optional<real> odt) {
     if (this->mgis_integrator == nullptr) {
       return true;
+    }
+    const auto dt = this->mgis_integrator->getTimeIncrement();
+    if (odt.has_value()) {
+      this->mgis_integrator->setTimeIncrement(*odt);
     }
     const auto& pu = this->Prolongate(u);
     const auto& fespace = this->getFiniteElementSpace();
@@ -394,6 +406,7 @@ namespace mfem_mgis {
         (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR)) {
       this->hasStiffnessOperatorsBeenComputed = true;
     }
+    this->mgis_integrator->setTimeIncrement(dt);
     return noerror;
   }  // end of integrate
 
@@ -552,9 +565,15 @@ namespace mfem_mgis {
   }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::integrate(
-      const mfem::Vector& u, const IntegrationType it) {
+      const mfem::Vector& u,
+      const IntegrationType it,
+      const std::optional<real> odt) {
     if (this->mgis_integrator == nullptr) {
       return true;
+    }
+    const auto dt = this->mgis_integrator->getTimeIncrement();
+    if (odt.has_value()) {
+      this->mgis_integrator->setTimeIncrement(*odt);
     }
     const auto& pu = this->Prolongate(u);
     const auto& fespace = this->getFiniteElementSpace();
@@ -572,6 +591,7 @@ namespace mfem_mgis {
     if (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR) {
       this->hasStiffnessOperatorsBeenComputed = true;
     }
+    this->mgis_integrator->setTimeIncrement(dt);
     return true;
   }  // end of integrate
 

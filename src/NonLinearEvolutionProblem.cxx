@@ -165,9 +165,10 @@ namespace mfem_mgis {
   }  // end of solve
 
   bool NonLinearEvolutionProblem::integrate(const mfem::Vector& U,
-                                            const IntegrationType it) {
+                                            const IntegrationType it,
+                                            const std::optional<real> odt) {
     CatchTimeSection("NLEP::integrate");
-    return this->pimpl->integrate(U, it);
+    return this->pimpl->integrate(U, it, odt);
   }  // end of solve
 
   std::vector<size_type>

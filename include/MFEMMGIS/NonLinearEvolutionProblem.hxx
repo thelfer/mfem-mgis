@@ -95,7 +95,8 @@ namespace mfem_mgis {
     [[nodiscard]] bool areStiffnessOperatorsFromLastIterationAvailable()
         const noexcept override;
     void setPredictionPolicy(const PredictionPolicy &) noexcept override;
-    [[nodiscard]] PredictionPolicy getPredictionPolicy() const noexcept override;
+    [[nodiscard]] PredictionPolicy getPredictionPolicy()
+        const noexcept override;
     void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
     [[deprecated]] void addBoundaryCondition(
@@ -136,7 +137,8 @@ namespace mfem_mgis {
         const size_type) override;
     std::vector<size_type> getEssentialDegreesOfFreedom() const override;
     [[nodiscard]] bool integrate(const mfem::Vector &,
-                                 const IntegrationType) override;
+                                 const IntegrationType,
+                                 const std::optional<real>) override;
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
         Context &, const mfem::Vector &) noexcept override;
     [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>
