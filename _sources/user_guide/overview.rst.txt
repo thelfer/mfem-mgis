@@ -112,7 +112,7 @@ material (for instance, the local temperature).
 User interface
 ==============
 
-The :code:`MFEM/MGIS` library is written in ``C++20`` language.
+The :code:`MFEM/MGIS` library is written in ``C++17`` language.
 
 As the application targets mechanical engineers, it provides a high
 level of abstraction, focused on the physical aspects of the simulation
