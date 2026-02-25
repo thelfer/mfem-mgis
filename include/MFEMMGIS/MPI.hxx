@@ -8,14 +8,14 @@
 #ifndef LIB_MFEM_MGIS_MPI_HXX
 #define LIB_MFEM_MGIS_MPI_HXX
 
-#ifdef MFEM_USE_MPI
-
-#include <mpi.h>
 #include <cstdint>
 #include <concepts>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 
 namespace mfem_mgis {
+
+#ifdef MFEM_USE_MPI
 
   template <typename T>
   inline constexpr auto mpi_type = [] {
@@ -77,8 +77,33 @@ namespace mfem_mgis {
     }
   }();
 
+#endif /* MFEM_USE_MPI */
+
+  /*!
+   * \brief a simple reduction for boolean values
+   *
+   * \param[in] fed: finite element discretization
+   * \param[in] b: boolean value in the current process
+   *
+   * \note if the computations are sequential, no MPI call is made
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isTrueOnAllProcesses(
+      const FiniteElementDiscretization&, const bool) noexcept;
+
+  /*!
+   * \brief a simple reduction for boolean values
+   *
+   * \param[in] fed: finite element discretization
+   * \param[in] b: boolean value in the current process
+   *
+   * \note if the computations are sequential, no MPI call is made
+   */
+  template <typename T>
+  [[nodiscard]] bool isValidOnAllProcesses(const FiniteElementDiscretization&,
+                                           const T&) noexcept;
+
 }  // end of namespace mfem_mgis
 
-#endif /* MFEM_USE_MPI */
+#include "MFEMMGIS/MPI.ixx"
 
 #endif /* LIB_MFEM_MGIS_MPI_HXX */

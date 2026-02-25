@@ -177,11 +177,11 @@ namespace mfem_mgis {
 
   std::optional<PartialQuadratureSpaceInformation> getInformation(
       Context& ctx, const PartialQuadratureSpace& s) noexcept {
-    auto linfo = getLocalInformation(ctx, s);
-    if (isInvalid(linfo)) {
+    const auto linfo = getLocalInformation(ctx, s);
+    const auto& fed = s.getFiniteElementDiscretization();
+    if (!isValidOnAllProcesses(fed, linfo)) {
       return {};
     }
-    const auto& fed = s.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       return synchronize(ctx, *linfo);
