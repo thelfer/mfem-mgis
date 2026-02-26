@@ -139,8 +139,8 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] id: material identifier
      *
-     * \note the method only fails if the material identifier is not defined in the
-     * mesh
+     * \note the method only fails if the material identifier is not defined in
+     * the mesh
      */
     [[nodiscard]] std::optional<std::string> getMaterialName(
         Context&, const size_type) const noexcept;
@@ -160,12 +160,14 @@ namespace mfem_mgis {
      * \return the material identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */
-    [[nodiscard]] size_type getMaterialIdentifier(const Parameter&) const;
+    [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
+        Context&, const Parameter&) const noexcept;
     /*!
      * \return the material identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */
-    [[nodiscard]] size_type getBoundaryIdentifier(const Parameter&) const;
+    [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
+        Context&, const Parameter&) const noexcept;
     /*!
      * \return the list of materials identifiers described by the given
      * parameter.
@@ -181,8 +183,8 @@ namespace mfem_mgis {
      * Strings are intepreted as regular expressions which allows the selection
      * of materials by names.
      */
-    [[nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter&) const;
+    [[nodiscard]] std::optional<std::vector<size_type>> getMaterialsIdentifiers(
+        Context&, const Parameter&) const noexcept;
     /*!
      * \return the list of boundaries identifiers described by the given
      * parameter.
@@ -198,8 +200,8 @@ namespace mfem_mgis {
      * Strings are intepreted as regular expressions which allows the selection
      * of boundaries by names.
      */
-    [[nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter&) const;
+    [[nodiscard]] std::optional<std::vector<size_type>>
+    getBoundariesIdentifiers(Context&, const Parameter&) const noexcept;
     //! \return the mesh
     template <bool parallel>
     [[nodiscard]] Mesh<parallel>& getMesh();
@@ -251,6 +253,53 @@ namespace mfem_mgis {
      */
     [[deprecated]] void setBoundariesNames(
         const std::map<size_type, std::string>&);
+    //
+    /*!
+     * \return the material identifier by the given parameter.
+     * \note The parameter may hold an integer or a string.
+     */
+    [[deprecated, nodiscard]] size_type getMaterialIdentifier(
+        const Parameter&) const;
+    /*!
+     * \return the material identifier by the given parameter.
+     * \note The parameter may hold an integer or a string.
+     */
+    [[deprecated, nodiscard]] size_type getBoundaryIdentifier(
+        const Parameter&) const;
+    /*!
+     * \return the list of materials identifiers described by the given
+     * parameter.
+     *
+     * \note The parameter may hold:
+     *
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     *
+     * Integers are directly intepreted as materials identifiers.
+     *
+     * Strings are intepreted as regular expressions which allows the selection
+     * of materials by names.
+     */
+    [[deprecated, nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
+        const Parameter&) const;
+    /*!
+     * \return the list of boundaries identifiers described by the given
+     * parameter.
+     *
+     * \note The parameter may hold:
+     *
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     *
+     * Integers are directly intepreted as boundaries identifiers.
+     *
+     * Strings are intepreted as regular expressions which allows the selection
+     * of boundaries by names.
+     */
+    [[deprecated, nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
+        const Parameter&) const;
     //! \brief destructor
     ~FiniteElementDiscretization();
 

@@ -56,10 +56,12 @@ namespace mfem_mgis {
     const auto& u0 = p.getUnknowns(mfem_mgis::bts);
     auto success = p.integrate(
         u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+#ifdef MFEM_USE_MPI
     if constexpr (parallel) {
       MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
                     fespace.GetComm());
     }
+#endif /* MFEM_USE_MPI */
     if (!success) {
       return ctx.registerErrorMessage("integration failure");
     }
@@ -78,11 +80,15 @@ namespace mfem_mgis {
     b.Assemble();
     //
     auto A = [] {
+#ifdef MFEM_USE_MPI
       if constexpr (parallel) {
         return mfem::HypreParMatrix{};
       } else {
         return mfem::SparseMatrix{};
       }
+#else
+      return mfem::SparseMatrix{};
+#endif /* MFEM_USE_MPI */
     }();
     mfem::Vector B, X;
     //

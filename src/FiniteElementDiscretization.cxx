@@ -113,9 +113,9 @@ namespace mfem_mgis {
 #else
     std::cout
         << "Aborting. The option Restart is not compatible with sequential run."
+        << "Enable to load mesh file '" << mesh_name << "'\n"
         << std::endl;
     std::abort();
-    return std::shared_ptr<Mesh<true>>(nullptr);
 #endif
   }  // end of loadMeshParallel
 
@@ -779,6 +779,48 @@ namespace mfem_mgis {
     const auto& ids = get<std::vector<Parameter>>(p);
     return selectMeshObjectsIdentifiers(attributes, names, ids, t, m);
   }  // end of selectMeshObjectsIdentifiers
+
+  std::optional<std::vector<size_type>>
+  FiniteElementDiscretization::getMaterialsIdentifiers(
+      Context& ctx, const Parameter& p) const noexcept {
+    try {
+      return this->getMaterialsIdentifiers(p);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of getMaterialsIdentifiers
+
+  std::optional<std::vector<size_type>>
+  FiniteElementDiscretization::getBoundariesIdentifiers(
+      Context& ctx, const Parameter& p) const noexcept {
+    try {
+      return this->getBoundariesIdentifiers(p);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of getBoundariesIdentifiers
+
+  std::optional<size_type> FiniteElementDiscretization::getMaterialIdentifier(
+      Context& ctx, const Parameter& p) const noexcept {
+    try {
+      return this->getMaterialIdentifier(p);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of getMaterialIdentifier
+
+  std::optional<size_type> FiniteElementDiscretization::getBoundaryIdentifier(
+      Context& ctx, const Parameter& p) const noexcept {
+    try {
+      return this->getBoundaryIdentifier(p);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of getBoundaryIdentifier
 
   std::vector<size_type> FiniteElementDiscretization::getMaterialsIdentifiers(
       const Parameter& p) const {

@@ -15,6 +15,7 @@
 #include "MGIS/Context.hxx"
 #include "MGIS/LogStream.hxx"
 #include "MGIS/InvalidResult.hxx"
+#include "MGIS/Utilities/OptionalReference.hxx"
 
 #include "MFEMMGIS/MGISForward.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
@@ -49,6 +50,7 @@ namespace mfem_mgis {
   using mgis::Context;
   using mgis::isInvalid;
   using mgis::isValid;
+  using mgis::OptionalReference;
 
   using mgis::debug;
   using mgis::getDefaultLogStream;

@@ -592,11 +592,13 @@ namespace mfem_mgis {
     return true;
   }  // end of update_impl
 
+#ifdef MFEM_USE_MPI
   bool update(Context& ctx,
               PartialQuadratureFunctionView& dest,
               const GridFunction<true>& src) noexcept {
     return update_impl<true>(ctx, dest, src);
-  }  // end of update
+  }    // end of update
+#endif /* MFEM_USE_MPI */
 
   bool update(Context& ctx,
               PartialQuadratureFunctionView& dest,
