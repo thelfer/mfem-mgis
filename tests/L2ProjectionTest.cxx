@@ -155,8 +155,11 @@ int main(int argc, char** argv) {
   auto ctx = Context{};
   // options treatment
   auto params = TestParameters{};
+  std::cerr << "toto\n";
   initialize(argc, argv);
+  std::cerr << "toto2\n";
   parseCommandLineOptions(params, argc, argv);
+  std::cerr << "toto3\n";
   const auto success = [&ctx, &params] {
     if (params.parallel) {
 #ifdef MFEM_USE_MPI
@@ -165,8 +168,10 @@ int main(int argc, char** argv) {
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     }
+    std::cerr << "toto4\n";
     return test<false>(ctx, params);
   }();
+  std::cerr << "toto5\n";
   const auto success2 = [&ctx, &params] {
     if (params.parallel) {
 #ifdef MFEM_USE_MPI

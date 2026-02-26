@@ -134,8 +134,8 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] id: material identifier
      *
-     * \note the method only fails if the material identifier is not defined in the
-     * mesh
+     * \note the method only fails if the material identifier is not defined in
+     * the mesh
      */
     [[nodiscard]] std::optional<std::string> getMaterialName(
         Context&, const size_type) const noexcept;

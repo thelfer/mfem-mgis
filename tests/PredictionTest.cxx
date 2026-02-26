@@ -41,10 +41,12 @@ template <bool parallel>
   p.setup(0, 1);
   auto success =
       p.integrate(u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+#ifdef MFEM_USE_MPI
   if constexpr (parallel) {
     MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
                   fespace.GetComm());
   }
+#endif /* MFEM_USE_MPI */
   if (!success) {
     mfem_mgis::getOutputStream() << "integration failure\n";
     std::exit(EXIT_FAILURE);
@@ -81,11 +83,15 @@ template <bool parallel>
   b.Assemble();
   //
   auto A = [] {
+#ifdef MFEM_USE_MPI
     if constexpr (parallel) {
       return mfem::HypreParMatrix{};
     } else {
       return mfem::SparseMatrix{};
     }
+#else
+    return mfem::SparseMatrix{};
+#endif
   }();
   mfem::Vector B, X;
   //
