@@ -192,6 +192,28 @@ namespace mfem_mgis {
     this->pimpl->setBoundariesNames(ids);
   }
 
+  std::optional<size_type> NonLinearEvolutionProblem::getMaterialIdentifier(
+      Context& ctx, const Parameter& m) const noexcept {
+    return this->pimpl->getMaterialIdentifier(ctx, m);
+  }
+
+  std::optional<size_type> NonLinearEvolutionProblem::getBoundaryIdentifier(
+      Context& ctx, const Parameter& b) const noexcept {
+    return this->pimpl->getBoundaryIdentifier(ctx, b);
+  }
+
+  std::optional<std::vector<size_type>>
+  NonLinearEvolutionProblem::getMaterialsIdentifiers(
+      Context& ctx, const Parameter& m) const noexcept {
+    return this->pimpl->getMaterialsIdentifiers(ctx, m);
+  }
+
+  std::optional<std::vector<size_type>>
+  NonLinearEvolutionProblem::getBoundariesIdentifiers(
+      Context& ctx, const Parameter& b) const noexcept {
+    return this->pimpl->getBoundariesIdentifiers(ctx, b);
+  }
+
   size_type NonLinearEvolutionProblem::getMaterialIdentifier(
       const Parameter& p) const {
     return this->pimpl->getMaterialIdentifier(p);
@@ -253,12 +275,36 @@ namespace mfem_mgis {
     this->pimpl->executePostProcessings(t, dt);
   }
 
-  void NonLinearEvolutionProblem::addBehaviourIntegrator(const std::string& n,
-                                                         const Parameter& m,
-                                                         const std::string& l,
-                                                         const std::string& b) {
-    this->pimpl->addBehaviourIntegrator(n, m, l, b);
+  std::map<size_type, size_type>
+  NonLinearEvolutionProblem::addBehaviourIntegrator(const std::string& n,
+                                                    const Parameter& m,
+                                                    const std::string& l,
+                                                    const std::string& b) {
+    return this->pimpl->addBehaviourIntegrator(n, m, l, b);
   }  // end of addBehaviourIntegrator
+
+  OptionalReference<const Material> NonLinearEvolutionProblem::getMaterial(
+      Context& ctx, const Parameter& m, size_type b) const noexcept {
+    return this->pimpl->getMaterial(ctx, m, b);
+  }  // end of getMaterial
+
+  OptionalReference<Material> NonLinearEvolutionProblem::getMaterial(
+      Context& ctx, const Parameter& m, size_type b) noexcept {
+    return this->pimpl->getMaterial(ctx, m, b);
+  }  // end of getMaterial
+
+  OptionalReference<const AbstractBehaviourIntegrator>
+  NonLinearEvolutionProblem::getBehaviourIntegrator(
+      Context& ctx, const Parameter& m, size_type b) const noexcept {
+    return this->pimpl->getBehaviourIntegrator(ctx, m, b);
+  }  // end of getBehaviourIntegrator
+
+  OptionalReference<AbstractBehaviourIntegrator>
+  NonLinearEvolutionProblem::getBehaviourIntegrator(Context& ctx,
+                                                    const Parameter& m,
+                                                    size_type b) noexcept {
+    return this->pimpl->getBehaviourIntegrator(ctx, m, b);
+  }  // end of getBehaviourIntegrator
 
   const Material& NonLinearEvolutionProblem::getMaterial(
       const Parameter& m) const {

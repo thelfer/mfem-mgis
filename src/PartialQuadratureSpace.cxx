@@ -283,8 +283,8 @@ namespace mfem_mgis {
     r.name = info.name;
     //
     r.number_of_cells = info.number_of_cells;
-    MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_cells), 1,
-                  mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_cells), 1, mpi_type<size_type>,
+                  MPI_SUM, MPI_COMM_WORLD);
     r.number_of_quadrature_points = info.number_of_quadrature_points;
     MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_quadrature_points), 1,
                   mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);
