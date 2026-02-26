@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mechanical post-processings &mdash; The MFEM MGIS project  documentation</title>
+  <title>Getting help &mdash; The MFEM MGIS project  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Available nonlinear algorithms" href="nonlinear_algorithms.html" />
-    <link rel="prev" title="Post-processings" href="post_processings.html" /> 
+    <link rel="next" title="Release notes" href="release_notes/release_notes.html" />
+    <link rel="prev" title="Mesh Reader" href="mesh.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,12 +51,18 @@
 <li class="toctree-l2"><a class="reference internal" href="behaviour_integrators.html">Behaviour integrators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="boundary_conditions.html">Boundary conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="post_processings.html">Post-processings</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Mechanical post-processings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh Reader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="help.html">Getting help</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting help</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-info-function">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#example-of-usage">Example of usage</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="release_notes/release_notes.html">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tests/unit_tests.html">List of unit tests</a></li>
 </ul>
@@ -80,9 +86,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="user_guide.html">User guide</a></li>
-      <li class="breadcrumb-item active">Mechanical post-processings</li>
+      <li class="breadcrumb-item active">Getting help</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/user_guide/mechanical_postprocessings.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/user_guide/help.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -90,35 +96,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="mechanical-post-processings">
-<h1>Mechanical post-processings<a class="headerlink" href="#mechanical-post-processings" title="Link to this heading"></a></h1>
-<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MechanicalPostProcessings</span><span class="p">.</span><span class="n">hxx</span></code> header declares various utility
-functions:</p>
-<ul class="simple">
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeVonMisesEquivalentStress</span></code>: computes the von Mises
-equivalent stress. For finite strain behaviours, the von Mises
-equivalent stress of the Cauchy stress is returned.</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeEigenStresses</span></code> computes the eigen values of the stress.
-For finite strain behaviours, the eigen values of the Cauchy stress is
-returned.</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeFirstEigenStress</span></code> computes the first (maximum) eigen
-value of the stress. For finite strain behaviours, the first eigen
-value of the Cauchy stress is returned.</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeStressInGlobalFrame</span></code>: compute the stress in the global
-frame. This function is only for orthotropic behaviours. For finite
-strain behaviours, the first Piola-Kirchhoff stress is returned.</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">computeCauchyStressInGlobalFrame</span></code>: compute the Cauchy stress in
-the global frame. This function is only valid for orthotropic finite
-strain behaviours.</p></li>
-</ul>
+  <section id="getting-help">
+<h1>Getting help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h1>
+<section id="the-info-function">
+<h2>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function<a class="headerlink" href="#the-info-function" title="Link to this heading"></a></h2>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function allows to display information about an object
+in an output stream.</p>
+<section id="example-of-usage">
+<h3>Example of usage<a class="headerlink" href="#example-of-usage" title="Link to this heading"></a></h3>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">fed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">problem</span><span class="p">.</span><span class="n">getFiniteElementDiscretization</span><span class="p">();</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">info</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">fed</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="post_processings.html" class="btn btn-neutral float-left" title="Post-processings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="nonlinear_algorithms.html" class="btn btn-neutral float-right" title="Available nonlinear algorithms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mesh.html" class="btn btn-neutral float-left" title="Mesh Reader" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="release_notes/release_notes.html" class="btn btn-neutral float-right" title="Release notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
