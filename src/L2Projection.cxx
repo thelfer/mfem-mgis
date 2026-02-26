@@ -503,7 +503,7 @@ namespace mfem_mgis {
     a.Assemble();
     // resolution(s)
     for (size_type c = 0; c != r.fe_space->GetVDim(); ++c) {
-      // initialize the solution, if need
+      // initialize the solution, if needed
       if (r.fe_space->GetVDim() != 1) {
         *x = real{};
       }

@@ -28,7 +28,7 @@ namespace mfem_mgis {
 
 namespace mgis::internal {
 
-  //! \brief partial specialisation for boolean values
+  //! \brief partial specialisation for linear solver handlers
   template <>
   struct InvalidValueTraits<mfem_mgis::LinearSolverHandler> {
     static constexpr bool isSpecialized = true;
