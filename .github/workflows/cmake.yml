@@ -87,7 +87,7 @@ jobs:
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
         cmake --build ${{github.workspace}}/build-mfem-mgis-examples
-
+      
     - name: Run MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
