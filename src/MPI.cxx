@@ -1,6 +1,6 @@
 /*!
  * \file   src/MPI.cxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   25/02/2026
  */

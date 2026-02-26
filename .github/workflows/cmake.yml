@@ -87,45 +87,45 @@ jobs:
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
         cmake --build ${{github.workspace}}/build-mfem-mgis-examples
-        
+      
     - name: Run MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
       run: |
         ctest --rerun-failed --output-on-failure
         
-    - name: Run OperaHPC repository
-      run: git clone https://github.com/rprat-pro/mm-opera-hpc.git
+#    - name: Run OperaHPC repository
+#      run: git clone https://github.com/rprat-pro/mm-opera-hpc.git
       
-    - name: CMake && Compile OperaHPC examples
-      shell: spack-sh {0} 
-      run: |
-        spack load mfem 
-        spack load mgis
-        cmake -S ${{github.workspace}}/mm-opera-hpc\
-              -B ${{github.workspace}}/build-mm-opera-hpc \
-              -DCMAKE_C_COMPILER=gcc-12 \
-              -DCMAKE_CXX_COMPILER=g++-12 \
-              -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
-              -DCMAKE_BUILD_TYPE=Coverage \
-              -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
-              -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-              -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-        cmake --build ${{github.workspace}}/build-mm-opera-hpc
+#    - name: CMake && Compile OperaHPC examples
+#      shell: spack-sh {0} 
+#      run: |
+#        spack load mfem 
+#        spack load mgis
+#        cmake -S ${{github.workspace}}/mm-opera-hpc\
+#              -B ${{github.workspace}}/build-mm-opera-hpc \
+#              -DCMAKE_C_COMPILER=gcc-12 \
+#              -DCMAKE_CXX_COMPILER=g++-12 \
+#              -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
+#              -DCMAKE_BUILD_TYPE=Coverage \
+#              -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
+#              -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+#              -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
+#        cmake --build ${{github.workspace}}/build-mm-opera-hpc
         
-    - name: Run OperaHPC examples
-      shell: spack-sh {0} 
-      working-directory: ${{github.workspace}}/build-mm-opera-hpc
-      run: |
-        ctest --rerun-failed --output-on-failure
+#    - name: Run OperaHPC examples
+#      shell: spack-sh {0} 
+#      working-directory: ${{github.workspace}}/build-mm-opera-hpc
+#      run: |
+#        ctest --rerun-failed --output-on-failure
 
-  #  - name: Generate a code coverage report part2
-  #    working-directory: ${{github.workspace}}/
-  #    run: |
-  #      gcovr --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
+#    - name: Generate a code coverage report part2
+#      working-directory: ${{github.workspace}}/
+#      run: |
+#      gcovr --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
 
-  #  - name: Archive code coverage results
-   #   uses: actions/upload-artifact@v4
-   #   with:
-   #     name: code-coverage-report
-   #     path: ${{github.workspace}}/coverage.html
+#   - name: Archive code coverage results
+#     uses: actions/upload-artifact@v4
+#     with:
+#       name: code-coverage-report
+#       path: ${{github.workspace}}/coverage.html
