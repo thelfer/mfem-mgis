@@ -299,7 +299,7 @@ namespace mfem_mgis {
         continue;
       }
       if (count(materials_names, n) != 0) {
-        warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
+        warning(getDefaultLogStream(), "ignoring material attribute set '", n,
                 "' which is already associated by the user to a material");
         continue;
       }
