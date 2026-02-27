@@ -45,8 +45,8 @@ namespace mfem_mgis {
   struct [[nodiscard]] LinearizedOperators {
     //! \brief stiffness matrix
     std::unique_ptr<BilinearFormIntegrator> K;
-    //! \brief inner forces
-    std::unique_ptr<LinearFormIntegrator> Fi;
+    //! \brief opposite of the inner forces
+    std::unique_ptr<LinearFormIntegrator> mFi;
   };
 
   /*!
@@ -130,10 +130,14 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual std::optional<LinearizedOperators>
     getLinearizedOperators(Context &, const mfem::Vector &) noexcept = 0;
-    //! \brief return the boundary conditions
+    //! \brief return the Dirichlet boundary conditions
     [[nodiscard]] virtual const std::vector<
         std::unique_ptr<DirichletBoundaryCondition>>
-        &getDirichletBoundaryConditions() noexcept = 0;
+        &getDirichletBoundaryConditions() const noexcept = 0;
+    //! \brief return the standard boundary conditions
+    [[nodiscard]] virtual const std::vector<
+        std::unique_ptr<AbstractBoundaryCondition>>
+        &getBoundaryConditions() const noexcept = 0;
     /*!
      * \brief method called before each resolution
      * \param[in] t: time at the beginning of the time step
@@ -266,8 +270,15 @@ namespace mfem_mgis {
      * \brief add a boundary condition
      * \param[in] f: boundary condition
      */
-    virtual void addBoundaryCondition(
+    [[deprecated]] virtual void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) = 0;
+    /*!
+     * \brief add a boundary condition
+     * \param[in] ctx: execution context
+     * \param[in] f: boundary condition
+     */
+    [[nodiscard]] virtual bool addBoundaryCondition(
+        Context &, std::unique_ptr<AbstractBoundaryCondition>) noexcept = 0;
     /*!
      * \brief add a Dirichlet boundary condition
      * \param[in] bc: boundary condition

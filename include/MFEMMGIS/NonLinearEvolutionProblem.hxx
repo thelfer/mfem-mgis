@@ -45,7 +45,7 @@ namespace mfem_mgis {
      *    performed. This value if assumed to be false by default.
      * - `MeshFileName` (string): mesh file.
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used.The default value if `H1`.
+     *   used. The default value if `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `Hypothesis` (string): modelling hypothesis
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
@@ -90,9 +90,12 @@ namespace mfem_mgis {
     void setLinearSolver(std::string_view, const Parameters &) override;
     void setPredictionPolicy(const PredictionPolicy &) noexcept override;
     void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
-    void addBoundaryCondition(
         std::unique_ptr<DirichletBoundaryCondition>) override;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractBoundaryCondition>) override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context &,
+        std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     /*!
      * \brief add an uniform boundary condition
      * \param[in] params: parameters defining the boundary condition
@@ -133,7 +136,10 @@ namespace mfem_mgis {
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
         Context &, const mfem::Vector &) noexcept override;
     [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>
-        &getDirichletBoundaryConditions() noexcept override;
+        &getDirichletBoundaryConditions() const noexcept override;
+    [[nodiscard]] virtual const std::vector<
+        std::unique_ptr<AbstractBoundaryCondition>>
+        &getBoundaryConditions() const noexcept override;
     void setup(const real, const real) override;
     [[nodiscard]] NonLinearResolutionOutput solve(const real,
                                                   const real) override;
