@@ -40,7 +40,6 @@ namespace mfem_mgis {
    * \brief print information in the default log stream
    *
    * \param[in, out] ctx: execution context
-   * \param[in, out] os: output stream
    * \param[in] t: object for which information are requested
    */
   template <typename T>
