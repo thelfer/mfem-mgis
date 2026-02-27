@@ -76,14 +76,10 @@ namespace mfem_mgis {
     getFiniteElementDiscretization() const override;
     [[nodiscard]] std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
-    [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &
-    getUnknownsAtBeginningOfTheTimeStep() override;
-    [[nodiscard, deprecated("use getUnknowns instead")]] const mfem::Vector &
-    getUnknownsAtBeginningOfTheTimeStep() const override;
-    [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &
-    getUnknownsAtEndOfTheTimeStep() override;
-    [[nodiscard, deprecated("use getUnknowns instead")]] const mfem::Vector &
-    getUnknownsAtEndOfTheTimeStep() const override;
+    [[nodiscard]] bool setMaterialsNames(
+        Context &, const std::map<size_type, std::string> &) noexcept override;
+    [[nodiscard]] bool setBoundariesNames(
+        Context &, const std::map<size_type, std::string> &) noexcept override;
     [[nodiscard]] mfem::Vector &getUnknowns(
         const TimeStepStage) noexcept override;
     [[nodiscard]] const mfem::Vector &getUnknowns(
@@ -111,8 +107,6 @@ namespace mfem_mgis {
         const Parameter &,
         const std::string &,
         const std::string &) override;
-    void setMaterialsNames(const std::map<size_type, std::string> &) override;
-    void setBoundariesNames(const std::map<size_type, std::string> &) override;
     [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
         const override;
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
@@ -146,6 +140,18 @@ namespace mfem_mgis {
     void revert() override;
     void update() override;
     //
+    [[deprecated]] void setMaterialsNames(
+        const std::map<size_type, std::string> &) override;
+    [[deprecated]] void setBoundariesNames(
+        const std::map<size_type, std::string> &) override;
+    [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &
+    getUnknownsAtBeginningOfTheTimeStep() override;
+    [[nodiscard, deprecated("use getUnknowns instead")]] const mfem::Vector &
+    getUnknownsAtBeginningOfTheTimeStep() const override;
+    [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &
+    getUnknownsAtEndOfTheTimeStep() override;
+    [[nodiscard, deprecated("use getUnknowns instead")]] const mfem::Vector &
+    getUnknownsAtEndOfTheTimeStep() const override;
     [[deprecated, nodiscard]] size_type getMaterialIdentifier(
         const Parameter &) const override;
     [[deprecated, nodiscard]] size_type getBoundaryIdentifier(

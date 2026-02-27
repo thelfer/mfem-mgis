@@ -20,6 +20,7 @@
 #endif /* MGIS_FUNCTION_SUPPORT */
 
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/Info.hxx"
 
 namespace mfem_mgis {
 
@@ -269,7 +270,9 @@ namespace mfem_mgis {
    * \param[out] os: output stream
    * \param[in] info: information to be displayed
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] bool info(
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] bool
+  getInformation<PartialQuadratureSpaceInformation>(
       Context &,
       std::ostream &,
       const PartialQuadratureSpaceInformation &) noexcept;
@@ -281,7 +284,8 @@ namespace mfem_mgis {
    * \param[out] os: output stream
    * \param[in] s: partial quadrature space
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] bool info(
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] bool getInformation<PartialQuadratureSpace>(
       Context &, std::ostream &, const PartialQuadratureSpace &) noexcept;
   /*!
    * \brief synchronize information of all processes

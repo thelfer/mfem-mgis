@@ -49,7 +49,7 @@ namespace mfem_mgis {
           Message(a_msgs...);
         }
       }
-    };  // namespace Utils
+    }  // namespace Utils
 
     namespace timers {
       class ProfilerTimeSection {
@@ -96,8 +96,8 @@ namespace mfem_mgis {
 
       template <enumTimeSection T>
       ProfilerTimeSection*& get_timer() {
-        static ProfilerTimeSection* __current;
-        return __current;
+        static ProfilerTimeSection* _current;
+        return _current;
       }
 
       template <typename Lambda>
@@ -111,7 +111,7 @@ namespace mfem_mgis {
         auto measure = toc - tic;
         return measure.count();
       }
-    };  // namespace timers
+    }  // namespace timers
 
     namespace timer {
       using duration = std::chrono::duration<double>;
@@ -132,8 +132,8 @@ namespace mfem_mgis {
 
       template <enumTimeSection T>
       TimeSection*& get_timer() {
-        static TimeSection* __timer;
-        return __timer;
+        static TimeSection* _timer;
+        return _timer;
       }
 
       template <enumTimeSection T>
@@ -180,7 +180,7 @@ namespace mfem_mgis {
           recursive_sorted_call(func, mySort, it, arg...);
       }
 
-    };  // namespace OutputManager
+    }  // namespace OutputManager
 
     inline std::chrono::duration<double>* get_duration(std::string a_name) {
       auto& ptr = timers::get_timer<CURRENT>();
@@ -189,9 +189,9 @@ namespace mfem_mgis {
           ptr->find(a_name);  // this function increment the 'iteration' member
       return ptr->get_ptr_duration();
     }
-  };  // namespace Profiler
+  }  // namespace Profiler
 
-};  // namespace mfem_mgis
+}  // namespace mfem_mgis
 
 /** Define macros here */
 
