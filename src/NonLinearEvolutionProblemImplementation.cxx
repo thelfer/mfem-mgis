@@ -44,6 +44,36 @@ namespace mfem_mgis {
     const real initial_residual_norm;
   };
 
+  [[nodiscard]] IntegrationType convertToIntegrationType(
+      const PredictionOperator o) noexcept {
+    if (o == PredictionOperator::ELASTIC) {
+      return IntegrationType::PREDICTION_ELASTIC_OPERATOR;
+    } else if (o == PredictionOperator::SECANT) {
+      return IntegrationType::PREDICTION_SECANT_OPERATOR;
+    } else if (o == PredictionOperator::TANGENT) {
+      return IntegrationType::PREDICTION_TANGENT_OPERATOR;
+    }
+    abort(
+        "convertToIntegrationType: internal error, "
+        "unsupported prediction operator");
+  }  // end of convertToIntegrationType
+
+  [[nodiscard]] IntegrationType convertToIntegrationType(
+      const IntegrationOperator o) noexcept {
+    if (o == IntegrationOperator::ELASTIC) {
+      return IntegrationType::INTEGRATION_ELASTIC_OPERATOR;
+    } else if (o == IntegrationOperator::SECANT) {
+      return IntegrationType::INTEGRATION_SECANT_OPERATOR;
+    } else if (o == IntegrationOperator::TANGENT) {
+      return IntegrationType::INTEGRATION_TANGENT_OPERATOR;
+    } else if (o == IntegrationOperator::CONSISTENT_TANGENT) {
+      return IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR;
+    }
+    abort(
+        "convertToIntegrationType: internal error, "
+        "unsupported integration operator");
+  }  // end of convertToIntegrationType
+
   template <bool parallel>
   [[nodiscard]] std::optional<PredictionResult<parallel>> computePrediction(
       mfem_mgis::Context& ctx,
@@ -54,8 +84,28 @@ namespace mfem_mgis {
     auto& fed = p.getFiniteElementDiscretization();
     auto& fespace = fed.template getFiniteElementSpace<parallel>();
     const auto& u0 = p.getUnknowns(mfem_mgis::bts);
-    auto success = p.integrate(
-        u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+    auto success = [&p, &u0, dt] {
+      const auto policy = p.getPredictionPolicy();
+      if (policy.strategy ==
+          PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION) {
+        if (policy.prediction_operator ==
+            PredictionOperator::LAST_ITERATE_OPERATOR) {
+          return p.integrate(
+              u0, convertToIntegrationType(PredictionOperator::ELASTIC), {});
+        } else {
+          return p.integrate(
+              u0, convertToIntegrationType(policy.prediction_operator), {});
+        }
+      }
+      const auto ndt = [&policy, dt] {
+        if (policy.null_time_increment) {
+          return real{};
+        }
+        return dt;
+      }();
+      return p.integrate(
+          u0, convertToIntegrationType(policy.integration_operator), ndt);
+    }();
 #ifdef MFEM_USE_MPI
     if constexpr (parallel) {
       MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
@@ -65,6 +115,7 @@ namespace mfem_mgis {
     if (!success) {
       return ctx.registerErrorMessage("integration failure");
     }
+    //
     auto operators = p.getLinearizedOperators(ctx, u0);
     if (isInvalid(operators)) {
       return {};
@@ -74,9 +125,18 @@ namespace mfem_mgis {
     *du = 0.0;
     auto a = mfem_mgis::BilinearForm<parallel>(&fespace);
     a.AddDomainIntegrator(operators->K.release());
-    a.Assemble();
     auto b = mfem_mgis::LinearForm<parallel>(&fespace);
-    b.AddDomainIntegrator(operators->Fi.release());
+    if (operators->mFi.get() != nullptr) {
+      b.AddDomainIntegrator(operators->mFi.release());
+    }
+    //
+    for (const auto& bc : p.getBoundaryConditions()) {
+      if (!bc->addLinearFormIntegrators(ctx, a, b, u0, t, dt)) {
+        return {};
+      }
+    }
+    //
+    a.Assemble();
     b.Assemble();
     //
     auto A = [] {
@@ -244,8 +304,19 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
       std::unique_ptr<AbstractBoundaryCondition> f) {
-    f->addNonlinearFormIntegrator(*this);
+    auto ctx = Context{};
+    if (!this->addBoundaryCondition(ctx, std::move(f))) {
+      raise(ctx.getErrorMessage());
+    }
+  }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
+      Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    if (!f->addNonlinearFormIntegrator(ctx, *this, this->u1)) {
+      return false;
+    }
     this->boundary_conditions.push_back(std::move(f));
+    return true;
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
@@ -313,9 +384,15 @@ namespace mfem_mgis {
   }  // end of getFiniteElementSpace
 
   bool NonLinearEvolutionProblemImplementation<true>::integrate(
-      const mfem::Vector& u, const IntegrationType it) {
+      const mfem::Vector& u,
+      const IntegrationType it,
+      const std::optional<real> odt) {
     if (this->mgis_integrator == nullptr) {
       return true;
+    }
+    const auto dt = this->mgis_integrator->getTimeIncrement();
+    if (odt.has_value()) {
+      this->mgis_integrator->setTimeIncrement(*odt);
     }
     const auto& pu = this->Prolongate(u);
     const auto& fespace = this->getFiniteElementSpace();
@@ -331,6 +408,11 @@ namespace mfem_mgis {
     }
     MPI_Allreduce(MPI_IN_PLACE, &noerror, 1, MPI_C_BOOL, MPI_LAND,
                   MPI_COMM_WORLD);
+    if ((!noerror) &&
+        (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR)) {
+      this->hasStiffnessOperatorsBeenComputed = true;
+    }
+    this->mgis_integrator->setTimeIncrement(dt);
     return noerror;
   }  // end of integrate
 
@@ -409,8 +491,19 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
       std::unique_ptr<AbstractBoundaryCondition> f) {
-    f->addNonlinearFormIntegrator(*this);
+    auto ctx = Context{};
+    if (!this->addBoundaryCondition(ctx, std::move(f))) {
+      raise(ctx.getErrorMessage());
+    }
+  }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
+      Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    if (!f->addNonlinearFormIntegrator(ctx, *this, this->u1)) {
+      return false;
+    }
     this->boundary_conditions.push_back(std::move(f));
+    return true;
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
@@ -478,9 +571,15 @@ namespace mfem_mgis {
   }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::integrate(
-      const mfem::Vector& u, const IntegrationType it) {
+      const mfem::Vector& u,
+      const IntegrationType it,
+      const std::optional<real> odt) {
     if (this->mgis_integrator == nullptr) {
       return true;
+    }
+    const auto dt = this->mgis_integrator->getTimeIncrement();
+    if (odt.has_value()) {
+      this->mgis_integrator->setTimeIncrement(*odt);
     }
     const auto& pu = this->Prolongate(u);
     const auto& fespace = this->getFiniteElementSpace();
@@ -495,6 +594,10 @@ namespace mfem_mgis {
         return false;
       }
     }
+    if (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR) {
+      this->hasStiffnessOperatorsBeenComputed = true;
+    }
+    this->mgis_integrator->setTimeIncrement(dt);
     return true;
   }  // end of integrate
 

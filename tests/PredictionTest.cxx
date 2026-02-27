@@ -39,8 +39,8 @@ template <bool parallel>
   auto &fespace = fed.getFiniteElementSpace<parallel>();
   const auto &u0 = p.getUnknowns(mfem_mgis::bts);
   p.setup(0, 1);
-  auto success =
-      p.integrate(u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+  auto success = p.integrate(
+      u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR, {});
 #ifdef MFEM_USE_MPI
   if constexpr (parallel) {
     MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
@@ -79,7 +79,7 @@ template <bool parallel>
   a.AddDomainIntegrator(operators->K.release());
   a.Assemble();
   auto b = mfem_mgis::LinearForm<parallel>(&fespace);
-  b.AddDomainIntegrator(operators->Fi.release());
+  b.AddDomainIntegrator(operators->mFi.release());
   b.Assemble();
   //
   auto A = [] {
