@@ -117,8 +117,9 @@ jobs:
       shell: spack-sh {0} 
       working-directory: ${{github.workspace}}/build-mm-opera-hpc
       run: |
-        ls `spack location -i tfel`/lib
+        spack load tfel
         ctest --rerun-failed --output-on-failure
+#        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}=`spack location -i tfel`/lib
 
 #    - name: Generate a code coverage report part2
 #      working-directory: ${{github.workspace}}/
