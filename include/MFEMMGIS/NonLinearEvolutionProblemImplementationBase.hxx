@@ -95,6 +95,10 @@ namespace mfem_mgis {
         const override;
     std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() override;
+    [[nodiscard]] bool setMaterialsNames(
+        Context&, const std::map<size_type, std::string>&) noexcept override;
+    [[nodiscard]] bool setBoundariesNames(
+        Context&, const std::map<size_type, std::string>&) noexcept override;
     mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
     const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
     mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
@@ -104,25 +108,30 @@ namespace mfem_mgis {
     [[nodiscard]] const mfem::Vector& getUnknowns(
         const TimeStepStage) const noexcept override;
     void setSolverParameters(const Parameters&) override;
-    void setMaterialsNames(const std::map<size_type, std::string>&) override;
-    void setBoundariesNames(const std::map<size_type, std::string>&) override;
     std::vector<size_type> getAssignedMaterialsIdentifiers() const override;
-    size_type getMaterialIdentifier(const Parameter&) const override;
-    size_type getBoundaryIdentifier(const Parameter&) const override;
-    std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter&) const override;
-    std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter&) const override;
-    const Material& getMaterial(const Parameter&) const override;
-    Material& getMaterial(const Parameter&) override;
-    const AbstractBehaviourIntegrator& getBehaviourIntegrator(
-        const size_type) const override;
-    AbstractBehaviourIntegrator& getBehaviourIntegrator(
-        const size_type) override;
-    void addBehaviourIntegrator(const std::string&,
-                                const Parameter&,
-                                const std::string&,
-                                const std::string&) override;
+    [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
+        Context&, const Parameter&) const noexcept override;
+    [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
+        Context&, const Parameter&) const noexcept override;
+    [[nodiscard]] std::optional<std::vector<size_type>> getMaterialsIdentifiers(
+        Context&, const Parameter&) const noexcept override;
+    [[nodiscard]] std::optional<std::vector<size_type>>
+    getBoundariesIdentifiers(Context&,
+                             const Parameter&) const noexcept override;
+    OptionalReference<const Material> getMaterial(
+        Context&, const Parameter&, const size_type) const noexcept override;
+    OptionalReference<Material> getMaterial(Context&,
+                                            const Parameter&,
+                                            const size_type) noexcept override;
+    OptionalReference<const AbstractBehaviourIntegrator> getBehaviourIntegrator(
+        Context&, const Parameter&, const size_type) const noexcept override;
+    OptionalReference<AbstractBehaviourIntegrator> getBehaviourIntegrator(
+        Context&, const Parameter&, const size_type) noexcept override;
+    std::map<size_type, size_type> addBehaviourIntegrator(
+        const std::string&,
+        const Parameter&,
+        const std::string&,
+        const std::string&) override;
     [[nodiscard]] std::vector<size_type> getEssentialDegreesOfFreedom()
         const override;
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
@@ -136,6 +145,26 @@ namespace mfem_mgis {
                                                   const real) override;
     void revert() override;
     void update() override;
+    //
+    [[deprecated]] void setMaterialsNames(
+        const std::map<size_type, std::string>&) override;
+    [[deprecated]] void setBoundariesNames(
+        const std::map<size_type, std::string>&) override;
+    [[deprecated, nodiscard]] size_type getMaterialIdentifier(
+        const Parameter&) const override;
+    [[deprecated, nodiscard]] size_type getBoundaryIdentifier(
+        const Parameter&) const override;
+    [[deprecated, nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
+        const Parameter&) const override;
+    [[deprecated, nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
+        const Parameter&) const override;
+    [[deprecated, nodiscard]] const Material& getMaterial(
+        const Parameter&) const override;
+    [[deprecated, nodiscard]] Material& getMaterial(const Parameter&) override;
+    [[deprecated, nodiscard]] const AbstractBehaviourIntegrator&
+    getBehaviourIntegrator(const size_type) const override;
+    [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
+    getBehaviourIntegrator(const size_type) override;
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 

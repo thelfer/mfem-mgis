@@ -17,5 +17,6 @@ User guide
    partial_quadrature_functions/partial_quadrature_spaces_and_functions.rst
    glossary.rst
    mesh.rst  
+   help.rst
    release_notes/release_notes.rst
    tests/unit_tests.rst

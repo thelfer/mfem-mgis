@@ -87,7 +87,7 @@ jobs:
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
         cmake --build ${{github.workspace}}/build-mfem-mgis-examples
-        
+      
     - name: Run MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
@@ -119,13 +119,13 @@ jobs:
       run: |
         ctest --rerun-failed --output-on-failure
 
-  #  - name: Generate a code coverage report part2
-  #    working-directory: ${{github.workspace}}/
-  #    run: |
-  #      gcovr --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
+#    - name: Generate a code coverage report part2
+#      working-directory: ${{github.workspace}}/
+#      run: |
+#      gcovr --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
 
-  #  - name: Archive code coverage results
-   #   uses: actions/upload-artifact@v4
-   #   with:
-   #     name: code-coverage-report
-   #     path: ${{github.workspace}}/coverage.html
+#   - name: Archive code coverage results
+#     uses: actions/upload-artifact@v4
+#     with:
+#       name: code-coverage-report
+#       path: ${{github.workspace}}/coverage.html

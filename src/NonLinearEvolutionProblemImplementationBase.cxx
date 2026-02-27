@@ -138,6 +138,16 @@ namespace mfem_mgis {
     }
   }  // end of checkMultiMaterialSupportEnabled
 
+  bool NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    return this->getFiniteElementDiscretization().setMaterialsNames(ctx, ids);
+  }  // end of setMaterialsNames
+
+  bool NonLinearEvolutionProblemImplementationBase::setBoundariesNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    return this->getFiniteElementDiscretization().setBoundariesNames(ctx, ids);
+  }  // end of setBoundariesNames
+
   void NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {
     this->getFiniteElementDiscretization().setMaterialsNames(ids);
@@ -147,6 +157,32 @@ namespace mfem_mgis {
       const std::map<size_type, std::string>& ids) {
     this->getFiniteElementDiscretization().setBoundariesNames(ids);
   }
+
+  std::optional<size_type>
+  NonLinearEvolutionProblemImplementationBase::getMaterialIdentifier(
+      Context& ctx, const Parameter& p) const noexcept {
+    return this->getFiniteElementDiscretization().getMaterialIdentifier(ctx, p);
+  }  // end of getMaterialIdentifier
+
+  std::optional<size_type>
+  NonLinearEvolutionProblemImplementationBase::getBoundaryIdentifier(
+      Context& ctx, const Parameter& p) const noexcept {
+    return this->getFiniteElementDiscretization().getBoundaryIdentifier(ctx, p);
+  }  // end of getBoundaryIdentifier
+
+  std::optional<std::vector<size_type>>
+  NonLinearEvolutionProblemImplementationBase::getMaterialsIdentifiers(
+      Context& ctx, const Parameter& p) const noexcept {
+    return this->getFiniteElementDiscretization().getMaterialsIdentifiers(ctx,
+                                                                          p);
+  }  // end of getMaterialsIdentifiers
+
+  std::optional<std::vector<size_type>>
+  NonLinearEvolutionProblemImplementationBase::getBoundariesIdentifiers(
+      Context& ctx, const Parameter& p) const noexcept {
+    return this->getFiniteElementDiscretization().getBoundariesIdentifiers(ctx,
+                                                                           p);
+  }  // end of getBoundariesIdentifiers
 
   size_type NonLinearEvolutionProblemImplementationBase::getMaterialIdentifier(
       const Parameter& p) const {
@@ -165,6 +201,12 @@ namespace mfem_mgis {
   }  // end of getMaterialsIdentifiers
 
   std::vector<size_type>
+  NonLinearEvolutionProblemImplementationBase::getBoundariesIdentifiers(
+      const Parameter& p) const {
+    return this->getFiniteElementDiscretization().getBoundariesIdentifiers(p);
+  }  // end of getBoundariesIdentifiers
+
+  std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getAssignedMaterialsIdentifiers()
       const {
     checkMultiMaterialSupportEnabled("getAssignedMaterialsIdentifiers",
@@ -172,23 +214,78 @@ namespace mfem_mgis {
     return this->mgis_integrator->getAssignedMaterialsIdentifiers();
   }  // end of getAssignedMaterialsIdentifiers
 
-  std::vector<size_type>
-  NonLinearEvolutionProblemImplementationBase::getBoundariesIdentifiers(
-      const Parameter& p) const {
-    return this->getFiniteElementDiscretization().getBoundariesIdentifiers(p);
-  }  // end of getBoundariesIdentifiers
-
-  void NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
+  std::map<size_type, size_type>
+  NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
       const std::string& n,
       const Parameter& m,
       const std::string& l,
       const std::string& b) {
     checkMultiMaterialSupportEnabled("addBehaviourIntegrator",
                                      this->mgis_integrator);
-    for (const auto& id : this->getMaterialsIdentifiers(m)) {
-      this->mgis_integrator->addBehaviourIntegrator(n, id, l, b);
+    auto bids = std::map<size_type, size_type>{};
+    for (const auto& mid : this->getMaterialsIdentifiers(m)) {
+      const auto bid =
+          this->mgis_integrator->addBehaviourIntegrator(n, mid, l, b);
+      bids.insert({mid, bid});
     }
+    return bids;
   }  // end of addBehaviourIntegrator
+
+  OptionalReference<const Material>
+  NonLinearEvolutionProblemImplementationBase::getMaterial(
+      Context& ctx, const Parameter& m, const size_type b) const noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return ctx.registerErrorMessage(
+          "support for mgis integrator has been disabled");
+    }
+    const auto om = this->getMaterialIdentifier(ctx, m);
+    if (isInvalid(om)) {
+      return {};
+    }
+    return this->mgis_integrator->getMaterial(ctx, *om, b);
+  }  // end of getMaterial
+
+  OptionalReference<Material>
+  NonLinearEvolutionProblemImplementationBase::getMaterial(
+      Context& ctx, const Parameter& m, const size_type b) noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return ctx.registerErrorMessage(
+          "support for mgis integrator has been disabled");
+    }
+    const auto om = this->getMaterialIdentifier(ctx, m);
+    if (isInvalid(om)) {
+      return {};
+    }
+    return this->mgis_integrator->getMaterial(ctx, *om, b);
+  }  // end of getMaterial
+
+  OptionalReference<const AbstractBehaviourIntegrator>
+  NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
+      Context& ctx, const Parameter& m, const size_type b) const noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return ctx.registerErrorMessage(
+          "support for mgis integrator has been disabled");
+    }
+    const auto om = this->getMaterialIdentifier(ctx, m);
+    if (isInvalid(om)) {
+      return {};
+    }
+    return this->mgis_integrator->getBehaviourIntegrator(ctx, *om, b);
+  }  // end of getBehaviourIntegrator
+
+  OptionalReference<AbstractBehaviourIntegrator>
+  NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
+      Context& ctx, const Parameter& m, const size_type b) noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return ctx.registerErrorMessage(
+          "support for mgis integrator has been disabled");
+    }
+    const auto om = this->getMaterialIdentifier(ctx, m);
+    if (isInvalid(om)) {
+      return {};
+    }
+    return this->mgis_integrator->getBehaviourIntegrator(ctx, *om, b);
+  }  // end of getBehaviourIntegrator
 
   const Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
       const Parameter& m) const {
