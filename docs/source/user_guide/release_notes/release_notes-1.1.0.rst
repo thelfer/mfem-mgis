@@ -16,6 +16,15 @@ This version inherits from all the features introduced in:
    :local:
    :backlinks: none
 
+Highlights
+==========
+
+- The name of the materials and boundaries are automatically retrieved
+  from |MFEM|'s mesh.
+- Many methods have been deprecated to have a consistent error handling
+  scheme based on `MGIS`'s one. As such, many methods and functions now
+  takes and `MGIS`'s :cxx:`Context` as their first argument.
+
 New features
 ============
 
@@ -136,8 +145,26 @@ The following operators are available:
   with respect to the gradients at the end of the time step. See
   :cite:`simo_consistent_1985` for details.
 
+The :cxx:`info` function
+------------------------
+
+The :cxx:`info` function allows to display information about an object
+in an output stream.
+
+
+Retrieving information on a finite element discretization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example of usage
+""""""""""""""""
+
+.. code:: c++
+
+   const auto& fed = problem.getFiniteElementDiscretization();
+   const auto success = mfem_mgis::info(ctx, fed);
+
 Retrieving information on a partial quadrature space
-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :cxx:`PartialQuadratureSpaceInformation` structure contains some
 relevant information about a partial quadrature space:
@@ -159,7 +186,7 @@ The :cxx:`PartialQuadratureSpaceInformation` structure can be printed to
 an output stream using the :cxx:`info` function.
 
 Example of usage
-^^^^^^^^^^^^^^^^
+""""""""""""""""
 
 .. code:: c++
 
@@ -170,5 +197,7 @@ Example of usage
 Issues fixed
 ============
 
+- Issue 200: automatically assign materials and boundaries's names from
+  MFEM's attributes ￼
+- Issue 188: retrieve informations about a quadrature space
 - Issue 149: work on the prediction of the solution
-

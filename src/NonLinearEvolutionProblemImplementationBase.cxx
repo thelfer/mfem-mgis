@@ -138,6 +138,16 @@ namespace mfem_mgis {
     }
   }  // end of checkMultiMaterialSupportEnabled
 
+  bool NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    return this->getFiniteElementDiscretization().setMaterialsNames(ctx, ids);
+  }  // end of setMaterialsNames
+
+  bool NonLinearEvolutionProblemImplementationBase::setBoundariesNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    return this->getFiniteElementDiscretization().setBoundariesNames(ctx, ids);
+  }  // end of setBoundariesNames
+
   void NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {
     this->getFiniteElementDiscretization().setMaterialsNames(ids);

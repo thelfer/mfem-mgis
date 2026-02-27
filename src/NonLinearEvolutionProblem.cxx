@@ -182,6 +182,16 @@ namespace mfem_mgis {
     return this->pimpl->getLinearizedOperators(ctx, U);
   }  // end of getLinearizedOperators
 
+  bool NonLinearEvolutionProblem::setMaterialsNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    return this->pimpl->setMaterialsNames(ctx, ids);
+  }  // end of setMaterialsNames
+
+  bool NonLinearEvolutionProblem::setBoundariesNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    return this->pimpl->setBoundariesNames(ctx, ids);
+  }  // end of setBoundariesNames
+
   void NonLinearEvolutionProblem::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {
     this->pimpl->setMaterialsNames(ids);
