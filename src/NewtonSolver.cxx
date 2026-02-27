@@ -156,8 +156,22 @@ namespace mfem_mgis {
       x -= c;
 
       if (!this->processNewUnknownsEstimate(x)) {
-        this->converged = 0;
-        break;
+        // basic line search
+        while (true){
+          if (it >= this->max_iter) {
+            this->converged = 0;
+            break;
+          }
+          c *= real{1} / 2;
+          x += c;
+          if (this->processNewUnknownsEstimate(x)) {
+            break;
+          }
+          ++it;
+        }
+        if (this->converged == 0) {
+          break;
+        }
       }
 
       updateResidual();
