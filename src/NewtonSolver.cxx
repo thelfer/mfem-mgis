@@ -34,7 +34,7 @@ namespace mfem_mgis {
     this->iterative_mode = true;
     this->addNewUnknownsEstimateActions([&p](const mfem::Vector &u) {
       return p.integrate(
-          u, IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR);
+          u, IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR, {});
     });
   }  // end of NewtonSolver
 
@@ -48,7 +48,7 @@ namespace mfem_mgis {
     this->iterative_mode = true;
     this->addNewUnknownsEstimateActions([&p](const mfem::Vector &u) {
       return p.integrate(
-          u, IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR);
+          u, IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR, {});
     });
   }  // end of NewtonSolver
 
@@ -156,8 +156,22 @@ namespace mfem_mgis {
       x -= c;
 
       if (!this->processNewUnknownsEstimate(x)) {
-        this->converged = 0;
-        break;
+        // basic line search
+        while (true){
+          if (it >= this->max_iter) {
+            this->converged = 0;
+            break;
+          }
+          c *= real{1} / 2;
+          x += c;
+          if (this->processNewUnknownsEstimate(x)) {
+            break;
+          }
+          ++it;
+        }
+        if (this->converged == 0) {
+          break;
+        }
       }
 
       updateResidual();

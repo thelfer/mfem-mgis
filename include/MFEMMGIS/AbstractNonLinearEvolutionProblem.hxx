@@ -30,13 +30,170 @@ namespace mfem_mgis {
   struct AbstractBoundaryCondition;
   enum struct IntegrationType;
 
-  enum struct PredictionStrategy { DEFAULT_PREDICTION, ELASTIC_PREDICTION };
+  /*!
+   * \brief strategy used to make a prediction of the solution at the end of the
+   * time step
+   */
+  enum struct PredictionStrategy {
+    /*!
+     * \brief By default, a nonlinear evolution problem uses the solution at the
+     * beginning of the time step, modified by applying Dirichlet boundary
+     * conditions, as the initial guess of the solution at the end of the time
+     * step.
+     *
+     * \warning In mechanics, this may lead to very high increments of the
+     * deformation gradients or the strain in the neighboring elements of
+     * boundaries where evolving unknowns are imposed.
+     */
+    DEFAULT_PREDICTION,
+    /*!
+     * The `PREDICTION` strategy determines the increment of the
+     * unknown \f$\Delta\,{u}\f$ by solving the following linear
+     * system:
+     *
+     * \f[
+     *   \mathbb{K}\,\cdot\,\Delta\,\mathbb{u} =
+     *   \ets{\mathbb{F}_{e}}-\bts{\mathbb{F}_{i}}
+     * \f]
+     *
+     * where:
+     *
+     * - \f$\mathbb{K}\f$ denotes the prediction operator (See
+     * `PredictionPolicy::prediction_operator`)
+     * - \f$\bts{\mathbb{F}_{e}}\f$ denotes the external forces at the
+     *   beginning of the time step.
+     * - \f$\bts{\mathbb{F}_{i}}\f$ denotes the inner forces at the beginning
+     *   of the time step.
+     * - \f$\Delta\,\mathbb{u}\f$ is submitted to the the increment of the
+     *   imposed Dirichlet boundary conditions.
+     *
+     * \note Although the wording explicitly refers to mechanics, this equation
+     * applies to all physics.
+     */
+    BEGINNING_OF_TIME_STEP_PREDICTION,
+    /*!
+     * The `CONSTANT_GRADIENTS_INTEGRATION` strategy
+     * determines the increment of the unknown \f$\Delta\,{u}\f$ by solving
+     * the following linear system:
+     *
+     * \f[
+     *   \tilde{\mathbb{K}}\,\cdot\,\Delta\,\mathbb{u} =
+     *   \ets{\mathbb{F}_{e}}-\ets{\tilde{\mathbb{F}}_{i}}
+     * \f]
+     *
+     * where:
+     *
+     * - \f$\tilde{\mathbb{K}}\f$ denotes the elastic operator.
+     * - \f$\bts{\mathbb{F}_{e}}\f$ denotes the external forces at the
+     *   beginning of the time step.
+     * - \f$\ets{\tilde{\mathbb{F}}_{i}}\f$ denotes an approximation inner
+     *   forces at the end of the time step computed by assuming that the
+     *   gradients are constant over the time (and thus egal to their values at
+     *   the beginning of the time step).
+     * - \f$\Delta\,\mathbb{u}\f$ is submitted to the the increment of the
+     *   imposed Dirichlet boundary conditions.
+     *
+     * \note the behaviour integration allows taking into account:
+     * - the evolution of stress-free strain (thermal expansion, swelling,
+     * etc..),
+     * - the viscoplastic relaxation of the stress (
+     *
+     * \note Although the wording explicitly refers to mechanics, this equation
+     * applies to all physics.
+     */
+    CONSTANT_GRADIENTS_INTEGRATION_PREDICTION
+  };
 
   /*!
-   * \brief prediction policy
+   * \brief list of prediction operators available
+   */
+  enum struct PredictionOperator {
+    //! \brief The elastic operator
+    ELASTIC,
+    /*!
+     * \brief The secant operator is typically defined by the elastic operator
+     * affected by damage.
+     *
+     * \note Most behaviours do not compute the secant operator or simply return
+     * the elastic operator.
+     */
+    SECANT,
+    /*!
+     * \brief The tangent operator, defined by the time-continuous derivative of
+     * the thermodynamic force with respect to the gradients.
+     *
+     * \note Most behaviours do not compute the tangent operator.
+     */
+    TANGENT,
+    /*!
+     * The `LAST_ITERATE_OPERATOR` relies on the operator
+     * computed at the last iteration of the previous time step.
+     *
+     * \note At the first time step, the elastic operator is used.
+     */
+    LAST_ITERATE_OPERATOR
+  };
+
+  /*!
+   * \brief list of operators available after the behaviour integration
+   */
+  enum struct IntegrationOperator {
+    //! \brief The elastic operator
+    ELASTIC,
+    /*!
+     * \brief The secant operator is typically defined by the elastic operator
+     * affected by damage.
+     *
+     * \note Most behaviours do not compute the secant operator or simply return
+     * the elastic operator.
+     */
+    SECANT,
+    /*!
+     * \brief The tangent operator, defined by the time-continuous derivative of
+     * the thermodynamic force with respect to the gradients.
+     *
+     * \note Most behaviours do not compute the tangent operator.
+     */
+    TANGENT,
+    /*!
+     * \brief The consistent tangent operator, defined by the derivative of
+     * the thermodynamic force with respect to the gradients at the end of the
+     * time step. See \cite simo_consistent_1985 for details.
+     *
+     * \note the consistent tangent operator takes into account the details
+     * related to the algorithm used to integration the constitutive equations.
+     */
+    CONSISTENT_TANGENT,
+  };
+
+  /*!
+   * \brief Prediction policy for estimating the increment of the unknowns over
+   * a time step.
    */
   struct [[nodiscard]] PredictionPolicy {
     PredictionStrategy strategy = PredictionStrategy::DEFAULT_PREDICTION;
+    /*!
+     * \brief selected prediction operator
+     *
+     * \note this member is only used if `strategy` is set to
+     * `PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION`
+     */
+    PredictionOperator prediction_operator = PredictionOperator::ELASTIC;
+    /*!
+     * \brief selected operator
+     *
+     * \note this member is only used if `strategy` is set to
+     * `PredictionStrategy::CONSTANT_GRADIENTS_INTEGRATION`
+     */
+    IntegrationOperator integration_operator =
+        IntegrationOperator::CONSISTENT_TANGENT;
+    /*!
+     * \brief boolean stating if the behaviour shall be integrated using a null
+     * time increment.
+     *
+     * \note a null time increment allows neglecting viscoplastic relaxation.
+     */
+    bool null_time_increment = false;
   };  // end of PredictionPolicy
 
   /*!
@@ -45,8 +202,8 @@ namespace mfem_mgis {
   struct [[nodiscard]] LinearizedOperators {
     //! \brief stiffness matrix
     std::unique_ptr<BilinearFormIntegrator> K;
-    //! \brief inner forces
-    std::unique_ptr<LinearFormIntegrator> Fi;
+    //! \brief opposite of the inner forces
+    std::unique_ptr<LinearFormIntegrator> mFi;
   };
 
   /*!
@@ -106,10 +263,16 @@ namespace mfem_mgis {
      * \param[in] params: parameters
      */
     virtual void setLinearSolver(std::string_view, const Parameters &) = 0;
+    //! \return if the stiffness operators from the last iteration are available
+    [[nodiscard]] virtual bool areStiffnessOperatorsFromLastIterationAvailable()
+        const noexcept = 0;
     /*!
      * \param[in] p: prediction policy
      */
     virtual void setPredictionPolicy(const PredictionPolicy &) noexcept = 0;
+    //! \return the prediction policy
+    [[nodiscard]] virtual PredictionPolicy getPredictionPolicy()
+        const noexcept = 0;
     /*!
      * \return the list of the degrees of freedom handled by Dirichlet boundary
      * conditions.
@@ -121,8 +284,12 @@ namespace mfem_mgis {
      * the end of the time step.
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
+     * \param[in] odt: optional value for the time step. If invalid, the real
+     * time step is used.
      */
-    virtual bool integrate(const mfem::Vector &, const IntegrationType) = 0;
+    virtual bool integrate(const mfem::Vector &,
+                           const IntegrationType,
+                           const std::optional<real>) = 0;
     /*!
      * \brief return the linearised operators
      * \note the integrate method shall be call appropriately before calling
@@ -130,10 +297,14 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual std::optional<LinearizedOperators>
     getLinearizedOperators(Context &, const mfem::Vector &) noexcept = 0;
-    //! \brief return the boundary conditions
+    //! \brief return the Dirichlet boundary conditions
     [[nodiscard]] virtual const std::vector<
         std::unique_ptr<DirichletBoundaryCondition>>
-        &getDirichletBoundaryConditions() noexcept = 0;
+        &getDirichletBoundaryConditions() const noexcept = 0;
+    //! \brief return the standard boundary conditions
+    [[nodiscard]] virtual const std::vector<
+        std::unique_ptr<AbstractBoundaryCondition>>
+        &getBoundaryConditions() const noexcept = 0;
     /*!
      * \brief method called before each resolution
      * \param[in] t: time at the beginning of the time step
@@ -266,8 +437,15 @@ namespace mfem_mgis {
      * \brief add a boundary condition
      * \param[in] f: boundary condition
      */
-    virtual void addBoundaryCondition(
+    [[deprecated]] virtual void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) = 0;
+    /*!
+     * \brief add a boundary condition
+     * \param[in] ctx: execution context
+     * \param[in] f: boundary condition
+     */
+    [[nodiscard]] virtual bool addBoundaryCondition(
+        Context &, std::unique_ptr<AbstractBoundaryCondition>) noexcept = 0;
     /*!
      * \brief add a Dirichlet boundary condition
      * \param[in] bc: boundary condition

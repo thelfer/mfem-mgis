@@ -173,8 +173,8 @@ namespace mfem_mgis {
   }
 
 #ifdef MFEM_USE_MPI
-  void UniformHeatSourceBoundaryCondition::addNonlinearFormIntegrator(
-      NonlinearForm<true> &f) {
+  bool UniformHeatSourceBoundaryCondition::addNonlinearFormIntegrator(
+      Context &, NonlinearForm<true> &f, const mfem::Vector &) noexcept {
     auto &m = this->finiteElementDiscretization->getMesh<true>();
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
@@ -184,11 +184,12 @@ namespace mfem_mgis {
     }
     f.AddDomainIntegrator(this->nfi, this->materials_markers);
     this->shallFreeIntegrator = false;
+    return true;
   }    // end of addNonlinearFormIntegrator
 #endif /* MFEM_USE_MPI */
 
-  void UniformHeatSourceBoundaryCondition::addNonlinearFormIntegrator(
-      NonlinearForm<false> &f) {
+  bool UniformHeatSourceBoundaryCondition::addNonlinearFormIntegrator(
+      Context &, NonlinearForm<false> &f, const mfem::Vector &) noexcept {
     auto &m = this->finiteElementDiscretization->getMesh<false>();
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
@@ -198,11 +199,17 @@ namespace mfem_mgis {
     }
     f.AddDomainIntegrator(this->nfi, this->materials_markers);
     this->shallFreeIntegrator = false;
+    return true;
   }  // end of addNonlinearFormIntegrator
 
 #ifdef MFEM_USE_MPI
-  void UniformHeatSourceBoundaryCondition::addLinearFormIntegrator(
-      LinearForm<true> &f, const real t, const real dt) {
+  bool UniformHeatSourceBoundaryCondition::addLinearFormIntegrators(
+      Context &,
+      BilinearForm<true> &,
+      LinearForm<true> &b,
+      const mfem::Vector &,
+      const real t,
+      const real dt) noexcept {
     auto &m = this->finiteElementDiscretization->getMesh<true>();
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
@@ -212,12 +219,18 @@ namespace mfem_mgis {
     }
     auto *form = new UniformHeatSourceLinearFormIntegrator();
     form->setHeatSource(this->qfct(t + dt));
-    f.AddBoundaryIntegrator(form, this->materials_markers);
-  }    // end of addLinearFormIntegrator
+    b.AddBoundaryIntegrator(form, this->materials_markers);
+    return true;
+  }    // end of addLinearFormIntegrators
 #endif /* MFEM_USE_MPI */
 
-  void UniformHeatSourceBoundaryCondition::addLinearFormIntegrator(
-      LinearForm<false> &f, const real t, const real dt) {
+  bool UniformHeatSourceBoundaryCondition::addLinearFormIntegrators(
+      Context &,
+      BilinearForm<false> &,
+      LinearForm<false> &b,
+      const mfem::Vector &,
+      const real t,
+      const real dt) noexcept {
     auto &m = this->finiteElementDiscretization->getMesh<false>();
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
@@ -227,8 +240,9 @@ namespace mfem_mgis {
     }
     auto *form = new UniformHeatSourceLinearFormIntegrator();
     form->setHeatSource(this->qfct(t + dt));
-    f.AddBoundaryIntegrator(form, this->materials_markers);
-  }  // end of addLinearFormIntegrator
+    b.AddBoundaryIntegrator(form, this->materials_markers);
+    return true;
+  }  // end of addLinearFormIntegrators
 
   UniformHeatSourceBoundaryCondition::~UniformHeatSourceBoundaryCondition() {
     if (this->shallFreeIntegrator) {
