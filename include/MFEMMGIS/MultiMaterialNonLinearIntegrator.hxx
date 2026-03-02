@@ -61,6 +61,8 @@ namespace mfem_mgis {
                            mfem::ElementTransformation &,
                            const mfem::Vector &,
                            const IntegrationType);
+    //! \return the current time increment
+    virtual real getTimeIncrement() const noexcept;
     /*!
      * \brief set the value of the time increment
      * \param[in] dt: time increment
