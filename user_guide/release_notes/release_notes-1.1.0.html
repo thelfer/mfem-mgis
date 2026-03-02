@@ -115,30 +115,30 @@
 <nav class="contents local" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#highlights" id="id5">Highlights</a></p></li>
-<li><p><a class="reference internal" href="#new-features" id="id6">New features</a></p>
+<li><p><a class="reference internal" href="#highlights" id="id4">Highlights</a></p></li>
+<li><p><a class="reference internal" href="#new-features" id="id5">New features</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prediction-of-the-solution" id="id7">Prediction of the solution</a></p>
+<li><p><a class="reference internal" href="#prediction-of-the-solution" id="id6">Prediction of the solution</a></p>
 <ul>
-<li><p><a class="reference internal" href="#available-strategies" id="id8">Available strategies</a></p></li>
+<li><p><a class="reference internal" href="#available-strategies" id="id7">Available strategies</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#the-info-function" id="id9">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function</a></p>
+<li><p><a class="reference internal" href="#the-info-function" id="id8">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function</a></p>
 <ul>
-<li><p><a class="reference internal" href="#retrieving-information-on-a-finite-element-discretization" id="id10">Retrieving information on a finite element discretization</a></p></li>
-<li><p><a class="reference internal" href="#retrieving-information-on-a-partial-quadrature-space" id="id11">Retrieving information on a partial quadrature space</a></p></li>
+<li><p><a class="reference internal" href="#retrieving-information-on-a-finite-element-discretization" id="id9">Retrieving information on a finite element discretization</a></p></li>
+<li><p><a class="reference internal" href="#retrieving-information-on-a-partial-quadrature-space" id="id10">Retrieving information on a partial quadrature space</a></p></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id12">Issues fixed</a></p></li>
+<li><p><a class="reference internal" href="#issues-fixed" id="id11">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The name of the materials and boundaries are automatically retrieved
-from <a href="#id3"><span class="problematic" id="id4">|MFEM|</span></a>’s mesh.</p></li>
+from <a href="#id2"><span class="problematic" id="id3">|MFEM|</span></a>’s mesh.</p></li>
 <li><p>Many methods have been deprecated to have a consistent error handling
 scheme based on <cite>MGIS</cite>’s one. As such, many methods and functions now
 takes and <cite>MGIS</cite>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as their first argument.</p></li>
@@ -154,15 +154,14 @@ conditions, as the initial guess of the solution at the end of the time
 step, see below for details.</p>
 <p>This can be changed by using the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setPredictionPolicy</span></code>
 method, as follows:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// use the elastic operator by default</span>
-<span class="n">mechanics</span><span class="p">.</span><span class="n">setPredictionPolicy</span><span class="p">(</span>
-<span class="w">   </span><span class="p">{.</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PredictionStrategy</span><span class="o">::</span><span class="n">BEGINNING_OF_TIME_STEP_PREDICTION</span><span class="p">});</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mechanics</span><span class="p">.</span><span class="n">setPredictionPolicy</span><span class="p">(</span>
+<span class="w">   </span><span class="p">{.</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PredictionStrategy</span><span class="o">::</span><span class="n">ELASTIC_PREDICTION</span><span class="p">});</span>
 </pre></div>
 </div>
 <section id="available-strategies">
 <h4>Available strategies<a class="headerlink" href="#available-strategies" title="Link to this heading"></a></h4>
-<section id="default-prediction-predictionstrategy-default-prediction">
-<h5>Default prediction (<code class="code highlight c++ docutils literal highlight-c++"><span class="n">PredictionStrategy</span><span class="o">::</span><span class="n">DEFAULT_PREDICTION</span></code>)<a class="headerlink" href="#default-prediction-predictionstrategy-default-prediction" title="Link to this heading"></a></h5>
+<section id="default-prediction">
+<h5>Default prediction<a class="headerlink" href="#default-prediction" title="Link to this heading"></a></h5>
 <p>By default, a nonlinear evolution problem uses the solution at the
 beginning of the time step, modified by applying Dirichlet boundary
 conditions, as the initial guess of the solution at the end of the time
@@ -174,16 +173,16 @@ gradients or the strain in the neighboring elements of boundaries where
 evolving displacements are imposed.</p>
 </div>
 </section>
-<section id="prediction-for-the-state-at-the-beginning-of-the-time-step-predictionstrategy-beginning-of-time-step-prediction">
-<h5>Prediction for the state at the beginning of the time step (<code class="code highlight c++ docutils literal highlight-c++"><span class="n">PredictionStrategy</span><span class="o">::</span><span class="n">BEGINNING_OF_TIME_STEP_PREDICTION</span></code>)<a class="headerlink" href="#prediction-for-the-state-at-the-beginning-of-the-time-step-predictionstrategy-beginning-of-time-step-prediction" title="Link to this heading"></a></h5>
-<p>The prediction for the state at the beginning of the time step strategy
-determines the increment of the displacement <span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span>
-by solving the following linear system:</p>
+<section id="elastic-prediction">
+<h5>Elastic prediction<a class="headerlink" href="#elastic-prediction" title="Link to this heading"></a></h5>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">ElasticPrediction</span></code> strategy determines the increment of the
+displacement <span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> by solving the following linear
+system:</p>
 <div class="math notranslate nohighlight">
-\[\mathbb{K}\,\cdot\,\Delta\,\mathbb{u} = \ets{\mathbb{F}_{e}}-\bts{\mathbb{F}_{i}}\]</div>
+\[\mathbb{K}_{e}\,\cdot\,\Delta\,\mathbb{u} = \ets{\mathbb{F}_{e}}-\bts{\mathbb{F}_{i}}\]</div>
 <p>where:</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\mathbb{K}_{e}\)</span> denotes one of the prediction operator (see below).</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbb{K}_{e}\)</span> denotes the elastic stiffness matrix.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\bts{\mathbb{F}_{e}}\)</span> denotes the external forces at the beginning
 of the time step.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\bts{\mathbb{F}_{i}}\)</span> denotes the inner forces at the beginning
@@ -196,60 +195,6 @@ imposed Dirichlet boundary conditions.</p></li>
 <p>Although the wording explicitly refers to mechanics, this equation
 applies to all physics.</p>
 </div>
-<p>The following prediction operators can be chosen:</p>
-<ul class="simple">
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">PredictionOperator</span><span class="o">::</span><span class="n">ELASTIC</span></code>: the elastic operator</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">PredictionOperator</span><span class="o">::</span><span class="n">SECANT</span></code>: the secant operator is typically
-defined by the elastic operator</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">PredictionOperator</span><span class="o">::</span><span class="n">TANGENT_PREDICTION</span></code>: the tangent operator,
-defined by the time-continuous derivative of the thermodynamic force
-with respect to the gradients.</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">PredictionOperator</span><span class="o">::</span><span class="n">LAST_ITERATE_OPERATOR</span></code>: this operator reuses
-the one computed at the last iteration of the previous time step. At
-the first time step, the elastic operator is used.</p></li>
-</ul>
-</section>
-<section id="prediction-based-on-a-behaviour-integration-with-constant-gradients-predictionstrategy-constant-gradients-integration-prediction">
-<h5>Prediction based on a behaviour integration with constant gradients (<code class="code highlight c++ docutils literal highlight-c++"><span class="n">PredictionStrategy</span><span class="o">::</span><span class="n">CONSTANT_GRADIENTS_INTEGRATION_PREDICTION</span></code>)<a class="headerlink" href="#prediction-based-on-a-behaviour-integration-with-constant-gradients-predictionstrategy-constant-gradients-integration-prediction" title="Link to this heading"></a></h5>
-<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">CONSTANT_GRADIENTS_INTEGRATION</span></code> strategy determines the
-increment of the unknown <span class="math notranslate nohighlight">\(\Delta\,{u}\)</span> by solving the following
-linear system:</p>
-<div class="math notranslate nohighlight">
-\[\tilde{\mathbb{K}}\,\cdot\,\Delta\,\mathbb{u} =
-\ets{\mathbb{F}_{e}}-\ets{\tilde{\mathbb{F}}_{i}}\]</div>
-<p>where:</p>
-<ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\tilde{\mathbb{K}}\)</span> denotes the operator computed at the end of
-the behaviour integration.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\bts{\mathbb{F}_{e}}\)</span> denotes the external forces at the
-beginning of the time step.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\ets{\tilde{\mathbb{F}}_{i}}\)</span> denotes an approximation inner
-forces at the end of the time step computed by assuming that the
-gradients are constant over the time (and thus egal to their values at
-the beginning of the time step).</p></li>
-<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the the increment of the
-imposed Dirichlet boundary conditions.</p></li>
-</ul>
-<p>The behaviour integration allows taking into account:</p>
-<ul class="simple">
-<li><p>the evolution of stress-free strain over the time step (thermal
-expansion, swelling, etc..),</p></li>
-<li><p>the viscoplastic relaxation of the stress. This relaxation can be
-discarded by integrating the behaviour with a null time step.</p></li>
-</ul>
-<p>The following operators are available:</p>
-<ul class="simple">
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">ELASTIC</span></code>: the elastic operator,</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">SECANT</span></code>: the secant operator is typically
-defined by the elastic operator affected by damage,</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">TANGENT</span></code>: the tangent operator, defined by
-the time-continuous derivative of the thermodynamic force with respect
-to the gradients,</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">CONSISTENT_TANGENT</span></code>: the constistent
-tangent operator, defined by the derivative of the thermodynamic force
-with respect to the gradients at the end of the time step. See
-<span id="id1">[<a class="reference internal" href="../../index.html#id4" title="J. C. Simo and R. L. Taylor. Consistent tangent operators for rate-independent elastoplasticity. Computer Methods in Applied Mechanics and Engineering, 48(1):101–118, 1985. URL: http://www.sciencedirect.com/science/article/pii/0045782585900702 (visited on 2014-04-02), doi:10.1016/0045-7825(85)90070-2.">ST85</a>]</span> for details.</p></li>
-</ul>
 </section>
 </section>
 </section>
@@ -287,8 +232,8 @@ processes.</p></li>
 </ul>
 <p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpaceInformation</span></code> structure can be printed to
 an output stream using the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function.</p>
-<section id="id2">
-<h5>Example of usage<a class="headerlink" href="#id2" title="Link to this heading"></a></h5>
+<section id="id1">
+<h5>Example of usage<a class="headerlink" href="#id1" title="Link to this heading"></a></h5>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">qspace</span><span class="w"> </span><span class="o">=</span>
 <span class="w">   </span><span class="n">problem</span><span class="p">.</span><span class="n">getBehaviourIntegrator</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">getPartialQuadratureSpace</span><span class="p">();</span>
 <span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">info</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">,</span><span class="w"> </span><span class="n">qspace</span><span class="p">);</span>

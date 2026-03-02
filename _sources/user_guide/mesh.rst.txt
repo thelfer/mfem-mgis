@@ -2,9 +2,7 @@
 Mesh Reader
 ===========
 
-``MFEM/MGIS`` uses the classic sequential reading of meshes generated
-via gmsh by specifying the `MFEM` input format with the ``-format
-msh22`` option.
+``Mfem-Mgis`` uses the classic sequential reading of meshes generated via gmsh by specifying the `MFEM` input format with the ``-format msh22`` option. 
 
 .. note::
   For more information: https://mfem.org/mesh-formats/
@@ -28,19 +26,15 @@ Keywords
 Split Mesh
 ^^^^^^^^^^
 
-If your mesh is too large (memory limit), you can also use MFEM's option
-of spliting the mesh into smaller meshes and reading them in parallel.
+If your mesh is too large (memory limit), you can also use MFEM's option of spliting the mesh into smaller meshes and reading them in parallel.
 
-To split the mesh, we use the ``mesh-explorer`` tool
-(https://mfem.org/meshing-miniapps/#mesh-explorer) and you can specify
-the parallel reader using the keywork: ``MeshReadMode``.
+To split the mesh, we use the ``mesh-explorer`` tool (https://mfem.org/meshing-miniapps/#mesh-explorer) and you can specify the parallel reader using the keywork: ``MeshReadMode``.
 
 
 Install Mesh-explorer
 ---------------------
 
-Here are two ways to install mesh-explorer. We recommend installing via
-spack, but we will also add the installation procedure with cmake.
+Here are two ways to install mesh-explorer. We recommend installing via spack, but we will also add the installation procedure with cmake.
 
 Spack version:
 

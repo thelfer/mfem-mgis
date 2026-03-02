@@ -101,9 +101,7 @@
              
   <section id="mesh-reader">
 <h1>Mesh Reader<a class="headerlink" href="#mesh-reader" title="Link to this heading"></a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> uses the classic sequential reading of meshes generated
-via gmsh by specifying the <cite>MFEM</cite> input format with the <code class="docutils literal notranslate"><span class="pre">-format</span>
-<span class="pre">msh22</span></code> option.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Mfem-Mgis</span></code> uses the classic sequential reading of meshes generated via gmsh by specifying the <cite>MFEM</cite> input format with the <code class="docutils literal notranslate"><span class="pre">-format</span> <span class="pre">msh22</span></code> option.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For more information: <a class="reference external" href="https://mfem.org/mesh-formats/">https://mfem.org/mesh-formats/</a></p>
@@ -132,15 +130,11 @@ via gmsh by specifying the <cite>MFEM</cite> input format with the <code class="
 </section>
 <section id="split-mesh">
 <h2>Split Mesh<a class="headerlink" href="#split-mesh" title="Link to this heading"></a></h2>
-<p>If your mesh is too large (memory limit), you can also use MFEM’s option
-of spliting the mesh into smaller meshes and reading them in parallel.</p>
-<p>To split the mesh, we use the <code class="docutils literal notranslate"><span class="pre">mesh-explorer</span></code> tool
-(<a class="reference external" href="https://mfem.org/meshing-miniapps/#mesh-explorer">https://mfem.org/meshing-miniapps/#mesh-explorer</a>) and you can specify
-the parallel reader using the keywork: <code class="docutils literal notranslate"><span class="pre">MeshReadMode</span></code>.</p>
+<p>If your mesh is too large (memory limit), you can also use MFEM’s option of spliting the mesh into smaller meshes and reading them in parallel.</p>
+<p>To split the mesh, we use the <code class="docutils literal notranslate"><span class="pre">mesh-explorer</span></code> tool (<a class="reference external" href="https://mfem.org/meshing-miniapps/#mesh-explorer">https://mfem.org/meshing-miniapps/#mesh-explorer</a>) and you can specify the parallel reader using the keywork: <code class="docutils literal notranslate"><span class="pre">MeshReadMode</span></code>.</p>
 <section id="install-mesh-explorer">
 <h3>Install Mesh-explorer<a class="headerlink" href="#install-mesh-explorer" title="Link to this heading"></a></h3>
-<p>Here are two ways to install mesh-explorer. We recommend installing via
-spack, but we will also add the installation procedure with cmake.</p>
+<p>Here are two ways to install mesh-explorer. We recommend installing via spack, but we will also add the installation procedure with cmake.</p>
 <p>Spack version:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spack</span> <span class="n">install</span> <span class="n">mfem</span><span class="o">+</span><span class="n">miniapps</span>
 </pre></div>
