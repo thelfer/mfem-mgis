@@ -59,6 +59,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#available-strategies">Available strategies</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#newton-algorithm">Newton algorithm</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#handling-of-integration-failure">Handling of integration failure</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
@@ -106,6 +110,11 @@
 <li><p><a class="reference internal" href="#prediction-of-the-solution" id="id2">Prediction of the solution</a></p>
 <ul>
 <li><p><a class="reference internal" href="#available-strategies" id="id3">Available strategies</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#newton-algorithm" id="id4">Newton algorithm</a></p>
+<ul>
+<li><p><a class="reference internal" href="#handling-of-integration-failure" id="id5">Handling of integration failure</a></p></li>
 </ul>
 </li>
 </ul>
@@ -172,6 +181,12 @@ with respect to the gradients.</p></li>
 the one computed at the last iteration of the previous time step. At
 the first time step, the elastic operator is used.</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Internally, the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computePrediction</span></code> methods of the
+<cite>NonLinearResolutionImplementation</cite> classes computes the opposite of the
+prediction.</p>
+</div>
 </section>
 <section id="prediction-based-on-a-behaviour-integration-with-constant-gradients-predictionstrategy-constant-gradients-integration-prediction">
 <h4>Prediction based on a behaviour integration with constant gradients (<code class="code highlight c++ docutils literal highlight-c++"><span class="n">PredictionStrategy</span><span class="o">::</span><span class="n">CONSTANT_GRADIENTS_INTEGRATION_PREDICTION</span></code>)<a class="headerlink" href="#prediction-based-on-a-behaviour-integration-with-constant-gradients-predictionstrategy-constant-gradients-integration-prediction" title="Link to this heading"></a></h4>
@@ -211,12 +226,49 @@ the time-continuous derivative of the thermodynamic force with respect
 to the gradients,</p></li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">CONSISTENT_TANGENT</span></code>: the constistent
 tangent operator, defined by the derivative of the thermodynamic force
-with respect to the gradients at the end of the time step. See</p></li>
+with respect to the gradients at the end of the time step. See
+<span id="id1">[<a class="reference internal" href="../index.html#id4" title="J. C. Simo and R. L. Taylor. Consistent tangent operators for rate-independent elastoplasticity. Computer Methods in Applied Mechanics and Engineering, 48(1):101–118, 1985. URL: http://www.sciencedirect.com/science/article/pii/0045782585900702 (visited on 2014-04-02), doi:10.1016/0045-7825(85)90070-2.">ST85</a>]</span> for details.</p></li>
 </ul>
-<blockquote>
-<div><p><span id="id1">[<a class="reference internal" href="../index.html#id4" title="J. C. Simo and R. L. Taylor. Consistent tangent operators for rate-independent elastoplasticity. Computer Methods in Applied Mechanics and Engineering, 48(1):101–118, 1985. URL: http://www.sciencedirect.com/science/article/pii/0045782585900702 (visited on 2014-04-02), doi:10.1016/0045-7825(85)90070-2.">ST85</a>]</span> for details.</p>
-</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Internally, the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">computePrediction</span></code> methods of the
+<cite>NonLinearResolutionImplementation</cite> classes computes the opposite of the
+prediction.</p>
+</div>
 </section>
+</section>
+</section>
+<section id="newton-algorithm">
+<h2>Newton algorithm<a class="headerlink" href="#newton-algorithm" title="Link to this heading"></a></h2>
+<p>The default nonlinear solver is the Newton’s algorithm.</p>
+<p>Let <span class="math notranslate nohighlight">\(\mathbb{u}^{(n)}\)</span> be the estimate of the solution at the
+<span class="math notranslate nohighlight">\(n^{\text{th}}\)</span> iteration. The Newton’s algorithm determines a new
+estimate <span class="math notranslate nohighlight">\(\mathbb{u}^{(n+1)}\)</span> of the solution by computing a
+correction <span class="math notranslate nohighlight">\(\delta\,\mathbb{u}^{(n)}\)</span> as follows:</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{K}\,\cdot\,\delta\,\mathbb{u}^{(n)} = \ets{\mathbb{F}_{e}}^{(n)}-\ets{\mathbb{F}_{i}}^{(n)}\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbb{K}\)</span> denotes one of the search operator.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\ets{\mathbb{F}_{e}}^{(n)}\)</span> denotes current estimate of the
+external forces at the end of the time step.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\ets{\mathbb{F}_{i}}^{(n)}\)</span> denotes current estimate of the inner
+forces at the end of the time step.</p></li>
+</ul>
+<p>Currently, the search operator is given by the consistent tangent operator.</p>
+<p>The new estimate <span class="math notranslate nohighlight">\(\mathbb{u}^{(n+1)}\)</span> is calculated as follows:</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{u}^{(n+1)} = \mathbb{u}^{(n)}+\delta\,\mathbb{u}^{(n)}\]</div>
+<section id="handling-of-integration-failure">
+<h3>Handling of integration failure<a class="headerlink" href="#handling-of-integration-failure" title="Link to this heading"></a></h3>
+<p>When the new estimate leads to an integration failure, a new estimate of
+the solution is calculated by keeping the same search direction but by
+reducing the amplitude of the correction by a factor <span class="math notranslate nohighlight">\(2\)</span> as
+follows:</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{u}^{(n+1)} = \mathbb{u}^{(n)}+\frac{1}{2}\,\delta\,\mathbb{u}^{(n)}\]</div>
+<p>This reduction of the amplitude repeated until a estimation of the
+solution that does not lead to an integration failure</p>
 </section>
 </section>
 </section>
