@@ -79,7 +79,7 @@ template <bool parallel>
   a.AddDomainIntegrator(operators->K.release());
   a.Assemble();
   auto b = mfem_mgis::LinearForm<parallel>(&fespace);
-  b.AddDomainIntegrator(operators->Fi.release());
+  b.AddDomainIntegrator(operators->mFi.release());
   b.Assemble();
   //
   auto A = [] {

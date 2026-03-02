@@ -138,7 +138,9 @@ namespace mfem_mgis {
         Context&, const mfem::Vector&) noexcept override;
     [[nodiscard]] const std::vector<
         std::unique_ptr<DirichletBoundaryCondition>>&
-    getDirichletBoundaryConditions() noexcept override;
+    getDirichletBoundaryConditions() const noexcept override;
+    [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
+    getBoundaryConditions() const noexcept override;
     void setup(const real, const real) override;
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(const real,

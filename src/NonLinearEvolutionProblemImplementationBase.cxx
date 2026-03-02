@@ -354,10 +354,16 @@ namespace mfem_mgis {
   }  // end of getEssentialDegreesOfFreedom
 
   [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
-  NonLinearEvolutionProblemImplementationBase::
-      getDirichletBoundaryConditions() noexcept {
+  NonLinearEvolutionProblemImplementationBase::getDirichletBoundaryConditions()
+      const noexcept {
     return this->dirichlet_boundary_conditions;
   }  // end of getDirichletBoundaryConditions
+
+  const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
+  NonLinearEvolutionProblemImplementationBase::getBoundaryConditions()
+      const noexcept {
+    return this->boundary_conditions;
+  }  // end of getBoundaryConditions
 
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
