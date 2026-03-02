@@ -87,7 +87,9 @@ namespace mfem_mgis {
     void setSolverParameters(const Parameters &) override;
     [[nodiscard]] bool setLinearSolver(Context &,
                                        LinearSolverHandler) noexcept override;
-    void setLinearSolver(std::string_view, const Parameters &) override;
+    [[nodiscard]] bool setLinearSolver(Context &,
+                                       std::string_view,
+                                       const Parameters &) noexcept override;
     [[nodiscard]] bool areStiffnessOperatorsFromLastIterationAvailable()
         const noexcept override;
     void setPredictionPolicy(const PredictionPolicy &) noexcept override;
@@ -180,6 +182,8 @@ namespace mfem_mgis {
     getBehaviourIntegrator(const size_type) const override;
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator &
     getBehaviourIntegrator(const size_type) override;
+    [[deprecated]] void setLinearSolver(std::string_view,
+                                        const Parameters &) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
     //! \brief destructor

@@ -262,7 +262,9 @@ namespace mfem_mgis {
      * \param[in] n: name of the linear solver
      * \param[in] params: parameters
      */
-    virtual void setLinearSolver(std::string_view, const Parameters &) = 0;
+    [[nodiscard]] virtual bool setLinearSolver(Context &,
+                                               std::string_view,
+                                               const Parameters &) noexcept = 0;
     //! \return if the stiffness operators from the last iteration are available
     [[nodiscard]] virtual bool areStiffnessOperatorsFromLastIterationAvailable()
         const noexcept = 0;
@@ -438,12 +440,6 @@ namespace mfem_mgis {
                            const size_type) noexcept = 0;
     /*!
      * \brief add a boundary condition
-     * \param[in] f: boundary condition
-     */
-    [[deprecated]] virtual void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) = 0;
-    /*!
-     * \brief add a boundary condition
      * \param[in] ctx: execution context
      * \param[in] f: boundary condition
      */
@@ -575,12 +571,25 @@ namespace mfem_mgis {
     [[deprecated]] virtual AbstractBehaviourIntegrator &getBehaviourIntegrator(
         const size_type) = 0;
     /*!
+     * \brief add a boundary condition
+     * \param[in] f: boundary condition
+     */
+    [[deprecated]] virtual void addBoundaryCondition(
+        std::unique_ptr<AbstractBoundaryCondition>) = 0;
+    /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
     [[deprecated]] virtual NonLinearResolutionOutput solve(const real,
                                                            const real) = 0;
+    /*!
+     * \brief set the linear solver
+     * \param[in] n: name of the linear solver
+     * \param[in] params: parameters
+     */
+    [[deprecated]] virtual void setLinearSolver(std::string_view,
+                                                const Parameters &) = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblem();
   };  // end of struct AbstractNonLinearEvolutionProblem

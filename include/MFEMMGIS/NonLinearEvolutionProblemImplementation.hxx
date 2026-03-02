@@ -75,7 +75,9 @@ namespace mfem_mgis {
                                  const std::optional<real>) override;
     [[nodiscard]] bool setLinearSolver(Context&,
                                        LinearSolverHandler) noexcept override;
-    void setLinearSolver(std::string_view, const Parameters&) override;
+    [[nodiscard]] bool setLinearSolver(Context&,
+                                       std::string_view,
+                                       const Parameters&) noexcept override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
     void addPostProcessing(std::string_view, const Parameters&) override;
@@ -84,6 +86,8 @@ namespace mfem_mgis {
         const TimeStepStage) noexcept;
     [[nodiscard]] const GridFunction<true>& getUnknownsAsGridFunction(
         const TimeStepStage) const noexcept;
+    [[deprecated]] void setLinearSolver(std::string_view,
+                                        const Parameters&) override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -148,7 +152,9 @@ namespace mfem_mgis {
     //
     [[nodiscard]] bool setLinearSolver(Context&,
                                        LinearSolverHandler) noexcept override;
-    void setLinearSolver(std::string_view, const Parameters&) override;
+    [[nodiscard]] bool setLinearSolver(Context&,
+                                       std::string_view,
+                                       const Parameters&) noexcept override;
     [[nodiscard]] bool integrate(const mfem::Vector&,
                                  const IntegrationType,
                                  const std::optional<real>) override;
@@ -161,6 +167,8 @@ namespace mfem_mgis {
         const TimeStepStage) noexcept;
     [[nodiscard]] const GridFunction<false>& getUnknownsAsGridFunction(
         const TimeStepStage) const noexcept;
+    [[deprecated]] void setLinearSolver(std::string_view,
+                                        const Parameters&) override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 

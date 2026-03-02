@@ -132,6 +132,11 @@ namespace mfem_mgis {
     return this->pimpl->areStiffnessOperatorsFromLastIterationAvailable();
   }  // end of areStiffnessOperatorsFromLastIterationAvailable
 
+  bool NonLinearEvolutionProblem::setLinearSolver(
+      Context& ctx, std::string_view n, const Parameters& params) noexcept {
+    return this->pimpl->setLinearSolver(ctx, n, params);
+  }  // end of setLinearSolver
+
   void NonLinearEvolutionProblem::setLinearSolver(std::string_view n,
                                                   const Parameters& params) {
     this->pimpl->setLinearSolver(n, params);

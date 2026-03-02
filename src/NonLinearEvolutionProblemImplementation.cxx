@@ -347,13 +347,21 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
       std::string_view n, const Parameters& p) {
     auto ctx = Context{};
+    if (!this->setLinearSolver(ctx, n, p)) {
+      raise(ctx.getErrorMessage());
+    }
+  }  // end of setLinearSolver
+
+  bool NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
+      Context& ctx, std::string_view n, const Parameters& p) noexcept {
     const auto& f = LinearSolverFactory<true>::getFactory();
     auto& fespace = this->getFiniteElementSpace();
     auto s = f.generate(ctx, n, fespace, p);
     if (isInvalid(s)) {
-      raise(ctx.getErrorMessage());
+      return false;
     }
     this->updateLinearSolver(std::move(s));
+    return true;
   }  // end of setLinearSolver
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
@@ -566,13 +574,21 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       std::string_view n, const Parameters& p) {
     auto ctx = Context{};
+    if (!this->setLinearSolver(ctx, n, p)) {
+      raise(ctx.getErrorMessage());
+    }
+  }  // end of setLinearSolver
+
+  bool NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
+      Context& ctx, std::string_view n, const Parameters& p) noexcept {
     const auto& f = LinearSolverFactory<false>::getFactory();
     auto& fespace = this->getFiniteElementSpace();
     auto s = f.generate(ctx, n, fespace, p);
     if (isInvalid(s)) {
-      raise(ctx.getErrorMessage());
+      return false;
     }
     this->updateLinearSolver(std::move(s));
+    return true;
   }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::integrate(
