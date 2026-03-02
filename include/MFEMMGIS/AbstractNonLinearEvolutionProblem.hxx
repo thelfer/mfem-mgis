@@ -230,13 +230,13 @@ namespace mfem_mgis {
         Context &, const std::map<size_type, std::string> &) noexcept = 0;
     //! \return the underlying finite element discretization
     [[nodiscard]] virtual FiniteElementDiscretization &
-    getFiniteElementDiscretization() = 0;
+    getFiniteElementDiscretization() noexcept = 0;
     //! \return the underlying finite element discretization
     [[nodiscard]] virtual const FiniteElementDiscretization &
-    getFiniteElementDiscretization() const = 0;
+    getFiniteElementDiscretization() const noexcept = 0;
     //! \return the underlying finite element discretization
     [[nodiscard]] virtual std::shared_ptr<FiniteElementDiscretization>
-    getFiniteElementDiscretizationPointer() = 0;
+    getFiniteElementDiscretizationPointer() noexcept = 0;
     //! \return the unknowns at the end of the time step
     [[nodiscard]] virtual mfem::Vector &getUnknowns(
         const TimeStepStage) noexcept = 0;
@@ -340,7 +340,8 @@ namespace mfem_mgis {
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
      */
-    virtual std::vector<size_type> getAssignedMaterialsIdentifiers() const = 0;
+    virtual std::vector<size_type> getAssignedMaterialsIdentifiers()
+        const noexcept = 0;
     /*!
      * \return the material identifier by the given parameter.
      *
@@ -408,16 +409,15 @@ namespace mfem_mgis {
      * \param[in] b: behaviour integrator id
      */
     virtual OptionalReference<const Material> getMaterial(
-        Context &, const Parameter &, const size_type) const = 0;
+        Context &, const Parameter &, const size_type) const noexcept = 0;
     /*!
      * \return the material with the given id
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
      * \param[in] b: behaviour integrator id
      */
-    virtual OptionalReference<Material> getMaterial(Context &,
-                                                    const Parameter &,
-                                                    const size_type) = 0;
+    virtual OptionalReference<Material> getMaterial(
+        Context &, const Parameter &, const size_type) noexcept = 0;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
@@ -427,7 +427,7 @@ namespace mfem_mgis {
     virtual OptionalReference<const AbstractBehaviourIntegrator>
     getBehaviourIntegrator(Context &,
                            const Parameter &,
-                           const size_type) const = 0;
+                           const size_type) const noexcept = 0;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
@@ -440,17 +440,18 @@ namespace mfem_mgis {
                            const size_type) noexcept = 0;
     /*!
      * \brief add a boundary condition
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] f: boundary condition
      */
     [[nodiscard]] virtual bool addBoundaryCondition(
         Context &, std::unique_ptr<AbstractBoundaryCondition>) noexcept = 0;
     /*!
      * \brief add a Dirichlet boundary condition
+     * \param[in, out] ctx: execution context
      * \param[in] bc: boundary condition
      */
-    virtual void addBoundaryCondition(
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) = 0;
+    [[nodiscard]] virtual bool addBoundaryCondition(
+        Context &, std::unique_ptr<AbstractDirichletBoundaryCondition>) = 0;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing
@@ -459,10 +460,12 @@ namespace mfem_mgis {
         const std::function<void(const real, const real)> &) = 0;
     /*!
      * \brief add a new post-processing
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] p: parameters
      */
-    virtual void addPostProcessing(std::string_view, const Parameters &) = 0;
+    [[nodiscard]] virtual bool addPostProcessing(
+        Context &, std::string_view, const Parameters &) noexcept = 0;
     /*!
      * \brief execute the registred postprocessings
      * \param[in] t: time at the beginning of the time step
@@ -576,6 +579,19 @@ namespace mfem_mgis {
      */
     [[deprecated]] virtual void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) = 0;
+    /*!
+     * \brief add a Dirichlet boundary condition
+     * \param[in] bc: boundary condition
+     */
+    [[deprecated]] virtual void addBoundaryCondition(
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) = 0;
+    /*!
+     * \brief add a new post-processing
+     * \param[in] n: name of the post-processing
+     * \param[in] p: parameters
+     */
+    [[deprecated]] virtual void addPostProcessing(std::string_view,
+                                                  const Parameters &) = 0;
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] t: time at the beginning of the time step

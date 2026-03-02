@@ -61,19 +61,19 @@ namespace mfem_mgis {
   }  // end of NonLinearEvolutionProblemImplementationBase
 
   FiniteElementDiscretization& NonLinearEvolutionProblemImplementationBase::
-      getFiniteElementDiscretization() {
+      getFiniteElementDiscretization() noexcept {
     return *(this->fe_discretization);
   }  // end of getFiniteElementDiscretization
 
   const FiniteElementDiscretization&
   NonLinearEvolutionProblemImplementationBase::getFiniteElementDiscretization()
-      const {
+      const noexcept {
     return *(this->fe_discretization);
   }  // end of getFiniteElementDiscretization
 
   std::shared_ptr<FiniteElementDiscretization>
   NonLinearEvolutionProblemImplementationBase::
-      getFiniteElementDiscretizationPointer() {
+      getFiniteElementDiscretizationPointer() noexcept {
     return this->fe_discretization;
   }  // end of getFiniteElementDiscretization
 
@@ -208,9 +208,10 @@ namespace mfem_mgis {
 
   std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getAssignedMaterialsIdentifiers()
-      const {
-    checkMultiMaterialSupportEnabled("getAssignedMaterialsIdentifiers",
-                                     this->mgis_integrator);
+      const noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return {};
+    }
     return this->mgis_integrator->getAssignedMaterialsIdentifiers();
   }  // end of getAssignedMaterialsIdentifiers
 
@@ -353,7 +354,8 @@ namespace mfem_mgis {
     return all_dofs;
   }  // end of getEssentialDegreesOfFreedom
 
-  [[nodiscard]] const std::vector<std::unique_ptr<AbstractDirichletBoundaryCondition>>&
+  [[nodiscard]] const std::vector<
+      std::unique_ptr<AbstractDirichletBoundaryCondition>>&
   NonLinearEvolutionProblemImplementationBase::getDirichletBoundaryConditions()
       const noexcept {
     return this->dirichlet_boundary_conditions;

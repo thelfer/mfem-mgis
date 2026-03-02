@@ -142,7 +142,8 @@ namespace mfem_mgis {
     // this data member is not used, but we define it by
     // consistency
     this->initial_norm = *(this->reference_residual_norm);
-    auto previous_norms = std::array<real, 2u>{this->initial_norm, this->initial_norm};
+    auto previous_norms =
+        std::array<real, 2u>{this->initial_norm, this->initial_norm};
 
     const auto norm_goal =
         std::max(rel_tol * (*(this->reference_residual_norm)), abs_tol);

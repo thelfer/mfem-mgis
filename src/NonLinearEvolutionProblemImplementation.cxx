@@ -185,7 +185,7 @@ namespace mfem_mgis {
       mdu->Distribute(mdu_values);
     } else {
       for (const auto& bc : p.getDirichletBoundaryConditions()) {
-      // we impose the opposite of the displacement increment
+        // we impose the opposite of the displacement increment
         bc->setImposedValuesIncrements(*mdu, t, t + dt, -1);
       }
     }
@@ -302,8 +302,21 @@ namespace mfem_mgis {
     return mfem_mgis::NonlinearForm<true>::Mult(u, r);
   }  // end of Mult
 
+  bool NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
+      Context& ctx,
+      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) noexcept {
+    if (bc.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid boundary condition");
+    }
+    this->dirichlet_boundary_conditions.push_back(std::move(bc));
+    return true;
+  }  // end of addBoundaryCondition
+
   void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
       std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
+    if (bc.get() == nullptr) {
+      return raise("invalid boundary condition");
+    }
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
   }  // end of addBoundaryCondition
 
@@ -317,6 +330,9 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
       Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    if (f.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid boundary condition");
+    }
     if (!f->addNonlinearFormIntegrator(ctx, *this, this->u1)) {
       return false;
     }
@@ -324,15 +340,33 @@ namespace mfem_mgis {
     return true;
   }  // end of addBoundaryCondition
 
+  bool NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
+      Context& ctx, std::unique_ptr<PostProcessing<true>> p) noexcept {
+    if (p.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid post-processing");
+    }
+    this->postprocessings.push_back(std::move(p));
+    return true;
+  }  // end of addPostProcessing
+
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       std::unique_ptr<PostProcessing<true>> p) {
+    if (p.get() == nullptr) {
+      raise("invalid post-processing");
+    }
     this->postprocessings.push_back(std::move(p));
+  }  // end of addPostProcessing
+
+  bool NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
+      Context& ctx, std::string_view n, const Parameters& p) noexcept {
+    const auto& f = PostProcessingFactory<true>::getFactory();
+    return this->addPostProcessing(ctx, f.generate(ctx, n, *this, p));
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       std::string_view n, const Parameters& p) {
     const auto& f = PostProcessingFactory<true>::getFactory();
-    this->postprocessings.push_back(f.generate(n, *this, p));
+    this->addPostProcessing(f.generate(n, *this, p));
   }  // end of addPostProcessing
 
   bool NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
@@ -497,8 +531,21 @@ namespace mfem_mgis {
     return oresult->initial_residual_norm;
   }  // end of computePrediction
 
+  bool NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
+      Context& ctx,
+      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) noexcept {
+    if (bc.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid boundary condition");
+    }
+    this->dirichlet_boundary_conditions.push_back(std::move(bc));
+    return true;
+  }  // end of addBoundaryCondition
+
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
       std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
+    if (bc.get() == nullptr) {
+      return raise("invalid boundary condition");
+    }
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
   }  // end of addBoundaryCondition
 
@@ -519,8 +566,20 @@ namespace mfem_mgis {
     return true;
   }  // end of addBoundaryCondition
 
+  bool NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
+      Context& ctx, std::unique_ptr<PostProcessing<false>> p) noexcept {
+    if (p.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid post-processing");
+    }
+    this->postprocessings.push_back(std::move(p));
+    return true;
+  }  // end of addPostProcessing
+
   void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
       std::unique_ptr<PostProcessing<false>> p) {
+    if (p.get() == nullptr) {
+      raise("invalid post-processing");
+    }
     this->postprocessings.push_back(std::move(p));
   }  // end of addPostProcessing
 
@@ -530,10 +589,16 @@ namespace mfem_mgis {
         std::make_unique<StdFunctionPostProcessing<false>>(p));
   }  // end of addPostProcessing
 
+  bool NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
+      Context& ctx, std::string_view n, const Parameters& p) noexcept {
+    const auto& f = PostProcessingFactory<false>::getFactory();
+    return this->addPostProcessing(ctx, f.generate(ctx, n, *this, p));
+  }  // end of addPostProcessing
+
   void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
       std::string_view n, const Parameters& p) {
     const auto& f = PostProcessingFactory<false>::getFactory();
-    this->postprocessings.push_back(f.generate(n, *this, p));
+    this->addPostProcessing(f.generate(n, *this, p));
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblemImplementation<false>::executePostProcessings(
@@ -543,22 +608,23 @@ namespace mfem_mgis {
     }
   }  // end of executePostProcessings
 
-  Mesh<false>& NonLinearEvolutionProblemImplementation<false>::getMesh() {
+  Mesh<false>&
+  NonLinearEvolutionProblemImplementation<false>::getMesh() noexcept {
     return this->fe_discretization->getMesh<false>();
   }  // end of getMesh
 
   const Mesh<false>& NonLinearEvolutionProblemImplementation<false>::getMesh()
-      const {
+      const noexcept {
     return this->fe_discretization->getMesh<false>();
   }  // end of getMesh
 
   const FiniteElementSpace<false>& NonLinearEvolutionProblemImplementation<
-      false>::getFiniteElementSpace() const {
+      false>::getFiniteElementSpace() const noexcept {
     return this->fe_discretization->getFiniteElementSpace<false>();
   }  // end of getFiniteElementSpace
 
-  FiniteElementSpace<false>&
-  NonLinearEvolutionProblemImplementation<false>::getFiniteElementSpace() {
+  FiniteElementSpace<false>& NonLinearEvolutionProblemImplementation<
+      false>::getFiniteElementSpace() noexcept {
     return this->fe_discretization->getFiniteElementSpace<false>();
   }  // end of getFiniteElementSpace
 

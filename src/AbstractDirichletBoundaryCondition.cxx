@@ -9,6 +9,7 @@
 
 namespace mfem_mgis {
 
-  AbstractDirichletBoundaryCondition::~AbstractDirichletBoundaryCondition() = default;
+  AbstractDirichletBoundaryCondition::~AbstractDirichletBoundaryCondition() =
+      default;
 
 }  // end of namespace mfem_mgis

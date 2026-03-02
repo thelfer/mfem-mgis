@@ -73,17 +73,17 @@ namespace mfem_mgis {
   }  // end of NonLinearEvolutionProblem
 
   FiniteElementDiscretization&
-  NonLinearEvolutionProblem::getFiniteElementDiscretization() {
+  NonLinearEvolutionProblem::getFiniteElementDiscretization() noexcept {
     return this->pimpl->getFiniteElementDiscretization();
   }  // end of getFiniteElementDiscretization
 
   const FiniteElementDiscretization&
-  NonLinearEvolutionProblem::getFiniteElementDiscretization() const {
+  NonLinearEvolutionProblem::getFiniteElementDiscretization() const noexcept {
     return this->pimpl->getFiniteElementDiscretization();
   }  // end of getFiniteElementDiscretization
 
   std::shared_ptr<FiniteElementDiscretization>
-  NonLinearEvolutionProblem::getFiniteElementDiscretizationPointer() {
+  NonLinearEvolutionProblem::getFiniteElementDiscretizationPointer() noexcept {
     return this->pimpl->getFiniteElementDiscretizationPointer();
   }  // end of getFiniteElementDiscretizationPointer
 
@@ -258,7 +258,7 @@ namespace mfem_mgis {
   }  // end of getBoundariesIdentifiers
 
   std::vector<size_type>
-  NonLinearEvolutionProblem::getAssignedMaterialsIdentifiers() const {
+  NonLinearEvolutionProblem::getAssignedMaterialsIdentifiers() const noexcept {
     return this->pimpl->getAssignedMaterialsIdentifiers();
   }  // end of getAssignedMaterialsIdentifiers
 
@@ -271,6 +271,12 @@ namespace mfem_mgis {
       Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
     return this->pimpl->addBoundaryCondition(ctx, std::move(f));
   }  // end of addBoundaryCondition
+
+  bool NonLinearEvolutionProblem::addBoundaryCondition(
+      Context& ctx,
+      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) noexcept {
+    return this->pimpl->addBoundaryCondition(ctx, std::move(bc));
+  }  // end of NonLinearEvolutionProblem::addBoundaryCondition
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
       std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
@@ -286,6 +292,11 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::addPostProcessing(
       const std::function<void(const real, const real)>& p) {
     this->pimpl->addPostProcessing(p);
+  }  // end of addPostProcessing
+
+  bool NonLinearEvolutionProblem::addPostProcessing(
+      Context& ctx, std::string_view n, const Parameters& p) noexcept {
+    return this->pimpl->addPostProcessing(ctx, n, p);
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblem::addPostProcessing(std::string_view n,

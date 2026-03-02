@@ -37,6 +37,25 @@ namespace mfem_mgis {
   }  // end of add
 
   std::unique_ptr<PostProcessing<true>> PostProcessingFactory<true>::generate(
+      Context& ctx,
+      std::string_view n,
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const Parameters& params) const noexcept {
+    const auto pg = this->generators.find(n);
+    if (pg == this->generators.end()) {
+      return ctx.registerErrorMessage(
+          "PostProcessingFactory<true>::generate: no post-processing called '" +
+          std::string{n} + "' declared");
+    }
+    try {
+      return pg->second(p, params);
+    } catch (...) {
+      std::ignore = mgis::registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of generate
+
+  std::unique_ptr<PostProcessing<true>> PostProcessingFactory<true>::generate(
       std::string_view n,
       NonLinearEvolutionProblemImplementation<true>& p,
       const Parameters& params) const {
@@ -112,6 +131,26 @@ namespace mfem_mgis {
     }
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
+
+  std::unique_ptr<PostProcessing<false>> PostProcessingFactory<false>::generate(
+      Context& ctx,
+      std::string_view n,
+      NonLinearEvolutionProblemImplementation<false>& p,
+      const Parameters& params) const noexcept {
+    const auto pg = this->generators.find(n);
+    if (pg == this->generators.end()) {
+      return ctx.registerErrorMessage(
+          "PostProcessingFactory<false>::generate: no post-processing called "
+          "'" +
+          std::string{n} + "' declared");
+    }
+    try {
+      return pg->second(p, params);
+    } catch (...) {
+      std::ignore = mgis::registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of generate
 
   std::unique_ptr<PostProcessing<false>> PostProcessingFactory<false>::generate(
       std::string_view n,
