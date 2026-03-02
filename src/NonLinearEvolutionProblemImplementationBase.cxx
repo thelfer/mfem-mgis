@@ -13,8 +13,8 @@
 #include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
-#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
@@ -353,7 +353,7 @@ namespace mfem_mgis {
     return all_dofs;
   }  // end of getEssentialDegreesOfFreedom
 
-  [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
+  [[nodiscard]] const std::vector<std::unique_ptr<AbstractDirichletBoundaryCondition>>&
   NonLinearEvolutionProblemImplementationBase::getDirichletBoundaryConditions()
       const noexcept {
     return this->dirichlet_boundary_conditions;

@@ -1,4 +1,3 @@
-
 set(MFEMMGIS_SOURCES)
 list(APPEND MFEMMGIS_SOURCES
   Config.cxx
@@ -16,7 +15,7 @@ list(APPEND MFEMMGIS_SOURCES
   BehaviourIntegratorBase.cxx
   BehaviourIntegratorFactory.cxx
   MultiMaterialNonLinearIntegrator.cxx
-  DirichletBoundaryCondition.cxx
+  AbstractDirichletBoundaryCondition.cxx
   DirichletBoundaryConditionBase.cxx
   UniformDirichletBoundaryCondition.cxx
   AbstractBoundaryCondition.cxx

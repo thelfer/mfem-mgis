@@ -29,7 +29,7 @@
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
-#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
@@ -39,7 +39,9 @@ namespace mfem_mgis {
   template <bool parallel>
   static void export_prediction(
       mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& p,
-      mfem_mgis::GridFunction<parallel>& mdu) {
+      mfem_mgis::GridFunction<parallel>& mdu,
+      const real te) {
+    static auto cycle = size_type{1};
     auto& fed = p.getFiniteElementDiscretization();
     auto exporter = mfem::ParaViewDataCollection{
         parallel ? "result-prediction-test-parallel"
@@ -47,9 +49,10 @@ namespace mfem_mgis {
     exporter.SetMesh(&(fed.template getMesh<parallel>()));
     exporter.SetDataFormat(mfem::VTKFormat::BINARY);
     exporter.RegisterField("OppositeOfDisplacementIncrementPrediction", &mdu);
-    exporter.SetCycle(1);
-    exporter.SetTime(1);
+    exporter.SetCycle(cycle);
+    exporter.SetTime(te);
     exporter.Save();
+    ++cycle;
   }
 
   template <bool parallel>
@@ -300,7 +303,7 @@ namespace mfem_mgis {
   }  // end of Mult
 
   void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
-      std::unique_ptr<DirichletBoundaryCondition> bc) {
+      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
   }  // end of addBoundaryCondition
 
@@ -487,7 +490,7 @@ namespace mfem_mgis {
   }  // end of computePrediction
 
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
-      std::unique_ptr<DirichletBoundaryCondition> bc) {
+      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
   }  // end of addBoundaryCondition
 

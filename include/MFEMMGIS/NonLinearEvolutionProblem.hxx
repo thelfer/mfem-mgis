@@ -94,7 +94,7 @@ namespace mfem_mgis {
     [[nodiscard]] PredictionPolicy getPredictionPolicy()
         const noexcept override;
     void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
     [[deprecated]] void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
     [[nodiscard]] bool addBoundaryCondition(
@@ -140,7 +140,8 @@ namespace mfem_mgis {
                                  const std::optional<real>) override;
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
         Context &, const mfem::Vector &) noexcept override;
-    [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>
+    [[nodiscard]] const std::vector<
+        std::unique_ptr<AbstractDirichletBoundaryCondition>>
         &getDirichletBoundaryConditions() const noexcept override;
     [[nodiscard]] virtual const std::vector<
         std::unique_ptr<AbstractBoundaryCondition>>

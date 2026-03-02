@@ -10,7 +10,7 @@
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/BoundaryUtilities.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
-#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
@@ -147,7 +147,7 @@ namespace mfem_mgis {
     return this->pimpl->getPredictionPolicy();
   }  // end of getPredictionPolicy
 
-  const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
+  const std::vector<std::unique_ptr<AbstractDirichletBoundaryCondition>>&
   NonLinearEvolutionProblem::getDirichletBoundaryConditions() const noexcept {
     return this->pimpl->getDirichletBoundaryConditions();
   }  // end of getDirichletBoundaryConditions
@@ -268,7 +268,7 @@ namespace mfem_mgis {
   }  // end of addBoundaryCondition
 
   void NonLinearEvolutionProblem::addBoundaryCondition(
-      std::unique_ptr<DirichletBoundaryCondition> bc) {
+      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
     this->pimpl->addBoundaryCondition(std::move(bc));
   }  // end of NonLinearEvolutionProblem::addBoundaryCondition
 

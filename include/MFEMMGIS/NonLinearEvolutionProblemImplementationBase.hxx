@@ -139,7 +139,7 @@ namespace mfem_mgis {
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
         Context&, const mfem::Vector&) noexcept override;
     [[nodiscard]] const std::vector<
-        std::unique_ptr<DirichletBoundaryCondition>>&
+        std::unique_ptr<AbstractDirichletBoundaryCondition>>&
     getDirichletBoundaryConditions() const noexcept override;
     [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
     getBoundaryConditions() const noexcept override;
@@ -203,7 +203,7 @@ namespace mfem_mgis {
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief list of boundary conditions
-    std::vector<std::unique_ptr<DirichletBoundaryCondition>>
+    std::vector<std::unique_ptr<AbstractDirichletBoundaryCondition>>
         dirichlet_boundary_conditions;
     /*!
      * \brief a boolean value to specifiy if the initialization phase is still

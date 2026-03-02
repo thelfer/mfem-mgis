@@ -314,7 +314,7 @@ namespace mfem_mgis {
   }  // end of addBoundaryCondition
 
   void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
-      std::unique_ptr<DirichletBoundaryCondition>) {
+      std::unique_ptr<AbstractDirichletBoundaryCondition>) {
     raise(
         "PeriodicNonLinearEvolutionProblem::addBoundaryCondition: "
         "invalid call");

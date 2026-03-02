@@ -1,12 +1,12 @@
 /*!
- * \file   include/MFEMMGIS/DirichletBoundaryCondition.hxx
+ * \file   include/MFEMMGIS/AbstractDirichletBoundaryCondition.hxx
  * \brief
  * \author Thomas Helfer
  * \date   18/03/2021
  */
 
-#ifndef LIB_MFEM_MGIS_DIRICHLETBOUNDARYCONDITION_HXX
-#define LIB_MFEM_MGIS_DIRICHLETBOUNDARYCONDITION_HXX
+#ifndef LIB_MFEM_MGIS_ABSTRACTDIRICHLETBOUNDARYCONDITION_HXX
+#define LIB_MFEM_MGIS_ABSTRACTDIRICHLETBOUNDARYCONDITION_HXX
 
 #include <memory>
 #include <vector>
@@ -20,7 +20,7 @@ namespace mfem_mgis {
   /*!
    * \brief abstract class for the definition of Dirichlet boundary conditions.
    */
-  struct MFEM_MGIS_EXPORT DirichletBoundaryCondition {
+  struct MFEM_MGIS_EXPORT AbstractDirichletBoundaryCondition {
     /*!
      * \return the list of degrees of freedom treated by this boundary
      * condition
@@ -44,9 +44,9 @@ namespace mfem_mgis {
                                             const real,
                                             const real) const = 0;
     //! \brief destructor
-    virtual ~DirichletBoundaryCondition();
-  };  // end of struct DirichletBoundaryCondition
+    virtual ~AbstractDirichletBoundaryCondition();
+  };  // end of struct AbstractDirichletBoundaryCondition
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_DIRICHLETBOUNDARYCONDITION_HXX */
+#endif /* LIB_MFEM_MGIS_ABSTRACTDIRICHLETBOUNDARYCONDITION_HXX */

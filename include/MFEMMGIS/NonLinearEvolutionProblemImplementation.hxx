@@ -59,7 +59,7 @@ namespace mfem_mgis {
     //
     void Mult(const mfem::Vector&, mfem::Vector&) const override;
     void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
     [[deprecated]] void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
     [[nodiscard]] bool addBoundaryCondition(
@@ -135,7 +135,7 @@ namespace mfem_mgis {
     const FiniteElementSpace<false>& getFiniteElementSpace() const;
     //
     void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
     [[deprecated]] void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
     [[nodiscard]] bool addBoundaryCondition(

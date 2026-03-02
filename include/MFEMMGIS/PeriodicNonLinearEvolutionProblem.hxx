@@ -105,7 +105,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool addBoundaryCondition(
         Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     [[noreturn]] void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
     /*!
      * \brief set the evolution of the macroscopic gradients
      * \param[in] e : function

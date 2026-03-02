@@ -24,7 +24,7 @@ namespace mfem_mgis {
   struct Parameter;
   struct Parameters;
   struct FiniteElementDiscretization;
-  struct DirichletBoundaryCondition;
+  struct AbstractDirichletBoundaryCondition;
   struct AbstractBehaviourIntegrator;
   struct Material;
   struct AbstractBoundaryCondition;
@@ -299,7 +299,7 @@ namespace mfem_mgis {
     getLinearizedOperators(Context &, const mfem::Vector &) noexcept = 0;
     //! \brief return the Dirichlet boundary conditions
     [[nodiscard]] virtual const std::vector<
-        std::unique_ptr<DirichletBoundaryCondition>>
+        std::unique_ptr<AbstractDirichletBoundaryCondition>>
         &getDirichletBoundaryConditions() const noexcept = 0;
     //! \brief return the standard boundary conditions
     [[nodiscard]] virtual const std::vector<
@@ -454,7 +454,7 @@ namespace mfem_mgis {
      * \param[in] bc: boundary condition
      */
     virtual void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) = 0;
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) = 0;
     /*!
      * \brief add a new post-processing
      * \param[in] p: post-processing

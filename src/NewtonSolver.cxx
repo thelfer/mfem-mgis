@@ -148,6 +148,7 @@ namespace mfem_mgis {
         std::max(rel_tol * (*(this->reference_residual_norm)), abs_tol);
     auto it = size_type{};
 
+    this->converged = 0;
     while (true) {
       CatchTimeSection("NS::Mult::WhileLoop");
       MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
@@ -165,12 +166,10 @@ namespace mfem_mgis {
       }
       //
       if (it >= this->max_iter) {
-        this->converged = 0;
         break;
       }
       //
       if (!this->computeNewtonCorrection(c, r, x)) {
-        this->converged = 0;
         break;
       }
       //
@@ -188,7 +187,6 @@ namespace mfem_mgis {
         // the maximum value
         while (true) {
           if (it >= this->max_iter) {
-            this->converged = 0;
             break;
           }
           if (shall_print) {
@@ -203,7 +201,7 @@ namespace mfem_mgis {
           }
           ++it;
         }
-        if (this->converged == 0) {
+        if (it >= this->max_iter) {
           break;
         }
       }
