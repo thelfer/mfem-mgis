@@ -201,4 +201,3 @@ Issues fixed
   MFEM's attributes ￼
 - Issue 188: retrieve informations about a quadrature space
 - Issue 149: work on the prediction of the solution
-
