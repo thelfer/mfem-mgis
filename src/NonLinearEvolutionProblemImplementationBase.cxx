@@ -497,7 +497,9 @@ namespace mfem_mgis {
       raise("Support for PETSc is deactivated");
 #endif /* MFEM_USE_PETSC */
     } else {
+      this->solver->setContext(ctx);
       this->solver->Mult(this->u0, this->u1);
+      this->solver->unsetContext();
       fill_output(*(this->solver));
       output.initial_residual_norm = this->solver->GetInitialNorm();
       this->solver->unsetReferenceResidualNorm();
