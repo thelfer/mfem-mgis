@@ -146,7 +146,8 @@ namespace mfem_mgis {
         std::unique_ptr<AbstractBoundaryCondition>>
         &getBoundaryConditions() const noexcept override;
     void setup(const real, const real) override;
-    [[nodiscard]] NonLinearResolutionOutput solve(const real,
+    [[nodiscard]] NonLinearResolutionOutput solve(Context &,
+                                                  const real,
                                                   const real) override;
     void revert() override;
     void update() override;
@@ -178,6 +179,8 @@ namespace mfem_mgis {
     getBehaviourIntegrator(const size_type) const override;
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator &
     getBehaviourIntegrator(const size_type) override;
+    [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
+        const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 

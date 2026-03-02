@@ -67,8 +67,8 @@ namespace mfem_mgis {
   }  // end of updateImposedValues
 
   void UniformDirichletBoundaryCondition::setImposedValuesIncrements(
-      mfem::Vector& du, const real ti, const real te) const {
-    const auto duv = this->ufct(te) - this->ufct(ti);
+      mfem::Vector& du, const real ti, const real te, const real f) const {
+    const auto duv = f * (this->ufct(te) - this->ufct(ti));
     for (const auto& dof : this->dofs) {
       du[dof] = duv;
     }

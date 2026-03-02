@@ -453,8 +453,16 @@ namespace mfem_mgis {
 
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {
-#pragma message("local context")
     auto ctx = Context{};
+    const auto r = this->solve(ctx, t, dt);
+    if (isInvalid(r)) {
+      ctx.log() << ctx.getErrorMessage() << '\n';
+    }
+    return r;
+  }  // end of solve
+
+  NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
+      Context& ctx, const real t, const real dt) {
     CatchTimeSection("NLEPIB::solve");
     this->setTimeIncrement(dt);
     this->setup(t, dt);

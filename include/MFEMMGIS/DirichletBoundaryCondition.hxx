@@ -37,8 +37,10 @@ namespace mfem_mgis {
      * \param[in] du: unknown vector
      * \param[in] ti: time at the beginning of the time step
      * \param[in] te: time at the end of the time step
+     * \param[in] f: multiplicative factor
      */
     virtual void setImposedValuesIncrements(mfem::Vector&,
+                                            const real,
                                             const real,
                                             const real) const = 0;
     //! \brief destructor

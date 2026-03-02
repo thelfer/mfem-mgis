@@ -147,7 +147,8 @@ namespace mfem_mgis {
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
     [[nodiscard]] PredictionPolicy getPredictionPolicy()
         const noexcept override;
-    [[nodiscard]] NonLinearResolutionOutput solve(const real,
+    [[nodiscard]] NonLinearResolutionOutput solve(Context&,
+                                                  const real,
                                                   const real) override;
     void revert() override;
     void update() override;
@@ -171,6 +172,8 @@ namespace mfem_mgis {
     getBehaviourIntegrator(const size_type) const override;
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
     getBehaviourIntegrator(const size_type) override;
+    [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
+        const real, const real) override;
     //! \brief destructor
     virtual ~NonLinearEvolutionProblemImplementationBase();
 

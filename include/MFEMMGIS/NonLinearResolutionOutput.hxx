@@ -37,6 +37,21 @@ namespace mfem_mgis {
     inline operator bool() const { return this->status; }
   };  // end of struct NonLinearResolutionOutput
 
+  [[nodiscard]] inline bool isInvalid(const NonLinearResolutionOutput& r) noexcept {
+    return !r;
+  } // end of isInvalid
+
 }  // end of namespace mfem_mgis
+
+namespace mgis::internal {
+
+  //! \brief partial specialisation for non linear resolution outputs
+  template <>
+  struct InvalidValueTraits<mfem_mgis::NonLinearResolutionOutput> {
+    static constexpr bool isSpecialized = true;
+    static mfem_mgis::NonLinearResolutionOutput getValue() noexcept { return {}; }
+  };
+
+}  // end of namespace mgis::internal
 
 #endif /* LIB_MFEMMGIS_NONLINEARRESOLUTIONOUTPUT_HXX */

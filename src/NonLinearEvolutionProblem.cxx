@@ -157,6 +157,14 @@ namespace mfem_mgis {
     return this->pimpl->getBoundaryConditions();
   }  // end of getBoundaryConditions
 
+  NonLinearResolutionOutput NonLinearEvolutionProblem::solve(Context& ctx,
+                                                             const real t,
+                                                             const real dt) {
+    CatchTimeSection("NLEP::solve");
+    this->setup(t, dt);
+    return this->pimpl->solve(ctx, t, dt);
+  }  // end of solve
+
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
     CatchTimeSection("NLEP::solve");

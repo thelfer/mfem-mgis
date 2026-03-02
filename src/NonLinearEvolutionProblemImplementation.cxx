@@ -37,9 +37,25 @@
 namespace mfem_mgis {
 
   template <bool parallel>
+  static void export_prediction(
+      mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& p,
+      mfem_mgis::GridFunction<parallel>& mdu) {
+    auto& fed = p.getFiniteElementDiscretization();
+    auto exporter = mfem::ParaViewDataCollection{
+        parallel ? "result-prediction-test-parallel"
+                 : "result-prediction-test"};
+    exporter.SetMesh(&(fed.template getMesh<parallel>()));
+    exporter.SetDataFormat(mfem::VTKFormat::BINARY);
+    exporter.RegisterField("OppositeOfDisplacementIncrementPrediction", &mdu);
+    exporter.SetCycle(1);
+    exporter.SetTime(1);
+    exporter.Save();
+  }
+
+  template <bool parallel>
   struct PredictionResult {
-    //! \brief prediction of the increment of the unknowns
-    std::unique_ptr<mfem_mgis::GridFunction<parallel>> du;
+    //! \brief prediction of the opposite of the increment of the unknowns
+    std::unique_ptr<mfem_mgis::GridFunction<parallel>> mdu;
     //! \brief initial residual, if available
     const real initial_residual_norm;
   };
@@ -121,8 +137,8 @@ namespace mfem_mgis {
       return {};
     }
     //
-    auto du = std::make_unique<mfem_mgis::GridFunction<parallel>>(&fespace);
-    *du = 0.0;
+    auto mdu = std::make_unique<mfem_mgis::GridFunction<parallel>>(&fespace);
+    *mdu = 0.0;
     auto a = mfem_mgis::BilinearForm<parallel>(&fespace);
     a.AddDomainIntegrator(operators->K.release());
     auto b = mfem_mgis::LinearForm<parallel>(&fespace);
@@ -156,20 +172,22 @@ namespace mfem_mgis {
     auto edofs_list = mfem::Array<mfem_mgis::size_type>(essential_dofs.data(),
                                                         essential_dofs.size());
     if constexpr (parallel) {
-      auto du_values = mfem::Vector(fespace.GetTrueVSize());
-      du_values = 0.0;
+      auto mdu_values = mfem::Vector(fespace.GetTrueVSize());
+      mdu_values = 0.0;
       //
       for (const auto& bc : p.getDirichletBoundaryConditions()) {
-        bc->setImposedValuesIncrements(du_values, t, t + dt);
+        // we impose the opposite of the displacement increment
+        bc->setImposedValuesIncrements(mdu_values, t, t + dt, -1);
       }
-      du->Distribute(du_values);
+      mdu->Distribute(mdu_values);
     } else {
       for (const auto& bc : p.getDirichletBoundaryConditions()) {
-        bc->setImposedValuesIncrements(*du, t, t + dt);
+      // we impose the opposite of the displacement increment
+        bc->setImposedValuesIncrements(*mdu, t, t + dt, -1);
       }
     }
     //
-    a.FormLinearSystem(edofs_list, *du, b, A, X, B);
+    a.FormLinearSystem(edofs_list, *mdu, b, A, X, B);
     const auto norm = [&B, &fespace] {
       if constexpr (parallel) {
         return std::sqrt(mfem::InnerProduct(fespace.GetComm(), B, B));
@@ -189,9 +207,9 @@ namespace mfem_mgis {
       }
     }
     //
-    a.RecoverFEMSolution(X, b, *du);
+    a.RecoverFEMSolution(X, b, *mdu);
     //
-    return PredictionResult<parallel>{.du = std::move(du),
+    return PredictionResult<parallel>{.mdu = std::move(mdu),
                                       .initial_residual_norm = norm};
   }  // end of computePrediction
 
@@ -258,22 +276,6 @@ namespace mfem_mgis {
     }
   }  // end of NonLinearEvolutionProblemImplementation
 
-  template <bool parallel>
-  void export_prediction(
-      mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& p,
-      mfem_mgis::GridFunction<parallel>& du) {
-    auto& fed = p.getFiniteElementDiscretization();
-    auto exporter = mfem::ParaViewDataCollection{
-        parallel ? "result-prediction-test-parallel"
-                 : "result-prediction-test"};
-    exporter.SetMesh(&(fed.template getMesh<parallel>()));
-    exporter.SetDataFormat(mfem::VTKFormat::BINARY);
-    exporter.RegisterField("DisplacementPrediction", &du);
-    exporter.SetCycle(1);
-    exporter.SetTime(1);
-    exporter.Save();
-  }
-
   std::optional<real>
   NonLinearEvolutionProblemImplementation<true>::computePrediction(
       Context& ctx, const real t, const real dt) noexcept {
@@ -288,7 +290,7 @@ namespace mfem_mgis {
       return {};
     }
     this->u1 = this->u0;
-    this->u1 += oresult->du->GetTrueVector();
+    this->u1 -= oresult->mdu->GetTrueVector();
     return oresult->initial_residual_norm;
   }  // end of computePrediction
 
@@ -480,7 +482,7 @@ namespace mfem_mgis {
       return {};
     }
     this->u1 = this->u0;
-    this->u1 += *(oresult->du);
+    this->u1 -= *(oresult->mdu);
     return oresult->initial_residual_norm;
   }  // end of computePrediction
 

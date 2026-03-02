@@ -313,10 +313,13 @@ namespace mfem_mgis {
     virtual void setup(const real, const real) = 0;
     /*!
      * \brief solve the non linear problem over the given time step
+     * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual NonLinearResolutionOutput solve(const real, const real) = 0;
+    [[nodiscard]] virtual NonLinearResolutionOutput solve(Context &,
+                                                          const real,
+                                                          const real) = 0;
     /*!
      * \brief add a new behaviour integrator
      * \return a mapping between the material id and the identifier of the
@@ -571,6 +574,13 @@ namespace mfem_mgis {
      */
     [[deprecated]] virtual AbstractBehaviourIntegrator &getBehaviourIntegrator(
         const size_type) = 0;
+    /*!
+     * \brief solve the non linear problem over the given time step
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    [[deprecated]] virtual NonLinearResolutionOutput solve(const real,
+                                                           const real) = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblem();
   };  // end of struct AbstractNonLinearEvolutionProblem

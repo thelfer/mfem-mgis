@@ -93,7 +93,8 @@ namespace mfem_mgis {
     MFEM_ASSERT(this->prec != nullptr,
                 "the Solver is not set (use setLinearSolver).");
 
-    mfem::Vector r, c;
+    mfem::Vector r;  // residual vector
+    mfem::Vector c;  // opposite of the Newton's correction
     r.SetSize(this->oper->Width());
     c.SetSize(this->oper->Width());
 
@@ -123,16 +124,14 @@ namespace mfem_mgis {
     while (true) {
       CatchTimeSection("NS::Mult::WhileLoop");
       MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
-      if (this->print_level >= 0) {
-        if (mfem_mgis::getMPIrank() == 0)
-          mfem::out << "Newton iteration " << std::setw(2) << it
-                    << " : ||r|| = " << norm;
+      if ((this->print_level >= 0) && (mfem_mgis::getMPIrank() == 0)) {
+        mfem::out << "Newton iteration " << std::setw(2) << it
+                  << " : ||r|| = " << norm;
         if (it > 0) {
-          if (mfem_mgis::getMPIrank() == 0)
-            mfem::out << ", ||r||/||r_0|| = "
-                      << norm / (*(this->reference_residual_norm));
+          mfem::out << ", ||r||/||r_0|| = "
+                    << norm / (*(this->reference_residual_norm));
         }
-        if (mfem_mgis::getMPIrank() == 0) mfem::out << '\n';
+        mfem::out << '\n';
       }
       this->Monitor(it, norm, r, x);
       //
@@ -156,11 +155,22 @@ namespace mfem_mgis {
       x -= c;
 
       if (!this->processNewUnknownsEstimate(x)) {
-        // basic line search
-        while (true){
+        ++it;
+        // basic line-search in case of integration failure
+        //
+        // we keep the current direction, but reduce the amplitude by a factor
+        // two until we find an estimate of the solution that do not lead
+        // to an integration failure or that the number of iterations reaches
+        // the maximum value
+        while (true) {
           if (it >= this->max_iter) {
             this->converged = 0;
             break;
+          }
+          if ((this->print_level >= 0) && (mfem_mgis::getMPIrank() == 0)) {
+            mfem::out
+                << "Newton iteration " << std::setw(2) << it
+                << ": reducing the amplitude of the correction by a factor 2\n";
           }
           c *= real{1} / 2;
           x += c;
