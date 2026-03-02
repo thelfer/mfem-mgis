@@ -199,5 +199,12 @@ Issues fixed
 
 - Issue 200: automatically assign materials and boundaries's names from
   MFEM's attributes ￼
-- Issue 188: retrieve informations about a quadrature space
+- Issue 198: Add the ability to define multiple behaviour integrator on
+  the same material
+- Issue 193: Add support for other types of search operators for
+  computing a prediction of the solution at the end of the time step
+  enhancement
+- Issue 192: Take external forces into account when computing the
+  prediction of the solution
+- Issue 188: retrieve information about a quadrature space
 - Issue 149: work on the prediction of the solution
