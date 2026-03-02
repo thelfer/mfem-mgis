@@ -5,6 +5,7 @@
  * \date   29/03/2021
  */
 
+#include <array>
 #include <iomanip>
 #include <utility>
 #include "MGIS/Raise.hxx"
@@ -86,135 +87,153 @@ namespace mfem_mgis {
     this->reference_residual_norm.reset();
   }  // end of unsetReferenceResidualNorm
 
+  void NewtonSolver::setContext(Context &ctx) noexcept {
+    this->ctx_ptr = &ctx;
+  }  // end of setContext
 
-    void NewtonSolver::setContext(Context & ctx) noexcept{
-      this->ctx_ptr = &ctx;
-    }  // end of setContext
+  void NewtonSolver::unsetContext() noexcept { this->ctx_ptr = nullptr; }
 
-    void NewtonSolver::unsetContext() noexcept { this->ctx_ptr = nullptr; }
+  void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
+    CatchTimeSection("NS::Mult");
+    MFEM_ASSERT(this->oper != nullptr,
+                "the Operator is not set (use SetOperator).");
+    MFEM_ASSERT(this->prec != nullptr,
+                "the Solver is not set (use setLinearSolver).");
+    // log stream
+    auto &log = [this]() -> std::ostream & {
+      if (this->ctx_ptr == nullptr) {
+        return getDefaultLogStream();
+      }
+      return this->ctx_ptr->log();
+    }();
+    // boolean stating if messages shall be displayed
+    auto shall_print = [this]() -> bool {
+      if (this->print_level >= 0) {
+        return mfem_mgis::getMPIrank() == 0;
+      }
+      if (this->ctx_ptr != nullptr) {
+        return this->ctx_ptr->getVerbosityLevel() >=
+               VerbosityLevel::verboseLevel3;
+      }
+      return false;
+    }();
 
-    void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
-      CatchTimeSection("NS::Mult");
-      MFEM_ASSERT(this->oper != nullptr,
-                  "the Operator is not set (use SetOperator).");
-      MFEM_ASSERT(this->prec != nullptr,
-                  "the Solver is not set (use setLinearSolver).");
-      // log stream
-      auto &log = [this]() -> std::ostream & {
-        if (this->ctx_ptr == nullptr) {
-          return getDefaultLogStream();
-        }
-        return this->ctx_ptr->log();
-      }();
-      // boolean stating if messages shall be displayed
-      auto shall_print = [this]() -> bool {
-        if (this->print_level >= 0) {
-          return mfem_mgis::getMPIrank() == 0;
-        }
-        if (this->ctx_ptr != nullptr) {
-          return this->ctx_ptr->getVerbosityLevel() >=
-                 VerbosityLevel::verboseLevel3;
-        }
-        return false;
-      }();
+    mfem::Vector r;  // residual vector
+    mfem::Vector c;  // opposite of the Newton's correction
+    r.SetSize(this->oper->Width());
+    c.SetSize(this->oper->Width());
 
-      mfem::Vector r;  // residual vector
-      mfem::Vector c;  // opposite of the Newton's correction
-      r.SetSize(this->oper->Width());
-      c.SetSize(this->oper->Width());
+    auto updateResidual = [this, &r, &x] {
+      this->computeResidual(r, x);
+      return this->Norm(r);
+    };
 
-      auto updateResidual = [this, &r, &x] {
-        this->computeResidual(r, x);
-        return this->Norm(r);
-      };
+    this->final_iter = size_type{};
+    this->final_norm = std::numeric_limits<real>::max();
 
-      this->final_iter = size_type{};
-      this->final_norm = std::numeric_limits<real>::max();
+    if (!this->processNewUnknownsEstimate(x)) {
+      this->converged = 0;
+      return;
+    }
+    auto norm = updateResidual();
+    if (!this->reference_residual_norm.has_value()) {
+      this->reference_residual_norm = norm;
+    }
+    // this data member is not used, but we define it by
+    // consistency
+    this->initial_norm = *(this->reference_residual_norm);
+    auto previous_norms = std::array<real, 2u>{this->initial_norm, this->initial_norm};
+
+    const auto norm_goal =
+        std::max(rel_tol * (*(this->reference_residual_norm)), abs_tol);
+    auto it = size_type{};
+
+    while (true) {
+      CatchTimeSection("NS::Mult::WhileLoop");
+      MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
+      if (shall_print) {
+        log << "Newton iteration " << std::setw(2) << it
+            << " : ||r|| = " << norm
+            << ", ||r||/||r_0|| = " << norm / (*(this->reference_residual_norm))
+            << '\n';
+      }
+      this->Monitor(it, norm, r, x);
+      //
+      if (norm <= norm_goal) {
+        this->converged = 1;
+        break;
+      }
+      //
+      if (it >= this->max_iter) {
+        this->converged = 0;
+        break;
+      }
+      //
+      if (!this->computeNewtonCorrection(c, r, x)) {
+        this->converged = 0;
+        break;
+      }
+      //
+      // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
+      //      add(x, -1, c, x);
+      x -= c;
 
       if (!this->processNewUnknownsEstimate(x)) {
-        this->converged = 0;
-        return;
-      }
-      auto norm = updateResidual();
-      if (!this->reference_residual_norm.has_value()) {
-        this->reference_residual_norm = norm;
-      }
-      // this data member is not used, but we define it by
-      // consistency
-      this->initial_norm = *(this->reference_residual_norm);
-      const auto norm_goal =
-          std::max(rel_tol * (*(this->reference_residual_norm)), abs_tol);
-      auto it = size_type{};
-
-      while (true) {
-        CatchTimeSection("NS::Mult::WhileLoop");
-        MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
-        if (shall_print) {
-          log << "Newton iteration " << std::setw(2) << it
-                    << " : ||r|| = " << norm;
-          if (it > 0) {
-            log << ", ||r||/||r_0|| = "
-                      << norm / (*(this->reference_residual_norm));
-          }
-          log << '\n';
-        }
-        this->Monitor(it, norm, r, x);
+        ++it;
+        // basic line-search in case of integration failure
         //
-        if (norm <= norm_goal) {
-          this->converged = 1;
-          break;
-        }
-        //
-        if (it >= this->max_iter) {
-          this->converged = 0;
-          break;
-        }
-        //
-        if (!this->computeNewtonCorrection(c, r, x)) {
-          this->converged = 0;
-          break;
-        }
-        //
-        // x_{i+1} = x_i - c * [DF(x_i)]^{-1} [F(x_i)-b]
-        //      add(x, -1, c, x);
-        x -= c;
-
-        if (!this->processNewUnknownsEstimate(x)) {
-          ++it;
-          // basic line-search in case of integration failure
-          //
-          // we keep the current direction, but reduce the amplitude by a factor
-          // two until we find an estimate of the solution that do not lead
-          // to an integration failure or that the number of iterations reaches
-          // the maximum value
-          while (true) {
-            if (it >= this->max_iter) {
-              this->converged = 0;
-              break;
-            }
-            if (shall_print) {
-              log << "Newton iteration " << std::setw(2) << it
-                  << ": reducing the amplitude of the correction by a "
-                     "factor 2\n";
-            }
-            c *= real{1} / 2;
-            x += c;
-            if (this->processNewUnknownsEstimate(x)) {
-              break;
-            }
-            ++it;
-          }
-          if (this->converged == 0) {
+        // we keep the current direction, but reduce the amplitude by a factor
+        // two until we find an estimate of the solution that do not lead
+        // to an integration failure or that the number of iterations reaches
+        // the maximum value
+        while (true) {
+          if (it >= this->max_iter) {
+            this->converged = 0;
             break;
           }
+          if (shall_print) {
+            log << "Newton iteration " << std::setw(2) << it
+                << ": reducing the amplitude of the correction by a "
+                   "factor 2\n";
+          }
+          c *= real{1} / 2;
+          x += c;
+          if (this->processNewUnknownsEstimate(x)) {
+            break;
+          }
+          ++it;
         }
-
-        updateResidual();
-        norm = this->Norm(r);
-        ++it;
+        if (this->converged == 0) {
+          break;
+        }
       }
-      this->final_iter = it;
-      this->final_norm = norm;
+
+      updateResidual();
+      previous_norms[0] = previous_norms[1];
+      previous_norms[1] = norm;
+      norm = this->Norm(r);
+      ++it;
+    }
+    this->final_iter = it;
+    this->final_norm = norm;
+    if (this->converged == 1) {
+      // estimation of the convergence order
+      if (shall_print) {
+        if ((it >= 2) && (norm > 100 * std::numeric_limits<real>::min()) &&
+            (previous_norms[0] > 100 * std::numeric_limits<real>::min()) &&
+            (previous_norms[1] > 100 * std::numeric_limits<real>::min())) {
+          const auto e1 = std::log(norm / previous_norms[1]);
+          const auto e2 = std::log(previous_norms[1] / previous_norms[0]);
+          if (std::abs(e2) > 100 * std::numeric_limits<real>::min()) {
+            log << "Convergence order " << e1 / e2 << "\n\n";
+          } else {
+            log << "Convergence order undefined\n\n";
+          }
+        } else {
+          log << "Convergence order undefined\n\n";
+        }
+      }
+    }
   }  // end of Mult
 
   void NewtonSolver::computeResidual(mfem::Vector &r,
