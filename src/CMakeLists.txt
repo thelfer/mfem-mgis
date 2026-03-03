@@ -60,6 +60,8 @@ list(APPEND MFEMMGIS_SOURCES
   TransientHeatTransferBehaviourIntegrator.cxx
   L2Projection.cxx
 #  Simulation.cxx
+#  AbstractTimeStepValidator.cxx
+#  DefaultTimeStepValidator.cxx
 )
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)

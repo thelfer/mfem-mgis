@@ -124,6 +124,9 @@ namespace mfem_mgis {
      * \param[in] n: name of the parameter
      */
     const Parameter& get(attributes::Throwing, std::string_view) const;
+    //
+    using std::map<std::string, Parameter, std::less<>>::size;
+    using std::map<std::string, Parameter, std::less<>>::empty;
     //! \brief destructor
     ~Parameters();
   };  // end of struct Parameters
@@ -178,6 +181,21 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT Parameters extract(attributes::Throwing,
                                       const Parameters&,
                                       const std::vector<std::string>&);
+  /*!
+   * \return the information required to build an object from a factory
+   * \param[in, out] ctx: execution context
+   * \param[in] p: parameters
+   */
+  MFEM_MGIS_EXPORT std::optional<std::pair<std::string, Parameters>>
+  extractFactoryArgument(Context& ctx, const Parameters& parameters) noexcept;
+
+  /*!
+   * \return the information required to build an object from a factory
+   * \param[in] p: parameters
+   * \throws if an error occurs
+   */
+  MFEM_MGIS_EXPORT std::pair<std::string, Parameters> extractFactoryArgument(
+      attributes::Throwing, const Parameters&);
 
 }  // end of namespace mfem_mgis
 

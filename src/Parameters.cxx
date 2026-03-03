@@ -259,4 +259,36 @@ namespace mfem_mgis {
     return r;
   }  // end of extract
 
+  [[nodiscard]] static std::optional<std::pair<std::string, Parameters>>
+  extractFactoryArgumentImplementation(Context& ctx,
+                                       const Parameters& parameters) noexcept {
+    if (parameters.size() != 1u) {
+      return ctx.registerErrorMessage(
+          "the parameter must be a dictionary with a unique entry");
+    }
+    const auto& [n, params] = *(parameters.begin());
+    if (!is<Parameters>(params)) {
+      return ctx.registerErrorMessage(
+          "expected a dictionary to define the parameter of the '" + n +
+          "' object");
+    }
+    return std::pair<std::string, Parameters>{
+        n, get<Parameters>(throwing, params)};
+  }  // end of extractFactoryArgumentImplementation
+
+  std::optional<std::pair<std::string, Parameters>> extractFactoryArgument(
+      Context& ctx, const Parameters& parameters) noexcept {
+    return extractFactoryArgumentImplementation(ctx, parameters);
+  }  // end of extractFactoryArgument
+
+  std::pair<std::string, Parameters> extractFactoryArgument(
+      attributes::Throwing, const Parameters& parameters) {
+    auto ctx = Context{};
+    const auto ovalue = extractFactoryArgumentImplementation(ctx, parameters);
+    if (isInvalid(ovalue)) {
+      raise(ctx.getErrorMessage());
+    }
+    return *ovalue;
+  }  // end of extractFactoryArgument
+
 }  // end of namespace mfem_mgis
