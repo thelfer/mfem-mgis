@@ -334,19 +334,19 @@ namespace mfem_mgis {
       Context& ctx, const Parameters& params) noexcept {
     try {
 #ifdef MFEM_USE_PETSC
-    if (usePETSc()) {
-      mfem_mgis::setSolverParameters(*(this->petsc_solver), params);
-    } else {
-      mfem_mgis::setSolverParameters(*(this->solver), params);
-    }
+      if (usePETSc()) {
+        mfem_mgis::setSolverParameters(*(this->petsc_solver), params);
+      } else {
+        mfem_mgis::setSolverParameters(*(this->solver), params);
+      }
 #else  /* MFEM_USE_PETSC */
-    mfem_mgis::setSolverParameters(*(this->solver), params);
+      mfem_mgis::setSolverParameters(*(this->solver), params);
 #endif /* MFEM_USE_PETSC */
     } catch (...) {
       return mgis::registerExceptionInErrorBacktrace(ctx);
     }
     return true;
-  }    // end of setSolverParameters
+  }  // end of setSolverParameters
 
   void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
       const Parameters& params) {
