@@ -59,10 +59,16 @@ list(APPEND MFEMMGIS_SOURCES
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TransientHeatTransferBehaviourIntegrator.cxx
   L2Projection.cxx
-#  Simulation.cxx
-#  AbstractTimeStepValidator.cxx
-#  DefaultTimeStepValidator.cxx
-)
+  Simulation.cxx
+  AbstractTimeStepValidator.cxx
+  TimeStepValidatorBase.cxx
+  DefaultTimeStepValidator.cxx
+  AbstractConvergenceFailureHandler.cxx
+  ConvergenceFailureHandlerBase.cxx
+  DefaultConvergenceFailureHandler.cxx
+  AbstractTimeIncrementComputer.cxx
+  TimeIncrementComputerBase.cxx
+  DefaultTimeIncrementComputer.cxx)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES

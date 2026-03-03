@@ -32,22 +32,18 @@ namespace mfem_mgis {
       s.SetPrintLevel(
           get<int>(throwing, params, Problem::SolverVerbosityLevel));
     }
-    std::cerr << "toto\n";
     if (contains(params, Problem::SolverRelativeTolerance)) {
       s.SetRelTol(
           get<double>(throwing, params, Problem::SolverRelativeTolerance));
     }
-    std::cerr << "tata\n";
     if (contains(params, Problem::SolverAbsoluteTolerance)) {
       s.SetAbsTol(
           get<double>(throwing, params, Problem::SolverAbsoluteTolerance));
     }
-    std::cerr << "tutu\n";
     if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
       s.SetMaxIter(
           get<int>(throwing, params, Problem::SolverMaximumNumberOfIterations));
     }
-    std::cerr << "titi\n";
   }  // end of setSolverParametersImplementation
 
   bool setSolverParameters(Context& ctx,
