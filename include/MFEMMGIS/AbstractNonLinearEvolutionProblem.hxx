@@ -246,10 +246,9 @@ namespace mfem_mgis {
     /*!
      * \brief set the solver parameters
      * \param[in] params: parameters
-     *
-     * The following parameters are allowed:
      */
-    virtual void setSolverParameters(const Parameters &) = 0;
+    [[nodiscard]] virtual bool setSolverParameters(
+        Context &, const Parameters &) noexcept = 0;
     /*!
      * \brief set the linear solver
      * \param[in] ctx: execution context
@@ -592,6 +591,11 @@ namespace mfem_mgis {
      */
     [[deprecated]] virtual void addPostProcessing(std::string_view,
                                                   const Parameters &) = 0;
+    /*!
+     * \brief set the solver parameters
+     * \param[in] params: parameters
+     */
+    [[deprecated]] virtual void setSolverParameters(const Parameters &) = 0;
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] t: time at the beginning of the time step

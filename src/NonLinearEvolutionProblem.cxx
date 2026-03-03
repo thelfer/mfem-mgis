@@ -116,9 +116,14 @@ namespace mfem_mgis {
     return this->pimpl->getUnknowns(ts);
   }  // end of getUnknownsAtEndOfTheTimeStep
 
+  bool NonLinearEvolutionProblem::setSolverParameters(
+      Context& ctx, const Parameters& params) noexcept {
+    return this->pimpl->setSolverParameters(ctx, params);
+  }  // end of setSolverParameters
+
   void NonLinearEvolutionProblem::setSolverParameters(
       const Parameters& params) {
-    return this->pimpl->setSolverParameters(params);
+    this->pimpl->setSolverParameters(params);
   }  // end of setSolverParameters
 
   bool NonLinearEvolutionProblem::setLinearSolver(

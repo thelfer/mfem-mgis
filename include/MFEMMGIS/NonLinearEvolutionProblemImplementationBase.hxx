@@ -108,7 +108,6 @@ namespace mfem_mgis {
         const TimeStepStage) noexcept override;
     [[nodiscard]] const mfem::Vector& getUnknowns(
         const TimeStepStage) const noexcept override;
-    void setSolverParameters(const Parameters&) override;
     [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
         const noexcept override;
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
@@ -147,6 +146,8 @@ namespace mfem_mgis {
     getBoundaryConditions() const noexcept override;
     void setup(const real, const real) override;
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
+    [[nodiscard]] bool setSolverParameters(Context&,
+                                           const Parameters&) noexcept override;
     [[nodiscard]] PredictionPolicy getPredictionPolicy()
         const noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(Context&,
@@ -174,6 +175,7 @@ namespace mfem_mgis {
     getBehaviourIntegrator(const size_type) const override;
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
     getBehaviourIntegrator(const size_type) override;
+    [[deprecated]] void setSolverParameters(const Parameters&) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
     //! \brief destructor

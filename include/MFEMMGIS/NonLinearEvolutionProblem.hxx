@@ -84,7 +84,8 @@ namespace mfem_mgis {
         const TimeStepStage) noexcept override;
     [[nodiscard]] const mfem::Vector &getUnknowns(
         const TimeStepStage) const noexcept override;
-    void setSolverParameters(const Parameters &) override;
+    [[nodiscard]] bool setSolverParameters(
+        Context &, const Parameters &) noexcept override;
     [[nodiscard]] bool setLinearSolver(Context &,
                                        LinearSolverHandler) noexcept override;
     [[nodiscard]] bool setLinearSolver(Context &,
@@ -191,6 +192,7 @@ namespace mfem_mgis {
         std::unique_ptr<AbstractBoundaryCondition>) override;
     [[deprecated]] void addPostProcessing(std::string_view,
                                           const Parameters &) override;
+    [[deprecated]] void setSolverParameters(const Parameters &) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
     //! \brief destructor

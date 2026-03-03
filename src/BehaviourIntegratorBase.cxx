@@ -43,7 +43,7 @@ namespace mfem_mgis {
   }  // end of throwInvalidBehaviourType
 
   const PartialQuadratureSpace&
-  BehaviourIntegratorBase::getPartialQuadratureSpace() const {
+  BehaviourIntegratorBase::getPartialQuadratureSpace() const noexcept {
     return this->getMaterial().getPartialQuadratureSpace();
   }  // end of getPartialQuadratureSpace
 
@@ -55,7 +55,17 @@ namespace mfem_mgis {
     this->time_increment = dt;
   }  // end of setTimeIncrement
 
-  bool BehaviourIntegratorBase::hasMaterial() const { return true; }
+  bool BehaviourIntegratorBase::hasMaterial() const noexcept { return true; }
+
+  OptionalReference<Material> BehaviourIntegratorBase::getMaterial(
+      Context&) noexcept {
+    return OptionalReference<Material>{this};
+  }  // end of getMaterial
+
+  OptionalReference<const Material> BehaviourIntegratorBase::getMaterial(
+      Context&) const noexcept {
+    return OptionalReference<const Material>{this};
+  }  // end of getMaterial
 
   Material& BehaviourIntegratorBase::getMaterial() {
     return *this;
