@@ -11,15 +11,33 @@
 namespace mfem_mgis {
 
   template <typename Container>
-  static Parameters& insert_implementation(Parameters& parameters,
+  static Parameters& insert_implementation(attributes::Throwing,
+                                           Parameters& parameters,
                                            const Container& src) {
     for (const auto& p : src) {
-      parameters.insert(p.first, p.second);
+      parameters.insert(throwing, p.first, p.second);
     }
     return parameters;
   }  // end of insert_implementation
 
-  void Parameters::raiseUnmatchedParameterType(std::string_view n) {
+  InvalidResult Parameters::reportMissingKey(Context& ctx,
+                                             std::string_view n) noexcept {
+    auto msg = std::string{"no parameter '"};
+    msg += n;
+    msg += "' declared";
+    return ctx.registerErrorMessage(msg);
+  }  // end of reportMissingKey
+
+  InvalidResult Parameters::reportUnmatchedParameterType(
+      Context& ctx, std::string_view n) noexcept {
+    auto msg = std::string{"the type of parameter '"};
+    msg += n;
+    msg += "' is not the expected one";
+    return ctx.registerErrorMessage(msg);
+  }
+
+  void Parameters::raiseUnmatchedParameterType(attributes::Throwing,
+                                               std::string_view n) {
     std::string msg("Parameters::raiseUnmatchedParameterType :");
     msg += "the type of parameter '";
     msg += n;
@@ -27,62 +45,90 @@ namespace mfem_mgis {
     raise(msg);
   }  // end of raiseUnmatchedParameterType
 
-  Parameters::Parameters() = default;
+  Parameters::Parameters() noexcept = default;
 
-  Parameters::Parameters(const Parameters&) = default;
+  Parameters::Parameters(const Parameters&) noexcept = default;
 
-  Parameters::Parameters(Parameters&&) = default;
+  Parameters::Parameters(Parameters&&) noexcept = default;
 
-  Parameters& Parameters::operator=(const Parameters&) = default;
+  Parameters& Parameters::operator=(const Parameters&) noexcept = default;
 
-  Parameters& Parameters::operator=(Parameters&&) = default;
+  Parameters& Parameters::operator=(Parameters&&) noexcept = default;
 
-  Parameters::const_iterator Parameters::begin() const {
+  Parameters::const_iterator Parameters::begin() const noexcept {
     return std::map<std::string, Parameter, std::less<>>::cbegin();
   }  // end of begin
 
-  Parameters::const_iterator Parameters::cbegin() const {
+  Parameters::const_iterator Parameters::cbegin() const noexcept {
     return std::map<std::string, Parameter, std::less<>>::cbegin();
   }  // end of cbegin
 
-  Parameters::const_iterator Parameters::end() const {
+  Parameters::const_iterator Parameters::end() const noexcept {
     return std::map<std::string, Parameter, std::less<>>::cend();
   }  // end of end
 
-  Parameters::const_iterator Parameters::cend() const {
+  Parameters::const_iterator Parameters::cend() const noexcept {
     return std::map<std::string, Parameter, std::less<>>::cend();
   }  // end of cend
 
-  bool Parameters::contains(std::string_view n) const {
+  bool Parameters::contains(std::string_view n) const noexcept {
     return this->count(n) != 0;
   }  // end of contains
 
-  Parameters& Parameters::insert(const Parameters& src) {
-    return insert_implementation(*this, src);
+  Parameters& Parameters::insert(attributes::Throwing, const Parameters& src) {
+    return insert_implementation(throwing, *this, src);
   }  // end of insert
 
-  Parameters& Parameters::insert(const std::map<std::string, Parameter>& src) {
-    return insert_implementation(*this, src);
+  Parameters& Parameters::insert(attributes::Throwing,
+                                 const std::map<std::string, Parameter>& src) {
+    return insert_implementation(throwing, *this, src);
   }  // end of insert
 
   Parameters& Parameters::insert(
+      attributes::Throwing,
       const std::initializer_list<std::map<std::string, Parameter>::value_type>&
           src) {
-    return insert_implementation(*this, src);
+    return insert_implementation(throwing, *this, src);
   }  // end of insert
 
-  Parameters& Parameters::insert(std::string_view n, const Parameter& p) {
+  Parameters& Parameters::insert(attributes::Throwing,
+                                 std::string_view n,
+                                 const Parameter& p) {
     if (this->count(n) != 0) {
       std::string msg("Parameters::insert: parameter '");
       msg += n;
       msg += "' has already been declared";
+      raise(msg);
     }
     std::map<std::string, Parameter, std::less<>>::value_type v{n, p};
     std::map<std::string, Parameter, std::less<>>::insert(std::move(v));
     return *this;
   }  // end of insert
 
-  const Parameter& Parameters::get(std::string_view n) const {
+  bool Parameters::insert(Context& ctx,
+                          std::string_view n,
+                          const Parameter& p) noexcept {
+    if (this->count(n) != 0) {
+      return ctx.registerErrorMessage("parameter '" + std::string{n} +
+                                      "' has already been declared");
+    }
+    std::map<std::string, Parameter, std::less<>>::value_type v{n, p};
+    std::map<std::string, Parameter, std::less<>>::insert(std::move(v));
+    return true;
+  }  // end of insert
+
+  OptionalReference<const Parameter> Parameters::get(
+      Context& ctx, std::string_view n) const noexcept {
+    const auto i = this->find(n);
+    if (i == this->end()) {
+      return ctx.registerErrorMessage("parameter '" + std::string{n} +
+                                      "' is not declared");
+    }
+    return OptionalReference<const Parameter>(&(i->second));
+  }  // end of get
+
+  const Parameter& Parameters::get(attributes::Throwing,
+                                   std::string_view n) const {
     const auto i = this->find(n);
     if (i == this->end()) {
       std::string msg("Parameters::get: parameter '");
@@ -95,11 +141,55 @@ namespace mfem_mgis {
 
   Parameters::~Parameters() = default;
 
-  bool contains(const Parameters& p, std::string_view n) {
+  bool contains(const Parameters& p, std::string_view n) noexcept {
     return p.contains(n);
   }  // end of contains
 
-  void checkParameters(const Parameters& parameters,
+  bool checkParameters(Context& ctx,
+                       const Parameters& parameters,
+                       const std::vector<std::string>& names) noexcept {
+    for (const auto& p : parameters) {
+      if (std::find(names.begin(), names.end(), p.first) == names.end()) {
+        auto msg = std::string("checkParameters: invalid parameter '" +
+                               p.first + "'.");
+        if (!names.empty()) {
+          msg += "\nAllowed parameters are:\n";
+          for (const auto& n : names) {
+            msg += "- " + n + '\n';
+          }
+        } else {
+          msg += "No parameters allowed";
+        }
+        return ctx.registerErrorMessage(msg);
+      }
+    }
+    return true;
+  }  // end of checkParameters
+
+  bool checkParameters(
+      Context& ctx,
+      const Parameters& parameters,
+      const std::map<std::string, std::string>& descriptions) noexcept {
+    for (const auto& p : parameters) {
+      if (!descriptions.contains(p.first)) {
+        auto msg = std::string("checkParameters: invalid parameter '" +
+                               p.first + "'.");
+        if (!descriptions.empty()) {
+          msg += "\nAllowed parameters are:\n";
+          for (const auto& [n, d] : descriptions) {
+            msg += "- " + n + ": " + d + '\n';
+          }
+        } else {
+          msg += "No parameters allowed";
+        }
+        return ctx.registerErrorMessage(msg);
+      }
+    }
+    return true;
+  }  // end of checkParameters
+
+  void checkParameters(attributes::Throwing,
+                       const Parameters& parameters,
                        const std::vector<std::string>& names) {
     for (const auto& p : parameters) {
       if (std::find(names.begin(), names.end(), p.first) == names.end()) {
@@ -118,12 +208,52 @@ namespace mfem_mgis {
     }
   }  // end of checkParameters
 
-  Parameters extract(const Parameters& parameters,
+  void checkParameters(attributes::Throwing,
+                       const Parameters& parameters,
+                       const std::map<std::string, std::string>& descriptions) {
+    for (const auto& p : parameters) {
+      if (!descriptions.contains(p.first)) {
+        auto msg = std::string("checkParameters: invalid parameter '" +
+                               p.first + "'.");
+        if (!descriptions.empty()) {
+          msg += "\nAllowed parameters are:\n";
+          for (const auto& [n, d] : descriptions) {
+            msg += "- " + n + ": " + d + '\n';
+          }
+        } else {
+          msg += "No parameters allowed";
+        }
+        raise(msg);
+      }
+    }
+  }  // end of checkParameters
+
+  Parameters extract(attributes::Throwing,
+                     const Parameters& parameters,
                      const std::vector<std::string>& names) {
     auto r = Parameters{};
     for (const auto& n : names) {
       if (contains(parameters, n)) {
-        r.insert(n, parameters.get(n));
+        r.insert(throwing, n, parameters.get(throwing, n));
+      }
+    }
+    return r;
+  }  // end of extract
+
+  std::optional<Parameters> extract(
+      Context& ctx,
+      const Parameters& parameters,
+      const std::vector<std::string>& names) noexcept {
+    auto r = Parameters{};
+    for (const auto& n : names) {
+      if (contains(parameters, n)) {
+        const auto ovalue = parameters.get(ctx, n);
+        if (isInvalid(ovalue)) {
+          return {};
+        }
+        if (!r.insert(ctx, n, *ovalue)) {
+          return {};
+        }
       }
     }
     return r;

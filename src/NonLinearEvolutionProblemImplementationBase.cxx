@@ -32,14 +32,16 @@ namespace mfem_mgis {
                 UseMultiMaterialNonLinearIntegrator};
   }  // end of getParametersList
 
-  MultiMaterialNonLinearIntegrator* buildMultiMaterialNonLinearIntegrator(
+  [[nodiscard]] static MultiMaterialNonLinearIntegrator*
+  buildMultiMaterialNonLinearIntegrator(
+      attributes::Throwing,
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
       const Parameters& p) {
     const auto* const n = NonLinearEvolutionProblemImplementationBase::
         UseMultiMaterialNonLinearIntegrator;
     if (contains(p, n)) {
-      if (!get<bool>(p, n)) {
+      if (!get<bool>(throwing, p, n)) {
         return nullptr;
       }
     }
@@ -54,7 +56,8 @@ namespace mfem_mgis {
       : fe_discretization(fed),
         u0(getTrueVSize(*fed)),
         u1(getTrueVSize(*fed)),
-        mgis_integrator(buildMultiMaterialNonLinearIntegrator(fed, h, p)),
+        mgis_integrator(
+            buildMultiMaterialNonLinearIntegrator(throwing, fed, h, p)),
         hypothesis(h) {
     this->u0 = real{0};
     this->u1 = real{0};
@@ -332,32 +335,26 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementationBase::setSolverParameters(
       Context& ctx, const Parameters& params) noexcept {
-    try {
 #ifdef MFEM_USE_PETSC
-      if (usePETSc()) {
-        mfem_mgis::setSolverParameters(*(this->petsc_solver), params);
-      } else {
-        mfem_mgis::setSolverParameters(*(this->solver), params);
-      }
-#else  /* MFEM_USE_PETSC */
-      mfem_mgis::setSolverParameters(*(this->solver), params);
-#endif /* MFEM_USE_PETSC */
-    } catch (...) {
-      return mgis::registerExceptionInErrorBacktrace(ctx);
+    if (usePETSc()) {
+      return mfem_mgis::setSolverParameters(ctx, *(this->petsc_solver), params);
     }
-    return true;
-  }  // end of setSolverParameters
+    return mfem_mgis::setSolverParameters(ctx, *(this->solver), params);
+#else  /* MFEM_USE_PETSC */
+    return mfem_mgis::setSolverParameters(ctx, *(this->solver), params);
+#endif /* MFEM_USE_PETSC */
+  }    // end of setSolverParameters
 
   void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
       const Parameters& params) {
 #ifdef MFEM_USE_PETSC
     if (usePETSc()) {
-      mfem_mgis::setSolverParameters(*(this->petsc_solver), params);
+      mfem_mgis::setSolverParameters(throwing, *(this->petsc_solver), params);
     } else {
-      mfem_mgis::setSolverParameters(*(this->solver), params);
+      mfem_mgis::setSolverParameters(throwing, *(this->solver), params);
     }
 #else  /* MFEM_USE_PETSC */
-    mfem_mgis::setSolverParameters(*(this->solver), params);
+    mfem_mgis::setSolverParameters(throwing, *(this->solver), params);
 #endif /* MFEM_USE_PETSC */
   }    // end of setSolverParameters
 

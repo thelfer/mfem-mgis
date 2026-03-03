@@ -21,17 +21,20 @@ namespace mfem_mgis {
       AbstractNonLinearEvolutionProblem::SolverMaximumNumberOfIterations =
           "MaximumNumberOfIterations";
 
-  size_type getMaterialIdentifier(const AbstractNonLinearEvolutionProblem &p,
+  size_type getMaterialIdentifier(attributes::Throwing,
+                                  const AbstractNonLinearEvolutionProblem &p,
                                   const Parameters &params) {
-    return p.getMaterialIdentifier(get(params, "Material"));
+    return p.getMaterialIdentifier(get(throwing, params, "Material"));
   }
 
-  size_type getBoundaryIdentifier(const AbstractNonLinearEvolutionProblem &p,
+  size_type getBoundaryIdentifier(attributes::Throwing,
+                                  const AbstractNonLinearEvolutionProblem &p,
                                   const Parameters &params) {
-    return p.getBoundaryIdentifier(get(params, "Boundary"));
+    return p.getBoundaryIdentifier(get(throwing, params, "Boundary"));
   }
 
   std::vector<size_type> getMaterialsIdentifiers(
+      attributes::Throwing,
       const AbstractNonLinearEvolutionProblem &p,
       const Parameters &params,
       const bool b) {
@@ -41,12 +44,12 @@ namespace mfem_mgis {
           "both `Material` and `Materials` parameters specified");
     }
     if (contains(params, "Material")) {
-      if (is<std::vector<Parameter>>(params, "Material")) {
+      if (is<std::vector<Parameter>>(throwing, params, "Material")) {
         raise("getMaterialsIdentifiers: invalid `Material` parameter");
       }
-      return p.getMaterialsIdentifiers(get(params, "Material"));
+      return p.getMaterialsIdentifiers(get(throwing, params, "Material"));
     } else if (contains(params, "Materials")) {
-      return p.getMaterialsIdentifiers(get(params, "Materials"));
+      return p.getMaterialsIdentifiers(get(throwing, params, "Materials"));
     }
     if (!b) {
       raise(
@@ -57,6 +60,7 @@ namespace mfem_mgis {
   }  // end of getMaterialsIdentifiers
 
   std::vector<size_type> getBoundariesIdentifiers(
+      attributes::Throwing,
       const AbstractNonLinearEvolutionProblem &p,
       const Parameters &params,
       const bool b) {
@@ -66,12 +70,12 @@ namespace mfem_mgis {
           "both `Boundary` and `Boundaries` parameters specified");
     }
     if (contains(params, "Boundary")) {
-      if (is<std::vector<Parameter>>(params, "Boundary")) {
+      if (is<std::vector<Parameter>>(throwing, params, "Boundary")) {
         raise("getBoundariesIdentifiers: invalid `Boundary` parameter");
       }
-      return p.getBoundariesIdentifiers(get(params, "Boundary"));
+      return p.getBoundariesIdentifiers(get(throwing, params, "Boundary"));
     } else if (contains(params, "Boundaries")) {
-      return p.getBoundariesIdentifiers(get(params, "Boundaries"));
+      return p.getBoundariesIdentifiers(get(throwing, params, "Boundaries"));
     }
     if (!b) {
       raise(

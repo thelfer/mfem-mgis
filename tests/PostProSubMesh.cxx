@@ -131,15 +131,19 @@ int main(int argc, char* argv[]) {
   constexpr int defaultMaxNumOfIt = 50000;  // MaximumNumberOfIterations
   auto solverParameters = mfem_mgis::Parameters{};
   solverParameters.insert(
+      mfem_mgis::throwing,
       mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}});
   solverParameters.insert(
+      mfem_mgis::throwing,
       mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
-  solverParameters.insert(mfem_mgis::Parameters{{"Tolerance", 1e-14}});
+  solverParameters.insert(mfem_mgis::throwing,
+                          mfem_mgis::Parameters{{"Tolerance", 1e-14}});
 
   auto options = mfem_mgis::Parameters{{"VerbosityLevel", p.verbosity}};
   auto preconditionner =
       mfem_mgis::Parameters{{"Name", "HypreDiagScale"}, {"Options", options}};
   solverParameters.insert(
+      mfem_mgis::throwing,
       mfem_mgis::Parameters{{"Preconditioner", preconditionner}});
 
   // solver HyprePCG

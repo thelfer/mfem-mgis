@@ -18,19 +18,19 @@ namespace mfem_mgis {
   MeanThermodynamicForces<parallel>::MeanThermodynamicForces(
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const Parameters &params) {
-    checkParameters(params, {"OutputFileName"});
+    checkParameters(throwing, params, {"OutputFileName"});
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
       MPI_Comm_rank(MPI_COMM_WORLD, &rank);
       if (rank == 0) {
-        this->openFile(p, get<std::string>(params, "OutputFileName"));
+        this->openFile(p, get<std::string>(throwing, params, "OutputFileName"));
       }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      this->openFile(p, get<std::string>(params, "OutputFileName"));
+      this->openFile(p, get<std::string>(throwing, params, "OutputFileName"));
     }
   }  // end of MeanThermodynamicForces
 

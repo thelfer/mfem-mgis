@@ -160,8 +160,9 @@ namespace mfem_mgis {
       UniformImposedPressureBoundaryCondition(
           AbstractNonLinearEvolutionProblem &p, const Parameters &params)
       : finiteElementDiscretization(p.getFiniteElementDiscretizationPointer()),
-        bids(getBoundariesIdentifiers(p, params, false)),
-        prfct(get<std::function<real(const real)>>(params, "LoadingEvolution")),
+        bids(getBoundariesIdentifiers(throwing, p, params, false)),
+        prfct(get<std::function<real(const real)>>(
+            throwing, params, "LoadingEvolution")),
         nfi(new UniformImposedPressureNonlinearFormIntegrator) {}
 
   UniformImposedPressureBoundaryCondition::

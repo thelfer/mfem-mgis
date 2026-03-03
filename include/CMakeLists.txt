@@ -60,6 +60,7 @@ mfem_mgis_header(MFEMMGIS BoundaryUtilities.ixx)
 mfem_mgis_header(MFEMMGIS L2Projection.hxx)
 mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.hxx)
 mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.ixx)
+mfem_mgis_header(MFEMMGIS Simulation.hxx)
 mfem_mgis_header(MFEMMGIS/Utilities Buffer.hxx)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)

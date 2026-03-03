@@ -36,7 +36,7 @@ namespace mfem_mgis {
   ParaviewExportResults<parallel>::ParaviewExportResults(
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const Parameters& params)
-      : exporter(get<std::string>(params, "OutputFileName")),
+      : exporter(get<std::string>(throwing, params, "OutputFileName")),
         result(&p.getFiniteElementSpace()),
         cycle(0) {
     CatchTimeSection("ParaviewExportResults::Constructor");
@@ -61,7 +61,7 @@ namespace mfem_mgis {
     if (contains_mat) { /** Materials and Sub mesh */
       /** "false" means that we double check if params include Material or
        * Materials */
-      auto materials_ids = getMaterialsIdentifiers(p, params, false);
+      auto materials_ids = getMaterialsIdentifiers(throwing, p, params, false);
       mfem::Array<int> mat_attributes;
 
       /** Create Submesh using the material identifiers */
@@ -90,7 +90,7 @@ namespace mfem_mgis {
       this->exporter.SetDataFormat(mfem::VTKFormat::BINARY);
 
       if (contains(params, "Verbosity")) {
-        if (get<int>(params, "Verbosity") >= 1) {
+        if (get<int>(throwing, params, "Verbosity") >= 1) {
           Profiler::Utils::Message(
               "Submesh information [for domain attributes]");
           print_mesh_information(this->submesh.get());
@@ -99,7 +99,8 @@ namespace mfem_mgis {
 
       if (contains(params, "OutputFieldName")) {
         this->exporter.RegisterField(
-            get<std::string>(params, "OutputFieldName"), this->result_sm.get());
+            get<std::string>(throwing, params, "OutputFieldName"),
+            this->result_sm.get());
       } else {
         this->exporter.RegisterField("u", this->result_sm.get());
       }
@@ -108,7 +109,7 @@ namespace mfem_mgis {
 
       /** "false" means that we double check if params include Material or
        * Materials */
-      auto bdrAttributes = getBoundariesIdentifiers(p, params, false);
+      auto bdrAttributes = getBoundariesIdentifiers(throwing, p, params, false);
 
       /** Get the list of boundary attributes */
       mfem::Array<int> bdr_attributes;
@@ -139,7 +140,7 @@ namespace mfem_mgis {
       this->exporter.SetDataFormat(mfem::VTKFormat::BINARY);
 
       if (contains(params, "Verbosity")) {
-        if (get<int>(params, "Verbosity") >= 1) {
+        if (get<int>(throwing, params, "Verbosity") >= 1) {
           Profiler::Utils::Message(
               "Submesh information [for boundary attributes]");
           print_mesh_information(this->submesh.get());
@@ -148,7 +149,8 @@ namespace mfem_mgis {
 
       if (contains(params, "OutputFieldName")) {
         this->exporter.RegisterField(
-            get<std::string>(params, "OutputFieldName"), this->result_sm.get());
+            get<std::string>(throwing, params, "OutputFieldName"),
+            this->result_sm.get());
       } else {
         this->exporter.RegisterField("u", this->result_sm.get());
       }
@@ -157,7 +159,8 @@ namespace mfem_mgis {
       exporter.SetMesh(&pmesh);
       if (contains(params, "OutputFieldName")) {
         this->exporter.RegisterField(
-            get<std::string>(params, "OutputFieldName"), &(this->result));
+            get<std::string>(throwing, params, "OutputFieldName"),
+            &(this->result));
       } else {
         this->exporter.RegisterField("u", &(this->result));
       }

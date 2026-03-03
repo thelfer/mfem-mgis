@@ -23,32 +23,68 @@ namespace mfem_mgis {
   }  // end of getIterativeSolverParametersList
 
   template <typename SolverType>
-  static void setSolverParametersImplementation(SolverType& s,
+  static void setSolverParametersImplementation(attributes::Throwing,
+                                                SolverType& s,
                                                 const Parameters& params) {
     using Problem = AbstractNonLinearEvolutionProblem;
-    checkParameters(params, getIterativeSolverParametersList());
+    checkParameters(throwing, params, getIterativeSolverParametersList());
     if (contains(params, Problem::SolverVerbosityLevel)) {
-      s.SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
+      s.SetPrintLevel(
+          get<int>(throwing, params, Problem::SolverVerbosityLevel));
     }
+    std::cerr << "toto\n";
     if (contains(params, Problem::SolverRelativeTolerance)) {
-      s.SetRelTol(get<double>(params, Problem::SolverRelativeTolerance));
+      s.SetRelTol(
+          get<double>(throwing, params, Problem::SolverRelativeTolerance));
     }
+    std::cerr << "tata\n";
     if (contains(params, Problem::SolverAbsoluteTolerance)) {
-      s.SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance));
+      s.SetAbsTol(
+          get<double>(throwing, params, Problem::SolverAbsoluteTolerance));
     }
+    std::cerr << "tutu\n";
     if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-      s.SetMaxIter(get<int>(params, Problem::SolverMaximumNumberOfIterations));
+      s.SetMaxIter(
+          get<int>(throwing, params, Problem::SolverMaximumNumberOfIterations));
     }
+    std::cerr << "titi\n";
   }  // end of setSolverParametersImplementation
 
-  void setSolverParameters(IterativeSolver& s, const Parameters& params) {
-    setSolverParametersImplementation(s, params);
+  bool setSolverParameters(Context& ctx,
+                           IterativeSolver& s,
+                           const Parameters& params) noexcept {
+    try {
+      setSolverParametersImplementation(throwing, s, params);
+    } catch (...) {
+      return mgis::registerExceptionInErrorBacktrace(ctx);
+    }
+    return true;
   }  // end of setSolverParameters
 
 #ifdef MFEM_USE_PETSC
-  void setSolverParameters(mfem::PetscNonlinearSolver& s,
+  bool setSolverParameters(Context& ctx,
+                           mfem::PetscNonlinearSolver& s,
+                           const Parameters& params) noexcept {
+    try {
+      setSolverParametersImplementation(throwing, s, params);
+    } catch (...) {
+      return mgis::registerExceptionInErrorBacktrace(ctx);
+    }
+    return true;
+  }    // end of setSolverParameters
+#endif /* MFEM_USE_PETSC */
+
+  void setSolverParameters(attributes::Throwing,
+                           IterativeSolver& s,
                            const Parameters& params) {
-    setSolverParametersImplementation(s, params);
+    setSolverParametersImplementation(throwing, s, params);
+  }  // end of setSolverParameters
+
+#ifdef MFEM_USE_PETSC
+  void setSolverParameters(attributes::Throwing,
+                           mfem::PetscNonlinearSolver& s,
+                           const Parameters& params) {
+    setSolverParametersImplementation(throwing, s, params);
   }    // end of setSolverParameters
 #endif /* MFEM_USE_PETSC */
 

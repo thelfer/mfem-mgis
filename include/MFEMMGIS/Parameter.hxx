@@ -34,11 +34,16 @@ namespace mfem_mgis {
   /*!
    *
    */
-  struct MFEM_MGIS_EXPORT Parameter : ParameterVariant {
+  struct MFEM_MGIS_EXPORT [[nodiscard]] Parameter : private ParameterVariant {
+    /*!
+     * \brief report that the type of a parameter is the expected one.
+     * \param[in, out] ctx: execution context
+     */
+    static InvalidResult reportUnmatchedParameterType(Context&) noexcept;
     /*!
      * \brief throw an exception if the parameter type is not the expected one.
      */
-    [[noreturn]] static void raiseUnmatchedParameterType();
+    [[noreturn]] static void raiseUnmatchedParameterType(attributes::Throwing);
     // inheriting constructors
     using ParameterVariant::ParameterVariant;
     // \brief default constructor
@@ -73,6 +78,9 @@ namespace mfem_mgis {
      * \param[in] src: source
      */
     Parameter& operator=(std::string_view);
+    //
+    ParameterVariant& as_std_variant() noexcept;
+    const ParameterVariant& as_std_variant() const noexcept;
     //! \brief destructor
     ~Parameter();
   };  // end of struct Parameter
@@ -82,92 +90,196 @@ namespace mfem_mgis {
   using GetResultType = std::conditional_t<std::is_same_v<ResultType, double>,
                                            ResultType,
                                            const ResultType&>;
+  template <typename ResultType>
+  using OptionalGetResultType =
+      std::conditional_t<std::is_same_v<ResultType, double>,
+                         std::optional<ResultType>,
+                         OptionalReference<const ResultType>>;
 
   /*!
    * \return true if the given parameter has the given type
    * \param[in] p: parameters
    */
   template <typename ResultType>
-  bool is(const Parameter&);
+  [[nodiscard]] bool is(const Parameter&) noexcept;
 
   //! \brief partial specialisation of the `is` function for double
   template <>
-  bool is<double>(const Parameter&);
-
+  [[nodiscard]] bool is<double>(const Parameter&) noexcept;
   /*!
    * \return value of the parameter
    * \tparam ResultType: expected type of the parameter
+   *
+   * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \throws if the parameter does not have the good type.
    */
   template <typename ResultType>
-  GetResultType<ResultType> get(const Parameter&);
+  [[nodiscard]] OptionalGetResultType<ResultType> get(
+      Context&, const Parameter&) noexcept;
 
   //! \brief partial specialisation of the `get` function for double
   template <>
-  GetResultType<double> get<double>(const Parameter&);
+  [[nodiscard]] OptionalGetResultType<double> get<double>(
+      Context&, const Parameter&) noexcept;
+  /*!
+   * \return value of the parameter
+   * \tparam ResultType: expected type of the parameter
+   *
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * raise an exception
+   * \param[in] p: parameters
+   * \throws if the parameter does not have the good type.
+   */
+  template <typename ResultType>
+  [[nodiscard]] GetResultType<ResultType> get(attributes::Throwing,
+                                              const Parameter&);
+
+  //! \brief partial specialisation of the `get` function for double
+  template <>
+  [[nodiscard]] GetResultType<double> get<double>(attributes::Throwing,
+                                                  const Parameter&);
 
   /*!
    * \return true if the given parameter exists
+   *
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * raise an exception
    * \param[in] p: parameters
    * \param[in] n: name
    */
-  MFEM_MGIS_EXPORT bool contains(const Parameters&, std::string_view);
+  MFEM_MGIS_EXPORT [[nodiscard]] bool contains(const Parameters&,
+                                               std::string_view) noexcept;
 
   /*!
    * \return true if the given parameter has the given type
+   *
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * raise an exception
    * \param[in] p: parameters
    * \param[in] n: name
    * \throws if the parameter does not exists
    */
   template <typename ResultType>
-  bool is(const Parameters&, std::string_view);
-
+  [[nodiscard]] bool is(attributes::Throwing,
+                        const Parameters&,
+                        std::string_view);
   /*!
    * \return value of the parameter
    * \tparam ResultType: expected type of the parameter
+   *
+   * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \param[in] n: name
    * \throws if the parameter does not exists or does not have the good type.
    */
   template <typename ResultType>
-  GetResultType<ResultType> get(const Parameters&, std::string_view);
+  [[nodiscard]] OptionalGetResultType<ResultType> get(
+      Context&, const Parameters&, std::string_view) noexcept;
   /*!
    * \return value of the parameter
+   *
+   * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \param[in] n: name
    * \throws if the parameter does not exists
    */
-  MFEM_MGIS_EXPORT Parameter get(const Parameters&, std::string_view);
-
+  MFEM_MGIS_EXPORT [[nodiscard]] OptionalReference<const Parameter> get(
+      Context&, const Parameters&, std::string_view) noexcept;
   /*!
    * \return value of the parameter
+   *
+   * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \param[in] n: name
    * \throws if the parameter does not exists or does not have the good type.
    */
   template <>
-  GetResultType<double> get<double>(const Parameters&, std::string_view);
-
+  [[nodiscard]] OptionalGetResultType<double> get<double>(
+      Context&, const Parameters&, std::string_view) noexcept;
   /*!
    * \return value of the parameter if present, a default value otherwise
    * \tparam ResultType: expected type of the parameter
+   *
+   * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \param[in] n: name
    * \param[in] v: default value
    * \throws if the parameter exists but does not have the good type.
    */
   template <typename ResultType>
-  ResultType get_if(const Parameters&, std::string_view, const ResultType&);
+  [[nodiscard]] std::optional<ResultType> get_if(Context&,
+                                                 const Parameters&,
+                                                 std::string_view,
+                                                 const ResultType&) noexcept;
+  /*!
+   * \return value of the parameter
+   * \tparam ResultType: expected type of the parameter
+   *
+   * \param[in] throwing: dummy attribute to indicate
+   * that this function may raise an exception
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \throws if the parameter does not exists or does
+   * not have the good type.
+   */
+  template <typename ResultType>
+  [[nodiscard]] GetResultType<ResultType> get(attributes::Throwing,
+                                              const Parameters&,
+                                              std::string_view);
+  /*!
+   * \return value of the parameter
+   *
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * raise an exception
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \throws if the parameter does not exists
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] Parameter get(attributes::Throwing,
+                                               const Parameters&,
+                                               std::string_view);
+
+  /*!
+   * \return value of the parameter
+   *
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * raise an exception
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \throws if the parameter does not exists or does not have the good type.
+   */
+  template <>
+  [[nodiscard]] GetResultType<double> get<double>(attributes::Throwing,
+                                                  const Parameters&,
+                                                  std::string_view);
+
   /*!
    * \return value of the parameter if present, a default value otherwise
+   * \tparam ResultType: expected type of the parameter
+   *
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * raise an exception
+   * \param[in] p: parameters
+   * \param[in] n: name
+   * \param[in] v: default value
+   * \throws if the parameter exists but does not have the good type.
+   */
+  template <typename ResultType>
+  [[nodiscard]] ResultType get_if(attributes::Throwing,
+                                  const Parameters&,
+                                  std::string_view,
+                                  const ResultType&);
+  /*!
+   * \return value of the parameter if present, a default value otherwise
+   *
    * \param[in] p: parameters
    * \param[in] n: name
    * \param[in] v: default value
    */
-  MFEM_MGIS_EXPORT Parameter get_if(const Parameters&,
-                                    std::string_view,
-                                    const Parameter&);
+  MFEM_MGIS_EXPORT [[nodiscard]] Parameter get_if(const Parameters&,
+                                                  std::string_view,
+                                                  const Parameter&) noexcept;
 
 }  // end of namespace mfem_mgis
 

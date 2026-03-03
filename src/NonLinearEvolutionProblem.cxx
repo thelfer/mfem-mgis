@@ -32,10 +32,10 @@ namespace mfem_mgis {
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(const Parameters& p) {
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
-    const auto h = mgis::behaviour::fromString(
-        get<std::string>(p, NonLinearEvolutionProblem::HypothesisParameter));
+    const auto h = mgis::behaviour::fromString(get<std::string>(
+        throwing, p, NonLinearEvolutionProblem::HypothesisParameter));
     const auto fed = std::make_shared<FiniteElementDiscretization>(
-        extract(p, FiniteElementDiscretization::getParametersList()));
+        extract(throwing, p, FiniteElementDiscretization::getParametersList()));
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
