@@ -60,10 +60,21 @@ namespace mfem_mgis {
       return {};
     }
     if (*overbosity > 1) {
-      mfem_mgis::getOutputStream() << "L2Error: " << error << "\n";
+      ctx.log() << "L2Error: " << error << "\n";
     }
-
     return error < *ocriterion;
+  }  // end of compareToAnalyticalSolution
+
+  bool compareToAnalyticalSolution(
+      NonLinearEvolutionProblem &p,
+      std::function<void(mfem::Vector &, const mfem::Vector &)> f,
+      const Parameters &params) noexcept {
+    auto ctx = Context{};
+    const auto osuccess = compareToAnalyticalSolution(ctx, p, f, params);
+    if (isInvalid(osuccess)) {
+      raise(ctx.getErrorMessage());
+    }
+    return *osuccess;
   }  // end of compareToAnalyticalSolution
 
 }  // end of namespace mfem_mgis

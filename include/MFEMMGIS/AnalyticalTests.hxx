@@ -40,6 +40,18 @@ namespace mfem_mgis {
       std::function<void(mfem::Vector &, const mfem::Vector &)>,
       const Parameters &) noexcept;
 
+  /*!
+   * \brief Compare the results to analytical solution with a specified
+   * threshold using L2 norm.
+   * \param[in] p: considered problem
+   * \param[in] f: reference function to compare with
+   * \param[in] params: set of parameters
+   */
+  [[deprecated]] MFEM_MGIS_EXPORT bool compareToAnalyticalSolution(
+      NonLinearEvolutionProblem &,
+      std::function<void(mfem::Vector &, const mfem::Vector &)>,
+      const Parameters &) noexcept;
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_ANALYTICALTESTS_HXX */

@@ -127,6 +127,33 @@ namespace mfem_mgis {
     //
     using std::map<std::string, Parameter, std::less<>>::size;
     using std::map<std::string, Parameter, std::less<>>::empty;
+    /*!
+     * \brief insert parameters
+     * \param[in] src: parameters
+     * \throws if one of the parameters already exists
+     */
+    [[deprecated]] Parameters& insert(
+        const std::initializer_list<
+            std::map<std::string, Parameter, std::less<>>::value_type>&);
+    /*!
+     * \brief insert parameters
+     * \param[in] src: parameters
+     * \throws if one of the parameters already exists
+     */
+    [[deprecated]] Parameters& insert(const Parameters&);
+    /*!
+     * \brief insert parameters
+     * \param[in] src: parameters
+     * \throws if one of the parameters already exists
+     */
+    [[deprecated]] Parameters& insert(const std::map<std::string, Parameter>&);
+    /*!
+     * \brief insert a parameter using the given name
+     * \param[in] n: name of the parameter
+     * \param[in] p: parameter
+     * \throws if the given parameter already exists
+     */
+    [[deprecated]] Parameters& insert(std::string_view, const Parameter&);
     //! \brief destructor
     ~Parameters();
   };  // end of struct Parameters

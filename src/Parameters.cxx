@@ -117,6 +117,32 @@ namespace mfem_mgis {
     return true;
   }  // end of insert
 
+  Parameters& Parameters::insert(const Parameters& src) {
+    return insert_implementation(throwing, *this, src);
+  }  // end of insert
+
+  Parameters& Parameters::insert(const std::map<std::string, Parameter>& src) {
+    return insert_implementation(throwing, *this, src);
+  }  // end of insert
+
+  Parameters& Parameters::insert(
+      const std::initializer_list<std::map<std::string, Parameter>::value_type>&
+          src) {
+    return insert_implementation(throwing, *this, src);
+  }  // end of insert
+
+  Parameters& Parameters::insert(std::string_view n, const Parameter& p) {
+    if (this->count(n) != 0) {
+      std::string msg("Parameters::insert: parameter '");
+      msg += n;
+      msg += "' has already been declared";
+      raise(msg);
+    }
+    std::map<std::string, Parameter, std::less<>>::value_type v{n, p};
+    std::map<std::string, Parameter, std::less<>>::insert(std::move(v));
+    return *this;
+  }  // end of insert
+
   OptionalReference<const Parameter> Parameters::get(
       Context& ctx, std::string_view n) const noexcept {
     const auto i = this->find(n);
