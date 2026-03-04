@@ -27,6 +27,7 @@ list(APPEND MFEMMGIS_SOURCES
   ParaviewExportIntegrationPointResultsAtNodes.cxx
   ComputeResultantForceOnBoundary.cxx
   AbstractNonLinearEvolutionProblem.cxx
+  NonLinearResolutionOutput.cxx
   NonLinearEvolutionProblemImplementationBase.cxx
   NonLinearEvolutionProblemImplementation.cxx
   NonLinearEvolutionProblem.cxx
@@ -68,7 +69,9 @@ list(APPEND MFEMMGIS_SOURCES
   DefaultConvergenceFailureHandler.cxx
   AbstractTimeIncrementComputer.cxx
   TimeIncrementComputerBase.cxx
-  DefaultTimeIncrementComputer.cxx)
+  DefaultTimeIncrementComputer.cxx
+  AbstractSimulationMonitor.cxx
+)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES

@@ -54,68 +54,68 @@ A simulation also:
 Main parameters
 ===============
 
-- :param:`times`: list of times defining the temporal sequences.
-- :param:`allowSubStepping`: boolean stating if sub stepping in case of
+- :param:`Times`: list of times defining the temporal sequences.
+- :param:`AllowSubStepping`: boolean stating if sub stepping in case of
   convergence failure is allowed. The default value of this parameter is
   `true`.
-- :param:`independentTemporalSequences`: boolean stating if the temporal
+- :param:`IndependentTemporalSequences`: boolean stating if the temporal
   sequences are independent. Currently, this boolean only choose if the
   last time increment of the previous temporal sequence is taken into
   account to bound the first time increment of the current temporal
   sequence (bounding occurs if this boolean is false. The default value
   of this parameter is `true`.
-- :param:`minimalTimeIncrement`: minimal time increment. If the time
+- :param:`MinimalTimeIncrement`: minimal time increment. If the time
   increment decreases below this value, the simulation is stopped.
-- :param:`maximalTimeIncrement`: maximal time increment. The time step
+- :param:`MaximalTimeIncrement`: maximal time increment. The time step
   can't be greater than this value: the time is set to this value if its
   computation leads to a greater value.
-- :param:`maximumNumberOfFailuresPerTemporalSequence`: maximum number of
+- :param:`MaximumNumberOfFailuresPerTemporalSequence`: maximum number of
   failures or time step rejections allowed within each temporal sequence.
-- :param:`timeIncrementComputer`: strategy used to determine the next time step.
-- :param:`timeStepValidator`:  strategy used to determine the next time step.
-- :param:`convergenceFailureHandler`: strategy used to determine how a
+- :param:`TimeIncrementComputer`: strategy used to determine the next time step.
+- :param:`TimeStepValidator`:  strategy used to determine the next time step.
+- :param:`ConvergenceFailureHandler`: strategy used to determine how a
   divergence of the resolution shall be handled.
-- :param:`limitTimeIncrementIncrease`: boolean stating if the current
+- :param:`LimitTimeIncrementIncrease`: boolean stating if the current
   estimate of the next time step can be greater than the previous time
   increment multiplied by the
-  :param:`maximalTimeIncrementRelativeIncrease` parameter.
-- :param:`maximalTimeIncrementRelativeIncrease`: coefficient used to
+  :param:`MaximalTimeIncrementRelativeIncrease` parameter.
+- :param:`MaximalTimeIncrementRelativeIncrease`: coefficient used to
   determined the maximum ratio between the next time step and the
   previous one. The default value of this parameter is `1.1`, allowing a
   :math:`10\%` increase of the time step compared to the previous one.
-- :param:`limitTimeIncrementDecrease`: boolean stating if the current
+- :param:`LimitTimeIncrementDecrease`: boolean stating if the current
   estimate of the next time step can be lower than the previous time
   increment multiplied by the
-  :param`:`maximalTimeIncrementRelativeDecrease` parameter.
-- :param:`maximalTimeIncrementRelativeDecrease`: coefficient used to
+  :param`:`MaximalTimeIncrementRelativeDecrease` parameter.
+- :param:`MaximalTimeIncrementRelativeDecrease`: coefficient used to
   determined the minimum ratio between the next time step and the
   previous one. The default value of this parameter is `0.2`, allowing
   the next time step to be 5 times smaller than the previous one.
-- :param:`balanceTimeIncrement`: boolean stating if time increments
+- :param:`BalanceTimeIncrement`: boolean stating if time increments
   shall be balanced to avoid small time increments at the end of the
   temporal sequence.
-- :param:`timeIncrementBalancer`: strategy used to balance the time
+- :param:`TimeIncrementBalancer`: strategy used to balance the time
   increments to avoid small time increments at the end of the temporal
   sequence.
-- :param:`maximumNumberOfTimeSteps`: maximum number of time steps
+- :param:`MaximumNumberOfTimeSteps`: maximum number of time steps
   allowed per call to the `run` method.
 
   See Section :ref:`simulation_ending` for details.
-- :param:`numberOfTimeStepsBetweenPostProcessings`: the number of time
+- :param:`NumberOfTimeStepsBetweenPostProcessings`: the number of time
   steps between two post-processing times marked as *explicitly
   requested by the user*.
   
-  Note that the parameter :param:`numberOfTimeStepsBetweenPostProcessings`
+  Note that the parameter :param:`NumberOfTimeStepsBetweenPostProcessings`
   has no effect if it is greater than the
-  :param:`maximumNumberOfTimeSteps` parameter.
+  :param:`MaximumNumberOfTimeSteps` parameter.
 
   See Section :ref:`simulation_post_processings` for details.
-- :param:`timeBetweenPostProcessings`: time between two post-processing
+- :param:`TimeBetweenPostProcessings`: time between two post-processing
   times marked as *explicitly requested by the user*.
 
   See Section :ref:`simulation_post_processings` for details.
 
-- :param:`monitors`: list of simulation monitors.
+- :param:`Monitors`: list of simulation monitors.
 
 Time steps management
 =====================
@@ -139,25 +139,25 @@ The next time increment is defined as follows:
   :math:`\Delta\, t_{2}`, :math:`t_{e}-t` and :math:`\Delta\,
   t_{\textrm{max}}` if the maximal time increment :math:`\Delta\,
   t_{\textrm{max}}` has been defined (see the
-  :param:`maximalTimeIncrement`).
+  :param:`MaximalTimeIncrement`).
 - if :math:`\Delta\, t_{3}` is greater :math:`\Delta\,t_{(p)}` and if
-  the :param:`limitTimeIncrementIncrease` parameter is `true`,
+  the :param:`LimitTimeIncrementIncrease` parameter is `true`,
   :math:`\Delta\, t_{3}` is limited by
   :math:`\alpha_{\textrm{i}}\,\Delta\,t_{(p)}` where
   :math:`\alpha_{\textrm{i}}` is the value of the
-  :param:`maximalTimeIncrementRelativeIncrease` parameter.
+  :param:`MaximalTimeIncrementRelativeIncrease` parameter.
 - if :math:`\Delta\, t_{3}` is lower :math:`\Delta\,t_{(p)}` and if the
-  :param:`limitTimeIncrementDecrease` parameter is `true`,
+  :param:`LimitTimeIncrementDecrease` parameter is `true`,
   :math:`\Delta\, t_{3}` is limited by
   :math:`\alpha_{\textrm{d}}\,\Delta\,t_{(p)}` where
   :math:`\alpha_{\textrm{i}}` is the value of the
-  :param:`maximalTimeIncrementRelativeDecrease` parameter.
+  :param:`MaximalTimeIncrementRelativeDecrease` parameter.
 - if :math:`\Delta\, t_{3}` is lower than :math:`\Delta\,
   t_{\textrm{min}}`, the simulation is stopped.
 
 The time increment :math:`\Delta\, t_{3}` can be balanced to avoid the
 small time steps at the end of the time step (see the
-:param:`balanceTimeIncrement` and :param:`timeIncrementBalancer`
+:param:`BalanceTimeIncrement` and :param:`TimeIncrementBalancer`
 parameters).
 
 Determining the next time increment in case of convergence failure
@@ -174,7 +174,7 @@ The next time increment is computed as follows:
    \Delta\,t  = \max(\Delta\,t_{e}, \alpha_{\textrm{i}}\, \Delta\,t_{c});
 
 where :math:`\alpha_{\textrm{i}}` is the value of the
-:param:`maximalTimeIncrementRelativeIncrease` parameter and
+:param:`MaximalTimeIncrementRelativeIncrease` parameter and
 :math:`\Delta\,t_{c}` the current time increment (corresponding to the
 time step which lead to a failure).
 
@@ -194,7 +194,7 @@ The next time increment is computed as follows:
    \Delta\,t  = \max(\Delta\,t_{e}, \alpha_{\textrm{i}}\, \Delta\,t_{c});
 
 where :math:`\alpha_{\textrm{i}}` is the value of the
-:param:`maximalTimeIncrementRelativeIncrease` parameter and
+:param:`MaximalTimeIncrementRelativeIncrease` parameter and
 :math:`\Delta\,t_{c}` the current time increment (corresponding to the
 rejected time step).
 
@@ -242,10 +242,9 @@ memory, disk usage or computations, such as the :cxx:`VTKExport`
 post-processing.
 
 By convention, every post-processing shall expose a parameter named
-boolean :param:`allTimeSteps` which allows to select if the
+boolean :param:`AllTimeSteps` which allows to select if the
 post-processing must be executed at the end of each time step or only at
-at times
-*explicitly requested by the user*.
+at times *explicitly requested by the user*.
 
 The difference between lightweight and heavy post-processings is only
 the default value of this parameter (:cxx:`true` for lightweight
@@ -258,10 +257,10 @@ The end of each temporal sequence is always a post-processing times.
 
 Two parameters allows to select additional post-processing times:
 
-- :param:`numberOfTimeStepsBetweenPostProcessings` the number of time
+- :param:`NumberOfTimeStepsBetweenPostProcessings` the number of time
   steps between two post-processing times marked as *explicitly
   requested by the user*.
-- :param:`timeBetweenPostProcessings` between two post-processings
+- :param:`TimeBetweenPostProcessings` between two post-processings
   marked as *explicitly requested by the user*.
 
 The criteria (to mark a post-processing time as *explicitly requested by
@@ -270,16 +269,16 @@ counters which are reset at each call to the :cxx:`run` method.
 
 Note also that those criteria are taken evaluated independently, i.e. if
 the criterion associated with
-:param:`numberOfTimeStepsBetweenPostProcessings` is satisfied, it does
+:param:`NumberOfTimeStepsBetweenPostProcessings` is satisfied, it does
 not reset the internal timer associated with the criterion associated
-with the :param:`timeBetweenPostProcessings`.
+with the :param:`TimeBetweenPostProcessings`.
 
 
 Note that:
 
 - each end of a temporal sequence is always flaged as *explicitly
   requested by the user*, independently of the
-  :param:`numberOfTimeStepsBetweenPostProcessings` parameter,
+  :param:`NumberOfTimeStepsBetweenPostProcessings` parameter,
 
 Appendix
 ========
@@ -305,10 +304,10 @@ steps will be:
    time increment balancer compares `r` to a value
    :math:`r_{\textrm{min}}` whose default value is :math:`5\,10^{-2}` and
    which can be modified by a parameter named named
-   :param:`minimalRelativeRemainder` .
+   :param:`MinimalRelativeRemainder` .
 2. :math:`q+1` otherwise. However, this may lead to a final time step
    that can be much smaller than the other. To avoid this, :math:`r` is
-   compared to a parameter named :param:`maximalRelativeRemainder` whose
+   compared to a parameter named :param:`MaximalRelativeRemainder` whose
    default value is :math:`0.8`.
 
 The default time increment balancer thus selects the time step as follows:

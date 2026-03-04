@@ -25,6 +25,10 @@ namespace mfem_mgis {
     this->operator=(ExitStatus(s));
   }
 
+  inline void ExitStatus::update(const bool s) noexcept {
+    this->operator=(ExitStatus(s));
+  }
+
   inline bool ExitStatus::shallContinue() const noexcept {
     return (this->status == ExitStatus::success) ||
            (this->status == ExitStatus::unreliableResults);

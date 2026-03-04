@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include "MFEMMGIS/MPI.hxx"
+#include "MFEMMGIS/AbstractSimulationMonitor.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/DefaultTimeStepValidator.hxx"
 #include "MFEMMGIS/DefaultTimeIncrementComputer.hxx"
@@ -195,7 +196,7 @@ namespace mfem_mgis {
       attributes::Throwing, const Parameters &parameters) {
     auto r = std::vector<real>{};
     const auto times =
-        get<std::vector<Parameter>>(throwing, parameters, "times");
+        get<std::vector<Parameter>>(throwing, parameters, "Times");
     r.reserve(times.size());
     for (const auto &v : times) {
       r.push_back(get<real>(throwing, v));
@@ -207,7 +208,7 @@ namespace mfem_mgis {
                          const Parameters &parameters)
       : nonlinearEvolutionProblem(&p),
         timesDescription(::mfem_mgis::getTimes(throwing, parameters)),
-        keepOutputs(get_if(throwing, parameters, "keepOutputs", false)) {
+        keepOutputs(get_if(throwing, parameters, "KeepOutputs", false)) {
     this->treatParameters(throwing, parameters);
     this->completeInitialization();
   }  // end of Simulation
@@ -230,8 +231,8 @@ namespace mfem_mgis {
 
   // Simulation::Simulation(PhysicalSystem &ps, const Parameters &parameters)
   //     : physicalSystem(ps)
-  //     , timesDescription(get<std::vector<real>>(parameters, "times"))
-  //     , keepOutputs(get_if(parameters, "keepOutputs", false))
+  //     , timesDescription(get<std::vector<real>>(parameters, "Times"))
+  //     , keepOutputs(get_if(parameters, "KeepOutputs", false))
   // {
   //   this->treatParameters(attributes::throwing, params);
   //   this->completeInitialization();
@@ -256,21 +257,21 @@ namespace mfem_mgis {
     checkParameters(throwing, parameters,
                     Simulation::getParametersDescription());
     this->allowSubStepping =
-        get_if<bool>(throwing, parameters, "allowSubStepping", true);
+        get_if<bool>(throwing, parameters, "AllowSubStepping", true);
     this->independentTemporalSequences = get_if<bool>(
-        throwing, parameters, "independentTemporalSequences", true);
-    if (contains(parameters, "minimalTimeIncrement")) {
+        throwing, parameters, "IndependentTemporalSequences", true);
+    if (contains(parameters, "MinimalTimeIncrement")) {
       this->minimalTimeIncrement =
-          get<real>(throwing, parameters, "minimalTimeIncrement");
+          get<real>(throwing, parameters, "MinimalTimeIncrement");
       if ((*(this->minimalTimeIncrement) < 0) ||
           (std::fpclassify(*(this->minimalTimeIncrement)) == FP_ZERO)) {
         raise("null or negative minimal time increment (" +
               std::to_string(*(this->minimalTimeIncrement)) + ")");
       }
     }
-    if (contains(parameters, "maximalTimeIncrement")) {
+    if (contains(parameters, "MaximalTimeIncrement")) {
       this->maximalTimeIncrement =
-          get<real>(throwing, parameters, "maximalTimeIncrement");
+          get<real>(throwing, parameters, "MaximalTimeIncrement");
       if ((*(this->maximalTimeIncrement) < 0) ||
           (std::fpclassify(*(this->maximalTimeIncrement)) == FP_ZERO)) {
         raise("negative maximal time increment (" +
@@ -301,9 +302,9 @@ namespace mfem_mgis {
         ++p_ets;
       }
     }
-    if (contains(parameters, "maximumNumberOfFailuresPerTemporalSequence")) {
+    if (contains(parameters, "MaximumNumberOfFailuresPerTemporalSequence")) {
       this->maximumNumberOfFailuresPerTemporalSequence = get<size_type>(
-          throwing, parameters, "maximumNumberOfFailuresPerTemporalSequence");
+          throwing, parameters, "MaximumNumberOfFailuresPerTemporalSequence");
       if (this->maximumNumberOfFailuresPerTemporalSequence < 1) {
         raise("invalid number of failures per temporal sequence (" +
               std::to_string(this->maximumNumberOfFailuresPerTemporalSequence) +
@@ -311,16 +312,16 @@ namespace mfem_mgis {
       }
     }
     this->limitTimeIncrementIncrease =
-        get_if<bool>(throwing, parameters, "limitTimeIncrementIncrease", true);
-    if (contains(parameters, "maximalTimeIncrementRelativeIncrease")) {
+        get_if<bool>(throwing, parameters, "LimitTimeIncrementIncrease", true);
+    if (contains(parameters, "MaximalTimeIncrementRelativeIncrease")) {
       if (!this->limitTimeIncrementIncrease) {
         raise(
-            "defining the 'maximalTimeIncrementRelativeIncrease' parameter is "
-            "meaningless if the 'limitTimeIncrementIncrease' "
+            "defining the 'MaximalTimeIncrementRelativeIncrease' parameter is "
+            "meaningless if the 'LimitTimeIncrementIncrease' "
             "parameter is set to false");
       }
       this->maximalTimeIncrementRelativeIncrease = get<real>(
-          throwing, parameters, "maximalTimeIncrementRelativeIncrease");
+          throwing, parameters, "MaximalTimeIncrementRelativeIncrease");
       if (this->maximalTimeIncrementRelativeIncrease < 1) {
         raise(
             "the 'maximalTimeIncrementRelativeIncrease' parameter must be "
@@ -328,27 +329,27 @@ namespace mfem_mgis {
       }
     }
     this->limitTimeIncrementDecrease =
-        get_if<bool>(throwing, parameters, "limitTimeIncrementDecrease", true);
-    if (contains(parameters, "maximalTimeIncrementRelativeDecrease")) {
+        get_if<bool>(throwing, parameters, "LimitTimeIncrementDecrease", true);
+    if (contains(parameters, "MaximalTimeIncrementRelativeDecrease")) {
       if (!this->limitTimeIncrementDecrease) {
         raise(
-            "defining the 'maximalTimeIncrementRelativeDecrease' parameter is "
-            "meaningless if the 'limitTimeIncrementDecrease' "
+            "defining the 'MaximalTimeIncrementRelativeDecrease' parameter is "
+            "meaningless if the 'LimitTimeIncrementDecrease' "
             "parameter is set to false");
       }
       this->maximalTimeIncrementRelativeDecrease = get<real>(
-          throwing, parameters, "maximalTimeIncrementRelativeDecrease");
+          throwing, parameters, "MaximalTimeIncrementRelativeDecrease");
       if (this->maximalTimeIncrementRelativeDecrease > 1) {
         raise(
             "the 'maximalTimeIncrementRelativeDecrease' parameter must be "
             "lower than 1");
       }
     }
-    if (contains(parameters, "balanceTimeIncrement")) {
+    if (contains(parameters, "BalanceTimeIncrement")) {
       this->balanceTimeIncrements =
-          get<bool>(throwing, parameters, "balanceTimeIncrement");
+          get<bool>(throwing, parameters, "BalanceTimeIncrement");
     }
-    if (contains(parameters, "timeIncrementBalancer")) {
+    if (contains(parameters, "TimeIncrementBalancer")) {
       if (!this->balanceTimeIncrements) {
         raise(
             "specifying a time increment balancer is meaningless if time "
@@ -356,24 +357,24 @@ namespace mfem_mgis {
       }
       const auto [n, tbparams] = extractFactoryArgument(
           throwing,
-          get<Parameters>(throwing, parameters, "timeIncrementBalancer"));
+          get<Parameters>(throwing, parameters, "TimeIncrementBalancer"));
       if (n != "Default") {
         raise("unsupported time increment balancer '" + n + "'");
       }
       auto validParameters = std::map<std::string, std::string>{
-          {"minimalRelativeRemainder",
+          {"MinimalRelativeRemainder",
            "value used to check if the rest of the time sequence is exactly "
            "the product of the proposed time step by an integer"},
-          {"maximalRelativeRemainder",
+          {"MaximalRelativeRemainder",
            "value used to decide if it is worth to balance the time steps"}};
       checkParameters(throwing, tbparams, validParameters);
-      if (contains(tbparams, "minimalRelativeRemainder")) {
+      if (contains(tbparams, "MinimalRelativeRemainder")) {
         this->minimalRelativeRemainder =
-            get<real>(throwing, tbparams, "minimalRelativeRemainder");
+            get<real>(throwing, tbparams, "MinimalRelativeRemainder");
       }
-      if (contains(tbparams, "maximalRelativeRemainder")) {
+      if (contains(tbparams, "MaximalRelativeRemainder")) {
         this->maximalRelativeRemainder =
-            get<real>(throwing, tbparams, "maxmalRelativeRemainder");
+            get<real>(throwing, tbparams, "MaxmalRelativeRemainder");
       }
       auto checkBounds = [](const real r, const auto *const rn) {
         if (r >= 0.99999) {
@@ -392,9 +393,9 @@ namespace mfem_mgis {
             "maximal relative remainder must be greater than the minimal one");
       }
     }
-    if (contains(parameters, "timeStepValidator")) {
+    if (contains(parameters, "TimeStepValidator")) {
       const auto [n, tsv] = extractFactoryArgument(
-          throwing, get<Parameters>(throwing, parameters, "timeStepValidator"));
+          throwing, get<Parameters>(throwing, parameters, "TimeStepValidator"));
       if (n != "Default") {
         raise("unsupported time validator '" + n + "'");
       }
@@ -402,10 +403,10 @@ namespace mfem_mgis {
         raise("no parameters expected for time validator '" + n + "'");
       }
     }
-    if (contains(parameters, "timeIncrementComputer")) {
+    if (contains(parameters, "TimeIncrementComputer")) {
       const auto [n, tic] = extractFactoryArgument(
           throwing,
-          get<Parameters>(throwing, parameters, "timeIncrementComputer"));
+          get<Parameters>(throwing, parameters, "TimeIncrementComputer"));
       if (n != "Default") {
         raise("unsupported time increment computer '" + n + "'");
       }
@@ -413,10 +414,10 @@ namespace mfem_mgis {
         raise("no parameters expected for time increment computer '" + n + "'");
       }
     }
-    if (contains(parameters, "convergenceFailureHandler")) {
+    if (contains(parameters, "ConvergenceFailureHandler")) {
       const auto [n, tic] = extractFactoryArgument(
           throwing,
-          get<Parameters>(throwing, parameters, "convergenceFailureHandler"));
+          get<Parameters>(throwing, parameters, "ConvergenceFailureHandler"));
       if (n != "Default") {
         raise("unsupported convergence failure handler '" + n + "'");
       }
@@ -425,45 +426,43 @@ namespace mfem_mgis {
               "'");
       }
     }
-    if (contains(parameters, "maximumNumberOfTimeSteps")) {
+    if (contains(parameters, "MaximumNumberOfTimeSteps")) {
       this->maximumNumberOfTimeSteps =
-          get<size_type>(throwing, parameters, "maximumNumberOfTimeSteps");
+          get<size_type>(throwing, parameters, "MaximumNumberOfTimeSteps");
       if (*(this->maximumNumberOfTimeSteps) < 1) {
         raise("invalid maximum number of time steps (" +
               std::to_string(*(this->maximumNumberOfTimeSteps)) + ")");
       }
     }
-    if (contains(parameters, "numberOfTimeStepsBetweenPostProcessings")) {
+    if (contains(parameters, "NumberOfTimeStepsBetweenPostProcessings")) {
       this->numberOfTimeStepsBetweenPostProcessings = get<size_type>(
-          throwing, parameters, "numberOfTimeStepsBetweenPostProcessings");
+          throwing, parameters, "NumberOfTimeStepsBetweenPostProcessings");
       if (*(this->numberOfTimeStepsBetweenPostProcessings) < 1) {
         raise("invalid number of time steps between post-processings (" +
               std::to_string(*(this->numberOfTimeStepsBetweenPostProcessings)) +
               ")");
       }
     }
-    if (contains(parameters, "timeBetweenPostProcessings")) {
+    if (contains(parameters, "TimeBetweenPostProcessings")) {
       this->timeBetweenPostProcessings =
-          get<real>(throwing, parameters, "timeBetweenPostProcessings");
+          get<real>(throwing, parameters, "TimeBetweenPostProcessings");
       if (*(this->timeBetweenPostProcessings) <
           std::numeric_limits<real>::min()) {
         raise("invalid time between post-processings " +
               std::to_string(*(this->timeBetweenPostProcessings)) + ")");
       }
     }
-    //     if (contains(parameters, "monitors")) {
-    //       auto ctx = Context{};
-    //       for (const auto &m :
-    //            get<std::vector<Parameter>>(throwing, parameters, "monitors"))
-    //            {
-    //         const auto [n, mparams] =
-    //             extractFactoryArgument(throwing, get<Parameters>(throwing,
-    //             m));
-    //         if (!this->addMonitor(ctx, n, mparams)) {
-    //           raise(ctx.getErrorMessage());
-    //         }
-    //       }
-    //     }
+    if (contains(parameters, "Monitors")) {
+      auto ctx = Context{};
+      for (const auto &m :
+           get<std::vector<Parameter>>(throwing, parameters, "Monitors")) {
+        const auto [n, mparams] =
+            extractFactoryArgument(throwing, get<Parameters>(throwing, m));
+        if (!this->addMonitor(ctx, n, mparams)) {
+          raise(ctx.getErrorMessage());
+        }
+      }
+    }
   }  // end of treatParameters
 
   void Simulation::completeInitialization() {
@@ -510,24 +509,27 @@ namespace mfem_mgis {
     this->timeStepValidator->addValidator(n, v);
   }  // end of addTimeStepValidator
 
-  // bool Simulation::addMonitor(Context &ctx, const
-  // std::shared_ptr<AbstractSimulationMonitor> &m) noexcept
-  // {
-  //   if (m.get() == nullptr) {
-  //     return ctx.registerErrorMessage("invalid monitor");
-  //   }
-  //   this->monitors.push_back(m);
-  //   return true;
-  // }    // end of addMonitor
-  //
-  // bool Simulation::addMonitor(Context &ctx, std::string_view n, const
-  // Parameters &params) noexcept
-  // {
-  //   const auto &f = SimulationMonitorFactory::get();
-  //   return this->addMonitor(ctx, f.create(ctx, std::string{n},
-  //   this->physicalSystem, params));
-  // }    // end of addMonitor
-  //
+  bool Simulation::addMonitor(
+      Context &ctx,
+      const std::shared_ptr<AbstractSimulationMonitor> &m) noexcept {
+    if (m.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid monitor");
+    }
+    this->monitors.push_back(m);
+    return true;
+  }  // end of addMonitor
+
+  bool Simulation::addMonitor(Context &ctx,
+                              std::string_view n,
+                              const Parameters & /* params*/) noexcept {
+    //     const auto &f = SimulationMonitorFactory::get();
+    //     return this->addMonitor(
+    //         ctx, f.create(ctx, std::string{n}, this->physicalSystem,
+    //         params));
+    return ctx.registerErrorMessage("unable to create monitor '" +
+                                    std::string{n} + "'");
+  }  // end of addMonitor
+
   bool Simulation::addTimeIncrementComputer(
       Context &ctx,
       const std::shared_ptr<AbstractTimeIncrementComputer> &m) noexcept {
@@ -558,7 +560,7 @@ namespace mfem_mgis {
     auto s = ExitStatus{};
     auto state = SimulationRunState{};
     //
-    auto updateAndSynchronize = [&s](const ExitStatus o) {
+    auto updateAndSynchronize = [&s](const auto o) {
       s.update(o);
       s = synchronize(s);
     };
@@ -573,20 +575,20 @@ namespace mfem_mgis {
     //
     auto p_bts = this->timesDescription.begin();
     auto p_ets = std::next(p_bts);
-//    const auto dt = *p_ets - *p_bts;
-//   updateAndSynchronize(this->physicalSystem.updateClock(ctx, *p_bts,
-//   dt)); if (!s.shallContinue()) {
-//     ctx.registerErrorMessage("updating the clock failed");
-//     return {s};
-//   }
-#pragma message("HERE")
-    //   for (const auto &[n, t] : this->initializationTasks) {
-    //     updateAndSynchronize(invoke(ctx, t));
-    //     if (!s.shallContinue()) {
-    //       ctx.registerErrorMessage("initialization task '" + n + "'failed");
-    //       return {s};
-    //     }
+    //    const auto dt = *p_ets - *p_bts;
+    //   updateAndSynchronize(this->physicalSystem.updateClock(ctx, *p_bts,
+    //   dt)); if (!s.shallContinue()) {
+    //     ctx.registerErrorMessage("updating the clock failed");
+    //     return {s};
     //   }
+    for (const auto &[n, t] : this->initializationTasks) {
+      updateAndSynchronize(invoke(ctx, t));
+      if (!s.shallContinue()) {
+        std::ignore =
+            ctx.registerErrorMessage("initialization task '" + n + "'failed");
+        return {s, {}};
+      }
+    }
     //   if (!this->physicalSystem.executeInitialPostProcessingTasks(ctx)) {
     //     return {ExitStatus::unrecoverableError};
     //   }
@@ -594,9 +596,11 @@ namespace mfem_mgis {
     auto pdt = std::optional<real>{};
     auto pe = this->timesDescription.end();
     auto output = SimulationOutput{};
-    //     output["numberOfTimeSteps"] = 0;
-    //     output["numberOfSubSteps"] = 0;
-    //     output["timeStepOutputs"] = std::vector<Parameters>{};
+    if (this->keepOutputs) {
+      output.replaceOrInsert("NumberOfTimeSteps", 0);
+      output.replaceOrInsert("NumberOfSubSteps", 0);
+      output.replaceOrInsert("TimeStepOutputs", std::vector<Parameter>{});
+    }
     while (p_ets != pe) {
       if (this->independentTemporalSequences) {
         pdt = std::optional<real>{};
@@ -729,11 +733,11 @@ namespace mfem_mgis {
       std::optional<real> &pdt,
       const real sb,
       const real se,
-      const bool /* lastTemporalSequence */) noexcept {
+      const bool lastTemporalSequence) noexcept {
     // status of the last successful time step
     auto previousStatus = s;
     //
-    auto updateAndSynchronize = [&s](const ExitStatus o) {
+    auto updateAndSynchronize = [&s](const auto o) {
       s.update(o);
       s = synchronize(s);
     };
@@ -842,10 +846,15 @@ namespace mfem_mgis {
       // resolution did not succeed, calling the convergence failure
       // handler
       if (s == ExitStatus::recoverableError) {
-#pragma message("HERE")
-        //         output["numberOfSubSteps"] =
-        //             get<size_type>(output, "numberOfSubSteps") + 1;
-        //
+        if (this->keepOutputs) {
+          const auto onumberOfSubSteps =
+              get<size_type>(ctx, output, "NumberOfSubSteps");
+          updateAndSynchronize(isValid(onumberOfSubSteps));
+          if (s == ExitStatus::unrecoverableError) {
+            return;
+          }
+          output.replaceOrInsert("NumberOfSubSteps", *onumberOfSubSteps + 1);
+        }
         ++nFailures;
         if (nFailures == this->maximumNumberOfFailuresPerTemporalSequence) {
           reportMaximumFailureReached();
@@ -938,24 +947,23 @@ namespace mfem_mgis {
       //                                      getTimeStepDescription());
       //         return;
       //       }
-#pragma message("HERE")
-//       for (const auto &[n, pt] : this->postProcessingTasks) {
-//         updateAndSynchronize(invoke(ctx, pt));
-//         if (!s.shallContinue()) {
-//           ctx.registerErrorMessage("post-processing task '" + n + "'
-//           failed"); return;
-//         }
-//       }
-#pragma message("HERE")
-      //      // executing monitors
-      //       for (auto &m : this->monitors) {
-      //         updateAndSynchronize(m->execute(ctx, output,
-      //         lastTemporalSequence)); if (!s.shallContinue()) {
-      //           ctx.registerErrorMessage("calling a monitor failed");
-      //           s = ExitStatus::unrecoverableError;
-      //           return;
-      //         }
-      //       }
+      for (const auto &[n, pt] : this->postProcessingTasks) {
+        updateAndSynchronize(invoke(ctx, pt));
+        if (!s.shallContinue()) {
+          std::ignore = ctx.registerErrorMessage("post-processing task '" + n +
+                                                 "' failed");
+          return;
+        }
+      }
+      // executing monitors
+      for (auto &m : this->monitors) {
+        updateAndSynchronize(m->execute(ctx, output, lastTemporalSequence));
+        if (!s.shallContinue()) {
+          std::ignore = ctx.registerErrorMessage("calling a monitor failed");
+          s = ExitStatus::unrecoverableError;
+          return;
+        }
+      }
       // updating the physical system
       if (isValid(this->nonlinearEvolutionProblem)) {
         this->nonlinearEvolutionProblem->update();
@@ -994,11 +1002,11 @@ namespace mfem_mgis {
     }
     //
     auto s = ExitStatus{};
+    auto updateAndSynchronize = [&s](const auto o) {
+      s.update(o);
+      s = synchronize(s);
+    };
     //
-    //     auto updateAndSynchronize = [&s](const ExitStatus o) {
-    //       s.update(o);
-    //       s = synchronize(s);
-    //     };
     if (ctx.getVerbosityLevel() >= VerbosityLevel::verboseLevel0) {
       ctx.log() << "Computing next state from time " << tb << " to " << te
                 << std::endl;
@@ -1027,37 +1035,57 @@ namespace mfem_mgis {
     //       return s;
     //     }
     // computing the next time step
-    const auto r = [this, &ctx, &tb, &te] {
+    const auto r = [this, &ctx, &tb, &te]() -> std::optional<Parameters> {
       if (isValid(this->nonlinearEvolutionProblem)) {
         const auto routput =
             this->nonlinearEvolutionProblem->solve(ctx, tb, te - tb);
-        if (isInvalid(routput)) {
-          return ExitStatus::recoverableError;
-        }
+        return convertToParameters(routput);
       }
-      return ExitStatus::success;
+      return Parameters{};
     }();
-    // this->physicalSystem.computeNextState(ctx);
-    if (r.shallContinue()) {
-      for (auto &c : this->timeIncrementComputers) {
-        if (!c->prepareNextTimeStep(ctx)) {
-          return ExitStatus::unrecoverableError;
-        }
-      }
-      //       if (this->keepOutputs) {
-      //         auto timeStepOutput = Parameters{};
-      //         timeStepOutput["beginning of time step"] = tb;
-      //         timeStepOutput["end of time step"] = te;
-      //         timeStepOutput["computeNextStateOutput"] =
-      //             static_cast<const Parameters &>(*r);
-      //         output["numberOfTimeSteps"] =
-      //             get<size_type>(output, "numberOfTimeSteps") + 1;
-      //         auto ts = get<std::vector<Parameters>>(output,
-      //         "timeStepOutputs"); ts.push_back(timeStepOutput);
-      //         output["timeStepOutputs"] = ts;
-      //       }
+    updateAndSynchronize(isValid(r));
+    if (!s.shallContinue()) {
+      std::ignore = ctx.registerErrorMessage(
+          "resolution of the non linear problem failed");
+      return s;
     }
-    return r;
+    // this->physicalSystem.computeNextState(ctx);
+    for (auto &c : this->timeIncrementComputers) {
+      if (!c->prepareNextTimeStep(ctx)) {
+        return ExitStatus::unrecoverableError;
+      }
+    }
+    if (this->keepOutputs) {
+      auto timeStepOutput = Parameters{};
+      timeStepOutput.replaceOrInsert("BeginningOfTimeStep", tb);
+      timeStepOutput.replaceOrInsert("EndOfTimeStep", te);
+      if (isValid(this->nonlinearEvolutionProblem)) {
+        timeStepOutput.replaceOrInsert("ResolutionOutput", *r);
+      } else {
+        timeStepOutput.replaceOrInsert("ComputeNextStateOutput", *r);
+      }
+      const auto onumberOfTimeSteps =
+          get<size_type>(ctx, output, "NumberOfTimeSteps");
+      auto ots = [&output, &ctx]() -> std::optional<std::vector<Parameter>> {
+        const auto oout =
+            get<std::vector<Parameter>>(ctx, output, "TimeStepOutputs");
+        if (isInvalid(oout)) {
+          return {};
+        }
+        return *oout;
+      }();
+      updateAndSynchronize(isValid(onumberOfTimeSteps) && isValid(ots));
+      if (!s.shallContinue()) {
+        std::ignore = ctx.registerErrorMessage(
+            "internal error, can't retrieve the number of time steps or the "
+            "time step outputs in the outputs");
+        return s;
+      }
+      ots->push_back(timeStepOutput);
+      output.replaceOrInsert("numberOfTimeSteps", *onumberOfTimeSteps + 1);
+      output.replaceOrInsert("timeStepOutputs", *ots);
+    }
+    return s;
   }  // end of simulateOverATimeStep
 
   bool Simulation::setMaximumNumberOfTimeSteps(Context &ctx,

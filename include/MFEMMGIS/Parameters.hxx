@@ -124,6 +124,12 @@ namespace mfem_mgis {
      * \param[in] n: name of the parameter
      */
     const Parameter& get(attributes::Throwing, std::string_view) const;
+    /*!
+     * \brief replace the given parameter by the new value
+     * \param[in] n: name of the parameter
+     * \param[in] v: new value
+     */
+    Parameters& replaceOrInsert(std::string_view, const Parameter&) noexcept;
     //
     using std::map<std::string, Parameter, std::less<>>::size;
     using std::map<std::string, Parameter, std::less<>>::empty;

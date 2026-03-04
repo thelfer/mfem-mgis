@@ -138,10 +138,20 @@ namespace mfem_mgis {
       msg += "' has already been declared";
       raise(msg);
     }
-    std::map<std::string, Parameter, std::less<>>::value_type v{n, p};
-    std::map<std::string, Parameter, std::less<>>::insert(std::move(v));
-    return *this;
+    return this->replaceOrInsert(n, p);
   }  // end of insert
+
+  Parameters& Parameters::replaceOrInsert(std::string_view n,
+                                          const Parameter& p) noexcept {
+    auto it = this->find(n);
+    if (it == this->end()) {
+      auto v = std::map<std::string, Parameter, std::less<>>::value_type{n, p};
+      std::map<std::string, Parameter, std::less<>>::insert(std::move(v));
+    } else {
+      it->second = p;
+    }
+    return *this;
+  }  // end of replaceOrInsert
 
   OptionalReference<const Parameter> Parameters::get(
       Context& ctx, std::string_view n) const noexcept {

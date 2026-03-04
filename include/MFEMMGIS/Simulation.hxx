@@ -96,6 +96,13 @@ namespace mfem_mgis {
      */
     void setStatus(const bool) noexcept;
     /*!
+     * \brief change the current status. This is equivalent to the assignement
+     * operator and the `setStatus` method
+     *
+     * \param[in] s: new status
+     */
+    void update(const bool) noexcept;
+    /*!
      * \return if the status is either `success` or `unreliableResults`
      *
      * This method is meant to test if the result of a function call
@@ -362,23 +369,22 @@ namespace mfem_mgis {
     //    */
     //   [[nodiscard]] bool addTimeIncrementComputer(Context &,
     //   std::string_view, const Parameters &) noexcept;
-    //     /*!
-    //      * \brief add a new monitor
-    //      * \param[in] ctx: execution context
-    //      * \param[in] m: monitor
-    //      */
-    //     [[nodiscard]] bool addMonitor(
-    //         Context &, const std::shared_ptr<AbstractSimulationMonitor> &)
-    //         noexcept;
-    //     /*!
-    //      * \brief add a new monitor
-    //      * \param[in] ctx: execution context
-    //      * \param[in] n: name
-    //      * \param[in] params: parameters passed to the monitor
-    //      */
-    //     [[nodiscard]] bool addMonitor(Context &,
-    //                                   std::string_view,
-    //                                   const Parameters &) noexcept;
+    /*!
+     * \brief add a new monitor
+     * \param[in] ctx: execution context
+     * \param[in] m: monitor
+     */
+    [[nodiscard]] bool addMonitor(
+        Context &, const std::shared_ptr<AbstractSimulationMonitor> &) noexcept;
+    /*!
+     * \brief add a new monitor
+     * \param[in] ctx: execution context
+     * \param[in] n: name
+     * \param[in] params: parameters passed to the monitor
+     */
+    [[nodiscard]] bool addMonitor(Context &,
+                                  std::string_view,
+                                  const Parameters &) noexcept;
     /*!
      * \brief set the maximum number of time steps
      * \param[in] ctx: execution context
