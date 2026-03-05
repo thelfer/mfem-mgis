@@ -1,27 +1,27 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General post-processings &mdash; The MFEM MGIS project  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+  <title>Post-processings &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
 
   
-      <script src="../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Mechanical post-processings" href="mechanical_postprocessings.html" />
-    <link rel="prev" title="Post-processings" href="post_processings.html" /> 
+    <link rel="prev" title="Boundary conditions" href="boundary_conditions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -32,11 +32,11 @@
 
           
           
-          <a href="../../index.html" class="icon icon-home">
+          <a href="../index.html" class="icon icon-home">
             The MFEM MGIS project
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -44,36 +44,32 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../installation_guide/installation_guide.html">Installation guide</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../user_guide.html">User guide</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../tutorial.html">A tutorial introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../overview.html">Overview and main concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../simulation/simulation.html">Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../behaviour_integrators.html">Behaviour integrators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../boundary_conditions.html">Boundary conditions</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="post_processings.html">Post-processings</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">General post-processings</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#the-paraviewexport-post-processing">The <code class="code docutils literal notranslate"><span class="pre">ParaviewExport</span></code> post-processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#export-integration-point-results-at-nodes">Export Integration Point Results At Nodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#compute-mean-thermodynamic-forces">Compute Mean Thermodynamic Forces</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#compute-stored-energy">Compute Stored Energy</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#compute-dissipated-energy">Compute dissipated Energy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html">A tutorial introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview and main concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behaviour_integrators.html">Behaviour integrators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundary_conditions.html">Boundary conditions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Post-processings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-paraviewexport-post-processing">The <code class="code docutils literal notranslate"><span class="pre">ParaviewExport</span></code> post-processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#export-integration-point-results-at-nodes">Export Integration Point Results At Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-mean-thermodynamic-forces">Compute Mean Thermodynamic Forces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-stored-energy">Compute Stored Energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-dissipated-energy">Compute dissipated Energy</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glossary.html">Glossary Of Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="help.html">Getting help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release_notes/release_notes.html">Release notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/unit_tests.html">List of unit tests</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../help.html">Getting help</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release_notes/release_notes.html">Release notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests/unit_tests.html">List of unit tests</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../commented_examples/commented_examples.html">Commented Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/developer_guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commented_examples/commented_examples.html">Commented Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/developer_guide.html">Developer guide</a></li>
 </ul>
 
         </div>
@@ -82,19 +78,18 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">The MFEM MGIS project</a>
+          <a href="../index.html">The MFEM MGIS project</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../user_guide.html">User guide</a></li>
-          <li class="breadcrumb-item"><a href="post_processings.html">Post-processings</a></li>
-      <li class="breadcrumb-item active">General post-processings</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_guide.html">User guide</a></li>
+      <li class="breadcrumb-item active">Post-processings</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/user_guide/post_processings/general_post_processings.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/user_guide/post_processings.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -102,8 +97,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="general-post-processings">
-<span id="mfem-mgis-general-post-processings"></span><h1>General post-processings<a class="headerlink" href="#general-post-processings" title="Link to this heading"></a></h1>
+  <section id="post-processings">
+<span id="mfem-mgis-post-processings"></span><h1>Post-processings<a class="headerlink" href="#post-processings" title="Link to this heading"></a></h1>
 <p>In this section, we describe the post-processing options available in
 MFEM-MGIS.</p>
 <nav class="contents local" id="contents">
@@ -133,7 +128,7 @@ evolution problem for visualization in <code class="code docutils literal notran
 </div>
 <p><strong>Results</strong></p>
 <figure class="align-default">
-<img alt="../../_images/SatohTest1.png" src="../../_images/SatohTest1.png" />
+<img alt="../_images/SatohTest1.png" src="../_images/SatohTest1.png" />
 </figure>
 <p>It is also possible to extract only portions of the mesh by defining either the boundary zones or the materials (domain attributes). This is particularly useful for reducing the size of output files when only a small part is to be studied.</p>
 <p><strong>Example</strong></p>
@@ -172,7 +167,7 @@ evolution problem for visualization in <code class="code docutils literal notran
 </div>
 <p><strong>Results</strong></p>
 <figure class="align-default">
-<img alt="../../_images/ExportDataAtNodes.png" src="../../_images/ExportDataAtNodes.png" />
+<img alt="../_images/ExportDataAtNodes.png" src="../_images/ExportDataAtNodes.png" />
 </figure>
 <table class="docutils align-default">
 <thead>
@@ -216,13 +211,13 @@ evolution problem for visualization in <code class="code docutils literal notran
 </div>
 <p><strong>Results</strong></p>
 <figure class="align-default">
-<img alt="../../_images/SatohTestStress.png" src="../../_images/SatohTestStress.png" />
+<img alt="../_images/SatohTestStress.png" src="../_images/SatohTestStress.png" />
 </figure>
 <figure class="align-default">
-<img alt="../../_images/SatohTestTemperature.png" src="../../_images/SatohTestTemperature.png" />
+<img alt="../_images/SatohTestTemperature.png" src="../_images/SatohTestTemperature.png" />
 </figure>
 <figure class="align-default">
-<img alt="../../_images/SatohTestPressure.png" src="../../_images/SatohTestPressure.png" />
+<img alt="../_images/SatohTestPressure.png" src="../_images/SatohTestPressure.png" />
 </figure>
 </section>
 <section id="compute-mean-thermodynamic-forces">
@@ -246,7 +241,7 @@ plot &quot;res-mfem-mgis.txt&quot; u 1:2 w l title &quot;mfem-mgis&quot;
 </pre></div>
 </div>
 <figure class="align-default">
-<img alt="../../_images/avgStress.png" src="../../_images/avgStress.png" />
+<img alt="../_images/avgStress.png" src="../_images/avgStress.png" />
 </figure>
 </section>
 <section id="compute-stored-energy">
@@ -279,7 +274,7 @@ plot &quot;res-mfem-mgis.txt&quot; u 1:2 w l title &quot;mfem-mgis&quot;
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="post_processings.html" class="btn btn-neutral float-left" title="Post-processings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="boundary_conditions.html" class="btn btn-neutral float-left" title="Boundary conditions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="mechanical_postprocessings.html" class="btn btn-neutral float-right" title="Mechanical post-processings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
