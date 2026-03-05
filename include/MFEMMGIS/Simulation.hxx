@@ -137,32 +137,32 @@ namespace mfem_mgis {
      */
     Simulation(AbstractNonLinearEvolutionProblem &,
                const std::initializer_list<real> &);
-    //   /*!
-    //    * \brief constructor
-    //    * \param[in] ps: physical system
-    //    * \param[in] parameters: parameters passed to the simulation
-    //    *
-    //    * The main parameters are:
-    //    * - `Times`: list of times defining temporal sequences. T
-    //    * - `TimeIncrementComputer`: strategy used to determine the next
-    //    time step.
-    //    * - `ConvergenceFailureHandler`: strategy used to determine how a
-    //    convergence failure of the resolution shall be handled.
-    //    * - `TimeStepValidator`: strategy used to validatoe the time step.
-    //    */
-    //   Simulation(PhysicalSystem &, const Parameters &);
-    //   /*!
-    //    * \brief constructor
-    //    * \param[in] ps: physical system
-    //    * \param[in] times: description of the temporal sequences
-    //    */
-    //   Simulation(PhysicalSystem &, const TimesDescription &);
-    //   /*!
-    //    * \brief constructor
-    //    * \param[in] ps: physical system
-    //    * \param[in] times: list of times
-    //    */
-    //   Simulation(PhysicalSystem &, const std::initializer_list<real> &);
+    /*!
+     * \brief constructor
+     * \param[in] ps: physical system
+     * \param[in] parameters: parameters passed to the simulation
+     *
+     * The main parameters are:
+     * - `Times`: list of times defining temporal sequences. T
+     * - `TimeIncrementComputer`: strategy used to determine the next
+     time step.
+     * - `ConvergenceFailureHandler`: strategy used to determine how a
+     convergence failure of the resolution shall be handled.
+     * - `TimeStepValidator`: strategy used to validatoe the time step.
+     */
+    Simulation(PhysicalSystem &, const Parameters &);
+    /*!
+     * \brief constructor
+     * \param[in] ps: physical system
+     * \param[in] times: description of the temporal sequences
+     */
+    Simulation(PhysicalSystem &, const TimesDescription &);
+    /*!
+     * \brief constructor
+     * \param[in] ps: physical system
+     * \param[in] times: list of times
+     */
+    Simulation(PhysicalSystem &, const std::initializer_list<real> &);
     /*!
      * \brief add a task to be performed at the beginning of the simulation
      * \param[in] n: name of the initialization task
@@ -335,7 +335,7 @@ namespace mfem_mgis {
                                      const real,
                                      const real) noexcept;
     //! \brief the physical system
-    //   PhysicalSystem &physicalSystem;
+    OptionalReference<PhysicalSystem> physicalSystem;
     //! \brief evolution problem solved
     OptionalReference<AbstractNonLinearEvolutionProblem>
         nonlinearEvolutionProblem;
@@ -351,7 +351,7 @@ namespace mfem_mgis {
      * \brief boolean stating if sub stepping in case of convergence
      * failure is allowed
      */
-    bool allow_substepping = true;
+    bool allowSubstepping = true;
     /*!
      * \brief boolean stating if the temporal sequences are independent.
      *

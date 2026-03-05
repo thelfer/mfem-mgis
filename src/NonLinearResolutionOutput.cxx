@@ -9,16 +9,16 @@
 
 namespace mfem_mgis {
 
-  std::optional<Parameters> convertToParameters(
+  std::optional<ComputeNextStateOutput> convertToComputeNextStateOutput(
       const NonLinearResolutionOutput& output) noexcept {
     if (isInvalid(output)) {
       return {};
     }
-    auto p = Parameters{};
+    auto p = ComputeNextStateOutput{};
     p.replaceOrInsert("initial_residual_norm", output.initial_residual_norm);
     p.replaceOrInsert("final_residual_norm", output.final_residual_norm);
     p.replaceOrInsert("iterations", output.iterations);
     return p;
-  }  // end of convertToParameters
+  }  // end of convertToComputeNextStateOutput
 
 }  // end of namespace mfem_mgis
