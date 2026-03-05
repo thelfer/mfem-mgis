@@ -7,6 +7,7 @@
 #include <sstream>
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/AbstractCouplingScheme.hxx"
+#include "MFEMMGIS/LoopCouplingScheme.hxx"
 #include "MFEMMGIS/PhysicalSystem.hxx"
 
 namespace mfem_mgis {
@@ -14,9 +15,7 @@ namespace mfem_mgis {
   PhysicalSystem::PhysicalSystem() = default;
 
   std::optional<std::string> PhysicalSystem::describe(
-      Context &ctx,
-      const bool /* b */,
-      const Parameters &parameters) const noexcept {
+      Context &ctx, const bool b, const Parameters &parameters) const noexcept {
     const auto options = std::map<std::string, std::string>{
         {"HelpOptions", "return the options of the describe method"},
         {"Mesh", "description of the mesh"},
@@ -29,25 +28,24 @@ namespace mfem_mgis {
     if (!checkParameters(ctx, parameters, options)) {
       return {};
     }
-    auto d = std::string{};
-    //     const auto oho = get_if<bool>(ctx, parameters, "helpOptions", false);
-    //     if (isInvalid(oho)) {
-    //       return {};
-    //     }
-    //     if (*oho) {
-    //       auto d = std::string{};
-    //       for (auto first = true; const auto &[k, o] : options) {
-    //         if (k == "helpOptions") {
-    //           continue;
-    //         }
-    //         if (!first) {
-    //           d += '\n';
-    //         }
-    //         d += "- " + k + ": " + o;
-    //         first = false;
-    //       }
-    //       return d;
-    //     }
+    const auto oho = get_if<bool>(ctx, parameters, "helpOptions", false);
+    if (isInvalid(oho)) {
+      return {};
+    }
+    if (*oho) {
+      auto d = std::string{};
+      for (auto first = true; const auto &[k, o] : options) {
+        if (k == "HelpOptions") {
+          continue;
+        }
+        if (!first) {
+          d += '\n';
+        }
+        d += "- " + k + ": " + o;
+        first = false;
+      }
+      return d;
+    }
     //     auto [omesh, meshParameters] =
     //         [&ctx, b, &parameters]() -> std::pair<std::optional<bool>,
     //         Parameters> {
@@ -58,45 +56,45 @@ namespace mfem_mgis {
     //       }
     //       return {get_if<bool>(ctx, parameters, "mesh", b), Parameters{}};
     //     }();
-    //     const auto ocsd = get_if<bool>(ctx, parameters, "couplingScheme", b);
+    const auto ocsd = get_if<bool>(ctx, parameters, "CouplingScheme", b);
     //     const auto oloadings = get_if<bool>(ctx, parameters, "loadings", b);
     //     const auto oloadingEvolutions =
     //         get_if<bool>(ctx, parameters, "loadingsEvolutions", b);
     //     const auto opostProcessings =
     //         get_if<bool>(ctx, parameters, "postProcessings", b);
-    //     const auto oheader = get_if<bool>(ctx, parameters, "header", b);
-    //     const auto oheaderLevel = get_if<Int>(ctx, parameters, "headerLevel",
-    //     1); if (areInvalid(omesh, ocsd, oloadings, oloadingEvolutions,
-    //     opostProcessings,
-    //                    oheader, oheaderLevel)) {
-    //       return {};
-    //     }
-    //     if (*oheaderLevel < 1) {
-    //       return ctx.registerErrorMessage("invalid header level ('" +
-    //                                       std::to_string(*oheaderLevel) +
-    //                                       "')");
-    //     }
-    //     const auto nsections =
-    //         *omesh + *ocsd + *oloadings + *oloadingEvolutions +
-    //         *opostProcessings;
-    //     auto d = std::string{};
-    //     auto add = [&d](std::string_view o) {
-    //       if (o.empty()) {
-    //         return;
-    //       }
-    //       if (!d.empty()) {
-    //         d += "\n\n";
-    //       }
-    //       d += o;
-    //     };
-    //     auto header = [nsections, &add, b = *oheader,
-    //                    lvl = *oheaderLevel](const std::string &h) {
-    //       if (b) {
-    //         if (nsections != 0) {
-    //           add(std::string(lvl, '#') + " " + h);
-    //         }
-    //       }
-    //     };
+    const auto oheader = get_if<bool>(ctx, parameters, "Header", b);
+    const auto oheaderLevel =
+        get_if<size_type>(ctx, parameters, "HeaderLevel", 1);
+    if (areInvalid(/* omesh, */ ocsd, /* oloadings, oloadingEvolutions,
+                                         opostProcessings, */
+                   oheader, oheaderLevel)) {
+      return {};
+    }
+    if (*oheaderLevel < 1) {
+      return ctx.registerErrorMessage("invalid header level ('" +
+                                      std::to_string(*oheaderLevel) + "')");
+    }
+    const auto nsections =
+        /* *omesh + */ *ocsd
+        /* + *oloadings + *oloadingEvolutions + *opostProcessings */;
+    auto d = std::string{};
+    auto add = [&d](std::string_view o) {
+      if (o.empty()) {
+        return;
+      }
+      if (!d.empty()) {
+        d += "\n\n";
+      }
+      d += o;
+    };
+    auto header = [nsections, &add, b = *oheader,
+                   lvl = *oheaderLevel](const std::string &h) {
+      if (b) {
+        if (nsections != 0) {
+          add(std::string(lvl, '#') + " " + h);
+        }
+      }
+    };
     //     // mesh
     //     if (*omesh) {
     //       meshParameters["headerLevel"] = *oheaderLevel + 1;
@@ -111,24 +109,23 @@ namespace mfem_mgis {
     //         add(*omd);
     //       }
     //     }
-    //     // coupling scheme
-    //     if (*ocsd) {
-    //       header("Description of the coupling scheme");
-    //       if (this->coupling_scheme.get() != nullptr) {
-    //         auto csd = "The physical system is based on the '" +
-    //                    this->coupling_scheme->getName() + "' coupling scheme.
-    //                    ";
-    //         const auto ocsd2 = this->coupling_scheme->describe(
-    //             ctx, true, {{"shortDescription", false}});
-    //         if (isInvalid(ocsd2)) {
-    //           return {};
-    //         }
-    //         add(csd);
-    //         add(*ocsd2);
-    //       } else {
-    //         add("No coupling scheme defined.");
-    //       }
-    //     }
+    // coupling scheme
+    if (*ocsd) {
+      header("Description of the coupling scheme");
+      if (this->coupling_scheme.get() != nullptr) {
+        auto csd = "The physical system is based on the '" +
+                   this->coupling_scheme->getName() + "' coupling scheme.";
+        const auto ocsd2 = this->coupling_scheme->describe(
+            ctx, true, {{"ShortDescription", false}});
+        if (isInvalid(ocsd2)) {
+          return {};
+        }
+        add(csd);
+        add(*ocsd2);
+      } else {
+        add("No coupling scheme defined.");
+      }
+    }
     //     // loadings
     //     if (*oloadings) {
     //       header("Description of the loadings");
@@ -216,22 +213,20 @@ namespace mfem_mgis {
 
   bool PhysicalSystem::setModel(Context &ctx,
                                 std::shared_ptr<AbstractModel> m) noexcept {
-#pragma message("HERE")
-    //     if (this->isCouplingSchemeDefined()) {
-    //       return ctx.registerErrorMessage("coupling scheme already defined");
-    //     }
-    //     if (m.get() == nullptr) {
-    //       return ctx.registerErrorMessage("invalid model specified");
-    //     }
-    //     auto c = make_shared<LoopCouplingScheme>(ctx, *this);
-    //     if (isInvalid(c)) {
-    //       return false;
-    //     }
-    //     if (!c->addModel(ctx, m)) {
-    //       return false;
-    //     }
-    //     return this->setCouplingScheme(ctx, c);
-    return false;
+    if (this->isCouplingSchemeDefined()) {
+      return ctx.registerErrorMessage("coupling scheme already defined");
+    }
+    if (m.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid model specified");
+    }
+    auto c = make_shared<LoopCouplingScheme>(ctx);
+    if (isInvalid(c)) {
+      return false;
+    }
+    if (!c->addModel(ctx, m)) {
+      return false;
+    }
+    return this->setCouplingScheme(ctx, c);
   }  // end of setModel
 
   bool PhysicalSystem::updateLoadingsAtTheBeginningOfTheTimeStep(

@@ -56,6 +56,7 @@ namespace mfem_mgis {
   using mgis::isValid;
 
   using mgis::areInvalid;
+  using mgis::getDefaultVerbosityLevel;
   using mgis::isInvalid;
   using mgis::make_shared;
   using mgis::make_shared_as;
