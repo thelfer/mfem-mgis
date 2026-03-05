@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview of the simulation class &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"tex": {"macros": {"paren": ["{\\left(#1\\right)}", 1], "transpose": ["{\\left.#1\\right.^{T}}", 1], "bts": ["{\\left.#1\\right|_{\\mathrm{bts}}}", 1], "ets": ["{\\left.#1\\right|_{\\mathrm{ets}}}", 1]}}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Behaviour integrators" href="../behaviour_integrators.html" />
+    <link rel="prev" title="Simulation" href="simulation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user_guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tutorial.html">A tutorial introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html">Overview and main concepts</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="simulation.html">Simulation</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Overview of the simulation <code class="code docutils literal notranslate"><span class="pre">class</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#main-parameters">Main parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-steps-management">Time steps management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#appendix">Appendix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../behaviour_integrators.html">Behaviour integrators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundary_conditions.html">Boundary conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../post_processings/post_processings.html">Post-processings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../help.html">Getting help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/release_notes.html">Release notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests/unit_tests.html">List of unit tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commented_examples/commented_examples.html">Commented Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/developer_guide.html">Developer guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../user_guide.html">User guide</a></li>
+          <li class="breadcrumb-item"><a href="simulation.html">Simulation</a></li>
+      <li class="breadcrumb-item active">Overview of the simulation <code class="code docutils literal notranslate"><span class="pre">class</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/user_guide/simulation/simulation_class_overview.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="overview-of-the-simulation-class">
+<span id="simulation-class-overview"></span><h1>Overview of the simulation <code class="code docutils literal notranslate"><span class="pre">class</span></code><a class="headerlink" href="#overview-of-the-simulation-class" title="Link to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#main-parameters" id="id1">Main parameters</a></p></li>
+<li><p><a class="reference internal" href="#time-steps-management" id="id2">Time steps management</a></p>
+<ul>
+<li><p><a class="reference internal" href="#determining-the-next-time-increment-at-the-beginning-of-a-time-step" id="id3">Determining the next time increment at the beginning of a time step</a></p></li>
+<li><p><a class="reference internal" href="#determining-the-next-time-increment-in-case-of-convergence-failure" id="id4">Determining the next time increment in case of convergence failure</a></p></li>
+<li><p><a class="reference internal" href="#determining-the-next-time-increment-in-case-of-invalidation-of-the-time-step" id="id5">Determining the next time increment in case of invalidation of the time step</a></p></li>
+<li><p><a class="reference internal" href="#how-simulation-is-stopped" id="id6">How simulation is stopped</a></p></li>
+<li><p><a class="reference internal" href="#conditions-for-post-processings-to-be-executed" id="id7">Conditions for post-processings to be executed</a></p>
+<ul>
+<li><p><a class="reference internal" href="#post-processings-times-explicitly-requested-by-the-user" id="id8">Post-processings times <em>explicitly requested by the user</em></a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#appendix" id="id9">Appendix</a></p>
+<ul>
+<li><p><a class="reference internal" href="#description-of-the-default-time-increment-balancer" id="id10">Description of the default time increment balancer</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<p>A simulation tries to compute the evolution of a physical system over
+several temporal sequences. Temporal sequences are defined by the user.</p>
+<p>An example of definition of temporal sequences would typically be:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">temporal_sequences</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>which defines a first temporal sequence <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">2.5]</span></code> and a second one
+<code class="docutils literal notranslate"><span class="pre">[2.5,</span> <span class="pre">4]</span></code>. By defining such sequences, the user impose to MFEM/MGIS a
+start and an end simulation time, but also impose that the intermediate
+times (<code class="docutils literal notranslate"><span class="pre">2.5</span></code> in the example above) will be among the simulation time
+steps.</p>
+<p>Temporal sequences are necessarily contiguous.</p>
+<p>The management of time steps inside temporal sequences is handled by MFEM/MGIS.</p>
+<p>The main role of a simulation is to manage the time steps in the
+temporal sequences. To do so, it relies on the coupling scheme and:</p>
+<ul class="simple">
+<li><p>A time increment computer, whose role is to compute the time increment
+at the beginning of the next time step. The default time increment
+computer returns the difference between the end of the temporal
+sequence and the current time step.</p></li>
+<li><p>A time step validator, whose role is to validate a time step after the
+convergence of the coupling scheme. If the time step is invalidated,
+the time step validator shall provide a new time step. The default
+time step validator only relies on user-defined functions.</p></li>
+<li><p>A convergence failure handler, whose role is to propose a default time
+step in case of divergence of the coupling scheme. The default
+convergence handler just takes the current time step and divides it by
+two.</p></li>
+</ul>
+<p>A simulation also:</p>
+<ul class="simple">
+<li><p>intializes the physical system if it not initialized at the beginning
+of the simulation.</p></li>
+<li><p>calls user-defined initialization tasks</p></li>
+<li><p>calls the post-processings defined by the physical system or some
+user-defined post-processing tasks.</p></li>
+</ul>
+<section id="main-parameters">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Main parameters</a><a class="headerlink" href="#main-parameters" title="Link to this heading"></a></h2>
+<ul>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">Times</span></code>: list of times defining the temporal sequences.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">AllowSubStepping</span></code>: boolean stating if sub stepping in case of
+convergence failure is allowed. The default value of this parameter is
+<cite>true</cite>.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IndependentTemporalSequences</span></code>: boolean stating if the temporal
+sequences are independent. Currently, this boolean only choose if the
+last time increment of the previous temporal sequence is taken into
+account to bound the first time increment of the current temporal
+sequence (bounding occurs if this boolean is false. The default value
+of this parameter is <cite>true</cite>.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MinimalTimeIncrement</span></code>: minimal time increment. If the time
+increment decreases below this value, the simulation is stopped.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrement</span></code>: maximal time increment. The time step
+can’t be greater than this value: the time is set to this value if its
+computation leads to a greater value.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximumNumberOfFailuresPerTemporalSequence</span></code>: maximum number of
+failures or time step rejections allowed within each temporal sequence.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">TimeIncrementComputer</span></code>: strategy used to determine the next time step.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">TimeStepValidator</span></code>:  strategy used to determine the next time step.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">ConvergenceFailureHandler</span></code>: strategy used to determine how a
+divergence of the resolution shall be handled.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">LimitTimeIncrementIncrease</span></code>: boolean stating if the current
+estimate of the next time step can be greater than the previous time
+increment multiplied by the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeIncrease</span></code> parameter.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeIncrease</span></code>: coefficient used to
+determined the maximum ratio between the next time step and the
+previous one. The default value of this parameter is <cite>1.1</cite>, allowing a
+<span class="math notranslate nohighlight">\(10\%\)</span> increase of the time step compared to the previous one.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">LimitTimeIncrementDecrease</span></code>: boolean stating if the current
+estimate of the next time step can be lower than the previous time
+increment multiplied by the
+:param`:<cite>MaximalTimeIncrementRelativeDecrease</cite> parameter.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeDecrease</span></code>: coefficient used to
+determined the minimum ratio between the next time step and the
+previous one. The default value of this parameter is <cite>0.2</cite>, allowing
+the next time step to be 5 times smaller than the previous one.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">BalanceTimeIncrement</span></code>: boolean stating if time increments
+shall be balanced to avoid small time increments at the end of the
+temporal sequence.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">TimeIncrementBalancer</span></code>: strategy used to balance the time
+increments to avoid small time increments at the end of the temporal
+sequence.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximumNumberOfTimeSteps</span></code>: maximum number of time steps
+allowed per call to the <cite>run</cite> method.</p>
+<p>See Section <a class="reference internal" href="#simulation-ending"><span class="std std-ref">How simulation is stopped</span></a> for details.</p>
+</li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">NumberOfTimeStepsBetweenPostProcessings</span></code>: the number of time
+steps between two post-processing times marked as <em>explicitly
+requested by the user</em>.</p>
+<p>Note that the parameter <code class="code highlight c++ docutils literal highlight-c++"><span class="n">NumberOfTimeStepsBetweenPostProcessings</span></code>
+has no effect if it is greater than the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximumNumberOfTimeSteps</span></code> parameter.</p>
+<p>See Section <a class="reference internal" href="#simulation-post-processings"><span class="std std-ref">Conditions for post-processings to be executed</span></a> for details.</p>
+</li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">TimeBetweenPostProcessings</span></code>: time between two post-processing
+times marked as <em>explicitly requested by the user</em>.</p>
+<p>See Section <a class="reference internal" href="#simulation-post-processings"><span class="std std-ref">Conditions for post-processings to be executed</span></a> for details.</p>
+</li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">Monitors</span></code>: list of simulation monitors.</p></li>
+</ul>
+</section>
+<section id="time-steps-management">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Time steps management</a><a class="headerlink" href="#time-steps-management" title="Link to this heading"></a></h2>
+<section id="determining-the-next-time-increment-at-the-beginning-of-a-time-step">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Determining the next time increment at the beginning of a time step</a><a class="headerlink" href="#determining-the-next-time-increment-at-the-beginning-of-a-time-step" title="Link to this heading"></a></h3>
+<p>Let <span class="math notranslate nohighlight">\(t\)</span> be the time at the beginning of the current time step and
+<span class="math notranslate nohighlight">\(t_{e}\)</span> the end of the current temporal sequence and
+<span class="math notranslate nohighlight">\(\Delta\,t^{(p)}\)</span> the previous time step.</p>
+<p>The next time increment is defined as follows:</p>
+<ul class="simple">
+<li><p>A first candidate <span class="math notranslate nohighlight">\(\Delta\, t_{1}\)</span> is given by calling the
+method of the <cite>getNextTimeIncrement</cite> of the coupling scheme. This time
+increment is the minimum increment returned by the
+<cite>getNextTimeIncrement</cite> of all coupling items.</p></li>
+<li><p>A second candidate <span class="math notranslate nohighlight">\(\Delta\, t_{2}\)</span> is given by calling the time
+increment computer.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is the minimum of <span class="math notranslate nohighlight">\(\Delta\, t_{1}\)</span> and
+<span class="math notranslate nohighlight">\(\Delta\, t_{2}\)</span>, <span class="math notranslate nohighlight">\(t_{e}-t\)</span> and <span class="math notranslate nohighlight">\(\Delta\,
+t_{\textrm{max}}\)</span> if the maximal time increment <span class="math notranslate nohighlight">\(\Delta\,
+t_{\textrm{max}}\)</span> has been defined (see the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrement</span></code>).</p></li>
+<li><p>if <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is greater <span class="math notranslate nohighlight">\(\Delta\,t_{(p)}\)</span> and if
+the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">LimitTimeIncrementIncrease</span></code> parameter is <cite>true</cite>,
+<span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is limited by
+<span class="math notranslate nohighlight">\(\alpha_{\textrm{i}}\,\Delta\,t_{(p)}\)</span> where
+<span class="math notranslate nohighlight">\(\alpha_{\textrm{i}}\)</span> is the value of the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeIncrease</span></code> parameter.</p></li>
+<li><p>if <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is lower <span class="math notranslate nohighlight">\(\Delta\,t_{(p)}\)</span> and if the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">LimitTimeIncrementDecrease</span></code> parameter is <cite>true</cite>,
+<span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is limited by
+<span class="math notranslate nohighlight">\(\alpha_{\textrm{d}}\,\Delta\,t_{(p)}\)</span> where
+<span class="math notranslate nohighlight">\(\alpha_{\textrm{i}}\)</span> is the value of the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeDecrease</span></code> parameter.</p></li>
+<li><p>if <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is lower than <span class="math notranslate nohighlight">\(\Delta\,
+t_{\textrm{min}}\)</span>, the simulation is stopped.</p></li>
+</ul>
+<p>The time increment <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> can be balanced to avoid the
+small time steps at the end of the time step (see the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">BalanceTimeIncrement</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">TimeIncrementBalancer</span></code>
+parameters).</p>
+</section>
+<section id="determining-the-next-time-increment-in-case-of-convergence-failure">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">Determining the next time increment in case of convergence failure</a><a class="headerlink" href="#determining-the-next-time-increment-in-case-of-convergence-failure" title="Link to this heading"></a></h3>
+<p>In case of convergence failure, the convergence failure handler is
+called to propose an estimate of a new time increment
+<span class="math notranslate nohighlight">\(\Delta\,t_{e}\)</span>.</p>
+<p>The next time increment is computed as follows:</p>
+<div class="math notranslate nohighlight">
+\[\Delta\,t  = \max(\Delta\,t_{e}, \alpha_{\textrm{i}}\, \Delta\,t_{c});\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha_{\textrm{i}}\)</span> is the value of the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeIncrease</span></code> parameter and
+<span class="math notranslate nohighlight">\(\Delta\,t_{c}\)</span> the current time increment (corresponding to the
+time step which lead to a failure).</p>
+<p>The default convergence failure handler divides the current time step by
+(2).</p>
+</section>
+<section id="determining-the-next-time-increment-in-case-of-invalidation-of-the-time-step">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Determining the next time increment in case of invalidation of the time step</a><a class="headerlink" href="#determining-the-next-time-increment-in-case-of-invalidation-of-the-time-step" title="Link to this heading"></a></h3>
+<p>The time step validator must propose an estimate of a new time increment
+<span class="math notranslate nohighlight">\(\Delta\,t_{e}\)</span> when it invalidates the current time step.</p>
+<p>The next time increment is computed as follows:</p>
+<div class="math notranslate nohighlight">
+\[\Delta\,t  = \max(\Delta\,t_{e}, \alpha_{\textrm{i}}\, \Delta\,t_{c});\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha_{\textrm{i}}\)</span> is the value of the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeIncrease</span></code> parameter and
+<span class="math notranslate nohighlight">\(\Delta\,t_{c}\)</span> the current time increment (corresponding to the
+rejected time step).</p>
+<p>The default time step validator just calls user defined validators. If
+no user defined validator is defined, the time step is always validated.</p>
+</section>
+<section id="how-simulation-is-stopped">
+<span id="simulation-ending"></span><h3><a class="toc-backref" href="#id6" role="doc-backlink">How simulation is stopped</a><a class="headerlink" href="#how-simulation-is-stopped" title="Link to this heading"></a></h3>
+<p>Simulation may fail du to non-convergence of the coupling scheme and
+excessive sub-steppings.</p>
+<p>Simulation may stop on success for two reasons:</p>
+<ul class="simple">
+<li><p>the last temporal sequence has been completed,</p></li>
+<li><p>the maximum number of time steps has been reached.</p></li>
+</ul>
+<p>In the second case, the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">run</span></code> method can be called again and again,
+up to the point where the last temporal sequence has been completed.</p>
+<p>To know, if last temporal sequence has been completed, one may check the
+output of the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getTimes</span></code> methods:</p>
+<ul class="simple">
+<li><p>if the returned array contains only one value (corresponding the the
+value of the time at the end of the last temporal sequence), then the
+last temporal sequence has been completed,</p></li>
+<li><p>if the returned array contains more than one value, one may safely call
+the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">run</span></code> method again.</p></li>
+</ul>
+</section>
+<section id="conditions-for-post-processings-to-be-executed">
+<span id="simulation-post-processings"></span><h3><a class="toc-backref" href="#id7" role="doc-backlink">Conditions for post-processings to be executed</a><a class="headerlink" href="#conditions-for-post-processings-to-be-executed" title="Link to this heading"></a></h3>
+<p>Every time a post-processing is called, it recieves a boolean stating if
+the post-processing time as been <em>explicitly requested by the user</em>.</p>
+<p>Lightweight post-processings (<code class="code highlight c++ docutils literal highlight-c++"><span class="n">Curves</span></code> for instance) may ignore
+this boolean by default.</p>
+<p>This boolean is mostly important for heavy post-processsings in terms of
+memory, disk usage or computations, such as the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">VTKExport</span></code>
+post-processing.</p>
+<p>By convention, every post-processing shall expose a parameter named
+boolean <code class="code highlight c++ docutils literal highlight-c++"><span class="n">AllTimeSteps</span></code> which allows to select if the
+post-processing must be executed at the end of each time step or only at
+at times <em>explicitly requested by the user</em>.</p>
+<p>The difference between lightweight and heavy post-processings is only
+the default value of this parameter (<code class="code highlight c++ docutils literal highlight-c++"><span class="nb">true</span></code> for lightweight
+post-processings, <code class="code highlight c++ docutils literal highlight-c++"><span class="nb">false</span></code> for heavy post-processings).</p>
+<section id="post-processings-times-explicitly-requested-by-the-user">
+<h4><a class="toc-backref" href="#id8" role="doc-backlink">Post-processings times <em>explicitly requested by the user</em></a><a class="headerlink" href="#post-processings-times-explicitly-requested-by-the-user" title="Link to this heading"></a></h4>
+<p>The end of each temporal sequence is always a post-processing times.</p>
+<p>Two parameters allows to select additional post-processing times:</p>
+<ul class="simple">
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">NumberOfTimeStepsBetweenPostProcessings</span></code> the number of time
+steps between two post-processing times marked as <em>explicitly
+requested by the user</em>.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">TimeBetweenPostProcessings</span></code> between two post-processings
+marked as <em>explicitly requested by the user</em>.</p></li>
+</ul>
+<p>The criteria (to mark a post-processing time as <em>explicitly requested by
+the user</em>) associated with those parameters rely with some internal
+counters which are reset at each call to the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">run</span></code> method.</p>
+<p>Note also that those criteria are taken evaluated independently, i.e. if
+the criterion associated with
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">NumberOfTimeStepsBetweenPostProcessings</span></code> is satisfied, it does
+not reset the internal timer associated with the criterion associated
+with the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">TimeBetweenPostProcessings</span></code>.</p>
+<p>Note that:</p>
+<ul class="simple">
+<li><p>each end of a temporal sequence is always flaged as <em>explicitly
+requested by the user</em>, independently of the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">NumberOfTimeStepsBetweenPostProcessings</span></code> parameter,</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="appendix">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">Appendix</a><a class="headerlink" href="#appendix" title="Link to this heading"></a></h2>
+<section id="description-of-the-default-time-increment-balancer">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Description of the default time increment balancer</a><a class="headerlink" href="#description-of-the-default-time-increment-balancer" title="Link to this heading"></a></h3>
+<p>Let <span class="math notranslate nohighlight">\(\Delta\, t_{c}\)</span> be the current estimate of the time
+increment, <span class="math notranslate nohighlight">\(t\)</span> be the time at the beginning of the current time
+step and <span class="math notranslate nohighlight">\(t_{e}\)</span> the end of the current temporal sequence.</p>
+<p>Let <span class="math notranslate nohighlight">\(q\)</span> be equal to <span class="math notranslate nohighlight">\(\lfloor (t_{e}-t)/\Delta\, t_{c} \rfloor\)</span>
+(where <span class="math notranslate nohighlight">\(\lfloor x \rfloor\)</span> is the integral part of <span class="math notranslate nohighlight">\(x\)</span>) and
+<span class="math notranslate nohighlight">\(r\)</span> be equal to <span class="math notranslate nohighlight">\((t_{e}-t)/\Delta\, t_{c}-q\)</span>. Note that <cite>r</cite>
+is positive and lower than <span class="math notranslate nohighlight">\(1\)</span>.</p>
+<p>Assuming that the time increment remains constant, the number of time
+steps will be:</p>
+<ol class="arabic simple">
+<li><p><span class="math notranslate nohighlight">\(q\)</span> if <span class="math notranslate nohighlight">\(t_{e}-t\)</span> is exactly proportional to
+<span class="math notranslate nohighlight">\(\Delta\, t_{c}\)</span>. This case can only be verified approximatly by
+verifying that <span class="math notranslate nohighlight">\(r\)</span> is close enough to <span class="math notranslate nohighlight">\(0\)</span>. The default
+time increment balancer compares <cite>r</cite> to a value
+<span class="math notranslate nohighlight">\(r_{\textrm{min}}\)</span> whose default value is <span class="math notranslate nohighlight">\(5\,10^{-2}\)</span> and
+which can be modified by a parameter named named
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MinimalRelativeRemainder</span></code> .</p></li>
+<li><p><span class="math notranslate nohighlight">\(q+1\)</span> otherwise. However, this may lead to a final time step
+that can be much smaller than the other. To avoid this, <span class="math notranslate nohighlight">\(r\)</span> is
+compared to a parameter named <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalRelativeRemainder</span></code> whose
+default value is <span class="math notranslate nohighlight">\(0.8\)</span>.</p></li>
+</ol>
+<p>The default time increment balancer thus selects the time step as follows:</p>
+<ul class="simple">
+<li><p>If <span class="math notranslate nohighlight">\(r&lt;r_{\textrm{min}}\)</span>, the time increment is chosen as <span class="math notranslate nohighlight">\((t_{e}-t)/q\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(r&gt;r_{\textrm{max}}\)</span>, the time increment is chosen as <span class="math notranslate nohighlight">\(\Delta\, t_{c}\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(r_{\textrm{min}} \leq r \leq r_{\textrm{max}}\)</span>, the time
+increment is chosen as <span class="math notranslate nohighlight">\((t_{e}-t)/(q+1)\)</span>.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="simulation.html" class="btn btn-neutral float-left" title="Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../behaviour_integrators.html" class="btn btn-neutral float-right" title="Behaviour integrators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

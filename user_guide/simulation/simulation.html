@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Release notes of Version 1.0.0 &mdash; The MFEM MGIS project  documentation</title>
+  <title>Simulation &mdash; The MFEM MGIS project  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="List of unit tests" href="../tests/unit_tests.html" />
-    <link rel="prev" title="Release notes of Version 1.0.4" href="release_notes-1.0.4.html" /> 
+    <link rel="next" title="Overview of the simulation class" href="simulation_class_overview.html" />
+    <link rel="prev" title="Overview and main concepts" href="../overview.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,7 +48,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../user_guide.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../tutorial.html">A tutorial introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview.html">Overview and main concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../simulation/simulation.html">Simulation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulation_class_overview.html">Overview of the simulation <code class="code docutils literal notranslate"><span class="pre">class</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../behaviour_integrators.html">Behaviour integrators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../boundary_conditions.html">Boundary conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../post_processings/post_processings.html">Post-processings</a></li>
@@ -57,16 +60,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../help.html">Getting help</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="release_notes.html">Release notes</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="release_notes-1.1.0.html">Release notes of Version 1.1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="release_notes-1.0.4.html">Release notes of Version 1.0.4</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Release notes of Version 1.0.0</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#short-description">Short description</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#solver-availables">Solver Availables</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/release_notes.html">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tests/unit_tests.html">List of unit tests</a></li>
 </ul>
 </li>
@@ -89,10 +83,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../user_guide.html">User guide</a></li>
-          <li class="breadcrumb-item"><a href="release_notes.html">Release notes</a></li>
-      <li class="breadcrumb-item active">Release notes of Version 1.0.0</li>
+      <li class="breadcrumb-item active">Simulation</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/user_guide/release_notes/release_notes-1.0.0.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/user_guide/simulation/simulation.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -100,79 +93,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="release-notes-of-version-1-0-0">
-<span id="mfem-mgis-release-notes-1-0-0"></span><h1>Release notes of Version 1.0.0<a class="headerlink" href="#release-notes-of-version-1-0-0" title="Link to this heading"></a></h1>
-<p>Version 1.0.0 has been released on February 8, 2024.</p>
-<section id="short-description">
-<h2>Short description<a class="headerlink" href="#short-description" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Support for multiple materials with distinct constitutive equations:</p>
+  <section id="simulation">
+<span id="id1"></span><h1>Simulation<a class="headerlink" href="#simulation" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li><p>Micromorphic laws</p></li>
-<li><p>Orthotropic laws</p></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation_class_overview.html">Overview of the simulation <code class="code docutils literal notranslate"><span class="pre">class</span></code></a></li>
 </ul>
-</li>
-<li><p>Support for internal state variables (defined at integration points):</p>
-<ul>
-<li><p>Use of <code class="docutils literal notranslate"><span class="pre">MGIS</span></code> data structures</p></li>
-<li><p>Use of mechanical behavior laws generated by MFront</p></li>
-</ul>
-</li>
-<li><p>Post-processing features for nonlinear mechanics:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">ComputeResultantForceOnBoundary</span></code>: Compute the resultant of the inner forces on a boundary</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ComputeMeanThermodynamicForcesValues</span></code>: Compute macroscopic stress and strain for each material</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ParaviewExportIntegrationPointResultsAtNodes</span></code>: Generate Paraview post-processing files with internal state variables using MGIS</p></li>
-</ul>
-</li>
-<li><p>Flexible C++ API for defining <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> simulation features</p></li>
-<li><p>CI workflow with examples in <cite>test</cite> and 58% coverage</p></li>
-<li><p>Profiler for performance analysis</p></li>
-<li><p>Support for <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> solvers</p></li>
-</ul>
-</section>
-<section id="solver-availables">
-<h2>Solver Availables<a class="headerlink" href="#solver-availables" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Direct solvers:</p>
-<ul>
-<li><p>UMFPackSolver</p></li>
-<li><p>MUMPS</p></li>
-</ul>
-</li>
-<li><p>Krylov solvers:</p>
-<ul>
-<li><p>CGSolver</p></li>
-<li><p>GMRESSolver</p></li>
-<li><p>BiCGSTABSolver</p></li>
-<li><p>MINRESSolver</p></li>
-<li><p>SLISolver</p></li>
-<li><p>HyprePCG</p></li>
-<li><p>HypreGMRES</p></li>
-<li><p>HypreFGMRES</p></li>
-<li><p>Solver from Petsc</p></li>
-</ul>
-</li>
-<li><p>Preconditioner:</p>
-<ul>
-<li><p>HypreILU</p></li>
-<li><p>HypreEuclid</p></li>
-<li><p>HypreBoomerAMG</p></li>
-<li><p>HypreParaSails</p></li>
-<li><p>HypreDiagScale</p></li>
-<li><p>Preconditioner from Petsc</p></li>
-</ul>
-</li>
-</ul>
-</section>
+</div>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="release_notes-1.0.4.html" class="btn btn-neutral float-left" title="Release notes of Version 1.0.4" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../tests/unit_tests.html" class="btn btn-neutral float-right" title="List of unit tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../overview.html" class="btn btn-neutral float-left" title="Overview and main concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="simulation_class_overview.html" class="btn btn-neutral float-right" title="Overview of the simulation class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
