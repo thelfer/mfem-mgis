@@ -351,7 +351,7 @@ namespace mfem_mgis {
      * \brief boolean stating if sub stepping in case of convergence
      * failure is allowed
      */
-    bool allowSubStepping = true;
+    bool allow_substepping = true;
     /*!
      * \brief boolean stating if the temporal sequences are independent.
      *
