@@ -1,8 +1,8 @@
-.. _mfem_mgis_post_processings:
+.. _mfem_mgis_general_post_processings:
 
-================
-Post-processings
-================
+========================
+General post-processings
+========================
 
 In this section, we describe the post-processing options available in
 MFEM-MGIS.

@@ -27,24 +27,54 @@ namespace mfem_mgis {
    * - `AbstractNonLinearEvolutionProblem::SolverMaximumNumberOfIterations`, aka
    *   `"MaximumNumberOfIterations"`,
    */
-  MFEM_MGIS_EXPORT std::vector<std::string> getIterativeSolverParametersList();
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<std::string>
+  getIterativeSolverParametersList();
 
   /*!
    * \brief set the parameters of an iterative solver
+   *
+   * \param[in, out] ctx: execution context
    * \param[in] s: iterative solver
    * \param[in] params: parameters
    */
-  MFEM_MGIS_EXPORT void setSolverParameters(IterativeSolver&,
-                                            const Parameters&);
+  MFEM_MGIS_EXPORT [[nodiscard]] bool setSolverParameters(
+      Context&, IterativeSolver&, const Parameters&) noexcept;
 
 #ifdef MFEM_USE_PETSC
   /*!
    * \brief set the parameters of a PETSc solver
+   *
+   * \param[in, out] ctx: execution context
    * \param[in] s: solver
    * \param[in] params: parameters
    */
-  MFEM_MGIS_EXPORT void setSolverParameters(mfem::PetscNonlinearSolver&,
-                                            const Parameters&);
+  MFEM_MGIS_EXPORT [[nodiscard]] bool setSolverParameters(
+      Context&, mfem::PetscNonlinearSolver&, const Parameters&) noexcept;
+#endif /* MFEM_USE_PETSC */
+
+  /*!
+   * \brief set the parameters of an iterative solver
+   *
+   * \param[in] throwing: dummy argument to indicate that this function may
+   * throw an exception.
+   * \param[in] s: iterative solver
+   * \param[in] params: parameters
+   */
+  MFEM_MGIS_EXPORT [[deprecated]] void setSolverParameters(attributes::Throwing,
+                                                           IterativeSolver&,
+                                                           const Parameters&);
+
+#ifdef MFEM_USE_PETSC
+  /*!
+   * \brief set the parameters of a PETSc solver
+   *
+   * \param[in] throwing: dummy argument to indicate that this function may
+   * throw an exception.
+   * \param[in] s: solver
+   * \param[in] params: parameters
+   */
+  MFEM_MGIS_EXPORT [[deprecated]] void setSolverParameters(
+      attributes::Throwing, mfem::PetscNonlinearSolver&, const Parameters&);
 #endif /* MFEM_USE_PETSC */
 
 }  // end of namespace mfem_mgis

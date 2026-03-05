@@ -15,6 +15,8 @@
 #include "MGIS/Context.hxx"
 #include "MGIS/LogStream.hxx"
 #include "MGIS/InvalidResult.hxx"
+#include "MGIS/Utilities/Construct.hxx"
+#include "MGIS/Utilities/Invoke.hxx"
 #include "MGIS/Utilities/OptionalReference.hxx"
 
 #include "MFEMMGIS/MGISForward.hxx"
@@ -47,10 +49,19 @@
 namespace mfem_mgis {
 
   using mgis::AbstractErrorHandler;
+  using mgis::construct;
   using mgis::Context;
+  using mgis::InvalidResult;
+  using mgis::invoke;
   using mgis::isInvalid;
   using mgis::isValid;
+  using mgis::make_shared;
+  using mgis::make_shared_as;
+  using mgis::make_unique;
+  using mgis::make_unique_as;
   using mgis::OptionalReference;
+  using mgis::registerExceptionInErrorBacktrace;
+  using mgis::VerbosityLevel;
 
   using mgis::debug;
   using mgis::getDefaultLogStream;

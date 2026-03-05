@@ -69,7 +69,17 @@ namespace mfem_mgis {
     [[noreturn]] void SetPreconditioner(Solver &) override;
     [[noreturn]] void SetOperator(const mfem::Operator &) override;
     void Mult(const mfem::Vector &, mfem::Vector &) const override;
-
+    /*!
+     * \brief set the current execution context
+     *
+     * \param[in] ctx: execution context
+     *
+     * \note this execution context is used inside the `Mult` method whose
+     * prototype is imposed by `MFEM`'s API.
+     */
+    void setContext(Context &) noexcept;
+    //! \brief unset the execution context
+    void unsetContext() noexcept;
     //! \brief destructor
     ~NewtonSolver() override;
 
@@ -92,6 +102,10 @@ namespace mfem_mgis {
      * the residual at the first iteration.
      */
     mutable std::optional<real> reference_residual_norm;
+    /*!
+     * \brief pointer to an execution context
+     */
+    Context *ctx_ptr = nullptr;
   };  // end of struct NewtonSolver
 
 }  // end of namespace mfem_mgis

@@ -5,6 +5,7 @@
  * \date   29/03/2021
  */
 
+#include <array>
 #include <iomanip>
 #include <utility>
 #include "MGIS/Raise.hxx"
@@ -86,12 +87,36 @@ namespace mfem_mgis {
     this->reference_residual_norm.reset();
   }  // end of unsetReferenceResidualNorm
 
+  void NewtonSolver::setContext(Context &ctx) noexcept {
+    this->ctx_ptr = &ctx;
+  }  // end of setContext
+
+  void NewtonSolver::unsetContext() noexcept { this->ctx_ptr = nullptr; }
+
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     CatchTimeSection("NS::Mult");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
                 "the Solver is not set (use setLinearSolver).");
+    // log stream
+    auto &log = [this]() -> std::ostream & {
+      if (this->ctx_ptr == nullptr) {
+        return getDefaultLogStream();
+      }
+      return this->ctx_ptr->log();
+    }();
+    // boolean stating if messages shall be displayed
+    auto shall_print = [this]() -> bool {
+      if (this->print_level >= 0) {
+        return mfem_mgis::getMPIrank() == 0;
+      }
+      if (this->ctx_ptr != nullptr) {
+        return this->ctx_ptr->getVerbosityLevel() >=
+               VerbosityLevel::verboseLevel3;
+      }
+      return false;
+    }();
 
     mfem::Vector r;  // residual vector
     mfem::Vector c;  // opposite of the Newton's correction
@@ -117,21 +142,22 @@ namespace mfem_mgis {
     // this data member is not used, but we define it by
     // consistency
     this->initial_norm = *(this->reference_residual_norm);
+    auto previous_norms =
+        std::array<real, 2u>{this->initial_norm, this->initial_norm};
+
     const auto norm_goal =
         std::max(rel_tol * (*(this->reference_residual_norm)), abs_tol);
     auto it = size_type{};
 
+    this->converged = 0;
     while (true) {
       CatchTimeSection("NS::Mult::WhileLoop");
       MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
-      if ((this->print_level >= 0) && (mfem_mgis::getMPIrank() == 0)) {
-        mfem::out << "Newton iteration " << std::setw(2) << it
-                  << " : ||r|| = " << norm;
-        if (it > 0) {
-          mfem::out << ", ||r||/||r_0|| = "
-                    << norm / (*(this->reference_residual_norm));
-        }
-        mfem::out << '\n';
+      if (shall_print) {
+        log << "Newton iteration " << std::setw(2) << it
+            << " : ||r|| = " << norm
+            << ", ||r||/||r_0|| = " << norm / (*(this->reference_residual_norm))
+            << '\n';
       }
       this->Monitor(it, norm, r, x);
       //
@@ -141,12 +167,10 @@ namespace mfem_mgis {
       }
       //
       if (it >= this->max_iter) {
-        this->converged = 0;
         break;
       }
       //
       if (!this->computeNewtonCorrection(c, r, x)) {
-        this->converged = 0;
         break;
       }
       //
@@ -164,13 +188,12 @@ namespace mfem_mgis {
         // the maximum value
         while (true) {
           if (it >= this->max_iter) {
-            this->converged = 0;
             break;
           }
-          if ((this->print_level >= 0) && (mfem_mgis::getMPIrank() == 0)) {
-            mfem::out
-                << "Newton iteration " << std::setw(2) << it
-                << ": reducing the amplitude of the correction by a factor 2\n";
+          if (shall_print) {
+            log << "Newton iteration " << std::setw(2) << it
+                << ": reducing the amplitude of the correction by a "
+                   "factor 2\n";
           }
           c *= real{1} / 2;
           x += c;
@@ -179,17 +202,37 @@ namespace mfem_mgis {
           }
           ++it;
         }
-        if (this->converged == 0) {
+        if (it >= this->max_iter) {
           break;
         }
       }
 
       updateResidual();
+      previous_norms[0] = previous_norms[1];
+      previous_norms[1] = norm;
       norm = this->Norm(r);
       ++it;
     }
     this->final_iter = it;
     this->final_norm = norm;
+    if (this->converged == 1) {
+      // estimation of the convergence order
+      if (shall_print) {
+        if ((it >= 2) && (norm > 100 * std::numeric_limits<real>::min()) &&
+            (previous_norms[0] > 100 * std::numeric_limits<real>::min()) &&
+            (previous_norms[1] > 100 * std::numeric_limits<real>::min())) {
+          const auto e1 = std::log(norm / previous_norms[1]);
+          const auto e2 = std::log(previous_norms[1] / previous_norms[0]);
+          if (std::abs(e2) > 100 * std::numeric_limits<real>::min()) {
+            log << "Convergence order " << e1 / e2 << "\n\n";
+          } else {
+            log << "Convergence order undefined\n\n";
+          }
+        } else {
+          log << "Convergence order undefined\n\n";
+        }
+      }
+    }
   }  // end of Mult
 
   void NewtonSolver::computeResidual(mfem::Vector &r,

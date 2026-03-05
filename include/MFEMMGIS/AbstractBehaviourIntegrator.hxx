@@ -40,7 +40,8 @@ namespace mfem_mgis {
      */
     virtual void setTimeIncrement(const real) = 0;
     //! \return the partial quadrature space
-    virtual const PartialQuadratureSpace &getPartialQuadratureSpace() const = 0;
+    virtual const PartialQuadratureSpace &getPartialQuadratureSpace()
+        const noexcept = 0;
     /*!
      * \return the integration rule for the given element and element
      * transformation
@@ -132,11 +133,19 @@ namespace mfem_mgis {
      * This has been introduced to be able to build behaviour integrators not
      * built on MGIS and MFront.
      */
-    virtual bool hasMaterial() const = 0;
-    //! \return the underlying material
-    virtual Material &getMaterial() = 0;
-    //! \return the underlying material
-    virtual const Material &getMaterial() const = 0;
+    virtual bool hasMaterial() const noexcept = 0;
+    /*!
+     * \return the underlying material
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] virtual OptionalReference<Material> getMaterial(
+        Context &) noexcept = 0;
+    /*!
+     * \return the underlying material
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] virtual OptionalReference<const Material> getMaterial(
+        Context &) const noexcept = 0;
     /*!
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
@@ -156,6 +165,10 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept = 0;
+    //! \return the underlying material
+    [[deprecated, nodiscard]] virtual Material &getMaterial() = 0;
+    //! \return the underlying material
+    [[deprecated, nodiscard]] virtual const Material &getMaterial() const = 0;
     //! \brief destructor
     virtual ~AbstractBehaviourIntegrator();
   };  // end of struct AbstractBehaviourIntegrator

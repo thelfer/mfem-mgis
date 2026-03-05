@@ -107,8 +107,8 @@ void (*getSolution(const std::size_t i))(mfem::Vector&, const mfem::Vector&) {
   return solutions[i];
 }
 
-static void setLinearSolver(mfem_mgis::AbstractNonLinearEvolutionProblem& p,
-                            const std::size_t i) {
+[[maybe_unused]] static void setLinearSolver(
+    mfem_mgis::AbstractNonLinearEvolutionProblem& p, const std::size_t i) {
   if (i == 0) {
     p.setLinearSolver("GMRESSolver", {{"VerbosityLevel", 1},
                                       {"AbsoluteTolerance", 1e-12},
@@ -144,9 +144,15 @@ static void setSolverParameters(
 
 bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& problem,
                    const std::size_t i) {
-  const auto b = mfem_mgis::compareToAnalyticalSolution(
-      problem, getSolution(i), {{"CriterionThreshold", 1e-7}});
-  if (!b) {
+  auto ctx = mfem_mgis::Context{};
+  const auto osuccess = mfem_mgis::compareToAnalyticalSolution(
+      ctx, problem, getSolution(i), {{"CriterionThreshold", 1e-7}});
+  if (mfem_mgis::isInvalid(osuccess)) {
+    mfem_mgis::getErrorStream()
+        << "computation of the error failed: " << ctx.getErrorMessage() << "\n";
+    return false;
+  }
+  if (!*osuccess) {
     mfem_mgis::getErrorStream() << "Error is greater than threshold\n";
     return false;
   }

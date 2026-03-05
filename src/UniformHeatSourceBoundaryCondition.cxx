@@ -146,8 +146,9 @@ namespace mfem_mgis {
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
       AbstractNonLinearEvolutionProblem &p, const Parameters &params)
       : finiteElementDiscretization(p.getFiniteElementDiscretizationPointer()),
-        mids(getBoundariesIdentifiers(p, params, false)),
-        qfct(get<std::function<real(const real)>>(params, "LoadingEvolution")),
+        mids(getBoundariesIdentifiers(throwing, p, params, false)),
+        qfct(get<std::function<real(const real)>>(
+            throwing, params, "LoadingEvolution")),
         nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
 
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(

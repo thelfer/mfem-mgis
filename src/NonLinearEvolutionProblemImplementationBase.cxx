@@ -13,8 +13,8 @@
 #include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
-#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
@@ -32,14 +32,16 @@ namespace mfem_mgis {
                 UseMultiMaterialNonLinearIntegrator};
   }  // end of getParametersList
 
-  MultiMaterialNonLinearIntegrator* buildMultiMaterialNonLinearIntegrator(
+  [[nodiscard]] static MultiMaterialNonLinearIntegrator*
+  buildMultiMaterialNonLinearIntegrator(
+      attributes::Throwing,
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
       const Parameters& p) {
     const auto* const n = NonLinearEvolutionProblemImplementationBase::
         UseMultiMaterialNonLinearIntegrator;
     if (contains(p, n)) {
-      if (!get<bool>(p, n)) {
+      if (!get<bool>(throwing, p, n)) {
         return nullptr;
       }
     }
@@ -54,26 +56,27 @@ namespace mfem_mgis {
       : fe_discretization(fed),
         u0(getTrueVSize(*fed)),
         u1(getTrueVSize(*fed)),
-        mgis_integrator(buildMultiMaterialNonLinearIntegrator(fed, h, p)),
+        mgis_integrator(
+            buildMultiMaterialNonLinearIntegrator(throwing, fed, h, p)),
         hypothesis(h) {
     this->u0 = real{0};
     this->u1 = real{0};
   }  // end of NonLinearEvolutionProblemImplementationBase
 
   FiniteElementDiscretization& NonLinearEvolutionProblemImplementationBase::
-      getFiniteElementDiscretization() {
+      getFiniteElementDiscretization() noexcept {
     return *(this->fe_discretization);
   }  // end of getFiniteElementDiscretization
 
   const FiniteElementDiscretization&
   NonLinearEvolutionProblemImplementationBase::getFiniteElementDiscretization()
-      const {
+      const noexcept {
     return *(this->fe_discretization);
   }  // end of getFiniteElementDiscretization
 
   std::shared_ptr<FiniteElementDiscretization>
   NonLinearEvolutionProblemImplementationBase::
-      getFiniteElementDiscretizationPointer() {
+      getFiniteElementDiscretizationPointer() noexcept {
     return this->fe_discretization;
   }  // end of getFiniteElementDiscretization
 
@@ -208,9 +211,10 @@ namespace mfem_mgis {
 
   std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getAssignedMaterialsIdentifiers()
-      const {
-    checkMultiMaterialSupportEnabled("getAssignedMaterialsIdentifiers",
-                                     this->mgis_integrator);
+      const noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return {};
+    }
     return this->mgis_integrator->getAssignedMaterialsIdentifiers();
   }  // end of getAssignedMaterialsIdentifiers
 
@@ -329,16 +333,28 @@ namespace mfem_mgis {
     this->mgis_integrator->setMacroscopicGradients(g);
   }  // end of setMacroscopicGradients
 
+  bool NonLinearEvolutionProblemImplementationBase::setSolverParameters(
+      Context& ctx, const Parameters& params) noexcept {
+#ifdef MFEM_USE_PETSC
+    if (usePETSc()) {
+      return mfem_mgis::setSolverParameters(ctx, *(this->petsc_solver), params);
+    }
+    return mfem_mgis::setSolverParameters(ctx, *(this->solver), params);
+#else  /* MFEM_USE_PETSC */
+    return mfem_mgis::setSolverParameters(ctx, *(this->solver), params);
+#endif /* MFEM_USE_PETSC */
+  }    // end of setSolverParameters
+
   void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
       const Parameters& params) {
 #ifdef MFEM_USE_PETSC
     if (usePETSc()) {
-      mfem_mgis::setSolverParameters(*(this->petsc_solver), params);
+      mfem_mgis::setSolverParameters(throwing, *(this->petsc_solver), params);
     } else {
-      mfem_mgis::setSolverParameters(*(this->solver), params);
+      mfem_mgis::setSolverParameters(throwing, *(this->solver), params);
     }
 #else  /* MFEM_USE_PETSC */
-    mfem_mgis::setSolverParameters(*(this->solver), params);
+    mfem_mgis::setSolverParameters(throwing, *(this->solver), params);
 #endif /* MFEM_USE_PETSC */
   }    // end of setSolverParameters
 
@@ -353,7 +369,8 @@ namespace mfem_mgis {
     return all_dofs;
   }  // end of getEssentialDegreesOfFreedom
 
-  [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>&
+  [[nodiscard]] const std::vector<
+      std::unique_ptr<AbstractDirichletBoundaryCondition>>&
   NonLinearEvolutionProblemImplementationBase::getDirichletBoundaryConditions()
       const noexcept {
     return this->dirichlet_boundary_conditions;
@@ -497,7 +514,9 @@ namespace mfem_mgis {
       raise("Support for PETSc is deactivated");
 #endif /* MFEM_USE_PETSC */
     } else {
+      this->solver->setContext(ctx);
       this->solver->Mult(this->u0, this->u1);
+      this->solver->unsetContext();
       fill_output(*(this->solver));
       output.initial_residual_norm = this->solver->GetInitialNorm();
       this->solver->unsetReferenceResidualNorm();

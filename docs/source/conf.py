@@ -96,7 +96,9 @@ rst_prolog = """
 .. |cxx| replace:: C++  
 .. |python| replace:: Python  
 .. |MFront| replace:: MFront
+.. |MFEM| replace:: mfem
+.. |MFEM/MGIS| replace:: MFEM/MGIS
 .. ending_point_replace
 
-.. cpp:namespace:: manta
+.. cpp:namespace:: mfem_mgis
 """

@@ -12,7 +12,7 @@
 #include <optional>
 #include <functional>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 
 namespace mfem_mgis {
 
@@ -25,7 +25,7 @@ namespace mfem_mgis {
    * along the a specified component.
    */
   struct MFEM_MGIS_EXPORT ImposedDirichletBoundaryConditionAtClosestNode
-      : public DirichletBoundaryCondition {
+      : public AbstractDirichletBoundaryCondition {
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretisation

@@ -90,11 +90,12 @@ namespace mfem_mgis {
      */
     virtual void updateLinearSolver(LinearSolverHandler);
     //
-    FiniteElementDiscretization& getFiniteElementDiscretization() override;
-    const FiniteElementDiscretization& getFiniteElementDiscretization()
-        const override;
-    std::shared_ptr<FiniteElementDiscretization>
-    getFiniteElementDiscretizationPointer() override;
+    [[nodiscard]] FiniteElementDiscretization&
+    getFiniteElementDiscretization() noexcept override;
+    [[nodiscard]] const FiniteElementDiscretization&
+    getFiniteElementDiscretization() const noexcept override;
+    [[nodiscard]] std::shared_ptr<FiniteElementDiscretization>
+    getFiniteElementDiscretizationPointer() noexcept override;
     [[nodiscard]] bool setMaterialsNames(
         Context&, const std::map<size_type, std::string>&) noexcept override;
     [[nodiscard]] bool setBoundariesNames(
@@ -107,8 +108,8 @@ namespace mfem_mgis {
         const TimeStepStage) noexcept override;
     [[nodiscard]] const mfem::Vector& getUnknowns(
         const TimeStepStage) const noexcept override;
-    void setSolverParameters(const Parameters&) override;
-    std::vector<size_type> getAssignedMaterialsIdentifiers() const override;
+    [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
+        const noexcept override;
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
         Context&, const Parameter&) const noexcept override;
     [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
@@ -139,12 +140,14 @@ namespace mfem_mgis {
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
         Context&, const mfem::Vector&) noexcept override;
     [[nodiscard]] const std::vector<
-        std::unique_ptr<DirichletBoundaryCondition>>&
+        std::unique_ptr<AbstractDirichletBoundaryCondition>>&
     getDirichletBoundaryConditions() const noexcept override;
     [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
     getBoundaryConditions() const noexcept override;
     void setup(const real, const real) override;
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
+    [[nodiscard]] bool setSolverParameters(Context&,
+                                           const Parameters&) noexcept override;
     [[nodiscard]] PredictionPolicy getPredictionPolicy()
         const noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(Context&,
@@ -172,6 +175,7 @@ namespace mfem_mgis {
     getBehaviourIntegrator(const size_type) const override;
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
     getBehaviourIntegrator(const size_type) override;
+    [[deprecated]] void setSolverParameters(const Parameters&) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
     //! \brief destructor
@@ -203,7 +207,7 @@ namespace mfem_mgis {
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
     //! \brief list of boundary conditions
-    std::vector<std::unique_ptr<DirichletBoundaryCondition>>
+    std::vector<std::unique_ptr<AbstractDirichletBoundaryCondition>>
         dirichlet_boundary_conditions;
     /*!
      * \brief a boolean value to specifiy if the initialization phase is still

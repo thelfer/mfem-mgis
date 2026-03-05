@@ -17,10 +17,10 @@ namespace mfem_mgis {
       AbstractNonLinearEvolutionProblem& p, const Parameters& params)
       : DirichletBoundaryConditionBase(
             p.getFiniteElementDiscretization(),
-            getBoundariesIdentifiers(p, params, false),
-            get<size_type>(params, "Component")) {
+            getBoundariesIdentifiers(throwing, p, params, false),
+            get<size_type>(throwing, params, "Component")) {
     this->ufct = get_if<std::function<real(const real)>>(
-        params, "LoadingEvolution",
+        throwing, params, "LoadingEvolution",
         [](const real) noexcept { return real(0); });
   }  // end of UniformDirichletBoundaryCondition
 

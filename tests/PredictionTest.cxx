@@ -14,7 +14,7 @@
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/LinearSolverHandler.hxx"
-#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 

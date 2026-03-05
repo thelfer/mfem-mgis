@@ -43,10 +43,10 @@ int main() {
   Parameters params2 = Parameters();
 
   /** insert test */
-  params.insert("real", param_real);  // fill a parameters
-  params.insert("size_type", param_size_type);
-  params2.insert("string", param_string);
-  params2.insert("vector", param_vector);
+  params.insert(throwing, "real", param_real);  // fill a parameters
+  params.insert(throwing, "size_type", param_size_type);
+  params2.insert(throwing, "string", param_string);
+  params2.insert(throwing, "vector", param_vector);
 
   /** Parameters contructors */
   Parameters params_copy(params);  // init a parameters with a parameters
@@ -60,20 +60,18 @@ int main() {
   Parameters params3;
   std::map<std::string, Parameter> my_map;
   my_map["real"] = param_real;
-  params3.insert(my_map);  // test insert std::map<std::string, Parameter>&
-  params3.insert(
-      {{"real", param_real}});  // test insert std::map<std::string, Parameter>&
-  auto equal_test_ = Parameters{{"real", param_real}};
+  params3.insert(throwing,
+                 my_map);  // test insert std::map<std::string, Parameter>&
 
   /** trigger warning msg (doublon) */
   Parameters params4;
-  params4.insert("real", param_real);
-  params4.insert("real", param_real);
+  params4.insert(throwing, "real", param_real);
 
   /** test functions */
-  auto test_get_parameter = get(params_copy, "real");
-  auto test_get_parameters = params_copy.get("real");  // get
-  if (std::get<real>(test_get_parameters) != real_value) {
+  auto test_get_parameter = get(throwing, params_copy, "real");
+  auto test_get_parameters = params_copy.get(throwing,
+                                             "real");  // get
+  if (std::get<real>(test_get_parameters.as_std_variant()) != real_value) {
     std::cout << "Error: test_get" << std::endl;
     std::abort();
   }
@@ -84,7 +82,8 @@ int main() {
       get_if(params_copy, "should no exist", status);
 
   /** check function */
-  checkParameters(params, {"real", "size_type"});
+  checkParameters(throwing, params,
+                  std::vector<std::string>{"real", "size_type"});
 
   /** should not contain string parameter */
   bool contain_string = params_copy.contains("string");
@@ -92,7 +91,7 @@ int main() {
     std::cout << "Error: contains part 1" << std::endl;
     std::abort();
   }
-  params_copy.insert(params2);
+  params_copy.insert(throwing, params2);
   /** should contain string parameter */
   contain_string = params_copy.contains("string");
   if (contain_string == false) {
@@ -100,7 +99,7 @@ int main() {
     std::abort();
   }
 
-  Parameters extractor = extract(params_copy, {"string", "vector"});
+  Parameters extractor = extract(throwing, params_copy, {"string", "vector"});
   /** should not contain parameters in params (real and size_type) */
   auto test_extractor =
       extractor.contains("string") && extractor.contains("vector") &&

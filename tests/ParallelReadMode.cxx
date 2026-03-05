@@ -142,9 +142,14 @@ static void setSolverParameters(
 
 bool checkSolution(mfem_mgis::NonLinearEvolutionProblem& problem,
                    const std::size_t i) {
-  const auto b = mfem_mgis::compareToAnalyticalSolution(
-      problem, getSolution(i), {{"CriterionThreshold", 1e-7}});
-  if (!b) {
+  auto ctx = mfem_mgis::Context{};
+  const auto osuccess = mfem_mgis::compareToAnalyticalSolution(
+      ctx, problem, getSolution(i), {{"CriterionThreshold", 1e-7}});
+  if (mfem_mgis::isInvalid(osuccess)) {
+    mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
+    return false;
+  }
+  if (!*osuccess) {
     mfem_mgis::getErrorStream() << "Error is greater than threshold\n";
     return false;
   }

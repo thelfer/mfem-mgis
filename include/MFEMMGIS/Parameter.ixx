@@ -10,66 +10,144 @@
 
 namespace mfem_mgis {
 
+  inline ParameterVariant& Parameter::as_std_variant() noexcept {
+    return *this;
+  }  // end of as_std_variant
+
+  inline const ParameterVariant& Parameter::as_std_variant() const noexcept {
+    return *this;
+  }  // end of as_std_variant
+
   template <typename ResultType>
-  bool is(const Parameter& p) {
-    return std::holds_alternative<ResultType>(p);
+  bool is(const Parameter& p) noexcept {
+    return std::holds_alternative<ResultType>(p.as_std_variant());
   }  // end of is
 
   template <>
-  inline bool is<double>(const Parameter& p) {
-    return std::holds_alternative<double>(p) || std::holds_alternative<int>(p);
+  inline bool is<double>(const Parameter& p) noexcept {
+    return std::holds_alternative<double>(p.as_std_variant()) ||
+           std::holds_alternative<int>(p.as_std_variant());
   }
 
   template <typename ResultType>
-  GetResultType<ResultType> get(const Parameter& p) {
+  OptionalGetResultType<ResultType> get(Context& ctx,
+                                        const Parameter& p) noexcept {
     if (!is<ResultType>(p)) {
-      Parameter::raiseUnmatchedParameterType();
+      return Parameter::reportUnmatchedParameterType(ctx);
     }
-    return std::get<ResultType>(p);
+    return OptionalReference<const ResultType>(
+        &(std::get<ResultType>(p.as_std_variant())));
   }  // end of get
 
   template <>
-  inline GetResultType<double> get<double>(const Parameter& p) {
-    if ((!is<double>(p)) && (!is<int>(p))) {
-      Parameter::raiseUnmatchedParameterType();
+  inline OptionalGetResultType<double> get<double>(
+      Context& ctx, const Parameter& p) noexcept {
+    if (!is<double>(p)) {
+      return Parameter::reportUnmatchedParameterType(ctx);
     }
-    if (std::holds_alternative<int>(p)) {
-      return std::get<int>(p);
+    if (std::holds_alternative<int>(p.as_std_variant())) {
+      return std::get<int>(p.as_std_variant());
     }
-    return std::get<double>(p);
+    return std::get<double>(p.as_std_variant());
   }  // end of get
 
   template <typename ResultType>
-  bool is(const Parameters& p, std::string_view n) {
-    const auto& v = p.get(n);
+  GetResultType<ResultType> get(attributes::Throwing, const Parameter& p) {
+    if (!is<ResultType>(p)) {
+      Parameter::raiseUnmatchedParameterType(throwing);
+    }
+    return std::get<ResultType>(p.as_std_variant());
+  }  // end of get
+
+  template <>
+  inline GetResultType<double> get<double>(attributes::Throwing,
+                                           const Parameter& p) {
+    if (!is<double>(p)) {
+      Parameter::raiseUnmatchedParameterType(throwing);
+    }
+    if (std::holds_alternative<int>(p.as_std_variant())) {
+      return std::get<int>(p.as_std_variant());
+    }
+    return std::get<double>(p.as_std_variant());
+  }  // end of get
+
+  template <typename ResultType>
+  bool is(attributes::Throwing, const Parameters& p, std::string_view n) {
+    const auto& v = p.get(throwing, n);
     return is<ResultType>(v);
   }  // end of is
 
   template <typename ResultType>
-  GetResultType<ResultType> get(const Parameters& p, std::string_view n) {
-    const auto& v = p.get(n);
-    if (!is<ResultType>(v)) {
-      Parameters::raiseUnmatchedParameterType(n);
+  OptionalGetResultType<ResultType> get(Context& ctx,
+                                        const Parameters& p,
+                                        std::string_view n) noexcept {
+    const auto& ov = p.get(ctx, n);
+    if (isInvalid(ov)) {
+      return {};
     }
-    return get<ResultType>(v);
+    if (!is<ResultType>(*ov)) {
+      return Parameters::reportUnmatchedParameterType(ctx, n);
+    }
+    return get<ResultType>(ctx, *ov);
   }  // end of get
 
   template <>
-  inline GetResultType<double> get<double>(const Parameters& p,
-                                           std::string_view n) {
-    const auto& v = p.get(n);
-    if (!is<double>(v)) {
-      Parameters::raiseUnmatchedParameterType(n);
+  inline OptionalGetResultType<double> get<double>(
+      Context& ctx, const Parameters& p, std::string_view n) noexcept {
+    const auto& ov = p.get(ctx, n);
+    if (isInvalid(ov)) {
+      return {};
     }
-    return get<double>(v);
+    if (!is<double>(*ov)) {
+      return Parameters::reportUnmatchedParameterType(ctx, n);
+    }
+    return get<double>(ctx, *ov);
   }  // end of get
 
   template <typename ResultType>
-  ResultType get_if(const Parameters& p,
+  std::optional<ResultType> get_if(Context& ctx,
+                                   const Parameters& p,
+                                   std::string_view n,
+                                   const ResultType& v) noexcept {
+    if (contains(p, n)) {
+      const auto ovalue = get<ResultType>(ctx, p, n);
+      if (isInvalid(ovalue)) {
+        return {};
+      }
+      return *ovalue;
+    }
+    return v;
+  }  // end of get
+
+  template <typename ResultType>
+  GetResultType<ResultType> get(attributes::Throwing,
+                                const Parameters& p,
+                                std::string_view n) {
+    const auto& v = p.get(throwing, n);
+    if (!is<ResultType>(v)) {
+      Parameters::raiseUnmatchedParameterType(throwing, n);
+    }
+    return get<ResultType>(throwing, v);
+  }  // end of get
+
+  template <>
+  inline GetResultType<double> get<double>(attributes::Throwing,
+                                           const Parameters& p,
+                                           std::string_view n) {
+    const auto& v = p.get(throwing, n);
+    if (!is<double>(v)) {
+      Parameters::raiseUnmatchedParameterType(throwing, n);
+    }
+    return get<double>(throwing, v);
+  }  // end of get
+
+  template <typename ResultType>
+  ResultType get_if(attributes::Throwing,
+                    const Parameters& p,
                     std::string_view n,
                     const ResultType& v) {
     if (contains(p, n)) {
-      return get<ResultType>(p, n);
+      return get<ResultType>(throwing, p, n);
     }
     return v;
   }  // end of get
