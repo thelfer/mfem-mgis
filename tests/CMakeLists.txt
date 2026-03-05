@@ -108,14 +108,12 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif (MFEM_USE_MPI)
   endfunction(add_imposed_pressure_test)
 
-  add_executable(ImposedPressureTest2
-    EXCLUDE_FROM_ALL
-    ImposedPressureTest2.cxx)
+  add_executable(ImposedPressureTest2 EXCLUDE_FROM_ALL ImposedPressureTest2.cxx)
   target_include_directories(ImposedPressureTest2
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(ImposedPressureTest2
     PRIVATE MFEMMGIS)
-  add_dependencies(check ImposedPressureTest)
+  add_dependencies(check ImposedPressureTest2)
 
   function(add_imposed_pressure_test2 behaviour)
     set(test "ImposedPressureTest2-${behaviour}")
