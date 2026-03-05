@@ -93,7 +93,7 @@ namespace mfem_mgis {
     d.insert({"Times", "list of times defining the temporal sequences"});
     d.insert({"Monitors", "list of monitors (vector of parameters)"});
     d.insert({"KeepOutputs", "keep the simulation outputs for all time steps"});
-    d.insert({"allowSubStepping",
+    d.insert({"AllowSubStepping",
               "boolean stating if sub stepping in case of convergence failure "
               "is allowed"});
     d.insert({"IndependentTemporalSequences",
@@ -256,7 +256,7 @@ namespace mfem_mgis {
                                    const Parameters &parameters) {
     checkParameters(throwing, parameters,
                     Simulation::getParametersDescription());
-    this->allowSubStepping =
+    this->allow_substepping =
         get_if<bool>(throwing, parameters, "AllowSubStepping", true);
     this->independentTemporalSequences = get_if<bool>(
         throwing, parameters, "IndependentTemporalSequences", true);
@@ -775,7 +775,7 @@ namespace mfem_mgis {
         s = ExitStatus::unrecoverableError;
         return ctx.registerErrorMessage("internal error");
       }
-      if (!this->allowSubStepping) {
+      if (!this->allow_substepping) {
         return false;
       }
       if ((dte < 0) || (std::fpclassify(dte) == FP_ZERO)) {
@@ -841,6 +841,8 @@ namespace mfem_mgis {
       updateAndSynchronize(
           this->simulateOverATimeStep(ctx, output, state, t, *ote));
       if (s == ExitStatus::unrecoverableError) {
+        std::ignore = ctx.registerErrorMessage(
+            "unrecoverable error returned, no substepping");
         return;
       }
       // resolution did not succeed, calling the convergence failure
@@ -1043,7 +1045,8 @@ namespace mfem_mgis {
       }
       return Parameters{};
     }();
-    updateAndSynchronize(isValid(r));
+    updateAndSynchronize(isValid(r) ? ExitStatus::success
+                                    : ExitStatus::recoverableError);
     if (!s.shallContinue()) {
       std::ignore = ctx.registerErrorMessage(
           "resolution of the non linear problem failed");
