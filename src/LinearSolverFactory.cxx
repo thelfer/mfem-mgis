@@ -28,84 +28,103 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreBoomerAMGPreconditioner(
-      Context& ctx, FiniteElementSpace<true>& fespace, const Parameters& opts) {
+      Context& ctx,
+      FiniteElementSpace<true>& fespace,
+      const Parameters& opts) noexcept {
     using Problem = AbstractNonLinearEvolutionProblem;
     auto amg = std::make_unique<mfem::HypreBoomerAMG>();
-    checkParameters(opts, {"Strategy", Problem::SolverVerbosityLevel});
+    if (!checkParameters(ctx, opts,
+                         std::vector<std::string>{
+                             "Strategy", Problem::SolverVerbosityLevel})) {
+      return {};
+    }
     if (contains(opts, "Strategy")) {
-      const auto strategy = get<std::string>(opts, "Strategy");
-      if (strategy == "Elasticity") {
+      const auto ostrategy = get<std::string>(ctx, opts, "Strategy");
+      if (isInvalid(ostrategy)) {
+        return {};
+      }
+      if (*ostrategy == "Elasticity") {
         amg->SetElasticityOptions(&fespace);
-      } else if (strategy == "System") {
+      } else if (*ostrategy == "System") {
         const auto* const m = fespace.GetMesh();
         const auto o = fespace.GetOrdering();
         amg->SetSystemsOptions(m->Dimension(), o == mfem::Ordering::byNODES);
-      } else if (strategy != "None") {
+      } else if (*ostrategy != "None") {
         return ctx.registerErrorMessage(
             "setLinearSolverParameters: "
             "invalid strategy '" +
-            strategy + "' for preconditioner HypreBoomerAMG");
+            *ostrategy + "' for preconditioner HypreBoomerAMG");
       }
     }
     if (contains(opts, Problem::SolverVerbosityLevel)) {
-      amg->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
+      const auto olvl = get<int>(ctx, opts, Problem::SolverVerbosityLevel);
+      if (isInvalid(olvl)) {
+        return {};
+      }
+      amg->SetPrintLevel(*olvl);
     }
     return amg;
   }  // end of setHypreBoomerAMGPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreEuclidPreconditioner(
-      Context&, FiniteElementSpace<true>&, const Parameters& opts) {
+      Context& ctx, FiniteElementSpace<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
+    if (!checkParameters(ctx, opts, {Problem::SolverVerbosityLevel})) {
+      return {};
+    }
     auto euclid = std::make_unique<mfem::HypreEuclid>(MPI_COMM_WORLD);
-    checkParameters(opts, {Problem::SolverVerbosityLevel});
-    // if (contains(opts, Problem::SolverVerbosityLevel)) {
-    // euclid->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
-    //}
     return euclid;
   }  // end of setHypreEuclidPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreILUPreconditioner(
-      Context&, FiniteElementSpace<true>&, const Parameters& opts) {
+      Context& ctx, FiniteElementSpace<true>&, const Parameters& opts) {
 #if MFEM_HYPRE_VERSION >= 21900
     using Problem = AbstractNonLinearEvolutionProblem;
-    bool verbose = contains(opts, Problem::SolverVerbosityLevel);
+    if (!checkParameters(ctx, opts,
+                         std::vector<std::string>{Problem::SolverVerbosityLevel,
+                                                  "HypreILULevelOfFill"})) {
+      return {};
+    }
+    const auto verbose = contains(opts, Problem::SolverVerbosityLevel);
+    const auto levelOfFill = contains(opts, "HypreILULevelOfFill");
     auto ilu = std::make_unique<mfem::HypreILU>();
-    bool levelOfFill = contains(opts, "HypreILULevelOfFill");
-    checkParameters(opts,
-                    {Problem::SolverVerbosityLevel, "HypreILULevelOfFill"});
     if (verbose) {
-      ilu->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
+      const auto olvl = get<int>(ctx, opts, Problem::SolverVerbosityLevel);
+      if (isInvalid(olvl)) {
+        return {};
+      }
+      ilu->SetPrintLevel(*olvl);
     }
     if (levelOfFill) {
-      auto level = get<int>(opts, "HypreILULevelOfFill");
-      HYPRE_ILUSetLevelOfFill(*ilu, level);
+      const auto olvl = get<int>(ctx, opts, "HypreILULevelOfFill");
+      if (isInvalid(olvl)) {
+        return {};
+      }
+      HYPRE_ILUSetLevelOfFill(*ilu, *olvl);
     }
     return ilu;
 #else  /*  HYPRE_OLD_VERSION */
-    MFEM_VERIFY(
-        0, "Support for HypreILU is notavailable with this version of MFEM");
-    return nullptr;
+    return ctx.registerErrorMessage(
+        "Support for HypreILU is not available with this version of MFEM");
 #endif /* HYPRE_OLD_VERSION */
   }    // end of setHypreILUPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreParaSailsPreconditioner(
-      Context&, FiniteElementSpace<true>&, const Parameters& opts) {
+      Context& ctx, FiniteElementSpace<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
-    auto ps = std::make_unique<mfem::HypreParaSails>(MPI_COMM_WORLD);
-    checkParameters(opts, {Problem::SolverVerbosityLevel});
-    // if (contains(opts, Problem::SolverVerbosityLevel)) {
-    //  ps->SetPrintLevel(get<int>(opts, Problem::SolverVerbosityLevel));
-    //}
-    return ps;
+    if (!checkParameters(ctx, opts, {Problem::SolverVerbosityLevel})) {
+      return {};
+    }
+    return std::make_unique<mfem::HypreParaSails>(MPI_COMM_WORLD);
   }  // end of setHypreParaSailsPreconditioner
 
   std::unique_ptr<LinearSolverPreconditioner> setHypreDiagScalePreconditioner(
-      Context&, FiniteElementSpace<true>&, const Parameters& opts) {
+      Context& ctx, FiniteElementSpace<true>&, const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
-    // auto ps = std::make_unique<mfem::HypreDiagScale>(MPI_COMM_WORLD);
-    auto ps = std::make_unique<mfem::HypreDiagScale>();
-    checkParameters(opts, {Problem::SolverVerbosityLevel});
-    return ps;
+    if (!checkParameters(ctx, opts, {Problem::SolverVerbosityLevel})) {
+      return {};
+    }
+    return std::make_unique<mfem::HypreDiagScale>();
   }   // end of setHypreDiagScalePreconditioner
 #else /* MFEM_USE_MPI */
 
@@ -144,56 +163,82 @@ namespace mfem_mgis {
       Context& ctx,
       FiniteElementSpace<parallel>& fespace,
       const Parameters& pr) {
-    checkParameters(pr, {"Name", "Options"});
-    const auto name = get<std::string>(pr, "Name");
-    if (name == "None") {
+    if (!checkParameters(ctx, pr,
+                         std::vector<std::string>{"Name", "Options"})) {
+      return {};
+    }
+    const auto oname = get<std::string>(ctx, pr, "Name");
+    if (isInvalid(oname)) {
+      return {};
+    }
+    if (*oname == "None") {
       if (contains(pr, "Options")) {
         return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "no options expected for preconditioner '" +
-            name + "'");
+            *oname + "'");
       }
       return {};
-    } else if (name == "HypreBoomerAMG") {
+    } else if (*oname == "HypreBoomerAMG") {
       if constexpr (parallel) {
-        return setHypreBoomerAMGPreconditioner(
-            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+        const auto oparams =
+            get_if<Parameters>(ctx, pr, "Options", Parameters{});
+        if (isInvalid(oparams)) {
+          return {};
+        }
+        return setHypreBoomerAMGPreconditioner(ctx, fespace, *oparams);
       } else {
         return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreBoomerAMG' is only available in parallel");
       }
-    } else if (name == "HypreEuclid") {
+    } else if (*oname == "HypreEuclid") {
       if constexpr (parallel) {
-        return setHypreEuclidPreconditioner(
-            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+        const auto oparams =
+            get_if<Parameters>(ctx, pr, "Options", Parameters{});
+        if (isInvalid(oparams)) {
+          return {};
+        }
+        return setHypreEuclidPreconditioner(ctx, fespace, *oparams);
       } else {
         return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreEuclid' is only available in parallel");
       }
-    } else if (name == "HypreILU") {
+    } else if (*oname == "HypreILU") {
       if constexpr (parallel) {
-        return setHypreILUPreconditioner(
-            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+        const auto oparams =
+            get_if<Parameters>(ctx, pr, "Options", Parameters{});
+        if (isInvalid(oparams)) {
+          return {};
+        }
+        return setHypreILUPreconditioner(ctx, fespace, *oparams);
       } else {
         return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreILU' is only available in parallel");
       }
-    } else if (name == "HypreParaSails") {
+    } else if (*oname == "HypreParaSails") {
       if constexpr (parallel) {
-        return setHypreParaSailsPreconditioner(
-            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+        const auto oparams =
+            get_if<Parameters>(ctx, pr, "Options", Parameters{});
+        if (isInvalid(oparams)) {
+          return {};
+        }
+        return setHypreParaSailsPreconditioner(ctx, fespace, *oparams);
       } else {
         return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
             "the 'HypreParaSails' is only available in parallel");
       }
-    } else if (name == "HypreDiagScale") {
+    } else if (*oname == "HypreDiagScale") {
       if constexpr (parallel) {
-        return setHypreDiagScalePreconditioner(
-            ctx, fespace, get_if<Parameters>(pr, "Options", Parameters{}));
+        const auto oparams =
+            get_if<Parameters>(ctx, pr, "Options", Parameters{});
+        if (isInvalid(oparams)) {
+          return {};
+        }
+        return setHypreDiagScalePreconditioner(ctx, fespace, *oparams);
       } else {
         return ctx.registerErrorMessage(
             "setLinearSolverPreconditioner: "
@@ -203,7 +248,7 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "setLinearSolverPreconditioner: "
           "unsupported preconditioner '" +
-          name + "'");
+          *oname + "'");
     }
     return {};
   }  // end of getLinearSolverPreconditioner
@@ -218,11 +263,23 @@ namespace mfem_mgis {
     s.iterative_mode = false;
     auto allowed_parameters = getIterativeSolverParametersList();
     allowed_parameters.push_back(Preconditioner);
-    checkParameters(params, allowed_parameters);
-    setSolverParameters(s, extract(params, getIterativeSolverParametersList()));
+    if (!checkParameters(ctx, params, allowed_parameters)) {
+      return {};
+    }
+    const auto oparams =
+        extract(ctx, params, getIterativeSolverParametersList());
+    if (isInvalid(oparams)) {
+      return {};
+    }
+    if (!setSolverParameters(ctx, s, *oparams)) {
+      return {};
+    }
     if (contains(params, Preconditioner)) {
-      const auto pr = get<Parameters>(params, Preconditioner);
-      auto prec = getLinearSolverPreconditioner<parallel>(ctx, fespace, pr);
+      const auto opr = get<Parameters>(ctx, params, Preconditioner);
+      if (isInvalid(opr)) {
+        return {};
+      }
+      auto prec = getLinearSolverPreconditioner<parallel>(ctx, fespace, *opr);
       if (isInvalid(prec)) {
         return {};
       }
@@ -245,23 +302,40 @@ namespace mfem_mgis {
       const auto allowed_parameters = std::vector<std::string>{
           Problem::SolverVerbosityLevel, SolverTolerance,
           Problem::SolverMaximumNumberOfIterations, Preconditioner};
-      auto s = std::make_unique<mfem::HyprePCG>(MPI_COMM_WORLD);
+      auto s = std::make_unique<mfem::HyprePCG>(fespace.GetComm());
       s->iterative_mode = false;
-      checkParameters(params, allowed_parameters);
+      if (!checkParameters(ctx, params, allowed_parameters)) {
+        return {};
+      }
       if (contains(params, Problem::SolverVerbosityLevel)) {
-        s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
+        const auto olvl = get<int>(ctx, params, Problem::SolverVerbosityLevel);
+        if (isInvalid(olvl)) {
+          return {};
+        }
+        s->SetPrintLevel(*olvl);
       }
       if (contains(params, SolverTolerance)) {
-        s->SetTol(get<double>(params, SolverTolerance));
+        const auto otol = get<double>(ctx, params, SolverTolerance);
+        if (isInvalid(otol)) {
+          return {};
+        }
+        s->SetTol(*otol);
       }
       if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-        s->SetMaxIter(
-            get<int>(params, Problem::SolverMaximumNumberOfIterations));
+        const auto oiterMax =
+            get<int>(ctx, params, Problem::SolverVerbosityLevel);
+        if (isInvalid(oiterMax)) {
+          return {};
+        }
+        s->SetMaxIter(*oiterMax);
       }
       auto prec = std::unique_ptr<mfem::Solver>{};
       if (contains(params, Preconditioner)) {
-        const auto pr = get<Parameters>(params, Preconditioner);
-        prec = getLinearSolverPreconditioner<true>(ctx, fespace, pr);
+        const auto oparams = get<Parameters>(ctx, params, Preconditioner);
+        if (isInvalid(oparams)) {
+          return {};
+        }
+        prec = getLinearSolverPreconditioner<true>(ctx, fespace, *oparams);
         if (isInvalid(prec)) {
           return {};
         }
@@ -291,29 +365,55 @@ namespace mfem_mgis {
       const auto allowed_parameters = std::vector<std::string>{
           Problem::SolverVerbosityLevel, SolverTolerance,
           Problem::SolverMaximumNumberOfIterations, Preconditioner};
-      auto s = std::make_unique<mfem::HypreGMRES>(MPI_COMM_WORLD);
+      auto s = std::make_unique<mfem::HypreGMRES>(fespace.GetComm());
       s->iterative_mode = false;
-      checkParameters(params, allowed_parameters);
+      if (!checkParameters(ctx, params, allowed_parameters)) {
+        return {};
+      }
       if (contains(params, Problem::SolverVerbosityLevel)) {
-        s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
+        const auto olvl = get<int>(ctx, params, Problem::SolverVerbosityLevel);
+        if (isInvalid(olvl)) {
+          return {};
+        }
+        s->SetPrintLevel(*olvl);
       }
       if (contains(params, Problem::SolverAbsoluteTolerance)) {
-        s->SetAbsTol(get<double>(params, Problem::SolverAbsoluteTolerance));
+        const auto otol =
+            get<double>(ctx, params, Problem::SolverAbsoluteTolerance);
+        if (isInvalid(otol)) {
+          return {};
+        }
+        s->SetAbsTol(*otol);
       }
       if (contains(params, SolverTolerance)) {
-        s->SetTol(get<double>(params, SolverTolerance));
+        const auto otol = get<double>(ctx, params, SolverTolerance);
+        if (isInvalid(otol)) {
+          return {};
+        }
+        s->SetTol(*otol);
       }
       if (contains(params, Krylov_Dimension)) {
-        s->SetTol(get<double>(params, Krylov_Dimension));
+        const auto odim = get<int>(ctx, params, Krylov_Dimension);
+        if (isInvalid(odim)) {
+          return {};
+        }
+        s->SetKDim(*odim);
       }
       if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-        s->SetMaxIter(
-            get<int>(params, Problem::SolverMaximumNumberOfIterations));
+        const auto oiterMax =
+            get<int>(ctx, params, Problem::SolverMaximumNumberOfIterations);
+        if (isInvalid(oiterMax)) {
+          return {};
+        }
+        s->SetMaxIter(*oiterMax);
       }
       auto prec = std::unique_ptr<mfem::Solver>{};
       if (contains(params, Preconditioner)) {
-        const auto pr = get<Parameters>(params, Preconditioner);
-        prec = getLinearSolverPreconditioner<true>(ctx, fespace, pr);
+        const auto opr = get<Parameters>(ctx, params, Preconditioner);
+        if (isInvalid(opr)) {
+          return {};
+        }
+        prec = getLinearSolverPreconditioner<true>(ctx, fespace, *opr);
         if (isInvalid(prec)) {
           return {};
         }
@@ -345,27 +445,53 @@ namespace mfem_mgis {
           Problem::SolverMaximumNumberOfIterations, Preconditioner};
       auto s = std::make_unique<mfem::HypreFGMRES>(MPI_COMM_WORLD);
       s->iterative_mode = false;
-      checkParameters(params, allowed_parameters);
+      if (!checkParameters(ctx, params, allowed_parameters)) {
+        return {};
+      }
       if (contains(params, Problem::SolverVerbosityLevel)) {
-        s->SetPrintLevel(get<int>(params, Problem::SolverVerbosityLevel));
+        const auto olvl = get<int>(ctx, params, Problem::SolverVerbosityLevel);
+        if (isInvalid(olvl)) {
+          return {};
+        }
+        s->SetPrintLevel(*olvl);
       }
       if (contains(params, Problem::SolverAbsoluteTolerance)) {
-        s->SetTol(get<double>(params, Problem::SolverAbsoluteTolerance));
+        const auto otol =
+            get<double>(ctx, params, Problem::SolverAbsoluteTolerance);
+        if (isInvalid(otol)) {
+          return {};
+        }
+        s->SetTol(*otol);
       }
       if (contains(params, SolverTolerance)) {
-        s->SetTol(get<double>(params, SolverTolerance));
+        const auto otol = get<double>(ctx, params, SolverTolerance);
+        if (isInvalid(otol)) {
+          return {};
+        }
+        s->SetTol(*otol);
       }
       if (contains(params, Krylov_Dimension)) {
-        s->SetTol(get<double>(params, Krylov_Dimension));
+        const auto odim = get<int>(ctx, params, Krylov_Dimension);
+        if (isInvalid(odim)) {
+          return {};
+        }
+        s->SetKDim(*odim);
       }
       if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
-        s->SetMaxIter(
-            get<int>(params, Problem::SolverMaximumNumberOfIterations));
+        const auto oiterMax =
+            get<int>(ctx, params, Problem::SolverMaximumNumberOfIterations);
+        if (isInvalid(oiterMax)) {
+          return {};
+        }
+        s->SetMaxIter(*oiterMax);
       }
       auto prec = std::unique_ptr<mfem::Solver>{};
       if (contains(params, Preconditioner)) {
-        const auto pr = get<Parameters>(params, Preconditioner);
-        prec = getLinearSolverPreconditioner<true>(ctx, fespace, pr);
+        const auto opr = get<Parameters>(ctx, params, Preconditioner);
+        if (isInvalid(opr)) {
+          return {};
+        }
+        prec = getLinearSolverPreconditioner<true>(ctx, fespace, *opr);
         if (isInvalid(prec)) {
           return {};
         }
@@ -435,19 +561,26 @@ namespace mfem_mgis {
   std::function<LinearSolverHandler(
       Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildMUMPSSolverGenerator() {
-    return [](Context&, FiniteElementSpace<true>&, const Parameters& params) {
-      checkParameters(params, {"Symmetric", "PositiveDefinite"});
-      auto s = std::make_unique<mfem::MUMPSSolver>(MPI_COMM_WORLD);
-      const auto symmetric = get_if<bool>(params, "Symmetric", false);
-      const auto positive_definite =
-          get_if<bool>(params, "PositiveDefinite", false);
+    return [](Context& ctx, FiniteElementSpace<true>& fespace,
+              const Parameters& params) -> LinearSolverHandler {
+      if (!checkParameters(
+              ctx, params,
+              std::vector<std::string>{"Symmetric", "PositiveDefinite"})) {
+        return {};
+      }
+      auto s = std::make_unique<mfem::MUMPSSolver>(fespace.GetComm());
+      const auto osymmetric = get_if<bool>(ctx, params, "Symmetric", false);
+      if (isInvalid(osymmetric)) {
+        return {};
+      }
+      const auto opositive_definite =
+          get_if<bool>(ctx, params, "PositiveDefinite", false);
+      if (isInvalid(opositive_definite)) {
+        return {};
+      }
       s->SetPrintLevel(1);
-      //      if (getMPIrank() == 0) {
-      //	mfem_mgis::getOutputStream() << "Global Nbdof " <<
-      // p.getFiniteElementSpace().GlobalTrueVSize() << "\n";
-      //      }
-      if (symmetric) {
-        if (positive_definite) {
+      if (*osymmetric) {
+        if (*opositive_definite) {
           s->SetMatrixSymType(
               mfem::MUMPSSolver::MatType::SYMMETRIC_POSITIVE_DEFINITE);
         } else {

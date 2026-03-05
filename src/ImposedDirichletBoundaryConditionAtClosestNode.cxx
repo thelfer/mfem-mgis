@@ -234,11 +234,11 @@ namespace mfem_mgis {
 
   void
   ImposedDirichletBoundaryConditionAtClosestNode::setImposedValuesIncrements(
-      mfem::Vector& du, const real ti, const real te) const {
+      mfem::Vector& du, const real ti, const real te, const real f) const {
     if (!this->dof.has_value()) {
       return;
     }
-    const auto duv = this->ufct(te) - this->ufct(ti);
+    const auto duv = f * (this->ufct(te) - this->ufct(ti));
     du[*(this->dof)] = duv;
   }  // end of setImposedValuesIncrements
 

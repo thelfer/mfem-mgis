@@ -10,7 +10,12 @@
 
 namespace mfem_mgis {
 
-  void Parameter::raiseUnmatchedParameterType() {
+  InvalidResult Parameter::reportUnmatchedParameterType(Context& ctx) noexcept {
+    return ctx.registerErrorMessage(
+        "the type of parameter is not the expected one");
+  }  // end of reportUnmatchedParameterType
+
+  void Parameter::raiseUnmatchedParameterType(attributes::Throwing) {
     raise(
         "Parameter::raiseUnmatchedParameterType: "
         "the type of parameter is not the expected one");
@@ -40,15 +45,21 @@ namespace mfem_mgis {
 
   Parameter::~Parameter() = default;
 
-  Parameter get(const Parameters& p, std::string_view n) {
-    return p.get(n);
+  Parameter get(attributes::Throwing, const Parameters& p, std::string_view n) {
+    return p.get(throwing, n);
+  }  // end of get
+
+  OptionalReference<const Parameter> get(Context& ctx,
+                                         const Parameters& p,
+                                         std::string_view n) noexcept {
+    return p.get(ctx, n);
   }  // end of get
 
   Parameter get_if(const Parameters& p,
                    std::string_view n,
-                   const Parameter& v) {
+                   const Parameter& v) noexcept {
     if (contains(p, n)) {
-      return p.get(n);
+      return p.get(throwing, n);
     }
     return v;
   }  // end of get

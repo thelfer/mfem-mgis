@@ -107,11 +107,16 @@ int main(int argc, char** argv) {
     t += dt;
   }
   //
-  const auto success = mfem_mgis::compareToAnalyticalSolution(
-      problem,
+  auto ctx = mfem_mgis::Context{};
+  const auto osuccess = mfem_mgis::compareToAnalyticalSolution(
+      ctx, problem,
       [](mfem::Vector& u, const mfem::Vector& x) {
         u[0] = std::sin(4 * pi * x[0]) / 2;
       },
       {{"CriterionThreshold", 3e-6}});
-  return success ? EXIT_SUCCESS : EXIT_FAILURE;
+  if (mfem_mgis::isInvalid(osuccess)) {
+    mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
+    return EXIT_FAILURE;
+  }
+  return *osuccess ? EXIT_SUCCESS : EXIT_FAILURE;
 }

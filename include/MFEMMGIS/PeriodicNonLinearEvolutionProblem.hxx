@@ -99,12 +99,12 @@ namespace mfem_mgis {
     PeriodicNonLinearEvolutionProblem(
         std::shared_ptr<FiniteElementDiscretization>,
         const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
-
     // disable adding boundary conditions
-    void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
-    [[noreturn]] void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&,
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept override;
     /*!
      * \brief set the evolution of the macroscopic gradients
      * \param[in] e : function
@@ -119,6 +119,10 @@ namespace mfem_mgis {
      */
     virtual std::vector<real> getMacroscopicGradients(const real,
                                                       const real) const;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractBoundaryCondition>) override;
     //! \brief destructor
     virtual ~PeriodicNonLinearEvolutionProblem();
 

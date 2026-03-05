@@ -160,8 +160,9 @@ namespace mfem_mgis {
       UniformImposedPressureBoundaryCondition(
           AbstractNonLinearEvolutionProblem &p, const Parameters &params)
       : finiteElementDiscretization(p.getFiniteElementDiscretizationPointer()),
-        bids(getBoundariesIdentifiers(p, params, false)),
-        prfct(get<std::function<real(const real)>>(params, "LoadingEvolution")),
+        bids(getBoundariesIdentifiers(throwing, p, params, false)),
+        prfct(get<std::function<real(const real)>>(
+            throwing, params, "LoadingEvolution")),
         nfi(new UniformImposedPressureNonlinearFormIntegrator) {}
 
   UniformImposedPressureBoundaryCondition::
@@ -190,8 +191,8 @@ namespace mfem_mgis {
   }
 
 #ifdef MFEM_USE_MPI
-  void UniformImposedPressureBoundaryCondition::addNonlinearFormIntegrator(
-      NonlinearForm<true> &f) {
+  bool UniformImposedPressureBoundaryCondition::addNonlinearFormIntegrator(
+      Context &, NonlinearForm<true> &f, const mfem::Vector &) noexcept {
     auto &m = this->finiteElementDiscretization->getMesh<true>();
     this->boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
@@ -201,11 +202,12 @@ namespace mfem_mgis {
     }
     f.AddBoundaryIntegrator(this->nfi, this->boundaries_markers);
     this->shallFreeIntegrator = false;
+    return true;
   }    // end of addNonlinearFormIntegrator
 #endif /* MFEM_USE_MPI */
 
-  void UniformImposedPressureBoundaryCondition::addNonlinearFormIntegrator(
-      NonlinearForm<false> &f) {
+  bool UniformImposedPressureBoundaryCondition::addNonlinearFormIntegrator(
+      Context &, NonlinearForm<false> &f, const mfem::Vector &) noexcept {
     auto &m = this->finiteElementDiscretization->getMesh<false>();
     this->boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
@@ -215,11 +217,17 @@ namespace mfem_mgis {
     }
     f.AddBoundaryIntegrator(this->nfi, this->boundaries_markers);
     this->shallFreeIntegrator = false;
+    return true;
   }  // end of addNonlinearFormIntegrator
 
 #ifdef MFEM_USE_MPI
-  void UniformImposedPressureBoundaryCondition::addLinearFormIntegrator(
-      LinearForm<true> &f, const real t, const real dt) {
+  bool UniformImposedPressureBoundaryCondition::addLinearFormIntegrators(
+      Context &,
+      BilinearForm<true> &,
+      LinearForm<true> &b,
+      const mfem::Vector &,
+      const real t,
+      const real dt) noexcept {
     auto &m = this->finiteElementDiscretization->getMesh<true>();
     this->boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
@@ -229,12 +237,18 @@ namespace mfem_mgis {
     }
     auto *form = new UniformImposedPressureLinearFormIntegrator();
     form->setPressure(this->prfct(t + dt));
-    f.AddBoundaryIntegrator(form, this->boundaries_markers);
-  }    // end of addLinearFormIntegrator
+    b.AddBoundaryIntegrator(form, this->boundaries_markers);
+    return true;
+  }    // end of addLinearFormIntegrators
 #endif /* MFEM_USE_MPI */
 
-  void UniformImposedPressureBoundaryCondition::addLinearFormIntegrator(
-      LinearForm<false> &f, const real t, const real dt) {
+  bool UniformImposedPressureBoundaryCondition::addLinearFormIntegrators(
+      Context &,
+      BilinearForm<false> &,
+      LinearForm<false> &b,
+      const mfem::Vector &,
+      const real t,
+      const real dt) noexcept {
     auto &m = this->finiteElementDiscretization->getMesh<false>();
     this->boundaries_markers =
         mfem::Array<mfem_mgis::size_type>(m.bdr_attributes.Max());
@@ -244,8 +258,9 @@ namespace mfem_mgis {
     }
     auto *form = new UniformImposedPressureLinearFormIntegrator();
     form->setPressure(this->prfct(t + dt));
-    f.AddBoundaryIntegrator(form, this->boundaries_markers);
-  }  // end of addLinearFormIntegrator
+    b.AddBoundaryIntegrator(form, this->boundaries_markers);
+    return true;
+  }  // end of addLinearFormIntegrators
 
   UniformImposedPressureBoundaryCondition::
       ~UniformImposedPressureBoundaryCondition() {

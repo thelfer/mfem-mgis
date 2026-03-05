@@ -24,10 +24,11 @@ namespace mfem_mgis {
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const Parameters& params)
       : ParaviewExportIntegrationPointResultsAtNodesBase(
-            get<std::string>(params, "OutputFileName")) {
-    checkParameters(params, {"OutputFileName", "Materials", "Results"});
+            get<std::string>(throwing, params, "OutputFileName")) {
+    checkParameters(throwing, params,
+                    {"OutputFileName", "Materials", "Results"});
     // if Materials exists, use it, otherwise, take all materials
-    this->materials_identifiers = getMaterialsIdentifiers(p, params);
+    this->materials_identifiers = getMaterialsIdentifiers(throwing, p, params);
     this->createSubMesh(p);
     this->exporter.SetMesh(this->submesh.get());
     //
@@ -65,11 +66,12 @@ namespace mfem_mgis {
       // saving
       this->results.push_back(std::move(r));
     };
-    if (is<std::string>(params, "Results")) {
-      add_result(get<std::string>(params, "Results"));
+    if (is<std::string>(throwing, params, "Results")) {
+      add_result(get<std::string>(throwing, params, "Results"));
     } else {
-      for (const auto& rn : get<std::vector<Parameter>>(params, "Results")) {
-        add_result(get<std::string>(rn));
+      for (const auto& rn :
+           get<std::vector<Parameter>>(throwing, params, "Results")) {
+        add_result(get<std::string>(throwing, rn));
       }
     }
   }  // end of ParaviewExportIntegrationPointResultsAtNodesImplementation

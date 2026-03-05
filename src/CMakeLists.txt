@@ -1,4 +1,3 @@
-
 set(MFEMMGIS_SOURCES)
 list(APPEND MFEMMGIS_SOURCES
   Config.cxx
@@ -16,7 +15,7 @@ list(APPEND MFEMMGIS_SOURCES
   BehaviourIntegratorBase.cxx
   BehaviourIntegratorFactory.cxx
   MultiMaterialNonLinearIntegrator.cxx
-  DirichletBoundaryCondition.cxx
+  AbstractDirichletBoundaryCondition.cxx
   DirichletBoundaryConditionBase.cxx
   UniformDirichletBoundaryCondition.cxx
   AbstractBoundaryCondition.cxx
@@ -28,6 +27,7 @@ list(APPEND MFEMMGIS_SOURCES
   ParaviewExportIntegrationPointResultsAtNodes.cxx
   ComputeResultantForceOnBoundary.cxx
   AbstractNonLinearEvolutionProblem.cxx
+  NonLinearResolutionOutput.cxx
   NonLinearEvolutionProblemImplementationBase.cxx
   NonLinearEvolutionProblemImplementation.cxx
   NonLinearEvolutionProblem.cxx
@@ -59,7 +59,19 @@ list(APPEND MFEMMGIS_SOURCES
   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TransientHeatTransferBehaviourIntegrator.cxx
-  L2Projection.cxx)
+  L2Projection.cxx
+  Simulation.cxx
+  AbstractTimeStepValidator.cxx
+  TimeStepValidatorBase.cxx
+  DefaultTimeStepValidator.cxx
+  AbstractConvergenceFailureHandler.cxx
+  ConvergenceFailureHandlerBase.cxx
+  DefaultConvergenceFailureHandler.cxx
+  AbstractTimeIncrementComputer.cxx
+  TimeIncrementComputerBase.cxx
+  DefaultTimeIncrementComputer.cxx
+  AbstractSimulationMonitor.cxx
+)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES

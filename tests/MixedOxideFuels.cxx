@@ -182,23 +182,25 @@ static void setLinearSolver(Problem& p,
   // pilote
   constexpr int defaultMaxNumOfIt = 5000;  // MaximumNumberOfIterations
   auto solverParameters = mfem_mgis::Parameters{};
-  solverParameters.insert(mfem_mgis::Parameters{{"VerbosityLevel", verbosity}});
   solverParameters.insert(
-      mfem_mgis::Parameters{{"MaximumNumberOfIterations", defaultMaxNumOfIt}});
-
+      mfem_mgis::throwing,
+      mfem_mgis::Parameters{{"VerbosityLevel", verbosity},
+                            {"MaximumNumberOfIterations", defaultMaxNumOfIt}});
   if (parallel) {
-    solverParameters.insert(mfem_mgis::Parameters{{"Tolerance", Tol}});
+    solverParameters.insert(mfem_mgis::throwing,
+                            mfem_mgis::Parameters{{"Tolerance", Tol}});
   } else {
-    solverParameters.insert(mfem_mgis::Parameters{{"AbsoluteTolerance", Tol},
+    solverParameters.insert(mfem_mgis::throwing,
+                            mfem_mgis::Parameters{{"AbsoluteTolerance", Tol},
                                                   {"RelativeTolerance", Tol}});
   }
-
   // preconditionner hypreBoomerAMG
   if (parallel) {
     auto options = mfem_mgis::Parameters{{"VerbosityLevel", verbosity}};
     auto preconditionner =
         mfem_mgis::Parameters{{"Name", "HypreBoomerAMG"}, {"Options", options}};
     solverParameters.insert(
+        mfem_mgis::throwing,
         mfem_mgis::Parameters{{"Preconditioner", preconditionner}});
     // solver HyprePCG
     p.setLinearSolver("HyprePCG", solverParameters);

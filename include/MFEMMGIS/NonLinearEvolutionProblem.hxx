@@ -45,7 +45,7 @@ namespace mfem_mgis {
      *    performed. This value if assumed to be false by default.
      * - `MeshFileName` (string): mesh file.
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used.The default value if `H1`.
+     *   used. The default value if `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `Hypothesis` (string): modelling hypothesis
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
@@ -70,12 +70,12 @@ namespace mfem_mgis {
     [[nodiscard]] const NonLinearEvolutionProblemImplementation<parallel>
         &getImplementation() const;
     //
-    [[nodiscard]] FiniteElementDiscretization &getFiniteElementDiscretization()
-        override;
+    [[nodiscard]] FiniteElementDiscretization &
+    getFiniteElementDiscretization() noexcept override;
     [[nodiscard]] const FiniteElementDiscretization &
-    getFiniteElementDiscretization() const override;
+    getFiniteElementDiscretization() const noexcept override;
     [[nodiscard]] std::shared_ptr<FiniteElementDiscretization>
-    getFiniteElementDiscretizationPointer() override;
+    getFiniteElementDiscretizationPointer() noexcept override;
     [[nodiscard]] bool setMaterialsNames(
         Context &, const std::map<size_type, std::string> &) noexcept override;
     [[nodiscard]] bool setBoundariesNames(
@@ -84,15 +84,24 @@ namespace mfem_mgis {
         const TimeStepStage) noexcept override;
     [[nodiscard]] const mfem::Vector &getUnknowns(
         const TimeStepStage) const noexcept override;
-    void setSolverParameters(const Parameters &) override;
+    [[nodiscard]] bool setSolverParameters(
+        Context &, const Parameters &) noexcept override;
     [[nodiscard]] bool setLinearSolver(Context &,
                                        LinearSolverHandler) noexcept override;
-    void setLinearSolver(std::string_view, const Parameters &) override;
+    [[nodiscard]] bool setLinearSolver(Context &,
+                                       std::string_view,
+                                       const Parameters &) noexcept override;
+    [[nodiscard]] bool areStiffnessOperatorsFromLastIterationAvailable()
+        const noexcept override;
     void setPredictionPolicy(const PredictionPolicy &) noexcept override;
-    void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
-    void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
+    [[nodiscard]] PredictionPolicy getPredictionPolicy()
+        const noexcept override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context &,
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context &,
+        std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     /*!
      * \brief add an uniform boundary condition
      * \param[in] params: parameters defining the boundary condition
@@ -100,7 +109,9 @@ namespace mfem_mgis {
     void addUniformDirichletBoundaryCondition(const Parameters &);
     void addPostProcessing(
         const std::function<void(const real, const real)> &) override;
-    void addPostProcessing(std::string_view, const Parameters &) override;
+    [[nodiscard]] bool addPostProcessing(Context &,
+                                         std::string_view,
+                                         const Parameters &) noexcept override;
     void executePostProcessings(const real, const real) override;
     std::map<size_type, size_type> addBehaviourIntegrator(
         const std::string &,
@@ -108,7 +119,7 @@ namespace mfem_mgis {
         const std::string &,
         const std::string &) override;
     [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
-        const override;
+        const noexcept override;
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
         Context &, const Parameter &) const noexcept override;
     [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
@@ -129,13 +140,19 @@ namespace mfem_mgis {
         Context &, const Parameter &, const size_type) noexcept override;
     std::vector<size_type> getEssentialDegreesOfFreedom() const override;
     [[nodiscard]] bool integrate(const mfem::Vector &,
-                                 const IntegrationType) override;
+                                 const IntegrationType,
+                                 const std::optional<real>) override;
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
         Context &, const mfem::Vector &) noexcept override;
-    [[nodiscard]] const std::vector<std::unique_ptr<DirichletBoundaryCondition>>
-        &getDirichletBoundaryConditions() noexcept override;
+    [[nodiscard]] const std::vector<
+        std::unique_ptr<AbstractDirichletBoundaryCondition>>
+        &getDirichletBoundaryConditions() const noexcept override;
+    [[nodiscard]] virtual const std::vector<
+        std::unique_ptr<AbstractBoundaryCondition>>
+        &getBoundaryConditions() const noexcept override;
     void setup(const real, const real) override;
-    [[nodiscard]] NonLinearResolutionOutput solve(const real,
+    [[nodiscard]] NonLinearResolutionOutput solve(Context &,
+                                                  const real,
                                                   const real) override;
     void revert() override;
     void update() override;
@@ -167,6 +184,17 @@ namespace mfem_mgis {
     getBehaviourIntegrator(const size_type) const override;
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator &
     getBehaviourIntegrator(const size_type) override;
+    [[deprecated]] void setLinearSolver(std::string_view,
+                                        const Parameters &) override;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractBoundaryCondition>) override;
+    [[deprecated]] void addPostProcessing(std::string_view,
+                                          const Parameters &) override;
+    [[deprecated]] void setSolverParameters(const Parameters &) override;
+    [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
+        const real, const real) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 

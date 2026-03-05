@@ -20,38 +20,66 @@ namespace mfem_mgis {
     /*!
      * \brief add the nonlinear form integrator describing the
      * the boundary condition
+     *
+     * \param[in] ctx: execution context
      * \param[in] f: form
+     * \param[in] u: current estimate of the solution at the end of the time
+     * step
      */
-    virtual void addNonlinearFormIntegrator(NonlinearForm<true>&) = 0;
+    [[nodiscard]] virtual bool addNonlinearFormIntegrator(
+        Context&, NonlinearForm<true>&, const mfem::Vector&) noexcept = 0;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief add the nonlinear form integrator describing the
      * the boundary condition
+     *
+     * \param[in] ctx: execution context
      * \param[in] f: form
+     * \param[in] u: current estimate of the solution at the end of the time
+     * step
      */
-    virtual void addNonlinearFormIntegrator(NonlinearForm<false>&) = 0;
+    [[nodiscard]] virtual bool addNonlinearFormIntegrator(
+        Context&, NonlinearForm<false>&, const mfem::Vector&) noexcept = 0;
 #ifdef MFEM_USE_MPI
     /*!
-     * \brief add the linear form integrator describing the
-     * the boundary condition
-     * \param[in] f: form
+     * \brief add the bilinear and linear form integrators
+     * describing the boundary condition
+     *
+     * \param[in] ctx: execution context
+     * \param[in] a: form computing the jacobian matrix
+     * \param[in] b: form computing the right hand side
+     * \param[in] u: current estimate of the solution at the end of the time
+     * step
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void addLinearFormIntegrator(LinearForm<true>&,
-                                         const real,
-                                         const real) = 0;
+    [[nodiscard]] virtual bool addLinearFormIntegrators(
+        Context&,
+        BilinearForm<true>&,
+        LinearForm<true>&,
+        const mfem::Vector&,
+        const real,
+        const real) noexcept = 0;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief add the linear form integrator describing the
      * the boundary condition
-     * \param[in] f: form
+     *
+     * \param[in] ctx: execution context
+     * \param[in] a: form computing the jacobian matrix
+     * \param[in] b: form computing the right hand side
+     * \param[in] u: current estimate of the solution at the end of the time
+     * step
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void addLinearFormIntegrator(LinearForm<false>&,
-                                         const real,
-                                         const real) = 0;
+    [[nodiscard]] virtual bool addLinearFormIntegrators(
+        Context&,
+        BilinearForm<false>&,
+        LinearForm<false>&,
+        const mfem::Vector&,
+        const real,
+        const real) noexcept = 0;
     /*!
      * \brief method call at the beginning of each resolution
      * \param[in] t: time at the beginning of the time step

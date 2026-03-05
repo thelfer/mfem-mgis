@@ -19,20 +19,23 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const Parameters &params,
       const std::string_view etype)
-      : materials_identifiers(getMaterialsIdentifiers(p, params)) {
-    checkParameters(params, {"OutputFileName", "Material", "Materials"});
+      : materials_identifiers(getMaterialsIdentifiers(throwing, p, params)) {
+    checkParameters(throwing, params,
+                    {"OutputFileName", "Material", "Materials"});
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
       MPI_Comm_rank(MPI_COMM_WORLD, &rank);
       if (rank == 0) {
-        this->openFile(get<std::string>(params, "OutputFileName"), etype);
+        this->openFile(get<std::string>(throwing, params, "OutputFileName"),
+                       etype);
       }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      this->openFile(get<std::string>(params, "OutputFileName"), etype);
+      this->openFile(get<std::string>(throwing, params, "OutputFileName"),
+                     etype);
     }
   }  // end of EnergyPostProcessingBase
 

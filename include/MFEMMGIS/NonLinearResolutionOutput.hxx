@@ -9,7 +9,9 @@
 #define LIB_MFEMMGIS_NONLINEARRESOLUTIONOUTPUT_HXX
 
 #include <limits>
+#include <optional>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/Parameters.hxx"
 
 namespace mfem_mgis {
 
@@ -37,6 +39,34 @@ namespace mfem_mgis {
     inline operator bool() const { return this->status; }
   };  // end of struct NonLinearResolutionOutput
 
+  /*!
+   * \return a parameters containing the same information as the given non
+   * linear resolution output if the status is valid or an empty optional
+   * otherwise.
+   *
+   * \param[in] output: non linear resolution output
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<Parameters> convertToParameters(
+      const NonLinearResolutionOutput&) noexcept;
+
+  [[nodiscard]] inline bool isInvalid(
+      const NonLinearResolutionOutput& r) noexcept {
+    return !r;
+  }  // end of isInvalid
+
 }  // end of namespace mfem_mgis
+
+namespace mgis::internal {
+
+  //! \brief partial specialisation for non linear resolution outputs
+  template <>
+  struct InvalidValueTraits<mfem_mgis::NonLinearResolutionOutput> {
+    static constexpr bool isSpecialized = true;
+    static mfem_mgis::NonLinearResolutionOutput getValue() noexcept {
+      return {};
+    }
+  };
+
+}  // end of namespace mgis::internal
 
 #endif /* LIB_MFEMMGIS_NONLINEARRESOLUTIONOUTPUT_HXX */

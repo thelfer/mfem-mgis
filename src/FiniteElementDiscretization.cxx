@@ -406,25 +406,29 @@ namespace mfem_mgis {
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};
       for (const auto& p : parameters) {
-        m[get<int>(p.second)] = p.first;
+        m[get<int>(throwing, p.second)] = p.first;
       }
       return m;
     };
-    checkParameters(params, FiniteElementDiscretization::getParametersList());
-    const auto parallel =
-        get_if<bool>(params, FiniteElementDiscretization::Parallel, false);
-    const auto& mesh_file =
-        get<std::string>(params, FiniteElementDiscretization::MeshFileName);
+    checkParameters(throwing, params,
+                    FiniteElementDiscretization::getParametersList());
+    const auto parallel = get_if<bool>(
+        throwing, params, FiniteElementDiscretization::Parallel, false);
+    const auto& mesh_file = get<std::string>(
+        throwing, params, FiniteElementDiscretization::MeshFileName);
     const auto& fe_family = get_if<std::string>(
-        params, FiniteElementDiscretization::FiniteElementFamily, "H1");
-    const auto fe_order =
-        get_if<int>(params, FiniteElementDiscretization::FiniteElementOrder, 1);
+        throwing, params, FiniteElementDiscretization::FiniteElementFamily,
+        "H1");
+    const auto fe_order = get_if<int>(
+        throwing, params, FiniteElementDiscretization::FiniteElementOrder, 1);
     const auto u_size =
-        get<int>(params, FiniteElementDiscretization::UnknownsSize);
-    const auto nrefinement = get_if<int>(
-        params, FiniteElementDiscretization::NumberOfUniformRefinements, 0);
+        get<int>(throwing, params, FiniteElementDiscretization::UnknownsSize);
+    const auto nrefinement =
+        get_if<int>(throwing, params,
+                    FiniteElementDiscretization::NumberOfUniformRefinements, 0);
     const auto mesh_mode = get_if<std::string>(
-        params, FiniteElementDiscretization::MeshReadMode, "FromScratch");
+        throwing, params, FiniteElementDiscretization::MeshReadMode,
+        "FromScratch");
     if (parallel) {
 #ifdef MFEM_USE_MPI
       size_type ref_level = 0;
@@ -501,15 +505,15 @@ namespace mfem_mgis {
     // declaring materials and boundaries
     auto mnames = [&params, extractMap]() -> std::map<size_type, std::string> {
       if (contains(params, FiniteElementDiscretization::Materials)) {
-        return extractMap(
-            get<Parameters>(params, FiniteElementDiscretization::Materials));
+        return extractMap(get<Parameters>(
+            throwing, params, FiniteElementDiscretization::Materials));
       }
       return {};
     }();
     auto bnames = [&params, extractMap]() -> std::map<size_type, std::string> {
       if (contains(params, FiniteElementDiscretization::Boundaries)) {
-        return extractMap(
-            get<Parameters>(params, FiniteElementDiscretization::Boundaries));
+        return extractMap(get<Parameters>(
+            throwing, params, FiniteElementDiscretization::Boundaries));
       }
       return {};
     }();
@@ -693,7 +697,8 @@ namespace mfem_mgis {
     return p->second;
   }  // end of getBoundaryName
 
-  static std::vector<size_type> selectMeshObjectsIdentifiers(
+  [[nodiscard]] static std::vector<size_type> selectMeshObjectsIdentifiers(
+      attributes::Throwing,
       const mfem::Array<size_type>& attributes,
       const size_type id,
       const std::string& t,
@@ -706,6 +711,7 @@ namespace mfem_mgis {
   }  // end of selectMeshObjectsIdentifiers
 
   [[nodiscard]] static std::vector<size_type> selectMeshObjectsIdentifiers(
+      attributes::Throwing,
       const std::map<size_type, std::string>& names,
       const std::string& id,
       const std::string& t,
@@ -728,6 +734,7 @@ namespace mfem_mgis {
   }  // end of selectMeshObjectsIdentifiers
 
   [[nodiscard]] static std::vector<size_type> selectMeshObjectsIdentifiers(
+      attributes::Throwing,
       const mfem::Array<size_type>& attributes,
       const std::map<size_type, std::string>& names,
       const std::vector<Parameter>& ids,
@@ -748,11 +755,11 @@ namespace mfem_mgis {
     };
     for (const auto& id : ids) {
       if (is<size_type>(id)) {
-        const auto i = get<size_type>(id);
-        append(selectMeshObjectsIdentifiers(attributes, i, t, m));
+        const auto i = get<size_type>(throwing, id);
+        append(selectMeshObjectsIdentifiers(throwing, attributes, i, t, m));
       } else if (is<std::string>(id)) {
-        const auto& n = get<std::string>(id);
-        append(selectMeshObjectsIdentifiers(names, n, t, m));
+        const auto& n = get<std::string>(throwing, id);
+        append(selectMeshObjectsIdentifiers(throwing, names, n, t, m));
       } else {
         raise(m + ": invalid parameter");
       }
@@ -761,23 +768,24 @@ namespace mfem_mgis {
   }  // end of selectMeshObjectsIdentifiers
 
   std::vector<size_type> selectMeshObjectsIdentifiers(
+      attributes::Throwing,
       const mfem::Array<size_type>& attributes,
       const std::map<size_type, std::string>& names,
       const Parameter& p,
       const std::string& t,
       const std::string& m) {
     if (is<size_type>(p)) {
-      const auto id = get<size_type>(p);
-      return selectMeshObjectsIdentifiers(attributes, id, t, m);
+      const auto id = get<size_type>(throwing, p);
+      return selectMeshObjectsIdentifiers(throwing, attributes, id, t, m);
     } else if (is<std::string>(p)) {
-      const auto& id = get<std::string>(p);
-      return selectMeshObjectsIdentifiers(names, id, t, m);
+      const auto& id = get<std::string>(throwing, p);
+      return selectMeshObjectsIdentifiers(throwing, names, id, t, m);
     }
     if (!is<std::vector<Parameter>>(p)) {
       raise(m + ": invalid parameter type");
     }
-    const auto& ids = get<std::vector<Parameter>>(p);
-    return selectMeshObjectsIdentifiers(attributes, names, ids, t, m);
+    const auto& ids = get<std::vector<Parameter>>(throwing, p);
+    return selectMeshObjectsIdentifiers(throwing, attributes, names, ids, t, m);
   }  // end of selectMeshObjectsIdentifiers
 
   std::optional<std::vector<size_type>>
@@ -824,22 +832,22 @@ namespace mfem_mgis {
 
   std::vector<size_type> FiniteElementDiscretization::getMaterialsIdentifiers(
       const Parameter& p) const {
-    return selectMeshObjectsIdentifiers(getMaterialsAttributes(*this),
+    return selectMeshObjectsIdentifiers(throwing, getMaterialsAttributes(*this),
                                         this->materials_names, p, "material",
                                         "getMaterialsIdentifiers");
   }  // end of getMaterialsIdentifiers
 
   std::vector<size_type> FiniteElementDiscretization::getBoundariesIdentifiers(
       const Parameter& p) const {
-    return selectMeshObjectsIdentifiers(getBoundariesAttributes(*this),
-                                        this->boundaries_names, p, "boundary",
-                                        "getBoundariesIdentifiers");
+    return selectMeshObjectsIdentifiers(
+        throwing, getBoundariesAttributes(*this), this->boundaries_names, p,
+        "boundary", "getBoundariesIdentifiers");
   }  // end of getBoundariesIdentifiers
 
   size_type FiniteElementDiscretization::getMaterialIdentifier(
       const Parameter& p) const {
     if (is<size_type>(p)) {
-      const auto id = get<size_type>(p);
+      const auto id = get<size_type>(throwing, p);
       const auto ids = getMaterialsAttributes(*this);
       if (ids.Find(id) == -1) {
         raise(
@@ -852,7 +860,7 @@ namespace mfem_mgis {
     if (!is<std::string>(p)) {
       raise("getMaterialIdentifier: invalid parameter type");
     }
-    const auto& n = get<std::string>(p);
+    const auto& n = get<std::string>(throwing, p);
     for (const auto& [id, name] : this->materials_names) {
       if (name == n) {
         return id;
@@ -864,7 +872,7 @@ namespace mfem_mgis {
   size_type FiniteElementDiscretization::getBoundaryIdentifier(
       const Parameter& p) const {
     if (is<size_type>(p)) {
-      const auto id = get<size_type>(p);
+      const auto id = get<size_type>(throwing, p);
       const auto ids = getBoundariesAttributes(*this);
       if (ids.Find(id) == -1) {
         raise(
@@ -877,7 +885,7 @@ namespace mfem_mgis {
     if (!is<std::string>(p)) {
       raise("getBoundaryIdentifier: invalid parameter type");
     }
-    const auto& n = get<std::string>(p);
+    const auto& n = get<std::string>(throwing, p);
     for (const auto& [id, name] : this->boundaries_names) {
       if (name == n) {
         return id;

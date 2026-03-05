@@ -17,10 +17,10 @@ namespace mfem_mgis {
       AbstractNonLinearEvolutionProblem& p, const Parameters& params)
       : DirichletBoundaryConditionBase(
             p.getFiniteElementDiscretization(),
-            getBoundariesIdentifiers(p, params, false),
-            get<size_type>(params, "Component")) {
+            getBoundariesIdentifiers(throwing, p, params, false),
+            get<size_type>(throwing, params, "Component")) {
     this->ufct = get_if<std::function<real(const real)>>(
-        params, "LoadingEvolution",
+        throwing, params, "LoadingEvolution",
         [](const real) noexcept { return real(0); });
   }  // end of UniformDirichletBoundaryCondition
 
@@ -67,8 +67,8 @@ namespace mfem_mgis {
   }  // end of updateImposedValues
 
   void UniformDirichletBoundaryCondition::setImposedValuesIncrements(
-      mfem::Vector& du, const real ti, const real te) const {
-    const auto duv = this->ufct(te) - this->ufct(ti);
+      mfem::Vector& du, const real ti, const real te, const real f) const {
+    const auto duv = f * (this->ufct(te) - this->ufct(ti));
     for (const auto& dof : this->dofs) {
       du[dof] = duv;
     }

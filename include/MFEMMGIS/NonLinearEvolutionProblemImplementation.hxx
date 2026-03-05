@@ -49,38 +49,62 @@ namespace mfem_mgis {
         const Hypothesis,
         const Parameters&);
     //! \return the mesh
-    Mesh<true>& getMesh();
+    [[nodiscard]] Mesh<true>& getMesh();
     //! \return the mesh
-    const Mesh<true>& getMesh() const;
+    [[nodiscard]] const Mesh<true>& getMesh() const;
     //! \return the finite element space
-    FiniteElementSpace<true>& getFiniteElementSpace();
+    [[nodiscard]] FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
-    const FiniteElementSpace<true>& getFiniteElementSpace() const;
+    [[nodiscard]] const FiniteElementSpace<true>& getFiniteElementSpace() const;
     //
     void Mult(const mfem::Vector&, mfem::Vector&) const override;
-    void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
-    void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
+    //
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&,
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     /*!
      * \brief add a new post-processing
+     * \param[in, out] ctx: execution context
      * \param[in] p: post-processing
      */
-    virtual void addPostProcessing(std::unique_ptr<PostProcessing<true>>);
+    virtual bool addPostProcessing(
+        Context&, std::unique_ptr<PostProcessing<true>>) noexcept;
     //
     [[nodiscard]] bool integrate(const mfem::Vector&,
-                                 const IntegrationType) override;
+                                 const IntegrationType,
+                                 const std::optional<real>) override;
     [[nodiscard]] bool setLinearSolver(Context&,
                                        LinearSolverHandler) noexcept override;
-    void setLinearSolver(std::string_view, const Parameters&) override;
+    [[nodiscard]] bool setLinearSolver(Context&,
+                                       std::string_view,
+                                       const Parameters&) noexcept override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
-    void addPostProcessing(std::string_view, const Parameters&) override;
+    [[nodiscard]] bool addPostProcessing(Context&,
+                                         std::string_view,
+                                         const Parameters&) noexcept override;
     void executePostProcessings(const real, const real) override;
     [[nodiscard]] GridFunction<true>& getUnknownsAsGridFunction(
         const TimeStepStage) noexcept;
     [[nodiscard]] const GridFunction<true>& getUnknownsAsGridFunction(
         const TimeStepStage) const noexcept;
+    [[deprecated]] void setLinearSolver(std::string_view,
+                                        const Parameters&) override;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractBoundaryCondition>) override;
+    [[deprecated]] void addPostProcessing(std::string_view,
+                                          const Parameters&) override;
+    /*!
+     * \brief add a new post-processing
+     * \param[in, out] ctx: execution context
+     * \param[in] p: post-processing
+     */
+    [[deprecated]] virtual void addPostProcessing(
+        std::unique_ptr<PostProcessing<true>>);
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -123,38 +147,61 @@ namespace mfem_mgis {
         const Hypothesis,
         const Parameters&);
     //! \return the mesh
-    Mesh<false>& getMesh();
+    [[nodiscard]] Mesh<false>& getMesh() noexcept;
     //! \return the mesh
-    const Mesh<false>& getMesh() const;
+    [[nodiscard]] const Mesh<false>& getMesh() const noexcept;
     //! \return the finite element space
-    FiniteElementSpace<false>& getFiniteElementSpace();
+    [[nodiscard]] FiniteElementSpace<false>& getFiniteElementSpace() noexcept;
     //! \return the finite element space
-    const FiniteElementSpace<false>& getFiniteElementSpace() const;
+    [[nodiscard]] const FiniteElementSpace<false>& getFiniteElementSpace()
+        const noexcept;
     //
-    void addBoundaryCondition(
-        std::unique_ptr<DirichletBoundaryCondition>) override;
-    void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&,
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept override;
+    [[nodiscard]] bool addBoundaryCondition(
+        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     /*!
      * \brief add a new post-processing
+     * \param[in, out] ctx: execution context
      * \param[in] p: post-processing
      */
-    virtual void addPostProcessing(std::unique_ptr<PostProcessing<false>>);
+    [[nodiscard]] virtual bool addPostProcessing(
+        Context&, std::unique_ptr<PostProcessing<false>>) noexcept;
     //
     [[nodiscard]] bool setLinearSolver(Context&,
                                        LinearSolverHandler) noexcept override;
-    void setLinearSolver(std::string_view, const Parameters&) override;
+    [[nodiscard]] bool setLinearSolver(Context&,
+                                       std::string_view,
+                                       const Parameters&) noexcept override;
     [[nodiscard]] bool integrate(const mfem::Vector&,
-                                 const IntegrationType) override;
+                                 const IntegrationType,
+                                 const std::optional<real>) override;
     void addPostProcessing(
         const std::function<void(const real, const real)>&) override;
-    void addPostProcessing(std::string_view, const Parameters&) override;
+    [[nodiscard]] bool addPostProcessing(Context&,
+                                         std::string_view,
+                                         const Parameters&) noexcept override;
     void executePostProcessings(const real, const real) override;
     //
     [[nodiscard]] GridFunction<false>& getUnknownsAsGridFunction(
         const TimeStepStage) noexcept;
     [[nodiscard]] const GridFunction<false>& getUnknownsAsGridFunction(
         const TimeStepStage) const noexcept;
+    [[deprecated]] void setLinearSolver(std::string_view,
+                                        const Parameters&) override;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
+    [[deprecated]] void addBoundaryCondition(
+        std::unique_ptr<AbstractBoundaryCondition>) override;
+    [[deprecated]] void addPostProcessing(std::string_view,
+                                          const Parameters&) override;
+    /*!
+     * \brief add a new post-processing
+     * \param[in] p: post-processing
+     */
+    [[deprecated]] virtual void addPostProcessing(
+        std::unique_ptr<PostProcessing<false>>);
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 

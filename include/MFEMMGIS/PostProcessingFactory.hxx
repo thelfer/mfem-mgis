@@ -50,11 +50,23 @@ namespace mfem_mgis {
     void add(std::string_view, Generator);
     /*!
      * \return the requested post-processing
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] p: non linear evolution postprocessing
      * \param[in] params: parameters passed to the post-processing
      */
-    std::unique_ptr<PostProcessing<true>> generate(
+    [[nodiscard]] std::unique_ptr<PostProcessing<true>> generate(
+        Context&,
+        std::string_view,
+        NonLinearEvolutionProblemImplementation<true>&,
+        const Parameters&) const noexcept;
+    /*!
+     * \return the requested post-processing
+     * \param[in] n: name of the post-processing
+     * \param[in] p: non linear evolution postprocessing
+     * \param[in] params: parameters passed to the post-processing
+     */
+    [[deprecated, nodiscard]] std::unique_ptr<PostProcessing<true>> generate(
         std::string_view,
         NonLinearEvolutionProblemImplementation<true>&,
         const Parameters&) const;
@@ -86,11 +98,23 @@ namespace mfem_mgis {
     void add(std::string_view, Generator);
     /*!
      * \return the requested post-processing
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] p: non linear evolution postprocessing
      * \param[in] params: parameters passed to the post-processing
      */
-    std::unique_ptr<PostProcessing<false>> generate(
+    [[nodiscard]] std::unique_ptr<PostProcessing<false>> generate(
+        Context&,
+        std::string_view,
+        NonLinearEvolutionProblemImplementation<false>&,
+        const Parameters&) const noexcept;
+    /*!
+     * \return the requested post-processing
+     * \param[in] n: name of the post-processing
+     * \param[in] p: non linear evolution postprocessing
+     * \param[in] params: parameters passed to the post-processing
+     */
+    [[deprecated, nodiscard]] std::unique_ptr<PostProcessing<false>> generate(
         std::string_view,
         NonLinearEvolutionProblemImplementation<false>&,
         const Parameters&) const;

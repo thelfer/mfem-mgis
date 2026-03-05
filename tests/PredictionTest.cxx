@@ -14,19 +14,19 @@
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/LinearSolverHandler.hxx"
-#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 template <bool parallel>
 void export_prediction(mfem_mgis::NonLinearEvolutionProblem &p,
-                       mfem_mgis::GridFunction<parallel> &du) {
+                       mfem_mgis::GridFunction<parallel> &mdu) {
   auto &fed = p.getFiniteElementDiscretization();
   auto exporter = mfem::ParaViewDataCollection{
       parallel ? "result-prediction-test-parallel" : "result-prediction-test"};
   exporter.SetMesh(&(fed.getMesh<parallel>()));
   exporter.SetDataFormat(mfem::VTKFormat::BINARY);
-  exporter.RegisterField("DisplacementPrediction", &du);
+  exporter.RegisterField("OppositeOfTheDisplacementPrediction", &mdu);
   exporter.SetCycle(1);
   exporter.SetTime(1);
   exporter.Save();
@@ -39,8 +39,8 @@ template <bool parallel>
   auto &fespace = fed.getFiniteElementSpace<parallel>();
   const auto &u0 = p.getUnknowns(mfem_mgis::bts);
   p.setup(0, 1);
-  auto success =
-      p.integrate(u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR);
+  auto success = p.integrate(
+      u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR, {});
 #ifdef MFEM_USE_MPI
   if constexpr (parallel) {
     MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
@@ -60,18 +60,20 @@ template <bool parallel>
   auto essential_dofs = p.getEssentialDegreesOfFreedom();
   auto edofs_list = mfem::Array<mfem_mgis::size_type>(essential_dofs.data(),
                                                       essential_dofs.size());
-  mfem_mgis::GridFunction<parallel> du(&fespace);
+  mfem_mgis::GridFunction<parallel> mdu(&fespace);
   if constexpr (parallel) {
-    auto du_values = mfem::Vector(fespace.GetTrueVSize());
-    du_values = 0.0;
+    auto mdu_values = mfem::Vector(fespace.GetTrueVSize());
+    mdu_values = 0.0;
     //
     for (const auto &bc : p.getDirichletBoundaryConditions()) {
-      bc->setImposedValuesIncrements(du_values, 0, 1);
+      // we impose the opposite of the displacement increment
+      bc->setImposedValuesIncrements(mdu_values, 0, 1, -1);
     }
-    du.Distribute(du_values);
+    mdu.Distribute(mdu_values);
   } else {
     for (const auto &bc : p.getDirichletBoundaryConditions()) {
-      bc->setImposedValuesIncrements(du, 0, 1);
+      // we impose the opposite of the displacement increment
+      bc->setImposedValuesIncrements(mdu, 0, 1, -1);
     }
   }
   //
@@ -79,7 +81,7 @@ template <bool parallel>
   a.AddDomainIntegrator(operators->K.release());
   a.Assemble();
   auto b = mfem_mgis::LinearForm<parallel>(&fespace);
-  b.AddDomainIntegrator(operators->Fi.release());
+  b.AddDomainIntegrator(operators->mFi.release());
   b.Assemble();
   //
   auto A = [] {
@@ -95,7 +97,7 @@ template <bool parallel>
   }();
   mfem::Vector B, X;
   //
-  a.FormLinearSystem(edofs_list, du, b, A, X, B);
+  a.FormLinearSystem(edofs_list, mdu, b, A, X, B);
   //
   auto ls = [&fespace, &ctx] {
     auto &f = mfem_mgis::LinearSolverFactory<parallel>::getFactory();
@@ -115,8 +117,8 @@ template <bool parallel>
   }
   ls.linear_solver->SetOperator(A);
   ls.linear_solver->Mult(B, X);
-  a.RecoverFEMSolution(X, b, du);
-  return du;
+  a.RecoverFEMSolution(X, b, mdu);
+  return mdu;
 }  // end of computePrediction
 
 int main(int argc, char *argv[]) {
@@ -187,14 +189,14 @@ int main(int argc, char *argv[]) {
   //
   if (parallel) {
 #ifdef MFEM_USE_MPI
-    auto du = computePrediction<true>(ctx, problem);
-    export_prediction<true>(problem, du);
+    auto mdu = computePrediction<true>(ctx, problem);
+    export_prediction<true>(problem, mdu);
 #else  /* MFEM_USE_MPI */
     return EXIT_FAILURE;
 #endif /* MFEM_USE_MPI */
   } else {
-    auto du = computePrediction<false>(ctx, problem);
-    export_prediction<false>(problem, du);
+    auto mdu = computePrediction<false>(ctx, problem);
+    export_prediction<false>(problem, mdu);
   }
   return EXIT_SUCCESS;
 }

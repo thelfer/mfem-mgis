@@ -49,12 +49,12 @@ namespace mfem_mgis {
       const Parameters& params)
       : ComputeResultantForceOnBoundaryCommon(
             getElementsDegreesOfFreedomOnBoundary<true>(
-                p, getBoundaryIdentifier(p, params)),
-            getBoundaryIdentifier(p, params)) {
+                p, getBoundaryIdentifier(throwing, p, params)),
+            getBoundaryIdentifier(throwing, p, params)) {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-      const auto& f = get<std::string>(params, "OutputFileName");
+      const auto& f = get<std::string>(throwing, params, "OutputFileName");
       this->out.open(f);
       if (!this->out) {
         raise("can't open file '" + f + "'");
@@ -93,9 +93,9 @@ namespace mfem_mgis {
       const Parameters& params)
       : ComputeResultantForceOnBoundaryCommon(
             getElementsDegreesOfFreedomOnBoundary<false>(
-                p, getBoundaryIdentifier(p, params)),
-            getBoundaryIdentifier(p, params)) {
-    const auto& f = get<std::string>(params, "OutputFileName");
+                p, getBoundaryIdentifier(throwing, p, params)),
+            getBoundaryIdentifier(throwing, p, params)) {
+    const auto& f = get<std::string>(throwing, params, "OutputFileName");
     this->out.open(f);
     if (!this->out) {
       raise("can't open file '" + f + "'");

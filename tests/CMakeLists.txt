@@ -108,7 +108,25 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif (MFEM_USE_MPI)
   endfunction(add_imposed_pressure_test)
 
-  add_imposed_pressure_test(Elasticity)
+  add_executable(ImposedPressureTest2 EXCLUDE_FROM_ALL ImposedPressureTest2.cxx)
+  target_include_directories(ImposedPressureTest2
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(ImposedPressureTest2
+    PRIVATE MFEMMGIS)
+  add_dependencies(check ImposedPressureTest2)
+
+  function(add_imposed_pressure_test2 behaviour)
+    set(test "ImposedPressureTest2-${behaviour}")
+    set(ImposedPressureTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh" "--library" "$<TARGET_FILE:BehaviourTest>" "--behaviour" "${behaviour}" "--reference-file" "${CMAKE_CURRENT_SOURCE_DIR}/references/${behaviour}.ref")
+    add_test(NAME ${test}  COMMAND ./ImposedPressureTest2 ${ImposedPressureTestParameters} "--parallel" "0")
+    set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+    if (MFEM_USE_MPI)
+      add_test(NAME ${test}P  COMMAND mpirun -n 2 ./ImposedPressureTest2 ${ImposedPressureTestParameters} "--parallel" "1")
+      set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
+    endif (MFEM_USE_MPI)
+  endfunction(add_imposed_pressure_test2)
+
+  add_imposed_pressure_test2(Elasticity)
 
   add_executable(PartialQuadratureFunctionTest
     EXCLUDE_FROM_ALL
@@ -361,27 +379,22 @@ if(MFEM_MGIS_HAVE_TFEL)
 #	add_micromorphic_damage_3d_test(2)
   endif(MFEM_USE_SUITESPARSE)
 
-  add_executable(PredictionTest
-    EXCLUDE_FROM_ALL
-    PredictionTest.cxx)
-  target_include_directories(PredictionTest
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-  target_link_libraries(PredictionTest
-    PRIVATE MFEMMGIS)
-  add_dependencies(check PredictionTest)
-
-  function(add_uniaxial_tensile_test)
-    set(test "PredictionTest")
+  function(add_prediction_test test)
+    add_executable(${test} EXCLUDE_FROM_ALL ${test}.cxx)
+    target_include_directories(${test} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(${test} PRIVATE MFEMMGIS)
+    add_dependencies(check ${test})
     set(PredictionTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh" "--library" "$<TARGET_FILE:BehaviourTest>")
-    add_test(NAME ${test}  COMMAND ./PredictionTest ${PredictionTestParameters} "--parallel" "0")
+    add_test(NAME ${test}  COMMAND "./${test}" ${PredictionTestParameters} "--parallel" "0")
     set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
     if (MFEM_USE_MPI)
-      add_test(NAME ${test}P  COMMAND mpirun -n 2 ./PredictionTest ${PredictionTestParameters} "--parallel" "1")
+      add_test(NAME ${test}P  COMMAND mpirun -n 2 "./${test}" ${PredictionTestParameters} "--parallel" "1")
       set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
     endif (MFEM_USE_MPI)
-  endfunction(add_uniaxial_tensile_test)
+  endfunction(add_prediction_test)
   
-  add_uniaxial_tensile_test(OrthotropicElasticity EquivalentStrain)
+  add_prediction_test(PredictionTest)
+  add_prediction_test(PredictionTest2)
 
   if (MFEM_USE_MPI)
     add_executable(ParallelReadMode

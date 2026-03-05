@@ -26,7 +26,7 @@ buildMechanicalProblem(
   constexpr auto nu = mfem_mgis::real{0.};
   constexpr auto umax = mfem_mgis::real{0.2};
   auto lparameters = common_problem_parameters;
-  lparameters.insert({{"UnknownsSize", 2}});
+  lparameters.insert(mfem_mgis::throwing, {{"UnknownsSize", 2}});
   auto problem =
       std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(lparameters);
   problem->addBehaviourIntegrator("Mechanics", "beam", test_parameters.library,
@@ -93,7 +93,7 @@ buildMicromorphicProblem(
   constexpr auto l0 = mfem_mgis::real{0.1};
   constexpr auto beta = mfem_mgis::real{300};
   auto lparameters = common_problem_parameters;
-  lparameters.insert({{"UnknownsSize", 1}});
+  lparameters.insert(mfem_mgis::throwing, {{"UnknownsSize", 1}});
   auto problem =
       std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(lparameters);
   problem->addBehaviourIntegrator("MicromorphicDamage", "beam",

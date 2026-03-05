@@ -10,7 +10,7 @@
 
 #include <memory>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/DirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 
 namespace mfem_mgis {
 
@@ -19,7 +19,7 @@ namespace mfem_mgis {
 
   //! \brief base class for defining Dirichlet boundary conditions.
   struct MFEM_MGIS_EXPORT DirichletBoundaryConditionBase
-      : DirichletBoundaryCondition {
+      : AbstractDirichletBoundaryCondition {
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization

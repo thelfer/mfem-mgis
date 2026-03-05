@@ -20,19 +20,25 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT BehaviourIntegratorBase : AbstractBehaviourIntegrator,
                                                     Material {
+    [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
+        const noexcept override;
+    [[nodiscard]] real getTimeIncrement() const noexcept override;
     void setTimeIncrement(const real) override;
-    const PartialQuadratureSpace& getPartialQuadratureSpace() const override;
     void setup(const real, const real) override;
     void revert() override;
     void update() override;
-    bool hasMaterial() const override;
-    Material& getMaterial() override;
-    const Material& getMaterial() const override;
+    [[nodiscard]] bool hasMaterial() const noexcept override;
+    OptionalReference<Material> getMaterial(Context&) noexcept override;
+    OptionalReference<const Material> getMaterial(
+        Context&) const noexcept override;
     void setMacroscopicGradients(std::span<const real>) override;
     [[nodiscard]] bool requiresCurrentSolutionForResidualAssembly()
         const noexcept override;
     [[nodiscard]] bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept override;
+    //
+    [[deprecated, nodiscard]] Material& getMaterial() override;
+    [[deprecated, nodiscard]] const Material& getMaterial() const override;
     //! \brief destructor
     ~BehaviourIntegratorBase() override;
 
