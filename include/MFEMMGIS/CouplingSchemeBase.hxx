@@ -24,9 +24,13 @@ namespace mfem_mgis {
     //! \return a description of the parameters of this scheme
     static std::map<std::string, std::string>
     getParametersDescription() noexcept;
-    //! \brief constructor
-    CouplingSchemeBase();
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     */
+    CouplingSchemeBase(const MeshDiscretization &) noexcept;
     //
+    MeshDiscretization getMeshDiscretization() const noexcept override;
     [[nodiscard]] std::vector<std::string> getLocations()
         const noexcept override;
     [[nodiscard]] VerbosityLevel getVerbosityLevel()
@@ -51,6 +55,9 @@ namespace mfem_mgis {
     //                                 const Parameters &) noexcept override;
     [[nodiscard]] bool addModel(
         Context &, std::shared_ptr<AbstractModel>) noexcept override;
+    [[nodiscard]] bool addModel(
+        Context &,
+        std::shared_ptr<NonLinearEvolutionProblem>) noexcept override;
     //     [[nodiscard]] bool declareDependencies(
     //         Context &, DependenciesManager &) const noexcept override;
     //     [[nodiscard]] bool initializeBeforeResourcesAllocation(
@@ -61,13 +68,13 @@ namespace mfem_mgis {
     //     [[nodiscard]] bool initializeAfterResourcesAllocation(
     //         Context &) noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep&) noexcept override;
+        Context &, const TimeStep &) noexcept override;
     std::optional<real> getNextTimeIncrement(
         Context &, const real, const real) const noexcept override;
     [[nodiscard]] bool executeInitialPostProcessingTasks(
         Context &, const real) noexcept override;
     [[nodiscard]] bool executePostProcessingTasks(Context &,
-                                                  const TimeStep&,
+                                                  const TimeStep &,
                                                   const bool) noexcept override;
     [[nodiscard]] bool update(Context &) noexcept override;
     [[nodiscard]] bool revert(Context &) noexcept override;
@@ -102,6 +109,8 @@ namespace mfem_mgis {
     //! \return a description of the coupling items
     [[nodiscard]] virtual std::string getCouplingItemsDescription()
         const noexcept;
+    //! \brief mesh discretization
+    MeshDiscretization mesh;
     //! \brief list of registered coupling items
     std::vector<std::shared_ptr<AbstractCouplingItem>> items;
     //! \brief the verbosity level associated with the coupling scheme

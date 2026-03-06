@@ -23,7 +23,8 @@ namespace mfem_mgis {
     return {};
   }  // end of getParametersDescription
 
-  LoopCouplingScheme::LoopCouplingScheme() = default;
+  LoopCouplingScheme::LoopCouplingScheme(const MeshDiscretization &m)
+      : CouplingSchemeBase(m) {}  // end of LoopCouplingScheme
 
   bool LoopCouplingScheme::setNumberOfIterations(Context &ctx,
                                                  const size_type n) noexcept {

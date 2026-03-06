@@ -150,8 +150,8 @@ namespace mfem_mgis {
       std::tie(this->fec, this->parallel_fe_space) =
           buildFiniteElementCollectionAndSpace<true>(
               *this, remove(params, MeshDiscretization::getParametersList()));
-#else /* MFEM_USE_MPI */
-    reportUnsupportedParallelComputations();
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
       std::tie(this->fec, this->sequential_fe_space) =
@@ -223,8 +223,7 @@ namespace mfem_mgis {
       std::shared_ptr<Mesh<false>> m,
       std::shared_ptr<const FiniteElementCollection> c,
       const size_type d)
-      : MeshDiscretization(m),
-        fec(std::move(c)) {
+      : MeshDiscretization(m), fec(std::move(c)) {
     if (this->fec.get() == nullptr) {
       raise("invalid finite element collection");
     }

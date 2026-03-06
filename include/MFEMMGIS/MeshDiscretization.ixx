@@ -49,8 +49,7 @@ namespace mfem_mgis {
   }  // end of getMesh
 
   template <bool parallel>
-  std::shared_ptr<Mesh<parallel>>
-  MeshDiscretization::getMeshPointer() {
+  std::shared_ptr<Mesh<parallel>> MeshDiscretization::getMeshPointer() {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       if (!this->parallel_mesh.get()) {
@@ -69,8 +68,8 @@ namespace mfem_mgis {
   }  // end of getMeshPointer
 
   template <bool parallel>
-  std::shared_ptr<const Mesh<parallel>>
-  MeshDiscretization::getMeshPointer() const {
+  std::shared_ptr<const Mesh<parallel>> MeshDiscretization::getMeshPointer()
+      const {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       if (!this->parallel_mesh.get()) {

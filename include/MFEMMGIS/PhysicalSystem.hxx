@@ -15,6 +15,7 @@
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/ExitStatus.hxx"
 #include "MFEMMGIS/ComputeNextStateOutput.hxx"
+#include "MFEMMGIS/MeshDiscretization.hxx"
 
 namespace mfem_mgis {
 
@@ -33,8 +34,9 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT PhysicalSystem {
     /*!
      * \brief constructor
+     * \param[in] m: mesh
      */
-    PhysicalSystem();
+    PhysicalSystem(const MeshDiscretization &) noexcept;
     /*!
      * \return a description of the physical system
      * \param[in] ctx: execution context
@@ -48,6 +50,8 @@ namespace mfem_mgis {
     std::optional<std::string> describe(Context &,
                                         const bool,
                                         const Parameters &) const noexcept;
+    //! \return the mesh discretization
+    MeshDiscretization getMeshDiscretization() const noexcept;
     //! \return if the coupling scheme is defined
     bool isCouplingSchemeDefined() const noexcept;
     /*!
@@ -180,6 +184,8 @@ namespace mfem_mgis {
     ~PhysicalSystem() noexcept;
 
    private:
+    //! \brief underlying mesh
+    MeshDiscretization mesh;
     //! \brief coupling scheme
     std::shared_ptr<AbstractCouplingScheme> coupling_scheme;
     //! \brief list of registered post processing

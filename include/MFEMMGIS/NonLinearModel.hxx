@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/NonLinearModel.hxx
- * \brief    
+ * \brief
  * \author Thomas Helfer
  * \date   05/03/2026
  */
@@ -20,8 +20,8 @@ namespace mfem_mgis {
     NonLinearModel(MeshDiscretization &, const Parameters &);
     NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem>);
     //
-    [[nodiscard]] NonLinearEvolutionProblem& getProblem() noexcept;
-    [[nodiscard]] const NonLinearEvolutionProblem& getProblem() const noexcept;
+    [[nodiscard]] NonLinearEvolutionProblem &getProblem() noexcept;
+    [[nodiscard]] const NonLinearEvolutionProblem &getProblem() const noexcept;
     //
     [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(

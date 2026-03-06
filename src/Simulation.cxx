@@ -1005,7 +1005,7 @@ namespace mfem_mgis {
       std::ignore = ctx.registerErrorMessage("updating the clock failed");
       return s;
     }
-    if(isValid(this->physicalSystem)) {
+    if (isValid(this->physicalSystem)) {
       updateAndSynchronize(
           this->physicalSystem->updateLoadingsAtTheBeginningOfTheTimeStep(ctx,
                                                                           ts));

@@ -29,7 +29,7 @@ namespace mfem_mgis {
      * the physical system
      */
     virtual bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep&) noexcept = 0;
+        Context &, const TimeStep &) noexcept = 0;
     /*!
      * \return if the criterion is satisfied
      * \param[in] ctx: execution context

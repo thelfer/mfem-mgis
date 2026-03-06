@@ -14,6 +14,7 @@
 #include <ostream>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/ExitStatus.hxx"
+#include "MFEMMGIS/MeshDiscretization.hxx"
 #include "MFEMMGIS/ComputeNextStateOutput.hxx"
 
 namespace mfem_mgis {
@@ -38,6 +39,8 @@ namespace mfem_mgis {
     static const std::string logFileParameter;
     //! \return a name describing the coupling item
     [[nodiscard]] virtual std::string getName() const noexcept = 0;
+    //! \brief return the mesh discretization
+    virtual MeshDiscretization getMeshDiscretization() const noexcept = 0;
     //! \return the list of locations on which the item works
     [[nodiscard]] virtual std::vector<std::string> getLocations()
         const noexcept = 0;

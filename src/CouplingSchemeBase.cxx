@@ -5,6 +5,7 @@
  */
 
 #include "MFEMMGIS/AbstractModel.hxx"
+#include "MFEMMGIS/NonLinearModel.hxx"
 #include "MFEMMGIS/CouplingSchemeBase.hxx"
 
 namespace mfem_mgis {
@@ -44,7 +45,13 @@ namespace mfem_mgis {
     ctx.setLogStream(s.log_stream);
   }  // end of restore
 
-  CouplingSchemeBase::CouplingSchemeBase() = default;
+  CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m) noexcept
+      : mesh(m) {}
+
+  MeshDiscretization CouplingSchemeBase::getMeshDiscretization()
+      const noexcept {
+    return this->mesh;
+  }  // end of getMeshDiscretization
 
   std::vector<std::string> CouplingSchemeBase::getLocations() const noexcept {
     return {};
@@ -132,6 +139,9 @@ namespace mfem_mgis {
     if (i.get() == nullptr) {
       return ctx.registerErrorMessage("invalid coupling item");
     }
+    if (i->getMeshDiscretization() != this->mesh) {
+      return ctx.registerErrorMessage("inconsistent meshes");
+    }
     this->items.push_back(i);
     return true;
   }
@@ -152,6 +162,15 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("invalid model");
     }
     return this->addCouplingItem(ctx, m);
+  }  // end of addModel
+
+  bool CouplingSchemeBase::addModel(
+      Context &ctx, std::shared_ptr<NonLinearEvolutionProblem> m) noexcept {
+    if (m.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid non linear evolution problem");
+    }
+    auto wrapper = make_shared<NonLinearModel>(ctx, m);
+    return this->addCouplingItem(ctx, wrapper);
   }  // end of addModel
 
   //   bool CouplingSchemeBase::declareDependencies(
@@ -227,7 +246,7 @@ namespace mfem_mgis {
   }  // end of getNextTimeIncrement
 
   bool CouplingSchemeBase::executePostProcessingTasks(Context &ctx,
-                                                      const TimeStep & ts,
+                                                      const TimeStep &ts,
                                                       const bool b) noexcept {
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
@@ -284,7 +303,7 @@ namespace mfem_mgis {
       }
     }
     return d;
-  }  // end of getCouplingItemsDescription_
+  }  // end of getCouplingItemsDescription
 
   CouplingSchemeBase::~CouplingSchemeBase() noexcept = default;
 

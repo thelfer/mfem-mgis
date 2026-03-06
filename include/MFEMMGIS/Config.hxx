@@ -49,15 +49,15 @@
 namespace mfem_mgis {
 
   using mgis::AbstractErrorHandler;
+  using mgis::areInvalid;
+  using mgis::areValid;
   using mgis::construct;
   using mgis::Context;
+  using mgis::getDefaultVerbosityLevel;
   using mgis::InvalidResult;
   using mgis::invoke;
-  using mgis::isValid;
-
-  using mgis::areInvalid;
-  using mgis::getDefaultVerbosityLevel;
   using mgis::isInvalid;
+  using mgis::isValid;
   using mgis::make_shared;
   using mgis::make_shared_as;
   using mgis::make_unique;

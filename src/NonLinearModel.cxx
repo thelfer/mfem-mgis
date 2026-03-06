@@ -16,7 +16,7 @@ namespace mfem_mgis {
             std::make_shared<NonLinearEvolutionProblem>(m, parameters)) {}
 
   NonLinearModel::NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem> p)
-      : problem(p) {
+      : ModelBase(p->getFiniteElementDiscretization()), problem(p) {
     if (p.get() == nullptr) {
       raise("invalid problem");
     }

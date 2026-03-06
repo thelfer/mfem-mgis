@@ -6,13 +6,15 @@
 
 #include <sstream>
 #include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/AbstractModel.hxx"
 #include "MFEMMGIS/AbstractCouplingScheme.hxx"
 #include "MFEMMGIS/LoopCouplingScheme.hxx"
 #include "MFEMMGIS/PhysicalSystem.hxx"
 
 namespace mfem_mgis {
 
-  PhysicalSystem::PhysicalSystem() = default;
+  PhysicalSystem::PhysicalSystem(const MeshDiscretization &m) noexcept
+      : mesh(m) {}  // end of PhysicalSystem
 
   std::optional<std::string> PhysicalSystem::describe(
       Context &ctx, const bool b, const Parameters &parameters) const noexcept {
@@ -175,6 +177,10 @@ namespace mfem_mgis {
     return d;
   }  // end of describe
 
+  MeshDiscretization PhysicalSystem::getMeshDiscretization() const noexcept {
+    return this->mesh;
+  }  // end of getMeshDiscretization
+
   bool PhysicalSystem::isCouplingSchemeDefined() const noexcept {
     return this->coupling_scheme.get() != nullptr;
   }  // end of isCouplingSchemeDefined
@@ -196,6 +202,9 @@ namespace mfem_mgis {
     }
     if (c.get() == nullptr) {
       return ctx.registerErrorMessage("invalid coupling scheme specified");
+    }
+    if (c->getMeshDiscretization() != this->mesh) {
+      return ctx.registerErrorMessage("inconsistent meshes");
     }
     this->coupling_scheme = std::move(c);
     return true;
@@ -219,7 +228,10 @@ namespace mfem_mgis {
     if (m.get() == nullptr) {
       return ctx.registerErrorMessage("invalid model specified");
     }
-    auto c = make_shared<LoopCouplingScheme>(ctx);
+    if (m->getMeshDiscretization() != this->mesh) {
+      return ctx.registerErrorMessage("inconsistent meshes");
+    }
+    auto c = make_shared<LoopCouplingScheme>(ctx, this->mesh);
     if (isInvalid(c)) {
       return false;
     }

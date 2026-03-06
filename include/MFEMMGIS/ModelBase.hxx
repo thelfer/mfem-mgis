@@ -25,10 +25,14 @@ namespace mfem_mgis {
     //! \return a description of the parameters of this model
     [[nodiscard]] static std::map<std::string, std::string>
     getParametersDescription() noexcept;
-    //! \brief constructor
-    ModelBase();
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     */
+    ModelBase(const MeshDiscretization &) noexcept;
     //
     [[nodiscard]] std::string getIdentifier() const noexcept override final;
+    MeshDiscretization getMeshDiscretization() const noexcept override;
     [[nodiscard]] VerbosityLevel getVerbosityLevel()
         const noexcept override final;
     void setVerbosityLevel(const VerbosityLevel) noexcept override final;
@@ -116,7 +120,9 @@ namespace mfem_mgis {
         std::function<bool(Context &, bool)>) noexcept;
 
    private:
-    //: \brief list of registred post-processings
+    //! \brief mesh discretization
+    MeshDiscretization mesh;
+    //! \brief list of registred post-processings
     std::vector<std::function<bool(Context &, bool)>> postProcessings;
     //! \brief the verbosity level associated with the model
     std::optional<VerbosityLevel> verbosityLevel;

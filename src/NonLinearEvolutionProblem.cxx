@@ -64,8 +64,8 @@ namespace mfem_mgis {
             h,
             p) {}  // end of NonLinearEvolutionProblem
 
-  NonLinearEvolutionProblem::NonLinearEvolutionProblem(
-      MeshDiscretization& m, const Parameters& p)
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+                                                       const Parameters& p)
       : NonLinearEvolutionProblem(
             std::make_shared<FiniteElementDiscretization>(
                 m.describesAParallelComputation() ? m.getMeshPointer<true>()
@@ -379,13 +379,11 @@ namespace mfem_mgis {
   NonLinearEvolutionProblem::getNumberOfBehaviourIntegrators(
       Context& ctx, const Parameter& m) const noexcept {
     return this->pimpl->getNumberOfBehaviourIntegrators(ctx, m);
-  } // end of getNumberOfBehaviourIntegrators
+  }  // end of getNumberOfBehaviourIntegrators
 
-  OptionalReference<
-      const AbstractBehaviourIntegrator> NonLinearEvolutionProblem::
-      getBehaviourIntegrator(Context& ctx,
-                             const Parameter& m,
-                             size_type b) const noexcept {
+  OptionalReference<const AbstractBehaviourIntegrator>
+  NonLinearEvolutionProblem::getBehaviourIntegrator(
+      Context& ctx, const Parameter& m, size_type b) const noexcept {
     return this->pimpl->getBehaviourIntegrator(ctx, m, b);
   }  // end of getBehaviourIntegrator
 
@@ -499,9 +497,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       return buildFacesDescription(p.getImplementation<true>(), bid);
 #else
-      raise(
-          "buildFacesDescription: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     }
     return buildFacesDescription(p.getImplementation<false>(), bid);
@@ -516,9 +512,7 @@ namespace mfem_mgis {
       return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<true>(),
                                                    bid);
 #else
-      raise(
-          "getElementsDegreesOfFreedomOnBoundary: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     }
     return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<false>(),
@@ -537,9 +531,7 @@ namespace mfem_mgis {
       computeResultantForceOnBoundary(F, p.getImplementation<true>(),
                                       elts_dofs);
 #else
-      raise(
-          "computeResultantForceOnBoundary: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     } else {
       computeResultantForceOnBoundary(F, p.getImplementation<false>(),

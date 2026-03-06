@@ -267,6 +267,18 @@ namespace mfem_mgis {
   };  // end of MeshDiscretization
 
   /*!
+   * \brief compare two mesh discretisations to see if they point to the same
+   * underlying meshes
+   *
+   * \param[in] l: left hand side
+   * \param[in] r: rigth hand side
+   *
+   * \note material names and boundary names may different in both
+   * discretisations.
+   */
+  [[nodiscard]] bool operator==(const MeshDiscretization&,
+                                const MeshDiscretization&) noexcept;
+  /*!
    * \brief return the space dimension
    * \param[in] fed: finite element discretization
    */

@@ -378,8 +378,7 @@ namespace mfem_mgis {
             MeshDiscretization::GeneralVerbosityLevel};
   }  // end of getParametersList
 
-  MeshDiscretization::MeshDiscretization(
-      const Parameters& params) {
+  MeshDiscretization::MeshDiscretization(const Parameters& params) {
     CatchTimeSection("Mesh::Constructor");
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};
@@ -388,18 +387,15 @@ namespace mfem_mgis {
       }
       return m;
     };
-    checkParameters(throwing, params,
-                    MeshDiscretization::getParametersList());
-    const auto parallel = get_if<bool>(
-        throwing, params, MeshDiscretization::Parallel, false);
-    const auto& mesh_file = get<std::string>(
-        throwing, params, MeshDiscretization::MeshFileName);
-    const auto nrefinement =
-        get_if<int>(throwing, params,
-                    MeshDiscretization::NumberOfUniformRefinements, 0);
+    checkParameters(throwing, params, MeshDiscretization::getParametersList());
+    const auto parallel =
+        get_if<bool>(throwing, params, MeshDiscretization::Parallel, false);
+    const auto& mesh_file =
+        get<std::string>(throwing, params, MeshDiscretization::MeshFileName);
+    const auto nrefinement = get_if<int>(
+        throwing, params, MeshDiscretization::NumberOfUniformRefinements, 0);
     const auto mesh_mode = get_if<std::string>(
-        throwing, params, MeshDiscretization::MeshReadMode,
-        "FromScratch");
+        throwing, params, MeshDiscretization::MeshReadMode, "FromScratch");
     if (parallel) {
 #ifdef MFEM_USE_MPI
       size_type ref_level = 0;
@@ -446,15 +442,15 @@ namespace mfem_mgis {
     // declaring materials and boundaries
     auto mnames = [&params, extractMap]() -> std::map<size_type, std::string> {
       if (contains(params, MeshDiscretization::Materials)) {
-        return extractMap(get<Parameters>(
-            throwing, params, MeshDiscretization::Materials));
+        return extractMap(
+            get<Parameters>(throwing, params, MeshDiscretization::Materials));
       }
       return {};
     }();
     auto bnames = [&params, extractMap]() -> std::map<size_type, std::string> {
       if (contains(params, MeshDiscretization::Boundaries)) {
-        return extractMap(get<Parameters>(
-            throwing, params, MeshDiscretization::Boundaries));
+        return extractMap(
+            get<Parameters>(throwing, params, MeshDiscretization::Boundaries));
       }
       return {};
     }();
@@ -475,9 +471,8 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  MeshDiscretization::MeshDiscretization(
-      std::shared_ptr<Mesh<true>> m)
-      : parallel_mesh(std::move(m)){
+  MeshDiscretization::MeshDiscretization(std::shared_ptr<Mesh<true>> m)
+      : parallel_mesh(std::move(m)) {
     if (this->parallel_mesh.get() == nullptr) {
       raise("invalid mesh");
     }
@@ -535,7 +530,6 @@ namespace mfem_mgis {
     }
     return true;
   }  // end of setBoundariesNames
-
 
   void MeshDiscretization::setMaterialsNames(
       attributes::Throwing, const std::map<size_type, std::string>& ids) {
@@ -776,13 +770,13 @@ namespace mfem_mgis {
     raise("getMaterialIdentifier: no boundary named '" + n + "'");
   }  // end of getBoundaryIdentifier
 
-  std::map<size_type, std::string>
-  MeshDiscretization::getMaterialsNames() const noexcept {
+  std::map<size_type, std::string> MeshDiscretization::getMaterialsNames()
+      const noexcept {
     return this->materials_names;
   }  // end of getMaterialsNames
 
-  std::map<size_type, std::string>
-  MeshDiscretization::getBoundariesNames() const noexcept {
+  std::map<size_type, std::string> MeshDiscretization::getBoundariesNames()
+      const noexcept {
     return this->boundaries_names;
   }  // end of getBoundariesNames
 
@@ -801,9 +795,7 @@ namespace mfem_mgis {
 
   template <>
   bool getInformation<MeshDiscretization>(
-      Context&,
-      std::ostream& os,
-      const MeshDiscretization& fed) noexcept {
+      Context&, std::ostream& os, const MeshDiscretization& fed) noexcept {
     const auto& mnames = fed.getMaterialsNames();
     os << "# Mesh\n\n"
        << "- space dimension: " << getSpaceDimension(fed);

@@ -21,8 +21,11 @@ namespace mfem_mgis {
     //! \return a description of the parameters of this scheme
     static std::map<std::string, std::string>
     getParametersDescription() noexcept;
-    //! \brief constructor
-    LoopCouplingScheme();
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     */
+    LoopCouplingScheme(const MeshDiscretization &);
     /*!
      * \brief set the number of iterations
      * \param[in] ctx: execution context

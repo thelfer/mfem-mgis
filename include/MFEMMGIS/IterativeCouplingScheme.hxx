@@ -23,8 +23,11 @@ namespace mfem_mgis {
     //! \return a description of the parameters of this scheme
     static std::map<std::string, std::string>
     getParametersDescription() noexcept;
-    //! \brief constructor
-    IterativeCouplingScheme();
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     */
+    IterativeCouplingScheme(const MeshDiscretization &);
     /*!
      * \brief set the maximum number of iterations
      * \param[in] ctx: execution context

@@ -26,7 +26,7 @@ namespace mfem_mgis {
     //! \brief constructor
     FirstIterationConvergenceCriterion();
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &,const TimeStep&) noexcept override;
+        Context &, const TimeStep &) noexcept override;
     [[nodiscard]] std::optional<bool> check(
         Context &, const ComputeNextStateOutput &) const noexcept override;
     [[nodiscard]] bool update(Context &) noexcept override;

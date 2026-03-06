@@ -13,9 +13,14 @@ namespace mfem_mgis {
   std::map<std::string, std::string>
   ModelBase::getParametersDescription() noexcept {
     return {};  // getCouplingItemParametersDescription();
-  }  // end of getParametersDescription
+  }             // end of getParametersDescription
 
-  ModelBase::ModelBase() = default;
+  ModelBase::ModelBase(const MeshDiscretization &m) noexcept
+      : mesh(m) {}  // end of ModelBase
+
+  MeshDiscretization ModelBase::getMeshDiscretization() const noexcept {
+    return this->mesh;
+  }  // end of getMeshDiscretization
 
   std::string ModelBase::getIdentifier() const noexcept {
     return this->getName();

@@ -20,6 +20,7 @@ namespace mfem_mgis {
   struct Context;
   struct Provider;
   struct AbstractModel;
+  struct NonLinearEvolutionProblem;
   struct AbstractCouplingSchemeConvergenceCriterion;
 
   //! \brief interface of all coupling schemes
@@ -87,6 +88,13 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool addModel(
         Context &, std::shared_ptr<AbstractModel>) noexcept = 0;
+    /*!
+     * \brief add a new model
+     * \param[in, out] ctx: execution context
+     * \param[in] m: model
+     */
+    [[nodiscard]] virtual bool addModel(
+        Context &, std::shared_ptr<NonLinearEvolutionProblem>) noexcept = 0;
     /*!
      * \brief add a new convergence criterion
      * \param[in, out] ctx: execution context

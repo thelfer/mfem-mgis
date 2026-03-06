@@ -69,8 +69,7 @@ namespace mfem_mgis {
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
-    NonLinearEvolutionProblem(MeshDiscretization&,
-                              const Parameters &);
+    NonLinearEvolutionProblem(MeshDiscretization &, const Parameters &);
     /*!
      * \brief constructor
      * \param[in] m: mesh
