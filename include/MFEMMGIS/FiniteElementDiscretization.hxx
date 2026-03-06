@@ -14,6 +14,7 @@
 #include <memory>
 #include "MFEMMGIS/Info.hxx"
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/MeshDiscretization.hxx"
 
 namespace mfem_mgis {
 
@@ -26,31 +27,13 @@ namespace mfem_mgis {
    * - handle the life time of the mesh and the finite element collection.
    * - create and handle a finite element space
    */
-  struct MFEM_MGIS_EXPORT FiniteElementDiscretization {
-    //! \brief string associated to the `Parallel` parameter
-    static const char* const Parallel;
-    //! \brief string associated to the `MeshFileName` parameter
-    static const char* const MeshFileName;
-    //! \brief string associated to the `MeshReadMode` parameter
-    static const char* const MeshReadMode;
+  struct MFEM_MGIS_EXPORT FiniteElementDiscretization : MeshDiscretization {
     //! \brief string associated to the `FiniteElementFamily` parameter
     static const char* const FiniteElementFamily;
     //! \brief string associated to the `FiniteElementOrder` parameter
     static const char* const FiniteElementOrder;
     //! \brief string associated to the `UnknownsSize` parameter
     static const char* const UnknownsSize;
-    //! \brief string associated to the `Materials` parameter
-    static const char* const Materials;
-    //! \brief string associated to the `Boundaries` parameter
-    static const char* const Boundaries;
-    //! \brief string associated to the `NumberOfUniformRefinements` parameter
-    static const char* const NumberOfUniformRefinements;
-    //! \brief string associated to the `VerbosityLevel` parameter
-    static const char* const GeneralVerbosityLevel;
-    //!
-    [[noreturn]] static void reportInvalidParallelMesh();
-    //!
-    [[noreturn]] static void reportInvalidSequentialMesh();
     //!
     [[noreturn]] static void reportInvalidParallelFiniteElementSpace();
     //!
@@ -63,21 +46,47 @@ namespace mfem_mgis {
      *
      * The following parameters are expected:
      *
-     * - `Parallel` (boolean): if true, a parallel computation is to be be
-     *    performed. This value if assumed to be false by default.
-     * - `MeshFileName` (string): mesh file.
+     * - parameters describing the mesh (see the `MeshDiscretization` class for
+     *   details)
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used. Supported families are:
+     *   - `H1`
+     *   The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `UnknownsSize` (int): number of components of the unknows
+     */
+    FiniteElementDiscretization(const Parameters&);
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] params: parameters
+     *
+     * The following parameters are expected:
+     *
      * - `FiniteElementFamily` (string): name of the finite element family to be
      *   used. Supported families are:
      *   - `H1`:
      *   The default value if `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `UnknownsSize` (int): number of components of the unknows
-     * - `NumberOfUniformRefinements` (int): number of uniform refinements
-     *   applied to the mesh
-     * - `GeneralVerbosityLevel` (int): with large positive numbers, expect more
-     * verbosity
      */
-    FiniteElementDiscretization(const Parameters&);
+    FiniteElementDiscretization(std::shared_ptr<Mesh<true>>, const Parameters&);
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] params: parameters
+     *
+     * The following parameters are expected:
+     *
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used. Supported families are:
+     *   - `H1`:
+     *   The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `UnknownsSize` (int): number of components of the unknows
+     */
+    FiniteElementDiscretization(std::shared_ptr<Mesh<false>>,
+                                const Parameters&);
     /*!
      * \brief constructor
      * \param[in] m: mesh
@@ -118,102 +127,6 @@ namespace mfem_mgis {
     FiniteElementDiscretization(std::shared_ptr<Mesh<false>>,
                                 std::shared_ptr<const FiniteElementCollection>,
                                 std::unique_ptr<FiniteElementSpace<false>>);
-    /*!
-     * \brief set material names
-     * \param[in, out] ctx: execution context
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    [[nodiscard]] bool setMaterialsNames(
-        Context&, const std::map<size_type, std::string>&) noexcept;
-    /*!
-     * \brief set material names
-     * \param[in, out] ctx: execution context
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    [[nodiscard]] bool setBoundariesNames(
-        Context&, const std::map<size_type, std::string>&) noexcept;
-    /*!
-     * \return the material name associated with the given identifier, if it is
-     * defined. If not defined, an empty string is returned
-     *
-     * \param[in, out] ctx: execution context
-     * \param[in] id: material identifier
-     *
-     * \note the method only fails if the material identifier is not defined in
-     * the mesh
-     */
-    [[nodiscard]] std::optional<std::string> getMaterialName(
-        Context&, const size_type) const noexcept;
-    /*!
-     * \return the boundary name associated with the given identifier, if it is
-     * defined. If not defined, an empty string is returned
-     *
-     * \param[in, out] ctx: execution context
-     * \param[in] id: boundary identifier
-     *
-     * \note the method only fails is the boundary identifier is defined in the
-     * mesh
-     */
-    [[nodiscard]] std::optional<std::string> getBoundaryName(
-        Context&, const size_type) const noexcept;
-    /*!
-     * \return the material identifier by the given parameter.
-     * \note The parameter may hold an integer or a string.
-     */
-    [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
-        Context&, const Parameter&) const noexcept;
-    /*!
-     * \return the material identifier by the given parameter.
-     * \note The parameter may hold an integer or a string.
-     */
-    [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
-        Context&, const Parameter&) const noexcept;
-    /*!
-     * \return the list of materials identifiers described by the given
-     * parameter.
-     *
-     * \note The parameter may hold:
-     *
-     * - an integer
-     * - a string
-     * - a vector of parameters which must be either strings and integers.
-     *
-     * Integers are directly intepreted as materials identifiers.
-     *
-     * Strings are intepreted as regular expressions which allows the selection
-     * of materials by names.
-     */
-    [[nodiscard]] std::optional<std::vector<size_type>> getMaterialsIdentifiers(
-        Context&, const Parameter&) const noexcept;
-    /*!
-     * \return the list of boundaries identifiers described by the given
-     * parameter.
-     *
-     * \note The parameter may hold:
-     *
-     * - an integer
-     * - a string
-     * - a vector of parameters which must be either strings and integers.
-     *
-     * Integers are directly intepreted as boundaries identifiers.
-     *
-     * Strings are intepreted as regular expressions which allows the selection
-     * of boundaries by names.
-     */
-    [[nodiscard]] std::optional<std::vector<size_type>>
-    getBoundariesIdentifiers(Context&, const Parameter&) const noexcept;
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] Mesh<parallel>& getMesh();
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] const Mesh<parallel>& getMesh() const;
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMeshPointer();
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] std::shared_ptr<const Mesh<parallel>> getMeshPointer() const;
     //! \return the finite element space
     template <bool parallel>
     [[nodiscard]] FiniteElementSpace<parallel>& getFiniteElementSpace();
@@ -227,102 +140,24 @@ namespace mfem_mgis {
     //! \return the finite element collection
     [[nodiscard]] std::shared_ptr<const FiniteElementCollection>
     getFiniteElementCollectionPointer() const noexcept;
-    //! \return if this object is built to run parallel computations
-    [[nodiscard]] bool describesAParallelComputation() const;
-    /*!
-     * \brief return the names of the materials (and their mapping with their
-     * identifiers
-     */
-    [[nodiscard]] std::map<size_type, std::string> getMaterialsNames()
-        const noexcept;
-    /*!
-     * \brief return the names of the boundaries (and their mapping with their
-     * identifiers
-     */
-    [[nodiscard]] std::map<size_type, std::string> getBoundariesNames()
-        const noexcept;
-    /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    [[deprecated]] void setMaterialsNames(
-        const std::map<size_type, std::string>&);
-    /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    [[deprecated]] void setBoundariesNames(
-        const std::map<size_type, std::string>&);
     //
-    /*!
-     * \return the material identifier by the given parameter.
-     * \note The parameter may hold an integer or a string.
-     */
-    [[deprecated, nodiscard]] size_type getMaterialIdentifier(
-        const Parameter&) const;
-    /*!
-     * \return the material identifier by the given parameter.
-     * \note The parameter may hold an integer or a string.
-     */
-    [[deprecated, nodiscard]] size_type getBoundaryIdentifier(
-        const Parameter&) const;
-    /*!
-     * \return the list of materials identifiers described by the given
-     * parameter.
-     *
-     * \note The parameter may hold:
-     *
-     * - an integer
-     * - a string
-     * - a vector of parameters which must be either strings and integers.
-     *
-     * Integers are directly intepreted as materials identifiers.
-     *
-     * Strings are intepreted as regular expressions which allows the selection
-     * of materials by names.
-     */
-    [[deprecated, nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter&) const;
-    /*!
-     * \return the list of boundaries identifiers described by the given
-     * parameter.
-     *
-     * \note The parameter may hold:
-     *
-     * - an integer
-     * - a string
-     * - a vector of parameters which must be either strings and integers.
-     *
-     * Integers are directly intepreted as boundaries identifiers.
-     *
-     * Strings are intepreted as regular expressions which allows the selection
-     * of boundaries by names.
-     */
-    [[deprecated, nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter&) const;
+    // expose MeshDiscretization's methods, even deprecated ones for backward
+    // compatibility
+    //
+    using MeshDiscretization::getBoundariesIdentifiers;
+    using MeshDiscretization::getBoundariesNames;
+    using MeshDiscretization::getBoundaryIdentifier;
+    using MeshDiscretization::getBoundaryName;
+    using MeshDiscretization::getMaterialIdentifier;
+    using MeshDiscretization::getMaterialName;
+    using MeshDiscretization::getMaterialsIdentifiers;
+    using MeshDiscretization::getMaterialsNames;
+    using MeshDiscretization::setBoundariesNames;
+    using MeshDiscretization::setMaterialsNames;
     //! \brief destructor
     ~FiniteElementDiscretization();
 
    private:
-    /*!
-     * \brief set names of materials
-     * \param[in] 1: dummy parameter indicated that this function may throw
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    void setMaterialsNames(attributes::Throwing,
-                           const std::map<size_type, std::string>&);
-    /*!
-     * \brief set names of boundaries
-     * \param[in] 1: dummy parameter indicated that this function may throw
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    void setBoundariesNames(attributes::Throwing,
-                            const std::map<size_type, std::string>&);
-    //! \brief mesh
-#ifdef MFEM_USE_MPI
-    std::shared_ptr<Mesh<true>> parallel_mesh;
-#endif /* MFEM_USE_MPI */
-    std::shared_ptr<Mesh<false>> sequential_mesh;
     //! \brief finite element collection
     std::shared_ptr<const FiniteElementCollection> fec;
     //! \brief finite element space
@@ -330,37 +165,13 @@ namespace mfem_mgis {
     std::unique_ptr<FiniteElementSpace<true>> parallel_fe_space;
 #endif /* MFEM_USE_MPI */
     std::unique_ptr<FiniteElementSpace<false>> sequential_fe_space;
-    //! \brief mapping between materials identifiers and names
-    std::map<size_type, std::string> materials_names;
-    //! \brief mapping between materials boundaries and names
-    std::map<size_type, std::string> boundaries_names;
   };  // end of FiniteElementDiscretization
-
-  /*!
-   * \brief return the space dimension
-   * \param[in] fed: finite element discretization
-   */
-  MFEM_MGIS_EXPORT size_type
-  getSpaceDimension(const FiniteElementDiscretization&);
 
   /*!
    * \brief return the total number of unknowns
    * \param[in] fed: finite element discretization
    */
   MFEM_MGIS_EXPORT size_type getTrueVSize(const FiniteElementDiscretization&);
-
-  /*!
-   * \brief return the list of materials attributes
-   * \param[in] fed: finite element discretisation
-   */
-  MFEM_MGIS_EXPORT const mfem::Array<size_type>& getMaterialsAttributes(
-      const FiniteElementDiscretization&);
-  /*!
-   * \brief return the list of boundaries attributes
-   * \param[in] fed: finite element discretisation
-   */
-  MFEM_MGIS_EXPORT const mfem::Array<size_type>& getBoundariesAttributes(
-      const FiniteElementDiscretization&);
 
   /*!
    * \brief display information about a finite element discretization

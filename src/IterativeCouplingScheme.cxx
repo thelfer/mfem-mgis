@@ -103,15 +103,15 @@ namespace mfem_mgis {
 
   bool
   IterativeCouplingScheme::performInitializationTaksAtTheBeginningOfTheTimeStep(
-      Context &ctx) noexcept {
+      Context &ctx, const TimeStep &ts) noexcept {
     const auto r = CouplingSchemeBase::
-        performInitializationTaksAtTheBeginningOfTheTimeStep(ctx);
+        performInitializationTaksAtTheBeginningOfTheTimeStep(ctx, ts);
     if (!r) {
       return false;
     }
     for (const auto &c : this->convergence_criteria) {
       const auto r2 =
-          c->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx);
+          c->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx, ts);
       if (!r2) {
         ctx.debug(
             "* performInitializationTaksAtTheBeginningOfTheTimeStep failed for "
@@ -123,7 +123,8 @@ namespace mfem_mgis {
   }
 
   std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-  IterativeCouplingScheme::computeNextState(Context &ctx) noexcept {
+  IterativeCouplingScheme::computeNextState(Context &ctx,
+                                            const TimeStep &ts) noexcept {
     //     [[maybe_unused]] auto profiler =
     //         ctx.startResourcesProfiling<1>("LoopCouplingScheme::computeNextState");
     if (this->convergence_criteria.empty()) {
@@ -150,7 +151,7 @@ namespace mfem_mgis {
         ctx.log(verboseLevel2, "* calling computeNextState for '" +
                                    getShortDescription(*m) + "'");
         auto cs = CouplingSchemeBase::update(ctx, *m);
-        const auto o = m->computeNextState(ctx);
+        const auto o = m->computeNextState(ctx, ts);
         restore(ctx, cs);
         status.update(o.first);
         if (status.shallStop()) {

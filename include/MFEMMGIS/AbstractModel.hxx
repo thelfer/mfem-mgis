@@ -14,9 +14,6 @@
 
 namespace mfem_mgis {
 
-  // forward declarations
-  struct PhysicalSystem;
-
   /*!
    * \brief an abstract class for models
    *
@@ -31,10 +28,6 @@ namespace mfem_mgis {
    * define the state of the model.
    */
   struct MFEM_MGIS_EXPORT AbstractModel : AbstractCouplingItem, Provider {
-    //! \return the underlying physical system
-    [[nodiscard]] virtual PhysicalSystem &getPhysicalSystem() = 0;
-    //! \return the underlying physical system
-    [[nodiscard]] virtual const PhysicalSystem &getPhysicalSystem() const = 0;
     /*!
      * \brief add a new post-processing
      * \param[in] ctx: execution context

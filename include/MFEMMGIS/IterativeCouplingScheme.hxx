@@ -53,9 +53,9 @@ namespace mfem_mgis {
     //     [[nodiscard]] bool initializeAfterResourcesAllocation(Context &)
     //     noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &) noexcept override;
+        Context &, const TimeStep &) noexcept override;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &) noexcept override;
+    computeNextState(Context &, const TimeStep &) noexcept override;
     [[nodiscard]] bool update(Context &) noexcept override;
     [[nodiscard]] bool revert(Context &) noexcept override;
     //! \brief destructor

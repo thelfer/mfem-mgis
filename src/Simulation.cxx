@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include "MFEMMGIS/MPI.hxx"
+#include "MFEMMGIS/TimeStep.hxx"
 #include "MFEMMGIS/PhysicalSystem.hxx"
 #include "MFEMMGIS/AbstractSimulationMonitor.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
@@ -564,12 +565,7 @@ namespace mfem_mgis {
     //
     auto p_bts = this->timesDescription.begin();
     auto p_ets = std::next(p_bts);
-    //    const auto dt = *p_ets - *p_bts;
-    //   updateAndSynchronize(this->physicalSystem.updateClock(ctx, *p_bts,
-    //   dt)); if (!s.shallContinue()) {
-    //     ctx.registerErrorMessage("updating the clock failed");
-    //     return {s};
-    //   }
+    //
     for (const auto &[n, t] : this->initializationTasks) {
       updateAndSynchronize(invoke(ctx, t));
       if (!s.shallContinue()) {
@@ -578,8 +574,11 @@ namespace mfem_mgis {
         return {s, {}};
       }
     }
-    if (!this->physicalSystem->executeInitialPostProcessingTasks(ctx)) {
-      return {ExitStatus::unrecoverableError, {}};
+    if (isValid(this->physicalSystem)) {
+      if (!this->physicalSystem->executeInitialPostProcessingTasks(ctx,
+                                                                   *p_bts)) {
+        return {ExitStatus::unrecoverableError, {}};
+      }
     }
     // loop over the time sequences
     auto pdt = std::optional<real>{};
@@ -598,20 +597,12 @@ namespace mfem_mgis {
                                           *p_ets, std::next(p_ets) == pe);
       updateAndSynchronize(s);
       if (!s.shallContinue()) {
-        // set the time at the beginning of the temporal sequence to   the time
-        // at the beginning of the time step, so if the run method
-        // is called again one starts at the correct time
-        //         *p_bts = this->physicalSystem.getClock()
-        //                      .getTimeAtTheBeginningOfTheTimeStep();
         return {s, {}};
       }
       p_bts = this->timesDescription.erase(p_bts);
       p_ets = std::next(p_bts);
       pe = this->timesDescription.end();
       if (state.maximumNumberOfTimeStepsReached) {
-        // dt is arbitrary, it just have to be a non-zero value
-        //    updateAndSynchronize(this->physicalSystem.updateClock(ctx, *p_bts,
-        //    dt));
         if (s.shallStop()) {
           return {s, {}};
         } else {
@@ -829,8 +820,8 @@ namespace mfem_mgis {
           ctx.log() << "Computing " << getTimeStepDescription() << std::endl;
         }
       }
-      updateAndSynchronize(
-          this->simulateOverATimeStep(ctx, output, state, t, *ote));
+      auto ts = TimeStep{.begin = t, .end = *ote, .dt = *ote - t};
+      updateAndSynchronize(this->simulateOverATimeStep(ctx, output, state, ts));
       if (s == ExitStatus::unrecoverableError) {
         std::ignore = ctx.registerErrorMessage(
             "unrecoverable error returned, no substepping");
@@ -935,7 +926,7 @@ namespace mfem_mgis {
       }
       if (isValid(this->physicalSystem)) {
         if (!this->physicalSystem->executePostProcessingTasks(
-                ctx, explicitMarkedPostProcessingTime)) {
+                ctx, ts, explicitMarkedPostProcessingTime)) {
           s = ctx.registerErrorMessage(
               "The time step validator failed for the " +
               getTimeStepDescription());
@@ -990,8 +981,7 @@ namespace mfem_mgis {
   ExitStatus Simulation::simulateOverATimeStep(Context &ctx,
                                                SimulationOutput &output,
                                                SimulationRunState &state,
-                                               const real tb,
-                                               const real te) noexcept {
+                                               const TimeStep &ts) noexcept {
     ++(state.numberOfTimeSteps);
     if (isValid(this->maximumNumberOfTimeSteps)) {
       state.maximumNumberOfTimeStepsReached =
@@ -1005,21 +995,20 @@ namespace mfem_mgis {
     };
     //
     if (ctx.getVerbosityLevel() >= VerbosityLevel::verboseLevel0) {
-      ctx.log() << "Computing next state from time " << tb << " to " << te
-                << std::endl;
+      ctx.log() << "Computing next state from time " << ts.begin << " to "
+                << ts.end << std::endl;
     }
     if (isValid(this->nonlinearEvolutionProblem)) {
-      this->nonlinearEvolutionProblem->setup(tb, te - tb);
+      this->nonlinearEvolutionProblem->setup(ts.begin, ts.dt);
     }
-    //    updateAndSynchronize(this->physicalSystem.updateClock(ctx, tb, te -
-    //    tb));
     if (!s.shallContinue()) {
       std::ignore = ctx.registerErrorMessage("updating the clock failed");
       return s;
     }
     if(isValid(this->physicalSystem)) {
       updateAndSynchronize(
-          this->physicalSystem->updateLoadingsAtTheBeginningOfTheTimeStep(ctx));
+          this->physicalSystem->updateLoadingsAtTheBeginningOfTheTimeStep(ctx,
+                                                                          ts));
       if (!s.shallContinue()) {
         std::ignore = ctx.registerErrorMessage(
             "updating loading at the beginning of the time step failed");
@@ -1027,7 +1016,7 @@ namespace mfem_mgis {
       }
       updateAndSynchronize(
           this->physicalSystem
-              ->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx));
+              ->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx, ts));
       if (!s.shallContinue()) {
         std::ignore = ctx.registerErrorMessage(
             "performing initialization tasks at the beginning of the time step "
@@ -1036,18 +1025,18 @@ namespace mfem_mgis {
       }
     }
     // computing the next time step
-    const auto r = [this, &ctx, &tb, &te]()
+    const auto r = [this, &ctx, &ts]()
         -> std::pair<ExitStatus, std::optional<ComputeNextStateOutput>> {
       if (isValid(this->nonlinearEvolutionProblem)) {
         const auto routput =
-            this->nonlinearEvolutionProblem->solve(ctx, tb, te - tb);
+            this->nonlinearEvolutionProblem->solve(ctx, ts.begin, ts.dt);
         if (isInvalid(routput)) {
           return {ExitStatus::recoverableError, {}};
         }
         return {ExitStatus::success, convertToComputeNextStateOutput(routput)};
       }
       if (isValid(this->physicalSystem)) {
-        return this->physicalSystem->computeNextState(ctx);
+        return this->physicalSystem->computeNextState(ctx, ts);
       }
       return {ExitStatus::success, ComputeNextStateOutput{}};
     }();
@@ -1064,8 +1053,8 @@ namespace mfem_mgis {
     }
     if (this->keepOutputs) {
       auto timeStepOutput = Parameters{};
-      timeStepOutput.replaceOrInsert("BeginningOfTimeStep", tb);
-      timeStepOutput.replaceOrInsert("EndOfTimeStep", te);
+      timeStepOutput.replaceOrInsert("BeginningOfTimeStep", ts.begin);
+      timeStepOutput.replaceOrInsert("EndOfTimeStep", ts.end);
       if (isValid(r.second)) {
         timeStepOutput.replaceOrInsert("ComputeNextStateOutput", *(r.second));
       }

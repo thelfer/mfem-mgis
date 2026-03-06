@@ -95,7 +95,8 @@ namespace mfem_mgis {
   }  // end of describe
 
   std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-  LoopCouplingScheme::computeNextState(Context &ctx) noexcept {
+  LoopCouplingScheme::computeNextState(Context &ctx,
+                                       const TimeStep &ts) noexcept {
     if (this->number_of_iterations <= 0) {
       std::ignore = ctx.registerErrorMessage("invalid number of iterations");
       return {ExitStatus::unrecoverableError, {}};
@@ -112,7 +113,7 @@ namespace mfem_mgis {
         ctx.log(verboseLevel2, "* calling computeNextState for '" +
                                    getShortDescription(*m) + "'");
         auto cs = update(ctx, *m);
-        const auto o = m->computeNextState(ctx);
+        const auto o = m->computeNextState(ctx, ts);
         restore(ctx, cs);
         status.update(o.first);
         if (status.shallStop()) {

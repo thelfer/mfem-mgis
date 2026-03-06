@@ -284,6 +284,17 @@ namespace mfem_mgis {
     return {&(obi->getMaterial())};
   }  // end of getMaterial
 
+  std::optional<size_type>
+  MultiMaterialNonLinearIntegrator::getNumberOfBehaviourIntegrators(
+      Context& ctx, const size_type m) const noexcept {
+    if ((m == 0) || (m >= this->behaviour_integrators.size())) {
+      return ctx.registerErrorMessage("invalid material index '" +
+                                      std::to_string(m) + "'");
+    }
+    const auto& bis = this->behaviour_integrators.at(m);
+    return bis.size();
+  }  // end of getBehaviourIntegrator
+
   OptionalReference<const AbstractBehaviourIntegrator>
   MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
       Context& ctx, const size_type m, const size_type b) const noexcept {

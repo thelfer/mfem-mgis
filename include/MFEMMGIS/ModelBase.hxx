@@ -19,32 +19,15 @@ namespace mfem_mgis {
 
   // forward declarations
   struct Parameters;
-  struct PhysicalSystem;
 
-  //! \brief a base class for most models
+  //! \brief a base class for most model
   struct MFEM_MGIS_EXPORT ModelBase : AbstractModel {
     //! \return a description of the parameters of this model
     [[nodiscard]] static std::map<std::string, std::string>
     getParametersDescription() noexcept;
-    /*!
-     * \brief constructor
-     * \param[in] ps: physical system
-     * \param[in] parameters: parameters
-     */
-    ModelBase(PhysicalSystem &, const Parameters &);
-    /*!
-     * \brief an optional method that shall be called by after the construction
-     * \param[in] parameters: parameters
-     *
-     * This method is required since virtual functions can't be called in the
-     * constructor
-     */
-    [[nodiscard]] virtual bool completeConstruction(
-        Context &,
-        const Parameters &) noexcept;  //
-    [[nodiscard]] PhysicalSystem &getPhysicalSystem() override final;
-    [[nodiscard]] const PhysicalSystem &getPhysicalSystem()
-        const override final;
+    //! \brief constructor
+    ModelBase();
+    //
     [[nodiscard]] std::string getIdentifier() const noexcept override final;
     [[nodiscard]] VerbosityLevel getVerbosityLevel()
         const noexcept override final;
@@ -101,15 +84,16 @@ namespace mfem_mgis {
     //     [[nodiscard]] bool initializeAfterResourcesAllocation(Context &)
     //     noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &) noexcept override;
+        Context &, const TimeStep &) noexcept override;
     [[nodiscard]] bool executeInitialPostProcessingTasks(
-        Context &) noexcept override;
+        Context &, const real) noexcept override;
     [[nodiscard]] bool executePostProcessingTasks(Context &,
+                                                  const TimeStep &,
                                                   const bool) noexcept override;
     std::optional<real> getNextTimeIncrement(
         Context &, const real, const real) const noexcept override;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &) noexcept override;
+    computeNextState(Context &, const TimeStep &) noexcept override;
     [[nodiscard]] bool update(Context &) noexcept override;
     [[nodiscard]] bool revert(Context &) noexcept override;
     //! \brief destructor
@@ -130,8 +114,6 @@ namespace mfem_mgis {
     //! \brief add a post-processing (see executePostProceccing for details)
     virtual void addPostProcessing(
         std::function<bool(Context &, bool)>) noexcept;
-    //! \brief the underlying physical system
-    PhysicalSystem &physicalSystem;
 
    private:
     //: \brief list of registred post-processings

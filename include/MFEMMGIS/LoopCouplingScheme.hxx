@@ -43,7 +43,7 @@ namespace mfem_mgis {
         std::shared_ptr<AbstractCouplingSchemeConvergenceCriterion>) noexcept
         override final;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &) noexcept override;
+    computeNextState(Context &, const TimeStep &) noexcept override;
     //! \brief destructor
     ~LoopCouplingScheme() noexcept override;
 

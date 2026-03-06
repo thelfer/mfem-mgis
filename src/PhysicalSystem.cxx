@@ -230,7 +230,7 @@ namespace mfem_mgis {
   }  // end of setModel
 
   bool PhysicalSystem::updateLoadingsAtTheBeginningOfTheTimeStep(
-      Context &ctx) noexcept {
+      Context &, const TimeStep &) noexcept {
     //     for (auto &l : this->loadings_) {
     //       if (!l->updateLoading(ctx)) {
     //         return false;
@@ -240,14 +240,14 @@ namespace mfem_mgis {
   }  // end of updateLoadingsAtTheBeginningOfTheTimeStep
 
   bool PhysicalSystem::performInitializationTaksAtTheBeginningOfTheTimeStep(
-      Context &ctx) noexcept {
+      Context &ctx, const TimeStep &ts) noexcept {
     if (isInvalid(this->coupling_scheme)) {
       return ctx.registerErrorMessage("no coupling scheme defined");
     }
     ctx.debug(
         "PhysicalSystem::performInitializationTaksAtTheBeginningOfTheTimeStep");
     return this->coupling_scheme
-        ->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx);
+        ->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx, ts);
   }  // end of performInitializationTaksAtTheBeginningOfTheTimeStep
 
   std::optional<real> PhysicalSystem::getNextTimeIncrement(
@@ -259,16 +259,16 @@ namespace mfem_mgis {
   }  // end of getNextTimeIncrement
 
   std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-  PhysicalSystem::computeNextState(Context &ctx) noexcept {
+  PhysicalSystem::computeNextState(Context &ctx, const TimeStep &ts) noexcept {
     if (isInvalid(this->coupling_scheme)) {
       std::ignore = ctx.registerErrorMessage("no coupling scheme defined");
       return {ExitStatus::unrecoverableError, {}};
     }
-    return this->coupling_scheme->computeNextState(ctx);
+    return this->coupling_scheme->computeNextState(ctx, ts);
   }  // end of computeNextState
 
   bool PhysicalSystem::executeInitialPostProcessingTasks(
-      Context &ctx) noexcept {
+      Context &ctx, const real t) noexcept {
     if (isInvalid(this->coupling_scheme)) {
       return ctx.registerErrorMessage("no coupling scheme defined");
     }
@@ -287,10 +287,12 @@ namespace mfem_mgis {
     //         return false;
     //       }
     //     }
-    return this->coupling_scheme->executeInitialPostProcessingTasks(ctx);
+    return this->coupling_scheme->executeInitialPostProcessingTasks(ctx, t);
   }  // end of executeInitialPostProcessingTasks
 
-  bool PhysicalSystem::executePostProcessingTasks(Context &ctx, const bool b) {
+  bool PhysicalSystem::executePostProcessingTasks(Context &ctx,
+                                                  const TimeStep &ts,
+                                                  const bool b) {
     if (isInvalid(this->coupling_scheme)) {
       return ctx.registerErrorMessage("no coupling scheme defined");
     }
@@ -308,7 +310,7 @@ namespace mfem_mgis {
     //         return false;
     //       }
     //     }
-    return this->coupling_scheme->executePostProcessingTasks(ctx, b);
+    return this->coupling_scheme->executePostProcessingTasks(ctx, ts, b);
   }  // end of executePostProcessingTasks
 
   bool PhysicalSystem::update(Context &ctx) noexcept {

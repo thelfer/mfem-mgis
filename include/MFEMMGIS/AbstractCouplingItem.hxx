@@ -19,6 +19,7 @@
 namespace mfem_mgis {
 
   // forward declaration
+  struct TimeStep;
   struct Parameters;
 
   /*!
@@ -103,12 +104,15 @@ namespace mfem_mgis {
     /*!
      * \brief method called at the beginning of a time step
      *
+     * \param[in,out] ctx: execution context
+     * \param[in] ts: description of the time step
+     *
      * \note if required, the time step can be retrieved from the clock hold by
      * the physical system
      */
     [[nodiscard]] virtual bool
     performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &) noexcept = 0;
+        Context &, const TimeStep &) noexcept = 0;
     /*!
      * \brief This method is called at the beginning of a time step to determine
      * a suitable time increment.
@@ -123,6 +127,9 @@ namespace mfem_mgis {
     /*!
      * \brief compute the state of the system at the end of of the time step
      *
+     * \param[in,out] ctx: execution context
+     * \param[in] ts: description of the time step
+     *
      * The returned structure contains the information about the execution.
      * Each item must document what is returned. Developpers are advised to
      * return uniform information for items having the same role (i.e. coupling,
@@ -133,10 +140,10 @@ namespace mfem_mgis {
      * - `NumberOfIterations` (integer): the number of iterations up to
      * convergence
      * - `IterationsOutputs` (Vector of parameters): by iteration, the outputs
-     * of each coupling item. Each element of the vector corresponds to an
-     * iteration, the first element corresponding to the first iteration. Each
-     * element of this vector is a vector of dictionaries whose structure is
-     * given below.
+     *   of each coupling item. Each element of the vector corresponds to an
+     *   iteration, the first element corresponding to the first iteration. Each
+     *   element of this vector is a vector of dictionaries whose structure is
+     *   given below.
      * - `ItemsOutputs` (vector of dictionaries): the outputs of each coupling
      * item at the last iteration.
      *
@@ -159,24 +166,26 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual std::pair<ExitStatus,
                                     std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &) noexcept = 0;
+    computeNextState(Context &, const TimeStep &) noexcept = 0;
     /*!
      * \brief execute post-processings at the beginning of the simulation. For
      * instance, this method may display the initial values of the state
      * variables.
      *
      * \param[in,out] ctx: execution context
+     * \param[in] t: initial time
      *
      * \note if required, the time at the beginning of the time step can be
      * retrieved from the clock hold by the physical system
      */
     [[nodiscard]] virtual bool executeInitialPostProcessingTasks(
-        Context &) noexcept = 0;
+        Context &, const real) noexcept = 0;
     /*!
      * \brief execute post-processings at the end of a time step, after
      * convergence.
      *
      * \param[in,out] ctx: execution context
+     * \param[in] ts: description of the time step
      * \param[in] b: boolean stating that if the time at the end of the time
      * step is a post-processing time.
      *
@@ -184,7 +193,7 @@ namespace mfem_mgis {
      * from the clock hold by the physical system
      */
     [[nodiscard]] virtual bool executePostProcessingTasks(
-        Context &, const bool) noexcept = 0;
+        Context &, const TimeStep &, const bool) noexcept = 0;
     /*!
      * \brief update the state of the system for the next time step
      *

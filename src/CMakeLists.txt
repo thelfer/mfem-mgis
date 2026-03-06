@@ -5,6 +5,7 @@ list(APPEND MFEMMGIS_SOURCES
   Profiler.cxx
   Parameter.cxx
   Parameters.cxx
+  MeshDiscretization.cxx
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
@@ -81,6 +82,7 @@ list(APPEND MFEMMGIS_SOURCES
   IterativeCouplingScheme.cxx
   AbstractModel.cxx
   ModelBase.cxx
+  NonLinearModel.cxx
   PhysicalSystem.cxx
   Simulation.cxx
 )

@@ -19,6 +19,7 @@
 namespace mfem_mgis {
 
   //! forward declarations
+  struct TimeStep;
   struct Parameters;
   struct AbstractCouplingScheme;
   struct AbstractModel;
@@ -103,22 +104,26 @@ namespace mfem_mgis {
         Context &, std::shared_ptr<AbstractPostProcessing>) noexcept;
     /*!
      * \brief update loadings.
-     * \param[out] ctx: execution contex
+     *
+     * \param[in, out] ctx: execution contex
+     * \param[in] ts: description of the time step
+     *
      * \note This method must be called at the beginning of the time step.
      */
     [[nodiscard]] bool updateLoadingsAtTheBeginningOfTheTimeStep(
-        Context &) noexcept;
+        Context &, const TimeStep &) noexcept;
     /*!
      * \brief perform initialization tasks.
      *
-     *  \param[int, out] ctx: execution context
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: description of the time step
      *
      * \note this method shall be called after
      * `updateLoadingsAtTheBeginningOfTheTimeStep`
      * \note this method shall be called before `computeNextState`
      */
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &) noexcept;
+        Context &, const TimeStep &) noexcept;
     /*!
      * \brief This method is called at the beginning of a time step to determine
      * a suitable time increment.
@@ -133,25 +138,35 @@ namespace mfem_mgis {
     /*!
      * \brief compute the next state
      * \param[out] ctx: execution context
+     * \param[in] ts: description of the time step
      *
      * \note this method shall be called after `computeNextState`
      * \note this method shall be called before `update`
      */
     std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &) noexcept;
+    computeNextState(Context &, const TimeStep &) noexcept;
     /*!
      * \brief execute post-processings at the beginning of the simulation. For
      * instance, this method may display the initial values of the state
-     * variables. \param[in] ctx: execution context
+     * variables.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] t: initial time step
      */
-    [[nodiscard]] bool executeInitialPostProcessingTasks(Context &) noexcept;
+    [[nodiscard]] bool executeInitialPostProcessingTasks(Context &,
+                                                         const real) noexcept;
     /*!
      * \brief execute post-processings at the end of a time step, after
-     * convergence. \param[in] ctx: execution context \param[in] b: boolean
-     * stating that if the time at the end of the time step is a post-processing
-     * time.
+     * convergence.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: description of the time step
+     * \param[in] b: boolean stating that if the time at the end of the time
+     * step is a post-processing time.
      */
-    [[nodiscard]] bool executePostProcessingTasks(Context &, const bool);
+    [[nodiscard]] bool executePostProcessingTasks(Context &,
+                                                  const TimeStep &,
+                                                  const bool);
     /*!
      * \brief update the system
      * This method shall be called after `computeNextState`

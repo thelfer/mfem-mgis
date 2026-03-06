@@ -21,7 +21,7 @@ namespace mfem_mgis {
 
   // forward declarations
   struct Context;
-  // struct PhysicalSystem;
+  struct PhysicalSystem;
   struct AbstractNonLinearEvolutionProblem;
   struct AbstractSimulationMonitor;
   struct AbstractConvergenceFailureHandler;
@@ -326,14 +326,12 @@ namespace mfem_mgis {
      * \param[in] ctx: execution context.
      * \param[in,out] output: output of the simulation.
      * \param[in,out] state: simulation state.
-     * \param[in] tb: beginning of the time step.
-     * \param[in] te: end of the time step.
+     * \param[in] ts: description of the time step
      */
     ExitStatus simulateOverATimeStep(Context &,
                                      SimulationOutput &,
                                      SimulationRunState &,
-                                     const real,
-                                     const real) noexcept;
+                                     const TimeStep &) noexcept;
     //! \brief the physical system
     OptionalReference<PhysicalSystem> physicalSystem;
     //! \brief evolution problem solved

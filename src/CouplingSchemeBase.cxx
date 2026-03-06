@@ -170,7 +170,7 @@ namespace mfem_mgis {
   //   }  // end of declareDependencies
 
   bool CouplingSchemeBase::performInitializationTaksAtTheBeginningOfTheTimeStep(
-      Context &ctx) noexcept {
+      Context &ctx, const TimeStep &ts) noexcept {
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
       ctx.log(verboseLevel2,
@@ -178,7 +178,7 @@ namespace mfem_mgis {
               "for '" +
                   getShortDescription(*i) + "'");
       const auto s =
-          i->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx);
+          i->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx, ts);
       restore(ctx, cs);
       if (!s) {
         ctx.debug(
@@ -192,13 +192,13 @@ namespace mfem_mgis {
   }  // end of performInitializationTaksAtTheBeginningOfTheTimeStep
 
   bool CouplingSchemeBase::executeInitialPostProcessingTasks(
-      Context &ctx) noexcept {
+      Context &ctx, const real t) noexcept {
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
       ctx.log(verboseLevel2,
               "* calling executeInitialPostProcessingTasks for '" +
                   getShortDescription(*i) + "'");
-      auto r = i->executeInitialPostProcessingTasks(ctx);
+      auto r = i->executeInitialPostProcessingTasks(ctx, t);
       restore(ctx, cs);
       if (!r) {
         ctx.debug("* executeInitialPostProcessingTasks failed for '" +
@@ -227,12 +227,13 @@ namespace mfem_mgis {
   }  // end of getNextTimeIncrement
 
   bool CouplingSchemeBase::executePostProcessingTasks(Context &ctx,
+                                                      const TimeStep & ts,
                                                       const bool b) noexcept {
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
       ctx.log(verboseLevel2, "* calling executePostProcessingTasks for '" +
                                  getShortDescription(*i) + "'");
-      auto r = i->executePostProcessingTasks(ctx, b);
+      auto r = i->executePostProcessingTasks(ctx, ts, b);
       restore(ctx, cs);
       if (!r) {
         ctx.debug("* executePostProcessingTasks failed for '" +

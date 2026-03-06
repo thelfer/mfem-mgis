@@ -23,7 +23,8 @@ namespace mfem_mgis {
       default;
 
   bool FirstIterationConvergenceCriterion::
-      performInitializationTaksAtTheBeginningOfTheTimeStep(Context &) noexcept {
+      performInitializationTaksAtTheBeginningOfTheTimeStep(
+          Context &, const TimeStep &) noexcept {
     return true;
   }  // end of performInitializationTaksAtTheBeginningOfTheTimeStep
 

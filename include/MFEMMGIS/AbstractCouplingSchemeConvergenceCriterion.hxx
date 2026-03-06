@@ -22,11 +22,14 @@ namespace mfem_mgis {
     /*!
      * \brief method called at the beginning of a time step
      *
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: description of the time step
+     *
      * \note if required, the time step can be retrieved from the clock held by
      * the physical system
      */
     virtual bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &) noexcept = 0;
+        Context &, const TimeStep&) noexcept = 0;
     /*!
      * \return if the criterion is satisfied
      * \param[in] ctx: execution context

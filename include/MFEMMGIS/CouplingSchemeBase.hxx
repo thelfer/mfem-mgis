@@ -61,12 +61,13 @@ namespace mfem_mgis {
     //     [[nodiscard]] bool initializeAfterResourcesAllocation(
     //         Context &) noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &) noexcept override;
-    [[nodiscard]] bool executeInitialPostProcessingTasks(
-        Context &) noexcept override;
+        Context &, const TimeStep&) noexcept override;
     std::optional<real> getNextTimeIncrement(
         Context &, const real, const real) const noexcept override;
+    [[nodiscard]] bool executeInitialPostProcessingTasks(
+        Context &, const real) noexcept override;
     [[nodiscard]] bool executePostProcessingTasks(Context &,
+                                                  const TimeStep&,
                                                   const bool) noexcept override;
     [[nodiscard]] bool update(Context &) noexcept override;
     [[nodiscard]] bool revert(Context &) noexcept override;

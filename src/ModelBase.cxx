@@ -12,16 +12,10 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   ModelBase::getParametersDescription() noexcept {
-    return getCouplingItemParametersDescription();
+    return {};  // getCouplingItemParametersDescription();
   }  // end of getParametersDescription
 
-  ModelBase::ModelBase(PhysicalSystem &ps, const Parameters & /* parameters*/)
-      : physicalSystem(ps) {}  // end of ModelBase
-
-  bool ModelBase::completeConstruction(Context &ctx,
-                                       const Parameters &parameters) noexcept {
-    return handleCouplingItemParameters(ctx, *this, parameters);
-  }  // end of completeConstruction
+  ModelBase::ModelBase() = default;
 
   std::string ModelBase::getIdentifier() const noexcept {
     return this->getName();
@@ -138,24 +132,17 @@ namespace mfem_mgis {
     return this->logStream;
   }  // end of getLogStreamPointer
 
-  PhysicalSystem &ModelBase::getPhysicalSystem() {
-    return this->physicalSystem;
-  }  // end of getPhysicalSystem
-
-  const PhysicalSystem &ModelBase::getPhysicalSystem() const {
-    return this->physicalSystem;
-  }  // end of getPhysicalSystem
-
   std::vector<std::string> ModelBase::getLocations() const noexcept {
     return std::vector<std::string>{};
   }  // end of getLocations
 
-  bool ModelBase::executeInitialPostProcessingTasks(Context &) noexcept {
+  bool ModelBase::executeInitialPostProcessingTasks(Context &,
+                                                    const real) noexcept {
     return true;
   }  // end of executeInitialPostProcessingTasks
 
   bool ModelBase::performInitializationTaksAtTheBeginningOfTheTimeStep(
-      Context &) noexcept {
+      Context &, const TimeStep &) noexcept {
     return true;
   }  // end of performInitializationTaksAtTheBeginningOfTheTimeStep
 
@@ -193,11 +180,12 @@ namespace mfem_mgis {
   }  // end of getNextTimeIncrement
 
   std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-  ModelBase::computeNextState(Context &) noexcept {
+  ModelBase::computeNextState(Context &, const TimeStep &) noexcept {
     return {ExitStatus::success, ComputeNextStateOutput{}};
   }  // end of computeNextState
 
   bool ModelBase::executePostProcessingTasks(Context &ctx,
+                                             const TimeStep &,
                                              const bool b) noexcept {
     auto r = true;
     for (auto &p : this->postProcessings) {
