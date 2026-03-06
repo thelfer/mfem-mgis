@@ -6,6 +6,8 @@
 
 #include <cmath>
 #include "MFEMMGIS/MPI.hxx"
+#include "MFEMMGIS/TimeStep.hxx"
+#include "MFEMMGIS/PhysicalSystem.hxx"
 #include "MFEMMGIS/AbstractSimulationMonitor.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/DefaultTimeStepValidator.hxx"
@@ -229,34 +231,30 @@ namespace mfem_mgis {
     this->completeInitialization();
   }  // end of Simulation
 
-  // Simulation::Simulation(PhysicalSystem &ps, const Parameters &parameters)
-  //     : physicalSystem(ps)
-  //     , timesDescription(get<std::vector<real>>(parameters, "Times"))
-  //     , keepOutputs(get_if(parameters, "KeepOutputs", false))
-  // {
-  //   this->treatParameters(attributes::throwing, params);
-  //   this->completeInitialization();
-  // }    // end of Simulation
-  //
-  // Simulation::Simulation(PhysicalSystem &ps, const TimesDescription &times)
-  //     : physicalSystem(ps), timesDescription(times), keepOutputs(false)
-  // {
-  //   this->completeInitialization();
-  // }    // end of Simulation
-  //
-  // Simulation::Simulation(PhysicalSystem &ps, const
-  // std::initializer_list<real> &times)
-  //     : physicalSystem(ps), timesDescription(times), keepOutputs(false)
-  // {
-  //   this->completeInitialization();
-  // }    // end of Simulation
-  //
+  Simulation::Simulation(PhysicalSystem &ps, const Parameters &parameters)
+      : physicalSystem(&ps),
+        timesDescription(::mfem_mgis::getTimes(throwing, parameters)),
+        keepOutputs(get_if(throwing, parameters, "KeepOutputs", false)) {
+    this->treatParameters(throwing, parameters);
+    this->completeInitialization();
+  }  // end of Simulation
+
+  Simulation::Simulation(PhysicalSystem &ps, const TimesDescription &times)
+      : physicalSystem(&ps), timesDescription(times), keepOutputs(false) {
+    this->completeInitialization();
+  }  // end of Simulation
+
+  Simulation::Simulation(PhysicalSystem &ps,
+                         const std::initializer_list<real> &times)
+      : physicalSystem(&ps), timesDescription(times), keepOutputs(false) {
+    this->completeInitialization();
+  }  // end of Simulation
 
   void Simulation::treatParameters(attributes::Throwing,
                                    const Parameters &parameters) {
     checkParameters(throwing, parameters,
                     Simulation::getParametersDescription());
-    this->allow_substepping =
+    this->allowSubstepping =
         get_if<bool>(throwing, parameters, "AllowSubStepping", true);
     this->independentTemporalSequences = get_if<bool>(
         throwing, parameters, "IndependentTemporalSequences", true);
@@ -565,22 +563,9 @@ namespace mfem_mgis {
       s = synchronize(s);
     };
     //
-    //   if (!this->physicalSystem.isInitialized()) {
-    //     updateAndSynchronize(this->physicalSystem.initialize(ctx));
-    //     if (!s.shallContinue()) {
-    //       ctx.registerErrorMessage("initialization of the physical system
-    //       failed"); return {s};
-    //     }
-    //   }
-    //
     auto p_bts = this->timesDescription.begin();
     auto p_ets = std::next(p_bts);
-    //    const auto dt = *p_ets - *p_bts;
-    //   updateAndSynchronize(this->physicalSystem.updateClock(ctx, *p_bts,
-    //   dt)); if (!s.shallContinue()) {
-    //     ctx.registerErrorMessage("updating the clock failed");
-    //     return {s};
-    //   }
+    //
     for (const auto &[n, t] : this->initializationTasks) {
       updateAndSynchronize(invoke(ctx, t));
       if (!s.shallContinue()) {
@@ -589,9 +574,12 @@ namespace mfem_mgis {
         return {s, {}};
       }
     }
-    //   if (!this->physicalSystem.executeInitialPostProcessingTasks(ctx)) {
-    //     return {ExitStatus::unrecoverableError};
-    //   }
+    if (isValid(this->physicalSystem)) {
+      if (!this->physicalSystem->executeInitialPostProcessingTasks(ctx,
+                                                                   *p_bts)) {
+        return {ExitStatus::unrecoverableError, {}};
+      }
+    }
     // loop over the time sequences
     auto pdt = std::optional<real>{};
     auto pe = this->timesDescription.end();
@@ -609,21 +597,12 @@ namespace mfem_mgis {
                                           *p_ets, std::next(p_ets) == pe);
       updateAndSynchronize(s);
       if (!s.shallContinue()) {
-        // set the time at the beginning of the temporal sequence to   the time
-        // at the beginning of the time step, so if the run method
-        // is called again
-        // one starts at the correct time
-        //         *p_bts = this->physicalSystem.getClock()
-        //                      .getTimeAtTheBeginningOfTheTimeStep();
         return {s, {}};
       }
       p_bts = this->timesDescription.erase(p_bts);
       p_ets = std::next(p_bts);
       pe = this->timesDescription.end();
       if (state.maximumNumberOfTimeStepsReached) {
-        // dt is arbitrary, it just have to be a non-zero value
-        //    updateAndSynchronize(this->physicalSystem.updateClock(ctx, *p_bts,
-        //    dt));
         if (s.shallStop()) {
           return {s, {}};
         } else {
@@ -665,12 +644,13 @@ namespace mfem_mgis {
       return {};
     }
     auto dt = std::min(*odt1, se - t);
-    //      const auto odt2 =
-    //      this->physicalSystem.getNextTimeIncrement(ctx, t, se); if
-    //      (isInvalid(odt2)) {
-    //        return {};
-    //      }
-    //      auto dt = std::min(std::min(*odt1, *odt2), se - t);
+    if (isValid(this->physicalSystem)) {
+      const auto odt2 = this->physicalSystem->getNextTimeIncrement(ctx, t, se);
+      if (isInvalid(odt2)) {
+        return {};
+      }
+      dt = std::min(std::min(*odt1, *odt2), se - t);
+    }
     //
     if (isValid(pdt)) {
       if (this->limitTimeIncrementIncrease) {
@@ -775,7 +755,7 @@ namespace mfem_mgis {
         s = ExitStatus::unrecoverableError;
         return ctx.registerErrorMessage("internal error");
       }
-      if (!this->allow_substepping) {
+      if (!this->allowSubstepping) {
         return false;
       }
       if ((dte < 0) || (std::fpclassify(dte) == FP_ZERO)) {
@@ -812,7 +792,9 @@ namespace mfem_mgis {
       if (isValid(this->nonlinearEvolutionProblem)) {
         this->nonlinearEvolutionProblem->revert();
       }
-      //      updateAndSynchronize(this->physicalSystem.revert(ctx));
+      if (isValid(this->physicalSystem)) {
+        updateAndSynchronize(this->physicalSystem->revert(ctx));
+      }
       return s.shallContinue() ? true : false;
     };
     //
@@ -838,8 +820,8 @@ namespace mfem_mgis {
           ctx.log() << "Computing " << getTimeStepDescription() << std::endl;
         }
       }
-      updateAndSynchronize(
-          this->simulateOverATimeStep(ctx, output, state, t, *ote));
+      auto ts = TimeStep{.begin = t, .end = *ote, .dt = *ote - t};
+      updateAndSynchronize(this->simulateOverATimeStep(ctx, output, state, ts));
       if (s == ExitStatus::unrecoverableError) {
         std::ignore = ctx.registerErrorMessage(
             "unrecoverable error returned, no substepping");
@@ -942,13 +924,15 @@ namespace mfem_mgis {
       if (isValid(this->nonlinearEvolutionProblem)) {
         this->nonlinearEvolutionProblem->executePostProcessings(t, *ote - t);
       }
-      //       if (!this->physicalSystem.executePostProcessingTasks(
-      //               ctx, explicitMarkedPostProcessingTime)) {
-      //         s = ctx.registerErrorMessage("The time step validator failed
-      //         for the " +
-      //                                      getTimeStepDescription());
-      //         return;
-      //       }
+      if (isValid(this->physicalSystem)) {
+        if (!this->physicalSystem->executePostProcessingTasks(
+                ctx, ts, explicitMarkedPostProcessingTime)) {
+          s = ctx.registerErrorMessage(
+              "The time step validator failed for the " +
+              getTimeStepDescription());
+          return;
+        }
+      }
       for (const auto &[n, pt] : this->postProcessingTasks) {
         updateAndSynchronize(invoke(ctx, pt));
         if (!s.shallContinue()) {
@@ -970,7 +954,9 @@ namespace mfem_mgis {
       if (isValid(this->nonlinearEvolutionProblem)) {
         this->nonlinearEvolutionProblem->update();
       }
-      //      updateAndSynchronize(this->physicalSystem.update(ctx));
+      if (isValid(this->physicalSystem)) {
+        updateAndSynchronize(this->physicalSystem->update(ctx));
+      }
       if (!s.shallContinue()) {
         return;
       }
@@ -995,8 +981,7 @@ namespace mfem_mgis {
   ExitStatus Simulation::simulateOverATimeStep(Context &ctx,
                                                SimulationOutput &output,
                                                SimulationRunState &state,
-                                               const real tb,
-                                               const real te) noexcept {
+                                               const TimeStep &ts) noexcept {
     ++(state.numberOfTimeSteps);
     if (isValid(this->maximumNumberOfTimeSteps)) {
       state.maximumNumberOfTimeStepsReached =
@@ -1010,49 +995,62 @@ namespace mfem_mgis {
     };
     //
     if (ctx.getVerbosityLevel() >= VerbosityLevel::verboseLevel0) {
-      ctx.log() << "Computing next state from time " << tb << " to " << te
-                << std::endl;
+      ctx.log() << "Computing next state from time " << ts.begin << " to "
+                << ts.end << std::endl;
     }
     if (isValid(this->nonlinearEvolutionProblem)) {
-      this->nonlinearEvolutionProblem->setup(tb, te - tb);
+      this->nonlinearEvolutionProblem->setup(ts.begin, ts.dt);
     }
-    //    updateAndSynchronize(this->physicalSystem.updateClock(ctx, tb, te -
-    //    tb));
     if (!s.shallContinue()) {
       std::ignore = ctx.registerErrorMessage("updating the clock failed");
       return s;
     }
-    //     updateAndSynchronize(
-    //         this->physicalSystem.updateLoadingsAtTheBeginningOfTheTimeStep(ctx));
-    //     if (!s.shallContinue()) {
-    //       ctx.registerErrorMessage(
-    //           "updating loading at the beginning of the time step failed");
-    //       return s;
-    //      }
-    //      updateAndSynchronize(this->physicalSystem.performInitializationTaksAtTheBeginningOfTheTimeStep(ctx));
-    //     if (!s.shallContinue()) {
-    //       ctx.registerErrorMessage(
-    //           "performing initialization tasks at the beginning of the time
-    //           step " "failed");
-    //       return s;
-    //     }
+    if (isValid(this->physicalSystem)) {
+      updateAndSynchronize(
+          this->physicalSystem->updateLoadingsAtTheBeginningOfTheTimeStep(ctx,
+                                                                          ts));
+      if (!s.shallContinue()) {
+        std::ignore = ctx.registerErrorMessage(
+            "updating loading at the beginning of the time step failed");
+        return s;
+      }
+      updateAndSynchronize(
+          this->physicalSystem
+              ->performInitializationTaksAtTheBeginningOfTheTimeStep(ctx, ts));
+      if (!s.shallContinue()) {
+        std::ignore = ctx.registerErrorMessage(
+            "performing initialization tasks at the beginning of the time step "
+            "failed");
+        return s;
+      }
+    }
     // computing the next time step
-    const auto r = [this, &ctx, &tb, &te]() -> std::optional<Parameters> {
+    const auto r = [this, &ctx, &ts]()
+        -> std::pair<ExitStatus, std::optional<ComputeNextStateOutput>> {
       if (isValid(this->nonlinearEvolutionProblem)) {
         const auto routput =
-            this->nonlinearEvolutionProblem->solve(ctx, tb, te - tb);
-        return convertToParameters(routput);
+            this->nonlinearEvolutionProblem->solve(ctx, ts.begin, ts.dt);
+        if (isInvalid(routput)) {
+          return {ExitStatus::recoverableError, {}};
+        }
+        return {ExitStatus::success, convertToComputeNextStateOutput(routput)};
       }
-      return Parameters{};
+      if (isValid(this->physicalSystem)) {
+        return this->physicalSystem->computeNextState(ctx, ts);
+      }
+      return {ExitStatus::success, ComputeNextStateOutput{}};
     }();
+<<<<<<< HEAD
     updateAndSynchronize(isValid(r) ? ExitStatus::success
                                     : ExitStatus::recoverableError);
+=======
+    updateAndSynchronize(r.first);
+>>>>>>> 211-add-coupling-schemes-and-models
     if (!s.shallContinue()) {
       std::ignore = ctx.registerErrorMessage(
           "resolution of the non linear problem failed");
       return s;
     }
-    // this->physicalSystem.computeNextState(ctx);
     for (auto &c : this->timeIncrementComputers) {
       if (!c->prepareNextTimeStep(ctx)) {
         return ExitStatus::unrecoverableError;
@@ -1060,12 +1058,10 @@ namespace mfem_mgis {
     }
     if (this->keepOutputs) {
       auto timeStepOutput = Parameters{};
-      timeStepOutput.replaceOrInsert("BeginningOfTimeStep", tb);
-      timeStepOutput.replaceOrInsert("EndOfTimeStep", te);
-      if (isValid(this->nonlinearEvolutionProblem)) {
-        timeStepOutput.replaceOrInsert("ResolutionOutput", *r);
-      } else {
-        timeStepOutput.replaceOrInsert("ComputeNextStateOutput", *r);
+      timeStepOutput.replaceOrInsert("BeginningOfTimeStep", ts.begin);
+      timeStepOutput.replaceOrInsert("EndOfTimeStep", ts.end);
+      if (isValid(r.second)) {
+        timeStepOutput.replaceOrInsert("ComputeNextStateOutput", *(r.second));
       }
       const auto onumberOfTimeSteps =
           get<size_type>(ctx, output, "NumberOfTimeSteps");

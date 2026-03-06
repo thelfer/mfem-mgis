@@ -221,7 +221,6 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT std::optional<std::pair<std::string, Parameters>>
   extractFactoryArgument(Context& ctx, const Parameters& parameters) noexcept;
-
   /*!
    * \return the information required to build an object from a factory
    * \param[in] p: parameters
@@ -229,6 +228,13 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT std::pair<std::string, Parameters> extractFactoryArgument(
       attributes::Throwing, const Parameters&);
+  /*!
+   * \brief remove in the output parameters the given parameters if they exists
+   * \param[in] parameters: parameters
+   * \param[in] names: list of parameters names to be removed
+   */
+  MFEM_MGIS_EXPORT Parameters remove(const Parameters&,
+                                     const std::vector<std::string>&) noexcept;
 
 }  // end of namespace mfem_mgis
 

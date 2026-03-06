@@ -263,6 +263,20 @@ namespace mfem_mgis {
     return this->mgis_integrator->getMaterial(ctx, *om, b);
   }  // end of getMaterial
 
+  std::optional<size_type>
+  NonLinearEvolutionProblemImplementationBase::getNumberOfBehaviourIntegrators(
+      Context& ctx, const Parameter& m) const noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return ctx.registerErrorMessage(
+          "support for mgis integrator has been disabled");
+    }
+    const auto om = this->getMaterialIdentifier(ctx, m);
+    if (isInvalid(om)) {
+      return {};
+    }
+    return this->mgis_integrator->getNumberOfBehaviourIntegrators(ctx, *om);
+  }  // end of getNumberOfBehaviourIntegrators
+
   OptionalReference<const AbstractBehaviourIntegrator>
   NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
       Context& ctx, const Parameter& m, const size_type b) const noexcept {

@@ -11,7 +11,7 @@
 #include <limits>
 #include <optional>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/ComputeNextStateOutput.hxx"
 
 namespace mfem_mgis {
 
@@ -46,8 +46,8 @@ namespace mfem_mgis {
    *
    * \param[in] output: non linear resolution output
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<Parameters> convertToParameters(
-      const NonLinearResolutionOutput&) noexcept;
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<ComputeNextStateOutput>
+  convertToComputeNextStateOutput(const NonLinearResolutionOutput&) noexcept;
 
   [[nodiscard]] inline bool isInvalid(
       const NonLinearResolutionOutput& r) noexcept {

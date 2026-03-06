@@ -51,10 +51,53 @@ namespace mfem_mgis {
     }
   }  // end of NonLinearEvolutionProblem
 
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+                                                       const Hypothesis h,
+                                                       const Parameters& p)
+      : NonLinearEvolutionProblem(
+            std::make_shared<FiniteElementDiscretization>(
+                m.describesAParallelComputation() ? m.getMeshPointer<true>()
+                                                  : m.getMeshPointer<false>(),
+                extract(throwing,
+                        p,
+                        FiniteElementDiscretization::getParametersList())),
+            h,
+            p) {}  // end of NonLinearEvolutionProblem
+
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+                                                       const Parameters& p)
+      : NonLinearEvolutionProblem(
+            std::make_shared<FiniteElementDiscretization>(
+                m.describesAParallelComputation() ? m.getMeshPointer<true>()
+                                                  : m.getMeshPointer<false>(),
+                extract(throwing,
+                        p,
+                        FiniteElementDiscretization::getParametersList())),
+            mgis::behaviour::fromString(get<std::string>(
+                throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
+            remove(p, {NonLinearEvolutionProblem::HypothesisParameter})) {
+  }  // end of NonLinearEvolutionProblem
+
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(
+      std::shared_ptr<FiniteElementDiscretization> fed, const Parameters& p)
+      : NonLinearEvolutionProblem(
+            fed,
+            mgis::behaviour::fromString(get<std::string>(
+                throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
+            remove(p, {NonLinearEvolutionProblem::HypothesisParameter})) {
+  }  // end of NonLinearEvolutionProblem
+
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
       const Parameters& p) {
+    checkParameters(throwing, p,
+                    NonLinearEvolutionProblem::getParametersList());
+    if (contains(p, NonLinearEvolutionProblem::HypothesisParameter)) {
+      raise("parameter '" +
+            std::string{NonLinearEvolutionProblem::HypothesisParameter} +
+            "' is not allowed");
+    }
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
     if (fed->describesAParallelComputation()) {
@@ -332,6 +375,12 @@ namespace mfem_mgis {
     return this->pimpl->getMaterial(ctx, m, b);
   }  // end of getMaterial
 
+  std::optional<size_type>
+  NonLinearEvolutionProblem::getNumberOfBehaviourIntegrators(
+      Context& ctx, const Parameter& m) const noexcept {
+    return this->pimpl->getNumberOfBehaviourIntegrators(ctx, m);
+  }  // end of getNumberOfBehaviourIntegrators
+
   OptionalReference<const AbstractBehaviourIntegrator>
   NonLinearEvolutionProblem::getBehaviourIntegrator(
       Context& ctx, const Parameter& m, size_type b) const noexcept {
@@ -448,9 +497,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       return buildFacesDescription(p.getImplementation<true>(), bid);
 #else
-      raise(
-          "buildFacesDescription: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     }
     return buildFacesDescription(p.getImplementation<false>(), bid);
@@ -465,9 +512,7 @@ namespace mfem_mgis {
       return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<true>(),
                                                    bid);
 #else
-      raise(
-          "getElementsDegreesOfFreedomOnBoundary: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     }
     return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<false>(),
@@ -486,9 +531,7 @@ namespace mfem_mgis {
       computeResultantForceOnBoundary(F, p.getImplementation<true>(),
                                       elts_dofs);
 #else
-      raise(
-          "computeResultantForceOnBoundary: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     } else {
       computeResultantForceOnBoundary(F, p.getImplementation<false>(),
