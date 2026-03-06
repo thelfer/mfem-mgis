@@ -1040,12 +1040,7 @@ namespace mfem_mgis {
       }
       return {ExitStatus::success, ComputeNextStateOutput{}};
     }();
-<<<<<<< HEAD
-    updateAndSynchronize(isValid(r) ? ExitStatus::success
-                                    : ExitStatus::recoverableError);
-=======
     updateAndSynchronize(r.first);
->>>>>>> 211-add-coupling-schemes-and-models
     if (!s.shallContinue()) {
       std::ignore = ctx.registerErrorMessage(
           "resolution of the non linear problem failed");
