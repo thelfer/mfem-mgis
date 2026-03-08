@@ -249,6 +249,21 @@ namespace mfem_mgis {
     std::unique_ptr<AbstractNonLinearEvolutionProblem> pimpl;
   };  // end of struct NonLinearEvolutionProblem
 
+  /*!
+   * \brief resolve the dependencies (material properties and and external state
+   * variables) of the first nonlinear evolution problem given using the
+   * gradients, thermodynamic forces and internal state variables from the
+   * second.
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in, out] p: problem to be treated
+   * \param[in] provider: problem used to resolve the dependencies
+   */
+  [[nodiscard]] bool resolveBehaviourIntegratorsDependencies(
+      Context &,
+      NonLinearEvolutionProblem &,
+      const NonLinearEvolutionProblem &) noexcept;
+
 #ifdef MFEM_USE_MPI
 
   template <>

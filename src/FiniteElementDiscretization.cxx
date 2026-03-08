@@ -124,13 +124,36 @@ namespace mfem_mgis {
   }  // end of buildFiniteElementCollectionAndSpace
 
   FiniteElementDiscretization::FiniteElementDiscretization(
+      const MeshDiscretization& m, const Parameters& params)
+      : MeshDiscretization(m) {
+    CatchTimeSection("FED::Constructor");
+    checkParameters(throwing, params,
+                    FiniteElementDiscretization::getParametersList());
+    if (this->describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      std::tie(this->fec, this->parallel_fe_space) =
+          buildFiniteElementCollectionAndSpace<true>(*this, params);
+#else
+      reportUnsupportedParallelComputations();
+#endif
+    } else {
+      std::tie(this->fec, this->sequential_fe_space) =
+          buildFiniteElementCollectionAndSpace<false>(*this, params);
+    }
+  }  // end of FiniteElementDiscretization
+
+  FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>> m, const Parameters& params)
       : MeshDiscretization(m) {
     CatchTimeSection("FED::Constructor");
     checkParameters(throwing, params,
                     FiniteElementDiscretization::getParametersList());
+#ifdef MFEM_USE_MPI
     std::tie(this->fec, this->parallel_fe_space) =
         buildFiniteElementCollectionAndSpace<true>(*this, params);
+#else
+      reportUnsupportedParallelComputations();
+#endif
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
@@ -160,8 +183,6 @@ namespace mfem_mgis {
     }
   }  // end of FiniteElementDiscretization
 
-#ifdef MFEM_USE_MPI
-
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>> m,
       std::shared_ptr<const FiniteElementCollection> c,
@@ -170,30 +191,27 @@ namespace mfem_mgis {
     if (fec.get() == nullptr) {
       raise("invalid finite element collection");
     }
+#ifdef MFEM_USE_MPI
     this->parallel_fe_space = std::make_unique<FiniteElementSpace<true>>(
         this->parallel_mesh.get(), this->fec.get(), d);
-  }  // end of FiniteElementDiscretization
-
 #else /* MFEM_USE_MPI */
-
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      std::shared_ptr<Mesh<true>>,
-      std::shared_ptr<const FiniteElementCollection>,
-      const size_type) {
+    static_cast<void>(d);
     reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }  // end of FiniteElementDiscretization
 
-#endif /* MFEM_USE_MPI */
-
-#ifdef MFEM_USE_MPI
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>> m,
       std::shared_ptr<const FiniteElementCollection> c,
       std::unique_ptr<FiniteElementSpace<true>> s)
       : MeshDiscretization(std::move(m)),
-        fec(std::move(c)),
-        parallel_fe_space(std::move(s)) {
+        fec(std::move(c))
+#ifdef MFEM_USE_MPI
+      ,parallel_fe_space(std::move(s))
+#endif /* MFEM_USE_MPI */
+  {
+#ifdef MFEM_USE_MPI
     if (this->fec.get() == nullptr) {
       raise("invalid finite element collection");
     }
@@ -206,18 +224,11 @@ namespace mfem_mgis {
           "mesh pointer don't match the mesh on which the finite element space "
           "is built");
     }
-  }  // end of FiniteElementDiscretization
-
 #else /* MFEM_USE_MPI */
-
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      std::shared_ptr<Mesh<true>>,
-      std::shared_ptr<const FiniteElementCollection>,
-      std::unique_ptr<FiniteElementSpace<true>>) {
+    static_cast<void>(s);
     reportUnsupportedParallelComputations();
-  }  // end of FiniteElementDiscretization
-
 #endif /* MFEM_USE_MPI */
+  }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<false>> m,

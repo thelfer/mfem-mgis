@@ -455,8 +455,12 @@ namespace mfem_mgis {
       return {};
     }();
     if (parallel) {
+#ifdef MFEM_USE_MPI
       updateNamesFromAttributesSets<true>(throwing, mnames, bnames,
                                           *(this->parallel_mesh));
+#else
+      reportUnsupportedParallelComputations();      
+#endif
     } else {
       updateNamesFromAttributesSets<false>(throwing, mnames, bnames,
                                            *(this->sequential_mesh));
@@ -814,5 +818,21 @@ namespace mfem_mgis {
     }
     return true;
   }  // end of info
+
+  bool operator==(const MeshDiscretization& lhs,
+                  const MeshDiscretization& rhs) noexcept {
+    const auto parallel = lhs.describesAParallelComputation();
+    if (parallel != rhs.describesAParallelComputation()) {
+      return false;
+    }
+    if (parallel) {
+#ifdef MFEM_USE_MPI
+      return (&(lhs.getMesh<true>())) == (&(rhs.getMesh<true>()));
+#else
+      reportUnsupportedParallelComputations();
+#endif
+    }
+    return (&(lhs.getMesh<false>())) == (&(rhs.getMesh<false>()));
+  }  // end of operator==
 
 }  // end of namespace mfem_mgis

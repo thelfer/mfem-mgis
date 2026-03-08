@@ -70,6 +70,21 @@ namespace mfem_mgis {
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `UnknownsSize` (int): number of components of the unknows
      */
+    FiniteElementDiscretization(const MeshDiscretization&, const Parameters&);
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] params: parameters
+     *
+     * The following parameters are expected:
+     *
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used. Supported families are:
+     *   - `H1`:
+     *   The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `UnknownsSize` (int): number of components of the unknows
+     */
     FiniteElementDiscretization(std::shared_ptr<Mesh<true>>, const Parameters&);
     /*!
      * \brief constructor

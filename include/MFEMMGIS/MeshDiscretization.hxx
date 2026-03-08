@@ -276,8 +276,8 @@ namespace mfem_mgis {
    * \note material names and boundary names may different in both
    * discretisations.
    */
-  [[nodiscard]] bool operator==(const MeshDiscretization&,
-                                const MeshDiscretization&) noexcept;
+  MFEM_MGIS_EXPORT [[nodiscard]] bool operator==(
+      const MeshDiscretization&, const MeshDiscretization&) noexcept;
   /*!
    * \brief return the space dimension
    * \param[in] fed: finite element discretization

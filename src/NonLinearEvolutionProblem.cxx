@@ -55,9 +55,7 @@ namespace mfem_mgis {
                                                        const Hypothesis h,
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
-            std::make_shared<FiniteElementDiscretization>(
-                m.describesAParallelComputation() ? m.getMeshPointer<true>()
-                                                  : m.getMeshPointer<false>(),
+				  std::make_shared<FiniteElementDiscretization>(m,
                 extract(throwing,
                         p,
                         FiniteElementDiscretization::getParametersList())),
@@ -68,9 +66,7 @@ namespace mfem_mgis {
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
             std::make_shared<FiniteElementDiscretization>(
-                m.describesAParallelComputation() ? m.getMeshPointer<true>()
-                                                  : m.getMeshPointer<false>(),
-                extract(throwing,
+							  m,                extract(throwing,
                         p,
                         FiniteElementDiscretization::getParametersList())),
             mgis::behaviour::fromString(get<std::string>(
@@ -538,5 +534,103 @@ namespace mfem_mgis {
                                       elts_dofs);
     }
   }  // end of computeResultantForceOnBoundary
+
+  [[nodiscard]] static bool resolveMaterialDependencies(
+      Context& ctx, Material& m, const Material& provider) {
+    using mgis::behaviour::MaterialStateManager;
+    // material properties
+    for (const auto& mp : m.b.mps) {
+      if (!contains(provider.b.isvs, mp.name)) {
+        continue;
+      }
+      const auto oiv = getVariable(ctx, provider.b.isvs, mp.name);
+      if (isInvalid(oiv)) {
+        return false;
+      }
+      if (mp.type_identifier != (*oiv)->type_identifier) {
+        return ctx.registerErrorMessage("incompatible type for variable '" +
+                                        mp.name + "'");
+      }
+      try {
+        const auto values_bts = getInternalStateVariable(
+            provider, mp.name, Material::BEGINNING_OF_TIME_STEP);
+        const auto values_ets = getInternalStateVariable(
+            provider, mp.name, Material::END_OF_TIME_STEP);
+        //         setMaterialProperty(m.s0, mp.name, values_bts.getValues(),
+        //                             MaterialStateManager::EXTERNAL_STORAGE,
+        //                             MaterialStateManager::NOUPDATE);
+        //         setMaterialProperty(m.s1, mp.name, values_ets.getValues(),
+        //                             MaterialStateManager::EXTERNAL_STORAGE,
+        //                             MaterialStateManager::NOUPDATE);
+      } catch (...) {
+        return registerExceptionInErrorBacktrace(ctx);
+      }
+    }
+    // external state variables
+    for (const auto& esv : m.b.esvs) {
+    }
+    return true;
+  }  // end of resolveBehaviourIntegratorsDependencies
+
+  [[nodiscard]] static bool resolveBehaviourIntegratorsDependencies(
+      Context& ctx,
+      NonLinearEvolutionProblemImplementationBase& p,
+      const NonLinearEvolutionProblemImplementationBase& provider) noexcept {
+    if (&p == &provider) {
+      return true;
+    }
+    const auto provider_materials = provider.getAssignedMaterialsIdentifiers();
+    for (const auto& m : p.getAssignedMaterialsIdentifiers()) {
+      if (std::find(provider_materials.begin(), provider_materials.end(), m) ==
+          provider_materials.end()) {
+        continue;
+      }
+      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, m);
+      const auto onbis2 = provider.getNumberOfBehaviourIntegrators(ctx, m);
+      if (!areValid(onbis, onbis2)) {
+        return false;
+      }
+      for (auto n = size_type{}; n != *onbis; ++n) {
+        auto om = p.getMaterial(ctx, m, n);
+        if (isInvalid(om)) {
+          return false;
+        }
+        for (auto n2 = size_type{}; n2 != *onbis; ++n2) {
+          const auto om2 = provider.getMaterial(ctx, m, n2);
+          if (isInvalid(om2)) {
+            return false;
+          }
+          if (!resolveMaterialDependencies(ctx, *om, *om2)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }  // end of resolveBehaviourIntegratorsDependencies
+
+  bool resolveBehaviourIntegratorsDependencies(
+      Context& ctx,
+      NonLinearEvolutionProblem& p,
+      const NonLinearEvolutionProblem& provider) noexcept {
+    const auto& fed = p.getFiniteElementDiscretization();
+    if (static_cast<const MeshDiscretization&>(fed) !=
+        static_cast<const MeshDiscretization&>(
+            provider.getFiniteElementDiscretization())) {
+      return ctx.registerErrorMessage("inconsistent meshes");
+    }
+    if (fed.describesAParallelComputation()) {
+      // since meshes are the same, both problems describes a parallel
+      // computation
+#ifdef MFEM_USE_MPI
+      return resolveBehaviourIntegratorsDependencies(
+          ctx, p.getImplementation<true>(), provider.getImplementation<true>());
+#else
+      reportUnsupportedParallelComputations();
+#endif
+    }
+    return resolveBehaviourIntegratorsDependencies(
+        ctx, p.getImplementation<false>(), provider.getImplementation<false>());
+  }  // end of resolveBehaviourIntegratorsDependencies
 
 }  // end of namespace mfem_mgis

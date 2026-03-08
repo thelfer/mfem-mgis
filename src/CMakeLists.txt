@@ -10,6 +10,7 @@ list(APPEND MFEMMGIS_SOURCES
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx
+  AbstractPartialQuadratureFunctionEvaluator.cxx
   Behaviour.cxx
   Material.cxx
   AbstractBehaviourIntegrator.cxx
