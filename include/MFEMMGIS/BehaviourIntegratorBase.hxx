@@ -36,6 +36,14 @@ namespace mfem_mgis {
         const noexcept override;
     [[nodiscard]] bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept override;
+    [[nodiscard]] bool setMaterialProperty(
+        Context&,
+        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        const TimeStepStage) noexcept override;
+    [[nodiscard]] bool setExternalStateVariable(
+        Context&,
+        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        const TimeStepStage) noexcept override;
     //
     [[deprecated, nodiscard]] Material& getMaterial() override;
     [[deprecated, nodiscard]] const Material& getMaterial() const override;

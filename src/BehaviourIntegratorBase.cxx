@@ -24,6 +24,20 @@ namespace mfem_mgis {
     this->wks.esvs1.resize(getArraySize(this->b.esvs, this->b.hypothesis));
   }  // end of BehaviourIntegratorBase
 
+  bool BehaviourIntegratorBase::setMaterialProperty(
+      Context& ctx,
+      std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+      const TimeStepStage) noexcept {
+    return ctx.registerErrorMessage("unimplemented feature");
+  }  // end of setMaterialProperty
+
+  bool BehaviourIntegratorBase::setExternalStateVariable(
+      Context& ctx,
+      std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+      const TimeStepStage) noexcept {
+    return ctx.registerErrorMessage("unimplemented feature");
+  }  // end of setExternalStateVariable
+
   void BehaviourIntegratorBase::throwInvalidBehaviourType(
       const char* const mn, const char* const m) const {
     auto msg = std::string(mn) + ": invalid behaviour type";

@@ -8,10 +8,11 @@
 #ifndef LIB_MFEM_MGIS_ABSTRACTBEHAVIOURINTEGRATOR_HXX
 #define LIB_MFEM_MGIS_ABSTRACTBEHAVIOURINTEGRATOR_HXX
 
+#include <span>
 #include <array>
 #include <memory>
-#include <span>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/TimeStepStage.hxx"
 
 namespace mfem_mgis {
 
@@ -19,6 +20,7 @@ namespace mfem_mgis {
   struct Material;
   struct PartialQuadratureSpace;
   struct ImmutablePartialQuadratureFunctionView;
+  struct AbstractPartialQuadratureFunctionEvaluator;
   enum struct IntegrationType;
 
   /*!
@@ -165,6 +167,28 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept = 0;
+    /*!
+     * \brief set the value of a material property
+     *
+     * \param[in] ctx: execution context
+     * \param[in] e: evaluator of the material property
+     * \param[in] ts: time step stage
+     */
+    [[nodiscard]] virtual bool setMaterialProperty(
+        Context &,
+        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        const TimeStepStage) noexcept = 0;
+    /*!
+     * \brief set the value of an external state variable
+     *
+     * \param[in] ctx: execution context
+     * \param[in] e: evaluator of the material property
+     * \param[in] ts: time step stage
+     */
+    [[nodiscard]] virtual bool setExternalStateVariable(
+        Context &,
+        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        const TimeStepStage) noexcept = 0;
     //! \return the underlying material
     [[deprecated, nodiscard]] virtual Material &getMaterial() = 0;
     //! \return the underlying material

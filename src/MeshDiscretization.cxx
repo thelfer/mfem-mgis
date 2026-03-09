@@ -459,7 +459,7 @@ namespace mfem_mgis {
       updateNamesFromAttributesSets<true>(throwing, mnames, bnames,
                                           *(this->parallel_mesh));
 #else
-      reportUnsupportedParallelComputations();      
+      reportUnsupportedParallelComputations();
 #endif
     } else {
       updateNamesFromAttributesSets<false>(throwing, mnames, bnames,
