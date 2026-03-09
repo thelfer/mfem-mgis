@@ -161,7 +161,7 @@ namespace mfem_mgis {
         this->wks.esvs0, this->s0.external_state_variables, this->b.esvs);
     this->wks.esvs1_evaluators = dispatch(
         this->wks.esvs1, this->s1.external_state_variables, this->b.esvs);
-  }  // end of revert
+  }  // end of setup
 
   void BehaviourIntegratorBase::checkHypotheses(const Hypothesis h) const {
     using namespace mgis::behaviour;

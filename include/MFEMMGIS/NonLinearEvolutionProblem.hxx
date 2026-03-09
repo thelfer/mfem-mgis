@@ -39,7 +39,8 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] p: parameters.
      *
-     * The following parameters are allowed:
+     * The following parameters are the most common (see also the
+     * FiniteElementDiscretization class for details):
      *
      * - `Parallel` (boolean): if true, a parallel computation is to be be
      *    performed. This value if assumed to be false by default.
@@ -52,6 +53,49 @@ namespace mfem_mgis {
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
     NonLinearEvolutionProblem(const Parameters &);
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] p: parameters use to initialize the underlying finite element
+     * discretization
+     *
+     * The following parameters are the most common (see also the
+     * FiniteElementDiscretization class for details):
+     *
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used. The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `Hypothesis` (string): modelling hypothesis
+     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
+     *   add the `MultiMaterialNonLinearIntegrator`. True by default.
+     */
+    NonLinearEvolutionProblem(MeshDiscretization &, const Parameters &);
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] h: modelling hypothesis
+     * \param[in] p: parameters use to initialize the underlying finite element
+     * discretization
+     *
+     * The following parameters are the most common (see also the
+     * FiniteElementDiscretization class for details):
+     *
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used. The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
+     *   add the `MultiMaterialNonLinearIntegrator`. True by default.
+     */
+    NonLinearEvolutionProblem(MeshDiscretization &,
+                              const Hypothesis,
+                              const Parameters & = Parameters());
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization
+     * \param[in] p: parameters
+     */
+    NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
+                              const Parameters &);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
@@ -134,6 +178,8 @@ namespace mfem_mgis {
     OptionalReference<Material> getMaterial(Context &,
                                             const Parameter &,
                                             const size_type) noexcept override;
+    [[nodiscard]] std::optional<size_type> getNumberOfBehaviourIntegrators(
+        Context &, const Parameter &) const noexcept override;
     OptionalReference<const AbstractBehaviourIntegrator> getBehaviourIntegrator(
         Context &, const Parameter &, const size_type) const noexcept override;
     OptionalReference<AbstractBehaviourIntegrator> getBehaviourIntegrator(

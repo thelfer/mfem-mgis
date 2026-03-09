@@ -5,6 +5,7 @@ list(APPEND MFEMMGIS_SOURCES
   Profiler.cxx
   Parameter.cxx
   Parameters.cxx
+  MeshDiscretization.cxx
   FiniteElementDiscretization.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
@@ -60,7 +61,6 @@ list(APPEND MFEMMGIS_SOURCES
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TransientHeatTransferBehaviourIntegrator.cxx
   L2Projection.cxx
-  Simulation.cxx
   AbstractTimeStepValidator.cxx
   TimeStepValidatorBase.cxx
   DefaultTimeStepValidator.cxx
@@ -71,6 +71,20 @@ list(APPEND MFEMMGIS_SOURCES
   TimeIncrementComputerBase.cxx
   DefaultTimeIncrementComputer.cxx
   AbstractSimulationMonitor.cxx
+  ComputeNextStateOutput.cxx
+  Provider.cxx
+  AbstractCouplingItem.cxx
+  AbstractCouplingScheme.cxx
+  AbstractCouplingSchemeConvergenceCriterion.cxx
+  FirstIterationConvergenceCriterion.cxx
+  CouplingSchemeBase.cxx
+  LoopCouplingScheme.cxx
+  IterativeCouplingScheme.cxx
+  AbstractModel.cxx
+  ModelBase.cxx
+  NonLinearModel.cxx
+  PhysicalSystem.cxx
+  Simulation.cxx
 )
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)

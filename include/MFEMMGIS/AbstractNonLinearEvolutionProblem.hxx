@@ -418,6 +418,15 @@ namespace mfem_mgis {
     virtual OptionalReference<Material> getMaterial(
         Context &, const Parameter &, const size_type) noexcept = 0;
     /*!
+     * \return the number of behaviour integrators for the given material
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: material id
+     */
+    [[nodiscard]] virtual std::optional<size_type>
+    getNumberOfBehaviourIntegrators(Context &,
+                                    const Parameter &) const noexcept = 0;
+    /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
      * \param[in] m: material id

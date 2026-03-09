@@ -49,8 +49,11 @@
 namespace mfem_mgis {
 
   using mgis::AbstractErrorHandler;
+  using mgis::areInvalid;
+  using mgis::areValid;
   using mgis::construct;
   using mgis::Context;
+  using mgis::getDefaultVerbosityLevel;
   using mgis::InvalidResult;
   using mgis::invoke;
   using mgis::isInvalid;
@@ -61,6 +64,12 @@ namespace mfem_mgis {
   using mgis::make_unique_as;
   using mgis::OptionalReference;
   using mgis::registerExceptionInErrorBacktrace;
+  using mgis::verboseDebug;
+  using mgis::verboseFull;
+  using mgis::verboseLevel0;
+  using mgis::verboseLevel1;
+  using mgis::verboseLevel2;
+  using mgis::verboseLevel3;
   using mgis::VerbosityLevel;
 
   using mgis::debug;

@@ -124,6 +124,8 @@ namespace mfem_mgis {
     OptionalReference<Material> getMaterial(Context&,
                                             const Parameter&,
                                             const size_type) noexcept override;
+    [[nodiscard]] std::optional<size_type> getNumberOfBehaviourIntegrators(
+        Context&, const Parameter&) const noexcept override;
     OptionalReference<const AbstractBehaviourIntegrator> getBehaviourIntegrator(
         Context&, const Parameter&, const size_type) const noexcept override;
     OptionalReference<AbstractBehaviourIntegrator> getBehaviourIntegrator(
