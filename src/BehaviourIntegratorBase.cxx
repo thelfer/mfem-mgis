@@ -9,6 +9,7 @@
 #include "MGIS/Raise.hxx"
 #include "MGIS/Behaviour/Integrate.hxx"
 #include "MGIS/Behaviour/BehaviourDataView.hxx"
+#include "MFEMMGIS/AbstractPartialQuadratureFunctionEvaluator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorBase.hxx"
 
 namespace mfem_mgis {
@@ -26,16 +27,87 @@ namespace mfem_mgis {
 
   bool BehaviourIntegratorBase::setMaterialProperty(
       Context& ctx,
-      std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
-      const TimeStepStage) noexcept {
-    return ctx.registerErrorMessage("unimplemented feature");
+      std::string_view name,
+      std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator> e,
+      const TimeStepStage ts) noexcept {
+    const auto omp = getVariable(ctx, this->b.mps, name);
+    if (isInvalid(omp)) {
+      return false;
+    }
+    if (e.get() == nullptr) {
+      return ctx.registerErrorMessage(
+          "invalid partial quadrature function evaluator given for material "
+          "property '" +
+          (*omp)->name + "'");
+    }
+    if ((*omp)->type != mgis::behaviour::Variable::SCALAR) {
+      return ctx.registerErrorMessage(
+          "invalid material property '" + (*omp)->name +
+          "' (only scalar material properties are supported)");
+    }
+    if (e->getNumberOfComponents() != 1) {
+      return ctx.registerErrorMessage(
+          "invalid number of components for partial quadrature function "
+          "evaluator given for material property '" +
+          (*omp)->name + "' (" + std::to_string(e->getNumberOfComponents()) +
+          ", expected 1)");
+    }
+    if (ts == TimeStepStage::BEGINNING_OF_TIME_STEP) {
+      if (!unsetMaterialProperty(ctx, this->s0, name)) {
+        return false;
+      }
+      this->material_properties_evaluators_bts.insert_or_assign(
+          std::string{name}, e);
+    } else {
+      if (!unsetMaterialProperty(ctx, this->s1, name)) {
+        return false;
+      }
+      this->material_properties_evaluators_ets.insert_or_assign(
+          std::string{name}, e);
+    }
+    return true;
   }  // end of setMaterialProperty
 
   bool BehaviourIntegratorBase::setExternalStateVariable(
       Context& ctx,
-      std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
-      const TimeStepStage) noexcept {
-    return ctx.registerErrorMessage("unimplemented feature");
+      std::string_view name,
+      std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator> e,
+      const TimeStepStage ts) noexcept {
+    const auto oesv = getVariable(ctx, this->b.esvs, name);
+    if (isInvalid(oesv)) {
+      return false;
+    }
+    if (e.get() == nullptr) {
+      return ctx.registerErrorMessage(
+          "invalid partial quadrature function evaluator given for external "
+          "state variable '" +
+          (*oesv)->name + "'");
+    }
+    const auto osize = getVariableSize(ctx, *(*oesv), this->b.hypothesis);
+    if (isInvalid(osize)) {
+      return false;
+    }
+    if (e->getNumberOfComponents() != *osize) {
+      return ctx.registerErrorMessage(
+          "invalid number of components for partial quadrature function "
+          "evaluator given for external state variable '" +
+          (*oesv)->name + "' (" + std::to_string(e->getNumberOfComponents()) +
+          ", expected " + std::to_string(*osize) + ")");
+    }
+    if (ts == TimeStepStage::BEGINNING_OF_TIME_STEP) {
+      if (!unsetExternalStateVariable(ctx, this->s0, name)) {
+        return false;
+      }
+      this->external_state_variables_evaluators_bts.insert_or_assign(
+          std::string{name}, e);
+    } else {
+      if (!unsetExternalStateVariable(ctx, this->s1, name)) {
+        return false;
+      }
+      this->external_state_variables_evaluators_ets.insert_or_assign(
+          std::string{name}, e);
+    }
+    return true;
   }  // end of setExternalStateVariable
 
   void BehaviourIntegratorBase::throwInvalidBehaviourType(
@@ -100,8 +172,8 @@ namespace mfem_mgis {
                         std::vector<real>& v,
                         const std::map<
                             std::string,
-                            mgis::behaviour::MaterialStateManager::FieldHolder>&
-                            field_holders,
+                            mgis::behaviour::MaterialStateManager::FieldHolder,
+                            std::less<>>& field_holders,
                         const std::vector<mgis::behaviour::Variable>& ds) {
       const auto h = this->getMaterial().b.hypothesis;
       raise_if(v.size() != mgis::behaviour::getArraySize(ds, h),

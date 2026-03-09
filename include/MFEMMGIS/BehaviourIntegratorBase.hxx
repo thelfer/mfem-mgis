@@ -9,6 +9,8 @@
 #define LIB_MFEM_MGIS_BEHAVIOURINTEGRATORBASE_HXX
 
 #include <memory>
+#include <string>
+#include <string_view>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 #include "MFEMMGIS/Material.hxx"
@@ -38,10 +40,12 @@ namespace mfem_mgis {
         const noexcept override;
     [[nodiscard]] bool setMaterialProperty(
         Context&,
+        std::string_view,
         std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
         const TimeStepStage) noexcept override;
     [[nodiscard]] bool setExternalStateVariable(
         Context&,
+        std::string_view,
         std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
         const TimeStepStage) noexcept override;
     //
@@ -93,6 +97,38 @@ namespace mfem_mgis {
      */
     virtual bool performsLocalBehaviourIntegration(const size_type,
                                                    const IntegrationType);
+    /*!
+     * \brief evaluators of the material properties at the beginning of the
+     * time step.
+     */
+    std::map<std::string,
+             std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+             std::less<>>
+        material_properties_evaluators_bts;
+    /*!
+     * \brief evaluators of the material properties at the end of the
+     * time step.
+     */
+    std::map<std::string,
+             std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+             std::less<>>
+        material_properties_evaluators_ets;
+    /*!
+     * \brief evaluators of the external state variables at the beginning of the
+     * time step.
+     */
+    std::map<std::string,
+             std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+             std::less<>>
+        external_state_variables_evaluators_bts;
+    /*!
+     * \brief evaluators of the external state variables at the end of the
+     * time step.
+     */
+    std::map<std::string,
+             std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+             std::less<>>
+        external_state_variables_evaluators_ets;
     //! \brief workspace
     struct {
       //! \brief array for material properties at the end of the time step

@@ -171,22 +171,26 @@ namespace mfem_mgis {
      * \brief set the value of a material property
      *
      * \param[in] ctx: execution context
+     * \param[in] name: name of the material property
      * \param[in] e: evaluator of the material property
      * \param[in] ts: time step stage
      */
     [[nodiscard]] virtual bool setMaterialProperty(
         Context &,
+        std::string_view,
         std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
         const TimeStepStage) noexcept = 0;
     /*!
      * \brief set the value of an external state variable
      *
      * \param[in] ctx: execution context
-     * \param[in] e: evaluator of the material property
+     * \param[in] name: name of the external state variable
+     * \param[in] e: evaluator of the external state variable
      * \param[in] ts: time step stage
      */
     [[nodiscard]] virtual bool setExternalStateVariable(
         Context &,
+        std::string_view,
         std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
         const TimeStepStage) noexcept = 0;
     //! \return the underlying material
