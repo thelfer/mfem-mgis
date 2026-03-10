@@ -86,8 +86,8 @@ namespace mfem_mgis {
                         std::vector<real>& v,
                         const std::map<
                             std::string,
-                            mgis::behaviour::MaterialStateManager::FieldHolder>&
-                            field_holders,
+                            mgis::behaviour::MaterialStateManager::FieldHolder,
+                            std::less<>>& field_holders,
                         const std::vector<mgis::behaviour::Variable>& ds) {
       const auto h = this->getMaterial().b.hypothesis;
       raise_if(v.size() != mgis::behaviour::getArraySize(ds, h),
