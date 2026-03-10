@@ -308,19 +308,22 @@ namespace mfem_mgis {
         &getBoundaryConditions() const noexcept = 0;
     /*!
      * \brief method called before each resolution
+     *
+     * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void setup(const real, const real) = 0;
+    [[nodiscard]] virtual bool setup(Context &,
+                                     const real,
+                                     const real) noexcept = 0;
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    [[nodiscard]] virtual NonLinearResolutionOutput solve(Context &,
-                                                          const real,
-                                                          const real) = 0;
+    [[nodiscard]] virtual NonLinearResolutionOutput solve(
+        Context &, const real, const real) noexcept = 0;
     /*!
      * \brief add a new behaviour integrator
      * \return a mapping between the material id and the identifier of the
@@ -605,6 +608,12 @@ namespace mfem_mgis {
      * \param[in] params: parameters
      */
     [[deprecated]] virtual void setSolverParameters(const Parameters &) = 0;
+    /*!
+     * \brief method called before each resolution
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    [[deprecated]] virtual void setup(const real, const real) = 0;
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] t: time at the beginning of the time step

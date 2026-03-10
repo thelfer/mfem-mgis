@@ -146,7 +146,9 @@ namespace mfem_mgis {
     getDirichletBoundaryConditions() const noexcept override;
     [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
     getBoundaryConditions() const noexcept override;
-    void setup(const real, const real) override;
+    [[nodiscard]] bool setup(Context&,
+                             const real,
+                             const real) noexcept override;
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
     [[nodiscard]] bool setSolverParameters(Context&,
                                            const Parameters&) noexcept override;
@@ -154,7 +156,7 @@ namespace mfem_mgis {
         const noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(Context&,
                                                   const real,
-                                                  const real) override;
+                                                  const real) noexcept override;
     void revert() override;
     void update() override;
     //
@@ -178,6 +180,7 @@ namespace mfem_mgis {
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
     getBehaviourIntegrator(const size_type) override;
     [[deprecated]] void setSolverParameters(const Parameters&) override;
+    [[deprecated]] void setup(const real, const real) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
     //! \brief destructor

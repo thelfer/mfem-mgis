@@ -51,13 +51,16 @@ namespace mfem_mgis {
     return IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator::
         selectIntegrationRule(e, t);
   }
-  void
+
+  bool
   IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator::setup(
-      const real t, const real dt) {
-    BehaviourIntegratorBase::setup(t, dt);
+      Context &ctx, const real t, const real dt) noexcept {
+    if (!BehaviourIntegratorBase::setup(ctx, t, dt)) {
+      return false;
+    }
     const auto &pev = this->s1.external_state_variables.find("Temperature");
     if (pev == this->s1.external_state_variables.end()) {
-      raise(
+      return ctx.registerErrorMessage(
           "IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrat"
           "or::setup: "
           "external state variable 'Temperature' is not defined");
@@ -68,11 +71,12 @@ namespace mfem_mgis {
     } else if (std::holds_alternative<std::vector<real>>(value)) {
       this->uesv = std::get<std::vector<real>>(value).data();
     } else {
-      raise(
+      return ctx.registerErrorMessage(
           "IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrat"
           "or::setup: "
           "external state variable 'Temperature' shall not be uniform");
     }
+    return true;
   }  // end of setup
 
   void IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator::

@@ -196,10 +196,12 @@ namespace mfem_mgis {
     [[nodiscard]] virtual const std::vector<
         std::unique_ptr<AbstractBoundaryCondition>>
         &getBoundaryConditions() const noexcept override;
-    void setup(const real, const real) override;
+    [[nodiscard]] bool setup(Context &,
+                             const real,
+                             const real) noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(Context &,
                                                   const real,
-                                                  const real) override;
+                                                  const real) noexcept override;
     void revert() override;
     void update() override;
     //
@@ -239,6 +241,7 @@ namespace mfem_mgis {
     [[deprecated]] void addPostProcessing(std::string_view,
                                           const Parameters &) override;
     [[deprecated]] void setSolverParameters(const Parameters &) override;
+    [[deprecated]] void setup(const real, const real) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
     //! \brief destructor

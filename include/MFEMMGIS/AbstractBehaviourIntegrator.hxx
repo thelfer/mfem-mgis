@@ -64,10 +64,14 @@ namespace mfem_mgis {
         const mfem::IntegrationPoint &) const = 0;
     /*!
      * \brief method call at the beginning of each resolution
+     *
+     * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void setup(const real, const real) = 0;
+    [[nodiscard]] virtual bool setup(Context &,
+                                     const real,
+                                     const real) noexcept = 0;
     /*!
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent
@@ -78,10 +82,10 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
      */
-    virtual bool integrate(const mfem::FiniteElement &,
-                           mfem::ElementTransformation &,
-                           const mfem::Vector &,
-                           const IntegrationType) = 0;
+    [[nodiscard]] virtual bool integrate(const mfem::FiniteElement &,
+                                         mfem::ElementTransformation &,
+                                         const mfem::Vector &,
+                                         const IntegrationType) = 0;
     /*!
      * \brief compute the contribution of the given element to the inner forces
      * \param[out] Fe: inner forces
@@ -113,6 +117,15 @@ namespace mfem_mgis {
                                 const mfem::FiniteElement &,
                                 mfem::ElementTransformation &,
                                 const mfem::Vector &) = 0;
+    /*!
+     * \brief clean-up at the end of a resolution
+     *
+     * \param[in, out] ctx: execution context
+     *
+     * \note this method is the counterpart of the `setup` method and is meant
+     * to release any memory allocated byt this method.
+     */
+    [[nodiscard]] virtual bool cleanup(Context &) noexcept = 0;
     /*!
      * \brief revert the internal state variables.
      *

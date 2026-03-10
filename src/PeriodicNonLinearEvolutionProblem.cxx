@@ -343,7 +343,20 @@ namespace mfem_mgis {
     return this->macroscopic_gradients_evolution(t + dt);
   }  // end of getMacroscopicGradients
 
+  bool PeriodicNonLinearEvolutionProblem::setup(Context& ctx,
+                                                const real t,
+                                                const real dt) noexcept {
+    if (!NonLinearEvolutionProblem::setup(ctx, t, dt)) {
+      return false;
+    }
+    auto& impl = dynamic_cast<NonLinearEvolutionProblemImplementationBase&>(
+        *(this->pimpl));
+    impl.setMacroscopicGradients(this->getMacroscopicGradients(t, dt));
+    return true;
+  }  // end of setup
+
   void PeriodicNonLinearEvolutionProblem::setup(const real t, const real dt) {
+    NonLinearEvolutionProblem::setup(t, dt);
     auto& impl = dynamic_cast<NonLinearEvolutionProblemImplementationBase&>(
         *(this->pimpl));
     impl.setMacroscopicGradients(this->getMacroscopicGradients(t, dt));

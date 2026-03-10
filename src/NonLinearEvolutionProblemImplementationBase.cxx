@@ -396,8 +396,8 @@ namespace mfem_mgis {
     return this->boundary_conditions;
   }  // end of getBoundaryConditions
 
-  void NonLinearEvolutionProblemImplementationBase::setup(const real t,
-                                                          const real dt) {
+  bool NonLinearEvolutionProblemImplementationBase::setup(
+      Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection("NLEPIB::setup");
     if (this->initialization_phase) {
       if (!this->dirichlet_boundary_conditions.empty()) {
@@ -413,7 +413,18 @@ namespace mfem_mgis {
       bc->setup(t, dt);
     }
     if (this->mgis_integrator != nullptr) {
-      this->mgis_integrator->setup(t, dt);
+      if (!this->mgis_integrator->setup(ctx, t, dt)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of setup
+
+  void NonLinearEvolutionProblemImplementationBase::setup(const real t,
+                                                          const real dt) {
+    auto ctx = Context{};
+    if (!this->setup(ctx, t, dt)) {
+      raise(ctx.getErrorMessage());
     }
   }  // end of setup
 
@@ -493,7 +504,7 @@ namespace mfem_mgis {
   }  // end of solve
 
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
-      Context& ctx, const real t, const real dt) {
+      Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection("NLEPIB::solve");
     this->setTimeIncrement(dt);
     this->setup(t, dt);

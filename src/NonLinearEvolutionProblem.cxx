@@ -208,11 +208,12 @@ namespace mfem_mgis {
     return this->pimpl->getBoundaryConditions();
   }  // end of getBoundaryConditions
 
-  NonLinearResolutionOutput NonLinearEvolutionProblem::solve(Context& ctx,
-                                                             const real t,
-                                                             const real dt) {
+  NonLinearResolutionOutput NonLinearEvolutionProblem::solve(
+      Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection("NLEP::solve");
-    this->setup(t, dt);
+    if (!this->setup(ctx, t, dt)) {
+      return InvalidResult{};
+    }
     return this->pimpl->solve(ctx, t, dt);
   }  // end of solve
 
@@ -418,6 +419,12 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::revert() {
     this->pimpl->revert();
   }  // end of revert
+
+  bool NonLinearEvolutionProblem::setup(Context& ctx,
+                                        const real t,
+                                        const real dt) noexcept {
+    return this->pimpl->setup(ctx, t, dt);
+  }  // end of setup
 
   void NonLinearEvolutionProblem::setup(const real t, const real dt) {
     this->pimpl->setup(t, dt);

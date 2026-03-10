@@ -40,7 +40,9 @@ namespace mfem_mgis {
                                                                          ts)) {
       return false;
     }
-    this->problem->setup(ts.begin, ts.dt);
+    if (!this->problem->setup(ctx, ts.begin, ts.dt)) {
+      return false;
+    }
     return true;
   }  // end of performInitializationTaksAtTheBeginningOfTheTimeStep
 

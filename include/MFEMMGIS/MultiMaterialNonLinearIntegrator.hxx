@@ -70,10 +70,15 @@ namespace mfem_mgis {
     virtual void setTimeIncrement(const real);
     /*!
      * \brief method called before each resolution
+     *
+     * \param[in, out] ctx: execution context
+     *
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void setup(const real, const real);
+    [[nodiscard]] virtual bool setup(Context &,
+                                     const real,
+                                     const real) noexcept;
     /*!
      * \brief add a new behaviour integrator
      * \return the behaviour integrator identifier

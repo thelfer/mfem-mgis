@@ -387,13 +387,18 @@ namespace mfem_mgis {
     }
   }  // end of setMacroscopicGradients
 
-  void MultiMaterialNonLinearIntegrator::setup(const real t, const real dt) {
+  bool MultiMaterialNonLinearIntegrator::setup(Context& ctx,
+                                               const real t,
+                                               const real dt) noexcept {
     for (auto& bis : this->behaviour_integrators) {
       for (auto& bi : bis) {
-        bi->setup(t, dt);
+        if (!bi->setup(ctx, t, dt)) {
+          return false;
+        }
       }
     }
-  }  // end of setTimeIncrement
+    return true;
+  }  // end of setup
 
   void MultiMaterialNonLinearIntegrator::revert() {
     for (auto& bis : this->behaviour_integrators) {
