@@ -556,7 +556,7 @@ namespace mfem_mgis {
       if (isInvalid(oiv)) {
         return false;
       }
-      if (mp.type_identifier != (*oiv)->type_identifier) {
+      if (mp.type_identifier != oiv->type_identifier) {
         return ctx.registerErrorMessage("incompatible type for variable '" +
                                         mp.name + "'");
       }

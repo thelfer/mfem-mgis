@@ -38,18 +38,18 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "invalid partial quadrature function evaluator given for material "
           "property '" +
-          (*omp)->name + "'");
+          omp->name + "'");
     }
-    if ((*omp)->type != mgis::behaviour::Variable::SCALAR) {
+    if (omp->type != mgis::behaviour::Variable::SCALAR) {
       return ctx.registerErrorMessage(
-          "invalid material property '" + (*omp)->name +
+          "invalid material property '" + omp->name +
           "' (only scalar material properties are supported)");
     }
     if (e->getNumberOfComponents() != 1) {
       return ctx.registerErrorMessage(
           "invalid number of components for partial quadrature function "
           "evaluator given for material property '" +
-          (*omp)->name + "' (" + std::to_string(e->getNumberOfComponents()) +
+          omp->name + "' (" + std::to_string(e->getNumberOfComponents()) +
           ", expected 1)");
     }
     if (ts == TimeStepStage::BEGINNING_OF_TIME_STEP) {
@@ -81,9 +81,9 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "invalid partial quadrature function evaluator given for external "
           "state variable '" +
-          (*oesv)->name + "'");
+          oesv->name + "'");
     }
-    const auto osize = getVariableSize(ctx, *(*oesv), this->b.hypothesis);
+    const auto osize = getVariableSize(ctx, *oesv, this->b.hypothesis);
     if (isInvalid(osize)) {
       return false;
     }
@@ -91,7 +91,7 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "invalid number of components for partial quadrature function "
           "evaluator given for external state variable '" +
-          (*oesv)->name + "' (" + std::to_string(e->getNumberOfComponents()) +
+          oesv->name + "' (" + std::to_string(e->getNumberOfComponents()) +
           ", expected " + std::to_string(*osize) + ")");
     }
     if (ts == TimeStepStage::BEGINNING_OF_TIME_STEP) {
