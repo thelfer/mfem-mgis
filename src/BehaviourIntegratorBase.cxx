@@ -194,7 +194,8 @@ namespace mfem_mgis {
         return false;
       }
     }
-    for (const auto& [name, e] : this->external_state_variables_evaluators_bts) {
+    for (const auto& [name, e] :
+         this->external_state_variables_evaluators_bts) {
       auto f = evaluate(ctx, *e);
       if (isInvalid(f)) {
         return false;
@@ -207,7 +208,8 @@ namespace mfem_mgis {
         return false;
       }
     }
-    for (const auto& [name, e] : this->external_state_variables_evaluators_ets) {
+    for (const auto& [name, e] :
+         this->external_state_variables_evaluators_ets) {
       auto f = evaluate(ctx, *e);
       if (isInvalid(f)) {
         return false;
@@ -276,8 +278,8 @@ namespace mfem_mgis {
           } else {
             if (variable_values.size() != vsize * (this->n)) {
               return ctx.registerErrorMessage(
-                     "invalid number of variable values given for variable '" +
-                         d.name + "'");
+                  "invalid number of variable values given for variable '" +
+                  d.name + "'");
             }
             // if we have a span, we store in evs this span for future use
             evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
@@ -289,7 +291,7 @@ namespace mfem_mgis {
             std::copy(variable_values.begin(), variable_values.end(),
                       v.begin() + i);
           } else {
-            if(variable_values.size() != vsize * (this->n)){
+            if (variable_values.size() != vsize * (this->n)) {
               return ctx.registerErrorMessage(
                   "invalid number of variable values given for variable '" +
                   d.name + "'");
@@ -422,18 +424,19 @@ namespace mfem_mgis {
     }
     for (const auto& [name, e] : this->material_properties_evaluators_ets) {
       std::ignore = e;
-      if (!mgis::behaviour::unsetMaterialProperty(
-              ctx, this->s1, name)) {
+      if (!mgis::behaviour::unsetMaterialProperty(ctx, this->s1, name)) {
         return false;
       }
     }
-    for (const auto& [name, e] : this->external_state_variables_evaluators_bts) {
+    for (const auto& [name, e] :
+         this->external_state_variables_evaluators_bts) {
       std::ignore = e;
       if (!mgis::behaviour::unsetExternalStateVariable(ctx, this->s0, name)) {
         return false;
       }
     }
-    for (const auto& [name, e] : this->external_state_variables_evaluators_ets) {
+    for (const auto& [name, e] :
+         this->external_state_variables_evaluators_ets) {
       std::ignore = e;
       if (!mgis::behaviour::unsetExternalStateVariable(ctx, this->s1, name)) {
         return false;
@@ -444,7 +447,7 @@ namespace mfem_mgis {
     this->wks.pqfcts_esvs_bts.clear();
     this->wks.pqfcts_esvs_ets.clear();
     return true;
-  } // end of cleanup
+  }  // end of cleanup
 
   void BehaviourIntegratorBase::revert() {
     mgis::behaviour::revert(*this);
