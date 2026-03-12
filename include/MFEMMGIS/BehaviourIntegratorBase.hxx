@@ -13,6 +13,7 @@
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
+#include "MFEMMGIS/AbstractPartialQuadratureFunctionEvaluator.hxx"
 #include "MFEMMGIS/Material.hxx"
 
 namespace mfem_mgis {
@@ -163,28 +164,28 @@ namespace mfem_mgis {
        * the evaluators associated with material properties at the beginning of
        * the time step
        */
-      std::map<std::string, std::shared_ptr<const PartialQuadratureFunction>>
+      std::map<std::string, PartialQuadratureFunctionEvaluatorResult>
           pqfcts_mps_bts;
       /*!
        * \brief partial quadrature functions resulting from the evaluations of
        * the evaluators associated with material properties at the end of
        * the time step
        */
-      std::map<std::string, std::shared_ptr<const PartialQuadratureFunction>>
+      std::map<std::string, PartialQuadratureFunctionEvaluatorResult>
           pqfcts_mps_ets;
       /*!
        * \brief partial quadrature functions resulting from the evaluations of
        * the evaluators associated with external state variables at the
        * beginning of the time step
        */
-      std::map<std::string, std::shared_ptr<const PartialQuadratureFunction>>
+      std::map<std::string, PartialQuadratureFunctionEvaluatorResult>
           pqfcts_esvs_bts;
       /*!
        * \brief partial quadrature functions resulting from the evaluations of
        * the evaluators associated with external state variables at the end of
        * the time step
        */
-      std::map<std::string, std::shared_ptr<const PartialQuadratureFunction>>
+      std::map<std::string, PartialQuadratureFunctionEvaluatorResult>
           pqfcts_esvs_ets;
     } wks;
     //! \brief time increment for the given time step

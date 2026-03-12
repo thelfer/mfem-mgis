@@ -545,14 +545,24 @@ namespace mfem_mgis {
   }  // end of computeResultantForceOnBoundary
 
   [[nodiscard]] static bool resolveMaterialDependencies(
-      Context& ctx, Material& m, const Material& provider) {
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const AbstractBehaviourIntegrator& provider) {
     using mgis::behaviour::MaterialStateManager;
+    if ((!bi.hasMaterial()) || (!provider.hasMaterial())) {
+      return true;
+    }
+    const auto om = bi.getMaterial(ctx);
+    const auto oprovider_material = provider.getMaterial(ctx);
+    if (isInvalid(om) || isInvalid(oprovider_material)) {
+      return false;
+    }
     // material properties
-    for (const auto& mp : m.b.mps) {
-      if (!contains(provider.b.isvs, mp.name)) {
+    for (const auto& mp : om->b.mps) {
+      if (!contains(oprovider_material->b.isvs, mp.name)) {
         continue;
       }
-      const auto oiv = getVariable(ctx, provider.b.isvs, mp.name);
+      const auto oiv = getVariable(ctx, oprovider_material->b.isvs, mp.name);
       if (isInvalid(oiv)) {
         return false;
       }
@@ -561,10 +571,11 @@ namespace mfem_mgis {
                                         mp.name + "'");
       }
       try {
-        const auto values_bts = getInternalStateVariable(
-            provider, mp.name, Material::BEGINNING_OF_TIME_STEP);
-        const auto values_ets = getInternalStateVariable(
-            provider, mp.name, Material::END_OF_TIME_STEP);
+        const auto ovalues_bts =
+            getInternalStateVariable(ctx, *oprovider_material, mp.name,
+                                     Material::BEGINNING_OF_TIME_STEP);
+        const auto ovalues_ets = getInternalStateVariable(
+            ctx, *oprovider_material, mp.name, Material::END_OF_TIME_STEP);
         //         setMaterialProperty(m.s0, mp.name, values_bts.getValues(),
         //                             MaterialStateManager::EXTERNAL_STORAGE,
         //                             MaterialStateManager::NOUPDATE);
@@ -576,7 +587,7 @@ namespace mfem_mgis {
       }
     }
     // external state variables
-    for (const auto& esv : m.b.esvs) {
+    for (const auto& esv : om->b.esvs) {
     }
     return true;
   }  // end of resolveBehaviourIntegratorsDependencies
@@ -600,16 +611,16 @@ namespace mfem_mgis {
         return false;
       }
       for (auto n = size_type{}; n != *onbis; ++n) {
-        auto om = p.getMaterial(ctx, m, n);
-        if (isInvalid(om)) {
+        auto obi = p.getBehaviourIntegrator(ctx, m, n);
+        if (isInvalid(obi)) {
           return false;
         }
         for (auto n2 = size_type{}; n2 != *onbis; ++n2) {
-          const auto om2 = provider.getMaterial(ctx, m, n2);
-          if (isInvalid(om2)) {
+          const auto obi2 = provider.getBehaviourIntegrator(ctx, m, n2);
+          if (isInvalid(obi2)) {
             return false;
           }
-          if (!resolveMaterialDependencies(ctx, *om, *om2)) {
+          if (!resolveMaterialDependencies(ctx, *obi, *obi2)) {
             return false;
           }
         }

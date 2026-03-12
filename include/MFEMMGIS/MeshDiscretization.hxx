@@ -270,13 +270,24 @@ namespace mfem_mgis {
    * \brief compare two mesh discretisations to see if they point to the same
    * underlying meshes
    *
-   * \param[in] l: left hand side
-   * \param[in] r: rigth hand side
+   * \param[in] lhs: left hand side
+   * \param[in] rhs: right hand side
    *
    * \note material names and boundary names may different in both
    * discretisations.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool operator==(
+      const MeshDiscretization&, const MeshDiscretization&) noexcept;
+  /*!
+   * \brief compare two mesh discretisations
+   *
+   * \param[in] lhs: left hand side
+   * \param[in] rhs: right hand side
+   *
+   * \note material names and boundary names may different in both
+   * discretisations.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool operator!=(
       const MeshDiscretization&, const MeshDiscretization&) noexcept;
   /*!
    * \brief return the space dimension

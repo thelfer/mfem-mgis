@@ -835,4 +835,9 @@ namespace mfem_mgis {
     return (&(lhs.getMesh<false>())) == (&(rhs.getMesh<false>()));
   }  // end of operator==
 
+  bool operator!=(const MeshDiscretization& lhs,
+                  const MeshDiscretization& rhs) noexcept {
+    return !(lhs == rhs);
+  }  // end of operator !=
+
 }  // end of namespace mfem_mgis

@@ -55,26 +55,37 @@ namespace mfem_mgis {
   bool
   IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::setup(
       Context &ctx, const real t, const real dt) noexcept {
+    using MutableFieldHolder =
+        mgis::behaviour::MaterialStateManager::MutableFieldHolder;
     if (!BehaviourIntegratorBase::setup(ctx, t, dt)) {
       return false;
     }
     const auto &pev = this->s1.external_state_variables.find("Temperature");
     if (pev == this->s1.external_state_variables.end()) {
       return ctx.registerErrorMessage(
-          "IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrat"
-          "or::setup: "
           "external state variable 'Temperature' is not defined");
     }
-    auto &value = pev->second.value;
-    if (std::holds_alternative<std::span<real>>(value)) {
-      this->uesv = std::get<std::span<real>>(value).data();
-    } else if (std::holds_alternative<std::vector<real>>(value)) {
-      this->uesv = std::get<std::vector<real>>(value).data();
-    } else {
+    if (std::holds_alternative<std::monostate>(pev->second)) {
       return ctx.registerErrorMessage(
-          "IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrat"
-          "or::setup: "
-          "external state variable 'Temperature' shall not be uniform");
+          "external state variable 'Temperature' is not initialized");
+    } else if (std::holds_alternative<std::span<const real>>(pev->second)) {
+      return ctx.registerErrorMessage(
+          "external state variable 'Temperature' shall not be immutable");
+    } else {
+      if (!std::holds_alternative<MutableFieldHolder>(pev->second)) {
+        return ctx.registerErrorMessage(
+            "unsupported field holder for external state variable "
+            "'Temperature'");
+      }
+      auto &value = std::get<MutableFieldHolder>(pev->second).value;
+      if (std::holds_alternative<std::span<real>>(value)) {
+        this->uesv = std::get<std::span<real>>(value).data();
+      } else if (std::holds_alternative<std::vector<real>>(value)) {
+        this->uesv = std::get<std::vector<real>>(value).data();
+      } else {
+        return ctx.registerErrorMessage(
+            "external state variable 'Temperature' shall not be uniform");
+      }
     }
     return false;
   }  // end of setup

@@ -9,6 +9,8 @@
 #include "MGIS/Raise.hxx"
 #include "MGIS/Behaviour/Integrate.hxx"
 #include "MGIS/Behaviour/BehaviourDataView.hxx"
+#include "MFEMMGIS/MeshDiscretization.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractPartialQuadratureFunctionEvaluator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorBase.hxx"
 
@@ -25,6 +27,35 @@ namespace mfem_mgis {
     this->wks.esvs1.resize(getArraySize(this->b.esvs, this->b.hypothesis));
   }  // end of BehaviourIntegratorBase
 
+  static bool checkQuadratureFunctionEvaluator(
+      Context& ctx,
+      const AbstractBehaviourIntegrator& b,
+      const AbstractPartialQuadratureFunctionEvaluator& e) {
+    const auto& bqspace = b.getPartialQuadratureSpace();
+    const auto& eqspace = *(e.getPartialQuadratureSpacePointer());
+    const auto& bfed = bqspace.getFiniteElementDiscretization();
+    const auto& efed = eqspace.getFiniteElementDiscretization();
+    if (static_cast<const MeshDiscretization&>(bfed) !=
+        static_cast<const MeshDiscretization&>(efed)) {
+      return ctx.registerErrorMessage(
+          "partial quadrature function evaluator is not defined on the mesh of "
+          "the behaviour integrator");
+    }
+    if (bqspace.getId() != eqspace.getId()) {
+      return ctx.registerErrorMessage(
+          "partial quadrature function is not defined on the same material as "
+          "the behaviour integrator");
+    }
+    if (bqspace.getNumberOfIntegrationPoints() !=
+        eqspace.getNumberOfIntegrationPoints()) {
+      return ctx.registerErrorMessage(
+          "the partial quadrature space of the partial quadrature function "
+          "does not have the same number of quadrature points than the partial "
+          "quadrature space of the the behaviour integrator");
+    }
+    return true;
+  }  // end of checkQuadratureFunctionEvaluator
+
   bool BehaviourIntegratorBase::setMaterialProperty(
       Context& ctx,
       std::string_view name,
@@ -39,6 +70,9 @@ namespace mfem_mgis {
           "invalid partial quadrature function evaluator given for material "
           "property '" +
           omp->name + "'");
+    }
+    if (!checkQuadratureFunctionEvaluator(ctx, *this, *e)) {
+      return false;
     }
     if (omp->type != mgis::behaviour::Variable::SCALAR) {
       return ctx.registerErrorMessage(
@@ -82,6 +116,9 @@ namespace mfem_mgis {
           "invalid partial quadrature function evaluator given for external "
           "state variable '" +
           oesv->name + "'");
+    }
+    if (!checkQuadratureFunctionEvaluator(ctx, *this, *e)) {
+      return false;
     }
     const auto osize = getVariableSize(ctx, *oesv, this->b.hypothesis);
     if (isInvalid(osize)) {
@@ -169,54 +206,63 @@ namespace mfem_mgis {
     this->wks.pqfcts_esvs_bts.clear();
     this->wks.pqfcts_esvs_ets.clear();
     for (const auto& [name, e] : this->material_properties_evaluators_bts) {
-      auto f = evaluate(ctx, *e);
-      if (isInvalid(f)) {
+      auto of = evaluate(ctx, *e, {.ensure_contiguous_storage = true});
+      if (isInvalid(of)) {
         return false;
       }
-      this->wks.pqfcts_mps_bts.insert_or_assign(name, f);
-      if (!mgis::behaviour::setMaterialProperty(
-              ctx, this->s0, name, f->getValues(),
-              mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE,
-              mgis::behaviour::MaterialStateManager::NOUPDATE)) {
-        return false;
-      }
+      this->wks.pqfcts_mps_bts.insert_or_assign(name, std::move(*of));
     }
     for (const auto& [name, e] : this->material_properties_evaluators_ets) {
-      auto f = evaluate(ctx, *e);
-      if (isInvalid(f)) {
+      auto of = evaluate(ctx, *e, {.ensure_contiguous_storage = true});
+      if (isInvalid(of)) {
         return false;
       }
-      this->wks.pqfcts_mps_ets.insert_or_assign(name, f);
-      if (!mgis::behaviour::setMaterialProperty(
-              ctx, this->s1, name, f->getValues(),
-              mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE,
-              mgis::behaviour::MaterialStateManager::NOUPDATE)) {
-        return false;
-      }
+      this->wks.pqfcts_mps_ets.insert_or_assign(name, std::move(*of));
     }
     for (const auto& [name, e] :
          this->external_state_variables_evaluators_bts) {
-      auto f = evaluate(ctx, *e);
-      if (isInvalid(f)) {
+      auto of = evaluate(ctx, *e, {.ensure_contiguous_storage = true});
+      if (isInvalid(of)) {
         return false;
       }
-      this->wks.pqfcts_mps_bts.insert_or_assign(name, f);
-      if (!mgis::behaviour::setExternalStateVariable(
-              ctx, this->s0, name, f->getValues(),
+      this->wks.pqfcts_esvs_bts.insert_or_assign(name, std::move(*of));
+    }
+    for (const auto& [name, e] :
+         this->external_state_variables_evaluators_ets) {
+      auto of = evaluate(ctx, *e, {.ensure_contiguous_storage = true});
+      if (isInvalid(of)) {
+        return false;
+      }
+      this->wks.pqfcts_esvs_ets.insert_or_assign(name, std::move(*of));
+    }
+    //
+    for (auto& [name, e] : this->wks.pqfcts_mps_bts) {
+      if (!mgis::behaviour::setMaterialProperty(
+              ctx, this->s0, name, e.getValues(),
               mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE,
               mgis::behaviour::MaterialStateManager::NOUPDATE)) {
         return false;
       }
     }
-    for (const auto& [name, e] :
-         this->external_state_variables_evaluators_ets) {
-      auto f = evaluate(ctx, *e);
-      if (isInvalid(f)) {
+    for (auto& [name, e] : this->wks.pqfcts_mps_ets){
+      if (!mgis::behaviour::setMaterialProperty(
+              ctx, this->s1, name, e.getValues(),
+              mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE,
+              mgis::behaviour::MaterialStateManager::NOUPDATE)) {
         return false;
       }
-      this->wks.pqfcts_mps_ets.insert_or_assign(name, f);
+    }
+    for (auto& [name, e] : this->wks.pqfcts_esvs_bts) {
       if (!mgis::behaviour::setExternalStateVariable(
-              ctx, this->s1, name, f->getValues(),
+              ctx, this->s0, name, e.getValues(),
+              mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE,
+              mgis::behaviour::MaterialStateManager::NOUPDATE)) {
+        return false;
+      }
+    }
+    for (auto& [name, e] : this->wks.pqfcts_esvs_ets) {
+      if (!mgis::behaviour::setExternalStateVariable(
+              ctx, this->s1, name, e.getValues(),
               mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE,
               mgis::behaviour::MaterialStateManager::NOUPDATE)) {
         return false;
@@ -261,17 +307,12 @@ namespace mfem_mgis {
         }
         // depending on the type of p->second, we are branching
         // on one of the following procedure:
-        const auto& field_value = p->second.value;
-        if (std::holds_alternative<real>(field_value)) {
-          if (vsize != 1) {
-            return ctx.registerErrorMessage(
-                "invalid number of values given for variable '" + d.name + "'");
-          }
-          // if uniform field, copy field_value into v[i]
-          // `evs` will be untouched.
-          v[i] = std::get<real>(field_value);
-        } else if (std::holds_alternative<std::span<real>>(field_value)) {
-          const auto& variable_values = std::get<std::span<real>>(field_value);
+        if (std::holds_alternative<std::monostate>(p->second)) {
+          return ctx.registerErrorMessage(
+              "field holder associated with variable '" + d.name +
+              "' is not initialized");
+        } else if (std::holds_alternative<std::span<const real>>(p->second)) {
+          const auto& variable_values = std::get<std::span<const real>>(p->second);
           if (variable_values.size() == v.size()) {
             std::copy(variable_values.begin(), variable_values.end(),
                       v.begin() + i);
@@ -285,20 +326,54 @@ namespace mfem_mgis {
             evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
           }
         } else {
-          const auto& variable_values =
-              std::get<std::vector<real>>(field_value);
-          if (variable_values.size() == v.size()) {
-            std::copy(variable_values.begin(), variable_values.end(),
-                      v.begin() + i);
-          } else {
-            if (variable_values.size() != vsize * (this->n)) {
+          using MutableFieldHolder =
+              mgis::behaviour::MaterialStateManager::MutableFieldHolder;
+          if (!std::holds_alternative<MutableFieldHolder>(p->second)) {
+            return ctx.registerErrorMessage(
+                "unsupport field holder for variable '" + d.name + "'");
+          }
+          const auto& field_value =
+              std::get<MutableFieldHolder>(p->second).value;
+          if (std::holds_alternative<real>(field_value)) {
+            if (vsize != 1) {
               return ctx.registerErrorMessage(
-                  "invalid number of variable values given for variable '" +
-                  d.name + "'");
+                  "invalid number of values given for variable '" + d.name +
+                  "'");
             }
-            // if we have a vector, we store in evs this vector for future
-            // use
-            evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
+            // if uniform field, copy field_value into v[i]
+            // `evs` will be untouched.
+            v[i] = std::get<real>(field_value);
+          } else if (std::holds_alternative<std::span<real>>(field_value)) {
+            const auto& variable_values =
+                std::get<std::span<real>>(field_value);
+            if (variable_values.size() == v.size()) {
+              std::copy(variable_values.begin(), variable_values.end(),
+                        v.begin() + i);
+            } else {
+              if (variable_values.size() != vsize * (this->n)) {
+                return ctx.registerErrorMessage(
+                    "invalid number of variable values given for variable '" +
+                    d.name + "'");
+              }
+              // if we have a span, we store in evs this span for future use
+              evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
+            }
+          } else {
+            const auto& variable_values =
+                std::get<std::vector<real>>(field_value);
+            if (variable_values.size() == v.size()) {
+              std::copy(variable_values.begin(), variable_values.end(),
+                        v.begin() + i);
+            } else {
+              if (variable_values.size() != vsize * (this->n)) {
+                return ctx.registerErrorMessage(
+                    "invalid number of variable values given for variable '" +
+                    d.name + "'");
+              }
+              // if we have a vector, we store in evs this vector for future
+              // use
+              evs.push_back(std::make_tuple(i, vsize, variable_values.data()));
+            }
           }
         }
         i += vsize;
@@ -328,7 +403,7 @@ namespace mfem_mgis {
     }
     this->wks.esvs1_evaluators = *oevaluators;
     return true;
-  }  // end of setup
+    }  // end of setup
 
   void BehaviourIntegratorBase::checkHypotheses(const Hypothesis h) const {
     using namespace mgis::behaviour;

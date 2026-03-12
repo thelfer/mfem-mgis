@@ -183,6 +183,28 @@ namespace mfem_mgis {
 
   Material::~Material() = default;
 
+  static std::optional<PartialQuadratureFunction>
+  buildPartialQuadratureFunction(
+      Context &ctx,
+      std::shared_ptr<const PartialQuadratureSpace> qs,
+      std::span<mgis::real> values,
+      const std::vector<mgis::behaviour::Variable> &variables,
+      const std::string_view n,
+      const Hypothesis h) noexcept {
+    using namespace mgis::behaviour;
+    const auto ov = getVariable(ctx, variables, n);
+    const auto oo = getVariableOffset(ctx, variables, n, h);
+    if (isInvalid(oo) || isInvalid(ov)) {
+      return {};
+    }
+    const auto os = getVariableSize(ctx, *ov, h);
+    if (isInvalid(os)) {
+      return {};
+    }
+    return PartialQuadratureFunction(qs, StorageMode::EXTERNAL_STORAGE, values,
+                                     *oo, *os);
+  }  // end of buildPartialQuadratureFunction
+
   static PartialQuadratureFunction buildPartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> qs,
       std::span<mgis::real> values,
@@ -192,8 +214,30 @@ namespace mfem_mgis {
     const auto o = getVariableOffset(variables, n, h);
     const auto s =
         getVariableSize(mgis::behaviour::getVariable(variables, n), h);
-    return PartialQuadratureFunction(qs, values, o, s);
+    return PartialQuadratureFunction(qs, StorageMode::EXTERNAL_STORAGE, values,
+                                     o, s);
   }  // end of buildPartialQuadratureFunction
+
+  static std::optional<ImmutablePartialQuadratureFunctionView>
+  buildImmutablePartialQuadratureFunctionView(
+      Context &ctx,
+      std::shared_ptr<const PartialQuadratureSpace> qs,
+      std::span<const mgis::real> values,
+      const std::vector<mgis::behaviour::Variable> &variables,
+      const std::string_view n,
+      const Hypothesis h) {
+    using namespace mgis::behaviour;
+    const auto ov = getVariable(ctx, variables, n);
+    const auto oo = getVariableOffset(ctx, variables, n, h);
+    if (isInvalid(oo) || isInvalid(ov)) {
+      return {};
+    }
+    const auto os = getVariableSize(ctx, *ov, h);
+    if (isInvalid(os)) {
+      return {};
+    }
+    return ImmutablePartialQuadratureFunctionView(qs, values, *oo, *os);
+  }  // end of buildImmutablePartialQuadratureFunctionView
 
   static ImmutablePartialQuadratureFunctionView
   buildImmutablePartialQuadratureFunctionView(
@@ -243,6 +287,28 @@ namespace mfem_mgis {
         m.b.hypothesis);
   }  // end of getThermodynamicForce
 
+  std::optional<PartialQuadratureFunction> getInternalStateVariable(
+      Context &ctx,
+      Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildPartialQuadratureFunction(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).internal_state_variables, m.b.isvs, n,
+        m.b.hypothesis);
+  }  // end of getInternalStateVariable
+
+  std::optional<ImmutablePartialQuadratureFunctionView>
+  getInternalStateVariable(Context &ctx,
+                           const Material &m,
+                           const std::string_view n,
+                           const Material::StateSelection s) noexcept {
+    return buildImmutablePartialQuadratureFunctionView(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).internal_state_variables, m.b.isvs, n,
+        m.b.hypothesis);
+  }  // end of getInternalStateVariable
+
   PartialQuadratureFunction getInternalStateVariable(
       Material &m, const std::string_view n, const Material::StateSelection s) {
     return buildPartialQuadratureFunction(
@@ -268,6 +334,7 @@ namespace mfem_mgis {
       return {};
     }
     return PartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
+                                     StorageMode::EXTERNAL_STORAGE,
                                      sm.stored_energies);
   }  // end of getStoredEnergy
 
@@ -288,6 +355,7 @@ namespace mfem_mgis {
       return {};
     }
     return PartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
+                                     StorageMode::EXTERNAL_STORAGE,
                                      sm.dissipated_energies);
   }  // end of getDissipatedEnergy
 

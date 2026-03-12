@@ -171,7 +171,33 @@ namespace mfem_mgis {
    * \param[in] n: name of the state variable
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] PartialQuadratureFunction
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
+  getInternalStateVariable(
+      Context &,
+      Material &,
+      const std::string_view,
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+  /*!
+   * \return a partial quadrature function for the given state variable
+   * \param[in] m: material
+   * \param[in] n: name of the state variable
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT
+  [[nodiscard]]  //
+  std::optional<ImmutablePartialQuadratureFunctionView>
+  getInternalStateVariable(
+      Context &,
+      const Material &,
+      const std::string_view,
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+  /*!
+   * \return a partial quadrature function for the given state variable
+   * \param[in] m: material
+   * \param[in] n: name of the state variable
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT [[nodiscard, deprecated]] PartialQuadratureFunction
   getInternalStateVariable(
       Material &,
       const std::string_view,
@@ -182,7 +208,9 @@ namespace mfem_mgis {
    * \param[in] n: name of the state variable
    * \param[in] s: state considered
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] ImmutablePartialQuadratureFunctionView
+  MFEM_MGIS_EXPORT
+  [[nodiscard, deprecated]]  //
+  ImmutablePartialQuadratureFunctionView
   getInternalStateVariable(
       const Material &,
       const std::string_view,

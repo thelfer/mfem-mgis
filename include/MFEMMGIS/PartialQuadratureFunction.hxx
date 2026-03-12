@@ -15,6 +15,7 @@
 #include <optional>
 #include <functional>
 
+#include "MGIS/StorageMode.hxx"
 #ifdef MGIS_FUNCTION_SUPPORT
 #include "MGIS/Function/EvaluatorConcept.hxx"
 #include "MGIS/Function/FunctionConcept.hxx"
@@ -25,6 +26,8 @@
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
 namespace mfem_mgis {
+
+  using mgis::StorageMode;
 
   /*!
    * \brief a simple data structure describing how the data of a partial
@@ -110,7 +113,8 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView
       : PartialQuadratureFunctionDataLayout {
     /*!
-     * \brief constructor
+     * \brief constructor from an already allocated data
+     *
      * \param[in] s: quadrature space.
      * \param[in] v: values
      * \param[in] db: offset of data
@@ -352,12 +356,14 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
+     * \param[in] sm: storage mode
      * \param[in] v: values
      * \param[in] db: start of the view inside the given data
      * \param[in] ds: size of the view
      */
     PartialQuadratureFunction(
         std::shared_ptr<const PartialQuadratureSpace>,
+        const StorageMode,
         std::span<real>,
         const size_type = 0,
         const size_type = std::numeric_limits<size_type>::max());
