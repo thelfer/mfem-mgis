@@ -64,7 +64,7 @@ namespace mfem_mgis {
     [[nodiscard]] virtual std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const noexcept = 0;
     //! \return the number of components
-    [[nodiscard]] virtual size_type getNumberOfComponents() const noexcept;
+    [[nodiscard]] virtual size_type getNumberOfComponents() const noexcept = 0;
     //!
     [[nodiscard]] virtual std::optional<
         PartialQuadratureFunctionEvaluatorResult>
