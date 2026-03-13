@@ -252,6 +252,26 @@ namespace mfem_mgis {
     return ImmutablePartialQuadratureFunctionView(qs, values, o, s);
   }  // end of buildImmutablePartialQuadratureFunctionView
 
+  std::optional<PartialQuadratureFunction> getGradient(
+      Context &ctx,
+      Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildPartialQuadratureFunction(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).gradients, m.b.gradients, n, m.b.hypothesis);
+  }  // end of getGradient
+
+  std::optional<ImmutablePartialQuadratureFunctionView> getGradient(
+      Context &ctx,
+      const Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildImmutablePartialQuadratureFunctionView(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).gradients, m.b.gradients, n, m.b.hypothesis);
+  }  // end of getGradient
+
   PartialQuadratureFunction getGradient(Material &m,
                                         const std::string_view n,
                                         const Material::StateSelection s) {
@@ -268,6 +288,28 @@ namespace mfem_mgis {
         m.getPartialQuadratureSpacePointer(), getStateManager(m, s).gradients,
         m.b.gradients, n, m.b.hypothesis);
   }  // end of getGradient
+
+  std::optional<PartialQuadratureFunction> getThermodynamicForce(
+      Context &ctx,
+      Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildPartialQuadratureFunction(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
+        m.b.hypothesis);
+  }  // end of getThermodynamicForce
+
+  std::optional<ImmutablePartialQuadratureFunctionView> getThermodynamicForce(
+      Context &ctx,
+      const Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildImmutablePartialQuadratureFunctionView(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
+        m.b.hypothesis);
+  }  // end of getThermodynamicForce
 
   PartialQuadratureFunction getThermodynamicForce(
       Material &m, const std::string_view n, const Material::StateSelection s) {
