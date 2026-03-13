@@ -124,6 +124,34 @@ namespace mfem_mgis {
   };
 
   /*!
+   * \return an evaluator of the gradient of the given name
+   *
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] n: name of the gradient variable
+   * \param[in] ts: time step stage
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]]  //
+  std::shared_ptr<AbstractPartialQuadratureFunctionEvaluator>
+  makeGradientEvaluator(Context&,
+                        const Material&,
+                        std::string_view,
+                        const TimeStepStage) noexcept;
+  /*!
+   * \return an evaluator of the thermodynamic force of the given name
+   *
+   * \param[in] ctx: execution context
+   * \param[in] m: material
+   * \param[in] n: name of the thermodynamic force variable
+   * \param[in] ts: time step stage
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]]  //
+  std::shared_ptr<AbstractPartialQuadratureFunctionEvaluator>
+  makeThermodynamicForceEvaluator(Context&,
+                                  const Material&,
+                                  std::string_view,
+                                  const TimeStepStage) noexcept;
+  /*!
    * \return an evaluator of the internal state variable of the given name
    *
    * \param[in] ctx: execution context
@@ -138,6 +166,6 @@ namespace mfem_mgis {
                                      std::string_view,
                                      const TimeStepStage) noexcept;
 
-}  // end of namespace mfem_mgis
+  }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEMMGIS_PARTIALQUADRATUREFUNCTIONEVALUATORS_HXX */

@@ -217,6 +217,28 @@ namespace mfem_mgis {
   }  // end of makeGradientEvaluator
 
   std::shared_ptr<AbstractPartialQuadratureFunctionEvaluator>
+  makeThermodynamicForceEvaluator(Context& ctx,
+                        const Material& m,
+                        std::string_view n,
+                        const TimeStepStage ts) noexcept {
+    using namespace mgis::behaviour;
+    const auto qspace = m.getPartialQuadratureSpacePointer();
+    const auto os =
+        getVariableSize(ctx, m.b.thermodynamic_forces, n, m.b.hypothesis);
+    if (isInvalid(os)) {
+      return {};
+    }
+    // make a copy of the name, so that the lambda also take a copy
+    auto name = std::string{n};
+    auto extract = [&m, ts, name](Context& ectx, const real,
+                                  const real) noexcept {
+      return getThermodynamicForce(ectx, m, name, ts);
+    };
+    return make_shared<StandardPartialQuadratureFunctionEvaluator>(
+        ctx, qspace, *os, extract);
+  }  // end of makeThermodynamicForceEvaluator
+
+  std::shared_ptr<AbstractPartialQuadratureFunctionEvaluator>
   makeInternalStateVariableEvaluator(Context& ctx,
                                      const Material& m,
                                      std::string_view n,
