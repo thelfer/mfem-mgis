@@ -83,12 +83,10 @@ namespace mfem_mgis {
       this->get_rotation_fct_ptr =
           +[](const RotationMatrix2D &rm, const RotationMatrix3D &,
               const size_type o) {
-            std::array<real, 9u> m;
             const auto &f =
                 *(std::get<std::shared_ptr<PartialQuadratureFunction>>(rm));
             return mgis::behaviour::buildRotationMatrix(
                 f.getIntegrationPointValues<2>(o));
-            return m;
           };
     } else {
       raise("Material::setRotationMatrix: unimplemented case yet");
@@ -435,4 +433,4 @@ namespace mfem_mgis {
     return {};
   }
 
-};  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

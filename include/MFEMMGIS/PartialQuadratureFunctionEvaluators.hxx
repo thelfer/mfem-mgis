@@ -166,6 +166,6 @@ namespace mfem_mgis {
                                      std::string_view,
                                      const TimeStepStage) noexcept;
 
-  }  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEMMGIS_PARTIALQUADRATUREFUNCTIONEVALUATORS_HXX */

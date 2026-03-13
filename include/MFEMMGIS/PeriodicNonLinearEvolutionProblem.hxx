@@ -124,7 +124,7 @@ namespace mfem_mgis {
     [[deprecated]] void addBoundaryCondition(
         std::unique_ptr<AbstractBoundaryCondition>) override;
     //! \brief destructor
-    virtual ~PeriodicNonLinearEvolutionProblem();
+    ~PeriodicNonLinearEvolutionProblem() override;
 
    protected:
     //

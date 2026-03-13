@@ -30,34 +30,6 @@ namespace mfem_mgis {
       "FiniteElementOrder";
   const char* const FiniteElementDiscretization::UnknownsSize = "UnknownsSize";
 
-  const mfem::Array<size_type>& getMaterialsAttributes(
-      const FiniteElementDiscretization& fed) {
-    if (fed.describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      const auto& mesh = fed.getMesh<true>();
-      return mesh.attributes;
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    }
-    const auto& mesh = fed.getMesh<false>();
-    return mesh.attributes;
-  }  // end of getMaterialsAttributes
-
-  const mfem::Array<size_type>& getBoundariesAttributes(
-      const FiniteElementDiscretization& fed) {
-    if (fed.describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      const auto& mesh = fed.getMesh<true>();
-      return mesh.bdr_attributes;
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    }
-    const auto& mesh = fed.getMesh<false>();
-    return mesh.bdr_attributes;
-  }  // end of getBoundariesAttributes
-
   void FiniteElementDiscretization::reportInvalidParallelFiniteElementSpace() {
     raise(
         "FiniteElementDiscretization::reportInvalidParallelFiniteElementSpace: "

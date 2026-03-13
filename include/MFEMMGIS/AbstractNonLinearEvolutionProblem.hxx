@@ -163,7 +163,7 @@ namespace mfem_mgis {
      * \note the consistent tangent operator takes into account the details
      * related to the algorithm used to integration the constitutive equations.
      */
-    CONSISTENT_TANGENT,
+    CONSISTENT_TANGENT
   };
 
   /*!

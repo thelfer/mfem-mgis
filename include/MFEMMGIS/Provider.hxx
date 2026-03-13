@@ -13,9 +13,6 @@
 
 namespace mfem_mgis {
 
-  // forward declarations
-  struct Context;
-
   //! \brief this class describe an object able to solve a dependency
   struct MFEM_MGIS_EXPORT Provider {
     /*!

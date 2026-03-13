@@ -17,7 +17,6 @@ namespace mfem_mgis {
 
   // forward declarations
   struct Parameters;
-  struct Context;
   struct Provider;
   struct AbstractModel;
   struct NonLinearEvolutionProblem;
@@ -113,7 +112,7 @@ namespace mfem_mgis {
     //     [[nodiscard]] virtual bool addConvergenceCriterion(
     //         Context &, std::string_view, const Parameters &) noexcept = 0;
     //! \brief destructor
-    virtual ~AbstractCouplingScheme() noexcept;
+    ~AbstractCouplingScheme() noexcept override;
   };  // end of AbstractCouplingScheme
 
 }  // end of namespace mfem_mgis

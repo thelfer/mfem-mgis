@@ -175,6 +175,22 @@ namespace mfem_mgis {
     this->immutable_values = v;
   }  // end of ImmutablePartialQuadratureFunctionView
 
+  ImmutablePartialQuadratureFunctionView::
+      ImmutablePartialQuadratureFunctionView(
+          ImmutablePartialQuadratureFunctionView&&) noexcept = default;
+
+  ImmutablePartialQuadratureFunctionView::
+      ImmutablePartialQuadratureFunctionView(
+          const ImmutablePartialQuadratureFunctionView&) noexcept = default;
+
+  ImmutablePartialQuadratureFunctionView&
+  ImmutablePartialQuadratureFunctionView::operator=(
+      ImmutablePartialQuadratureFunctionView&&) noexcept = default;
+
+  ImmutablePartialQuadratureFunctionView&
+  ImmutablePartialQuadratureFunctionView::operator=(
+      const ImmutablePartialQuadratureFunctionView&) noexcept = default;
+
   const real* ImmutablePartialQuadratureFunctionView::data(
       const size_type e, const size_type i) const {
     return this->data(this->qspace->getOffset(e) + i);
@@ -420,11 +436,11 @@ namespace mfem_mgis {
     }
     //
     PartialQuadratureFunctionsScalarCoefficient(
-        PartialQuadratureFunctionsScalarCoefficient&&) = default;
+        PartialQuadratureFunctionsScalarCoefficient&&) = delete;
     PartialQuadratureFunctionsScalarCoefficient(
         const PartialQuadratureFunctionsScalarCoefficient&) = default;
     PartialQuadratureFunctionsScalarCoefficient& operator=(
-        PartialQuadratureFunctionsScalarCoefficient&&) = default;
+        PartialQuadratureFunctionsScalarCoefficient&&) = delete;
     PartialQuadratureFunctionsScalarCoefficient& operator=(
         const PartialQuadratureFunctionsScalarCoefficient&) = default;
     //
@@ -451,13 +467,13 @@ namespace mfem_mgis {
     }
     //
     PartialQuadratureFunctionsScalarCoefficientII(
-        PartialQuadratureFunctionsScalarCoefficientII&&) = default;
+        PartialQuadratureFunctionsScalarCoefficientII&&) = delete;
     PartialQuadratureFunctionsScalarCoefficientII(
         const PartialQuadratureFunctionsScalarCoefficientII&) = default;
     PartialQuadratureFunctionsScalarCoefficientII& operator=(
-        PartialQuadratureFunctionsScalarCoefficientII&&) = default;
+        PartialQuadratureFunctionsScalarCoefficientII&&) = delete;
     PartialQuadratureFunctionsScalarCoefficientII& operator=(
-        const PartialQuadratureFunctionsScalarCoefficientII&) = default;
+        const PartialQuadratureFunctionsScalarCoefficientII&) = delete;
     //
     double Eval(mfem::ElementTransformation& tr,
                 const mfem::IntegrationPoint& i) override {
@@ -520,13 +536,13 @@ namespace mfem_mgis {
           elts_mapping(m) {}
     //
     PartialQuadratureFunctionsVectorCoefficientII(
-        PartialQuadratureFunctionsVectorCoefficientII&&) = default;
+        PartialQuadratureFunctionsVectorCoefficientII&&) = delete;
     PartialQuadratureFunctionsVectorCoefficientII(
         const PartialQuadratureFunctionsVectorCoefficientII&) = default;
     PartialQuadratureFunctionsVectorCoefficientII& operator=(
-        PartialQuadratureFunctionsVectorCoefficientII&&) = default;
+        PartialQuadratureFunctionsVectorCoefficientII&&) = delete;
     PartialQuadratureFunctionsVectorCoefficientII& operator=(
-        const PartialQuadratureFunctionsVectorCoefficientII&) = default;
+        const PartialQuadratureFunctionsVectorCoefficientII&) = delete;
     //
     void Eval(mfem::Vector& values,
               mfem::ElementTransformation& tr,

@@ -101,7 +101,7 @@ namespace mfem_mgis {
       this->computeResidual(R, e, tr);
     }  // end of AssembleElementVector
     //! \brief destructor
-    virtual ~UniformImposedPressureLinearFormIntegrator() = default;
+    ~UniformImposedPressureLinearFormIntegrator() override = default;
 
    protected:
     [[nodiscard]] const mfem::IntegrationRule *getIntegrationRule(
@@ -141,7 +141,7 @@ namespace mfem_mgis {
       K = 0.0;
     }
     //! \brief destructor
-    virtual ~UniformImposedPressureNonlinearFormIntegrator() = default;
+    ~UniformImposedPressureNonlinearFormIntegrator() override = default;
 
    protected:
     [[nodiscard]] const mfem::IntegrationRule *getIntegrationRule(

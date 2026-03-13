@@ -57,17 +57,17 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
      */
-    virtual bool integrate(const mfem::FiniteElement &,
-                           mfem::ElementTransformation &,
-                           const mfem::Vector &,
-                           const IntegrationType);
+    bool integrate(const mfem::FiniteElement &,
+                   mfem::ElementTransformation &,
+                   const mfem::Vector &,
+                   const IntegrationType);
     //! \return the current time increment
-    virtual real getTimeIncrement() const noexcept;
+    real getTimeIncrement() const noexcept;
     /*!
      * \brief set the value of the time increment
      * \param[in] dt: time increment
      */
-    virtual void setTimeIncrement(const real);
+    void setTimeIncrement(const real);
     /*!
      * \brief method called before each resolution
      *
@@ -76,9 +76,7 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    [[nodiscard]] virtual bool setup(Context &,
-                                     const real,
-                                     const real) noexcept;
+    [[nodiscard]] bool setup(Context &, const real, const real) noexcept;
     /*!
      * \brief add a new behaviour integrator
      * \return the behaviour integrator identifier
@@ -87,17 +85,17 @@ namespace mfem_mgis {
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
-    [[nodiscard]] virtual size_type addBehaviourIntegrator(const std::string &,
-                                                           const size_type,
-                                                           const std::string &,
-                                                           const std::string &);
+    [[nodiscard]] size_type addBehaviourIntegrator(const std::string &,
+                                                   const size_type,
+                                                   const std::string &,
+                                                   const std::string &);
     /*!
      * \return the material with the given id
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
      * \param[in] b: behaviour id
      */
-    [[nodiscard]] virtual OptionalReference<const Material> getMaterial(
+    [[nodiscard]] OptionalReference<const Material> getMaterial(
         Context &, const size_type, const size_type) const noexcept;
     /*!
      * \return the material with the given id
@@ -105,7 +103,7 @@ namespace mfem_mgis {
      * \param[in] m: material id
      * \param[in] b: behaviour id
      */
-    [[nodiscard]] virtual OptionalReference<Material> getMaterial(
+    [[nodiscard]] OptionalReference<Material> getMaterial(
         Context &, const size_type, const size_type) noexcept;
     /*!
      * \return the number of behaviour integrators associated with the given
@@ -114,15 +112,15 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
      */
-    [[nodiscard]] virtual std::optional<size_type>
-    getNumberOfBehaviourIntegrators(Context &, const size_type) const noexcept;
+    [[nodiscard]] std::optional<size_type> getNumberOfBehaviourIntegrators(
+        Context &, const size_type) const noexcept;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
      * \param[in] b: behaviour id
      */
-    [[nodiscard]] virtual OptionalReference<const AbstractBehaviourIntegrator>
+    [[nodiscard]] OptionalReference<const AbstractBehaviourIntegrator>
     getBehaviourIntegrator(Context &,
                            const size_type,
                            const size_type) const noexcept;
@@ -132,7 +130,7 @@ namespace mfem_mgis {
      * \param[in] m: material id
      * \param[in] b: behaviour id
      */
-    [[nodiscard]] virtual OptionalReference<AbstractBehaviourIntegrator>
+    [[nodiscard]] OptionalReference<AbstractBehaviourIntegrator>
     getBehaviourIntegrator(Context &,
                            const size_type,
                            const size_type) noexcept;
@@ -143,7 +141,7 @@ namespace mfem_mgis {
      * step are copied on the values of the internal state variables at
      * end of the time step.
      */
-    virtual void revert();
+    void revert();
     /*!
      * \brief update the internal state variables.
      *
@@ -151,17 +149,17 @@ namespace mfem_mgis {
      * are copied on the values of the internal state variables at beginning of
      * the time step.
      */
-    virtual void update();
+    void update();
     /*!
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    virtual void setMacroscopicGradients(std::span<const real>);
+    void setMacroscopicGradients(std::span<const real>);
     /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
      */
-    virtual std::vector<size_type> getAssignedMaterialsIdentifiers() const;
+    std::vector<size_type> getAssignedMaterialsIdentifiers() const;
     /*!
      * \return linearized operators
      * \param[in] u: current estimate of the unknowns
@@ -170,33 +168,33 @@ namespace mfem_mgis {
      * responible for calling the behaviour integration before using those
      * operators
      */
-    [[nodiscard]] virtual LinearizedOperators getLinearizedOperators(
+    [[nodiscard]] LinearizedOperators getLinearizedOperators(
         const mfem::Vector &);
     /*!
      * \return the material with the given id for the first behaviour integrator
      * \param[in] m: material id
      */
-    [[nodiscard, deprecated]] virtual const Material &getMaterial(
+    [[nodiscard, deprecated]] const Material &getMaterial(
         const size_type) const;
     /*!
      * \return the material with the given id for the first behaviour integrator
      * \param[in] m: material id
      */
-    [[nodiscard, deprecated]] virtual Material &getMaterial(const size_type);
+    [[nodiscard, deprecated]] Material &getMaterial(const size_type);
     /*!
      * \return the first behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    [[nodiscard, deprecated]] virtual const AbstractBehaviourIntegrator &
+    [[nodiscard, deprecated]] const AbstractBehaviourIntegrator &
     getBehaviourIntegrator(const size_type) const;
     /*!
      * \return the first behaviour integrator with the given material id
      * \param[in] m: material id
      */
-    [[nodiscard, deprecated]] virtual AbstractBehaviourIntegrator &
+    [[nodiscard, deprecated]] AbstractBehaviourIntegrator &
     getBehaviourIntegrator(const size_type);
     //! \brief destructor
-    virtual ~MultiMaterialNonLinearIntegrator();
+    ~MultiMaterialNonLinearIntegrator() override;
 
    protected:
     //! \brief underlying finite element space

@@ -36,24 +36,22 @@
 
 namespace mfem_mgis {
 
-  template <bool parallel>
-  static void export_prediction(
-      mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& p,
-      mfem_mgis::GridFunction<parallel>& mdu,
-      const real te) {
-    static auto cycle = size_type{1};
-    auto& fed = p.getFiniteElementDiscretization();
-    auto exporter = mfem::ParaViewDataCollection{
-        parallel ? "result-prediction-test-parallel"
-                 : "result-prediction-test"};
-    exporter.SetMesh(&(fed.template getMesh<parallel>()));
-    exporter.SetDataFormat(mfem::VTKFormat::BINARY);
-    exporter.RegisterField("OppositeOfDisplacementIncrementPrediction", &mdu);
-    exporter.SetCycle(cycle);
-    exporter.SetTime(te);
-    exporter.Save();
-    ++cycle;
-  }
+  // template <bool parallel>
+  // static void export_prediction(
+  //     mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& p,
+  //     mfem_mgis::GridFunction<parallel>& mdu,
+  //     const real te) {
+  //   static auto cycle = size_type{1};
+  //   auto& fed = p.getFiniteElementDiscretization();
+  //   auto exporter = mfem::ParaViewDataCollection{
+  //       parallel ? "result-prediction-test-parallel"
+  //                : "result-prediction-test"};
+  //   exporter.SetMesh(&(fed.template getMesh<parallel>()));
+  //   exporter.SetDataFormat(mfem::VTKFormat::BINARY);
+  //   exporter.RegisterField("OppositeOfDisplacementIncrementPrediction",
+  //   &mdu); exporter.SetCycle(cycle); exporter.SetTime(te); exporter.Save();
+  //   ++cycle;
+  // }
 
   template <bool parallel>
   struct PredictionResult {
@@ -63,7 +61,7 @@ namespace mfem_mgis {
     const real initial_residual_norm;
   };
 
-  [[nodiscard]] IntegrationType convertToIntegrationType(
+  [[nodiscard]] static IntegrationType convertToIntegrationType(
       const PredictionOperator o) noexcept {
     if (o == PredictionOperator::ELASTIC) {
       return IntegrationType::PREDICTION_ELASTIC_OPERATOR;
@@ -77,7 +75,7 @@ namespace mfem_mgis {
         "unsupported prediction operator");
   }  // end of convertToIntegrationType
 
-  [[nodiscard]] IntegrationType convertToIntegrationType(
+  [[nodiscard]] static IntegrationType convertToIntegrationType(
       const IntegrationOperator o) noexcept {
     if (o == IntegrationOperator::ELASTIC) {
       return IntegrationType::INTEGRATION_ELASTIC_OPERATOR;
@@ -315,7 +313,7 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
       std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
     if (bc.get() == nullptr) {
-      return raise("invalid boundary condition");
+      raise("invalid boundary condition");
     }
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
   }  // end of addBoundaryCondition
@@ -544,7 +542,7 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
       std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
     if (bc.get() == nullptr) {
-      return raise("invalid boundary condition");
+      raise("invalid boundary condition");
     }
     this->dirichlet_boundary_conditions.push_back(std::move(bc));
   }  // end of addBoundaryCondition

@@ -81,6 +81,6 @@ namespace mfem_mgis {
                                   oresult->getNumberOfComponents());
     r = *oresult;
     return {std::move(r)};
-  };
+  }  // end of evaluate
 
 }  // end of namespace mfem_mgis

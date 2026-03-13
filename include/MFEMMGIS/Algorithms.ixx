@@ -65,8 +65,7 @@ namespace mfem_mgis {
         }
       } else {
         for (size_type i = 0; i != ne; ++i) {
-          auto lhs_value = f.getIntegrationPointValue(i);
-          lhs_value = *(e(i).begin());
+          f.getIntegrationPointValue(i) = *(e(i).begin());
         }
       }
     } else {

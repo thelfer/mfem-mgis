@@ -20,7 +20,6 @@
 namespace mfem_mgis {
 
   // forward declarations
-  struct Context;
   struct PhysicalSystem;
   struct AbstractNonLinearEvolutionProblem;
   struct AbstractSimulationMonitor;

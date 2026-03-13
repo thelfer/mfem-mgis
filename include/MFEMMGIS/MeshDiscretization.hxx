@@ -68,6 +68,10 @@ namespace mfem_mgis {
      * \param[in] m: mesh
      */
     MeshDiscretization(std::shared_ptr<Mesh<false>>);
+    //! \brief move constructor
+    MeshDiscretization(MeshDiscretization&&) noexcept;
+    //! \brief copy constructor
+    MeshDiscretization(const MeshDiscretization&) noexcept;
     /*!
      * \brief set material names
      * \param[in, out] ctx: execution context

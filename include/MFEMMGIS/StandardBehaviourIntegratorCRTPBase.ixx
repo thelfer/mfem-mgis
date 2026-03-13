@@ -74,7 +74,6 @@ namespace mfem_mgis {
 #endif
       const auto nnodes = e.GetDof();
       const auto gsize = this->s1.gradients_stride;
-      const auto thsize = this->s1.thermodynamic_forces_stride;
       for (size_type i = 0; i != ir.GetNPoints(); ++i) {
         const auto &ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
@@ -111,8 +110,6 @@ namespace mfem_mgis {
         if (!this->performsLocalBehaviourIntegration(o, it)) {
           return false;
         }
-        const auto s =
-            this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
         // Here we rotate the tangent operator blocks but not the thermodynamic
         // forces.
         if (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR) {

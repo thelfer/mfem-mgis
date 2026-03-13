@@ -497,6 +497,12 @@ namespace mfem_mgis {
     }
   }  // end of MeshDiscretization
 
+  MeshDiscretization::MeshDiscretization(MeshDiscretization&&) noexcept =
+      default;
+
+  MeshDiscretization::MeshDiscretization(const MeshDiscretization&) noexcept =
+      default;
+
   bool MeshDiscretization::describesAParallelComputation() const {
 #ifdef MFEM_USE_MPI
     return this->parallel_mesh.get() != nullptr;
@@ -647,7 +653,7 @@ namespace mfem_mgis {
     return r;
   }  // end of selectMeshObjectsIdentifiers
 
-  std::vector<size_type> selectMeshObjectsIdentifiers(
+  static std::vector<size_type> selectMeshObjectsIdentifiers(
       attributes::Throwing,
       const mfem::Array<size_type>& attributes,
       const std::map<size_type, std::string>& names,

@@ -32,7 +32,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool update(Context &) noexcept override;
     [[nodiscard]] bool revert(Context &) noexcept override;
     //! \brief destructor
-    virtual ~FirstIterationConvergenceCriterion() noexcept;
+    ~FirstIterationConvergenceCriterion() noexcept override;
   };
 
 }  // end of namespace mfem_mgis

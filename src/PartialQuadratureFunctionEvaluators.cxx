@@ -218,9 +218,9 @@ namespace mfem_mgis {
 
   std::shared_ptr<AbstractPartialQuadratureFunctionEvaluator>
   makeThermodynamicForceEvaluator(Context& ctx,
-                        const Material& m,
-                        std::string_view n,
-                        const TimeStepStage ts) noexcept {
+                                  const Material& m,
+                                  std::string_view n,
+                                  const TimeStepStage ts) noexcept {
     using namespace mgis::behaviour;
     const auto qspace = m.getPartialQuadratureSpacePointer();
     const auto os =
