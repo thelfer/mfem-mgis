@@ -50,6 +50,10 @@ namespace mfem_mgis {
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
                                const mfem::ElementTransformation &)> &);
+    PartialQuadratureSpace(PartialQuadratureSpace &&) noexcept = default;
+    PartialQuadratureSpace(const PartialQuadratureSpace &) = delete;
+    PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
+    PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
     //! \return the finite element discretization
     const FiniteElementDiscretization &getFiniteElementDiscretization() const;
     /*!

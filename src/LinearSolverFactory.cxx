@@ -27,10 +27,10 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  std::unique_ptr<LinearSolverPreconditioner> setHypreBoomerAMGPreconditioner(
-      Context& ctx,
-      FiniteElementSpace<true>& fespace,
-      const Parameters& opts) noexcept {
+  [[nodiscard]] static std::unique_ptr<LinearSolverPreconditioner>
+  setHypreBoomerAMGPreconditioner(Context& ctx,
+                                  FiniteElementSpace<true>& fespace,
+                                  const Parameters& opts) noexcept {
     using Problem = AbstractNonLinearEvolutionProblem;
     auto amg = std::make_unique<mfem::HypreBoomerAMG>();
     if (!checkParameters(ctx, opts,
@@ -66,8 +66,10 @@ namespace mfem_mgis {
     return amg;
   }  // end of setHypreBoomerAMGPreconditioner
 
-  std::unique_ptr<LinearSolverPreconditioner> setHypreEuclidPreconditioner(
-      Context& ctx, FiniteElementSpace<true>&, const Parameters& opts) {
+  [[nodiscard]] static std::unique_ptr<LinearSolverPreconditioner>
+  setHypreEuclidPreconditioner(Context& ctx,
+                               FiniteElementSpace<true>&,
+                               const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     if (!checkParameters(ctx, opts, {Problem::SolverVerbosityLevel})) {
       return {};
@@ -76,8 +78,10 @@ namespace mfem_mgis {
     return euclid;
   }  // end of setHypreEuclidPreconditioner
 
-  std::unique_ptr<LinearSolverPreconditioner> setHypreILUPreconditioner(
-      Context& ctx, FiniteElementSpace<true>&, const Parameters& opts) {
+  [[nodiscard]] static std::unique_ptr<LinearSolverPreconditioner>
+  setHypreILUPreconditioner(Context& ctx,
+                            FiniteElementSpace<true>&,
+                            const Parameters& opts) {
 #if MFEM_HYPRE_VERSION >= 21900
     using Problem = AbstractNonLinearEvolutionProblem;
     if (!checkParameters(ctx, opts,
@@ -109,8 +113,10 @@ namespace mfem_mgis {
 #endif /* HYPRE_OLD_VERSION */
   }    // end of setHypreILUPreconditioner
 
-  std::unique_ptr<LinearSolverPreconditioner> setHypreParaSailsPreconditioner(
-      Context& ctx, FiniteElementSpace<true>&, const Parameters& opts) {
+  [[nodiscard]] static std::unique_ptr<LinearSolverPreconditioner>
+  setHypreParaSailsPreconditioner(Context& ctx,
+                                  FiniteElementSpace<true>&,
+                                  const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     if (!checkParameters(ctx, opts, {Problem::SolverVerbosityLevel})) {
       return {};
@@ -118,8 +124,10 @@ namespace mfem_mgis {
     return std::make_unique<mfem::HypreParaSails>(MPI_COMM_WORLD);
   }  // end of setHypreParaSailsPreconditioner
 
-  std::unique_ptr<LinearSolverPreconditioner> setHypreDiagScalePreconditioner(
-      Context& ctx, FiniteElementSpace<true>&, const Parameters& opts) {
+  [[nodiscard]] static std::unique_ptr<LinearSolverPreconditioner>
+  setHypreDiagScalePreconditioner(Context& ctx,
+                                  FiniteElementSpace<true>&,
+                                  const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     if (!checkParameters(ctx, opts, {Problem::SolverVerbosityLevel})) {
       return {};
@@ -291,7 +299,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  std::function<LinearSolverHandler(
+  [[nodiscard]] static std::function<LinearSolverHandler(
       Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHyprePCGSolverGenerator() {
     return [](Context& ctx, FiniteElementSpace<true>& fespace,
@@ -353,7 +361,7 @@ namespace mfem_mgis {
     };
   }  // end of buildHyprePCGSolverGenerator
 
-  std::function<LinearSolverHandler(
+  [[nodiscard]] static std::function<LinearSolverHandler(
       Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHypreGMRESSolverGenerator() {
     return [](Context& ctx, FiniteElementSpace<true>& fespace,
@@ -431,7 +439,7 @@ namespace mfem_mgis {
     };
   }  // end of buildHypreGMRESSolverGenerator
 
-  std::function<LinearSolverHandler(
+  [[nodiscard]] static std::function<LinearSolverHandler(
       Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildHypreFGMRESSolverGenerator() {
     return [](Context& ctx, FiniteElementSpace<true>& fespace,
@@ -558,7 +566,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MUMPS
 
-  std::function<LinearSolverHandler(
+  [[nodiscard]] static std::function<LinearSolverHandler(
       Context&, FiniteElementSpace<true>&, const Parameters&)>
   buildMUMPSSolverGenerator() {
     return [](Context& ctx, FiniteElementSpace<true>& fespace,

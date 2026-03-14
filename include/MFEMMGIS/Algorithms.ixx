@@ -25,7 +25,7 @@ namespace mfem_mgis {
       return false;
     }
     //
-    const auto qspace = f.getPartialQuadratureSpace();
+    const auto& qspace = f.getPartialQuadratureSpace();
     const auto ne = qspace.getNumberOfIntegrationPoints();
     for (size_type i = 0; i != ne; ++i) {
       if constexpr (N == 1) {
@@ -54,7 +54,7 @@ namespace mfem_mgis {
       return false;
     }
     //
-    const auto qspace = f.getPartialQuadratureSpace();
+    const auto& qspace = f.getPartialQuadratureSpace();
     const auto ne = qspace.getNumberOfIntegrationPoints();
     if (f.isScalar()) {
       using result_type = std::invoke_result_t<EvaluatorType, size_type>;
