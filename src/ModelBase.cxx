@@ -178,7 +178,7 @@ namespace mfem_mgis {
     auto dt = *odt;
 #ifdef MFEM_USE_MPI
     MPI_Allreduce(MPI_IN_PLACE, &dt, 1, mpi_type<real>, MPI_MIN,
-                  MPI_COMM_WORLD);
+                  getMPICommunicator(this->mesh));
 #endif /*MFEM_USE_MPI*/
     //
     return dt;

@@ -452,7 +452,7 @@ namespace mfem_mgis {
       noerror = this->mgis_integrator->integrate(e, tr, ue, it);
     }
     MPI_Allreduce(MPI_IN_PLACE, &noerror, 1, MPI_C_BOOL, MPI_LAND,
-                  MPI_COMM_WORLD);
+                  getMPICommunicator(*this));
     if ((!noerror) &&
         (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR)) {
       this->hasStiffnessOperatorsBeenComputed = true;

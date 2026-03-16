@@ -121,8 +121,6 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT void finalize();
   //! \return the MPI rank.
   MFEM_MGIS_EXPORT int getMPIrank();
-  //! \return the MPI global communicator size.
-  MFEM_MGIS_EXPORT int getMPIsize();
 
   /*!
    * \brief a small wrapper used to build the exception outside the

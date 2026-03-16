@@ -17,19 +17,6 @@
 
 namespace mfem_mgis {
 
-  void ExitStatus::synchronize() noexcept {
-#ifdef MFEM_USE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &(this->status.value), 1, mpi_type<size_type>,
-                  MPI_SUM, MPI_COMM_WORLD);
-#endif /* MFEM_USE_MPI */
-  }    // end of synchronize
-
-  ExitStatus synchronize(const ExitStatus s) noexcept {
-    auto ns = s;
-    ns.synchronize();
-    return ns;
-  }  // end of synchronize
-
   SimulationOutput::SimulationOutput() noexcept = default;
   SimulationOutput::SimulationOutput(SimulationOutput &&) noexcept = default;
   SimulationOutput::SimulationOutput(const SimulationOutput &) noexcept =
@@ -558,9 +545,16 @@ namespace mfem_mgis {
     auto s = ExitStatus{};
     auto state = SimulationRunState{};
     //
-    auto updateAndSynchronize = [&s](const auto o) {
+    auto updateAndSynchronize = [this, &s](const auto o) {
       s.update(o);
-      s = synchronize(s);
+#ifdef MFEM_USE_MPI
+      if (isValid(this->nonlinearEvolutionProblem)) {
+        s = synchronize(s,
+                        getMPICommunicator(*(this->nonlinearEvolutionProblem)));
+      } else {
+        s = synchronize(s, getMPICommunicator(*(this->physicalSystem)));
+      }
+#endif /* MFEM_USE_MPI */
     };
     //
     auto p_bts = this->timesDescription.begin();
@@ -717,9 +711,16 @@ namespace mfem_mgis {
     // status of the last successful time step
     auto previousStatus = s;
     //
-    auto updateAndSynchronize = [&s](const auto o) {
+    auto updateAndSynchronize = [this, &s](const auto o) {
       s.update(o);
-      s = synchronize(s);
+#ifdef MFEM_USE_MPI
+      if (isValid(this->nonlinearEvolutionProblem)) {
+        s = synchronize(s,
+                        getMPICommunicator(*(this->nonlinearEvolutionProblem)));
+      } else {
+        s = synchronize(s, getMPICommunicator(*(this->physicalSystem)));
+      }
+#endif /* MFEM_USE_MPI */
     };
     //
     if (ctx.getVerbosityLevel() >= VerbosityLevel::verboseLevel1) {
@@ -989,9 +990,16 @@ namespace mfem_mgis {
     }
     //
     auto s = ExitStatus{};
-    auto updateAndSynchronize = [&s](const auto o) {
+    auto updateAndSynchronize = [this, &s](const auto o) {
       s.update(o);
-      s = synchronize(s);
+#ifdef MFEM_USE_MPI
+      if (isValid(this->nonlinearEvolutionProblem)) {
+        s = synchronize(s,
+                        getMPICommunicator(*(this->nonlinearEvolutionProblem)));
+      } else {
+        s = synchronize(s, getMPICommunicator(*(this->physicalSystem)));
+      }
+#endif /* MFEM_USE_MPI */
     };
     //
     if (ctx.getVerbosityLevel() >= VerbosityLevel::verboseLevel0) {

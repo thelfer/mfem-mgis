@@ -263,8 +263,12 @@ namespace mfem_mgis::unit_tests {
       }
     }  // end of if (m1.n != 0)
 #ifdef MFEM_USE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
-                  MPI_COMM_WORLD);
+    const auto& fed =
+        m.getPartialQuadratureSpace().getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+      MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
+                    getMPICommunicator(fed));
+    }
 #endif /* MFEM_USE_MPI */
     return success;
   }  // end of checkResults

@@ -55,22 +55,23 @@ namespace mfem_mgis {
     PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
     PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
     //! \return the finite element discretization
-    const FiniteElementDiscretization &getFiniteElementDiscretization() const;
+    [[nodiscard]] const FiniteElementDiscretization &
+    getFiniteElementDiscretization() const noexcept;
     /*!
      * \return the integration ruel associated with the given finite element and
      * element transformation
      * \param[in] e: finite element
      * \param[in] tr: element transformation
      */
-    const mfem::IntegrationRule &getIntegrationRule(
+    [[nodiscard]] const mfem::IntegrationRule &getIntegrationRule(
         const mfem::FiniteElement &, const mfem::ElementTransformation &) const;
     /*!
      * \brief return the number of finite element associated with this material
      * identifier
      */
-    size_type getNumberOfElements() const;
+    [[nodiscard]] size_type getNumberOfElements() const noexcept;
     //! \brief return the number of integration points
-    size_type getNumberOfIntegrationPoints() const;
+    [[nodiscard]] size_type getNumberOfIntegrationPoints() const noexcept;
     /*!
      * \brief return the number of quadrature points for the given finite
      * element
@@ -89,14 +90,15 @@ namespace mfem_mgis {
      * \brief return the hash table associating global element numbers and
      * local offsets.
      */
-    const std::unordered_map<size_type, size_type> &getOffsets() const;
+    [[nodiscard]] const std::unordered_map<size_type, size_type> &getOffsets()
+        const noexcept;
     /*!
      * \brief return the offset associated with an element
      * \param[in] i: element number (global numbering)
      */
-    size_type getOffset(const size_type) const;
+    [[nodiscard]] size_type getOffset(const size_type) const;
     //! \return the material id
-    size_type getId() const;
+    [[nodiscard]] size_type getId() const noexcept;
     //! \brief destructor
     ~PartialQuadratureSpace();
 
@@ -244,7 +246,11 @@ namespace mfem_mgis {
      */
     std::map<mfem::Geometry::Type, size_type>
         number_of_quadrature_points_by_geometric_type;
-  };  // end of PartialQuadratureSpaceInformation
+#ifdef MFEM_USE_MPI
+    //! \brief communicator
+    MPI_Comm communicator = MPI_COMM_WORLD;
+#endif /* MFEM_USE_MPI */
+  };   // end of PartialQuadratureSpaceInformation
 
   /*!
    * \return information about the partial quadrature space on the current

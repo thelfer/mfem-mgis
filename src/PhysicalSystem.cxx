@@ -366,4 +366,16 @@ namespace mfem_mgis {
 
   PhysicalSystem::~PhysicalSystem() noexcept = default;
 
+#ifdef MFEM_USE_MPI
+
+  MPI_Comm getMPICommunicator(const PhysicalSystem &ps) noexcept {
+    return getMPICommunicator(ps.getMeshDiscretization());
+  }  // end of getMPICommunicator
+
+  bool isMainProcess(const PhysicalSystem &ps) noexcept {
+    return isMainProcess(ps.getMeshDiscretization());
+  }  // end of isMainProcess
+
+#endif /* MFEM_USE_MPI */
+
 }  // namespace mfem_mgis

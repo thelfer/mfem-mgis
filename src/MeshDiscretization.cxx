@@ -846,4 +846,22 @@ namespace mfem_mgis {
     return !(lhs == rhs);
   }  // end of operator !=
 
+#ifdef MFEM_USE_MPI
+
+  MPI_Comm getMPICommunicator(const MeshDiscretization& m) noexcept {
+    const auto parallel = m.describesAParallelComputation();
+    if (parallel) {
+      return m.getMesh<true>().GetComm();
+    }
+    return MPI_COMM_WORLD;
+  }  // end of getMPICommunicator
+
+  bool isMainProcess(const MeshDiscretization& m) noexcept {
+    int rank = 0;
+    MPI_Comm_rank(getMPICommunicator(m), &rank);
+    return rank == 0;
+  }  // isMainProcess
+
+#endif MFEM_USE_MPI
+
 }  // end of namespace mfem_mgis

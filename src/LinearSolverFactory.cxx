@@ -68,13 +68,13 @@ namespace mfem_mgis {
 
   [[nodiscard]] static std::unique_ptr<LinearSolverPreconditioner>
   setHypreEuclidPreconditioner(Context& ctx,
-                               FiniteElementSpace<true>&,
+                               FiniteElementSpace<true>& p,
                                const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     if (!checkParameters(ctx, opts, {Problem::SolverVerbosityLevel})) {
       return {};
     }
-    auto euclid = std::make_unique<mfem::HypreEuclid>(MPI_COMM_WORLD);
+    auto euclid = std::make_unique<mfem::HypreEuclid>(p.GetComm());
     return euclid;
   }  // end of setHypreEuclidPreconditioner
 
@@ -115,13 +115,13 @@ namespace mfem_mgis {
 
   [[nodiscard]] static std::unique_ptr<LinearSolverPreconditioner>
   setHypreParaSailsPreconditioner(Context& ctx,
-                                  FiniteElementSpace<true>&,
+                                  FiniteElementSpace<true>& p,
                                   const Parameters& opts) {
     using Problem = AbstractNonLinearEvolutionProblem;
     if (!checkParameters(ctx, opts, {Problem::SolverVerbosityLevel})) {
       return {};
     }
-    return std::make_unique<mfem::HypreParaSails>(MPI_COMM_WORLD);
+    return std::make_unique<mfem::HypreParaSails>(p.GetComm());
   }  // end of setHypreParaSailsPreconditioner
 
   [[nodiscard]] static std::unique_ptr<LinearSolverPreconditioner>
@@ -440,7 +440,7 @@ namespace mfem_mgis {
   }  // end of buildHypreGMRESSolverGenerator
 
   [[nodiscard]] static std::function<LinearSolverHandler(
-      Context&, FiniteElementSpace<true>&, const Parameters&)>
+      Context&, FiniteElementSpace<true>& p, const Parameters&)>
   buildHypreFGMRESSolverGenerator() {
     return [](Context& ctx, FiniteElementSpace<true>& fespace,
               const Parameters& params) -> LinearSolverHandler {
@@ -451,7 +451,7 @@ namespace mfem_mgis {
       const auto allowed_parameters = std::vector<std::string>{
           Problem::SolverVerbosityLevel, SolverTolerance,
           Problem::SolverMaximumNumberOfIterations, Preconditioner};
-      auto s = std::make_unique<mfem::HypreFGMRES>(MPI_COMM_WORLD);
+      auto s = std::make_unique<mfem::HypreFGMRES>(fespace.GetComm());
       s->iterative_mode = false;
       if (!checkParameters(ctx, params, allowed_parameters)) {
         return {};
@@ -541,7 +541,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       return [](Context& ctx, FiniteElementSpace<true>& fespace,
                 const Parameters& params) {
-        auto s = std::make_unique<LinearSolverType>(MPI_COMM_WORLD);
+        auto s = std::make_unique<LinearSolverType>(fespace.GetComm());
         auto oprec = setLinearSolverParameters<true>(ctx, *s, fespace, params);
         if (isInvalid(oprec)) {
           return LinearSolverHandler{};

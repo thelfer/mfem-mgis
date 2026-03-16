@@ -28,13 +28,6 @@ namespace mfem_mgis {
   struct AbstractTimeStepValidator;
 
   /*!
-   * \return an exit status common to all processes. This common status is taken
-   * as the worst case value.
-   *
-   * \param[in] s: exit status of the current process
-   */
-  MFEM_MGIS_EXPORT ExitStatus synchronize(const ExitStatus s) noexcept;
-  /*!
    * \brief a structure returned by the run method of the Simulation struct.
    *
    * This is structure is mostly a wrapper around the `Parameters`

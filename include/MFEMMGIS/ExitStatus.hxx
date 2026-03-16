@@ -113,8 +113,10 @@ namespace mfem_mgis {
      * \return the result of `shallContinue` after the update
      */
     bool update(const ExitStatus &) noexcept;
+#ifdef MFEM_USE_MPI
     //! \brief synchronize the object among MPI processes
-    void synchronize() noexcept;
+    void synchronize(const MPI_Comm) noexcept;
+#endif /* MFEM_USE_MPI */
     //! \brief destructor
     inline ~ExitStatus() noexcept = default;
 
@@ -147,6 +149,20 @@ namespace mfem_mgis {
       ExitStatus(Status{.value = Status::recoverableError});
   inline const ExitStatus ExitStatus::unrecoverableError =
       ExitStatus(Status{.value = Status::unrecoverableError});
+
+#ifdef MFEM_USE_MPI
+
+  /*!
+   * \return an exit status common to all processes. This common status is taken
+   * as the worst case value.
+   *
+   * \param[in] s: exit status of the current process
+   * \param[in] c: MPI communicator
+   */
+  MFEM_MGIS_EXPORT ExitStatus synchronize(const ExitStatus s,
+                                          const MPI_Comm) noexcept;
+
+#endif /* MFEM_USE_MPI */
 
 }  // end of namespace mfem_mgis
 

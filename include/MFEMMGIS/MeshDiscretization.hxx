@@ -295,33 +295,53 @@ namespace mfem_mgis {
       const MeshDiscretization&, const MeshDiscretization&) noexcept;
   /*!
    * \brief return the space dimension
-   * \param[in] fed: finite element discretization
+   * \param[in] m: mesh discretization
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getSpaceDimension(
       const MeshDiscretization&);
   /*!
    * \brief return the list of materials attributes
-   * \param[in] fed: finite element discretisation
+   * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
   getMaterialsAttributes(const MeshDiscretization&);
   /*!
    * \brief return the list of boundaries attributes
-   * \param[in] fed: finite element discretisation
+   * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
   getBoundariesAttributes(const MeshDiscretization&);
 
   /*!
-   * \brief display information about a finite element discretization
+   * \brief display information about a mesh discretization
    *
    * \param[in, out] ctx: execution context
    * \param[out] os: output stream
-   * \param[in] fed: finite element discretization
+   * \param[in] m: mesh discretization
    */
   template <>
   MFEM_MGIS_EXPORT bool getInformation<MeshDiscretization>(
       Context&, std::ostream&, const MeshDiscretization&) noexcept;
+
+#ifdef MFEM_USE_MPI
+
+  /*!
+   * \return the MPI communicator associated with the mesh discretization
+   * \param[in] m: mesh discretization
+   *
+   * \note If a sequential computation is described, `MPI_COMM_WORLD` is
+   * returned.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] MPI_Comm getMPICommunicator(
+      const MeshDiscretization&) noexcept;
+  /*!
+   * \return if the current process is the main one (the process of rank 0)
+   * \param[in] m: mesh discretization
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isMainProcess(
+      const MeshDiscretization&) noexcept;
+
+#endif /* MFEM_USE_MPI */
 
 }  // end of namespace mfem_mgis
 
