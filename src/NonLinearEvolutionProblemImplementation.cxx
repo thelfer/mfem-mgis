@@ -21,6 +21,7 @@
 #endif /* MFEM_USE_MPI */
 
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
@@ -443,22 +444,21 @@ namespace mfem_mgis {
     const auto& fespace = this->getFiniteElementSpace();
     mfem::Array<int> vdofs;
     mfem::Vector ue;
-    bool noerror = true;
-    for (size_type i = 0; noerror && (i != fespace.GetNE()); ++i) {
+    bool success = true;
+    for (size_type i = 0; success && (i != fespace.GetNE()); ++i) {
       const auto& e = *(fespace.GetFE(i));
       auto& tr = *(fespace.GetElementTransformation(i));
       fespace.GetElementVDofs(i, vdofs);
       pu.GetSubVector(vdofs, ue);
-      noerror = this->mgis_integrator->integrate(e, tr, ue, it);
+      success = this->mgis_integrator->integrate(e, tr, ue, it);
     }
-    MPI_Allreduce(MPI_IN_PLACE, &noerror, 1, MPI_C_BOOL, MPI_LAND,
-                  getMPICommunicator(*this));
-    if ((!noerror) &&
+    success = isTrueOnAllProcesses(*(this->fe_discretization), success);
+    if ((!success) &&
         (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR)) {
       this->hasStiffnessOperatorsBeenComputed = true;
     }
     this->mgis_integrator->setTimeIncrement(dt);
-    return noerror;
+    return success;
   }  // end of integrate
 
   void NonLinearEvolutionProblemImplementation<true>::
