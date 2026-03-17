@@ -12,6 +12,7 @@
 #ifdef MFEM_USE_MPI
 #include "mfem/mesh/pmesh.hpp"
 #endif /* MFEM_USE_MPI */
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorFactory.hxx"
@@ -390,6 +391,8 @@ namespace mfem_mgis {
   bool MultiMaterialNonLinearIntegrator::setup(Context& ctx,
                                                const real t,
                                                const real dt) noexcept {
+    // note: synchronization among MPI processes is done later
+    // in the calling nonlinear evolution problem
     for (auto& bis : this->behaviour_integrators) {
       for (auto& bi : bis) {
         if (!bi->setup(ctx, t, dt)) {

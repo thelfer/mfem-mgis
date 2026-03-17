@@ -8,6 +8,7 @@
 #include <iostream>
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
@@ -399,25 +400,28 @@ namespace mfem_mgis {
   bool NonLinearEvolutionProblemImplementationBase::setup(
       Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection("NLEPIB::setup");
-    if (this->initialization_phase) {
-      if (!this->dirichlet_boundary_conditions.empty()) {
-        this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-            this->getEssentialDegreesOfFreedom());
+    const auto success = [this, &ctx, t, dt] {
+      if (this->initialization_phase) {
+        if (!this->dirichlet_boundary_conditions.empty()) {
+          this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+              this->getEssentialDegreesOfFreedom());
+        }
       }
-    }
-    this->initialization_phase = false;
-    for (const auto& bc : this->dirichlet_boundary_conditions) {
-      bc->updateImposedValues(this->u1, t + dt);
-    }
-    for (const auto& bc : this->boundary_conditions) {
-      bc->setup(t, dt);
-    }
-    if (this->mgis_integrator != nullptr) {
-      if (!this->mgis_integrator->setup(ctx, t, dt)) {
-        return false;
+      this->initialization_phase = false;
+      for (const auto& bc : this->dirichlet_boundary_conditions) {
+        bc->updateImposedValues(this->u1, t + dt);
       }
-    }
-    return true;
+      for (const auto& bc : this->boundary_conditions) {
+        bc->setup(t, dt);
+      }
+      if (this->mgis_integrator != nullptr) {
+        if (!this->mgis_integrator->setup(ctx, t, dt)) {
+          return false;
+        }
+      }
+      return true;
+    }();
+    return isTrueOnAllProcesses(*(this->fe_discretization), success);
   }  // end of setup
 
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
