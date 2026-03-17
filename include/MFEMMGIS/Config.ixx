@@ -42,14 +42,6 @@ namespace mfem_mgis {
     }
   }  // end of raise
 
-  inline int getMPIrank() {
-    int rank = 0;
-#ifdef MFEM_USE_MPI
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-#endif /* MFEM_USE_MPI */
-    return rank;
-  }  // end of getMPIrank
-
   inline std::ostream& getOutputStream() { return mfem::out; }
 
   inline std::ostream& getErrorStream() { return mfem::err; }
