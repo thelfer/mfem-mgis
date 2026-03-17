@@ -31,7 +31,7 @@ namespace mfem_mgis {
     }
   }  // end of makeSpan
 
-  auto makeSpan(const std::vector<real>& b) noexcept {
+  inline auto makeSpan(const std::vector<real>& b) noexcept {
     return std::span<const real>(b);
   }  // end of makeSpan
 

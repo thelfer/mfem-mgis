@@ -24,7 +24,7 @@ namespace mfem_mgis {
     this->data_size = this->f->getNumberOfComponents();
     this->data_stride = this->f->getDataStride();
     this->immutable_values = this->f->getValues();
-  } // end of PartialQuadratureFunctionEvaluatorResult
+  }  // end of PartialQuadratureFunctionEvaluatorResult
 
   PartialQuadratureFunctionEvaluatorResult::
       PartialQuadratureFunctionEvaluatorResult(
@@ -35,7 +35,7 @@ namespace mfem_mgis {
     this->data_size = this->f->getNumberOfComponents();
     this->data_stride = this->f->getDataStride();
     this->immutable_values = this->f->getValues();
-  } // end of PartialQuadratureFunctionEvaluatorResult
+  }  // end of PartialQuadratureFunctionEvaluatorResult
 
   PartialQuadratureFunctionEvaluatorResult::
       PartialQuadratureFunctionEvaluatorResult(
@@ -58,12 +58,14 @@ namespace mfem_mgis {
   std::optional<PartialQuadratureFunctionEvaluatorResult> evaluate(
       Context& ctx,
       const AbstractPartialQuadratureFunctionEvaluator& e,
+      const real t,
+      const real dt,
       const PartialQuadratureFunctionEvaluationOptions& opts) noexcept {
-    auto oresult = e.evaluate(ctx);
+    auto oresult = e.evaluate(ctx, t, dt);
     if (isInvalid(oresult)) {
       return {};
     }
-    if (!opts.ensure_contiguous_storage){
+    if (!opts.ensure_contiguous_storage) {
       return oresult;
     }
     if (oresult->getNumberOfComponents() == oresult->getDataStride()) {
@@ -71,13 +73,14 @@ namespace mfem_mgis {
       if (oresult->getDataOffset() != 0) {
         return ctx.registerErrorMessage("invalid result");
       }
-      return oresult ;
+      return oresult;
     }
     // copy the result of the evaluation to a new partial quadrature function
-    auto r = PartialQuadratureFunction(oresult->getPartialQuadratureSpacePointer(),
-                                       oresult->getNumberOfComponents());
+    auto r =
+        PartialQuadratureFunction(oresult->getPartialQuadratureSpacePointer(),
+                                  oresult->getNumberOfComponents());
     r = *oresult;
     return {std::move(r)};
-  };
+  }  // end of evaluate
 
 }  // end of namespace mfem_mgis

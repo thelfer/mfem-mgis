@@ -504,12 +504,10 @@ namespace mfem_mgis {
             "size");
       }
       return computeCauchyStressInGlobalFrame_impl<3>(ctx, sig, m, s);
-    } else {
-      return ctx.registerErrorMessage(
-          "computeCauchyStressInGlobalFrame: unsupported modelling "
-          "hypothesis");
     }
-    return true;
+    return ctx.registerErrorMessage(
+        "computeCauchyStressInGlobalFrame: unsupported modelling "
+        "hypothesis");
   }  // end of computeCauchyStressInGlobalFrame
 
   std::optional<PartialQuadratureFunction> computeCauchyStressInGlobalFrame(
@@ -580,12 +578,10 @@ namespace mfem_mgis {
             "size");
       }
       return computeCauchyStress_impl<3>(ctx, sig, m, s);
-    } else {
-      return ctx.registerErrorMessage(
-          "computeCauchyStress: unsupported modelling "
-          "hypothesis");
     }
-    return true;
+    return ctx.registerErrorMessage(
+        "computeCauchyStress: unsupported modelling "
+        "hypothesis");
   }  // end of computeCauchyStress
 
   std::optional<PartialQuadratureFunction> computeCauchyStress(

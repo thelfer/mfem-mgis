@@ -119,10 +119,10 @@ namespace mfem_mgis {
    * This call is optional if the code exits normally.
    */
   MFEM_MGIS_EXPORT void finalize();
-  //! \return the MPI rank.
-  MFEM_MGIS_EXPORT int getMPIrank();
-  //! \return the MPI global communicator size.
-  MFEM_MGIS_EXPORT int getMPIsize();
+  //! \return the MPI rank  for the default communicator
+  MFEM_MGIS_EXPORT [[deprecated]]  int getMPIrank();
+  //! \return the total number of MPI processor for the default communicator.
+  MFEM_MGIS_EXPORT [[deprecated]] int getMPIsize();
 
   /*!
    * \brief a small wrapper used to build the exception outside the

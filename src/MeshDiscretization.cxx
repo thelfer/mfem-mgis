@@ -497,6 +497,12 @@ namespace mfem_mgis {
     }
   }  // end of MeshDiscretization
 
+  MeshDiscretization::MeshDiscretization(MeshDiscretization&&) noexcept =
+      default;
+
+  MeshDiscretization::MeshDiscretization(const MeshDiscretization&) noexcept =
+      default;
+
   bool MeshDiscretization::describesAParallelComputation() const {
 #ifdef MFEM_USE_MPI
     return this->parallel_mesh.get() != nullptr;
@@ -647,7 +653,7 @@ namespace mfem_mgis {
     return r;
   }  // end of selectMeshObjectsIdentifiers
 
-  std::vector<size_type> selectMeshObjectsIdentifiers(
+  static std::vector<size_type> selectMeshObjectsIdentifiers(
       attributes::Throwing,
       const mfem::Array<size_type>& attributes,
       const std::map<size_type, std::string>& names,
@@ -839,5 +845,23 @@ namespace mfem_mgis {
                   const MeshDiscretization& rhs) noexcept {
     return !(lhs == rhs);
   }  // end of operator !=
+
+#ifdef MFEM_USE_MPI
+
+  MPI_Comm getMPICommunicator(const MeshDiscretization& m) noexcept {
+    const auto parallel = m.describesAParallelComputation();
+    if (parallel) {
+      return m.getMesh<true>().GetComm();
+    }
+    return MPI_COMM_WORLD;
+  }  // end of getMPICommunicator
+
+  bool isMainProcess(const MeshDiscretization& m) noexcept {
+    int rank = 0;
+    MPI_Comm_rank(getMPICommunicator(m), &rank);
+    return rank == 0;
+  }  // isMainProcess
+
+#endif MFEM_USE_MPI
 
 }  // end of namespace mfem_mgis

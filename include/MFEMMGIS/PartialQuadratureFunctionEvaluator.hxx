@@ -58,7 +58,7 @@ namespace mfem_mgis {
      */
     RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor(
         const Material&,
-        const Material::StateSelection = Material::END_OF_TIME_STEP);
+        const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
     //! \brief return the underlying partial quadrature space
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const;

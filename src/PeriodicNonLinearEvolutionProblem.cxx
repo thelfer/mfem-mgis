@@ -73,7 +73,8 @@ namespace mfem_mgis {
         }
       }
     }
-    MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_MAX,
+                  getMPICommunicator(p));
 
     MFEM_VERIFY(found, "Corner point was not found");
     p.SetEssentialTrueDofs(ess_tdof_list);
@@ -134,8 +135,8 @@ namespace mfem_mgis {
     // MPI communications to identify where is the minimum among all processes
     {
       int nbranks, myrank;
-      MPI_Comm_size(MPI_COMM_WORLD, &nbranks);
-      MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+      MPI_Comm_size(getMPICommunicator(p), &nbranks);
+      MPI_Comm_rank(getMPICommunicator(p), &myrank);
       std::vector<double> recv_buf(nbranks, -1);
       double mymin = -1;
       if (bct == FIX_XMIN) mymin = refcoord[0];
@@ -143,7 +144,7 @@ namespace mfem_mgis {
       if (bct == FIX_ZMIN) mymin = refcoord[2];
       // gathering all minimum values overs all processes
       MPI_Allgather(&mymin, 1, MPI_DOUBLE, recv_buf.data(), 1, MPI_DOUBLE,
-                    MPI_COMM_WORLD);
+                    getMPICommunicator(p));
       // locate the minimum among the mimum values
       auto result = std::min_element(recv_buf.begin(), recv_buf.end());
       // locate on which process we have the minimum
@@ -160,7 +161,8 @@ namespace mfem_mgis {
         found = 1;
       }
     }
-    MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, &found, 1, MPI_INT, MPI_SUM,
+                  getMPICommunicator(p));
 
     MFEM_VERIFY(found == 1,
                 "Not able to define proper periodic boundary conditions");

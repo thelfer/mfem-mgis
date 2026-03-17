@@ -34,7 +34,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool update(Context &) noexcept override;
     [[nodiscard]] bool revert(Context &) noexcept override;
     //! \brief destructor
-    ~NonLinearModel();
+    ~NonLinearModel() noexcept override;
 
    private:
     std::shared_ptr<NonLinearEvolutionProblem> problem;

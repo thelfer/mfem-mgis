@@ -207,7 +207,7 @@ namespace mfem_mgis {
 
 #define CatchTimeSection(XNAME)                      \
   mfem_mgis::Profiler::timer::TimeSection VARNAME()( \
-      mfem_mgis::Profiler::get_duration(XNAME));
+      mfem_mgis::Profiler::get_duration(XNAME))
 
 // alias
 #define CatchNestedTimeSection(XNAME) CatchTimeSection(XNAME)

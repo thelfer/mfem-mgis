@@ -80,7 +80,7 @@ namespace mfem_mgis {
   RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
       ThermodynamicForcesSize>::
       RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor(
-          const Material& m, const Material::StateSelection s)
+          const Material& m, const Material::StateSelection s) noexcept
       : material(m),
         thforces(getStateManager(m, s).thermodynamic_forces),
         stage(s) {

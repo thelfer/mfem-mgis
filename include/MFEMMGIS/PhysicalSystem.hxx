@@ -192,6 +192,26 @@ namespace mfem_mgis {
     std::vector<std::shared_ptr<AbstractPostProcessing>> post_processings;
   };  // end of class PhysicalSystem
 
+#ifdef MFEM_USE_MPI
+
+  /*!
+   * \return the MPI communicator associated with the physical system
+   * \param[in] ps: physical system
+   *
+   * \note If a sequential computation is described, `MPI_COMM_WORLD` is
+   * returned.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] MPI_Comm getMPICommunicator(
+      const PhysicalSystem &) noexcept;
+  /*!
+   * \return if the current process is the main one (the process of rank 0)
+   * \param[in] ps: physical system
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isMainProcess(
+      const PhysicalSystem &) noexcept;
+
+#endif /* MFEM_USE_MPI */
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PHYSICAL_SYSTEM_HXX */

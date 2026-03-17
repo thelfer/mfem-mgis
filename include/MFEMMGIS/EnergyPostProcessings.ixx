@@ -25,7 +25,7 @@ namespace mfem_mgis {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
-      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+      MPI_Comm_rank(getMPICommunicator(p), &rank);
       if (rank == 0) {
         this->openFile(get<std::string>(throwing, params, "OutputFileName"),
                        etype);
@@ -47,7 +47,7 @@ namespace mfem_mgis {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
-      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+      MPI_Comm_rank(getMPICommunicator(p), &rank);
       if (rank == 0) {
         this->out << t + dt;
       }

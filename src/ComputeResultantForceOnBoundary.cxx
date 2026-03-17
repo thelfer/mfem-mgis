@@ -52,7 +52,7 @@ namespace mfem_mgis {
                 p, getBoundaryIdentifier(throwing, p, params)),
             getBoundaryIdentifier(throwing, p, params)) {
     int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(getMPICommunicator(p), &rank);
     if (rank == 0) {
       const auto& f = get<std::string>(throwing, params, "OutputFileName");
       this->out.open(f);
@@ -73,11 +73,11 @@ namespace mfem_mgis {
     computeResultantForceOnBoundary(F, p, this->elts_dofs);
     //
     int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(getMPICommunicator(p), &rank);
     mfem::Vector gF;
     gF.SetSize(F.Size());
     MPI_Reduce(F.GetData(), gF.GetData(), F.Size(), MPI_DOUBLE, MPI_SUM, 0,
-               MPI_COMM_WORLD);
+               getMPICommunicator(p));
     if (rank == 0) {
       writeResultantForce(this->out, gF, t + dt);
     }

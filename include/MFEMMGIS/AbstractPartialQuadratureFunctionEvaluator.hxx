@@ -9,6 +9,7 @@
 #define LIB_MFEMMGIS_ABSTRACTPARTIALQUADRATUREFUNCTIONEVALUATOR_HXX
 
 #include <memory>
+#include <vector>
 #include <optional>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
@@ -65,10 +66,26 @@ namespace mfem_mgis {
     getPartialQuadratureSpacePointer() const noexcept = 0;
     //! \return the number of components
     [[nodiscard]] virtual size_type getNumberOfComponents() const noexcept = 0;
-    //!
+    [[nodiscard]] virtual bool isUniform() const noexcept = 0;
+    /*!
+     * \return the value of the evaluator
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    [[nodiscard]] virtual std::optional<std::variant<real, std::vector<real>>>
+    getUniformValue(Context& ctx, const real, const real) const noexcept = 0;
+    /*!
+     * \return the value of the evaluator
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
     [[nodiscard]] virtual std::optional<
         PartialQuadratureFunctionEvaluatorResult>
-    evaluate(Context&) const noexcept = 0;
+    evaluate(Context&, const real, const real) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractPartialQuadratureFunctionEvaluator() noexcept;
   };  // end of AbstractPartialQuadratureFunctionEvaluator
@@ -83,6 +100,8 @@ namespace mfem_mgis {
    *
    * \param[in, out] ctx: execution context
    * \param[in] e: evaluator
+   * \param[in] t: time at the beginning of the time step
+   * \param[in] dt: time increment
    * \param[in] opts: options
    */
   MFEM_MGIS_EXPORT
@@ -90,6 +109,8 @@ namespace mfem_mgis {
   std::optional<PartialQuadratureFunctionEvaluatorResult>
   evaluate(Context&,
            const AbstractPartialQuadratureFunctionEvaluator&,
+           const real,
+           const real,
            const PartialQuadratureFunctionEvaluationOptions& =
                PartialQuadratureFunctionEvaluationOptions{}) noexcept;
 

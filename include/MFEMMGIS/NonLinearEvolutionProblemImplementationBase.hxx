@@ -184,7 +184,7 @@ namespace mfem_mgis {
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
     //! \brief destructor
-    virtual ~NonLinearEvolutionProblemImplementationBase();
+    ~NonLinearEvolutionProblemImplementationBase() override;
 
    protected:
     /*!

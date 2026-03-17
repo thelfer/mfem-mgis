@@ -15,8 +15,10 @@ namespace mfem_mgis {
       Context &ctx,
       PartialQuadratureFunction &f,
       const Material &m,
-      const Material::StateSelection s) {
-    RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor e(m, s);
+      const Material::StateSelection s) noexcept {
+    RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+        dynamic_extent>
+        e(m, s);
     return assign(ctx, f, e);
   }  // end of rotateThermodynamicsForces
 

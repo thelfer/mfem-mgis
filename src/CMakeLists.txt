@@ -1,6 +1,7 @@
 set(MFEMMGIS_SOURCES)
 list(APPEND MFEMMGIS_SOURCES
   Config.cxx
+  ExitStatus.cxx
   MPI.cxx
   Profiler.cxx
   Parameter.cxx
@@ -11,6 +12,8 @@ list(APPEND MFEMMGIS_SOURCES
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx
   AbstractPartialQuadratureFunctionEvaluator.cxx
+  PartialQuadratureFunctionEvaluatorBase.cxx
+  PartialQuadratureFunctionEvaluators.cxx
   Behaviour.cxx
   Material.cxx
   AbstractBehaviourIntegrator.cxx

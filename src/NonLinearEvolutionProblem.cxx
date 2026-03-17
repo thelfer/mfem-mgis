@@ -12,6 +12,7 @@
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/PartialQuadratureFunctionEvaluators.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
@@ -544,6 +545,218 @@ namespace mfem_mgis {
     }
   }  // end of computeResultantForceOnBoundary
 
+  [[nodiscard]] static std::optional<bool>
+  resolveMaterialPropertyDependencyUsingGradient(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& mp) noexcept {
+    if (!contains(provider_material.b.gradients, mp.name)) {
+      return false;
+    }
+    const auto ov = getVariable(ctx, provider_material.b.gradients, mp.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (mp.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      mp.name + "'");
+    }
+    const auto ev_bts =
+        makeGradientEvaluator(ctx, provider_material, mp.name, bts);
+    const auto ev_ets =
+        makeGradientEvaluator(ctx, provider_material, mp.name, ets);
+    if (!areValid(ev_bts, ev_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + mp.name +
+          "' failed");
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_bts, bts)) {
+      return {};
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveMaterialPropertyDependencyUsingGradient
+
+  [[nodiscard]] static std::optional<bool>
+  resolveMaterialPropertyDependencyUsingThermodynamicForce(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& mp) noexcept {
+    if (!contains(provider_material.b.thermodynamic_forces, mp.name)) {
+      return false;
+    }
+    const auto ov =
+        getVariable(ctx, provider_material.b.thermodynamic_forces, mp.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (mp.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      mp.name + "'");
+    }
+    const auto ev_bts =
+        makeThermodynamicForceEvaluator(ctx, provider_material, mp.name, bts);
+    const auto ev_ets =
+        makeThermodynamicForceEvaluator(ctx, provider_material, mp.name, ets);
+    if (!areValid(ev_bts, ev_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + mp.name +
+          "' failed");
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_bts, bts)) {
+      return {};
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveMaterialPropertyDependencyUsingThermodynamicForce
+
+  [[nodiscard]] static std::optional<bool>
+  resolveMaterialPropertyDependencyUsingInternalStateVariable(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& mp) noexcept {
+    if (!contains(provider_material.b.isvs, mp.name)) {
+      return false;
+    }
+    const auto ov = getVariable(ctx, provider_material.b.isvs, mp.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (mp.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      mp.name + "'");
+    }
+    const auto ev_bts = makeInternalStateVariableEvaluator(
+        ctx, provider_material, mp.name, bts);
+    const auto ev_ets = makeInternalStateVariableEvaluator(
+        ctx, provider_material, mp.name, ets);
+    if (!areValid(ev_bts, ev_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + mp.name +
+          "' failed");
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_bts, bts)) {
+      return {};
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveMaterialPropertyDependencyUsingInternalStateVariable
+
+  [[nodiscard]] static std::optional<bool>
+  resolveExternalStateVariableDependencyUsingGradient(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& esv) noexcept {
+    if (!contains(provider_material.b.gradients, esv.name)) {
+      return false;
+    }
+    const auto ov = getVariable(ctx, provider_material.b.gradients, esv.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (esv.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      esv.name + "'");
+    }
+    const auto esv_bts =
+        makeGradientEvaluator(ctx, provider_material, esv.name, bts);
+    const auto esv_ets =
+        makeGradientEvaluator(ctx, provider_material, esv.name, ets);
+    if (!areValid(esv_bts, esv_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + esv.name +
+          "' failed");
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_bts, bts)) {
+      return {};
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveExternalStateVariableDependencyUsingGradient
+
+  [[nodiscard]] static std::optional<bool>
+  resolveExternalStateVariableDependencyUsingThermodynamicForce(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& esv) noexcept {
+    if (!contains(provider_material.b.thermodynamic_forces, esv.name)) {
+      return false;
+    }
+    const auto ov =
+        getVariable(ctx, provider_material.b.thermodynamic_forces, esv.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (esv.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      esv.name + "'");
+    }
+    const auto esv_bts =
+        makeThermodynamicForceEvaluator(ctx, provider_material, esv.name, bts);
+    const auto esv_ets =
+        makeThermodynamicForceEvaluator(ctx, provider_material, esv.name, ets);
+    if (!areValid(esv_bts, esv_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + esv.name +
+          "' failed");
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_bts, bts)) {
+      return {};
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveExternalStateVariableDependencyUsingThermodynamicForce
+
+  [[nodiscard]] static std::optional<bool>
+  resolveExternalStateVariableDependencyUsingInternalStateVariable(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& esv) noexcept {
+    if (!contains(provider_material.b.isvs, esv.name)) {
+      return false;
+    }
+    const auto ov = getVariable(ctx, provider_material.b.isvs, esv.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (esv.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      esv.name + "'");
+    }
+    const auto esv_bts = makeInternalStateVariableEvaluator(
+        ctx, provider_material, esv.name, bts);
+    const auto esv_ets = makeInternalStateVariableEvaluator(
+        ctx, provider_material, esv.name, ets);
+    if (!areValid(esv_bts, esv_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + esv.name +
+          "' failed");
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_bts, bts)) {
+      return {};
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveExternalStateVariableDependencyUsingInternalStateVariable
+
   [[nodiscard]] static bool resolveMaterialDependencies(
       Context& ctx,
       AbstractBehaviourIntegrator& bi,
@@ -559,35 +772,62 @@ namespace mfem_mgis {
     }
     // material properties
     for (const auto& mp : om->b.mps) {
-      if (!contains(oprovider_material->b.isvs, mp.name)) {
-        continue;
-      }
-      const auto oiv = getVariable(ctx, oprovider_material->b.isvs, mp.name);
-      if (isInvalid(oiv)) {
+      const auto or1 =
+          resolveMaterialPropertyDependencyUsingInternalStateVariable(
+              ctx, bi, *oprovider_material, mp);
+      if (isInvalid(or1)) {
         return false;
       }
-      if (mp.type_identifier != oiv->type_identifier) {
-        return ctx.registerErrorMessage("incompatible type for variable '" +
-                                        mp.name + "'");
+      if (*or1) {
+        // treat next material property
+        continue;
       }
-      try {
-        const auto ovalues_bts =
-            getInternalStateVariable(ctx, *oprovider_material, mp.name,
-                                     Material::BEGINNING_OF_TIME_STEP);
-        const auto ovalues_ets = getInternalStateVariable(
-            ctx, *oprovider_material, mp.name, Material::END_OF_TIME_STEP);
-        //         setMaterialProperty(m.s0, mp.name, values_bts.getValues(),
-        //                             MaterialStateManager::EXTERNAL_STORAGE,
-        //                             MaterialStateManager::NOUPDATE);
-        //         setMaterialProperty(m.s1, mp.name, values_ets.getValues(),
-        //                             MaterialStateManager::EXTERNAL_STORAGE,
-        //                             MaterialStateManager::NOUPDATE);
-      } catch (...) {
-        return registerExceptionInErrorBacktrace(ctx);
+      // dependency was not resolved, trying the gradients
+      const auto or2 = resolveMaterialPropertyDependencyUsingGradient(
+          ctx, bi, *oprovider_material, mp);
+      if (isInvalid(or2)) {
+        return false;
+      }
+      if (*or2) {
+        // treat next material property
+        continue;
+      }
+      // dependency was not resolved, trying the thermodynamic forces
+      const auto or3 = resolveMaterialPropertyDependencyUsingThermodynamicForce(
+          ctx, bi, *oprovider_material, mp);
+      if (isInvalid(or3)) {
+        return false;
       }
     }
     // external state variables
     for (const auto& esv : om->b.esvs) {
+      const auto or1 =
+          resolveExternalStateVariableDependencyUsingInternalStateVariable(
+              ctx, bi, *oprovider_material, esv);
+      if (isInvalid(or1)) {
+        return false;
+      }
+      if (*or1) {
+        // treat next material property
+        continue;
+      }
+      // dependency was not resolved, trying the gradients
+      const auto or2 = resolveExternalStateVariableDependencyUsingGradient(
+          ctx, bi, *oprovider_material, esv);
+      if (isInvalid(or2)) {
+        return false;
+      }
+      if (*or2) {
+        // treat next material property
+        continue;
+      }
+      // dependency was not resolved, trying the thermodynamic forces
+      const auto or3 =
+          resolveExternalStateVariableDependencyUsingThermodynamicForce(
+              ctx, bi, *oprovider_material, esv);
+      if (isInvalid(or3)) {
+        return false;
+      }
     }
     return true;
   }  // end of resolveBehaviourIntegratorsDependencies

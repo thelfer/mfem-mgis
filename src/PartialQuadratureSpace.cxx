@@ -84,7 +84,7 @@ namespace mfem_mgis {
   }
 
   const FiniteElementDiscretization&
-  PartialQuadratureSpace::getFiniteElementDiscretization() const {
+  PartialQuadratureSpace::getFiniteElementDiscretization() const noexcept {
     return this->fe_discretization;
   }  // end of getFiniteElementDiscretization
 
@@ -170,6 +170,9 @@ namespace mfem_mgis {
       }
       info.number_of_quadrature_points_by_geometric_type = *oqmapping;
     }
+#ifdef MFEM_USE_MPI
+    info.communicator = getMPICommunicator(fed);
+#endif /* MFEM_USE_MPI */
     return info;
   }  // end of getLocalInformation
 
@@ -272,10 +275,10 @@ namespace mfem_mgis {
     auto r = PartialQuadratureSpaceInformation{};
     // paranoïc check
     int nprocesses;
-    MPI_Comm_size(MPI_COMM_WORLD, &nprocesses);
+    MPI_Comm_size(info.communicator, &nprocesses);
     std::vector<size_type> ids(nprocesses);
     MPI_Allgather(&(info.identifier), 1, mpi_type<size_type>, ids.data(), 1,
-                  mpi_type<size_type>, MPI_COMM_WORLD);
+                  mpi_type<size_type>, info.communicator);
     if (std::adjacent_find(ids.begin(), ids.end(), std::not_equal_to<>()) !=
         ids.end()) {
       return ctx.registerErrorMessage(
@@ -288,17 +291,17 @@ namespace mfem_mgis {
     //
     r.number_of_cells = info.number_of_cells;
     MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_cells), 1, mpi_type<size_type>,
-                  MPI_SUM, MPI_COMM_WORLD);
+                  MPI_SUM, info.communicator);
     r.number_of_quadrature_points = info.number_of_quadrature_points;
     MPI_Allreduce(MPI_IN_PLACE, &(r.number_of_quadrature_points), 1,
-                  mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);
+                  mpi_type<size_type>, MPI_SUM, info.communicator);
     //
     auto nelts = std::array<size_type, mfem::Geometry::NumGeom>{};
     for (const auto [g, n] : info.number_of_cells_by_geometric_type) {
       nelts[static_cast<std::size_t>(g)] = n;
     }
     MPI_Allreduce(MPI_IN_PLACE, nelts.data(), mfem::Geometry::NumGeom,
-                  mpi_type<size_type>, MPI_SUM, MPI_COMM_WORLD);
+                  mpi_type<size_type>, MPI_SUM, info.communicator);
     for (size_type i = 0; const auto& n : nelts) {
       if (n != 0) {
         r.number_of_cells_by_geometric_type.insert(
@@ -315,7 +318,7 @@ namespace mfem_mgis {
     for (size_type g = 0; auto& n : nqpoints) {
       std::vector<size_type> all_nqpoints(nprocesses);
       MPI_Allgather(&n, 1, mpi_type<size_type>, all_nqpoints.data(), 1,
-                    mpi_type<size_type>, MPI_COMM_WORLD);
+                    mpi_type<size_type>, info.communicator);
       const auto pmax =
           std::max_element(all_nqpoints.begin(), all_nqpoints.end());
       if (pmax == all_nqpoints.end()) {  // avoid warning

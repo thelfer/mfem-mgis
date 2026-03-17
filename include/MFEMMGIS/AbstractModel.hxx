@@ -40,7 +40,7 @@ namespace mfem_mgis {
     [[nodiscard]] virtual std::vector<std::string> getAvailablePostProcessings()
         const noexcept = 0;
     //! \brief destructor
-    virtual ~AbstractModel() noexcept;
+    ~AbstractModel() noexcept override;
   };  // end of  class AbstractModel
 
 }  // end of namespace mfem_mgis

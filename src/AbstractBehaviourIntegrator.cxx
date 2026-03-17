@@ -59,7 +59,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       const auto lv = BehaviourIntegrator_computeMeasure<true>(bi);
       auto r = real{};
-      MPI_Reduce(&lv, &r, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+      MPI_Reduce(&lv, &r, 1, MPI_DOUBLE, MPI_SUM, 0, getMPICommunicator(fed));
       return r;
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
@@ -116,7 +116,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       const auto lv = BehaviourIntegrator_computeScalarIntegral<true>(bi, f);
       auto r = real{};
-      MPI_Reduce(&lv, &r, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+      MPI_Reduce(&lv, &r, 1, MPI_DOUBLE, MPI_SUM, 0, getMPICommunicator(fed));
       return r;
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();

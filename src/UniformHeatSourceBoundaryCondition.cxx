@@ -89,7 +89,7 @@ namespace mfem_mgis {
       this->computeResidual(R, e, tr);
     }  // end of AssembleElementVector
     //! \brief destructor
-    virtual ~UniformHeatSourceLinearFormIntegrator() = default;
+    ~UniformHeatSourceLinearFormIntegrator() override = default;
 
    protected:
     [[nodiscard]] const mfem::IntegrationRule *getIntegrationRule(
@@ -129,7 +129,7 @@ namespace mfem_mgis {
       K = 0.0;
     }
     //! \brief destructor
-    virtual ~UniformHeatSourceNonlinearFormIntegrator() = default;
+    ~UniformHeatSourceNonlinearFormIntegrator() override = default;
 
    protected:
     [[nodiscard]] const mfem::IntegrationRule *getIntegrationRule(

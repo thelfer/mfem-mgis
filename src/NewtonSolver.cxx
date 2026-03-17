@@ -109,7 +109,18 @@ namespace mfem_mgis {
     // boolean stating if messages shall be displayed
     auto shall_print = [this]() -> bool {
       if (this->print_level >= 0) {
-        return mfem_mgis::getMPIrank() == 0;
+#ifdef MFEM_USE_MPI
+        // We must check that a communicator has been set.
+        // This is not the case in sequential computations
+        if (this->GetComm() != MPI_COMM_NULL) {
+          int rank = 0;
+          MPI_Comm_rank(this->GetComm(), &rank);
+          return rank == 0;
+        }
+        return true;
+#else  /* MFEM_USE_MPI */
+        return true;
+#endif /* MFEM_USE_MPI */
       }
       if (this->ctx_ptr != nullptr) {
         return this->ctx_ptr->getVerbosityLevel() >=

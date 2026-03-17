@@ -125,6 +125,18 @@ namespace mfem_mgis {
         std::span<const real>,
         const size_type,
         const size_type);
+    //! \brief move constructor
+    ImmutablePartialQuadratureFunctionView(
+        ImmutablePartialQuadratureFunctionView&&) noexcept;
+    //! \brief copy constructor
+    ImmutablePartialQuadratureFunctionView(
+        const ImmutablePartialQuadratureFunctionView&) noexcept;
+    //! \brief move assignement
+    ImmutablePartialQuadratureFunctionView& operator=(
+        ImmutablePartialQuadratureFunctionView&&) noexcept;
+    //! \brief copy assignement
+    ImmutablePartialQuadratureFunctionView& operator=(
+        const ImmutablePartialQuadratureFunctionView&) noexcept;
     //! \return the underlying quadrature space
     const PartialQuadratureSpace& getPartialQuadratureSpace() const;
     //! \return the underlying quadrature space
@@ -233,6 +245,17 @@ namespace mfem_mgis {
                                   std::span<real>,
                                   const size_type,
                                   const size_type);
+    //! \brief move constructor
+    PartialQuadratureFunctionView(PartialQuadratureFunctionView&&) noexcept;
+    //! \brief copy constructor
+    PartialQuadratureFunctionView(
+        const PartialQuadratureFunctionView&) noexcept;
+    //! \brief move assignement
+    PartialQuadratureFunctionView& operator=(
+        PartialQuadratureFunctionView&&) noexcept;
+    //! \brief copy assignement
+    PartialQuadratureFunctionView& operator=(
+        const PartialQuadratureFunctionView&) noexcept;
     //
     using ImmutablePartialQuadratureFunctionView::data;
     using ImmutablePartialQuadratureFunctionView::getIntegrationPointValue;

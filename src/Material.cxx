@@ -83,12 +83,10 @@ namespace mfem_mgis {
       this->get_rotation_fct_ptr =
           +[](const RotationMatrix2D &rm, const RotationMatrix3D &,
               const size_type o) {
-            std::array<real, 9u> m;
             const auto &f =
                 *(std::get<std::shared_ptr<PartialQuadratureFunction>>(rm));
             return mgis::behaviour::buildRotationMatrix(
                 f.getIntegrationPointValues<2>(o));
-            return m;
           };
     } else {
       raise("Material::setRotationMatrix: unimplemented case yet");
@@ -252,6 +250,26 @@ namespace mfem_mgis {
     return ImmutablePartialQuadratureFunctionView(qs, values, o, s);
   }  // end of buildImmutablePartialQuadratureFunctionView
 
+  std::optional<PartialQuadratureFunction> getGradient(
+      Context &ctx,
+      Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildPartialQuadratureFunction(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).gradients, m.b.gradients, n, m.b.hypothesis);
+  }  // end of getGradient
+
+  std::optional<ImmutablePartialQuadratureFunctionView> getGradient(
+      Context &ctx,
+      const Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildImmutablePartialQuadratureFunctionView(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).gradients, m.b.gradients, n, m.b.hypothesis);
+  }  // end of getGradient
+
   PartialQuadratureFunction getGradient(Material &m,
                                         const std::string_view n,
                                         const Material::StateSelection s) {
@@ -268,6 +286,28 @@ namespace mfem_mgis {
         m.getPartialQuadratureSpacePointer(), getStateManager(m, s).gradients,
         m.b.gradients, n, m.b.hypothesis);
   }  // end of getGradient
+
+  std::optional<PartialQuadratureFunction> getThermodynamicForce(
+      Context &ctx,
+      Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildPartialQuadratureFunction(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
+        m.b.hypothesis);
+  }  // end of getThermodynamicForce
+
+  std::optional<ImmutablePartialQuadratureFunctionView> getThermodynamicForce(
+      Context &ctx,
+      const Material &m,
+      const std::string_view n,
+      const Material::StateSelection s) noexcept {
+    return buildImmutablePartialQuadratureFunctionView(
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
+        m.b.hypothesis);
+  }  // end of getThermodynamicForce
 
   PartialQuadratureFunction getThermodynamicForce(
       Material &m, const std::string_view n, const Material::StateSelection s) {
@@ -393,4 +433,4 @@ namespace mfem_mgis {
     return {};
   }
 
-};  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

@@ -163,7 +163,7 @@ namespace mfem_mgis {
      * \note the consistent tangent operator takes into account the details
      * related to the algorithm used to integration the constitutive equations.
      */
-    CONSISTENT_TANGENT,
+    CONSISTENT_TANGENT
   };
 
   /*!
@@ -703,6 +703,28 @@ namespace mfem_mgis {
       const AbstractNonLinearEvolutionProblem &,
       const Parameters &,
       const bool = true);
+
+#ifdef MFEM_USE_MPI
+
+  /*!
+   * \return the MPI communicator associated with the nonlinear evolution
+   * problem
+   *
+   * \param[in] p: nonlinear evolution problem
+   *
+   * \note If a sequential computation is described, `MPI_COMM_WORLD` is
+   * returned.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] MPI_Comm getMPICommunicator(
+      const AbstractNonLinearEvolutionProblem &) noexcept;
+  /*!
+   * \return if the current process is the main one (the process of rank 0)
+   * \param[in] p: nonlinear evolution problem
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isMainProcess(
+      const AbstractNonLinearEvolutionProblem &) noexcept;
+
+#endif /* MFEM_USE_MPI */
 
 }  // end of namespace mfem_mgis
 
