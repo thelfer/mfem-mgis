@@ -36,7 +36,6 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT
       IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator
-          final
       : StandardBehaviourIntegratorCRTPBase<
             IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator> {
     /*!
@@ -163,10 +162,30 @@ namespace mfem_mgis {
                                const mfem::DenseMatrix &,
                                const real,
                                const size_type) const noexcept;
+    /*!
+     * \brief update the stiffness matrix of the given node
+     * with the contribution of the consistent tangent operator of  * an
+     * integration point.
+     *
+     * \param[out] Ke: inner forces
+     * \param[in] Kip: stress
+     * \param[in] dN1: derivatives of the shape function
+     * \param[in] dN2: derivatives of the shape function
+     * \param[in] w: weight of the integration point
+     * \param[in] n: node index
+     */
+    void updateStiffnessMatrix(mfem::DenseMatrix &,
+                               const std::span<const real> &,
+                               const mfem::DenseMatrix &,
+                               const mfem::DenseMatrix &,
+                               const real,
+                               const size_type) const noexcept;
 
   };  // end of struct
       // IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator
 
 }  // end of namespace mfem_mgis
+
+#include "MFEMMGIS/IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.ixx"
 
 #endif /* LIB_MFEM_MGIS_ISOTROPICTRIDIMENSIONALSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATOR_HXX*/

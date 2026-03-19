@@ -126,8 +126,7 @@ namespace mfem_mgis {
     }();
 #ifdef MFEM_USE_MPI
     if constexpr (parallel) {
-      MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
-                    fespace.GetComm());
+      success = isTrueOnAllProcesses(fed, success);
     }
 #endif /* MFEM_USE_MPI */
     if (!success) {

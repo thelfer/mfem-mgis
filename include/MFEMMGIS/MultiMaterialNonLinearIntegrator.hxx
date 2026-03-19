@@ -13,6 +13,7 @@
 #include "mfem/fem/nonlininteg.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {
@@ -57,12 +58,12 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
      */
-    bool integrate(const mfem::FiniteElement &,
-                   mfem::ElementTransformation &,
-                   const mfem::Vector &,
-                   const IntegrationType);
+    [[nodiscard]] bool integrate(const mfem::FiniteElement &,
+                                 mfem::ElementTransformation &,
+                                 const mfem::Vector &,
+                                 const IntegrationType);
     //! \return the current time increment
-    real getTimeIncrement() const noexcept;
+    [[nodiscard]] real getTimeIncrement() const noexcept;
     /*!
      * \brief set the value of the time increment
      * \param[in] dt: time increment
@@ -80,15 +81,20 @@ namespace mfem_mgis {
     /*!
      * \brief add a new behaviour integrator
      * \return the behaviour integrator identifier
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the behaviour integrator
      * \param[in] m: material id
      * \param[in] l: library name
      * \param[in] b: behaviour name
+     * \param[in] params: additional parameters
      */
-    [[nodiscard]] size_type addBehaviourIntegrator(const std::string &,
-                                                   const size_type,
-                                                   const std::string &,
-                                                   const std::string &);
+    [[nodiscard]] std::optional<size_type> addBehaviourIntegrator(
+        Context &,
+        const std::string &,
+        const size_type,
+        const std::string &,
+        const std::string &,
+        const Parameters & = {}) noexcept;
     /*!
      * \return the material with the given id
      * \param[in, out] ctx: execution context
@@ -193,6 +199,19 @@ namespace mfem_mgis {
      */
     [[nodiscard, deprecated]] AbstractBehaviourIntegrator &
     getBehaviourIntegrator(const size_type);
+    /*!
+     * \brief add a new behaviour integrator
+     * \return the behaviour integrator identifier
+     * \param[in] n: name of the behaviour integrator
+     * \param[in] m: material id
+     * \param[in] l: library name
+     * \param[in] b: behaviour name
+     */
+    [[nodiscard, deprecated]] size_type addBehaviourIntegrator(
+        const std::string &,
+        const size_type,
+        const std::string &,
+        const std::string &);
     //! \brief destructor
     ~MultiMaterialNonLinearIntegrator() override;
 

@@ -64,6 +64,7 @@ list(APPEND MFEMMGIS_SOURCES
   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TransientHeatTransferBehaviourIntegrator.cxx
+  Faltus2026RegularizedBehaviourIntegrators.cxx
   L2Projection.cxx
   AbstractTimeStepValidator.cxx
   TimeStepValidatorBase.cxx

@@ -357,6 +357,27 @@ namespace mfem_mgis {
     this->pimpl->executePostProcessings(t, dt);
   }
 
+  std::optional<std::map<size_type, size_type>>
+  NonLinearEvolutionProblem::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const Parameter& m,
+      const std::string& l,
+      const std::string& b) noexcept {
+    return this->pimpl->addBehaviourIntegrator(ctx, n, m, l, b);
+  }  // end of addBehaviourIntegrator
+
+  std::optional<std::map<size_type, size_type>>
+  NonLinearEvolutionProblem::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const Parameter& m,
+      const std::string& l,
+      const std::string& b,
+      const Parameters& params) noexcept {
+    return this->pimpl->addBehaviourIntegrator(ctx, n, m, l, b, params);
+  }  // end of addBehaviourIntegrator
+
   std::map<size_type, size_type>
   NonLinearEvolutionProblem::addBehaviourIntegrator(const std::string& n,
                                                     const Parameter& m,
