@@ -52,10 +52,12 @@
 <li class="toctree-l2"><a class="reference internal" href="overview.html">Overview and main concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="simulation/simulation.html">Simulation</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Behaviour integrators</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#behaviour-integrators-and-mfront-behaviours">Behaviour integrators and <code class="code docutils literal notranslate"><span class="pre">MFront</span></code> behaviours</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#mechanical-behaviour-integrator">Mechanical behaviour integrator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#heat-transfer-behaviour-integrators">Heat transfer behaviour integrators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#micromorphic-damage-behaviour-integrators">Micromorphic damage behaviour integrators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#behaviour-integrators-based-on-mfront-behaviours">Behaviour integrators based on <code class="code docutils literal notranslate"><span class="pre">MFront</span></code> behaviours</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mechanical-behaviour-integrator">Mechanical behaviour integrator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#heat-transfer-behaviour-integrators">Heat transfer behaviour integrators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#micromorphic-damage-behaviour-integrators">Micromorphic damage behaviour integrators</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="boundary_conditions.html">Boundary conditions</a></li>
@@ -109,10 +111,17 @@ material. Behaviour integrators are associated with:</p>
 </ul>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#behaviour-integrators-and-mfront-behaviours" id="id1">Behaviour integrators and <code class="code docutils literal notranslate"><span class="pre">MFront</span></code> behaviours</a></p></li>
-<li><p><a class="reference internal" href="#mechanical-behaviour-integrator" id="id2">Mechanical behaviour integrator</a></p></li>
-<li><p><a class="reference internal" href="#heat-transfer-behaviour-integrators" id="id3">Heat transfer behaviour integrators</a></p></li>
-<li><p><a class="reference internal" href="#micromorphic-damage-behaviour-integrators" id="id4">Micromorphic damage behaviour integrators</a></p></li>
+<li><p><a class="reference internal" href="#behaviour-integrators-based-on-mfront-behaviours" id="id2">Behaviour integrators based on <code class="code docutils literal notranslate"><span class="pre">MFront</span></code> behaviours</a></p>
+<ul>
+<li><p><a class="reference internal" href="#mechanical-behaviour-integrator" id="id3">Mechanical behaviour integrator</a></p>
+<ul>
+<li><p><a class="reference internal" href="#faltus-2026-regularization" id="id4">Faltus 2026 regularization</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#heat-transfer-behaviour-integrators" id="id5">Heat transfer behaviour integrators</a></p></li>
+<li><p><a class="reference internal" href="#micromorphic-damage-behaviour-integrators" id="id6">Micromorphic damage behaviour integrators</a></p></li>
+</ul>
+</li>
 </ul>
 </nav>
 <div class="admonition note">
@@ -121,7 +130,7 @@ material. Behaviour integrators are associated with:</p>
 the <code class="code docutils literal notranslate"><span class="pre">addBehaviourIntegrator</span></code> method of the
 <code class="code docutils literal notranslate"><span class="pre">NonLinearEvolutionProblem</span></code> class, as in the
 following example:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="s">&quot;Mechanics&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;beam&quot;</span><span class="p">,</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Mechanics&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;beam&quot;</span><span class="p">,</span>
 <span class="w">                                 </span><span class="s">&quot;src/libBehaviour.so&quot;</span><span class="p">,</span>
 <span class="w">                                 </span><span class="s">&quot;MicromorphicDamageI_SpectralSplit&quot;</span><span class="p">);</span>
 </pre></div>
@@ -132,15 +141,14 @@ a behaviour integrator consistent with the modeling hypothesis
 declared by the nonlinear evolution problem and the material
 symmetry declared by the behaviour.</p>
 </div>
-<section id="behaviour-integrators-and-mfront-behaviours">
-<h2><a class="toc-backref" href="#id1" role="doc-backlink">Behaviour integrators and <code class="code docutils literal notranslate"><span class="pre">MFront</span></code> behaviours</a><a class="headerlink" href="#behaviour-integrators-and-mfront-behaviours" title="Link to this heading"></a></h2>
-<p>Behaviour integrators rely on external behaviours that shall be
-generated by <code class="code docutils literal notranslate"><span class="pre">MFront</span></code>. In practice, those external behaviours are compiled by <code class="code docutils literal notranslate"><span class="pre">MFront</span></code>
-into shared libraries that are loaded dynamically when an behaviour
-integrator is loaded.</p>
-</section>
+<section id="behaviour-integrators-based-on-mfront-behaviours">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Behaviour integrators based on <code class="code docutils literal notranslate"><span class="pre">MFront</span></code> behaviours</a><a class="headerlink" href="#behaviour-integrators-based-on-mfront-behaviours" title="Link to this heading"></a></h2>
+<p>Most behaviour integrators rely on external behaviours that shall be
+generated by <code class="code docutils literal notranslate"><span class="pre">MFront</span></code>. In practice, those external behaviours are
+compiled by <code class="code docutils literal notranslate"><span class="pre">MFront</span></code> into shared libraries that are loaded
+dynamically when an behaviour integrator is loaded.</p>
 <section id="mechanical-behaviour-integrator">
-<h2><a class="toc-backref" href="#id2" role="doc-backlink">Mechanical behaviour integrator</a><a class="headerlink" href="#mechanical-behaviour-integrator" title="Link to this heading"></a></h2>
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Mechanical behaviour integrator</a><a class="headerlink" href="#mechanical-behaviour-integrator" title="Link to this heading"></a></h3>
 <p>A mechanical behaviour integrator computes the residual and jacobian
 associated with one of the following variational operators:</p>
 <div class="math notranslate nohighlight">
@@ -165,9 +173,37 @@ support:</p>
 <li><p>isotropic and orthotropic behaviours,</p></li>
 <li><p>plane strain, plane stress and tridimensional modeling hypotheses.</p></li>
 </ul>
+<section id="faltus-2026-regularization">
+<h4><a class="toc-backref" href="#id4" role="doc-backlink">Faltus 2026 regularization</a><a class="headerlink" href="#faltus-2026-regularization" title="Link to this heading"></a></h4>
+<p>The regularization proposed by Faltus et al. in the context of contact
+mechanics using a third medium <span id="id1">[<a class="reference internal" href="../index.html#id4" title="Ondřej Faltus, Marco Amato, and Martin Horák. Deformation gradient averaging regularization for third medium contact. URL: https://arxiv.org/abs/2603.13063v1 (visited on 2026-03-20).">FAH</a>]</span>. This
+regularization only applies to finite strain behaviours. Currently, only
+this regularization is only available for isotropic behaviours.</p>
+<p>This regularization adds a contribution to the previous variational
+operator in finite strain to can be derived from an energy <span class="math notranslate nohighlight">\(W\)</span>
+which penalizes the difference between the deformation gradient
+<span class="math notranslate nohighlight">\(\underline{F}\)</span> at a given quadrature point and its value
+<span class="math notranslate nohighlight">\(\bar{\underline{F}}\)</span> at the centroid of the element:</p>
+<div class="math notranslate nohighlight">
+\[W\left(\underline{F}, \bar{\underline{F}}\right) =
+\alpha\,\left(\underline{F}-\bar{\underline{F}}\right)\,\colon\,
+\left(\underline{F}-\bar{\underline{F}}\right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is a penalization coefficient.</p>
+<p>This regularization is enabled by passing an additional parameter to the
+the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Mechanics</span></code> behaviour integrator, as follows:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">faltus_parameters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
+<span class="w">    </span><span class="p">{</span><span class="s">&quot;Regularization&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
+<span class="w">         </span><span class="p">{</span><span class="s">&quot;Faltus2026&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;PenalizationCoefficient&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e11</span><span class="p">}}}}}};</span>
+<span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Mechanics&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ThirdMedium&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">library</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">behaviour2</span><span class="p">,</span><span class="w"> </span><span class="n">faltus_parameters</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">or_die</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="heat-transfer-behaviour-integrators">
-<h2><a class="toc-backref" href="#id3" role="doc-backlink">Heat transfer behaviour integrators</a><a class="headerlink" href="#heat-transfer-behaviour-integrators" title="Link to this heading"></a></h2>
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Heat transfer behaviour integrators</a><a class="headerlink" href="#heat-transfer-behaviour-integrators" title="Link to this heading"></a></h3>
 <p>Nonlinear heat transfer behaviour integrators compute the residual and jacobian
 associated with the following variational operator:</p>
 <div class="math notranslate nohighlight">
@@ -188,7 +224,7 @@ support:</p>
 </ul>
 </section>
 <section id="micromorphic-damage-behaviour-integrators">
-<h2><a class="toc-backref" href="#id4" role="doc-backlink">Micromorphic damage behaviour integrators</a><a class="headerlink" href="#micromorphic-damage-behaviour-integrators" title="Link to this heading"></a></h2>
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Micromorphic damage behaviour integrators</a><a class="headerlink" href="#micromorphic-damage-behaviour-integrators" title="Link to this heading"></a></h3>
 <p>Micromorphic damage behaviour integrators  compute the residual and jacobian
 associated with the following variational operator:</p>
 <div class="math notranslate nohighlight">
@@ -208,6 +244,7 @@ micromorphic damage <span class="math notranslate nohighlight">\(d_{\chi}\)</spa
 <li><p>isotropic behaviour in <span class="math notranslate nohighlight">\(2D\)</span> (plane strain and plain stress) and <span class="math notranslate nohighlight">\(3D\)</span> computations,</p></li>
 <li><p>orhotropic behaviours in <span class="math notranslate nohighlight">\(2D\)</span>.</p></li>
 </ul>
+</section>
 </section>
 </section>
 

@@ -149,6 +149,41 @@ The following operators are available:
   with respect to the gradients at the end of the time step. See
   :cite:`simo_consistent_1985` for details.
 
+Faltus 2026 regularization
+--------------------------
+
+The regularization proposed by Faltus et al. in the context of contact
+mechanics using a third medium :cite:`faltus_deformation_2026`. This
+regularization only applies to finite strain behaviours. Currently, only
+this regularization is only available for isotropic behaviours.
+
+This regularization adds a contribution to the standard variational
+operator in finite strain to can be derived from an energy :math:`W`
+which penalizes the difference between the deformation gradient
+:math:`\underline{F}` at a given quadrature point and its value
+:math:`\bar{\underline{F}}` at the centroid of the element:
+
+.. math::
+
+    W\left(\underline{F}, \bar{\underline{F}}\right) =
+    \alpha\,\left(\underline{F}-\bar{\underline{F}}\right)\,\colon\,
+    \left(\underline{F}-\bar{\underline{F}}\right)
+
+where :math:`\alpha` is a penalization coefficient.
+
+This regularization is enabled by passing an additional parameter to the
+the :cxx:`Mechanics` behaviour integrator, as follows:
+
+.. code:: c++
+
+  const auto faltus_parameters = mfem_mgis::Parameters{
+      {"Regularization",
+       mfem_mgis::Parameters{
+           {"Faltus2026",
+            mfem_mgis::Parameters{{"PenalizationCoefficient", 1e11}}}}}};
+  mechanics.addBehaviourIntegrator(ctx, "Mechanics", "ThirdMedium", library,
+                                   behaviour2, faltus_parameters) | or_die;
+
 The :cxx:`info` function
 ------------------------
 
