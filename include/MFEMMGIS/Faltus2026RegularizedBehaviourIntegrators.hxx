@@ -50,13 +50,11 @@ namespace mfem_mgis {
 
   /*!
    * \brief a behaviour integrator which enhances a standard finite strain
-   * behaviour with the regularization proposed by Faltus et al. in plane
-   * strain
+   * behaviour with the regularization proposed by Faltus et al.
    *
    * This regularization adds a term penalizing the difference between the
-   * deformation gradient between the deformation gradient
-   * \f$\underline{F}\f$ and its value \f$\bar{\underline{F}}\f$ at the
-   * centroid of the element:
+   * deformation gradient \f$\underline{F}\f$ and its value
+   * \f$\bar{\underline{F}}\f$ at the centroid of the element:
    *
    * \f[
    * W\left(\underline{F}, \bar{\underline{F}}\right) =
