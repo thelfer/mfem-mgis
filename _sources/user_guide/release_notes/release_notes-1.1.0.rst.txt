@@ -24,6 +24,10 @@ Highlights
 - Many methods have been deprecated to have a consistent error handling
   scheme based on `MGIS`'s one. As such, many methods and functions now
   takes and `MGIS`'s :cxx:`Context` as their first argument.
+- The regularization proposed by Faltus et al. in the context of the
+  third medium contact has been implemented for plane strain, plane
+  stress and tridmensional hypotheses
+  
 
 New features
 ============
@@ -194,12 +198,43 @@ Example of usage
       problem.getBehaviourIntegrator(1).getPartialQuadratureSpace();
    const auto success = mfem_mgis::info(ctx, std::cout, qspace);
 
+Evaluators of quantities at integration points
+----------------------------------------------
+
+Overview
+^^^^^^^^
+
+The :cxx:`setMaterialProperty` and :cxx:`setExternalStateVariable` methods of behaviour integrators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Resolution of dependencies of a nonlinear evolution problemn using another
+--------------------------------------------------------------------------
+
+The :cxx:`Simulation` class
+---------------------------
+
+Physical system, coupling schemes and models
+--------------------------------------------
+
+Line-search-like handling of behaviour integration failures
+-----------------------------------------------------------
+
 Issues fixed
 ============
 
+- Issue 218: [performance] synchronize success of the setup methods at a
+  higher level to minimize collective communications enhancement
+- Issue 213: ￼ Add a simple way to resolve dependencies (material
+  properties, external state variables) of a :cxx:`NonLinearEvolutionProblem`
+  using the gradients, thermodynamic forces and internal state variables
+  of another one.
+- Issue 211: Add coupling schemes and models
+- Issue 209: Introduce the :cxx:`Simulation` class￼
+- Issue 206: Line-search-like handling of behaviour integration failures
 - Issue 200: automatically assign materials and boundaries's names from
-  MFEM's attributes ￼
-- Issue 198: Add the ability to define multiple behaviour integrator on
+  |mfem|'s attributes ￼
+- Issue 198: Add the ability to define multiple behaviour integrators on
   the same material
 - Issue 193: Add support for other types of search operators for
   computing a prediction of the solution at the end of the time step
