@@ -120,9 +120,9 @@ namespace mfem_mgis {
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &, const size_type);
     /*!
-     * \brief update the strain with the contribution of the
+     * \brief update the deformation gradient with the contribution of the
      * given node
-     * \param[in] g: strain
+     * \param[in] g: deformation gradient
      * \param[in] u: nodal displacements
      * \param[in] dshape: derivatives of the shape function
      * \param[in] n: node index

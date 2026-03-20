@@ -12,7 +12,7 @@
 namespace mfem_mgis {
 
   inline void
-  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator::
+  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateGradients(std::span<real> &g,
                       const mfem::Vector &u,
                       const mfem::DenseMatrix &dN,
@@ -36,7 +36,7 @@ namespace mfem_mgis {
   }  // end of updateGradients
 
   inline void
-  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator::
+  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateInnerForces(mfem::Vector &Fe,
                         const std::span<const real> &s,
                         const mfem::DenseMatrix &dN,
@@ -55,17 +55,18 @@ namespace mfem_mgis {
   }  // end of updateInnerForces
 
   inline void
-  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator::
+  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                             const std::span<const real> &Kip,
                             const mfem::DenseMatrix &dN,
                             const real w,
                             const size_type ni) const noexcept {
-    this->updateStiffnessMatrix(Ke, Kip, dN, dN, w, ni);
+    IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+        updateStiffnessMatrix(Ke, Kip, dN, dN, w, ni);
   }  // end of updateStiffnessMatrix
 
   inline void
-  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator::
+  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                             const std::span<const real> &Kip,
                             const mfem::DenseMatrix &dN1,
