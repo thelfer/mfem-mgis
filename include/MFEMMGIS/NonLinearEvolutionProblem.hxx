@@ -157,11 +157,19 @@ namespace mfem_mgis {
                                          std::string_view,
                                          const Parameters &) noexcept override;
     void executePostProcessings(const real, const real) override;
-    std::map<size_type, size_type> addBehaviourIntegrator(
+    std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
+        Context &,
         const std::string &,
         const Parameter &,
         const std::string &,
-        const std::string &) override;
+        const std::string &) noexcept override;
+    std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
+        Context &,
+        const std::string &,
+        const Parameter &,
+        const std::string &,
+        const std::string &,
+        const Parameters &) noexcept override;
     [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
         const noexcept override;
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
@@ -244,6 +252,11 @@ namespace mfem_mgis {
     [[deprecated]] void setup(const real, const real) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
+    [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
+        const std::string &,
+        const Parameter &,
+        const std::string &,
+        const std::string &) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 

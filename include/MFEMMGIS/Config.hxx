@@ -81,12 +81,20 @@ namespace mfem_mgis {
     //! \brief a simple alias
     using Throwing = ::mgis::attributes::ThrowingAttribute<true>;
     //! \brief a simple alias
+    using MayThrow = ::mgis::attributes::ThrowingAttribute<true>;
+    //! \brief a simple alias
+    using MayAbort = ::mgis::attributes::AbortingAttribute<true>;
+    //! \brief a simple alias
     using Unsafe = ::mgis::attributes::UnsafeAttribute;
   }  // namespace attributes
   //
   inline constexpr auto unsafe = ::mgis::attributes::UnsafeAttribute{};
-  inline constexpr auto throwing =
+  [[deprecated]] inline constexpr auto throwing =
       ::mgis::attributes::ThrowingAttribute<true>{};
+  inline constexpr auto may_throw =
+      ::mgis::attributes::ThrowingAttribute<true>{};
+  inline constexpr auto may_abort =
+      ::mgis::attributes::AbortingAttribute<true>{};
 
   //! \brief a simple alias
   using size_type = int;
@@ -120,7 +128,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT void finalize();
   //! \return the MPI rank  for the default communicator
-  MFEM_MGIS_EXPORT [[deprecated]]  int getMPIrank();
+  MFEM_MGIS_EXPORT [[deprecated]] int getMPIrank();
   //! \return the total number of MPI processor for the default communicator.
   MFEM_MGIS_EXPORT [[deprecated]] int getMPIsize();
 

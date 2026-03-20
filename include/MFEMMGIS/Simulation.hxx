@@ -14,6 +14,7 @@
 #include <functional>
 #include <initializer_list>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/TimeStep.hxx"
 #include "MFEMMGIS/ExitStatus.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 

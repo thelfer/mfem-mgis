@@ -132,14 +132,23 @@ namespace mfem_mgis {
     }
   }  // end of update
 
+  [[nodiscard]] static bool checkMultiMaterialSupportEnabled(
+      Context& ctx,
+      const char* const n,
+      const MultiMaterialNonLinearIntegrator* const p) {
+    if (p == nullptr) {
+      return ctx.registerErrorMessage(
+          "NonLinearEvolutionProblemImplementationBase::" + std::string{n} +
+          ": multi material support has been disabled");
+    }
+    return true;
+  }  // end of checkMultiMaterialSupportEnabled
+
   static void checkMultiMaterialSupportEnabled(
       const char* const n, const MultiMaterialNonLinearIntegrator* const p) {
-    if (p == nullptr) {
-      std::string msg("NonLinearEvolutionProblemImplementationBase::");
-      msg += n;
-      msg += ": multi material support has been disabled";
-      raise(msg);
-    }
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    checkMultiMaterialSupportEnabled(ctx, n, p) | or_raise;
   }  // end of checkMultiMaterialSupportEnabled
 
   bool NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
@@ -219,21 +228,47 @@ namespace mfem_mgis {
     return this->mgis_integrator->getAssignedMaterialsIdentifiers();
   }  // end of getAssignedMaterialsIdentifiers
 
+  std::optional<std::map<size_type, size_type>>
+  NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const Parameter& m,
+      const std::string& l,
+      const std::string& b) noexcept {
+    return this->addBehaviourIntegrator(ctx, n, m, l, b, {});
+  }  // end of addBehaviourIntegrator
+
+  std::optional<std::map<size_type, size_type>>
+  NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const Parameter& m,
+      const std::string& l,
+      const std::string& b,
+      const Parameters& params) noexcept {
+    checkMultiMaterialSupportEnabled("addBehaviourIntegrator",
+                                     this->mgis_integrator);
+    auto bids = std::map<size_type, size_type>{};
+    for (const auto& mid : this->getMaterialsIdentifiers(m)) {
+      const auto obid = this->mgis_integrator->addBehaviourIntegrator(
+          ctx, n, mid, l, b, params);
+      if (isInvalid(obid)) {
+        return {};
+      }
+      bids.insert({mid, *obid});
+    }
+    return bids;
+  }  // end of addBehaviourIntegrator
+
   std::map<size_type, size_type>
   NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
       const std::string& n,
       const Parameter& m,
       const std::string& l,
       const std::string& b) {
-    checkMultiMaterialSupportEnabled("addBehaviourIntegrator",
-                                     this->mgis_integrator);
-    auto bids = std::map<size_type, size_type>{};
-    for (const auto& mid : this->getMaterialsIdentifiers(m)) {
-      const auto bid =
-          this->mgis_integrator->addBehaviourIntegrator(n, mid, l, b);
-      bids.insert({mid, bid});
-    }
-    return bids;
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return this->addBehaviourIntegrator(ctx, n, m, l, b) | or_raise;
   }  // end of addBehaviourIntegrator
 
   OptionalReference<const Material>

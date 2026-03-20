@@ -30,6 +30,7 @@
 #include "MFEMMGIS/OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 #include "MFEMMGIS/TridimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 #include "MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx"
+#include "MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.hxx"
 
 namespace mfem_mgis {
 
@@ -43,59 +44,76 @@ namespace mfem_mgis {
   static void fillWithDefaultBehaviourIntegrators(BehaviourIntegratorFactory&) {
   }  // end of fillWithDefaultBehaviourIntegrators
 
-  /*!
-   * \return a factory for the given hypothesis with some predeclared
-   * generators.
-   * \tparam H: modelling hypothesis
-   *
-   * \note this function is meant to be overriden to declare behaviour
-   * integrators which are only valid for this modelling hypothesis. Behaviour
-   * integrators defined for all modelling hypotheses are declared by the
-   * `fillWithDefaultBehaviourIntegrators`.
-   */
-  template <Hypothesis H>
-  static BehaviourIntegratorFactory buildFactory();
+  [[nodiscard]] static std::unique_ptr<AbstractBehaviourIntegrator>
+  generateTridimensionalMechanicalBehaviourIntegrators(
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) noexcept {
+    if (!checkParameters(
+            ctx, params,
+            std::map<std::string, std::string>{
+                {"Regularization", "Reguralization method (optional)"}})) {
+      return {};
+    }
+    if (contains(params, "Regularization")) {
+      const auto oreg_params = get<Parameters>(ctx, params, "Regularization");
+      if (isInvalid(oreg_params)) {
+        return {};
+      }
+      const auto ofa = extractFactoryArgument(ctx, *oreg_params);
+      if (isInvalid(ofa)) {
+        return {};
+      }
+      if (ofa->first != "Faltus2026") {
+        return ctx.registerErrorMessage(
+            "invalid regularisation '" + ofa->first +
+            "'. The only valid regularisation is 'Faltus2026'");
+      }
+      return generateTridimensionalFaltus2026RegularizedMechanicalBehaviourIntegrators(
+          ctx, fed, m, std::move(b), ofa->second);
+    }
+    if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
+      if (b->symmetry == Behaviour::ISOTROPIC) {
+        return make_unique<
+            IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+            ctx, fed, m, std::move(b));
+      }
+      return make_unique<
+          OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
+          ctx, fed, m, std::move(b));
+    } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+      return ctx.registerErrorMessage("invalid behaviour type");
+    }
+    auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
+      if (b->symmetry == Behaviour::ISOTROPIC) {
+        return make_unique<
+            IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+            ctx, fed, m, std::move(b));
+      }
+      return make_unique<
+          OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
+          ctx, fed, m, std::move(b));
+    }();
+    const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
+    bi->getMaterial().setMacroscopicGradients(F);
+    return bi;
+  }  // end of generateTridimensionalMechanicalBehaviourIntegrators
 
   /*!
    * \brief partial specialisation for the tridimensional case
    */
   template <>
-  BehaviourIntegratorFactory buildFactory<Hypothesis::TRIDIMENSIONAL>() {
-    BehaviourIntegratorFactory f;
+  void buildFactory<Hypothesis::TRIDIMENSIONAL>(BehaviourIntegratorFactory& f) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     fillWithDefaultBehaviourIntegrators<Hypothesis::TRIDIMENSIONAL>(f);
+    f.addGenerator(ctx, "Mechanics",
+                   generateTridimensionalMechanicalBehaviourIntegrators) |
+        or_die;
     f.addGenerator(
-        "Mechanics",
-        [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<AbstractBehaviourIntegrator> {
-          if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
-            if (b->symmetry == Behaviour::ISOTROPIC) {
-              return std::make_unique<
-                  IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
-                  fed, m, std::move(b));
-            }
-            return std::make_unique<
-                OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
-                fed, m, std::move(b));
-          } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-            raise("invalid behaviour type");
-          }
-          auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
-            if (b->symmetry == Behaviour::ISOTROPIC) {
-              return std::make_unique<
-                  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                  fed, m, std::move(b));
-            }
-            return std::make_unique<
-                OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                fed, m, std::move(b));
-          }();
-          const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
-          bi->getMaterial().setMacroscopicGradients(F);
-          return bi;
-        });
-    f.addGenerator(
-        "StationaryNonLinearHeatTransfer",
+        may_abort, "StationaryNonLinearHeatTransfer",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
             -> std::unique_ptr<AbstractBehaviourIntegrator> {
@@ -112,7 +130,7 @@ namespace mfem_mgis {
               fed, m, std::move(b));
         });
     f.addGenerator(
-        "TransientHeatTransfer",
+        may_abort, "TransientHeatTransfer",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
             -> std::unique_ptr<AbstractBehaviourIntegrator> {
@@ -122,56 +140,85 @@ namespace mfem_mgis {
           return std::make_unique<TransientHeatTransferBehaviourIntegrator>(
               fed, m, std::move(b));
         });
-    f.addGenerator("MicromorphicDamage",  //
+    f.addGenerator(may_abort, "MicromorphicDamage",  //
                    [](const FiniteElementDiscretization& fed, const size_type m,
                       std::unique_ptr<const Behaviour> b) {
                      return std::make_unique<
                          TridimensionalMicromorphicDamageBehaviourIntegrator>(
                          fed, m, std::move(b));
                    });
-    return f;
   }  // end of buildFactory
+
+  [[nodiscard]] static std::unique_ptr<AbstractBehaviourIntegrator>
+  generatePlaneStrainMechanicalBehaviourIntegrators(
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) noexcept {
+    if (!checkParameters(
+            ctx, params,
+            std::map<std::string, std::string>{
+                {"Regularization", "Reguralization method (optional)"}})) {
+      return {};
+    }
+    if (contains(params, "Regularization")) {
+      const auto oreg_params = get<Parameters>(ctx, params, "Regularization");
+      if (isInvalid(oreg_params)) {
+        return {};
+      }
+      const auto ofa = extractFactoryArgument(ctx, *oreg_params);
+      if (isInvalid(ofa)) {
+        return {};
+      }
+      if (ofa->first != "Faltus2026") {
+        return ctx.registerErrorMessage(
+            "invalid regularisation '" + ofa->first +
+            "'. The only valid regularisation is 'Faltus2026'");
+      }
+      return generatePlaneStrainFaltus2026RegularizedMechanicalBehaviourIntegrators(
+          ctx, fed, m, std::move(b), ofa->second);
+    }
+    if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
+      if (b->symmetry == Behaviour::ISOTROPIC) {
+        return make_unique<
+            IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
+            ctx, fed, m, std::move(b));
+      }
+      return make_unique<
+          OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
+          ctx, fed, m, std::move(b));
+    } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+      return ctx.registerErrorMessage("invalid behaviour type");
+    }
+    auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
+      if (b->symmetry == Behaviour::ISOTROPIC) {
+        return make_unique<
+            IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
+            ctx, fed, m, std::move(b));
+      }
+      return make_unique<
+          OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
+          ctx, fed, m, std::move(b));
+    }();
+    const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
+    bi->getMaterial().setMacroscopicGradients(F);
+    return bi;
+  }  // end of generatePlaneStrainMechanicalBehaviourIntegrators
 
   /*!
    * \brief partial specialisation for the tridimensional case
    */
   template <>
-  BehaviourIntegratorFactory buildFactory<Hypothesis::PLANESTRAIN>() {
-    BehaviourIntegratorFactory f;
+  void buildFactory<Hypothesis::PLANESTRAIN>(BehaviourIntegratorFactory& f) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     fillWithDefaultBehaviourIntegrators<Hypothesis::PLANESTRAIN>(f);
+    f.addGenerator(ctx, "Mechanics",
+                   generatePlaneStrainMechanicalBehaviourIntegrators) |
+        or_die;
     f.addGenerator(
-        "Mechanics",
-        [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<AbstractBehaviourIntegrator> {
-          if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
-            if (b->symmetry == Behaviour::ISOTROPIC) {
-              return std::make_unique<
-                  IsotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
-                  fed, m, std::move(b));
-            }
-            return std::make_unique<
-                OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator>(
-                fed, m, std::move(b));
-          } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-            raise("invalid behaviour type");
-          }
-          auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
-            if (b->symmetry == Behaviour::ISOTROPIC) {
-              return std::make_unique<
-                  IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                  fed, m, std::move(b));
-            }
-            return std::make_unique<
-                OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                fed, m, std::move(b));
-          }();
-          const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
-          bi->getMaterial().setMacroscopicGradients(F);
-          return bi;
-        });
-    f.addGenerator(
-        "StationaryNonLinearHeatTransfer",
+        may_abort, "StationaryNonLinearHeatTransfer",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
             -> std::unique_ptr<AbstractBehaviourIntegrator> {
@@ -188,6 +235,7 @@ namespace mfem_mgis {
               fed, m, std::move(b));
         });
     f.addGenerator(
+        may_abort,
         "MicromorphicDamage",  //
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
@@ -201,49 +249,78 @@ namespace mfem_mgis {
               OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator>(
               fed, m, std::move(b));
         });
-    return f;
   }  // end of buildFactory
+
+  [[nodiscard]] static std::unique_ptr<AbstractBehaviourIntegrator>
+  generatePlaneStressMechanicalBehaviourIntegrators(
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) noexcept {
+    if (!checkParameters(
+            ctx, params,
+            std::map<std::string, std::string>{
+                {"Regularization", "Reguralization method (optional)"}})) {
+      return {};
+    }
+    if (contains(params, "Regularization")) {
+      const auto oreg_params = get<Parameters>(ctx, params, "Regularization");
+      if (isInvalid(oreg_params)) {
+        return {};
+      }
+      const auto ofa = extractFactoryArgument(ctx, *oreg_params);
+      if (isInvalid(ofa)) {
+        return {};
+      }
+      if (ofa->first != "Faltus2026") {
+        return ctx.registerErrorMessage(
+            "invalid regularisation '" + ofa->first +
+            "'. The only valid regularisation is 'Faltus2026'");
+      }
+      return generatePlaneStressFaltus2026RegularizedMechanicalBehaviourIntegrators(
+          ctx, fed, m, std::move(b), ofa->second);
+    }
+    if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
+      if (b->symmetry == Behaviour::ISOTROPIC) {
+        return make_unique<
+            IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
+            ctx, fed, m, std::move(b));
+      }
+      return make_unique<
+          OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
+          ctx, fed, m, std::move(b));
+    } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+      return ctx.registerErrorMessage("invalid behaviour type");
+    }
+    auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
+      if (b->symmetry == Behaviour::ISOTROPIC) {
+        return make_unique<
+            IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
+            ctx, fed, m, std::move(b));
+      }
+      return make_unique<
+          OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
+          ctx, fed, m, std::move(b));
+    }();
+    const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
+    bi->getMaterial().setMacroscopicGradients(F);
+    return bi;
+  }  // end of generatePlaneStressMechanicalBehaviourIntegrators
 
   /*!
    * \brief partial specialisation for the tridimensional case
    */
   template <>
-  BehaviourIntegratorFactory buildFactory<Hypothesis::PLANESTRESS>() {
-    BehaviourIntegratorFactory f;
+  void buildFactory<Hypothesis::PLANESTRESS>(BehaviourIntegratorFactory& f) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     fillWithDefaultBehaviourIntegrators<Hypothesis::PLANESTRESS>(f);
+    f.addGenerator(ctx, "Mechanics",
+                   generatePlaneStressMechanicalBehaviourIntegrators) |
+        or_die;
     f.addGenerator(
-        "Mechanics",
-        [](const FiniteElementDiscretization& fed, const size_type m,
-           std::unique_ptr<const Behaviour> b)
-            -> std::unique_ptr<AbstractBehaviourIntegrator> {
-          if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
-            if (b->symmetry == Behaviour::ISOTROPIC) {
-              return std::make_unique<
-                  IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
-                  fed, m, std::move(b));
-            }
-            return std::make_unique<
-                OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator>(
-                fed, m, std::move(b));
-          } else if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-            raise("invalid behaviour type");
-          }
-          auto bi = [&]() -> std::unique_ptr<AbstractBehaviourIntegrator> {
-            if (b->symmetry == Behaviour::ISOTROPIC) {
-              return std::make_unique<
-                  IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                  fed, m, std::move(b));
-            }
-            return std::make_unique<
-                OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
-                fed, m, std::move(b));
-          }();
-          const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
-          bi->getMaterial().setMacroscopicGradients(F);
-          return bi;
-        });
-    f.addGenerator(
-        "StationaryNonLinearHeatTransfer",
+        may_abort, "StationaryNonLinearHeatTransfer",
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
             -> std::unique_ptr<AbstractBehaviourIntegrator> {
@@ -260,6 +337,7 @@ namespace mfem_mgis {
               fed, m, std::move(b));
         });
     f.addGenerator(
+        may_abort,
         "MicromorphicDamage",  //
         [](const FiniteElementDiscretization& fed, const size_type m,
            std::unique_ptr<const Behaviour> b)
@@ -273,82 +351,139 @@ namespace mfem_mgis {
               OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator>(
               fed, m, std::move(b));
         });
-    return f;
   }  // end of buildFactory
 
-  /*!
-   * \brief an helper function which add the behaviour integrators for the given
-   * hypothesis
-   * \tparam H: modelling hypothesis
-   * \param[in, out] factories: list of factories per modelling hypotheses
-   */
   template <Hypothesis H>
-  static void addFactory(
-      std::map<Hypothesis, BehaviourIntegratorFactory>& factories) {
-    factories.insert({H, buildFactory<H>()});
+  void BehaviourIntegratorFactory::addFactory(
+      std::map<Hypothesis, std::unique_ptr<BehaviourIntegratorFactory>>&
+          factories) {
+    auto f = std::unique_ptr<BehaviourIntegratorFactory>(
+        new BehaviourIntegratorFactory);
+    buildFactory<H>(*f);
+    factories.insert({H, std::move(f)});
   }  // end of addFactory
 
-  std::map<Hypothesis, BehaviourIntegratorFactory>
+  std::map<Hypothesis, std::unique_ptr<BehaviourIntegratorFactory>>
   BehaviourIntegratorFactory::buildFactories() {
-    auto factories = std::map<Hypothesis, BehaviourIntegratorFactory>{};
+    auto factories =
+        std::map<Hypothesis, std::unique_ptr<BehaviourIntegratorFactory>>{};
     //     addFactory<Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRAIN>(factories);
     //     addFactory<Hypothesis::AXISYMMETRICALGENERALISEDPLANESTRESS>(factories);
     //     addFactory<Hypothesis::AXISYMMETRICAL>(factories);
-    addFactory<Hypothesis::PLANESTRESS>(factories);
-    addFactory<Hypothesis::PLANESTRAIN>(factories);
+    BehaviourIntegratorFactory::addFactory<Hypothesis::PLANESTRESS>(factories);
+    BehaviourIntegratorFactory::addFactory<Hypothesis::PLANESTRAIN>(factories);
     //     addFactory<Hypothesis::GENERALISEDPLANESTRAIN>(factories);
-    addFactory<Hypothesis::TRIDIMENSIONAL>(factories);
+    BehaviourIntegratorFactory::addFactory<Hypothesis::TRIDIMENSIONAL>(
+        factories);
     return factories;
   }  // end of BehaviourIntegratorFactory::buildFactories()
 
-  BehaviourIntegratorFactory& BehaviourIntegratorFactory::get(
-      const Hypothesis h) {
+  OptionalReference<BehaviourIntegratorFactory> BehaviourIntegratorFactory::get(
+      Context& ctx, const Hypothesis h) noexcept {
     static auto factories = BehaviourIntegratorFactory::buildFactories();
     const auto p = factories.find(h);
     if (p == factories.end()) {
-      raise("BehaviourIntegratorFactory::get: unsupported hypothesis '" +
-            std::string(mgis::behaviour::toString(h)) + "'");
+      return ctx.registerErrorMessage(
+          "BehaviourIntegratorFactory::get: unsupported hypothesis '" +
+          std::string(mgis::behaviour::toString(h)) + "'");
     }
-    return p->second;
+    return p->second.get();
   }  // end of BehaviourIntegratorFactory::get
 
-  void BehaviourIntegratorFactory::addGenerator(const std::string& n,
-                                                const Generator g) {
+  BehaviourIntegratorFactory& BehaviourIntegratorFactory::get(
+      const Hypothesis h) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return BehaviourIntegratorFactory::get(ctx, h) | or_raise;
+  }  // end of BehaviourIntegratorFactory::get
+
+  bool BehaviourIntegratorFactory::addGenerator(Context& ctx,
+                                                const std::string& n,
+                                                const Generator g) noexcept {
     if (this->generators.count(n) != 0) {
-      raise(
+      return ctx.registerErrorMessage(
           "BehaviourIntegratorFactory::addGenerator: "
           "a generator named '" +
           n + "' has already been declared");
     }
+    if (!g) {
+      return ctx.registerErrorMessage(
+          "BehaviourIntegratorFactory::addGenerator: "
+          "invalid generator provided for behaviour integrator '" +
+          n + "'");
+    }
     this->generators.insert({n, g});
-  }  // end of BehaviourIntegratorFactory::addGenerator
+    return true;
+  }  // end of addGenerator
+
+  void BehaviourIntegratorFactory::addGenerator(
+      attributes::MayAbort,
+      std::string_view n,
+      const DeprecatedGeneratorType g) {
+    auto ng = [g](Context& nctx, const FiniteElementDiscretization& nfed,
+                  const size_type nm, std::unique_ptr<const Behaviour> nb,
+                  const Parameters& nparams)
+        -> std::unique_ptr<AbstractBehaviourIntegrator> {
+      if (!nparams.empty()) {
+        return nctx.registerErrorMessage("no parameter expected");
+      }
+      try {
+        return g(nfed, nm, std::move(nb));
+      } catch (...) {
+        std::ignore = registerExceptionInErrorBacktrace(nctx);
+      }
+      return {};
+    };
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    this->addGenerator(ctx, std::string{n}, ng) | or_die;
+  }  // end of addGenerator
 
   std::unique_ptr<AbstractBehaviourIntegrator>
   BehaviourIntegratorFactory::generate(
-      const std::string& n,
+      Context& ctx,
+      std::string_view n,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) const noexcept {
+    const auto p = this->generators.find(n);
+    if (p == this->generators.end()) {
+      return ctx.registerErrorMessage(
+          "BehaviourIntegratorFactory::generate: "
+          "no generator named '" +
+          std::string{n} + "' declared");
+    }
+    const auto& g = p->second;
+    try {
+      auto bi = g(ctx, fed, m, std::move(b), params);
+      if (isInvalid(bi)) {
+        return ctx.registerErrorMessage(
+            "BehaviourIntegratorFactory::generate: "
+            "generation of behaviour integrator '" +
+            std::string{n} + "' failed");
+      }
+      return bi;
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of BehaviourIntegratorFactory::generate
+
+  std::unique_ptr<AbstractBehaviourIntegrator>
+  BehaviourIntegratorFactory::generate(
+      std::string_view n,
       const FiniteElementDiscretization& fed,
       const size_type m,
       std::unique_ptr<const Behaviour> b) const {
-    const auto p = this->generators.find(n);
-    if (p == this->generators.end()) {
-      raise(
-          "BehaviourIntegratorFactory::generate: "
-          "no generator named '" +
-          n + "' declared");
-    }
-    const auto& g = p->second;
-    return g(fed, m, std::move(b));
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return this->generate(ctx, n, fed, m, std::move(b), {}) | or_raise;
   }  // end of BehaviourIntegratorFactory::generate
 
   BehaviourIntegratorFactory::BehaviourIntegratorFactory() = default;
   BehaviourIntegratorFactory::BehaviourIntegratorFactory(
       BehaviourIntegratorFactory&&) = default;
-  BehaviourIntegratorFactory::BehaviourIntegratorFactory(
-      const BehaviourIntegratorFactory&) = default;
-  BehaviourIntegratorFactory& BehaviourIntegratorFactory::operator=(
-      BehaviourIntegratorFactory&&) = default;
-  BehaviourIntegratorFactory& BehaviourIntegratorFactory::operator=(
-      const BehaviourIntegratorFactory&) = default;
   BehaviourIntegratorFactory::~BehaviourIntegratorFactory() noexcept = default;
 
 }  // end of namespace mfem_mgis

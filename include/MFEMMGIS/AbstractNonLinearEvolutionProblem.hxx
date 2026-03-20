@@ -328,16 +328,36 @@ namespace mfem_mgis {
      * \brief add a new behaviour integrator
      * \return a mapping between the material id and the identifier of the
      * behaviour integrator
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the behaviour integrator
      * \param[in] m: material ids
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
-    virtual std::map<size_type, size_type> addBehaviourIntegrator(
-        const std::string &,
-        const Parameter &,
-        const std::string &,
-        const std::string &) = 0;
+    virtual std::optional<std::map<size_type, size_type>>
+    addBehaviourIntegrator(Context &,
+                           const std::string &,
+                           const Parameter &,
+                           const std::string &,
+                           const std::string &) noexcept = 0;
+    /*!
+     * \brief add a new behaviour integrator
+     * \return a mapping between the material id and the identifier of the
+     * behaviour integrator
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the behaviour integrator
+     * \param[in] m: material ids
+     * \param[in] l: library name
+     * \param[in] b: behaviour name
+     * \param[in] params: additional parameters
+     */
+    virtual std::optional<std::map<size_type, size_type>>
+    addBehaviourIntegrator(Context &,
+                           const std::string &,
+                           const Parameter &,
+                           const std::string &,
+                           const std::string &,
+                           const Parameters &) noexcept = 0;
     /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
@@ -628,6 +648,20 @@ namespace mfem_mgis {
      */
     [[deprecated]] virtual void setLinearSolver(std::string_view,
                                                 const Parameters &) = 0;
+    /*!
+     * \brief add a new behaviour integrator
+     * \return a mapping between the material id and the identifier of the
+     * behaviour integrator
+     * \param[in] n: name of the behaviour integrator
+     * \param[in] m: material ids
+     * \param[in] l: library name
+     * \param[in] b: behaviour name
+     */
+    virtual std::map<size_type, size_type> addBehaviourIntegrator(
+        const std::string &,
+        const Parameter &,
+        const std::string &,
+        const std::string &) = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblem();
   };  // end of struct AbstractNonLinearEvolutionProblem

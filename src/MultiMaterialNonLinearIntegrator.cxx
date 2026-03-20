@@ -253,17 +253,41 @@ namespace mfem_mgis {
     }
   }  // end of AssembleElementGrad
 
+  std::optional<size_type>
+  MultiMaterialNonLinearIntegrator::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const size_type m,
+      const std::string& l,
+      const std::string& b,
+      const Parameters& params) noexcept {
+    const auto of = BehaviourIntegratorFactory::get(ctx, this->hypothesis);
+    if (isInvalid(of)) {
+      return {};
+    }
+    auto& bis = this->behaviour_integrators[m];
+    const auto s = static_cast<size_type>(bis.size());
+    auto bptr = mfem_mgis::load(ctx, l, b, this->hypothesis);
+    if (isInvalid(bptr)) {
+      return {};
+    }
+    auto bi = of->generate(ctx, n, *(this->fe_discretization), m,
+                           std::move(bptr), params);
+    if (isInvalid(bi)) {
+      return {};
+    }
+    bis.push_back(std::move(bi));
+    return s;
+  }  // end of addBehaviourIntegrator
+
   size_type MultiMaterialNonLinearIntegrator::addBehaviourIntegrator(
       const std::string& n,
       const size_type m,
       const std::string& l,
       const std::string& b) {
-    const auto& f = BehaviourIntegratorFactory::get(this->hypothesis);
-    auto& bis = this->behaviour_integrators[m];
-    const auto s = static_cast<size_type>(bis.size());
-    bis.push_back(f.generate(n, *(this->fe_discretization), m,
-                             mfem_mgis::load(l, b, this->hypothesis)));
-    return s;
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return this->addBehaviourIntegrator(ctx, n, m, l, b) | or_raise;
   }  // end of addBehaviourIntegrator
 
   OptionalReference<const Material>

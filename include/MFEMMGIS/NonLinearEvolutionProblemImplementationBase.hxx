@@ -130,11 +130,19 @@ namespace mfem_mgis {
         Context&, const Parameter&, const size_type) const noexcept override;
     OptionalReference<AbstractBehaviourIntegrator> getBehaviourIntegrator(
         Context&, const Parameter&, const size_type) noexcept override;
-    std::map<size_type, size_type> addBehaviourIntegrator(
+    std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
+        Context&,
         const std::string&,
         const Parameter&,
         const std::string&,
-        const std::string&) override;
+        const std::string&) noexcept override;
+    std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
+        Context&,
+        const std::string&,
+        const Parameter&,
+        const std::string&,
+        const std::string&,
+        const Parameters&) noexcept override;
     [[nodiscard]] std::vector<size_type> getEssentialDegreesOfFreedom()
         const override;
     [[nodiscard]] bool areStiffnessOperatorsFromLastIterationAvailable()
@@ -183,6 +191,11 @@ namespace mfem_mgis {
     [[deprecated]] void setup(const real, const real) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
+    [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
+        const std::string&,
+        const Parameter&,
+        const std::string&,
+        const std::string&) override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementationBase() override;
 
