@@ -1,18 +1,18 @@
 /*!
  * \file
- * MFEMMGIS/IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.ixx
+ * MFEMMGIS/TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase.ixx
  * \brief
  * \author Thomas Helfer
  * \date   19/03/2026
  */
 
-#ifndef LIB_MFEMMGIS_ISOTROPICTRIDIMENSIONALSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATOR_IXX
-#define LIB_MFEMMGIS_ISOTROPICTRIDIMENSIONALSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATOR_IXX
+#ifndef LIB_MFEMMGIS_TRIDIMENSIONALSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATORBASE_IXX
+#define LIB_MFEMMGIS_TRIDIMENSIONALSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATORBASE_IXX
 
 namespace mfem_mgis {
 
   inline void
-  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+  TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateGradients(std::span<real> &g,
                       const mfem::Vector &u,
                       const mfem::DenseMatrix &dN,
@@ -36,7 +36,7 @@ namespace mfem_mgis {
   }  // end of updateGradients
 
   inline void
-  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+  TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateInnerForces(mfem::Vector &Fe,
                         const std::span<const real> &s,
                         const mfem::DenseMatrix &dN,
@@ -55,18 +55,18 @@ namespace mfem_mgis {
   }  // end of updateInnerForces
 
   inline void
-  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+  TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                             const std::span<const real> &Kip,
                             const mfem::DenseMatrix &dN,
                             const real w,
                             const size_type ni) const noexcept {
-    IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+    TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
         updateStiffnessMatrix(Ke, Kip, dN, dN, w, ni);
   }  // end of updateStiffnessMatrix
 
   inline void
-  IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+  TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                             const std::span<const real> &Kip,
                             const mfem::DenseMatrix &dN1,
@@ -137,5 +137,5 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEMMGIS_ISOTROPICTRIDIMENSIONALSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATOR_IXX \
+#endif /* LIB_MFEMMGIS_TRIDIMENSIONALSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATORBASE_IXX \
         */
