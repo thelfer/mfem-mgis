@@ -31,6 +31,7 @@
 #include "MFEMMGIS/TridimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 #include "MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx"
 #include "MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.hxx"
+#include "MFEMMGIS/FBarBehaviourIntegrators.hxx"
 
 namespace mfem_mgis {
 
@@ -66,12 +67,16 @@ namespace mfem_mgis {
       if (isInvalid(ofa)) {
         return {};
       }
-      if (ofa->first != "Faltus2026") {
+      if ((ofa->first != "Faltus2026") && (ofa->first != "FBar")) {
         return ctx.registerErrorMessage(
             "invalid regularisation '" + ofa->first +
-            "'. The only valid regularisation is 'Faltus2026'");
+            "'. The only valid regularisations are 'FBar' and 'Faltus2026'");
       }
-      return generateTridimensionalFaltus2026RegularizedMechanicalBehaviourIntegrators(
+      if (ofa->first != "Faltus2026") {
+        return generateTridimensionalFaltus2026RegularizedMechanicalBehaviourIntegrators(
+            ctx, fed, m, std::move(b), ofa->second);
+      }
+      return generateTridimensionalFBarBehaviourIntegrators(
           ctx, fed, m, std::move(b), ofa->second);
     }
     if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
@@ -171,12 +176,16 @@ namespace mfem_mgis {
       if (isInvalid(ofa)) {
         return {};
       }
-      if (ofa->first != "Faltus2026") {
+      if ((ofa->first != "Faltus2026") && (ofa->first != "FBar")) {
         return ctx.registerErrorMessage(
             "invalid regularisation '" + ofa->first +
-            "'. The only valid regularisation is 'Faltus2026'");
+            "'. The only valid regularisations are 'FBar' and 'Faltus2026'");
       }
-      return generatePlaneStrainFaltus2026RegularizedMechanicalBehaviourIntegrators(
+      if (ofa->first != "Faltus2026") {
+        return generatePlaneStrainFaltus2026RegularizedMechanicalBehaviourIntegrators(
+            ctx, fed, m, std::move(b), ofa->second);
+      }
+      return generatePlaneStrainFBarBehaviourIntegrators(
           ctx, fed, m, std::move(b), ofa->second);
     }
     if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
@@ -273,12 +282,16 @@ namespace mfem_mgis {
       if (isInvalid(ofa)) {
         return {};
       }
-      if (ofa->first != "Faltus2026") {
+      if ((ofa->first != "Faltus2026") && (ofa->first != "FBar")) {
         return ctx.registerErrorMessage(
             "invalid regularisation '" + ofa->first +
-            "'. The only valid regularisation is 'Faltus2026'");
+            "'. The only valid regularisations are 'FBar' and 'Faltus2026'");
       }
-      return generatePlaneStressFaltus2026RegularizedMechanicalBehaviourIntegrators(
+      if (ofa->first != "Faltus2026") {
+        return generatePlaneStressFaltus2026RegularizedMechanicalBehaviourIntegrators(
+            ctx, fed, m, std::move(b), ofa->second);
+      }
+      return generatePlaneStressFBarBehaviourIntegrators(
           ctx, fed, m, std::move(b), ofa->second);
     }
     if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {

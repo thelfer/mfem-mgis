@@ -11,8 +11,7 @@
 
 namespace mfem_mgis {
 
-  inline void
-  PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+  inline void PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateGradients(std::span<real> &g,
                       const mfem::Vector &u,
                       const mfem::DenseMatrix &dN,
@@ -29,8 +28,7 @@ namespace mfem_mgis {
     g[4] += dNi_0 * u_1;
   }  // end of updateGradients
 
-  inline void
-  PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+  inline void PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateInnerForces(mfem::Vector &Fe,
                         const std::span<const real> &s,
                         const mfem::DenseMatrix &dN,
@@ -45,8 +43,7 @@ namespace mfem_mgis {
     Fe[ni_1] += w * (s[4] * dNi_0 + s[1] * dNi_1);
   }  // end of updateInnerForces
 
-  inline void
-  PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+  inline void PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                             const std::span<const real> &Kip,
                             const mfem::DenseMatrix &dN,
@@ -56,8 +53,7 @@ namespace mfem_mgis {
         updateStiffnessMatrix(Ke, Kip, dN, dN, w, ni);
   }  // end of updateStiffnessMatrix
 
-  inline void
-  PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase::
+  inline void PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase::
       updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                             const std::span<const real> &Kip,
                             const mfem::DenseMatrix &dN1,
