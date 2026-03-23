@@ -7,7 +7,6 @@
 
 #include "MFEMMGIS/FBarBehaviourIntegrators.hxx"
 #include "MFEMMGIS/FBarIsotropicPlaneStrainBehaviourIntegrator.hxx"
-#include "MFEMMGIS/FBarIsotropicPlaneStressBehaviourIntegrator.hxx"
 #include "MFEMMGIS/FBarIsotropicTridimensionalBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
@@ -34,37 +33,10 @@ namespace mfem_mgis {
     if (isInvalid(bi)) {
       return {};
     }
-    const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
+    const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
     bi->getMaterial().setMacroscopicGradients(F);
     return bi;
   }  // end of generatePlaneStrainFBarBehaviourIntegrators
-
-  std::unique_ptr<AbstractBehaviourIntegrator>
-  generatePlaneStressFBarBehaviourIntegrators(
-      Context &ctx,
-      const FiniteElementDiscretization &fed,
-      const size_type m,
-      std::unique_ptr<const Behaviour> b,
-      const Parameters &params) noexcept {
-    if (!params.empty()) {
-      return ctx.registerErrorMessage("no parameter expected");
-    }
-    if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-      return ctx.registerErrorMessage("invalid behaviour type");
-    }
-    if (b->symmetry != Behaviour::ISOTROPIC) {
-      return ctx.registerErrorMessage(
-          "only isotropic behaviours are supported");
-    }
-    auto bi = make_unique<FBarIsotropicPlaneStressBehaviourIntegrator>(
-        ctx, fed, m, std::move(b));
-    if (isInvalid(bi)) {
-      return {};
-    }
-    const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
-    bi->getMaterial().setMacroscopicGradients(F);
-    return bi;
-  }  // end of generatePlaneStressFBarBehaviourIntegrators
 
   std::unique_ptr<AbstractBehaviourIntegrator>
   generateTridimensionalFBarBehaviourIntegrators(

@@ -282,16 +282,12 @@ namespace mfem_mgis {
       if (isInvalid(ofa)) {
         return {};
       }
-      if ((ofa->first != "Faltus2026") && (ofa->first != "FBar")) {
+      if (ofa->first != "Faltus2026") {
         return ctx.registerErrorMessage(
             "invalid regularisation '" + ofa->first +
-            "'. The only valid regularisations are 'FBar' and 'Faltus2026'");
+            "'. The only valid regularisation is 'Faltus2026'");
       }
-      if (ofa->first != "Faltus2026") {
-        return generatePlaneStressFaltus2026RegularizedMechanicalBehaviourIntegrators(
-            ctx, fed, m, std::move(b), ofa->second);
-      }
-      return generatePlaneStressFBarBehaviourIntegrators(
+      return generatePlaneStressFaltus2026RegularizedMechanicalBehaviourIntegrators(
           ctx, fed, m, std::move(b), ofa->second);
     }
     if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {

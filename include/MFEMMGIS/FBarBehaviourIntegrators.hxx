@@ -27,14 +27,6 @@ namespace mfem_mgis {
       const Parameters &) noexcept;
 
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
-  generatePlaneStressFBarBehaviourIntegrators(
-      Context &,
-      const FiniteElementDiscretization &,
-      const size_type,
-      std::unique_ptr<const Behaviour>,
-      const Parameters &) noexcept;
-
-  [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generateTridimensionalFBarBehaviourIntegrators(
       Context &,
       const FiniteElementDiscretization &,
