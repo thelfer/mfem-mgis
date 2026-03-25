@@ -42,12 +42,12 @@ namespace mfem_mgis {
                   "the derivatives of the shape functions are required to "
                   "compute the gradients");
     constexpr auto dimension = []() constexpr->unsigned short {
-      if constexpr ((H == Hypothesis::PLANESTRAIN) ||
-                    (H == Hypothesis::PLANESTRESS)) {
-        return 2;
-      } else {
-        return 3;
-      }
+      return (H == Hypothesis::PLANESTRAIN) ? 2 : 3;
+    }
+    ();
+    // inverse of the exponent of the FBar regularisation
+    constexpr auto ie = []() constexpr->unsigned short {
+      return (H == Hypothesis::PLANESTRAIN) ? 2 : 3;
     }
     ();
     constexpr auto gsize = tfel::math::TensorDimeToSize<dimension>::value;
@@ -132,10 +132,18 @@ namespace mfem_mgis {
       }
       const auto J0 = tfel::math::det(F0);
       const auto J = tfel::math::det(F);
-      const auto alpha = tfel::math::power<1, 3>(J0 / J);
+      const auto alpha = tfel::math::power<1, ie>(J0 / J);
       auto g = this->s1.gradients.subspan(o * gsize, gsize);
-      for (size_type c = 0; c != gsize; ++c) {
-        g[c] = alpha * F[c];
+      if constexpr (H == Hypothesis::PLANESTRAIN) {
+        for (size_type c = 0; c != gsize; ++c) {
+          if (c != 2) {
+            g[c] = alpha * F[c];
+          }
+        }
+      } else {
+        for (size_type c = 0; c != gsize; ++c) {
+          g[c] = alpha * F[c];
+        }
       }
       const auto r = child.getRotationMatrix(o);
       child.rotateGradients(g, r);
@@ -238,12 +246,12 @@ namespace mfem_mgis {
     constexpr const auto evaluateShapeFunctionsDerivatives =
         Traits::gradientsComputationRequiresShapeFunctionsDerivatives;
     constexpr auto dimension = []() constexpr->unsigned short {
-      if constexpr ((H == Hypothesis::PLANESTRAIN) ||
-                    (H == Hypothesis::PLANESTRESS)) {
-        return 2;
-      } else {
-        return 3;
-      }
+      return (H == Hypothesis::PLANESTRAIN) ? 2 : 3;
+    }
+    ();
+    // inverse of the exponent of the FBar regularisation
+    constexpr auto ie = []() constexpr->unsigned short {
+      return (H == Hypothesis::PLANESTRAIN) ? 2 : 3;
     }
     ();
     constexpr auto gsize = tfel::math::TensorDimeToSize<dimension>::value;
@@ -309,14 +317,15 @@ namespace mfem_mgis {
       auto g = this->s1.gradients.subspan(o * gsize, gsize);
       const auto Fbar =
           tfel::math::map<tfel::math::tensor<dimension, real>>(g.data());
+#pragma message("to be fixed in plane strain")
       const auto Jbar = tfel::math::det(Fbar);
       const auto J = J0 / Jbar;
-      const auto alpha = tfel::math::power<1 / 3>(J0 / J);
+      const auto alpha = tfel::math::power<1, ie>(J0 / J);
       const auto F = eval(Fbar / alpha);
       const auto dJ_dF = tfel::math::computeDeterminantDerivative(F);
       const auto dJ_dF0 = tfel::math::computeDeterminantDerivative(F0);
-      const auto dalpha_dF0 = (alpha / (3 * J0)) * dJ_dF0;
-      const auto dalpha_dF = (-alpha / (3 * J)) * dJ_dF;
+      const auto dalpha_dF0 = (alpha / (ie * J0)) * dJ_dF0;
+      const auto dalpha_dF = (-alpha / (ie * J)) * dJ_dF;
       const auto dFbar_dF0 = tfel::math::eval(F ^ dalpha_dF0);
       const auto dFbar_dF = tfel::math::eval(
           alpha * tfel::math::t2tot2<dimension, real>::Id() + (F ^ dalpha_dF));

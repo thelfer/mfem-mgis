@@ -33,6 +33,9 @@ namespace mfem_mgis {
   template <typename Child, Hypothesis H>
   struct FBarBehaviourIntegratorCRTPBase : BehaviourIntegratorBase {
    protected:
+    static_assert(((H == Hypothesis::PLANESTRAIN) ||
+                   (H == Hypothesis::TRIDIMENSIONAL)),
+                  "invalid modelling hypothesis");
     // inheriting `BehaviourIntegratorBase`' constructor
     using BehaviourIntegratorBase::BehaviourIntegratorBase;
     /*!
