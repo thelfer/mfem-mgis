@@ -92,7 +92,7 @@ jobs:
       shell: spack-sh {0} 
       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
       run: |
-        ctest --rerun-failed --output-on-failure
+        ctest --rerun-failed --output-on-failure -V
         
 #    - name: Run OperaHPC repository
 #      run: git clone https://github.com/rprat-pro/mm-opera-hpc.git
