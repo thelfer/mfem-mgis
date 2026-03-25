@@ -331,7 +331,7 @@ namespace mfem_mgis {
       }
       if (contains(params, Problem::SolverMaximumNumberOfIterations)) {
         const auto oiterMax =
-            get<int>(ctx, params, Problem::SolverVerbosityLevel);
+            get<int>(ctx, params, Problem::SolverMaximumNumberOfIterations);
         if (isInvalid(oiterMax)) {
           return {};
         }
