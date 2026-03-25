@@ -102,17 +102,17 @@ namespace mfem_mgis {
     if constexpr (parallel) {
       static_assert(std::is_same_v<size_type, int>, "invalid integer types");
       int nbranks, myrank;
-      MPI_Comm_size(MPI_COMM_WORLD, &nbranks);
-      MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+      MPI_Comm_size(mesh.GetComm(), &nbranks);
+      MPI_Comm_rank(mesh.GetComm(), &myrank);
       std::vector<double> d_min_buffer(nbranks, -1);
       std::vector<HYPRE_BigInt> global_dof_id_buffer(nbranks, -1);
       double d_min = min_distance;
       // gathering all minimum values and global ides overs all processes
       MPI_Allgather(&d_min, 1, MPI_DOUBLE, d_min_buffer.data(), 1, MPI_DOUBLE,
-                    MPI_COMM_WORLD);
+                    mesh.GetComm());
       MPI_Allgather(&global_dof_id, 1, HYPRE_MPI_BIG_INT,
                     global_dof_id_buffer.data(), 1, HYPRE_MPI_BIG_INT,
-                    MPI_COMM_WORLD);
+                    mesh.GetComm());
 #ifdef MFEM_MGIS_DEBUG
       if (myrank == 0) {
         std::cout << "minimal distance per proc:";

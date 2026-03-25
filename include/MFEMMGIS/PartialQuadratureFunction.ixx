@@ -101,6 +101,20 @@ namespace mfem_mgis {
   }  // end of PartialQuadratureFunctionView
 
   inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
+      PartialQuadratureFunctionView&&) noexcept = default;
+
+  inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
+      const PartialQuadratureFunctionView&) noexcept = default;
+
+  inline PartialQuadratureFunctionView&
+  PartialQuadratureFunctionView::operator=(
+      PartialQuadratureFunctionView&&) noexcept = default;
+
+  inline PartialQuadratureFunctionView&
+  PartialQuadratureFunctionView::operator=(
+      const PartialQuadratureFunctionView&) noexcept = default;
+
+  inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::span<real> v,
       const size_type db,

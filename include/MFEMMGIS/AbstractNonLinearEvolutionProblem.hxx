@@ -163,7 +163,7 @@ namespace mfem_mgis {
      * \note the consistent tangent operator takes into account the details
      * related to the algorithm used to integration the constitutive equations.
      */
-    CONSISTENT_TANGENT,
+    CONSISTENT_TANGENT
   };
 
   /*!
@@ -308,33 +308,56 @@ namespace mfem_mgis {
         &getBoundaryConditions() const noexcept = 0;
     /*!
      * \brief method called before each resolution
+     *
+     * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void setup(const real, const real) = 0;
+    [[nodiscard]] virtual bool setup(Context &,
+                                     const real,
+                                     const real) noexcept = 0;
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    [[nodiscard]] virtual NonLinearResolutionOutput solve(Context &,
-                                                          const real,
-                                                          const real) = 0;
+    [[nodiscard]] virtual NonLinearResolutionOutput solve(
+        Context &, const real, const real) noexcept = 0;
     /*!
      * \brief add a new behaviour integrator
      * \return a mapping between the material id and the identifier of the
      * behaviour integrator
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the behaviour integrator
      * \param[in] m: material ids
      * \param[in] l: library name
      * \param[in] b: behaviour name
      */
-    virtual std::map<size_type, size_type> addBehaviourIntegrator(
-        const std::string &,
-        const Parameter &,
-        const std::string &,
-        const std::string &) = 0;
+    virtual std::optional<std::map<size_type, size_type>>
+    addBehaviourIntegrator(Context &,
+                           const std::string &,
+                           const Parameter &,
+                           const std::string &,
+                           const std::string &) noexcept = 0;
+    /*!
+     * \brief add a new behaviour integrator
+     * \return a mapping between the material id and the identifier of the
+     * behaviour integrator
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the behaviour integrator
+     * \param[in] m: material ids
+     * \param[in] l: library name
+     * \param[in] b: behaviour name
+     * \param[in] params: additional parameters
+     */
+    virtual std::optional<std::map<size_type, size_type>>
+    addBehaviourIntegrator(Context &,
+                           const std::string &,
+                           const Parameter &,
+                           const std::string &,
+                           const std::string &,
+                           const Parameters &) noexcept = 0;
     /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
@@ -417,6 +440,15 @@ namespace mfem_mgis {
      */
     virtual OptionalReference<Material> getMaterial(
         Context &, const Parameter &, const size_type) noexcept = 0;
+    /*!
+     * \return the number of behaviour integrators for the given material
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: material id
+     */
+    [[nodiscard]] virtual std::optional<size_type>
+    getNumberOfBehaviourIntegrators(Context &,
+                                    const Parameter &) const noexcept = 0;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
@@ -597,6 +629,12 @@ namespace mfem_mgis {
      */
     [[deprecated]] virtual void setSolverParameters(const Parameters &) = 0;
     /*!
+     * \brief method called before each resolution
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    [[deprecated]] virtual void setup(const real, const real) = 0;
+    /*!
      * \brief solve the non linear problem over the given time step
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
@@ -610,6 +648,20 @@ namespace mfem_mgis {
      */
     [[deprecated]] virtual void setLinearSolver(std::string_view,
                                                 const Parameters &) = 0;
+    /*!
+     * \brief add a new behaviour integrator
+     * \return a mapping between the material id and the identifier of the
+     * behaviour integrator
+     * \param[in] n: name of the behaviour integrator
+     * \param[in] m: material ids
+     * \param[in] l: library name
+     * \param[in] b: behaviour name
+     */
+    virtual std::map<size_type, size_type> addBehaviourIntegrator(
+        const std::string &,
+        const Parameter &,
+        const std::string &,
+        const std::string &) = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblem();
   };  // end of struct AbstractNonLinearEvolutionProblem
@@ -685,6 +737,28 @@ namespace mfem_mgis {
       const AbstractNonLinearEvolutionProblem &,
       const Parameters &,
       const bool = true);
+
+#ifdef MFEM_USE_MPI
+
+  /*!
+   * \return the MPI communicator associated with the nonlinear evolution
+   * problem
+   *
+   * \param[in] p: nonlinear evolution problem
+   *
+   * \note If a sequential computation is described, `MPI_COMM_WORLD` is
+   * returned.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] MPI_Comm getMPICommunicator(
+      const AbstractNonLinearEvolutionProblem &) noexcept;
+  /*!
+   * \return if the current process is the main one (the process of rank 0)
+   * \param[in] p: nonlinear evolution problem
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isMainProcess(
+      const AbstractNonLinearEvolutionProblem &) noexcept;
+
+#endif /* MFEM_USE_MPI */
 
 }  // end of namespace mfem_mgis
 

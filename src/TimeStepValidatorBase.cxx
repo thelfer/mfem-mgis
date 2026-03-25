@@ -29,8 +29,7 @@ namespace mfem_mgis {
   TimeStepValidatorBase::callExternalValidators(Context &ctx) const noexcept {
     auto r = Result{};
     for (const auto &[n, v] : this->externalValidators) {
-      const auto r2 = [&ctx, &n,
-                       &v]() -> std::optional<std::pair<bool, double>> {
+      const auto r2 = [&ctx, &v]() -> std::optional<std::pair<bool, double>> {
         try {
           return std::invoke(v);
         } catch (...) {

@@ -16,6 +16,7 @@ namespace mfem_mgis {
     return se - t;
   }  // end of getNextTimeStep
 
-  DefaultTimeIncrementComputer::~DefaultTimeIncrementComputer() = default;
+  DefaultTimeIncrementComputer::~DefaultTimeIncrementComputer() noexcept =
+      default;
 
 }  // end of namespace mfem_mgis

@@ -1,4 +1,6 @@
 tfel_enable_cxx_compiler_flag(COMPILER_WARNINGS  "Weverything")
+tfel_enable_cxx_compiler_flag(COMPILER_WARNINGS  "Wno-pre-c++20-compat-pedantic")
+tfel_enable_cxx_compiler_flag(COMPILER_WARNINGS  "Wno-unsafe-buffer-usage")
 tfel_enable_cxx_compiler_flag(COMPILER_WARNINGS  "Wno-padded")
 tfel_enable_cxx_compiler_flag(COMPILER_WARNINGS  "Wno-documentation")
 tfel_enable_cxx_compiler_flag(COMPILER_WARNINGS  "Wno-documentation-unknown-command")

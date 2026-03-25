@@ -12,6 +12,7 @@
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
+#include "MFEMMGIS/PartialQuadratureFunctionEvaluators.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
@@ -51,10 +52,51 @@ namespace mfem_mgis {
     }
   }  // end of NonLinearEvolutionProblem
 
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+                                                       const Hypothesis h,
+                                                       const Parameters& p)
+      : NonLinearEvolutionProblem(
+            std::make_shared<FiniteElementDiscretization>(
+                m,
+                extract(throwing,
+                        p,
+                        FiniteElementDiscretization::getParametersList())),
+            h,
+            p) {}  // end of NonLinearEvolutionProblem
+
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+                                                       const Parameters& p)
+      : NonLinearEvolutionProblem(
+            std::make_shared<FiniteElementDiscretization>(
+                m,
+                extract(throwing,
+                        p,
+                        FiniteElementDiscretization::getParametersList())),
+            mgis::behaviour::fromString(get<std::string>(
+                throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
+            remove(p, {NonLinearEvolutionProblem::HypothesisParameter})) {
+  }  // end of NonLinearEvolutionProblem
+
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(
+      std::shared_ptr<FiniteElementDiscretization> fed, const Parameters& p)
+      : NonLinearEvolutionProblem(
+            fed,
+            mgis::behaviour::fromString(get<std::string>(
+                throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
+            remove(p, {NonLinearEvolutionProblem::HypothesisParameter})) {
+  }  // end of NonLinearEvolutionProblem
+
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
       const Parameters& p) {
+    checkParameters(throwing, p,
+                    NonLinearEvolutionProblem::getParametersList());
+    if (contains(p, NonLinearEvolutionProblem::HypothesisParameter)) {
+      raise("parameter '" +
+            std::string{NonLinearEvolutionProblem::HypothesisParameter} +
+            "' is not allowed");
+    }
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
     if (fed->describesAParallelComputation()) {
@@ -167,11 +209,12 @@ namespace mfem_mgis {
     return this->pimpl->getBoundaryConditions();
   }  // end of getBoundaryConditions
 
-  NonLinearResolutionOutput NonLinearEvolutionProblem::solve(Context& ctx,
-                                                             const real t,
-                                                             const real dt) {
+  NonLinearResolutionOutput NonLinearEvolutionProblem::solve(
+      Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection("NLEP::solve");
-    this->setup(t, dt);
+    if (!this->setup(ctx, t, dt)) {
+      return InvalidResult{};
+    }
     return this->pimpl->solve(ctx, t, dt);
   }  // end of solve
 
@@ -314,6 +357,27 @@ namespace mfem_mgis {
     this->pimpl->executePostProcessings(t, dt);
   }
 
+  std::optional<std::map<size_type, size_type>>
+  NonLinearEvolutionProblem::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const Parameter& m,
+      const std::string& l,
+      const std::string& b) noexcept {
+    return this->pimpl->addBehaviourIntegrator(ctx, n, m, l, b);
+  }  // end of addBehaviourIntegrator
+
+  std::optional<std::map<size_type, size_type>>
+  NonLinearEvolutionProblem::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const Parameter& m,
+      const std::string& l,
+      const std::string& b,
+      const Parameters& params) noexcept {
+    return this->pimpl->addBehaviourIntegrator(ctx, n, m, l, b, params);
+  }  // end of addBehaviourIntegrator
+
   std::map<size_type, size_type>
   NonLinearEvolutionProblem::addBehaviourIntegrator(const std::string& n,
                                                     const Parameter& m,
@@ -331,6 +395,12 @@ namespace mfem_mgis {
       Context& ctx, const Parameter& m, size_type b) noexcept {
     return this->pimpl->getMaterial(ctx, m, b);
   }  // end of getMaterial
+
+  std::optional<size_type>
+  NonLinearEvolutionProblem::getNumberOfBehaviourIntegrators(
+      Context& ctx, const Parameter& m) const noexcept {
+    return this->pimpl->getNumberOfBehaviourIntegrators(ctx, m);
+  }  // end of getNumberOfBehaviourIntegrators
 
   OptionalReference<const AbstractBehaviourIntegrator>
   NonLinearEvolutionProblem::getBehaviourIntegrator(
@@ -371,6 +441,12 @@ namespace mfem_mgis {
   void NonLinearEvolutionProblem::revert() {
     this->pimpl->revert();
   }  // end of revert
+
+  bool NonLinearEvolutionProblem::setup(Context& ctx,
+                                        const real t,
+                                        const real dt) noexcept {
+    return this->pimpl->setup(ctx, t, dt);
+  }  // end of setup
 
   void NonLinearEvolutionProblem::setup(const real t, const real dt) {
     this->pimpl->setup(t, dt);
@@ -448,9 +524,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       return buildFacesDescription(p.getImplementation<true>(), bid);
 #else
-      raise(
-          "buildFacesDescription: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     }
     return buildFacesDescription(p.getImplementation<false>(), bid);
@@ -465,9 +539,7 @@ namespace mfem_mgis {
       return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<true>(),
                                                    bid);
 #else
-      raise(
-          "getElementsDegreesOfFreedomOnBoundary: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     }
     return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<false>(),
@@ -486,14 +558,360 @@ namespace mfem_mgis {
       computeResultantForceOnBoundary(F, p.getImplementation<true>(),
                                       elts_dofs);
 #else
-      raise(
-          "computeResultantForceOnBoundary: "
-          "unsupported parallel computations");
+      reportUnsupportedParallelComputations();
 #endif
     } else {
       computeResultantForceOnBoundary(F, p.getImplementation<false>(),
                                       elts_dofs);
     }
   }  // end of computeResultantForceOnBoundary
+
+  [[nodiscard]] static std::optional<bool>
+  resolveMaterialPropertyDependencyUsingGradient(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& mp) noexcept {
+    if (!contains(provider_material.b.gradients, mp.name)) {
+      return false;
+    }
+    const auto ov = getVariable(ctx, provider_material.b.gradients, mp.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (mp.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      mp.name + "'");
+    }
+    const auto ev_bts =
+        makeGradientEvaluator(ctx, provider_material, mp.name, bts);
+    const auto ev_ets =
+        makeGradientEvaluator(ctx, provider_material, mp.name, ets);
+    if (!areValid(ev_bts, ev_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + mp.name +
+          "' failed");
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_bts, bts)) {
+      return {};
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveMaterialPropertyDependencyUsingGradient
+
+  [[nodiscard]] static std::optional<bool>
+  resolveMaterialPropertyDependencyUsingThermodynamicForce(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& mp) noexcept {
+    if (!contains(provider_material.b.thermodynamic_forces, mp.name)) {
+      return false;
+    }
+    const auto ov =
+        getVariable(ctx, provider_material.b.thermodynamic_forces, mp.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (mp.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      mp.name + "'");
+    }
+    const auto ev_bts =
+        makeThermodynamicForceEvaluator(ctx, provider_material, mp.name, bts);
+    const auto ev_ets =
+        makeThermodynamicForceEvaluator(ctx, provider_material, mp.name, ets);
+    if (!areValid(ev_bts, ev_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + mp.name +
+          "' failed");
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_bts, bts)) {
+      return {};
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveMaterialPropertyDependencyUsingThermodynamicForce
+
+  [[nodiscard]] static std::optional<bool>
+  resolveMaterialPropertyDependencyUsingInternalStateVariable(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& mp) noexcept {
+    if (!contains(provider_material.b.isvs, mp.name)) {
+      return false;
+    }
+    const auto ov = getVariable(ctx, provider_material.b.isvs, mp.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (mp.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      mp.name + "'");
+    }
+    const auto ev_bts = makeInternalStateVariableEvaluator(
+        ctx, provider_material, mp.name, bts);
+    const auto ev_ets = makeInternalStateVariableEvaluator(
+        ctx, provider_material, mp.name, ets);
+    if (!areValid(ev_bts, ev_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + mp.name +
+          "' failed");
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_bts, bts)) {
+      return {};
+    }
+    if (!bi.setMaterialProperty(ctx, mp.name, ev_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveMaterialPropertyDependencyUsingInternalStateVariable
+
+  [[nodiscard]] static std::optional<bool>
+  resolveExternalStateVariableDependencyUsingGradient(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& esv) noexcept {
+    if (!contains(provider_material.b.gradients, esv.name)) {
+      return false;
+    }
+    const auto ov = getVariable(ctx, provider_material.b.gradients, esv.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (esv.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      esv.name + "'");
+    }
+    const auto esv_bts =
+        makeGradientEvaluator(ctx, provider_material, esv.name, bts);
+    const auto esv_ets =
+        makeGradientEvaluator(ctx, provider_material, esv.name, ets);
+    if (!areValid(esv_bts, esv_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + esv.name +
+          "' failed");
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_bts, bts)) {
+      return {};
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveExternalStateVariableDependencyUsingGradient
+
+  [[nodiscard]] static std::optional<bool>
+  resolveExternalStateVariableDependencyUsingThermodynamicForce(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& esv) noexcept {
+    if (!contains(provider_material.b.thermodynamic_forces, esv.name)) {
+      return false;
+    }
+    const auto ov =
+        getVariable(ctx, provider_material.b.thermodynamic_forces, esv.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (esv.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      esv.name + "'");
+    }
+    const auto esv_bts =
+        makeThermodynamicForceEvaluator(ctx, provider_material, esv.name, bts);
+    const auto esv_ets =
+        makeThermodynamicForceEvaluator(ctx, provider_material, esv.name, ets);
+    if (!areValid(esv_bts, esv_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + esv.name +
+          "' failed");
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_bts, bts)) {
+      return {};
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveExternalStateVariableDependencyUsingThermodynamicForce
+
+  [[nodiscard]] static std::optional<bool>
+  resolveExternalStateVariableDependencyUsingInternalStateVariable(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const Material& provider_material,
+      const mgis::behaviour::Variable& esv) noexcept {
+    if (!contains(provider_material.b.isvs, esv.name)) {
+      return false;
+    }
+    const auto ov = getVariable(ctx, provider_material.b.isvs, esv.name);
+    if (isInvalid(ov)) {
+      return {};
+    }
+    if (esv.type_identifier != ov->type_identifier) {
+      return ctx.registerErrorMessage("incompatible type for variable '" +
+                                      esv.name + "'");
+    }
+    const auto esv_bts = makeInternalStateVariableEvaluator(
+        ctx, provider_material, esv.name, bts);
+    const auto esv_ets = makeInternalStateVariableEvaluator(
+        ctx, provider_material, esv.name, ets);
+    if (!areValid(esv_bts, esv_ets)) {
+      return ctx.registerErrorMessage(
+          "building of evaluator of the internal state variable'" + esv.name +
+          "' failed");
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_bts, bts)) {
+      return {};
+    }
+    if (!bi.setExternalStateVariable(ctx, esv.name, esv_ets, ets)) {
+      return {};
+    }
+    return true;
+  }  // end of resolveExternalStateVariableDependencyUsingInternalStateVariable
+
+  [[nodiscard]] static bool resolveMaterialDependencies(
+      Context& ctx,
+      AbstractBehaviourIntegrator& bi,
+      const AbstractBehaviourIntegrator& provider) {
+    using mgis::behaviour::MaterialStateManager;
+    if ((!bi.hasMaterial()) || (!provider.hasMaterial())) {
+      return true;
+    }
+    const auto om = bi.getMaterial(ctx);
+    const auto oprovider_material = provider.getMaterial(ctx);
+    if (isInvalid(om) || isInvalid(oprovider_material)) {
+      return false;
+    }
+    // material properties
+    for (const auto& mp : om->b.mps) {
+      const auto or1 =
+          resolveMaterialPropertyDependencyUsingInternalStateVariable(
+              ctx, bi, *oprovider_material, mp);
+      if (isInvalid(or1)) {
+        return false;
+      }
+      if (*or1) {
+        // treat next material property
+        continue;
+      }
+      // dependency was not resolved, trying the gradients
+      const auto or2 = resolveMaterialPropertyDependencyUsingGradient(
+          ctx, bi, *oprovider_material, mp);
+      if (isInvalid(or2)) {
+        return false;
+      }
+      if (*or2) {
+        // treat next material property
+        continue;
+      }
+      // dependency was not resolved, trying the thermodynamic forces
+      const auto or3 = resolveMaterialPropertyDependencyUsingThermodynamicForce(
+          ctx, bi, *oprovider_material, mp);
+      if (isInvalid(or3)) {
+        return false;
+      }
+    }
+    // external state variables
+    for (const auto& esv : om->b.esvs) {
+      const auto or1 =
+          resolveExternalStateVariableDependencyUsingInternalStateVariable(
+              ctx, bi, *oprovider_material, esv);
+      if (isInvalid(or1)) {
+        return false;
+      }
+      if (*or1) {
+        // treat next material property
+        continue;
+      }
+      // dependency was not resolved, trying the gradients
+      const auto or2 = resolveExternalStateVariableDependencyUsingGradient(
+          ctx, bi, *oprovider_material, esv);
+      if (isInvalid(or2)) {
+        return false;
+      }
+      if (*or2) {
+        // treat next material property
+        continue;
+      }
+      // dependency was not resolved, trying the thermodynamic forces
+      const auto or3 =
+          resolveExternalStateVariableDependencyUsingThermodynamicForce(
+              ctx, bi, *oprovider_material, esv);
+      if (isInvalid(or3)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of resolveBehaviourIntegratorsDependencies
+
+  [[nodiscard]] static bool resolveBehaviourIntegratorsDependencies(
+      Context& ctx,
+      NonLinearEvolutionProblemImplementationBase& p,
+      const NonLinearEvolutionProblemImplementationBase& provider) noexcept {
+    if (&p == &provider) {
+      return true;
+    }
+    const auto provider_materials = provider.getAssignedMaterialsIdentifiers();
+    for (const auto& m : p.getAssignedMaterialsIdentifiers()) {
+      if (std::find(provider_materials.begin(), provider_materials.end(), m) ==
+          provider_materials.end()) {
+        continue;
+      }
+      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, m);
+      const auto onbis2 = provider.getNumberOfBehaviourIntegrators(ctx, m);
+      if (!areValid(onbis, onbis2)) {
+        return false;
+      }
+      for (auto n = size_type{}; n != *onbis; ++n) {
+        auto obi = p.getBehaviourIntegrator(ctx, m, n);
+        if (isInvalid(obi)) {
+          return false;
+        }
+        for (auto n2 = size_type{}; n2 != *onbis; ++n2) {
+          const auto obi2 = provider.getBehaviourIntegrator(ctx, m, n2);
+          if (isInvalid(obi2)) {
+            return false;
+          }
+          if (!resolveMaterialDependencies(ctx, *obi, *obi2)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }  // end of resolveBehaviourIntegratorsDependencies
+
+  bool resolveBehaviourIntegratorsDependencies(
+      Context& ctx,
+      NonLinearEvolutionProblem& p,
+      const NonLinearEvolutionProblem& provider) noexcept {
+    const auto& fed = p.getFiniteElementDiscretization();
+    if (static_cast<const MeshDiscretization&>(fed) !=
+        static_cast<const MeshDiscretization&>(
+            provider.getFiniteElementDiscretization())) {
+      return ctx.registerErrorMessage("inconsistent meshes");
+    }
+    if (fed.describesAParallelComputation()) {
+      // since meshes are the same, both problems describes a parallel
+      // computation
+#ifdef MFEM_USE_MPI
+      return resolveBehaviourIntegratorsDependencies(
+          ctx, p.getImplementation<true>(), provider.getImplementation<true>());
+#else
+      reportUnsupportedParallelComputations();
+#endif
+    }
+    return resolveBehaviourIntegratorsDependencies(
+        ctx, p.getImplementation<false>(), provider.getImplementation<false>());
+  }  // end of resolveBehaviourIntegratorsDependencies
 
 }  // end of namespace mfem_mgis

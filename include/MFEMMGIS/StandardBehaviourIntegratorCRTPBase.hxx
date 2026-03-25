@@ -96,7 +96,7 @@ namespace mfem_mgis {
     ~StandardBehaviourIntegratorCRTPBase() override;
 
 #ifndef MFEM_THREAD_SAFE
-   private:
+   protected:
     //! \brief vector used to store the value of the shape functions
     mfem::Vector shape;
     //! \brief matrix used to store the derivatives of the shape functions

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
@@ -131,14 +132,23 @@ namespace mfem_mgis {
     }
   }  // end of update
 
+  [[nodiscard]] static bool checkMultiMaterialSupportEnabled(
+      Context& ctx,
+      const char* const n,
+      const MultiMaterialNonLinearIntegrator* const p) {
+    if (p == nullptr) {
+      return ctx.registerErrorMessage(
+          "NonLinearEvolutionProblemImplementationBase::" + std::string{n} +
+          ": multi material support has been disabled");
+    }
+    return true;
+  }  // end of checkMultiMaterialSupportEnabled
+
   static void checkMultiMaterialSupportEnabled(
       const char* const n, const MultiMaterialNonLinearIntegrator* const p) {
-    if (p == nullptr) {
-      std::string msg("NonLinearEvolutionProblemImplementationBase::");
-      msg += n;
-      msg += ": multi material support has been disabled";
-      raise(msg);
-    }
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    checkMultiMaterialSupportEnabled(ctx, n, p) | or_raise;
   }  // end of checkMultiMaterialSupportEnabled
 
   bool NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
@@ -218,21 +228,47 @@ namespace mfem_mgis {
     return this->mgis_integrator->getAssignedMaterialsIdentifiers();
   }  // end of getAssignedMaterialsIdentifiers
 
+  std::optional<std::map<size_type, size_type>>
+  NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const Parameter& m,
+      const std::string& l,
+      const std::string& b) noexcept {
+    return this->addBehaviourIntegrator(ctx, n, m, l, b, {});
+  }  // end of addBehaviourIntegrator
+
+  std::optional<std::map<size_type, size_type>>
+  NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const Parameter& m,
+      const std::string& l,
+      const std::string& b,
+      const Parameters& params) noexcept {
+    checkMultiMaterialSupportEnabled("addBehaviourIntegrator",
+                                     this->mgis_integrator);
+    auto bids = std::map<size_type, size_type>{};
+    for (const auto& mid : this->getMaterialsIdentifiers(m)) {
+      const auto obid = this->mgis_integrator->addBehaviourIntegrator(
+          ctx, n, mid, l, b, params);
+      if (isInvalid(obid)) {
+        return {};
+      }
+      bids.insert({mid, *obid});
+    }
+    return bids;
+  }  // end of addBehaviourIntegrator
+
   std::map<size_type, size_type>
   NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
       const std::string& n,
       const Parameter& m,
       const std::string& l,
       const std::string& b) {
-    checkMultiMaterialSupportEnabled("addBehaviourIntegrator",
-                                     this->mgis_integrator);
-    auto bids = std::map<size_type, size_type>{};
-    for (const auto& mid : this->getMaterialsIdentifiers(m)) {
-      const auto bid =
-          this->mgis_integrator->addBehaviourIntegrator(n, mid, l, b);
-      bids.insert({mid, bid});
-    }
-    return bids;
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return this->addBehaviourIntegrator(ctx, n, m, l, b) | or_raise;
   }  // end of addBehaviourIntegrator
 
   OptionalReference<const Material>
@@ -262,6 +298,20 @@ namespace mfem_mgis {
     }
     return this->mgis_integrator->getMaterial(ctx, *om, b);
   }  // end of getMaterial
+
+  std::optional<size_type>
+  NonLinearEvolutionProblemImplementationBase::getNumberOfBehaviourIntegrators(
+      Context& ctx, const Parameter& m) const noexcept {
+    if (this->mgis_integrator == nullptr) {
+      return ctx.registerErrorMessage(
+          "support for mgis integrator has been disabled");
+    }
+    const auto om = this->getMaterialIdentifier(ctx, m);
+    if (isInvalid(om)) {
+      return {};
+    }
+    return this->mgis_integrator->getNumberOfBehaviourIntegrators(ctx, *om);
+  }  // end of getNumberOfBehaviourIntegrators
 
   OptionalReference<const AbstractBehaviourIntegrator>
   NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
@@ -382,24 +432,38 @@ namespace mfem_mgis {
     return this->boundary_conditions;
   }  // end of getBoundaryConditions
 
+  bool NonLinearEvolutionProblemImplementationBase::setup(
+      Context& ctx, const real t, const real dt) noexcept {
+    CatchTimeSection("NLEPIB::setup");
+    const auto success = [this, &ctx, t, dt] {
+      if (this->initialization_phase) {
+        if (!this->dirichlet_boundary_conditions.empty()) {
+          this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
+              this->getEssentialDegreesOfFreedom());
+        }
+      }
+      this->initialization_phase = false;
+      for (const auto& bc : this->dirichlet_boundary_conditions) {
+        bc->updateImposedValues(this->u1, t + dt);
+      }
+      for (const auto& bc : this->boundary_conditions) {
+        bc->setup(t, dt);
+      }
+      if (this->mgis_integrator != nullptr) {
+        if (!this->mgis_integrator->setup(ctx, t, dt)) {
+          return false;
+        }
+      }
+      return true;
+    }();
+    return isTrueOnAllProcesses(*(this->fe_discretization), success);
+  }  // end of setup
+
   void NonLinearEvolutionProblemImplementationBase::setup(const real t,
                                                           const real dt) {
-    CatchTimeSection("NLEPIB::setup");
-    if (this->initialization_phase) {
-      if (!this->dirichlet_boundary_conditions.empty()) {
-        this->markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-            this->getEssentialDegreesOfFreedom());
-      }
-    }
-    this->initialization_phase = false;
-    for (const auto& bc : this->dirichlet_boundary_conditions) {
-      bc->updateImposedValues(this->u1, t + dt);
-    }
-    for (const auto& bc : this->boundary_conditions) {
-      bc->setup(t, dt);
-    }
-    if (this->mgis_integrator != nullptr) {
-      this->mgis_integrator->setup(t, dt);
+    auto ctx = Context{};
+    if (!this->setup(ctx, t, dt)) {
+      raise(ctx.getErrorMessage());
     }
   }  // end of setup
 
@@ -479,7 +543,7 @@ namespace mfem_mgis {
   }  // end of solve
 
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
-      Context& ctx, const real t, const real dt) {
+      Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection("NLEPIB::solve");
     this->setTimeIncrement(dt);
     this->setup(t, dt);

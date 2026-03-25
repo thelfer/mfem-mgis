@@ -24,6 +24,10 @@ Highlights
 - Many methods have been deprecated to have a consistent error handling
   scheme based on `MGIS`'s one. As such, many methods and functions now
   takes and `MGIS`'s :cxx:`Context` as their first argument.
+- The regularization proposed by Faltus et al. in the context of the
+  third medium contact has been implemented for plane strain, plane
+  stress and tridmensional hypotheses
+  
 
 New features
 ============
@@ -145,6 +149,41 @@ The following operators are available:
   with respect to the gradients at the end of the time step. See
   :cite:`simo_consistent_1985` for details.
 
+Faltus 2026 regularization
+--------------------------
+
+The regularization proposed by Faltus et al. in the context of contact
+mechanics using a third medium :cite:`faltus_deformation_2026`. This
+regularization only applies to finite strain behaviours. Currently, only
+this regularization is only available for isotropic behaviours.
+
+This regularization adds a contribution to the standard variational
+operator in finite strain to can be derived from an energy :math:`W`
+which penalizes the difference between the deformation gradient
+:math:`\underline{F}` at a given quadrature point and its value
+:math:`\bar{\underline{F}}` at the centroid of the element:
+
+.. math::
+
+    W\left(\underline{F}, \bar{\underline{F}}\right) =
+    \alpha\,\left(\underline{F}-\bar{\underline{F}}\right)\,\colon\,
+    \left(\underline{F}-\bar{\underline{F}}\right)
+
+where :math:`\alpha` is a penalization coefficient.
+
+This regularization is enabled by passing an additional parameter to the
+the :cxx:`Mechanics` behaviour integrator, as follows:
+
+.. code:: c++
+
+  const auto faltus_parameters = mfem_mgis::Parameters{
+      {"Regularization",
+       mfem_mgis::Parameters{
+           {"Faltus2026",
+            mfem_mgis::Parameters{{"PenalizationCoefficient", 1e11}}}}}};
+  mechanics.addBehaviourIntegrator(ctx, "Mechanics", "ThirdMedium", library,
+                                   behaviour2, faltus_parameters) | or_die;
+
 The :cxx:`info` function
 ------------------------
 
@@ -194,12 +233,43 @@ Example of usage
       problem.getBehaviourIntegrator(1).getPartialQuadratureSpace();
    const auto success = mfem_mgis::info(ctx, std::cout, qspace);
 
+Evaluators of quantities at integration points
+----------------------------------------------
+
+Overview
+^^^^^^^^
+
+The :cxx:`setMaterialProperty` and :cxx:`setExternalStateVariable` methods of behaviour integrators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Resolution of dependencies of a nonlinear evolution problemn using another
+--------------------------------------------------------------------------
+
+The :cxx:`Simulation` class
+---------------------------
+
+Physical system, coupling schemes and models
+--------------------------------------------
+
+Line-search-like handling of behaviour integration failures
+-----------------------------------------------------------
+
 Issues fixed
 ============
 
+- Issue 218: [performance] synchronize success of the setup methods at a
+  higher level to minimize collective communications enhancement
+- Issue 213: ￼ Add a simple way to resolve dependencies (material
+  properties, external state variables) of a :cxx:`NonLinearEvolutionProblem`
+  using the gradients, thermodynamic forces and internal state variables
+  of another one.
+- Issue 211: Add coupling schemes and models
+- Issue 209: Introduce the :cxx:`Simulation` class￼
+- Issue 206: Line-search-like handling of behaviour integration failures
 - Issue 200: automatically assign materials and boundaries's names from
-  MFEM's attributes ￼
-- Issue 198: Add the ability to define multiple behaviour integrator on
+  |mfem|'s attributes ￼
+- Issue 198: Add the ability to define multiple behaviour integrators on
   the same material
 - Issue 193: Add support for other types of search operators for
   computing a prediction of the solution at the end of the time step

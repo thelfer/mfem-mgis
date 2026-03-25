@@ -932,7 +932,7 @@ Problem solved
                [   0  ,   0  ,  a ]
        with a = 0.012
 
-       Solver : HyprePCG
+       Solver : HypreGMRES
        Preconditioner : HypreBoomerAMG
 
        Moduli and Norton behavior law parameters :

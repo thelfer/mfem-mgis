@@ -8,17 +8,13 @@
 #ifndef LIB_MFEMMGIS_TIMESTEPSTAGE_HXX
 #define LIB_MFEMMGIS_TIMESTEPSTAGE_HXX
 
+#include "MGIS/Behaviour/TimeStepStage.hxx"
+
 namespace mfem_mgis {
 
-  /*!
-   * \brief an enumeration describing either the beginning of the time step or
-   * the end of the time step
-   */
-  enum struct TimeStepStage { BEGINNING_OF_TIME_STEP, END_OF_TIME_STEP };
-  //! \brief variable associated with the beginning of the time step
-  inline constexpr auto bts = TimeStepStage::BEGINNING_OF_TIME_STEP;
-  //! \brief variable associated with the end of the time step
-  inline constexpr auto ets = TimeStepStage::END_OF_TIME_STEP;
+  using mgis::behaviour::bts;
+  using mgis::behaviour::ets;
+  using mgis::behaviour::TimeStepStage;
 
 }  // end of namespace mfem_mgis
 

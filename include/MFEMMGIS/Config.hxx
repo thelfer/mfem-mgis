@@ -49,8 +49,11 @@
 namespace mfem_mgis {
 
   using mgis::AbstractErrorHandler;
+  using mgis::areInvalid;
+  using mgis::areValid;
   using mgis::construct;
   using mgis::Context;
+  using mgis::getDefaultVerbosityLevel;
   using mgis::InvalidResult;
   using mgis::invoke;
   using mgis::isInvalid;
@@ -61,6 +64,12 @@ namespace mfem_mgis {
   using mgis::make_unique_as;
   using mgis::OptionalReference;
   using mgis::registerExceptionInErrorBacktrace;
+  using mgis::verboseDebug;
+  using mgis::verboseFull;
+  using mgis::verboseLevel0;
+  using mgis::verboseLevel1;
+  using mgis::verboseLevel2;
+  using mgis::verboseLevel3;
   using mgis::VerbosityLevel;
 
   using mgis::debug;
@@ -72,12 +81,20 @@ namespace mfem_mgis {
     //! \brief a simple alias
     using Throwing = ::mgis::attributes::ThrowingAttribute<true>;
     //! \brief a simple alias
+    using MayThrow = ::mgis::attributes::ThrowingAttribute<true>;
+    //! \brief a simple alias
+    using MayAbort = ::mgis::attributes::AbortingAttribute<true>;
+    //! \brief a simple alias
     using Unsafe = ::mgis::attributes::UnsafeAttribute;
   }  // namespace attributes
   //
   inline constexpr auto unsafe = ::mgis::attributes::UnsafeAttribute{};
-  inline constexpr auto throwing =
+  [[deprecated]] inline constexpr auto throwing =
       ::mgis::attributes::ThrowingAttribute<true>{};
+  inline constexpr auto may_throw =
+      ::mgis::attributes::ThrowingAttribute<true>{};
+  inline constexpr auto may_abort =
+      ::mgis::attributes::AbortingAttribute<true>{};
 
   //! \brief a simple alias
   using size_type = int;
@@ -110,10 +127,10 @@ namespace mfem_mgis {
    * This call is optional if the code exits normally.
    */
   MFEM_MGIS_EXPORT void finalize();
-  //! \return the MPI rank.
-  MFEM_MGIS_EXPORT int getMPIrank();
-  //! \return the MPI global communicator size.
-  MFEM_MGIS_EXPORT int getMPIsize();
+  //! \return the MPI rank  for the default communicator
+  MFEM_MGIS_EXPORT [[deprecated]] int getMPIrank();
+  //! \return the total number of MPI processor for the default communicator.
+  MFEM_MGIS_EXPORT [[deprecated]] int getMPIsize();
 
   /*!
    * \brief a small wrapper used to build the exception outside the

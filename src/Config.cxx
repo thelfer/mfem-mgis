@@ -214,4 +214,20 @@ namespace mfem_mgis {
     Finalizer::get().setPETSc(petscrc_file);
   }  // end of setPETSc
 
+  int getMPIrank() {
+    int rank = 0;
+#ifdef MFEM_USE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#endif /* MFEM_USE_MPI */
+    return rank;
+  }  // end of getMPIrank
+
+  int getMPIsize() {
+    int size = 0;
+#ifdef MFEM_USE_MPI
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+#endif /* MFEM_USE_MPI */
+    return size;
+  }  // end of getMPIsize
+
 }  // namespace mfem_mgis

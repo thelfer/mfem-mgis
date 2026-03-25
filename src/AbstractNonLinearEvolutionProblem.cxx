@@ -7,6 +7,7 @@
 
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 
 namespace mfem_mgis {
@@ -87,5 +88,18 @@ namespace mfem_mgis {
 
   AbstractNonLinearEvolutionProblem::~AbstractNonLinearEvolutionProblem() =
       default;
+
+#ifdef MFEM_USE_MPI
+
+  MPI_Comm getMPICommunicator(
+      const AbstractNonLinearEvolutionProblem &p) noexcept {
+    return getMPICommunicator(p.getFiniteElementDiscretization());
+  }  // end of getMPICommunicator
+
+  bool isMainProcess(const AbstractNonLinearEvolutionProblem &p) noexcept {
+    return isMainProcess(p.getFiniteElementDiscretization());
+  }  // end of isMainProcess
+
+#endif /* MFEM_USE_MPI */
 
 }  // end of namespace mfem_mgis

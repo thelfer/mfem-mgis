@@ -22,7 +22,7 @@ namespace mfem_mgis {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
-      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+      MPI_Comm_rank(getMPICommunicator(p), &rank);
       if (rank == 0) {
         this->openFile(p, get<std::string>(throwing, params, "OutputFileName"));
       }
@@ -44,7 +44,7 @@ namespace mfem_mgis {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
-      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+      MPI_Comm_rank(getMPICommunicator(p), &rank);
       if (rank == 0) {
         this->out << t + dt;
       }
@@ -53,8 +53,9 @@ namespace mfem_mgis {
         std::vector<double> tf_integral(tf_integrals[mi].size(), 0);
         MPI_Reduce(tf_integrals[mi].data(), tf_integral.data(),
                    tf_integrals[mi].size(), MPI_DOUBLE, MPI_SUM, 0,
-                   MPI_COMM_WORLD);
-        MPI_Reduce(&volumes[mi], &v, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+                   getMPICommunicator(p));
+        MPI_Reduce(&volumes[mi], &v, 1, MPI_DOUBLE, MPI_SUM, 0,
+                   getMPICommunicator(p));
         if (rank == 0) {
           this->writeResults(tf_integral, v);
         }

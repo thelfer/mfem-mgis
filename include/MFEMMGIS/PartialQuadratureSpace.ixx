@@ -10,21 +10,22 @@
 
 namespace mfem_mgis {
 
-  inline size_type PartialQuadratureSpace::getNumberOfElements() const {
+  inline size_type PartialQuadratureSpace::getNumberOfElements()
+      const noexcept {
     return this->offsets.size();
   }  // end of getNumberOfElements
 
   inline size_type PartialQuadratureSpace::getNumberOfIntegrationPoints()
-      const {
+      const noexcept {
     return this->ng;
   }  // end of getNumberOfIntegrationPoints
 
-  inline size_type PartialQuadratureSpace::getId() const {
+  inline size_type PartialQuadratureSpace::getId() const noexcept {
     return this->id;
   }  // end of getId
 
   inline const std::unordered_map<size_type, size_type>&
-  PartialQuadratureSpace::getOffsets() const {
+  PartialQuadratureSpace::getOffsets() const noexcept {
     return this->offsets;
   }  // end of getOffsets
 

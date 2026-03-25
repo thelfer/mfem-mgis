@@ -39,7 +39,8 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] p: parameters.
      *
-     * The following parameters are allowed:
+     * The following parameters are the most common (see also the
+     * FiniteElementDiscretization class for details):
      *
      * - `Parallel` (boolean): if true, a parallel computation is to be be
      *    performed. This value if assumed to be false by default.
@@ -52,6 +53,49 @@ namespace mfem_mgis {
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
     NonLinearEvolutionProblem(const Parameters &);
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] p: parameters use to initialize the underlying finite element
+     * discretization
+     *
+     * The following parameters are the most common (see also the
+     * FiniteElementDiscretization class for details):
+     *
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used. The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `Hypothesis` (string): modelling hypothesis
+     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
+     *   add the `MultiMaterialNonLinearIntegrator`. True by default.
+     */
+    NonLinearEvolutionProblem(MeshDiscretization &, const Parameters &);
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] h: modelling hypothesis
+     * \param[in] p: parameters use to initialize the underlying finite element
+     * discretization
+     *
+     * The following parameters are the most common (see also the
+     * FiniteElementDiscretization class for details):
+     *
+     * - `FiniteElementFamily` (string): name of the finite element family to be
+     *   used. The default value if `H1`.
+     * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
+     *   add the `MultiMaterialNonLinearIntegrator`. True by default.
+     */
+    NonLinearEvolutionProblem(MeshDiscretization &,
+                              const Hypothesis,
+                              const Parameters & = Parameters());
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization
+     * \param[in] p: parameters
+     */
+    NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
+                              const Parameters &);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
@@ -113,11 +157,19 @@ namespace mfem_mgis {
                                          std::string_view,
                                          const Parameters &) noexcept override;
     void executePostProcessings(const real, const real) override;
-    std::map<size_type, size_type> addBehaviourIntegrator(
+    std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
+        Context &,
         const std::string &,
         const Parameter &,
         const std::string &,
-        const std::string &) override;
+        const std::string &) noexcept override;
+    std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
+        Context &,
+        const std::string &,
+        const Parameter &,
+        const std::string &,
+        const std::string &,
+        const Parameters &) noexcept override;
     [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
         const noexcept override;
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
@@ -134,6 +186,8 @@ namespace mfem_mgis {
     OptionalReference<Material> getMaterial(Context &,
                                             const Parameter &,
                                             const size_type) noexcept override;
+    [[nodiscard]] std::optional<size_type> getNumberOfBehaviourIntegrators(
+        Context &, const Parameter &) const noexcept override;
     OptionalReference<const AbstractBehaviourIntegrator> getBehaviourIntegrator(
         Context &, const Parameter &, const size_type) const noexcept override;
     OptionalReference<AbstractBehaviourIntegrator> getBehaviourIntegrator(
@@ -150,10 +204,12 @@ namespace mfem_mgis {
     [[nodiscard]] virtual const std::vector<
         std::unique_ptr<AbstractBoundaryCondition>>
         &getBoundaryConditions() const noexcept override;
-    void setup(const real, const real) override;
+    [[nodiscard]] bool setup(Context &,
+                             const real,
+                             const real) noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(Context &,
                                                   const real,
-                                                  const real) override;
+                                                  const real) noexcept override;
     void revert() override;
     void update() override;
     //
@@ -193,8 +249,14 @@ namespace mfem_mgis {
     [[deprecated]] void addPostProcessing(std::string_view,
                                           const Parameters &) override;
     [[deprecated]] void setSolverParameters(const Parameters &) override;
+    [[deprecated]] void setup(const real, const real) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
+    [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
+        const std::string &,
+        const Parameter &,
+        const std::string &,
+        const std::string &) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 
@@ -202,6 +264,21 @@ namespace mfem_mgis {
     //! \brief implementation of the non linear problem
     std::unique_ptr<AbstractNonLinearEvolutionProblem> pimpl;
   };  // end of struct NonLinearEvolutionProblem
+
+  /*!
+   * \brief resolve the dependencies (material properties and and external state
+   * variables) of the first nonlinear evolution problem given using the
+   * gradients, thermodynamic forces and internal state variables from the
+   * second.
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in, out] p: problem to be treated
+   * \param[in] provider: problem used to resolve the dependencies
+   */
+  [[nodiscard]] bool resolveBehaviourIntegratorsDependencies(
+      Context &,
+      NonLinearEvolutionProblem &,
+      const NonLinearEvolutionProblem &) noexcept;
 
 #ifdef MFEM_USE_MPI
 

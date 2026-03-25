@@ -9,8 +9,11 @@
 #define LIB_MFEM_MGIS_BEHAVIOURINTEGRATORBASE_HXX
 
 #include <memory>
+#include <string>
+#include <string_view>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
+#include "MFEMMGIS/AbstractPartialQuadratureFunctionEvaluator.hxx"
 #include "MFEMMGIS/Material.hxx"
 
 namespace mfem_mgis {
@@ -24,7 +27,10 @@ namespace mfem_mgis {
         const noexcept override;
     [[nodiscard]] real getTimeIncrement() const noexcept override;
     void setTimeIncrement(const real) override;
-    void setup(const real, const real) override;
+    [[nodiscard]] bool setup(Context&,
+                             const real,
+                             const real) noexcept override;
+    [[nodiscard]] bool cleanup(Context&) noexcept override;
     void revert() override;
     void update() override;
     [[nodiscard]] bool hasMaterial() const noexcept override;
@@ -36,6 +42,16 @@ namespace mfem_mgis {
         const noexcept override;
     [[nodiscard]] bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept override;
+    [[nodiscard]] bool setMaterialProperty(
+        Context&,
+        std::string_view,
+        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        const TimeStepStage) noexcept override;
+    [[nodiscard]] bool setExternalStateVariable(
+        Context&,
+        std::string_view,
+        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        const TimeStepStage) noexcept override;
     //
     [[deprecated, nodiscard]] Material& getMaterial() override;
     [[deprecated, nodiscard]] const Material& getMaterial() const override;
@@ -85,6 +101,38 @@ namespace mfem_mgis {
      */
     virtual bool performsLocalBehaviourIntegration(const size_type,
                                                    const IntegrationType);
+    /*!
+     * \brief evaluators of the material properties at the beginning of the
+     * time step.
+     */
+    std::map<std::string,
+             std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+             std::less<>>
+        material_properties_evaluators_bts;
+    /*!
+     * \brief evaluators of the material properties at the end of the
+     * time step.
+     */
+    std::map<std::string,
+             std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+             std::less<>>
+        material_properties_evaluators_ets;
+    /*!
+     * \brief evaluators of the external state variables at the beginning of the
+     * time step.
+     */
+    std::map<std::string,
+             std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+             std::less<>>
+        external_state_variables_evaluators_bts;
+    /*!
+     * \brief evaluators of the external state variables at the end of the
+     * time step.
+     */
+    std::map<std::string,
+             std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+             std::less<>>
+        external_state_variables_evaluators_ets;
     //! \brief workspace
     struct {
       //! \brief array for material properties at the end of the time step
@@ -111,6 +159,34 @@ namespace mfem_mgis {
        */
       std::vector<std::tuple<size_type, size_type, const real*>>
           esvs1_evaluators;
+      /*!
+       * \brief partial quadrature functions resulting from the evaluations of
+       * the evaluators associated with material properties at the beginning of
+       * the time step
+       */
+      std::map<std::string, PartialQuadratureFunctionEvaluatorResult>
+          pqfcts_mps_bts;
+      /*!
+       * \brief partial quadrature functions resulting from the evaluations of
+       * the evaluators associated with material properties at the end of
+       * the time step
+       */
+      std::map<std::string, PartialQuadratureFunctionEvaluatorResult>
+          pqfcts_mps_ets;
+      /*!
+       * \brief partial quadrature functions resulting from the evaluations of
+       * the evaluators associated with external state variables at the
+       * beginning of the time step
+       */
+      std::map<std::string, PartialQuadratureFunctionEvaluatorResult>
+          pqfcts_esvs_bts;
+      /*!
+       * \brief partial quadrature functions resulting from the evaluations of
+       * the evaluators associated with external state variables at the end of
+       * the time step
+       */
+      std::map<std::string, PartialQuadratureFunctionEvaluatorResult>
+          pqfcts_esvs_ets;
     } wks;
     //! \brief time increment for the given time step
     real time_increment;

@@ -99,6 +99,34 @@ namespace mfem_mgis {
         });
   }  // end of evaluate
 
+  static void checkPartialQuadratureFunctionConstructorArguments(
+      std::shared_ptr<const PartialQuadratureSpace> s,
+      std::span<const real> v,
+      const size_type db,
+      const size_type ds) {
+    if (s->getNumberOfIntegrationPoints() == 0) {
+      // this may happen due to partionning in parallel
+      return;
+    }
+    if (db < 0) {
+      raise("invalid start of the data");
+    }
+    if (ds < 0) {
+      raise("invalid data size");
+    }
+    const auto d = std::div(static_cast<size_type>(v.size()),
+                            s->getNumberOfIntegrationPoints());
+    if ((d.rem != 0) || (d.quot <= 0)) {
+      raise("invalid values size");
+    }
+    if (db >= d.quot) {
+      raise("invalid start of the data");
+    }
+    if (db + ds > d.quot) {
+      raise("data range is outside the stride size");
+    }
+  }  // end of checkPartialQuadratureFunctionConstructorArguments
+
   ImmutablePartialQuadratureFunctionView::
       ImmutablePartialQuadratureFunctionView() = default;
 
@@ -109,26 +137,20 @@ namespace mfem_mgis {
           const size_type db,
           const size_type ds)
       : qspace(s) {
+    if (s.get() == nullptr) {
+      raise("invalid partial quadrature space pointer");
+    }
     this->data_stride = ds;
     this->data_begin = db;
     this->data_size = nv;
     if (this->data_begin < 0) {
-      raise(
-          "ImmutablePartialQuadratureFunctionView::"
-          "ImmutablePartialQuadratureFunctionView: "
-          "invalid start of the data");
+      raise("invalid start of the data");
     }
     if (this->data_size <= 0) {
-      raise(
-          "ImmutablePartialQuadratureFunctionView::"
-          "ImmutablePartialQuadratureFunctionView: "
-          "invalid data size");
+      raise("invalid data size");
     }
     if (this->data_begin + this->data_size > this->data_stride) {
-      raise(
-          "ImmutablePartialQuadratureFunctionView::"
-          "ImmutablePartialQuadratureFunctionView: "
-          "invalid data range is outside the stride size");
+      raise("invalid data range is outside the stride size");
     }
   }  // end of ImmutablePartialQuadratureFunctionView
 
@@ -139,6 +161,9 @@ namespace mfem_mgis {
           const size_type db,
           const size_type ds)
       : qspace(s) {
+    if (s.get() == nullptr) {
+      raise("invalid partial quadrature space pointer");
+    }
     this->data_begin = db;
     this->data_size = ds;
     if (this->qspace->getNumberOfIntegrationPoints() == 0) {
@@ -146,41 +171,25 @@ namespace mfem_mgis {
       this->data_stride = 0;
       return;
     }
-    if (this->data_begin < 0) {
-      raise(
-          "ImmutablePartialQuadratureFunctionView::"
-          "ImmutablePartialQuadratureFunctionView: invalid "
-          "start of the data");
-    }
-    if (ds < 0) {
-      raise(
-          "ImmutablePartialQuadratureFunctionView::"
-          "ImmutablePartialQuadratureFunctionView: invalid "
-          "data size");
-    }
-    const auto d = std::div(static_cast<size_type>(v.size()),
-                            this->qspace->getNumberOfIntegrationPoints());
-    if ((d.rem != 0) || (d.quot <= 0)) {
-      raise(
-          "ImmutablePartialQuadratureFunctionView::"
-          "ImmutablePartialQuadratureFunctionView: invalid "
-          "values size");
-    }
-    this->data_stride = d.quot;
-    if (this->data_begin >= this->data_stride) {
-      raise(
-          "ImmutablePartialQuadratureFunctionView::"
-          "ImmutablePartialQuadratureFunctionView: invalid "
-          "start of the data");
-    }
-    if (this->data_begin + this->data_size > this->data_stride) {
-      raise(
-          "ImmutablePartialQuadratureFunctionView::"
-          "ImmutablePartialQuadratureFunctionView: invalid "
-          "data range is outside the stride size");
-    }
+    checkPartialQuadratureFunctionConstructorArguments(s, v, db, ds);
     this->immutable_values = v;
   }  // end of ImmutablePartialQuadratureFunctionView
+
+  ImmutablePartialQuadratureFunctionView::
+      ImmutablePartialQuadratureFunctionView(
+          ImmutablePartialQuadratureFunctionView&&) noexcept = default;
+
+  ImmutablePartialQuadratureFunctionView::
+      ImmutablePartialQuadratureFunctionView(
+          const ImmutablePartialQuadratureFunctionView&) noexcept = default;
+
+  ImmutablePartialQuadratureFunctionView&
+  ImmutablePartialQuadratureFunctionView::operator=(
+      ImmutablePartialQuadratureFunctionView&&) noexcept = default;
+
+  ImmutablePartialQuadratureFunctionView&
+  ImmutablePartialQuadratureFunctionView::operator=(
+      const ImmutablePartialQuadratureFunctionView&) noexcept = default;
 
   const real* ImmutablePartialQuadratureFunctionView::data(
       const size_type e, const size_type i) const {
@@ -243,6 +252,9 @@ namespace mfem_mgis {
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s, const size_type nv)
       : PartialQuadratureFunctionView(s, nv, 0, nv) {
+    if (s.get() == nullptr) {
+      raise("invalid partial quadrature space pointer");
+    }
     this->local_values_storage.resize(
         this->qspace->getNumberOfIntegrationPoints() * this->data_size);
     this->mutable_values = std::span<real>(this->local_values_storage);
@@ -251,10 +263,36 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s,
+      const StorageMode sm,
       std::span<real> v,
       const size_type db,
-      const size_type ds)
-      : PartialQuadratureFunctionView(s, v, db, ds) {
+      const size_type ds) {
+    if (s.get() == nullptr) {
+      raise("invalid partial quadrature space pointer");
+    }
+    this->qspace = s;
+    if (sm == StorageMode::EXTERNAL_STORAGE) {
+      this->local_values_storage.resize(v.size());
+      std::copy(v.begin(), v.end(), this->local_values_storage.begin());
+      this->mutable_values = std::span<real>(this->local_values_storage);
+      this->immutable_values =
+          std::span<const real>(this->local_values_storage);
+    } else {
+      this->mutable_values = v;
+      this->immutable_values = std::span<const real>(v);
+    }
+    //
+    this->data_begin = db;
+    this->data_size = ds;
+    if (this->qspace->getNumberOfIntegrationPoints() == 0) {
+      // this may happen due to partionning in parallel
+      this->data_stride = 0;
+      return;
+    }
+    checkPartialQuadratureFunctionConstructorArguments(s, v, db, ds);
+    const auto d = std::div(static_cast<size_type>(v.size()),
+                            this->qspace->getNumberOfIntegrationPoints());
+    this->data_stride = d.quot;
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 
   void PartialQuadratureFunction::makeView(PartialQuadratureFunction& f) {
@@ -398,11 +436,11 @@ namespace mfem_mgis {
     }
     //
     PartialQuadratureFunctionsScalarCoefficient(
-        PartialQuadratureFunctionsScalarCoefficient&&) = default;
+        PartialQuadratureFunctionsScalarCoefficient&&) = delete;
     PartialQuadratureFunctionsScalarCoefficient(
         const PartialQuadratureFunctionsScalarCoefficient&) = default;
     PartialQuadratureFunctionsScalarCoefficient& operator=(
-        PartialQuadratureFunctionsScalarCoefficient&&) = default;
+        PartialQuadratureFunctionsScalarCoefficient&&) = delete;
     PartialQuadratureFunctionsScalarCoefficient& operator=(
         const PartialQuadratureFunctionsScalarCoefficient&) = default;
     //
@@ -429,13 +467,13 @@ namespace mfem_mgis {
     }
     //
     PartialQuadratureFunctionsScalarCoefficientII(
-        PartialQuadratureFunctionsScalarCoefficientII&&) = default;
+        PartialQuadratureFunctionsScalarCoefficientII&&) = delete;
     PartialQuadratureFunctionsScalarCoefficientII(
         const PartialQuadratureFunctionsScalarCoefficientII&) = default;
     PartialQuadratureFunctionsScalarCoefficientII& operator=(
-        PartialQuadratureFunctionsScalarCoefficientII&&) = default;
+        PartialQuadratureFunctionsScalarCoefficientII&&) = delete;
     PartialQuadratureFunctionsScalarCoefficientII& operator=(
-        const PartialQuadratureFunctionsScalarCoefficientII&) = default;
+        const PartialQuadratureFunctionsScalarCoefficientII&) = delete;
     //
     double Eval(mfem::ElementTransformation& tr,
                 const mfem::IntegrationPoint& i) override {
@@ -498,13 +536,13 @@ namespace mfem_mgis {
           elts_mapping(m) {}
     //
     PartialQuadratureFunctionsVectorCoefficientII(
-        PartialQuadratureFunctionsVectorCoefficientII&&) = default;
+        PartialQuadratureFunctionsVectorCoefficientII&&) = delete;
     PartialQuadratureFunctionsVectorCoefficientII(
         const PartialQuadratureFunctionsVectorCoefficientII&) = default;
     PartialQuadratureFunctionsVectorCoefficientII& operator=(
-        PartialQuadratureFunctionsVectorCoefficientII&&) = default;
+        PartialQuadratureFunctionsVectorCoefficientII&&) = delete;
     PartialQuadratureFunctionsVectorCoefficientII& operator=(
-        const PartialQuadratureFunctionsVectorCoefficientII&) = default;
+        const PartialQuadratureFunctionsVectorCoefficientII&) = delete;
     //
     void Eval(mfem::Vector& values,
               mfem::ElementTransformation& tr,

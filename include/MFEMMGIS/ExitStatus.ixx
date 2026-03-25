@@ -1,12 +1,12 @@
 /*!
- * \file   MFEMMGIS/Simulation.ixx
+ * \file   MFEMMGIS/ExitStatus.ixx
  * \brief
  * \author Thomas Helfer
  * \date   03/03/2026
  */
 
-#ifndef LIB_MFEM_MGIS_SIMULATION_IXX
-#define LIB_MFEM_MGIS_SIMULATION_IXX
+#ifndef LIB_MFEM_MGIS_EXIT_STATUS_IXX
+#define LIB_MFEM_MGIS_EXIT_STATUS_IXX
 
 namespace mfem_mgis {
 
@@ -46,4 +46,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_SIMULATION_IXX */
+#endif /* LIB_MFEM_MGIS_EXIT_STATUS_IXX */

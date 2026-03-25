@@ -458,7 +458,6 @@ namespace mfem_mgis {
     if (!checkUpdateFunctionsArguments(ctx, r, l, fcts)) {
       return false;
     }
-    const auto& mesh = *(r.fe_space->GetMesh());
     //
     *(r.result) = real{};
     //
@@ -473,7 +472,7 @@ namespace mfem_mgis {
     //    function used for the resolution
     //
     auto local_fespace = std::unique_ptr<FiniteElementSpace<parallel>>{};
-    auto* const fespace = [&r, &local_fespace, &mesh] {
+    auto* const fespace = [&r, &local_fespace] {
       if (r.fe_space->GetVDim() == 1) {
         return r.fe_space.get();
       }

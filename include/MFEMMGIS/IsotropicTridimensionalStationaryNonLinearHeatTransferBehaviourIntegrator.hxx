@@ -55,8 +55,10 @@ namespace mfem_mgis {
         const FiniteElementDiscretization &,
         const size_type,
         std::unique_ptr<const Behaviour>);
-
-    void setup(const real, const real) override;
+    //
+    [[nodiscard]] bool setup(Context &,
+                             const real,
+                             const real) noexcept override;
     /*!
      * \brief update the external state variable
      * corresponding to the unknowns.

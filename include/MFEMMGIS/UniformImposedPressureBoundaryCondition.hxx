@@ -77,7 +77,7 @@ namespace mfem_mgis {
                                                 const real) noexcept override;
     void setup(const real, const real) override;
     //! \brief destructor
-    virtual ~UniformImposedPressureBoundaryCondition();
+    ~UniformImposedPressureBoundaryCondition() override;
 
    protected:
     //! \brief internal structure

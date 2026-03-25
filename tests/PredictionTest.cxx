@@ -38,7 +38,10 @@ template <bool parallel>
   auto &fed = p.getFiniteElementDiscretization();
   auto &fespace = fed.getFiniteElementSpace<parallel>();
   const auto &u0 = p.getUnknowns(mfem_mgis::bts);
-  p.setup(0, 1);
+  if (!p.setup(ctx, 0, 1)) {
+    mfem_mgis::getOutputStream() << ctx.getErrorMessage() << '\n';
+    std::exit(EXIT_FAILURE);
+  }
   auto success = p.integrate(
       u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR, {});
 #ifdef MFEM_USE_MPI

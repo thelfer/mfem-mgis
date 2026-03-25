@@ -327,4 +327,15 @@ namespace mfem_mgis {
     return *ovalue;
   }  // end of extractFactoryArgument
 
+  Parameters remove(const Parameters& parameters,
+                    const std::vector<std::string>& names) noexcept {
+    auto r = Parameters{};
+    for (const auto& [k, p] : parameters) {
+      if (find(names.begin(), names.end(), k) == names.end()) {
+        r.replaceOrInsert(k, p);
+      }
+    }
+    return r;
+  }  // end of extract
+
 }  // end of namespace mfem_mgis

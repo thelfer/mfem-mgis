@@ -24,8 +24,8 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT [[nodiscard]] bool rotateThermodynamicsForcesToGlobalFrame(
       Context &,
       PartialQuadratureFunction &,
-      Material &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
+      const Material &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
 
 }  // end of namespace mfem_mgis
 

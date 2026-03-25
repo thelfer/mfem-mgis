@@ -12,6 +12,7 @@
 #ifdef MFEM_USE_MPI
 #include "mfem/mesh/pmesh.hpp"
 #endif /* MFEM_USE_MPI */
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorFactory.hxx"
@@ -252,17 +253,41 @@ namespace mfem_mgis {
     }
   }  // end of AssembleElementGrad
 
+  std::optional<size_type>
+  MultiMaterialNonLinearIntegrator::addBehaviourIntegrator(
+      Context& ctx,
+      const std::string& n,
+      const size_type m,
+      const std::string& l,
+      const std::string& b,
+      const Parameters& params) noexcept {
+    const auto of = BehaviourIntegratorFactory::get(ctx, this->hypothesis);
+    if (isInvalid(of)) {
+      return {};
+    }
+    auto& bis = this->behaviour_integrators[m];
+    const auto s = static_cast<size_type>(bis.size());
+    auto bptr = mfem_mgis::load(ctx, l, b, this->hypothesis);
+    if (isInvalid(bptr)) {
+      return {};
+    }
+    auto bi = of->generate(ctx, n, *(this->fe_discretization), m,
+                           std::move(bptr), params);
+    if (isInvalid(bi)) {
+      return {};
+    }
+    bis.push_back(std::move(bi));
+    return s;
+  }  // end of addBehaviourIntegrator
+
   size_type MultiMaterialNonLinearIntegrator::addBehaviourIntegrator(
       const std::string& n,
       const size_type m,
       const std::string& l,
       const std::string& b) {
-    const auto& f = BehaviourIntegratorFactory::get(this->hypothesis);
-    auto& bis = this->behaviour_integrators[m];
-    const auto s = static_cast<size_type>(bis.size());
-    bis.push_back(f.generate(n, *(this->fe_discretization), m,
-                             mfem_mgis::load(l, b, this->hypothesis)));
-    return s;
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return this->addBehaviourIntegrator(ctx, n, m, l, b) | or_raise;
   }  // end of addBehaviourIntegrator
 
   OptionalReference<const Material>
@@ -283,6 +308,17 @@ namespace mfem_mgis {
     }
     return {&(obi->getMaterial())};
   }  // end of getMaterial
+
+  std::optional<size_type>
+  MultiMaterialNonLinearIntegrator::getNumberOfBehaviourIntegrators(
+      Context& ctx, const size_type m) const noexcept {
+    if ((m == 0) || (m >= this->behaviour_integrators.size())) {
+      return ctx.registerErrorMessage("invalid material index '" +
+                                      std::to_string(m) + "'");
+    }
+    const auto& bis = this->behaviour_integrators.at(m);
+    return bis.size();
+  }  // end of getBehaviourIntegrator
 
   OptionalReference<const AbstractBehaviourIntegrator>
   MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
@@ -376,13 +412,20 @@ namespace mfem_mgis {
     }
   }  // end of setMacroscopicGradients
 
-  void MultiMaterialNonLinearIntegrator::setup(const real t, const real dt) {
+  bool MultiMaterialNonLinearIntegrator::setup(Context& ctx,
+                                               const real t,
+                                               const real dt) noexcept {
+    // note: synchronization among MPI processes is done later
+    // in the calling nonlinear evolution problem
     for (auto& bis : this->behaviour_integrators) {
       for (auto& bi : bis) {
-        bi->setup(t, dt);
+        if (!bi->setup(ctx, t, dt)) {
+          return false;
+        }
       }
     }
-  }  // end of setTimeIncrement
+    return true;
+  }  // end of setup
 
   void MultiMaterialNonLinearIntegrator::revert() {
     for (auto& bis : this->behaviour_integrators) {

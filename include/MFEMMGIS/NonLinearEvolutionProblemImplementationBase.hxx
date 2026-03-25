@@ -124,15 +124,25 @@ namespace mfem_mgis {
     OptionalReference<Material> getMaterial(Context&,
                                             const Parameter&,
                                             const size_type) noexcept override;
+    [[nodiscard]] std::optional<size_type> getNumberOfBehaviourIntegrators(
+        Context&, const Parameter&) const noexcept override;
     OptionalReference<const AbstractBehaviourIntegrator> getBehaviourIntegrator(
         Context&, const Parameter&, const size_type) const noexcept override;
     OptionalReference<AbstractBehaviourIntegrator> getBehaviourIntegrator(
         Context&, const Parameter&, const size_type) noexcept override;
-    std::map<size_type, size_type> addBehaviourIntegrator(
+    std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
+        Context&,
         const std::string&,
         const Parameter&,
         const std::string&,
-        const std::string&) override;
+        const std::string&) noexcept override;
+    std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
+        Context&,
+        const std::string&,
+        const Parameter&,
+        const std::string&,
+        const std::string&,
+        const Parameters&) noexcept override;
     [[nodiscard]] std::vector<size_type> getEssentialDegreesOfFreedom()
         const override;
     [[nodiscard]] bool areStiffnessOperatorsFromLastIterationAvailable()
@@ -144,7 +154,9 @@ namespace mfem_mgis {
     getDirichletBoundaryConditions() const noexcept override;
     [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
     getBoundaryConditions() const noexcept override;
-    void setup(const real, const real) override;
+    [[nodiscard]] bool setup(Context&,
+                             const real,
+                             const real) noexcept override;
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
     [[nodiscard]] bool setSolverParameters(Context&,
                                            const Parameters&) noexcept override;
@@ -152,7 +164,7 @@ namespace mfem_mgis {
         const noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(Context&,
                                                   const real,
-                                                  const real) override;
+                                                  const real) noexcept override;
     void revert() override;
     void update() override;
     //
@@ -176,10 +188,16 @@ namespace mfem_mgis {
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
     getBehaviourIntegrator(const size_type) override;
     [[deprecated]] void setSolverParameters(const Parameters&) override;
+    [[deprecated]] void setup(const real, const real) override;
     [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
         const real, const real) override;
+    [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
+        const std::string&,
+        const Parameter&,
+        const std::string&,
+        const std::string&) override;
     //! \brief destructor
-    virtual ~NonLinearEvolutionProblemImplementationBase();
+    ~NonLinearEvolutionProblemImplementationBase() override;
 
    protected:
     /*!

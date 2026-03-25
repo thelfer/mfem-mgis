@@ -10,6 +10,18 @@
 
 namespace mfem_mgis {
 
+  std::unique_ptr<Behaviour> load(Context& ctx,
+                                  const std::string& l,
+                                  const std::string& b,
+                                  const Hypothesis h) noexcept {
+    try {
+      return mfem_mgis::load(l, b, h);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of load
+
   std::unique_ptr<Behaviour> load(const std::string& l,
                                   const std::string& b,
                                   const Hypothesis h) {

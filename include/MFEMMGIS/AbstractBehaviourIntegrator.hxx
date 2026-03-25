@@ -8,10 +8,11 @@
 #ifndef LIB_MFEM_MGIS_ABSTRACTBEHAVIOURINTEGRATOR_HXX
 #define LIB_MFEM_MGIS_ABSTRACTBEHAVIOURINTEGRATOR_HXX
 
+#include <span>
 #include <array>
 #include <memory>
-#include <span>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/TimeStepStage.hxx"
 
 namespace mfem_mgis {
 
@@ -19,6 +20,7 @@ namespace mfem_mgis {
   struct Material;
   struct PartialQuadratureSpace;
   struct ImmutablePartialQuadratureFunctionView;
+  struct AbstractPartialQuadratureFunctionEvaluator;
   enum struct IntegrationType;
 
   /*!
@@ -62,10 +64,14 @@ namespace mfem_mgis {
         const mfem::IntegrationPoint &) const = 0;
     /*!
      * \brief method call at the beginning of each resolution
+     *
+     * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void setup(const real, const real) = 0;
+    [[nodiscard]] virtual bool setup(Context &,
+                                     const real,
+                                     const real) noexcept = 0;
     /*!
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent
@@ -76,10 +82,10 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
      */
-    virtual bool integrate(const mfem::FiniteElement &,
-                           mfem::ElementTransformation &,
-                           const mfem::Vector &,
-                           const IntegrationType) = 0;
+    [[nodiscard]] virtual bool integrate(const mfem::FiniteElement &,
+                                         mfem::ElementTransformation &,
+                                         const mfem::Vector &,
+                                         const IntegrationType) = 0;
     /*!
      * \brief compute the contribution of the given element to the inner forces
      * \param[out] Fe: inner forces
@@ -111,6 +117,15 @@ namespace mfem_mgis {
                                 const mfem::FiniteElement &,
                                 mfem::ElementTransformation &,
                                 const mfem::Vector &) = 0;
+    /*!
+     * \brief clean-up at the end of a resolution
+     *
+     * \param[in, out] ctx: execution context
+     *
+     * \note this method is the counterpart of the `setup` method and is meant
+     * to release any memory allocated byt this method.
+     */
+    [[nodiscard]] virtual bool cleanup(Context &) noexcept = 0;
     /*!
      * \brief revert the internal state variables.
      *
@@ -165,6 +180,32 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept = 0;
+    /*!
+     * \brief set the value of a material property
+     *
+     * \param[in] ctx: execution context
+     * \param[in] name: name of the material property
+     * \param[in] e: evaluator of the material property
+     * \param[in] ts: time step stage
+     */
+    [[nodiscard]] virtual bool setMaterialProperty(
+        Context &,
+        std::string_view,
+        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        const TimeStepStage) noexcept = 0;
+    /*!
+     * \brief set the value of an external state variable
+     *
+     * \param[in] ctx: execution context
+     * \param[in] name: name of the external state variable
+     * \param[in] e: evaluator of the external state variable
+     * \param[in] ts: time step stage
+     */
+    [[nodiscard]] virtual bool setExternalStateVariable(
+        Context &,
+        std::string_view,
+        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        const TimeStepStage) noexcept = 0;
     //! \return the underlying material
     [[deprecated, nodiscard]] virtual Material &getMaterial() = 0;
     //! \return the underlying material
