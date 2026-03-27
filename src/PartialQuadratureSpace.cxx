@@ -352,4 +352,45 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
   }    // end of synchronize
 
+  bool areEquivalent(const PartialQuadratureSpace& s1,
+                     const PartialQuadratureSpace& s2) noexcept {
+    if (&s1 == &s2) {
+      return true;
+    }
+    const auto& fed1 = s1.getFiniteElementDiscretization();
+    const auto& fed2 = s1.getFiniteElementDiscretization();
+    if (fed1.describesAParallelComputation() !=
+        fed2.describesAParallelComputation()) {
+      return false;
+    }
+    if (fed1.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      if (fed1.getMeshPointer<true>() != fed2.getMeshPointer<true>()) {
+        return false;
+      }
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      if (fed1.getMeshPointer<false>() != fed2.getMeshPointer<false>()) {
+        return false;
+      }
+    }
+    if (s1.getId() != s2.getId()) {
+      return false;
+    }
+    const auto success = [&s1, &s2] {
+      if (getSpaceSize(s1) != getSpaceSize(s2)) {
+        return false;
+      }
+      for (const auto [e, o] : s1.getOffsets()) {
+        if (s2.getOffset(e) != o) {
+          return false;
+        }
+      }
+      return true;
+    }();
+    return isTrueOnAllProcesses(fed1, success);
+  }  // end of areEquivalent
+
 }  // end of namespace mfem_mgis

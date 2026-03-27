@@ -133,13 +133,12 @@ namespace mfem_mgis {
 namespace mfem_mgis {
 
   /*!
-   * \brief return the number of integration points
+   * \brief return if the two references have the same pointers
    *
-   * \note this method is equivalent to `getNumberOfIntegrationPoints`
    * \note this is as requirement of mgis::function::SpaceConcept
    */
-  constexpr bool areEquivalent(const PartialQuadratureSpace &,
-                               const PartialQuadratureSpace &) noexcept;
+  MFEM_MGIS_EXPORT [[nodiscard]] bool areEquivalent(
+      const PartialQuadratureSpace &, const PartialQuadratureSpace &) noexcept;
 
   /*!
    * \brief return the number of integration points
