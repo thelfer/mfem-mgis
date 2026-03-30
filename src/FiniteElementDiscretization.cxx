@@ -60,7 +60,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   std::pair<std::shared_ptr<const FiniteElementCollection>,
-            std::unique_ptr<FiniteElementSpace<parallel>>>
+            std::shared_ptr<FiniteElementSpace<parallel>>>
   buildFiniteElementCollectionAndSpace(MeshDiscretization& m,
                                        const Parameters& params) {
     checkParameters(throwing, params,
@@ -84,16 +84,22 @@ namespace mfem_mgis {
     // building the finite element space
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
-      return {fec, std::make_unique<FiniteElementSpace<true>>(
+      return {fec, std::make_shared<FiniteElementSpace<true>>(
                        m.getMeshPointer<true>().get(), fec.get(), u_size)};
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      return {fec, std::make_unique<FiniteElementSpace<false>>(
+      return {fec, std::make_shared<FiniteElementSpace<false>>(
                        m.getMeshPointer<false>().get(), fec.get(), u_size)};
     }
   }  // end of buildFiniteElementCollectionAndSpace
+
+  FiniteElementDiscretization::FiniteElementDiscretization(
+      FiniteElementDiscretization&&) noexcept = default;
+
+  FiniteElementDiscretization::FiniteElementDiscretization(
+      const FiniteElementDiscretization&) noexcept = default;
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       const MeshDiscretization& m, const Parameters& params)

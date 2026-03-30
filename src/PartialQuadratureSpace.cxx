@@ -83,6 +83,11 @@ namespace mfem_mgis {
     return this->integration_rule_selector(e, tr);
   }
 
+  const MeshDiscretization& PartialQuadratureSpace::getMeshDiscretization()
+      const noexcept {
+    return static_cast<const MeshDiscretization&>(this->fe_discretization);
+  }  // end of getMeshDiscretization
+
   const FiniteElementDiscretization&
   PartialQuadratureSpace::getFiniteElementDiscretization() const noexcept {
     return this->fe_discretization;
@@ -383,8 +388,15 @@ namespace mfem_mgis {
       if (getSpaceSize(s1) != getSpaceSize(s2)) {
         return false;
       }
-      for (const auto [e, o] : s1.getOffsets()) {
-        if (s2.getOffset(e) != o) {
+      const auto& offsets1 = s1.getOffsets();
+      const auto& offsets2 = s2.getOffsets();
+      if (offsets1.size() != offsets2.size()) {
+        return false;
+      }
+      auto p1 = offsets1.begin();
+      auto p2 = offsets2.begin();
+      for (; p1 != offsets1.end(); ++p1, ++p2) {
+        if ((p1->first != p2->first) || (p1->second != p2->second)) {
           return false;
         }
       }

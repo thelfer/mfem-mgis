@@ -40,6 +40,10 @@ namespace mfem_mgis {
     [[noreturn]] static void reportInvalidSequentialFiniteElementSpace();
     //!
     static std::vector<std::string> getParametersList();
+    //! \brief move constructor
+    FiniteElementDiscretization(FiniteElementDiscretization&&) noexcept;
+    //! \brief copy constructor
+    FiniteElementDiscretization(const FiniteElementDiscretization&) noexcept;
     /*!
      * \brief constructor
      * \param[in] params: parameters
@@ -177,9 +181,9 @@ namespace mfem_mgis {
     std::shared_ptr<const FiniteElementCollection> fec;
     //! \brief finite element space
 #ifdef MFEM_USE_MPI
-    std::unique_ptr<FiniteElementSpace<true>> parallel_fe_space;
+    std::shared_ptr<FiniteElementSpace<true>> parallel_fe_space;
 #endif /* MFEM_USE_MPI */
-    std::unique_ptr<FiniteElementSpace<false>> sequential_fe_space;
+    std::shared_ptr<FiniteElementSpace<false>> sequential_fe_space;
   };  // end of FiniteElementDiscretization
 
   /*!

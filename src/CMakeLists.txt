@@ -88,6 +88,7 @@ list(APPEND MFEMMGIS_SOURCES
   AbstractModel.cxx
   ModelBase.cxx
   NonLinearModel.cxx
+  PartialQuadratureSpaceIdentifiersManager.cxx
   PhysicalSystem.cxx
   Simulation.cxx
 )

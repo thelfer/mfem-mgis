@@ -169,6 +169,29 @@ if(MFEM_MGIS_HAVE_TFEL)
   endfunction(add_partial_quadrature_space_test)
   
   add_partial_quadrature_space_test(OrthotropicElasticity EquivalentStrain)
+
+  add_executable(PartialQuadratureSpaceTest2
+    EXCLUDE_FROM_ALL
+    PartialQuadratureSpaceTest2.cxx)
+  target_include_directories(PartialQuadratureSpaceTest2
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(PartialQuadratureSpaceTest2
+    PRIVATE MFEMMGIS)
+  add_dependencies(check PartialQuadratureSpaceTest2)
+  
+  function(add_partial_quadrature_space_test2)
+    set(test "PartialQuadratureSpaceTest2")
+    add_test(NAME ${test}
+       COMMAND ./PartialQuadratureSpaceTest2
+       "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh" "--parallel" 0)
+    if (MFEM_USE_MPI)
+      add_test(NAME ${test}P
+        COMMAND mpirun -n 2 ./PartialQuadratureSpaceTest2
+        "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh" "--parallel" 1)
+    endif (MFEM_USE_MPI)
+  endfunction(add_partial_quadrature_space_test2)
+  
+  add_partial_quadrature_space_test2()
   
   function(add_partial_quadrature_function_test behaviour internal_state_variable)
     set(test "PartialQuadratureFunctionTest-${behaviour}")

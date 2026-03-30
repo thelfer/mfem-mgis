@@ -21,11 +21,9 @@
 
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Info.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 
 namespace mfem_mgis {
-
-  // forward declaration
-  struct FiniteElementDiscretization;
 
   /*!
    * \brief a space on quadrature points defined on a material
@@ -54,6 +52,9 @@ namespace mfem_mgis {
     PartialQuadratureSpace(const PartialQuadratureSpace &) = delete;
     PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
     PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
+    //! \return the mesh discretization
+    [[nodiscard]] const MeshDiscretization &getMeshDiscretization()
+        const noexcept;
     //! \return the finite element discretization
     [[nodiscard]] const FiniteElementDiscretization &
     getFiniteElementDiscretization() const noexcept;
@@ -104,7 +105,7 @@ namespace mfem_mgis {
 
    private:
     //! \brief underlying finite element discretization
-    const FiniteElementDiscretization &fe_discretization;
+    const FiniteElementDiscretization fe_discretization;
     /*!
      * \brief function returning the order of quadrature for the
      * considered finite element.
