@@ -99,6 +99,8 @@ namespace mfem_mgis {
      */
     [[nodiscard]] size_type getOffset(const size_type) const;
     //! \return the material id
+    [[nodiscard]] std::string getMaterialName() const noexcept;
+    //! \return the material id
     [[nodiscard]] size_type getId() const noexcept;
     //! \brief destructor
     ~PartialQuadratureSpace();

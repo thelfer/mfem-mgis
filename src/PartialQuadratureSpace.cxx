@@ -77,6 +77,16 @@ namespace mfem_mgis {
     }
   }  // end of PartialQuadratureSpace
 
+  std::string PartialQuadratureSpace::getMaterialName() const noexcept {
+    auto ctx = Context{};
+    const auto oname =
+        this->fe_discretization.getMaterialName(ctx, this->getId());
+    if (isValid(oname)) {
+      return *oname;
+    }
+    return std::to_string(this->getId());
+  } // end of getMaterialName
+
   const mfem::IntegrationRule& PartialQuadratureSpace::getIntegrationRule(
       const mfem::FiniteElement& e,
       const mfem::ElementTransformation& tr) const {

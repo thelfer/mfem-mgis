@@ -78,6 +78,8 @@ list(APPEND MFEMMGIS_SOURCES
   AbstractSimulationMonitor.cxx
   ComputeNextStateOutput.cxx
   Provider.cxx
+  Dependency.cxx
+  DependenciesManager.cxx
   AbstractCouplingItem.cxx
   AbstractCouplingScheme.cxx
   AbstractCouplingSchemeConvergenceCriterion.cxx
@@ -89,6 +91,7 @@ list(APPEND MFEMMGIS_SOURCES
   ModelBase.cxx
   NonLinearModel.cxx
   PartialQuadratureSpaceIdentifiersManager.cxx
+  StateManager.cxx
   PhysicalSystem.cxx
   Simulation.cxx
 )

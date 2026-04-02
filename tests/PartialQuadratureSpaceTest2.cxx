@@ -22,6 +22,7 @@
 #include "mfem/fem/eltrans.hpp"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
+#include "MFEMMGIS/PartialQuadratureSpaceIdentifiersManager.hxx"
 
 int main(int argc, char** argv) {
   auto ctx = mfem_mgis::Context{};
@@ -61,7 +62,7 @@ int main(int argc, char** argv) {
                                          {"UnknownsSize", 2}}}) |
               or_die;
   auto qspace1 =
-      mfem_mgis::construct<mfem_mgis::PartialQuadratureSpace>(
+      mfem_mgis::make_shared<mfem_mgis::PartialQuadratureSpace>(
           ctx, fed1, 1,
           [](const mfem::FiniteElement& e, const mfem::ElementTransformation&)
               -> const mfem::IntegrationRule& {
@@ -69,23 +70,34 @@ int main(int argc, char** argv) {
           }) |
       or_die;
   auto qspace2 =
-      mfem_mgis::construct<mfem_mgis::PartialQuadratureSpace>(
+      mfem_mgis::make_shared<mfem_mgis::PartialQuadratureSpace>(
           ctx, fed2, 1,
           [](const mfem::FiniteElement& e, const mfem::ElementTransformation&)
               -> const mfem::IntegrationRule& {
             return mfem::IntRules.Get(e.GetGeomType(), 2);
           }) |
       or_die;
-  assert(areEquivalent(qspace1, qspace2));
+  assert(mfem_mgis::areEquivalent(*qspace1, *qspace2));
   auto qspace3 =
-      mfem_mgis::construct<mfem_mgis::PartialQuadratureSpace>(
+      mfem_mgis::make_shared<mfem_mgis::PartialQuadratureSpace>(
           ctx, fed1, 1,
           [](const mfem::FiniteElement& e, const mfem::ElementTransformation&)
               -> const mfem::IntegrationRule& {
             return mfem::IntRules.Get(e.GetGeomType(), 4);
           }) |
       or_die;
-  assert(!areEquivalent(qspace1, qspace3));
-  assert(!areEquivalent(qspace2, qspace3));
+  assert(!mfem_mgis::areEquivalent(*qspace1, *qspace3));
+  assert(!mfem_mgis::areEquivalent(*qspace2, *qspace3));
+  //
+  auto ids = mfem_mgis::PartialQuadratureSpaceIdentifiersManager{m};
+  const auto i1 = ids.getIdentifier(ctx, qspace1) | or_die;
+  const auto i1b = ids.getIdentifier(ctx, qspace1) | or_die;
+  const auto i2 = ids.getIdentifier(ctx, qspace2) | or_die;
+  const auto i3 = ids.getIdentifier(ctx, qspace3) | or_die;
+  assert(i1 == 0);
+  assert(i1 == i1b);
+  assert(i1 == i2);
+  assert(i1 != i3);
+  assert(i3 == 1);
   return EXIT_SUCCESS;
 }

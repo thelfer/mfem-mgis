@@ -182,6 +182,14 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[noreturn]] void abort(const char* const,
                                            const int = EXIT_FAILURE);
+  /*!
+   * \brief function that must be called if one MPI process detect an fatal
+   * error.
+   * \param[in] msg: message displayed of the calling process
+   * \param[in] error: exit status
+   */
+  MFEM_MGIS_EXPORT [[noreturn]] void abort(std::string_view,
+                                           const int = EXIT_FAILURE);
   //! \return if the usage of PETSc has been requested by the user.
   MFEM_MGIS_EXPORT bool usePETSc();
   //! \brief activate PETSc with the configuration file givien in parameter.

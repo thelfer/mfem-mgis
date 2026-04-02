@@ -70,6 +70,7 @@ mfem_mgis_header(MFEMMGIS ParaviewExportIntegrationPointResultsAtNodes.ixx)
 
 mfem_mgis_header(MFEMMGIS TimeStep.hxx)
 mfem_mgis_header(MFEMMGIS Provider.hxx)
+mfem_mgis_header(MFEMMGIS Dependency.hxx)
 mfem_mgis_header(MFEMMGIS AbstractCouplingItem.hxx)
 mfem_mgis_header(MFEMMGIS AbstractCouplingScheme.hxx)
 mfem_mgis_header(MFEMMGIS AbstractCouplingSchemeConvergenceCriterion.hxx)

@@ -192,6 +192,11 @@ namespace mfem_mgis {
     Finalizer::get().abort(error);
   }  // end of abort
 
+  void abort(std::string_view msg, const int error) {
+    mfem_mgis::getErrorStream() << msg << '\n';
+    Finalizer::get().abort(error);
+  }  // end of abort
+
   void declareDefaultOptions(mfem::OptionsParser& parser) {
     static_cast<void>(parser);
 #ifdef MFEM_USE_PETSC

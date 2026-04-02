@@ -17,7 +17,18 @@ namespace mfem_mgis {
 
   //! \brief a model based on a nonlinear evolution problem
   struct MFEM_MGIS_EXPORT NonLinearModel : ModelBase {
+    /*!
+     * \brief constructor
+     *
+     * \param[in] m: mesh
+     * \param[in] parameters: parameters
+     */
     NonLinearModel(MeshDiscretization &, const Parameters &);
+    /*!
+     * \brief constructor
+     *
+     * \param[in] p: nonlinear evolution problem
+     */
     NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem>);
     //
     [[nodiscard]] NonLinearEvolutionProblem &getProblem() noexcept;
@@ -37,6 +48,7 @@ namespace mfem_mgis {
     ~NonLinearModel() noexcept override;
 
    private:
+    //! \brief underlying non linear evolution problem
     std::shared_ptr<NonLinearEvolutionProblem> problem;
   };
 
