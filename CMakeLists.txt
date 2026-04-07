@@ -56,7 +56,9 @@ endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
 
 # MFontGenericInterface
 find_package (MFrontGenericInterface REQUIRED)
- 
+# Since 2025, MFront requires TBB
+find_package (TBB REQUIRED)
+
 # find mfront for testing purposes
 include(cmake/modules/tfel.cmake)  
 
