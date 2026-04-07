@@ -105,4 +105,7 @@ if(OpenMP_FOUND)
   target_link_libraries(MFEMMGIS
     PUBLIC OpenMP::OpenMP_CXX)
 endif(OpenMP_FOUND)
+if(TBB_FOUND)
+  target_link_libraries(MFEMMGIS PUBLIC tbb)
+endif(TBB_FOUND)
 
