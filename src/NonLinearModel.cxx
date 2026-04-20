@@ -30,8 +30,14 @@ namespace mfem_mgis {
     return *(this->problem);
   }  // end of getProblem
 
+  // Ajout fonction
+  void NonLinearModel::setName(const std::string& n) noexcept {
+    this->name = std::move(n);
+  }  // end of setName
+
+  // Implémentation fonction
   std::string NonLinearModel::getName() const noexcept {
-    return "NonLinearModel";
+    return this->name.empty() ? "NonLinearModel" : this->name;
   }  // end of getName
 
   bool NonLinearModel::performInitializationTaksAtTheBeginningOfTheTimeStep(

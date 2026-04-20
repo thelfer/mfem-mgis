@@ -4,6 +4,7 @@
  * class \date   05/12/2022
  */
 
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/LoopCouplingScheme.hxx"
 
@@ -102,6 +103,7 @@ namespace mfem_mgis {
       std::ignore = ctx.registerErrorMessage("invalid number of iterations");
       return {ExitStatus::unrecoverableError, {}};
     }
+    CatchTimeSection("LoopCouplingScheme::computeNextState"); // Timer pour la fonction
     auto status = ExitStatus{};
     auto iterationsOutputs = std::vector<Parameter>{};
     auto iterationOutputs = std::vector<Parameter>{};
@@ -113,6 +115,7 @@ namespace mfem_mgis {
       for (const auto &m : this->items) {
         ctx.log(verboseLevel2, "* calling computeNextState for '" +
                                    getShortDescription(*m) + "'");
+        CatchTimeSection(m->getName()); // Timer pour le modèle
         auto cs = update(ctx, *m);
         const auto o = m->computeNextState(ctx, ts);
         restore(ctx, cs);
