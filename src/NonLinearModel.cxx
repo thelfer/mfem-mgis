@@ -12,8 +12,16 @@ namespace mfem_mgis {
 
   NonLinearModel::NonLinearModel(MeshDiscretization &m,
                                  const Parameters &parameters)
-      : NonLinearModel(
-            std::make_shared<NonLinearEvolutionProblem>(m, parameters)) {}
+      : ModelBase(m, extract(parameters, ModelBase::getParametersList())),
+        problem(std::make_shared<NonLinearEvolutionProblem>(
+            m, remove(parameters, ModelBase::getParametersList()))) {
+    auto valid_parameters = NonLinearEvolutionProblem::getParametersList();
+    for (const auto &[k, d] : ModelBase::getParametersList()) {
+      static_cast<void>(d);
+      valid_parameters.push_back(k);
+    }
+    checkParameters(parameters, valid_parameters);
+  }
 
   NonLinearModel::NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem> p)
       : ModelBase(p->getFiniteElementDiscretization()), problem(p) {

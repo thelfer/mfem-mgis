@@ -10,6 +10,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <optional>
 #include <functional>
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
@@ -30,11 +31,18 @@ namespace mfem_mgis {
      * \param[in] m: mesh
      */
     ModelBase(const MeshDiscretization &) noexcept;
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] parameters: parameters
+     */
+    ModelBase(const MeshDiscretization &, const Parameters &);
     //
     [[nodiscard]] std::string getIdentifier() const noexcept override final;
     MeshDiscretization getMeshDiscretization() const noexcept override;
     [[nodiscard]] VerbosityLevel getVerbosityLevel()
         const noexcept override final;
+    void setName(std::string_view) noexcept override final;
     void setVerbosityLevel(const VerbosityLevel) noexcept override final;
     void setLogStream(std::shared_ptr<std::ostream>) noexcept override final;
     [[nodiscard]] std::shared_ptr<std::ostream> getLogStreamPointer() noexcept
@@ -128,6 +136,8 @@ namespace mfem_mgis {
     std::optional<VerbosityLevel> verbosityLevel;
     //! \brief a log stream associated with the model
     std::shared_ptr<std::ostream> logStream;
+    //! \brief name of the model, specified externally
+    std::optional<std::string> name;
   };  // end of class ModelBase
 
 }  // end of namespace mfem_mgis

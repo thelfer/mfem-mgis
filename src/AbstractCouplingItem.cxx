@@ -37,6 +37,7 @@ namespace mfem_mgis {
   std::map<std::string, std::string>
   getCouplingItemParametersDescription() noexcept {
     return {{AbstractCouplingItem::verbosityLevelParameter, "verbosity level"},
+            {AbstractCouplingItem::nameParameter, "name"},
             {AbstractCouplingItem::logFileParameter, "log file"}};
   }  // end of getCouplingItemParametersDescription
 
@@ -66,6 +67,14 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage("unable to open file '" + *of + "'");
       }
       i.setLogStream(os);
+    }
+    if (contains(params, AbstractCouplingItem:nameParameter)) {
+      const auto on =
+          get<std::string>(ctx, params, AbstractCouplingItem::nameParameter);
+      if (isInvalid(on)) {
+        return false;
+      }
+      i.setName(*on);
     }
     return true;
   }  // end of handleCouplingItemParameters
