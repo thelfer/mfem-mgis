@@ -13,6 +13,7 @@ namespace mfem_mgis {
   const std::string AbstractCouplingItem::verbosityLevelParameter =
       "VerbosityLevel";
   const std::string AbstractCouplingItem::logFileParameter = "LogFile";
+  const std::string AbstractCouplingItem::nameParameter = "Name";
 
   AbstractCouplingItem::~AbstractCouplingItem() = default;
 
@@ -68,7 +69,7 @@ namespace mfem_mgis {
       }
       i.setLogStream(os);
     }
-    if (contains(params, AbstractCouplingItem:nameParameter)) {
+    if (contains(params, AbstractCouplingItem::nameParameter)) {
       const auto on =
           get<std::string>(ctx, params, AbstractCouplingItem::nameParameter);
       if (isInvalid(on)) {

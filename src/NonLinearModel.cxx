@@ -10,17 +10,31 @@
 
 namespace mfem_mgis {
 
+  static std::vector<std::string> getKeys(
+      const std::map<std::string, std::string> & dict) {
+    auto r = std::vector<std::string>{};
+    for (const auto &[k, v] : dict) {
+      r.push_back(k);
+    }
+    return r;
+  }
+
   NonLinearModel::NonLinearModel(MeshDiscretization &m,
                                  const Parameters &parameters)
-      : ModelBase(m, extract(parameters, ModelBase::getParametersList())),
+      : ModelBase(m,
+                  extract(throwing,
+                          parameters,
+                          getKeys(ModelBase::getParametersDescription()))),
         problem(std::make_shared<NonLinearEvolutionProblem>(
-            m, remove(parameters, ModelBase::getParametersList()))) {
+            m,
+            remove(parameters,
+                   getKeys(ModelBase::getParametersDescription())))) {
     auto valid_parameters = NonLinearEvolutionProblem::getParametersList();
-    for (const auto &[k, d] : ModelBase::getParametersList()) {
+    for (const auto &[k, d] : ModelBase::getParametersDescription()) {
       static_cast<void>(d);
       valid_parameters.push_back(k);
     }
-    checkParameters(parameters, valid_parameters);
+    checkParameters(throwing, parameters, valid_parameters);
   }
 
   NonLinearModel::NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem> p)
@@ -38,14 +52,8 @@ namespace mfem_mgis {
     return *(this->problem);
   }  // end of getProblem
 
-  // Ajout fonction
-  void NonLinearModel::setName(const std::string& n) noexcept {
-    this->name = std::move(n);
-  }  // end of setName
-
-  // Implémentation fonction
   std::string NonLinearModel::getName() const noexcept {
-    return this->name.empty() ? "NonLinearModel" : this->name;
+    return this->name.value_or("NonLinearModel");
   }  // end of getName
 
   bool NonLinearModel::performInitializationTaksAtTheBeginningOfTheTimeStep(

@@ -127,6 +127,9 @@ namespace mfem_mgis {
     virtual void addPostProcessing(
         std::function<bool(Context &, bool)>) noexcept;
 
+    //! \brief name of the model, specified externally
+    std::optional<std::string> name;
+
    private:
     //! \brief mesh discretization
     MeshDiscretization mesh;
@@ -136,8 +139,6 @@ namespace mfem_mgis {
     std::optional<VerbosityLevel> verbosityLevel;
     //! \brief a log stream associated with the model
     std::shared_ptr<std::ostream> logStream;
-    //! \brief name of the model, specified externally
-    std::optional<std::string> name;
   };  // end of class ModelBase
 
 }  // end of namespace mfem_mgis

@@ -24,7 +24,6 @@ namespace mfem_mgis {
     [[nodiscard]] const NonLinearEvolutionProblem &getProblem() const noexcept;
     //
     [[nodiscard]] std::string getName() const noexcept override;
-    void setName(const std::string& n) noexcept; // Ajout fonction
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
         Context &, const TimeStep &) noexcept override;
     [[nodiscard]] bool executePostProcessingTasks(Context &,
@@ -39,7 +38,6 @@ namespace mfem_mgis {
 
    private:
     std::shared_ptr<NonLinearEvolutionProblem> problem;
-    std::string name; //Ajout membre
   };
 
 }  // end of namespace mfem_mgis

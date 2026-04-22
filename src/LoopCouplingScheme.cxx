@@ -52,7 +52,7 @@ namespace mfem_mgis {
   }  // end of addConvergenceCriterion
 
   std::string LoopCouplingScheme::getName() const noexcept {
-    return "LoopCouplingScheme";
+    return this->name.value_or("LoopCouplingScheme");
   }  // end of getName
 
   std::optional<std::string> LoopCouplingScheme::describe(

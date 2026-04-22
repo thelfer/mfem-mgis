@@ -18,14 +18,15 @@ namespace mfem_mgis {
   ModelBase::ModelBase(const MeshDiscretization &m) noexcept
       : mesh(m) {}  // end of ModelBase
 
-  ModelBaseBase::ModelBaseBase(const MeshDiscretization &m,
+  ModelBase::ModelBase(const MeshDiscretization &m,
                                const Parameters &parameters)
       : mesh(m) {
-    checkParameters(parameters, ModelBaseBase::getParametersDescription());
+    checkParameters(throwing, parameters,
+                    ModelBase::getParametersDescription());
     auto ctx = Context{};
     auto or_raise = ctx.getThrowingFailureHandler();
     handleCouplingItemParameters(ctx, *this, parameters) | or_raise;
-  }  // end of ModelBaseBase
+  }  // end of ModelBase
 
   MeshDiscretization ModelBase::getMeshDiscretization() const noexcept {
     return this->mesh;

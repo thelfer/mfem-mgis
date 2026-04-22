@@ -50,9 +50,11 @@ namespace mfem_mgis {
   CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m,
                                          const Parameters &parameters)
       : mesh(m) {
-    checkParameters(parameters, CouplingSchemeBase::getParametersDescription());
     auto ctx = Context{};
     auto or_raise = ctx.getThrowingFailureHandler();
+    checkParameters(ctx, parameters,
+                    CouplingSchemeBase::getParametersDescription()) |
+        or_raise;
     handleCouplingItemParameters(ctx, *this, parameters) | or_raise;
   }  // end of CouplingSchemeBase
 
