@@ -10,25 +10,14 @@
 
 namespace mfem_mgis {
 
-  static std::vector<std::string> getKeys(
-      const std::map<std::string, std::string> & dict) {
-    auto r = std::vector<std::string>{};
-    for (const auto &[k, v] : dict) {
-      r.push_back(k);
-    }
-    return r;
-  }
-
   NonLinearModel::NonLinearModel(MeshDiscretization &m,
                                  const Parameters &parameters)
-      : ModelBase(m,
-                  extract(throwing,
-                          parameters,
-                          getKeys(ModelBase::getParametersDescription()))),
-        problem(std::make_shared<NonLinearEvolutionProblem>(
+      : ModelBase(
             m,
-            remove(parameters,
-                   getKeys(ModelBase::getParametersDescription())))) {
+            extract(
+                throwing, parameters, ModelBase::getParametersDescription())),
+        problem(std::make_shared<NonLinearEvolutionProblem>(
+            m, remove(parameters, ModelBase::getParametersDescription()))) {
     auto valid_parameters = NonLinearEvolutionProblem::getParametersList();
     for (const auto &[k, d] : ModelBase::getParametersDescription()) {
       static_cast<void>(d);

@@ -27,6 +27,12 @@ namespace mfem_mgis {
      */
     LoopCouplingScheme(const MeshDiscretization &);
     /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] params: parameters
+     */
+    LoopCouplingScheme(const MeshDiscretization &, const Parameters &);
+    /*!
      * \brief set the number of iterations
      * \param[in] ctx: execution context
      * \param[in] n: number of iterations

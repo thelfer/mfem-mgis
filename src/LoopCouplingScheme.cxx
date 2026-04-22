@@ -18,14 +18,34 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   LoopCouplingScheme::getParametersDescription() noexcept {
-    //     auto d = CouplingSchemeBase::getParametersDescription();
-    //     d.insert({"numberOfIterations", "number of iterations of the
-    //     scheme"}); return d;
-    return {};
+    auto d = CouplingSchemeBase::getParametersDescription();
+    d.insert({"NumberOfIterations", "number of iterations of the  scheme"});
+    return d;
   }  // end of getParametersDescription
 
   LoopCouplingScheme::LoopCouplingScheme(const MeshDiscretization &m)
       : CouplingSchemeBase(m) {}  // end of LoopCouplingScheme
+
+  LoopCouplingScheme::LoopCouplingScheme(const MeshDiscretization &m,
+                                         const Parameters &params)
+      : CouplingSchemeBase(
+            m,
+            extract(throwing,
+                    params,
+                    CouplingSchemeBase::getParametersDescription())) {
+    checkParameters(throwing, params,
+                    LoopCouplingScheme::getParametersDescription());
+    if (contains(params, "NumberOfIterations")) {
+      if (!is<int>(throwing, params, "NumberOfIterations")) {
+        raise("invalid parameter 'NumberOfIterations', must be an integer");
+      }
+      const auto n = get<int>(throwing, params, "NumberOfIterations");
+      if (n < 1) {
+        raise("invalid number of iterations");
+      }
+      this->number_of_iterations = n;
+    }
+  }  // end of LoopCouplingScheme
 
   bool LoopCouplingScheme::setNumberOfIterations(Context &ctx,
                                                  const size_type n) noexcept {
