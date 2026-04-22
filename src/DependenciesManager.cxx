@@ -259,57 +259,54 @@ namespace mfem_mgis {
     r.missingQPDependencies_ets = exe(this->registeredQPDependencies[1]);
     return r;
   }  // end of analyseDependencies
-  //
-  //   bool DependenciesManager::resolveDependencies(
-  //       Context &ctx, QPEvaluatorsFactory &f) const noexcept {
-  //     constexpr auto bts = TimeStepStage::beginningOfTimeStep;
-  //     constexpr auto ets = ets;
-  //     auto r = DependenciesAnalysisOutput{};
-  //     auto exe = [&ctx, &f](const std::map<size_type,
-  //     std::vector<QPDependency>> &in,
-  //                           const TimeStepStage ts) -> bool {
-  //       for (const auto &[m, deps] : in) {
-  //         discardVariable("unused structured bindings component", m);
-  //         // At this stage, the list of dependencies on input can contain
-  //         // duplicates. This is due to the that some dependencies did
-  //         initially
-  //         // specify their quadrature id. if we keep duplicates
-  //         // `resolveDependency` will be called twice, we will results in
-  //         // multiples registrations of the ip evaluator generator, leading
-  //         to an
-  //         // error
-  //         for (const auto &d : deps) {
-  //           if (!d.hasProvider()) {
-  //             if (d.isRequired()) {
-  //               return ctx.registerErrorMessage(d.getDescription() +
-  //                                               " has no provider");
-  //             }
-  //             continue;
-  //           }
-  //           if (d.isDuplicate()) {
-  //             // skipping duplicated dependency
-  //             // the resolveDepency method will be called on the "original"
-  //             one continue;
-  //           }
-  //           const auto p = d.getProvider(ctx);
-  //           if (isInvalid(p)) {
-  //             return false;
-  //           }
-  //           if (!(*p)->resolveDependency(ctx, f, d, ts)) {
-  //             return false;
-  //           }
-  //         }
-  //       }
-  //       return true;
-  //     };
-  //     if (!exe(this->registeredQPDependencies_[0], bts)) {
-  //       return false;
-  //     }
-  //     if (!exe(this->registeredQPDependencies_[1], ets)) {
-  //       return false;
-  //     }
-  //     return true;
-  //   }  // end of resolveDependencies
+
+  bool DependenciesManager::resolveDependencies(
+      Context &ctx, QPEvaluatorsFactory &f) const noexcept {
+    auto r = DependenciesAnalysisOutput{};
+    auto exe = [&ctx, &f](
+                   const std::map<size_type, std::vector<QPDependency>> &in,
+                   const TimeStepStage ts) -> bool {
+      for (const auto &[m, deps] : in) {
+        static_cast<void>(m);
+        // At this stage, the list of dependencies on input can contain
+        // duplicates. This is due to the that some dependencies did initially
+        // specify their quadrature id. if we keep duplicates
+        // `resolveDependency` will be called twice, we will results in
+        // multiples registrations of the ip evaluator generator, leading to an
+        // error
+        for (const auto &d : deps) {
+          if (!d.hasProvider()) {
+            if (d.isRequired()) {
+              return ctx.registerErrorMessage(d.getDescription() +
+                                              " has no provider");
+            }
+            continue;
+          }
+          if (d.isDuplicate()) {
+            // skipping duplicated dependency
+            // the resolveDepency method will be called on the "original"
+            // one
+            continue;
+          }
+          const auto p = d.getProvider(ctx);
+          if (isInvalid(p)) {
+            return false;
+          }
+          if (!(*p)->resolveDependency(ctx, f, d, ts)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    };
+    if (!exe(this->registeredQPDependencies[0], bts)) {
+      return false;
+    }
+    if (!exe(this->registeredQPDependencies[1], ets)) {
+      return false;
+    }
+    return true;
+  }  // end of resolveDependencies
 
   std::pair<size_type, std::string> getDescription(
       const DependenciesManager::DependenciesAnalysisOutput &a) noexcept {

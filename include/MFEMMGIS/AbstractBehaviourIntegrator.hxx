@@ -20,7 +20,7 @@ namespace mfem_mgis {
   struct Material;
   struct PartialQuadratureSpace;
   struct ImmutablePartialQuadratureFunctionView;
-  struct AbstractPartialQuadratureFunctionEvaluator;
+  struct AbstractQPEvaluator;
   enum struct IntegrationType;
 
   /*!
@@ -191,7 +191,7 @@ namespace mfem_mgis {
     [[nodiscard]] virtual bool setMaterialProperty(
         Context &,
         std::string_view,
-        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        std::shared_ptr<const AbstractQPEvaluator>,
         const TimeStepStage) noexcept = 0;
     /*!
      * \brief set the value of an external state variable
@@ -204,7 +204,7 @@ namespace mfem_mgis {
     [[nodiscard]] virtual bool setExternalStateVariable(
         Context &,
         std::string_view,
-        std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator>,
+        std::shared_ptr<const AbstractQPEvaluator>,
         const TimeStepStage) noexcept = 0;
     //! \return the underlying material
     [[deprecated, nodiscard]] virtual Material &getMaterial() = 0;

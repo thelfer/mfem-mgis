@@ -1,12 +1,12 @@
 /*!
- * \file   MFEMMGIS/AbstractPartialQuadratureFunctionEvaluator.hxx
+ * \file   MFEMMGIS/AbstractQPEvaluator.hxx
  * \brief
  * \author Thomas HElfer
  * \date   06/03/2026
  */
 
-#ifndef LIB_MFEMMGIS_ABSTRACTPARTIALQUADRATUREFUNCTIONEVALUATOR_HXX
-#define LIB_MFEMMGIS_ABSTRACTPARTIALQUADRATUREFUNCTIONEVALUATOR_HXX
+#ifndef LIB_MFEMMGIS_ABSTRACTQPEVALUATOR_HXX
+#define LIB_MFEMMGIS_ABSTRACTQPEVALUATOR_HXX
 
 #include <memory>
 #include <vector>
@@ -26,32 +26,24 @@ namespace mfem_mgis {
    * By essence, a partial quadrature function evaluator may want to return a
    * view to an existing partial quadrature function or create a new one.
    */
-  struct PartialQuadratureFunctionEvaluatorResult
-      : ImmutablePartialQuadratureFunctionView {
+  struct QPEvaluatorResult : ImmutablePartialQuadratureFunctionView {
     //! \brief constructor to an existing partial quadrature function
-    PartialQuadratureFunctionEvaluatorResult(
-        const ImmutablePartialQuadratureFunctionView&) noexcept;
+    QPEvaluatorResult(const ImmutablePartialQuadratureFunctionView&) noexcept;
     //! \brief constructor from a r-value to a partial quadrature function
-    PartialQuadratureFunctionEvaluatorResult(
-        PartialQuadratureFunction&&) noexcept;
+    QPEvaluatorResult(PartialQuadratureFunction&&) noexcept;
     //! \brief constructor taking a copy of a partial quadrature function
-    explicit PartialQuadratureFunctionEvaluatorResult(
-        const PartialQuadratureFunction&) noexcept;
+    explicit QPEvaluatorResult(const PartialQuadratureFunction&) noexcept;
     //! \brief move constructor
-    PartialQuadratureFunctionEvaluatorResult(
-        PartialQuadratureFunctionEvaluatorResult&&) noexcept;
+    QPEvaluatorResult(QPEvaluatorResult&&) noexcept;
     //! \brief copy constructor
-    PartialQuadratureFunctionEvaluatorResult(
-        const PartialQuadratureFunctionEvaluatorResult&) noexcept;
+    QPEvaluatorResult(const QPEvaluatorResult&) noexcept;
     //! \brief move assignement
-    PartialQuadratureFunctionEvaluatorResult& operator=(
-        PartialQuadratureFunctionEvaluatorResult&&) noexcept;
+    QPEvaluatorResult& operator=(QPEvaluatorResult&&) noexcept;
     //! \brief destructor
-    ~PartialQuadratureFunctionEvaluatorResult() noexcept;
+    ~QPEvaluatorResult() noexcept;
 
    private:
-    PartialQuadratureFunctionEvaluatorResult& operator=(
-        const PartialQuadratureFunctionEvaluatorResult&&) = delete;
+    QPEvaluatorResult& operator=(const QPEvaluatorResult&&) = delete;
     //! \brief internal pointer for memory management, if required
     std::optional<PartialQuadratureFunction> f;
   };
@@ -59,7 +51,7 @@ namespace mfem_mgis {
   /*!
    * \brief generic interface for partial quadrature function evaluators
    */
-  struct MFEM_MGIS_EXPORT AbstractPartialQuadratureFunctionEvaluator {
+  struct MFEM_MGIS_EXPORT AbstractQPEvaluator {
     [[nodiscard]] virtual const PartialQuadratureSpace& getQuadratureSpace()
         const noexcept = 0;
     [[nodiscard]] virtual std::shared_ptr<const PartialQuadratureSpace>
@@ -83,17 +75,16 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    [[nodiscard]] virtual std::optional<
-        PartialQuadratureFunctionEvaluatorResult>
-    evaluate(Context&, const real, const real) const noexcept = 0;
+    [[nodiscard]] virtual std::optional<QPEvaluatorResult> evaluate(
+        Context&, const real, const real) const noexcept = 0;
     //! \brief destructor
-    virtual ~AbstractPartialQuadratureFunctionEvaluator() noexcept;
-  };  // end of AbstractPartialQuadratureFunctionEvaluator
+    virtual ~AbstractQPEvaluator() noexcept;
+  };  // end of AbstractQPEvaluator
 
   //! \brief options passed to the evaluate function
-  struct PartialQuadratureFunctionEvaluationOptions {
+  struct QPEvaluationOptions {
     const bool ensure_contiguous_storage = false;
-  };  // end of struct PartialQuadratureFunctionEvaluationOptions
+  };  // end of struct QPEvaluationOptions
 
   /*!
    * \brief evaluate a partial quadrature function
@@ -104,16 +95,13 @@ namespace mfem_mgis {
    * \param[in] dt: time increment
    * \param[in] opts: options
    */
-  MFEM_MGIS_EXPORT
-  [[nodiscard]]  //
-  std::optional<PartialQuadratureFunctionEvaluatorResult>
-  evaluate(Context&,
-           const AbstractPartialQuadratureFunctionEvaluator&,
-           const real,
-           const real,
-           const PartialQuadratureFunctionEvaluationOptions& =
-               PartialQuadratureFunctionEvaluationOptions{}) noexcept;
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<QPEvaluatorResult> evaluate(
+      Context&,
+      const AbstractQPEvaluator&,
+      const real,
+      const real,
+      const QPEvaluationOptions& = QPEvaluationOptions{}) noexcept;
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEMMGIS_ABSTRACTPARTIALQUADRATUREFUNCTIONEVALUATOR_HXX */
+#endif /* LIB_MFEMMGIS_ABSTRACTQPEVALUATOR_HXX */

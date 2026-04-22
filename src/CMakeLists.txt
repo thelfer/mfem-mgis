@@ -11,9 +11,9 @@ list(APPEND MFEMMGIS_SOURCES
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx
-  AbstractPartialQuadratureFunctionEvaluator.cxx
-  PartialQuadratureFunctionEvaluatorBase.cxx
-  PartialQuadratureFunctionEvaluators.cxx
+  AbstractQPEvaluator.cxx
+  QPEvaluatorBase.cxx
+  QPEvaluators.cxx
   Behaviour.cxx
   Material.cxx
   AbstractBehaviourIntegrator.cxx

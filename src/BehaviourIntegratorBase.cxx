@@ -12,7 +12,7 @@
 #include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
-#include "MFEMMGIS/AbstractPartialQuadratureFunctionEvaluator.hxx"
+#include "MFEMMGIS/AbstractQPEvaluator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorBase.hxx"
 
 namespace mfem_mgis {
@@ -31,7 +31,7 @@ namespace mfem_mgis {
   static bool checkQuadratureFunctionEvaluator(
       Context& ctx,
       const AbstractBehaviourIntegrator& b,
-      const AbstractPartialQuadratureFunctionEvaluator& e) {
+      const AbstractQPEvaluator& e) {
     const auto& bqspace = b.getPartialQuadratureSpace();
     const auto& eqspace = *(e.getPartialQuadratureSpacePointer());
     const auto& bfed = bqspace.getFiniteElementDiscretization();
@@ -60,7 +60,7 @@ namespace mfem_mgis {
   bool BehaviourIntegratorBase::setMaterialProperty(
       Context& ctx,
       std::string_view name,
-      std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator> e,
+      std::shared_ptr<const AbstractQPEvaluator> e,
       const TimeStepStage ts) noexcept {
     const auto omp = getVariable(ctx, this->b.mps, name);
     if (isInvalid(omp)) {
@@ -106,7 +106,7 @@ namespace mfem_mgis {
   bool BehaviourIntegratorBase::setExternalStateVariable(
       Context& ctx,
       std::string_view name,
-      std::shared_ptr<const AbstractPartialQuadratureFunctionEvaluator> e,
+      std::shared_ptr<const AbstractQPEvaluator> e,
       const TimeStepStage ts) noexcept {
     const auto oesv = getVariable(ctx, this->b.esvs, name);
     if (isInvalid(oesv)) {

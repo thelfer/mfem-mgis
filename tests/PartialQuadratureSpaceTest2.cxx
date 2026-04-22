@@ -24,6 +24,21 @@
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/PartialQuadratureSpaceIdentifiersManager.hxx"
 
+std::optional<int> f(Context& ctx, int x) {
+  if (x < 0) {
+    return ctx.registerErrorMessage("negative input");
+  }
+  return 2 * x
+}
+
+std::optional<double> g(Context& ctx, int x) {
+  const auto of = f(ctx, 12);
+  if (isInvalid(of)) {
+    return {};
+  }
+  return exp(*of);
+}
+
 int main(int argc, char** argv) {
   auto ctx = mfem_mgis::Context{};
   auto or_die = ctx.getFatalFailureHandler();

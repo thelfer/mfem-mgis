@@ -12,14 +12,14 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   CouplingSchemeBase::getParametersDescription() noexcept {
-    //    auto d = getCouplingItemParametersDescription();
+    auto d = getCouplingItemParametersDescription();
     //     d.insert(
     //         {"PrintResourcesUsage",
     //          "boolean stating if a coarse grain profiling of resources usage
     //          shall " "be displayed on the standard output at each iteration
     //          (false by " "default)"});
     //     d.insert({"CouplingItems", "list of coupling items"});
-    return {};
+    return d;
   }  // end of getParametersDescription
 
   CouplingSchemeBase::ContextState CouplingSchemeBase::update(
