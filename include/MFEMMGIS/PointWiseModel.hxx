@@ -31,6 +31,7 @@ namespace mfem_mgis {
     //! \brief return the underlying material
     const Material &getMaterial() const noexcept;
     //
+    [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
     computeNextState(Context &, const TimeStep &) noexcept override;
     [[nodiscard]] bool update(Context &) noexcept override;

@@ -28,7 +28,8 @@ namespace mfem_mgis {
     auto descriptions = ModelBase::getParametersDescription();
     descriptions.insert(
         {{"Library", "path to the library containing the model"},
-         {"Model", "model to be loaded"}});
+         {"Model", "model to be loaded"},
+         {"Hypothesis", "modelling hypothesis"}});
     return descriptions;
   }  // end of getParametersDescription
 
@@ -40,6 +41,10 @@ namespace mfem_mgis {
     checkParameters(throwing, parameters,
                     PointWiseModel::getParametersDescription());
   }  // end of PointWiseModel
+
+  std::string PointWiseModel::getName() const noexcept {
+    return this->b.function;
+  }
 
   Material& PointWiseModel::getMaterial() noexcept { return *this; }
 
