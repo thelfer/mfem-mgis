@@ -576,7 +576,7 @@ namespace mfem_mgis {
                 << "(exit value: " << r << ")" << std::endl;
     }
     return (r == 0) || (r == 1);
-  }  // end of BehaviourIntegratorBase::integrate
+  }  // end of BehaviourIntegratorBase::performsLocalBehaviourIntegration
 
   bool BehaviourIntegratorBase::cleanup(Context& ctx) noexcept {
     for (const auto& [name, e] : this->material_properties_evaluators_bts) {

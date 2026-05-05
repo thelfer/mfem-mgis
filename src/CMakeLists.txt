@@ -88,6 +88,7 @@ list(APPEND MFEMMGIS_SOURCES
   AbstractModel.cxx
   ModelBase.cxx
   NonLinearModel.cxx
+  PointWiseModel.cxx
   PhysicalSystem.cxx
   Simulation.cxx
 )

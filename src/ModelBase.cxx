@@ -12,8 +12,8 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   ModelBase::getParametersDescription() noexcept {
-    return {};  // getCouplingItemParametersDescription();
-  }             // end of getParametersDescription
+    return {};
+  }  // end of getParametersDescription
 
   ModelBase::ModelBase(const MeshDiscretization &m) noexcept
       : mesh(m) {}  // end of ModelBase
