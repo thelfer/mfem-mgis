@@ -135,7 +135,7 @@ namespace mfem_mgis {
       for (const auto &m : this->items) {
         ctx.log(verboseLevel2, "* calling computeNextState for '" +
                                    getShortDescription(*m) + "'");
-        CatchTimeSection(m->getName()); // Timer pour le modèle
+        CatchTimeSection(m->getName());
         auto cs = update(ctx, *m);
         const auto o = m->computeNextState(ctx, ts);
         restore(ctx, cs);
