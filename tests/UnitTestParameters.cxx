@@ -99,7 +99,8 @@ int main() {
     std::abort();
   }
 
-  Parameters extractor = extract(throwing, params_copy, {"string", "vector"});
+  Parameters extractor = extract(throwing, params_copy,
+                                 std::vector<std::string>{"string", "vector"});
   /** should not contain parameters in params (real and size_type) */
   auto test_extractor =
       extractor.contains("string") && extractor.contains("vector") &&

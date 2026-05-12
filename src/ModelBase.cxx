@@ -12,11 +12,21 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   ModelBase::getParametersDescription() noexcept {
-    return {};  // getCouplingItemParametersDescription();
-  }             // end of getParametersDescription
+    return getCouplingItemParametersDescription();
+  }  // end of getParametersDescription
 
   ModelBase::ModelBase(const MeshDiscretization &m) noexcept
       : mesh(m) {}  // end of ModelBase
+
+  ModelBase::ModelBase(const MeshDiscretization &m,
+                               const Parameters &parameters)
+      : mesh(m) {
+    checkParameters(throwing, parameters,
+                    ModelBase::getParametersDescription());
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    handleCouplingItemParameters(ctx, *this, parameters) | or_raise;
+  }  // end of ModelBase
 
   MeshDiscretization ModelBase::getMeshDiscretization() const noexcept {
     return this->mesh;
@@ -25,6 +35,8 @@ namespace mfem_mgis {
   std::string ModelBase::getIdentifier() const noexcept {
     return this->getName();
   }  // end of getIdentifier
+
+  void ModelBase::setName(std::string_view n) noexcept { this->name = n; }
 
   std::optional<std::string> ModelBase::describe(
       Context &ctx, const bool b, const Parameters &parameters) const noexcept {

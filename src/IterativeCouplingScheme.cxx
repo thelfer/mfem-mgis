@@ -58,7 +58,7 @@ namespace mfem_mgis {
   }  // end of addConvergenceCriterion
 
   std::string IterativeCouplingScheme::getName() const noexcept {
-    return "IterativeCouplingScheme";
+    return this->name.value_or("IterativeCouplingScheme");
   }  // end of getName
 
   std::optional<std::string> IterativeCouplingScheme::describe(

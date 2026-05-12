@@ -276,6 +276,19 @@ namespace mfem_mgis {
     return r;
   }  // end of extract
 
+  Parameters extract(attributes::Throwing,
+                     const Parameters& parameters,
+                     const std::map<std::string, std::string>& descriptions) {
+    auto r = Parameters{};
+    for (const auto& [n, v] : descriptions) {
+      static_cast<void>(v);
+      if (contains(parameters, n)) {
+        r.insert(throwing, n, parameters.get(throwing, n));
+      }
+    }
+    return r;
+  }  // end of extract
+
   std::optional<Parameters> extract(
       Context& ctx,
       const Parameters& parameters,
@@ -336,6 +349,17 @@ namespace mfem_mgis {
       }
     }
     return r;
+  }  // end of remove
+
+  Parameters remove(const Parameters& parameters,
+                    const std::map<std::string, std::string>& descriptions) noexcept {
+    auto r = Parameters{};
+    for (const auto& [k, p] : parameters) {
+      if (descriptions.find(k) == descriptions.end()) {
+        r.replaceOrInsert(k, p);
+      }
+    }
+    return r;
   }  // end of extract
 
-}  // end of namespace mfem_mgis
+}  // namespace mfem_mgis

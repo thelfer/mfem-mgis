@@ -12,8 +12,19 @@ namespace mfem_mgis {
 
   NonLinearModel::NonLinearModel(MeshDiscretization &m,
                                  const Parameters &parameters)
-      : NonLinearModel(
-            std::make_shared<NonLinearEvolutionProblem>(m, parameters)) {}
+      : ModelBase(
+            m,
+            extract(
+                throwing, parameters, ModelBase::getParametersDescription())),
+        problem(std::make_shared<NonLinearEvolutionProblem>(
+            m, remove(parameters, ModelBase::getParametersDescription()))) {
+    auto valid_parameters = NonLinearEvolutionProblem::getParametersList();
+    for (const auto &[k, d] : ModelBase::getParametersDescription()) {
+      static_cast<void>(d);
+      valid_parameters.push_back(k);
+    }
+    checkParameters(throwing, parameters, valid_parameters);
+  }
 
   NonLinearModel::NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem> p)
       : ModelBase(p->getFiniteElementDiscretization()), problem(p) {
@@ -31,7 +42,7 @@ namespace mfem_mgis {
   }  // end of getProblem
 
   std::string NonLinearModel::getName() const noexcept {
-    return "NonLinearModel";
+    return this->name.value_or("NonLinearModel");
   }  // end of getName
 
   bool NonLinearModel::performInitializationTaksAtTheBeginningOfTheTimeStep(
