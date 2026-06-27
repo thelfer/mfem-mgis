@@ -10,9 +10,9 @@ This part includes the rules written in the `CONTRIBUTING.md` file.
 Using the issue tracker
 -----------------------
 
-The issue tracker is the preferred channel for bug reports, features requests and submitting pull requests, but please respect the following restrictions:
+The issue tracker is the preferred channel for bug reports, feature requests and submitting pull requests, but please respect the following restrictions:
 
-    Please do not use the issue tracker for personal support requests (contact directly the authors ``tfel-contact@cea.fr``
+    Please do not use the issue tracker for personal support requests (contact the authors directly at ``tfel-contact@cea.fr``).
 
 Bug reports
 -----------
@@ -27,7 +27,7 @@ Guidelines for bug reports:
 
   * Isolate the problem: ideally create a [reduced test case].
 
-A good bug report shouldn't leave others needing to chase you up for more information. Please try to be as detailed as possible in your report. What is your environment? What steps will reproduce the issue? What compiler(s) and OS experience the problem? What would you expect to be the outcome? All these details will help people to fix any potential bugs.
+A good bug report shouldn't leave others needing to chase you up for more information. Please try to be as detailed as possible in your report. What is your environment? What steps will reproduce the issue? On what compiler(s) and OS does the problem occur? What would you expect to be the outcome? All these details will help people to fix any potential bugs.
 
 Example:
 
@@ -56,9 +56,9 @@ Good pull requests - patches, improvements, new features - are a fantastic help.
 
 Please ask first before embarking on any significant pull request (e.g. implementing features, refactoring code, porting to a different language), otherwise you risk spending a lot of time working on something that the project's developers might not want to merge into the project.
 
-Please adhere to the coding conventions used throughout a project (indentation, accurate comments, etc.) and any other requirements (such as test coverage).
+Please adhere to the coding conventions used throughout the project (indentation, accurate comments, etc.) and any other requirements (such as test coverage).
 
-Adhering to the following this process is the best way to get your work included in the project. 
+Adhering to the following process is the best way to get your work included in the project.
 
 Please, before any merge request of a new feature, make sure that non-regression tests are performed with the command: 
 
@@ -72,7 +72,7 @@ Please, before any merge request of a new feature, make sure that non-regression
 
 .. warning:: 
 
-  By submitting a patch, you agree to allow the project owners to license your work under the the terms of the LGPL License.
+  By submitting a patch, you agree to allow the project owners to license your work under the terms of the LGPL License.
   
 Before creating a pull request, please follow these steps to ensure that your developments are up to date with the master branch:
 
@@ -100,7 +100,7 @@ Before creating a pull request, please follow these steps to ensure that your de
 
    git checkout -b <topic-branch-name>
 
-4. Commit your changes in logical chunks. Please adhere to these git commit message guidelines or your code is unlikely be merged into the main project. Use Git's interactive rebase feature to tidy up your commits before making them public.
+4. Commit your changes in logical chunks. Please adhere to these git commit message guidelines or your code is unlikely to be merged into the main project. Use Git's interactive rebase feature to tidy up your commits before making them public.
 
 5. Locally merge (or rebase) the upstream development branch into your topic branch:
 

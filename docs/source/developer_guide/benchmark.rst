@@ -45,7 +45,7 @@ This is an example of an output:
   | |--> PeriodicNonLinEvPB::constructor_with_bct                            |                  1 |           0.000045 |           0.000047 |           0.000050 |          0.081340% |          0.053553% |
   |-- end timetable ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
-To write the time table in a file is done by adding the following function call: 
+Writing the time table to a file is done by adding the following function call:
 
 .. code-block:: c++
 
@@ -79,11 +79,11 @@ Each line is composed of the section name, number of calls, time in seconds, and
 
 .. note::
 
-  Both functions can be called directly by this function ``print_and_write_timers()``
+  Both functions can be called directly using ``print_and_write_timers()``.
 
-You can instrument each of your functions using section timers. It's important to remember that adding chronos can add extra cost, negligible for "big" functions but very costly for functions called in each element. 
+You can instrument each of your functions using section timers. It's important to remember that adding timers can add extra cost, negligible for "big" functions but very costly for functions called in each element.
 
-- To time a function, place this instruction at the start of your function, the timer will stop at the end of the scope (the second time point is hidden in the timer destructor).
+- To time a function, place this instruction at the start of your function; the timer will stop at the end of the scope (the second time point is hidden in the timer destructor).
 
 .. code-block:: c++
 
@@ -98,7 +98,7 @@ You can instrument each of your functions using section timers. It's important t
 Benchmarks RVE MOX
 ^^^^^^^^^^^^^^^^^^
 
-In this section, we propose some scaling curves for different test cases. For the first benchmark, we use the MOX RVE example with 643 inclusions and a viscoplastic behavior law for the matrix, and an elastic behavior law for the inclusions. Calculations are performed on the ``TOPAZE`` supercalculator at CCRT. Each node in the cluster is built on 64-core ``AMD EPYC Milan 7763`` dual-socket processors running at 2.45 GHz and equipped with 256 GB ``RAM``. Benchmarks are in pure ``MPI``. 
+In this section, we propose some scaling curves for different test cases. For the first benchmark, we use the MOX RVE example with 643 inclusions and a viscoplastic behavior law for the matrix, and an elastic behavior law for the inclusions. Calculations are performed on the ``TOPAZE`` supercomputer at CCRT. Each node in the cluster is built on 64-core ``AMD EPYC Milan 7763`` dual-socket processors running at 2.45 GHz and equipped with 256 GB ``RAM``. Benchmarks are in pure ``MPI``. 
 
 
 Regarding the specificities of the simulations, we use the ``HyprePCG`` solver with a ``HypreBoomerAMG`` preconditioner. Mesh reading is performed using a mesh pre-cut into small msh files to limit the impact on the memory footprint.
@@ -133,7 +133,7 @@ We performed tests on 3 problem sizes: 80M ddl, 190M ddl and 664M ddl.
 ---------
 
 .. figure:: img/664MDofMFEM-MGIS.png
-   :alt: Time, Memory footprint and speedup of a MOX REV with 664M ddl.
+   :alt: Time, Memory footprint and speedup of a MOX RVE with 664M ddl.
 
 
 MFEM/MGIS versus MFEM 
@@ -144,9 +144,9 @@ This benchmark aims to evaluate the time overhead between ``MFEM`` and ``MFEM/MG
 Details: 
 
 - Solver: `HyprePCG`
-- Preconditionner: `HypreDiagScale` (Jacobi)
+- Preconditioner: `HypreDiagScale` (Jacobi)
 - Tolerance: 1e-14
-- Boundary conditions: we impose an uniform dirichlet condition U = (0,0,0) at left and U = (0,0,1) at right.
+- Boundary conditions: we impose a uniform Dirichlet condition U = (0,0,0) at left and U = (0,0,1) at right.
 
 .. figure:: img/bench-perf.png
 

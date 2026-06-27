@@ -45,7 +45,7 @@ temporal sequences. To do so, it relies on the coupling scheme and:
 
 A simulation also:
 
-- intializes the physical system if it not initialized at the beginning
+- initializes the physical system if it is not initialized at the beginning
   of the simulation.
 - calls user-defined initialization tasks
 - calls the post-processings defined by the physical system or some
@@ -59,10 +59,10 @@ Main parameters
   convergence failure is allowed. The default value of this parameter is
   `true`.
 - :param:`IndependentTemporalSequences`: boolean stating if the temporal
-  sequences are independent. Currently, this boolean only choose if the
-  last time increment of the previous temporal sequence is taken into
+  sequences are independent. Currently, this boolean only chooses whether
+  the last time increment of the previous temporal sequence is taken into
   account to bound the first time increment of the current temporal
-  sequence (bounding occurs if this boolean is false. The default value
+  sequence (bounding occurs if this boolean is false). The default value
   of this parameter is `true`.
 - :param:`MinimalTimeIncrement`: minimal time increment. If the time
   increment decreases below this value, the simulation is stopped.
@@ -86,7 +86,7 @@ Main parameters
 - :param:`LimitTimeIncrementDecrease`: boolean stating if the current
   estimate of the next time step can be lower than the previous time
   increment multiplied by the
-  :param`:`MaximalTimeIncrementRelativeDecrease` parameter.
+  :param:`MaximalTimeIncrementRelativeDecrease` parameter.
 - :param:`MaximalTimeIncrementRelativeDecrease`: coefficient used to
   determined the minimum ratio between the next time step and the
   previous one. The default value of this parameter is `0.2`, allowing
@@ -140,13 +140,13 @@ The next time increment is defined as follows:
   t_{\textrm{max}}` if the maximal time increment :math:`\Delta\,
   t_{\textrm{max}}` has been defined (see the
   :param:`MaximalTimeIncrement`).
-- if :math:`\Delta\, t_{3}` is greater :math:`\Delta\,t_{(p)}` and if
+- if :math:`\Delta\, t_{3}` is greater than :math:`\Delta\,t_{(p)}` and if
   the :param:`LimitTimeIncrementIncrease` parameter is `true`,
   :math:`\Delta\, t_{3}` is limited by
   :math:`\alpha_{\textrm{i}}\,\Delta\,t_{(p)}` where
   :math:`\alpha_{\textrm{i}}` is the value of the
   :param:`MaximalTimeIncrementRelativeIncrease` parameter.
-- if :math:`\Delta\, t_{3}` is lower :math:`\Delta\,t_{(p)}` and if the
+- if :math:`\Delta\, t_{3}` is lower than :math:`\Delta\,t_{(p)}` and if the
   :param:`LimitTimeIncrementDecrease` parameter is `true`,
   :math:`\Delta\, t_{3}` is limited by
   :math:`\alpha_{\textrm{d}}\,\Delta\,t_{(p)}` where
@@ -206,7 +206,7 @@ no user defined validator is defined, the time step is always validated.
 How simulation is stopped
 -------------------------
 
-Simulation may fail du to non-convergence of the coupling scheme and
+Simulation may fail due to non-convergence of the coupling scheme and
 excessive sub-steppings.
 
 Simulation may stop on success for two reasons:
@@ -217,10 +217,10 @@ Simulation may stop on success for two reasons:
 In the second case, the :cxx:`run` method can be called again and again,
 up to the point where the last temporal sequence has been completed.
 
-To know, if last temporal sequence has been completed, one may check the
+To know if the last temporal sequence has been completed, one may check the
 output of the :cxx:`getTimes` methods:
 
-- if the returned array contains only one value (corresponding the the
+- if the returned array contains only one value (corresponding to the
   value of the time at the end of the last temporal sequence), then the
   last temporal sequence has been completed,
 - if the returned array contains more than one value, one may safely call
@@ -231,20 +231,20 @@ output of the :cxx:`getTimes` methods:
 Conditions for post-processings to be executed
 ----------------------------------------------
 
-Every time a post-processing is called, it recieves a boolean stating if
-the post-processing time as been *explicitly requested by the user*.
+Every time a post-processing is called, it receives a boolean stating if
+the post-processing time has been *explicitly requested by the user*.
 
 Lightweight post-processings (:cxx:`Curves` for instance) may ignore
 this boolean by default.
 
-This boolean is mostly important for heavy post-processsings in terms of
+This boolean is mostly important for heavy post-processings in terms of
 memory, disk usage or computations, such as the :cxx:`VTKExport`
 post-processing.
 
 By convention, every post-processing shall expose a parameter named
-boolean :param:`AllTimeSteps` which allows to select if the
+boolean :param:`AllTimeSteps` which allows selecting if the
 post-processing must be executed at the end of each time step or only at
-at times *explicitly requested by the user*.
+times *explicitly requested by the user*.
 
 The difference between lightweight and heavy post-processings is only
 the default value of this parameter (:cxx:`true` for lightweight
@@ -255,7 +255,7 @@ Post-processings times *explicitly requested by the user*
 
 The end of each temporal sequence is always a post-processing times.
 
-Two parameters allows to select additional post-processing times:
+Two parameters allow selecting additional post-processing times:
 
 - :param:`NumberOfTimeStepsBetweenPostProcessings` the number of time
   steps between two post-processing times marked as *explicitly
@@ -267,7 +267,7 @@ The criteria (to mark a post-processing time as *explicitly requested by
 the user*) associated with those parameters rely with some internal
 counters which are reset at each call to the :cxx:`run` method.
 
-Note also that those criteria are taken evaluated independently, i.e. if
+Note also that those criteria are evaluated independently, i.e. if
 the criterion associated with
 :param:`NumberOfTimeStepsBetweenPostProcessings` is satisfied, it does
 not reset the internal timer associated with the criterion associated
@@ -276,7 +276,7 @@ with the :param:`TimeBetweenPostProcessings`.
 
 Note that:
 
-- each end of a temporal sequence is always flaged as *explicitly
+- each end of a temporal sequence is always flagged as *explicitly
   requested by the user*, independently of the
   :param:`NumberOfTimeStepsBetweenPostProcessings` parameter,
 
@@ -299,7 +299,7 @@ Assuming that the time increment remains constant, the number of time
 steps will be:
 
 1. :math:`q` if :math:`t_{e}-t` is exactly proportional to
-   :math:`\Delta\, t_{c}`. This case can only be verified approximatly by
+   :math:`\Delta\, t_{c}`. This case can only be verified approximately by
    verifying that :math:`r` is close enough to :math:`0`. The default
    time increment balancer compares `r` to a value
    :math:`r_{\textrm{min}}` whose default value is :math:`5\,10^{-2}` and

@@ -91,7 +91,7 @@ New functions and methods
   :cxx:`NonLinearEvolutionProblemImplementation<true>` and
   :cxx:`NonLinearEvolutionProblemImplementation<false>`. See Issue 168
   for details.
-- The :cxx:`update` allows to update the values for a
+- The :cxx:`update` allows updating the values for a
   `PartialQuadratureFunction` from the values of a `GridFunction`. See
   Issue 169 for details.
 
@@ -108,7 +108,7 @@ Issues fixed
 ============
 
 - Issue 186: [CI] Integrate OperaHPC CI in MFEM/MGIS
-- Issue 182: [CI] intergrate mfem-mgis-examples examples
+- Issue 182: [CI] integrate mfem-mgis-examples
 - Issue 178: Deployment of the `doxygen` documentation
 - Issue 176: Modify `MFEMMGISConfig.cmake.in` to define `TFEL_DIR` and
   `MFrontGenericInterface_DIR` using by default the values passed to

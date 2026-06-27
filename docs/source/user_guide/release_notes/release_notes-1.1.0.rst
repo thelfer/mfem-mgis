@@ -84,7 +84,7 @@ where:
   of the time step.
 - :math:`\bts{\mathbb{F}_{i}}` denotes the inner forces at the beginning
   of the time step.
-- :math:`\Delta\,\mathbb{u}` is submitted to the the increment of the
+- :math:`\Delta\,\mathbb{u}` is submitted to the increment of the
   imposed Dirichlet boundary conditions.
 
 .. note::
@@ -124,9 +124,9 @@ where:
   beginning of the time step.
 - :math:`\ets{\tilde{\mathbb{F}}_{i}}` denotes an approximation inner
   forces at the end of the time step computed by assuming that the
-  gradients are constant over the time (and thus egal to their values at
+  gradients are constant over the time (and thus equal to their values at
   the beginning of the time step).
-- :math:`\Delta\,\mathbb{u}` is submitted to the the increment of the
+- :math:`\Delta\,\mathbb{u}` is submitted to the increment of the
   imposed Dirichlet boundary conditions.
 
 The behaviour integration allows taking into account:
@@ -144,7 +144,7 @@ The following operators are available:
 - :cxx:`IntegrationOperator::TANGENT`: the tangent operator, defined by
   the time-continuous derivative of the thermodynamic force with respect
   to the gradients,
-- :cxx:`IntegrationOperator::CONSISTENT_TANGENT`: the constistent
+- :cxx:`IntegrationOperator::CONSISTENT_TANGENT`: the consistent
   tangent operator, defined by the derivative of the thermodynamic force
   with respect to the gradients at the end of the time step. See
   :cite:`simo_consistent_1985` for details.
@@ -153,12 +153,12 @@ Faltus 2026 regularization
 --------------------------
 
 The regularization proposed by Faltus et al. in the context of contact
-mechanics using a third medium :cite:`faltus_deformation_2026`. This
-regularization only applies to finite strain behaviours. Currently, only
-this regularization is only available for isotropic behaviours.
+mechanics using a third medium is implemented here :cite:`faltus_deformation_2026`. This
+regularization only applies to finite strain behaviours. Currently, this
+regularization is only available for isotropic behaviours.
 
 This regularization adds a contribution to the standard variational
-operator in finite strain to can be derived from an energy :math:`W`
+operator in finite strain and can be derived from an energy :math:`W`
 which penalizes the difference between the deformation gradient
 :math:`\underline{F}` at a given quadrature point and its value
 :math:`\bar{\underline{F}}` at the centroid of the element:
@@ -172,7 +172,7 @@ which penalizes the difference between the deformation gradient
 where :math:`\alpha` is a penalization coefficient.
 
 This regularization is enabled by passing an additional parameter to the
-the :cxx:`Mechanics` behaviour integrator, as follows:
+:cxx:`Mechanics` behaviour integrator, as follows:
 
 .. code:: c++
 
@@ -187,7 +187,7 @@ the :cxx:`Mechanics` behaviour integrator, as follows:
 The :cxx:`info` function
 ------------------------
 
-The :cxx:`info` function allows to display information about an object
+The :cxx:`info` function allows displaying information about an object
 in an output stream.
 
 
