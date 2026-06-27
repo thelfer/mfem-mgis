@@ -124,9 +124,9 @@
 <h2><a class="toc-backref" href="#id1" role="doc-backlink">General purpose boundary conditions</a><a class="headerlink" href="#general-purpose-boundary-conditions" title="Link to this heading"></a></h2>
 <section id="the-uniformdirichletboundarycondition-boundary-condition">
 <h3><a class="toc-backref" href="#id2" role="doc-backlink">The <code class="code docutils literal notranslate"><span class="pre">UniformDirichletBoundaryCondition</span></code> boundary condition</a><a class="headerlink" href="#the-uniformdirichletboundarycondition-boundary-condition" title="Link to this heading"></a></h3>
-<p>The <code class="code docutils literal notranslate"><span class="pre">UniformDirichletBoundaryCondition</span></code> allows to impose
+<p>The <code class="code docutils literal notranslate"><span class="pre">UniformDirichletBoundaryCondition</span></code> allows imposing
 a prescribed value on a boundary.</p>
-<p>The following snipet sets to zero the first component of the unknowns
+<p>The following snippet sets to zero the first component of the unknowns
 on the boundary labeled <code class="code docutils literal notranslate"><span class="pre">5</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addBoundaryCondition</span><span class="p">(</span>
 <span class="w">     </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">UniformDirichletBoundaryCondition</span><span class="o">&gt;</span><span class="p">(</span>
@@ -151,7 +151,7 @@ configuration on which the pressure is applied,</p></li>
 <li><p><span class="math notranslate nohighlight">\(\vec{N}\)</span> is normal to the boundary in the reference configuration,</p></li>
 <li><p><span class="math notranslate nohighlight">\(\vec{u}^{\star}\)</span> is a virtual displacement.</p></li>
 </ul>
-<p>The following snippet imposes an uniform pressure, which evolves linearly
+<p>The following snippet imposes a uniform pressure, which evolves linearly
 with time, on the boundary labeled <code class="code docutils literal notranslate"><span class="pre">3</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addBoundaryCondition</span><span class="p">(</span>
 <span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">UniformImposedPressureBoundaryCondition</span><span class="o">&gt;</span><span class="p">(</span>
@@ -174,7 +174,7 @@ configuration,</p></li>
 <li><p><span class="math notranslate nohighlight">\(q\)</span> is the heat source,</p></li>
 <li><p><span class="math notranslate nohighlight">\(T^{\star}\)</span> is a virtual temperature.</p></li>
 </ul>
-<p>The following snippet imposes an uniform heat source, which evolves
+<p>The following snippet imposes a uniform heat source, which evolves
 linearly with time, on the material named <code class="code docutils literal notranslate"><span class="pre">fuel</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addBoundaryCondition</span><span class="p">(</span>
 <span class="w">     </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">UniformHeatSourceBoundaryCondition</span><span class="o">&gt;</span><span class="p">(</span>

@@ -161,7 +161,7 @@ by solving the following linear system:</p>
 of the time step.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\bts{\mathbb{F}_{i}}\)</span> denotes the inner forces at the beginning
 of the time step.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the the increment of the
+<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the increment of the
 imposed Dirichlet boundary conditions.</p></li>
 </ul>
 <div class="admonition note">
@@ -204,9 +204,9 @@ the behaviour integration.</p></li>
 beginning of the time step.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\ets{\tilde{\mathbb{F}}_{i}}\)</span> denotes an approximation inner
 forces at the end of the time step computed by assuming that the
-gradients are constant over the time (and thus egal to their values at
+gradients are constant over the time (and thus equal to their values at
 the beginning of the time step).</p></li>
-<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the the increment of the
+<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the increment of the
 imposed Dirichlet boundary conditions.</p></li>
 </ul>
 <p>The behaviour integration allows taking into account:</p>
@@ -224,7 +224,7 @@ defined by the elastic operator affected by damage,</p></li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">TANGENT</span></code>: the tangent operator, defined by
 the time-continuous derivative of the thermodynamic force with respect
 to the gradients,</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">CONSISTENT_TANGENT</span></code>: the constistent
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">CONSISTENT_TANGENT</span></code>: the consistent
 tangent operator, defined by the derivative of the thermodynamic force
 with respect to the gradients at the end of the time step. See
 <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../index.html#id5" title="J. C. Simo and R. L. Taylor. Consistent tangent operators for rate-independent elastoplasticity. Computer Methods in Applied Mechanics and Engineering, 48(1):101–118, 1985. URL: http://www.sciencedirect.com/science/article/pii/0045782585900702 (visited on 2014-04-02), doi:10.1016/0045-7825(85)90070-2.">ST85</a>]</span> for details.</p></li>
@@ -267,8 +267,8 @@ reducing the amplitude of the correction by a factor <span class="math notransla
 follows:</p>
 <div class="math notranslate nohighlight">
 \[\mathbb{u}^{(n+1)} = \mathbb{u}^{(n)}+\frac{1}{2}\,\delta\,\mathbb{u}^{(n)}\]</div>
-<p>This reduction of the amplitude repeated until a estimation of the
-solution that does not lead to an integration failure</p>
+<p>This reduction of the amplitude is repeated until an estimation of the
+solution that does not lead to an integration failure is found.</p>
 </section>
 </section>
 </section>

@@ -351,7 +351,7 @@ git<span class="w"> </span>clone<span class="w"> </span>https://github.com/latug
 spack<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span><span class="nv">$PWD</span>/spack-repo-mfem-mgis
 </pre></div>
 </div>
-<p>Now, you will create a <code class="docutils literal notranslate"><span class="pre">spack</span></code> mirror and a boostrap directory.</p>
+<p>Now, you will create a <code class="docutils literal notranslate"><span class="pre">spack</span></code> mirror and a bootstrap directory.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>bootstrap<span class="w"> </span>mirror<span class="w"> </span>--binary-packages<span class="w"> </span>my_bootstrap
 spack<span class="w"> </span>mirror<span class="w"> </span>create<span class="w"> </span>-d<span class="w"> </span>re2c_mirror<span class="w"> </span>re2c@3.0
 cp<span class="w"> </span>-r<span class="w"> </span>re2c_mirror/_source-cache/archive/b3/<span class="w"> </span>my_bootstrap/bootstrap_cache/_source-cache/archive
@@ -366,9 +366,9 @@ specify them with the following command:</p>
 <p><strong>Copy Data to Topaze</strong></p>
 <p>You’ll need to copy the following files to Topaze:</p>
 <ul class="simple">
-<li><p>spack spack</p></li>
+<li><p>spack</p></li>
 <li><p>mfem-mgis</p></li>
-<li><p>mfem-mgis-example</p></li>
+<li><p>mfem-mgis-examples</p></li>
 </ul>
 <p>Create an archive for these files:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$MY_DIR</span>
@@ -485,7 +485,7 @@ ctest
 </section>
 <section id="using-ccc-msub">
 <h3>Using ccc_msub<a class="headerlink" href="#using-ccc-msub" title="Link to this heading"></a></h3>
-<p>Here’s an example of a <cite>run.batch</cite> job submission file to run a VER simulation on 4096 MPI processes on the partition named milan for 84000 seconds.</p>
+<p>Here’s an example of a <cite>run.batch</cite> job submission file to run an RVE simulation on 4096 MPI processes on the partition named milan for 84000 seconds.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 <span class="c1">#MSUB -r ver</span>
 <span class="c1">#MSUB -n 4096</span>
@@ -509,10 +509,9 @@ ccc_mprun<span class="w"> </span>./ex7<span class="w"> </span>-m<span class="w">
 </section>
 <section id="troubleshooting">
 <h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h3>
-<p>If you encounter <code class="docutils literal notranslate"><span class="pre">Spack</span></code> errors due to missing packages, consider the following possibilities:</p>
-<p>Two possibilities:</p>
+<p>If you encounter <code class="docutils literal notranslate"><span class="pre">Spack</span></code> errors due to missing packages, consider the following two possibilities:</p>
 <ul class="simple">
-<li><p>Check if the package is already installed on Topaze by running:**</p></li>
+<li><p>Check if the package is already installed on Topaze by running:</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>your-package
 </pre></div>

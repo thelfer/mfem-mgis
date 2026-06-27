@@ -138,7 +138,7 @@
 |-- end timetable ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 </pre></div>
 </div>
-<p>To write the time table in a file is done by adding the following function call:</p>
+<p>Writing the time table to a file is done by adding the following function call:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Profiler</span><span class="o">::</span><span class="n">timers</span><span class="o">::</span><span class="n">write_timers</span><span class="p">();</span>
 </pre></div>
 </div>
@@ -166,11 +166,11 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Both functions can be called directly by this function <code class="docutils literal notranslate"><span class="pre">print_and_write_timers()</span></code></p>
+<p>Both functions can be called directly using <code class="docutils literal notranslate"><span class="pre">print_and_write_timers()</span></code>.</p>
 </div>
-<p>You can instrument each of your functions using section timers. It’s important to remember that adding chronos can add extra cost, negligible for “big” functions but very costly for functions called in each element.</p>
+<p>You can instrument each of your functions using section timers. It’s important to remember that adding timers can add extra cost, negligible for “big” functions but very costly for functions called in each element.</p>
 <ul class="simple">
-<li><p>To time a function, place this instruction at the start of your function, the timer will stop at the end of the scope (the second time point is hidden in the timer destructor).</p></li>
+<li><p>To time a function, place this instruction at the start of your function; the timer will stop at the end of the scope (the second time point is hidden in the timer destructor).</p></li>
 </ul>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CatchTimeSection</span><span class="p">(</span><span class="s">&quot;NameOfYourFunction&quot;</span><span class="p">);</span>
 </pre></div>
@@ -184,7 +184,7 @@
 </section>
 <section id="benchmarks-rve-mox">
 <h2><a class="toc-backref" href="#id4" role="doc-backlink">Benchmarks RVE MOX</a><a class="headerlink" href="#benchmarks-rve-mox" title="Link to this heading"></a></h2>
-<p>In this section, we propose some scaling curves for different test cases. For the first benchmark, we use the MOX RVE example with 643 inclusions and a viscoplastic behavior law for the matrix, and an elastic behavior law for the inclusions. Calculations are performed on the <code class="docutils literal notranslate"><span class="pre">TOPAZE</span></code> supercalculator at CCRT. Each node in the cluster is built on 64-core <code class="docutils literal notranslate"><span class="pre">AMD</span> <span class="pre">EPYC</span> <span class="pre">Milan</span> <span class="pre">7763</span></code> dual-socket processors running at 2.45 GHz and equipped with 256 GB <code class="docutils literal notranslate"><span class="pre">RAM</span></code>. Benchmarks are in pure <code class="docutils literal notranslate"><span class="pre">MPI</span></code>.</p>
+<p>In this section, we propose some scaling curves for different test cases. For the first benchmark, we use the MOX RVE example with 643 inclusions and a viscoplastic behavior law for the matrix, and an elastic behavior law for the inclusions. Calculations are performed on the <code class="docutils literal notranslate"><span class="pre">TOPAZE</span></code> supercomputer at CCRT. Each node in the cluster is built on 64-core <code class="docutils literal notranslate"><span class="pre">AMD</span> <span class="pre">EPYC</span> <span class="pre">Milan</span> <span class="pre">7763</span></code> dual-socket processors running at 2.45 GHz and equipped with 256 GB <code class="docutils literal notranslate"><span class="pre">RAM</span></code>. Benchmarks are in pure <code class="docutils literal notranslate"><span class="pre">MPI</span></code>.</p>
 <p>Regarding the specificities of the simulations, we use the <code class="docutils literal notranslate"><span class="pre">HyprePCG</span></code> solver with a <code class="docutils literal notranslate"><span class="pre">HypreBoomerAMG</span></code> preconditioner. Mesh reading is performed using a mesh pre-cut into small msh files to limit the impact on the memory footprint.</p>
 <figure class="align-default">
 <img alt="Illustration of a RVE with 634 spheres after 5 seconds." src="../_images/634.jpeg" />
@@ -209,7 +209,7 @@
 <section id="id2">
 <h3><a class="toc-backref" href="#id7" role="doc-backlink">664M ddl</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <figure class="align-default">
-<img alt="Time, Memory footprint and speedup of a MOX REV with 664M ddl." src="../_images/664MDofMFEM-MGIS.png" />
+<img alt="Time, Memory footprint and speedup of a MOX RVE with 664M ddl." src="../_images/664MDofMFEM-MGIS.png" />
 </figure>
 </section>
 </section>
@@ -219,9 +219,9 @@
 <p>Details:</p>
 <ul class="simple">
 <li><p>Solver: <cite>HyprePCG</cite></p></li>
-<li><p>Preconditionner: <cite>HypreDiagScale</cite> (Jacobi)</p></li>
+<li><p>Preconditioner: <cite>HypreDiagScale</cite> (Jacobi)</p></li>
 <li><p>Tolerance: 1e-14</p></li>
-<li><p>Boundary conditions: we impose an uniform dirichlet condition U = (0,0,0) at left and U = (0,0,1) at right.</p></li>
+<li><p>Boundary conditions: we impose a uniform Dirichlet condition U = (0,0,0) at left and U = (0,0,1) at right.</p></li>
 </ul>
 <figure class="align-default">
 <img alt="../_images/bench-perf.png" src="../_images/bench-perf.png" />

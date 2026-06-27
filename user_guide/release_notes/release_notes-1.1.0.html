@@ -202,7 +202,7 @@ by solving the following linear system:</p>
 of the time step.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\bts{\mathbb{F}_{i}}\)</span> denotes the inner forces at the beginning
 of the time step.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the the increment of the
+<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the increment of the
 imposed Dirichlet boundary conditions.</p></li>
 </ul>
 <div class="admonition note">
@@ -239,9 +239,9 @@ the behaviour integration.</p></li>
 beginning of the time step.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\ets{\tilde{\mathbb{F}}_{i}}\)</span> denotes an approximation inner
 forces at the end of the time step computed by assuming that the
-gradients are constant over the time (and thus egal to their values at
+gradients are constant over the time (and thus equal to their values at
 the beginning of the time step).</p></li>
-<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the the increment of the
+<li><p><span class="math notranslate nohighlight">\(\Delta\,\mathbb{u}\)</span> is submitted to the increment of the
 imposed Dirichlet boundary conditions.</p></li>
 </ul>
 <p>The behaviour integration allows taking into account:</p>
@@ -259,7 +259,7 @@ defined by the elastic operator affected by damage,</p></li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">TANGENT</span></code>: the tangent operator, defined by
 the time-continuous derivative of the thermodynamic force with respect
 to the gradients,</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">CONSISTENT_TANGENT</span></code>: the constistent
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">CONSISTENT_TANGENT</span></code>: the consistent
 tangent operator, defined by the derivative of the thermodynamic force
 with respect to the gradients at the end of the time step. See
 <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../index.html#id5" title="J. C. Simo and R. L. Taylor. Consistent tangent operators for rate-independent elastoplasticity. Computer Methods in Applied Mechanics and Engineering, 48(1):101–118, 1985. URL: http://www.sciencedirect.com/science/article/pii/0045782585900702 (visited on 2014-04-02), doi:10.1016/0045-7825(85)90070-2.">ST85</a>]</span> for details.</p></li>
@@ -270,11 +270,11 @@ with respect to the gradients at the end of the time step. See
 <section id="faltus-2026-regularization">
 <h3>Faltus 2026 regularization<a class="headerlink" href="#faltus-2026-regularization" title="Link to this heading"></a></h3>
 <p>The regularization proposed by Faltus et al. in the context of contact
-mechanics using a third medium <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../index.html#id4" title="Ondřej Faltus, Marco Amato, and Martin Horák. Deformation gradient averaging regularization for third medium contact. URL: https://arxiv.org/abs/2603.13063v1 (visited on 2026-03-20).">FAH</a>]</span>. This
-regularization only applies to finite strain behaviours. Currently, only
-this regularization is only available for isotropic behaviours.</p>
+mechanics using a third medium is implemented here <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../index.html#id4" title="Ondřej Faltus, Marco Amato, and Martin Horák. Deformation gradient averaging regularization for third medium contact. URL: https://arxiv.org/abs/2603.13063v1 (visited on 2026-03-20).">FAH</a>]</span>. This
+regularization only applies to finite strain behaviours. Currently, this
+regularization is only available for isotropic behaviours.</p>
 <p>This regularization adds a contribution to the standard variational
-operator in finite strain to can be derived from an energy <span class="math notranslate nohighlight">\(W\)</span>
+operator in finite strain and can be derived from an energy <span class="math notranslate nohighlight">\(W\)</span>
 which penalizes the difference between the deformation gradient
 <span class="math notranslate nohighlight">\(\underline{F}\)</span> at a given quadrature point and its value
 <span class="math notranslate nohighlight">\(\bar{\underline{F}}\)</span> at the centroid of the element:</p>
@@ -284,7 +284,7 @@ which penalizes the difference between the deformation gradient
 \left(\underline{F}-\bar{\underline{F}}\right)\]</div>
 <p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is a penalization coefficient.</p>
 <p>This regularization is enabled by passing an additional parameter to the
-the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Mechanics</span></code> behaviour integrator, as follows:</p>
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">Mechanics</span></code> behaviour integrator, as follows:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">faltus_parameters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
 <span class="w">    </span><span class="p">{</span><span class="s">&quot;Regularization&quot;</span><span class="p">,</span>
 <span class="w">     </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
@@ -297,7 +297,7 @@ the <code class="code highlight c++ docutils literal highlight-c++"><span class=
 </section>
 <section id="the-info-function">
 <h3>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function<a class="headerlink" href="#the-info-function" title="Link to this heading"></a></h3>
-<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function allows to display information about an object
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function allows displaying information about an object
 in an output stream.</p>
 <section id="retrieving-information-on-a-finite-element-discretization">
 <h4>Retrieving information on a finite element discretization<a class="headerlink" href="#retrieving-information-on-a-finite-element-discretization" title="Link to this heading"></a></h4>

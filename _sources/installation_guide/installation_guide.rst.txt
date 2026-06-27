@@ -286,7 +286,7 @@ Firstly, you need to get the mfem-mgis spack repository.
    git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
    spack repo add $PWD/spack-repo-mfem-mgis
 
-Now, you will create a ``spack`` mirror and a boostrap directory. 
+Now, you will create a ``spack`` mirror and a bootstrap directory.
 
 .. code-block:: bash
 
@@ -306,9 +306,9 @@ specify them with the following command:
 
 You’ll need to copy the following files to Topaze: 
 
-- spack spack 
-- mfem-mgis 
-- mfem-mgis-example
+- spack
+- mfem-mgis
+- mfem-mgis-examples
 
 Create an archive for these files:
 
@@ -460,7 +460,7 @@ Using ccc_msub
 ^^^^^^^^^^^^^^
 
 
-Here's an example of a `run.batch` job submission file to run a VER simulation on 4096 MPI processes on the partition named milan for 84000 seconds. 
+Here's an example of a `run.batch` job submission file to run an RVE simulation on 4096 MPI processes on the partition named milan for 84000 seconds.
 
 .. code-block:: bash
 
@@ -489,11 +489,9 @@ Then, to submit the job:
 Troubleshooting
 ^^^^^^^^^^^^^^^
 
-If you encounter ``Spack`` errors due to missing packages, consider the following possibilities:
+If you encounter ``Spack`` errors due to missing packages, consider the following two possibilities:
 
-Two possibilities:
-
-- Check if the package is already installed on Topaze by running:**
+- Check if the package is already installed on Topaze by running:
 
 .. code-block:: bash
 

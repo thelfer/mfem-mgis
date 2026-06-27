@@ -18,7 +18,7 @@ MFEM-MGIS.
 The :code:`ParaviewExport` post-processing
 ==========================================
 
-This post-processing allows to export the unknowns of a nonlinear
+This post-processing allows exporting the unknowns of a nonlinear
 evolution problem for visualization in :code:`paraview`:
 
 - Key: ``ParaviewExportResults``

@@ -404,7 +404,7 @@ gmsh<span class="w"> </span>-3<span class="w"> </span>5crystals.geo<span class="
 <p>Repository: <code class="docutils literal notranslate"><span class="pre">https://github.com/rprat-pro/mm-opera-hpc/tree/main/bubble</span></code></p>
 <section id="problem-description">
 <h3>Problem description<a class="headerlink" href="#problem-description" title="Link to this heading"></a></h3>
-<p>The default example is constituted by a single spherical porosity in a quasi-infinite medium. The finite element solution can be compared with an analytical solution giving the elastic stress field as a function of the internal pressure, the bubble radius, and the distance from the bubble. As mentioned above, the boundary conditions for the problem are periodical, and we consider a null macroscopic displacement gradient, which in turns generate a uniform compressive hydrostatic pressure on the REV. In this case with one porosity in a quasi-infinite medium, the compressive hydrostatic pressure is negligeable, in agreement with the analytical solution mentioned above.</p>
+<p>The default example consists of a single spherical porosity in a quasi-infinite medium. The finite element solution can be compared with an analytical solution giving the elastic stress field as a function of the internal pressure, the bubble radius, and the distance from the bubble. As mentioned above, the boundary conditions for the problem are periodic, and we consider a null macroscopic displacement gradient, which in turn generates a uniform compressive hydrostatic pressure on the RVE. In this case with one porosity in a quasi-infinite medium, the compressive hydrostatic pressure is negligible, in agreement with the analytical solution mentioned above.</p>
 <section id="modify-the-geometry-for-the-single-bubble-case-and-mesh-it">
 <h4>Modify the geometry for the single bubble case and mesh it<a class="headerlink" href="#modify-the-geometry-for-the-single-bubble-case-and-mesh-it" title="Link to this heading"></a></h4>
 <p>The geometry for the test case is contained in the file <code class="docutils literal notranslate"><span class="pre">.geo</span></code> stored in the <code class="docutils literal notranslate"><span class="pre">mesh</span></code>
@@ -443,12 +443,12 @@ than in S.I. units. This choice is done to facilitate the creation of more compl
 geometries when using <code class="docutils literal notranslate"><span class="pre">Mérope</span></code>, given the characteristic length scale of the considered
 inclusions.</p>
 <p>The geometry is meshed using quadratic elements, to better describe the spherical
-inclusions contained in the representative elementary volume (REV). Despite <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>
-allowing sub-, super-, and isoparametric analyses, we recommend to stick at least to the
+inclusions contained in the representative volume element (RVE). Despite <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>
+allowing sub-, super-, and isoparametric analyses, we recommend sticking at least to the
 isoparametric choice (i.e., not subparametric) for the polynomial shape functions.</p>
-<p>The boundary conditions for the problem are periodical, and we consider a null macroscopic
+<p>The boundary conditions for the problem are periodic, and we consider a null macroscopic
 displacement gradient, which in turn generates a uniform compressive hydrostatic pressure
-on the REV.</p>
+on the RVE.</p>
 <section id="parameters">
 <h4>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h4>
 <p>Command-line Usage:</p>
@@ -535,7 +535,7 @@ solution to the MMM one:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>mmm_vs_analytical.py
 </pre></div>
 </div>
-<p>The comparison between the computational results and the analytical solution is showed below.</p>
+<p>The comparison between the computational results and the analytical solution is shown below.</p>
 <img alt="../_images/comparison_analytical_mmm.png" class="align-center" src="../_images/comparison_analytical_mmm.png" />
 </section>
 </section>
@@ -834,17 +834,17 @@ reference Cast3M results, along with the relative difference and a status check.
 </figure>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Complet the description</p>
+<p>Complete the description</p>
 </div>
 </section>
 <section id="problem-solved">
 <h3>Problem Solved<a class="headerlink" href="#problem-solved" title="Link to this heading"></a></h3>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Export the internal value name plasticity strain
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Export the internal value named plasticity strain
 
 Solver : Conjugate Gradient (default)
 Preconditioner : Depends on the solver
 
-The default is plasticity, behavior law parameter are defined into the lib loaded.
+The default is plasticity; behaviour law parameters are defined in the loaded library.
 
 Element:
 - Family H1
@@ -862,49 +862,6 @@ Element:
 <h3>Available options<a class="headerlink" href="#available-options" title="Link to this heading"></a></h3>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Command line</p></th>
-<th class="head"><p>Descritption</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>–mesh or -m</p></td>
-<td><p>specify the mesh “.msh” used (default =
-inclusion.msh)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–refinement or -r</p></td>
-<td><p>The reference file
-(default = Plasticity.ref)</p></td>
-</tr>
-<tr class="row-even"><td><p>–behaviour or -b</p></td>
-<td><p>Name of the behaviour law
-(default = Plasticity)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–internal-state-variable or -v</p></td>
-<td><p>Internal variable name to be post-processed
-(default = EquivalentPlasticStrain)</p></td>
-</tr>
-<tr class="row-even"><td><p>–library or -l</p></td>
-<td><p>Material library
-(default = src/libBehaviour.so)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–linearsolver or -ls</p></td>
-<td><p>identifier of the linear solver: 0 -&gt; CG,
-1 -&gt; GMRES, 2 -&gt; UMFPack (serial),
-3-&gt; MUMPS(serial), 2 -&gt; HypreFGMRES (//),
-3 -&gt; HyprePCG (//), 4 -&gt; HypreGMRES (//).</p></td>
-</tr>
-<tr class="row-even"><td><p>–order or -o</p></td>
-<td><p>Finite element order (polynomial degree)
-(default = 2)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–parallel or -p</p></td>
-<td><p>run parallel execution
-(default = 0, serial)</p></td>
-</tr>
-</tbody>
-</table>
 </section>
 </section>
 <section id="ssna303-example-2d-and-3d">
@@ -926,15 +883,15 @@ inclusion.msh)</p></td>
 <p>website: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex5">https://github.com/latug0/mfem-mgis-examples/tree/master/ex5</a></p>
 <section id="id8">
 <h3>Description:<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
-<p>Modelling plate of length 1 in plane strain clamped on the left and right boundaries and submitted to a parabolic thermal gradient along the x-axis. (source code 5)</p>
+<p>Modelling of a plate of length 1, in plane strain, clamped on the left and right boundaries and subjected to a parabolic thermal gradient along the x-axis. (source code 5)</p>
 <figure class="align-default">
 <img alt="Illustration of the displacement of the plate." src="../_images/SatohTest.png" />
 </figure>
 </section>
 <section id="id9">
 <h3>Problem solved<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>This test models a 2D plate of lenght 1 in plane strain clamped on the left
-and right boundaries and submitted to a parabolic thermal gradient along the
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>This test models a 2D plate of length 1 in plane strain clamped on the left
+and right boundaries and subjected to a parabolic thermal gradient along the
 x-axis:
 
 - the temperature profile is minimal on the left and right boundaries
@@ -960,7 +917,7 @@ Element:
 </section>
 <section id="run-the-simulation">
 <h3>Run the simulation<a class="headerlink" href="#run-the-simulation" title="Link to this heading"></a></h3>
-<p>Paramerters are hardcode into this example.</p>
+<p>Parameters are hardcoded in this example.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./SatohTest
 </pre></div>
 </div>
@@ -981,7 +938,7 @@ Element:
 </figure>
 <section id="build-the-mesh">
 <h3>Build the mesh<a class="headerlink" href="#build-the-mesh" title="Link to this heading"></a></h3>
-<p>Use GMSH to mesh the geometry. Files <code class="docutils literal notranslate"><span class="pre">.geo</span></code> is in the depository <code class="docutils literal notranslate"><span class="pre">ex6</span></code>. Command line:</p>
+<p>Use GMSH to mesh the geometry. The <code class="docutils literal notranslate"><span class="pre">.geo</span></code> file is in the <code class="docutils literal notranslate"><span class="pre">ex6</span></code> repository. Command line:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate the .msh file with GMSH</span>
 gmsh<span class="w"> </span>-3<span class="w"> </span>inclusions_49.geo
 </pre></div>
@@ -996,32 +953,6 @@ gmsh<span class="w"> </span>-3<span class="w"> </span>inclusions_49.geo
 <h4>Available options<a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Command line</p></th>
-<th class="head"><p>Descritption</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>–mesh or -m</p></td>
-<td><p>specify the mesh “.msh” used (default =
-inclusion.msh)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–refinement or -r</p></td>
-<td><p>refinement level of the mesh (default = 0)</p></td>
-</tr>
-<tr class="row-even"><td><p>–order or -o</p></td>
-<td><p>Finite element order (polynomial degree)
-(default = 2)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–verbosity-level or -v</p></td>
-<td><p>choose the verbosity level (default = 0)</p></td>
-</tr>
-<tr class="row-even"><td><p>–post-processing or -p</p></td>
-<td><p>run post processing step (default = 1)</p></td>
-</tr>
-</tbody>
-</table>
 </section>
 </section>
 </section>
@@ -1059,7 +990,7 @@ Moduli and Norton behavior law parameters :
 [ Temperature      , 293.15   , 293.15     ];
 
 Element :
-- Familly H1
+- Family H1
 - Order 2
 </pre></div>
 </div>
@@ -1112,38 +1043,6 @@ command line:</p>
 <h4>Available options<a class="headerlink" href="#id15" title="Link to this heading"></a></h4>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Command line</p></th>
-<th class="head"><p>Descritption</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>–mesh or -m</p></td>
-<td><p>Specify the mesh “.msh” used (default =
-inclusion.msh)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–refinement or -r</p></td>
-<td><p>Refinement level of the mesh (default = 0)</p></td>
-</tr>
-<tr class="row-even"><td><p>–order or -o</p></td>
-<td><p>Finite element order (polynomial degree)
-(default = 2)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–verbosity-level or -v</p></td>
-<td><p>Choose the verbosity level (default = 0)</p></td>
-</tr>
-<tr class="row-even"><td><p>–post-processing or -p</p></td>
-<td><p>Run post processing step (default = 1)</p></td>
-</tr>
-<tr class="row-odd"><td><p>–use-petsc</p></td>
-<td><p>Activate petsc if petsc is availabled</p></td>
-</tr>
-<tr class="row-even"><td><p>–petsc-configuration-file</p></td>
-<td><p>Name of the Petsc source file</p></td>
-</tr>
-</tbody>
-</table>
 <p>Example of customized simulation:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># run the simulation in sequential computing mode with various options</span>
 ./mox2<span class="w"> </span>-r<span class="w"> </span><span class="m">2</span><span class="w"> </span>-o<span class="w"> </span><span class="m">3</span><span class="w"> </span>--mesh<span class="w"> </span>OneSphere.msh

@@ -209,8 +209,8 @@ function.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Symetric</span></code></p></td>
-<td><p>Specify if the matrix is symetric. [bool]</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Symmetric</span></code></p></td>
+<td><p>Specify if the matrix is symmetric. [bool]</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PositiveDefinite</span></code></p></td>
 <td><p>Specify if the matrix is positive definite. [bool]</p></td>
@@ -232,7 +232,7 @@ function.</p>
 <li><p>not parallel</p></li>
 </ul>
 </li>
-<li><p>Parameters:None</p></li>
+<li><p>Parameters: None</p></li>
 </ul>
 <p><strong>Example:</strong></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;UMFPackSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{})</span>
@@ -244,7 +244,7 @@ function.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We advise you to not use the direct solvers using the parallel option for large systems,
+<p>We advise you not to use the direct solvers with the parallel option for large systems,
 this advice is mainly due to the fact that these solvers don’t scale
 in memory on large problems (e.g. meshes with more than a hundred
 thousand points). Nevertheless, these solvers are maintained within the
@@ -271,7 +271,7 @@ version.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Precondition</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Preconditioner</span></code></p></td>
 <td><p>Define your preconditioner. [Parameters]</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
@@ -311,7 +311,7 @@ version.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Precondition</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Preconditioner</span></code></p></td>
 <td><p>Define your preconditioner. [Parameters]</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
@@ -351,7 +351,7 @@ version.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Precondition</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Preconditioner</span></code></p></td>
 <td><p>Define your preconditioner. [Parameters]</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
@@ -391,7 +391,7 @@ version.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Precondition</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Preconditioner</span></code></p></td>
 <td><p>Define your preconditioner. [Parameters]</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
@@ -431,7 +431,7 @@ version.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Precondition</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Preconditioner</span></code></p></td>
 <td><p>Define your preconditioner. [Parameters]</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
@@ -471,22 +471,22 @@ version.</p>
 </ul>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>key</p></th>
-<th class="head"><p>description</p></th>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">precondition</span></code></p></td>
-<td><p>define your preconditioner. [parameters]</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Preconditioner</span></code></p></td>
+<td><p>Define your preconditioner. [Parameters]</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">verbositylevel</span></code></p></td>
-<td><p>define the verbosity of the solver. [int: 0,1]</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
+<td><p>Define the verbosity of the solver. [int: 0,1]</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
-<td><p>define the tolerance, &gt;0. [double]</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Tolerance</span></code></p></td>
+<td><p>Define the tolerance, &gt;0. [double]</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maximumnumberofiterations</span></code></p></td>
-<td><p>maximum number of krylov iterations, &gt;= 1. [int]</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">MaximumNumberOfIterations</span></code></p></td>
+<td><p>Maximum number of Krylov iterations, &gt;= 1. [int]</p></td>
 </tr>
 </tbody>
 </table>
@@ -524,7 +524,7 @@ version.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">KDim</span></code></p></td>
 <td><p>Define the Krylov dimension, &gt;= 1. [int]</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Precondition</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Preconditioner</span></code></p></td>
 <td><p>Define your preconditioner. [Parameters]</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
@@ -572,7 +572,7 @@ version.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">KDim</span></code></p></td>
 <td><p>Define the Krylov dimension, &gt;= 1. [int]</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Precondition</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Preconditioner</span></code></p></td>
 <td><p>Define your preconditioner. [Parameters]</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
@@ -776,7 +776,7 @@ version.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>FiniteElementFamily</p></td>
-<td><p>Finite Element Familly, ex: H1 [string]</p></td>
+<td><p>Finite Element Family, ex: H1 [string]</p></td>
 </tr>
 <tr class="row-odd"><td><p>MeshFileName</p></td>
 <td><p>Path to the mesh file [string]</p></td>
@@ -788,7 +788,7 @@ version.</p>
 <td><p>Number of unknowns, &gt;=1 [int]</p></td>
 </tr>
 <tr class="row-even"><td><p>NumberOfUniformRefinements</p></td>
-<td><p>Number of time the mesh is Uniform refiined, &gt;= 0 [int]</p></td>
+<td><p>Number of times the mesh is uniformly refined, &gt;= 0 [int]</p></td>
 </tr>
 <tr class="row-odd"><td><p>Parallel</p></td>
 <td><p>Run parallel execution [bool]</p></td>
@@ -797,7 +797,7 @@ version.</p>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The uniform refinement process is done after spliting the mesh across the mpi processes.</p>
+<p>The uniform refinement process is done after splitting the mesh across the mpi processes.</p>
 </div>
 <p>CPP example:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">fed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">FiniteElementDiscretization</span><span class="o">&gt;</span><span class="p">(</span>

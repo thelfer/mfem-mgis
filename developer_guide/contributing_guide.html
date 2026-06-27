@@ -91,9 +91,9 @@
 <p>This part includes the rules written in the <cite>CONTRIBUTING.md</cite> file.</p>
 <section id="using-the-issue-tracker">
 <h2>Using the issue tracker<a class="headerlink" href="#using-the-issue-tracker" title="Link to this heading"></a></h2>
-<p>The issue tracker is the preferred channel for bug reports, features requests and submitting pull requests, but please respect the following restrictions:</p>
+<p>The issue tracker is the preferred channel for bug reports, feature requests and submitting pull requests, but please respect the following restrictions:</p>
 <blockquote>
-<div><p>Please do not use the issue tracker for personal support requests (contact directly the authors <code class="docutils literal notranslate"><span class="pre">tfel-contact&#64;cea.fr</span></code></p>
+<div><p>Please do not use the issue tracker for personal support requests (contact the authors directly at <code class="docutils literal notranslate"><span class="pre">tfel-contact&#64;cea.fr</span></code>).</p>
 </div></blockquote>
 </section>
 <section id="bug-reports">
@@ -107,7 +107,7 @@
 <li><p>Isolate the problem: ideally create a [reduced test case].</p></li>
 </ul>
 </div></blockquote>
-<p>A good bug report shouldn’t leave others needing to chase you up for more information. Please try to be as detailed as possible in your report. What is your environment? What steps will reproduce the issue? What compiler(s) and OS experience the problem? What would you expect to be the outcome? All these details will help people to fix any potential bugs.</p>
+<p>A good bug report shouldn’t leave others needing to chase you up for more information. Please try to be as detailed as possible in your report. What is your environment? What steps will reproduce the issue? On what compiler(s) and OS does the problem occur? What would you expect to be the outcome? All these details will help people to fix any potential bugs.</p>
 <p>Example:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Short and descriptive example bug report title
 
@@ -127,8 +127,8 @@ Any other information you want to share that is relevant to the issue being repo
 Pull requests</p>
 <p>Good pull requests - patches, improvements, new features - are a fantastic help. They should remain focused in scope and avoid containing unrelated commits.</p>
 <p>Please ask first before embarking on any significant pull request (e.g. implementing features, refactoring code, porting to a different language), otherwise you risk spending a lot of time working on something that the project’s developers might not want to merge into the project.</p>
-<p>Please adhere to the coding conventions used throughout a project (indentation, accurate comments, etc.) and any other requirements (such as test coverage).</p>
-<p>Adhering to the following this process is the best way to get your work included in the project.</p>
+<p>Please adhere to the coding conventions used throughout the project (indentation, accurate comments, etc.) and any other requirements (such as test coverage).</p>
+<p>Adhering to the following process is the best way to get your work included in the project.</p>
 <p>Please, before any merge request of a new feature, make sure that non-regression tests are performed with the command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>check
 </pre></div>
@@ -139,7 +139,7 @@ Pull requests</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>By submitting a patch, you agree to allow the project owners to license your work under the the terms of the LGPL License.</p>
+<p>By submitting a patch, you agree to allow the project owners to license your work under the terms of the LGPL License.</p>
 </div>
 <p>Before creating a pull request, please follow these steps to ensure that your developments are up to date with the master branch:</p>
 <ol class="arabic simple">
@@ -167,7 +167,7 @@ git<span class="w"> </span>pull<span class="w"> </span>upstream<span class="w"> 
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li><p>Commit your changes in logical chunks. Please adhere to these git commit message guidelines or your code is unlikely be merged into the main project. Use Git’s interactive rebase feature to tidy up your commits before making them public.</p></li>
+<li><p>Commit your changes in logical chunks. Please adhere to these git commit message guidelines or your code is unlikely to be merged into the main project. Use Git’s interactive rebase feature to tidy up your commits before making them public.</p></li>
 <li><p>Locally merge (or rebase) the upstream development branch into your topic branch:</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>pull<span class="w"> </span><span class="o">[</span>--rebase<span class="o">]</span><span class="w"> </span>upstream<span class="w"> </span>master

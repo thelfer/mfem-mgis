@@ -149,7 +149,7 @@ site:</p>
 <p>For symmetry reasons, only half of the notched beam is represented in
 Figure <a class="reference internal" href="#fig-mfem-mgis-ssna303-mesh"><span class="std std-ref">Mesh used to described the notched beam</span></a>. The height (h) of the beam is
 (30,mm). The half-width (w) of the beam is (5.4,mm).</p>
-<p>The positions of the points (p1) (p2) and (c) are respectivly
+<p>The positions of the points (p1) (p2) and (c) are respectively
 (3,mm, 0), (5.4,mm, 4.8,mm), and (9,mm, 0).</p>
 <p>This notched beam has been meshed using <a class="reference external" href="http://www-cast3m.cea.fr/">Cast3M</a> and exported in the <code class="docutils literal notranslate"><span class="pre">MED</span></code>
 file format proposed and used by <a class="reference external" href="https://www.salome-platform.org/">Salomé</a> platform. This file has been
@@ -170,9 +170,9 @@ gradient is set equal to (1).</p>
 </section>
 <section id="boundary-conditions">
 <span id="sec-mfem-mgis-ssna303-bc"></span><h3>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading"></a></h3>
-<p>Dirichlet boundary conditions force the solution to attain certain a
-priori prescribed values on some boundaries. The beam is fixed along the
-bottom line ((y=0)) and a displacement (U_{y}) is imposed an the top of
+<p>Dirichlet boundary conditions force the solution to attain certain
+prescribed values a priori on some boundaries. The beam is fixed along the
+bottom line ((y=0)) and a displacement (U_{y}) is imposed at the top of
 the beam ((y=h)).</p>
 <p>The symmetry axis on the left is blocked in the <code class="docutils literal notranslate"><span class="pre">x</span></code>-direction.</p>
 </section>
@@ -238,13 +238,13 @@ The<span class="w"> </span>following<span class="w"> </span>library<span class="
 </div>
 <blockquote>
 <div><p><strong>The ``mfem_mgis`` namespace</strong></p>
-<p>All the classes and funtions of the <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> project are place
+<p>All the classes and functions of the <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> project are placed
 in the <code class="docutils literal notranslate"><span class="pre">mfem_mgis</span></code> namespace.</p>
 </div></blockquote>
 <p>This call is mostly useful in parallel and handles:</p>
 <ul class="simple">
 <li><p>The initialization of interprocess communications handled by the
-<cite>MPI`</cite> framework.</p></li>
+<code class="docutils literal notranslate"><span class="pre">MPI</span></code> framework.</p></li>
 <li><p>The initialization of the <a class="reference external" href="https://www.mcs.anl.gov/petsc/">PETSc</a> scientific
 toolkit, if supported and
 requested.</p></li>
@@ -252,7 +252,7 @@ requested.</p></li>
 <section id="constant-variables">
 <h4>Constant variables<a class="headerlink" href="#constant-variables" title="Link to this heading"></a></h4>
 <p>The code then defines some constant variables defining the path to the
-mesh file, the path the the <code class="docutils literal notranslate"><span class="pre">MFront</span></code> shared library, and the name of
+mesh file, the path to the <code class="docutils literal notranslate"><span class="pre">MFront</span></code> shared library, and the name of
 the behaviour:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">mesh_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;ssna303.msh&quot;</span><span class="p">;</span>
 <span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">library</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;src/libBehaviour.so&quot;</span><span class="p">;</span>
@@ -269,10 +269,10 @@ class.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--order</span></code> which specifies the finite element order (polynomial
 degree).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> which specifices if the simulation must be run in
+<li><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> which specifies if the simulation must be run in
 parallel.</p></li>
 </ul>
-<p>Those options options are associated with local variables which are
+<p>Those options are associated with local variables which are
 default initialized as follows:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="cp">#if defined(MFEM_USE_MPI)</span>
@@ -291,7 +291,7 @@ a sequential computation otherwise.</p></li>
 <p>If <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> was built with support of <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> library, the following
 options are added by the <code class="docutils literal notranslate"><span class="pre">mfem_mgis::declareDefaultOptions</span></code> function:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--use-petsc</span></code> which speficies that linear and non linear solvers of
+<li><p><code class="docutils literal notranslate"><span class="pre">--use-petsc</span></code> which specifies that linear and non linear solvers of
 the <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> toolkit must be used.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--petsc-configuration-file</span></code> which specifies a configuration file
 for the <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> toolkit.</p></li>
@@ -326,7 +326,7 @@ The expected options are declared and the <code class="docutils literal notransl
 </pre></div>
 </div>
 <p>The constructor of the <code class="docutils literal notranslate"><span class="pre">NonLinearEvolutionProblem</span></code> class takes an
-object of <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> type which is able to store various kind of
+object of <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> type which is able to store various kinds of
 data in a hierarchical structure. The valid parameters for the
 construction of a non linear evolution problem are described in the
 <code class="docutils literal notranslate"><span class="pre">doxygen</span></code> documentation of the <code class="docutils literal notranslate"><span class="pre">NonLinearEvolutionProblem</span></code> class.</p>
@@ -338,7 +338,7 @@ in the interface of the <code class="docutils literal notranslate"><span class="
 <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> exposes a high level API (Application Programming
 Interface) which hides (by default) all the details related to
 parallelization and memory management. For example, the parameter
-<code class="docutils literal notranslate"><span class="pre">Parallel</span></code> allows to switch from a parallel computation to a parallel
+<code class="docutils literal notranslate"><span class="pre">Parallel</span></code> allows switching from a sequential computation to a parallel
 one at runtime.</p>
 <blockquote>
 <div><p><strong>Input files and ``python`` wrappers</strong></p>
@@ -347,16 +347,16 @@ input file or to wrap the library in <code class="docutils literal notranslate">
 not yet implemented.</p>
 </div></blockquote>
 <p>Although based on the <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> library, the standard end-user of the
-<code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> library would barely never used directly the <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>
-data-structures. However, the <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> library does not preclude to
-directly use the <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> data-structures, built-in non linear forms,
+<code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> library would barely ever directly use the <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>
+data-structures. However, the <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> library does not preclude directly using the <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>
+data-structures, built-in non linear forms,
 etc. This lower level API is however not described in this tutorial.</p>
 </section>
 <section id="names-boundaries-and-materials">
 <h3>Names boundaries and materials<a class="headerlink" href="#names-boundaries-and-materials" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">MFEM</span></code> distinguishes elements of the mesh (materials and boundaries)
 by integers. This may seem unpractical to most users. The <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code>
-allows to associate names to materials and boundaries as follows:</p>
+allows associating names to materials and boundaries as follows:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setMaterialsNames</span><span class="p">({{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;NotchedBeam&quot;</span><span class="p">}});</span>
 <span class="n">problem</span><span class="p">.</span><span class="n">setBoundariesNames</span><span class="p">(</span>
 <span class="w">    </span><span class="p">{{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;LowerBoundary&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymmetryAxis&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UpperBoundary&quot;</span><span class="p">}});</span>
@@ -387,9 +387,9 @@ physical problems are supported out of the box by the library:
 <code class="docutils literal notranslate"><span class="pre">Mechanics</span></code> and <code class="docutils literal notranslate"><span class="pre">HeatTransfer</span></code>. Support for other physical
 problems can be plugged in at runtime if needed.</p></li>
 <li><p>The material identifier, as defined in the mesh file. This identifier
-may be either an integer or a string. In the later case, the string
+may be either an integer or a string. In the latter case, the string
 is interpreted as a regular expression, a feature introduced by the
-<code class="docutils literal notranslate"><span class="pre">Licos</span></code> fuel performance code and which proved very pratical in
+<code class="docutils literal notranslate"><span class="pre">Licos</span></code> fuel performance code and which proved very practical in
 many cases <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../index.html#id7" title="Thomas Helfer, Syriac Bejaoui, and Bruno Michel. Licos, a fuel performance code for innovative fuel elements or experimental devices design. Nuclear Engineering and Design, 294:117–136, 2015-12-01. URL: http://www.sciencedirect.com/science/article/pii/S0029549315003842 (visited on 2015-11-30), doi:10.1016/j.nucengdes.2015.07.070.">HBM01</a>]</span>.</p></li>
 <li><p>The shared library containing the behaviour to be used.</p></li>
 <li><p>The name of the behaviour to be used.</p></li>
@@ -397,11 +397,11 @@ many cases <span class="bibtex-citation" id="id2">[<a class="reference internal"
 <blockquote>
 <div><p><strong>Information associated with the behaviour and automatic memory
 management</strong></p>
-<p>Thanks to the <code class="docutils literal notranslate"><span class="pre">`MGIS</span></code>
+<p>Thanks to the <code class="docutils literal notranslate"><span class="pre">MGIS</span></code>
 project <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../index.html#id10" title="Thomas Helfer, Jeremy Bleyer, Tero Frondelius, Ivan Yashchuk, Thomas Nagel, and Dmitri Naumov. The `MFrontGenericInterfaceSupport` project. Journal of Open Source Software, 5(48):2003, 2020. Publisher: The Open Journal. URL: https://doi.org/10.21105/joss.02003, doi:10.21105/joss.02003.">HBF+20</a>]</span>, all the information
 related to the mechanical behaviour is retrieved, including:</p>
 <ul class="simple">
-<li><p>The type of behaviour (finite strain mechanical behaviour is this
+<li><p>The type of behaviour (finite strain mechanical behaviour in this
 case).</p></li>
 <li><p>The names of material properties, parameters, state variables and
 external state variables.</p></li>
@@ -413,7 +413,7 @@ automatically allocated.</p>
 </section>
 <section id="initialisation-of-the-temperature">
 <h3>Initialisation of the temperature<a class="headerlink" href="#initialisation-of-the-temperature" title="Link to this heading"></a></h3>
-<p>The following lines define an uniform temperature on the material at the
+<p>The following lines define a uniform temperature on the material at the
 beginning of the time step and at the end of time step:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">m1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">problem</span><span class="p">.</span><span class="n">getMaterial</span><span class="p">(</span><span class="s">&quot;NotchedBeam&quot;</span><span class="p">);</span>
 <span class="n">mgis</span><span class="o">::</span><span class="n">behaviour</span><span class="o">::</span><span class="n">setExternalStateVariable</span><span class="p">(</span><span class="n">m1</span><span class="p">.</span><span class="n">s0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Temperature&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">293.15</span><span class="p">);</span>
@@ -421,16 +421,16 @@ beginning of the time step and at the end of time step:</p>
 </pre></div>
 </div>
 <p>Defining the temperature is required by all <code class="docutils literal notranslate"><span class="pre">MFront</span></code> behaviours.</p>
-<p>The object returned a by the <code class="docutils literal notranslate"><span class="pre">getMaterial</span></code> method returns a thin
+<p>The object returned by the <code class="docutils literal notranslate"><span class="pre">getMaterial</span></code> method is a thin
 wrapper around the <code class="docutils literal notranslate"><span class="pre">MaterialDataManager</span></code> provided by the <a class="reference external" href="https://thelfer.github.io/mfem-mgis/index.html">MGIS</a> project
 <span class="bibtex-citation" id="id4">[<a class="reference internal" href="../index.html#id10" title="Thomas Helfer, Jeremy Bleyer, Tero Frondelius, Ivan Yashchuk, Thomas Nagel, and Dmitri Naumov. The `MFrontGenericInterfaceSupport` project. Journal of Open Source Software, 5(48):2003, 2020. Publisher: The Open Journal. URL: https://doi.org/10.21105/joss.02003, doi:10.21105/joss.02003.">HBF+20</a>]</span>.</p>
-<p>In the previous lines, <code class="docutils literal notranslate"><span class="pre">m1.s0</span></code> and <code class="docutils literal notranslate"><span class="pre">m1.s1</span></code> denotes respectively the
+<p>In the previous lines, <code class="docutils literal notranslate"><span class="pre">m1.s0</span></code> and <code class="docutils literal notranslate"><span class="pre">m1.s1</span></code> denote respectively the
 state of the material at the beginning of the time step and at the end
 of the time step.</p>
 </section>
 <section id="boundary-condition">
 <h3>Boundary Condition<a class="headerlink" href="#boundary-condition" title="Link to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">NonLinearEvolutionProblem</span></code> class allows to define uniform
+<p>The <code class="docutils literal notranslate"><span class="pre">NonLinearEvolutionProblem</span></code> class allows defining uniform
 Dirichlet boundary conditions (imposed displacement) using the
 <code class="docutils literal notranslate"><span class="pre">addUniformDirichletBoundaryCondition</span></code> method as follows:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addUniformDirichletBoundaryCondition</span><span class="p">(</span>
@@ -449,13 +449,13 @@ Dirichlet boundary conditions (imposed displacement) using the
 <p>Again, the code is almost self-explanatory. If the value of the imposed
 displacement is not specified (using the <code class="docutils literal notranslate"><span class="pre">LoadingEvolution</span></code>
 parameter), the selected component is set to zero. The
-<code class="docutils literal notranslate"><span class="pre">LoadingEvolution</span></code> parameter allows to specify the evolution of the
-imposed displacement using a function of time (defined her using a
+<code class="docutils literal notranslate"><span class="pre">LoadingEvolution</span></code> parameter allows specifying the evolution of the
+imposed displacement using a function of time (defined here using a
 <code class="docutils literal notranslate"><span class="pre">C++</span></code> lambda expression).</p>
 </section>
 <section id="non-linear-solver-parameters">
 <h3>Non linear solver parameters.<a class="headerlink" href="#non-linear-solver-parameters" title="Link to this heading"></a></h3>
-<p>If <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> is not used, the following line set the parameters of the
+<p>If <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> is not used, the following line sets the parameters of the
 Newton-Raphson solver used to find the equilibrium of the whole
 structure:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">usePETSc</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
@@ -468,7 +468,7 @@ structure:</p>
 </div>
 <p>Valid parameters for the <code class="docutils literal notranslate"><span class="pre">setSolverParameters</span></code> are described in the
 <code class="docutils literal notranslate"><span class="pre">doxygen</span></code> documentation of the library.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> is used (see the <code class="docutils literal notranslate"><span class="pre">--use-petcs</span></code> command line option), the
+<p>If <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> is used (see the <code class="docutils literal notranslate"><span class="pre">--use-petsc</span></code> command line option), the
 parameters associated with the choice of the non linear solver must be
 provided by an external configuration file (see the
 <code class="docutils literal notranslate"><span class="pre">--petsc-configuration-file</span></code> command line option).</p>
@@ -489,16 +489,16 @@ provided by an external configuration file (see the
 </div>
 <p>The second argument is an object of the <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> type which can be
 used to fine tune the linear solver and, in the case of iterative
-solvers, optionnaly define a preconditioner. For direct solvers, no
+solvers, optionally define a preconditioner. For direct solvers, no
 parameters are required.</p>
 </section>
 <section id="post-processings">
 <h3>Post-processings<a class="headerlink" href="#post-processings" title="Link to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">addPostProcessing</span></code> method let the user define some built-in
+<p>The <code class="docutils literal notranslate"><span class="pre">addPostProcessing</span></code> method lets the user define some built-in
 postprocessings.</p>
 <p>In this example, we export the displacements for visualization in
 <a class="reference external" href="https://www.paraview.org/">paraview</a> and compute the resultant
-force on the boundary where the displacement as follows:</p>
+force on the boundary where the displacement is imposed, as follows:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportResults&quot;</span><span class="p">,</span>
 <span class="w">                          </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ssna303-displacements&quot;</span><span class="p">}});</span>
 <span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportIntegrationPointResultsAtNodes&quot;</span><span class="p">,</span>
@@ -513,20 +513,20 @@ force on the boundary where the displacement as follows:</p>
 </pre></div>
 </div>
 <p>These post-processings are called using the <code class="docutils literal notranslate"><span class="pre">executePostProcessings</span></code>
-method during the runtime using the state at the end of time step. The
-user may also plugged in its own post-processing.</p>
+method at runtime using the state at the end of the time step. The
+user may also plug in their own post-processing.</p>
 </section>
 <section id="resolution">
 <h3>Resolution<a class="headerlink" href="#resolution" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">NonLinearEvolutionProblem</span></code> class is meant to solve the problem on
-one time step only. This allows to easily built weakly coupled non
+one time step only. This makes it easy to build weakly coupled non
 linear resolutions (for example, thermo-mechanical resolutions where the
-heat tranfer and mechanical problems are solved using a staggered
-scheme) or set-up couplings with external solvers.</p>
+heat transfer and mechanical problems are solved using a staggered
+scheme) or set up couplings with external solvers.</p>
 <p>In this tutorial, a local time-substepping scheme is set up to handle
 resolution failures.</p>
 <p>The loading starts at time (0) and ends at time (1). This range is
-divided in (50) time steps.</p>
+divided into (50) time steps.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">nsteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">size_type</span><span class="p">{</span><span class="mi">50</span><span class="p">};</span>
 <span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">real</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">nsteps</span><span class="p">;</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">real</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
@@ -559,7 +559,7 @@ divided in (50) time steps.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Every time a resolution is sucessful, the material state is updated
+<p>Every time a resolution is successful, the material state is updated
 using the <code class="docutils literal notranslate"><span class="pre">update</span></code> method, the current time is incremented and the
 number of the remaining substeps is decreased. The loop stops when the
 remaining number of sub-steps goes to zero.</p>

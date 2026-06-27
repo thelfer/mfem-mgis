@@ -133,10 +133,10 @@ via gmsh by specifying the <cite>MFEM</cite> input format with the <code class="
 <section id="split-mesh">
 <h2>Split Mesh<a class="headerlink" href="#split-mesh" title="Link to this heading"></a></h2>
 <p>If your mesh is too large (memory limit), you can also use MFEM’s option
-of spliting the mesh into smaller meshes and reading them in parallel.</p>
+of splitting the mesh into smaller meshes and reading them in parallel.</p>
 <p>To split the mesh, we use the <code class="docutils literal notranslate"><span class="pre">mesh-explorer</span></code> tool
 (<a class="reference external" href="https://mfem.org/meshing-miniapps/#mesh-explorer">https://mfem.org/meshing-miniapps/#mesh-explorer</a>) and you can specify
-the parallel reader using the keywork: <code class="docutils literal notranslate"><span class="pre">MeshReadMode</span></code>.</p>
+the parallel reader using the keyword: <code class="docutils literal notranslate"><span class="pre">MeshReadMode</span></code>.</p>
 <section id="install-mesh-explorer">
 <h3>Install Mesh-explorer<a class="headerlink" href="#install-mesh-explorer" title="Link to this heading"></a></h3>
 <p>Here are two ways to install mesh-explorer. We recommend installing via
@@ -151,7 +151,7 @@ spack, but we will also add the installation procedure with cmake.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you installed mfem-mgis using the spack installation procedure. The installation has already been performed with the miniapps.</p>
+<p>If you installed mfem-mgis using the spack installation procedure, the installation has already been performed with the miniapps.</p>
 </div>
 <p>CMake version:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">mfem</span><span class="o">/</span><span class="n">mfem</span><span class="o">.</span><span class="n">git</span>
@@ -168,21 +168,21 @@ spack, but we will also add the installation procedure with cmake.</p>
 </section>
 <section id="mesh-generation">
 <h3>Mesh generation<a class="headerlink" href="#mesh-generation" title="Link to this heading"></a></h3>
-<p>The mesh explorer works interactively. Here is a series of options for splitting a gmsh mesh named into <cite>128</cite> meshes named <cite>output-mesh.XXXXXX</cite></p>
+<p>The mesh explorer works interactively. Here is a series of options for splitting a gmsh mesh into <cite>128</cite> meshes named <cite>output-mesh.XXXXXX</cite></p>
 <p>Run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span><span class="o">-</span><span class="n">explorer</span> <span class="o">--</span><span class="n">mesh</span> <span class="n">mesh</span><span class="o">.</span><span class="n">msh</span>
 </pre></div>
 </div>
 <p>Create partitioning:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">press</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="k">for</span> <span class="n">Generate</span> <span class="n">a</span> <span class="n">partitioning</span>
-<span class="n">press</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">Choose</span> <span class="n">the</span> <span class="n">partitioning</span> <span class="n">method</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">press</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">a</span> <span class="n">partitioning</span>
+<span class="n">press</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">choose</span> <span class="n">the</span> <span class="n">partitioning</span> <span class="n">method</span>
 <span class="n">press</span> <span class="mi">128</span> <span class="o">&gt;</span> <span class="n">choose</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">MPI</span> <span class="n">processes</span>
 </pre></div>
 </div>
 <p>Save mesh in parallel format:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">press</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="n">choose</span> <span class="n">to</span> <span class="n">save</span> <span class="ow">in</span> <span class="n">parallel</span> <span class="nb">format</span>
 <span class="n">press</span> <span class="n">output</span><span class="o">-</span><span class="n">mesh</span><span class="o">.</span> <span class="o">&gt;</span> <span class="n">prefix</span> <span class="n">name</span> <span class="k">for</span> <span class="n">output</span> <span class="n">files</span>
-<span class="n">press</span> <span class="mi">6</span> <span class="o">&gt;</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digit</span>
+<span class="n">press</span> <span class="mi">6</span> <span class="o">&gt;</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digits</span>
 </pre></div>
 </div>
 </section>
@@ -190,7 +190,7 @@ spack, but we will also add the installation procedure with cmake.</p>
 <h3>Load your mesh with MFEM-MGIS<a class="headerlink" href="#load-your-mesh-with-mfem-mgis" title="Link to this heading"></a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Please, verify that the splited mesh chosen is splited in 128 files if you want to run it on 128 mpi processes.</p>
+<p>Please, verify that the split mesh chosen is split into 128 files if you want to run it on 128 mpi processes.</p>
 </div>
 <p>Example:</p>
 <ul class="simple">

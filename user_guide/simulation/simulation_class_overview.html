@@ -157,7 +157,7 @@ two.</p></li>
 </ul>
 <p>A simulation also:</p>
 <ul class="simple">
-<li><p>intializes the physical system if it not initialized at the beginning
+<li><p>initializes the physical system if it is not initialized at the beginning
 of the simulation.</p></li>
 <li><p>calls user-defined initialization tasks</p></li>
 <li><p>calls the post-processings defined by the physical system or some
@@ -171,10 +171,10 @@ user-defined post-processing tasks.</p></li>
 convergence failure is allowed. The default value of this parameter is
 <cite>true</cite>.</p></li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IndependentTemporalSequences</span></code>: boolean stating if the temporal
-sequences are independent. Currently, this boolean only choose if the
-last time increment of the previous temporal sequence is taken into
+sequences are independent. Currently, this boolean only chooses whether
+the last time increment of the previous temporal sequence is taken into
 account to bound the first time increment of the current temporal
-sequence (bounding occurs if this boolean is false. The default value
+sequence (bounding occurs if this boolean is false). The default value
 of this parameter is <cite>true</cite>.</p></li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MinimalTimeIncrement</span></code>: minimal time increment. If the time
 increment decreases below this value, the simulation is stopped.</p></li>
@@ -198,7 +198,7 @@ previous one. The default value of this parameter is <cite>1.1</cite>, allowing 
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">LimitTimeIncrementDecrease</span></code>: boolean stating if the current
 estimate of the next time step can be lower than the previous time
 increment multiplied by the
-:param`:<cite>MaximalTimeIncrementRelativeDecrease</cite> parameter.</p></li>
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeDecrease</span></code> parameter.</p></li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeDecrease</span></code>: coefficient used to
 determined the minimum ratio between the next time step and the
 previous one. The default value of this parameter is <cite>0.2</cite>, allowing
@@ -248,13 +248,13 @@ increment computer.</p></li>
 t_{\textrm{max}}\)</span> if the maximal time increment <span class="math notranslate nohighlight">\(\Delta\,
 t_{\textrm{max}}\)</span> has been defined (see the
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrement</span></code>).</p></li>
-<li><p>if <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is greater <span class="math notranslate nohighlight">\(\Delta\,t_{(p)}\)</span> and if
+<li><p>if <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is greater than <span class="math notranslate nohighlight">\(\Delta\,t_{(p)}\)</span> and if
 the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">LimitTimeIncrementIncrease</span></code> parameter is <cite>true</cite>,
 <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is limited by
 <span class="math notranslate nohighlight">\(\alpha_{\textrm{i}}\,\Delta\,t_{(p)}\)</span> where
 <span class="math notranslate nohighlight">\(\alpha_{\textrm{i}}\)</span> is the value of the
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaximalTimeIncrementRelativeIncrease</span></code> parameter.</p></li>
-<li><p>if <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is lower <span class="math notranslate nohighlight">\(\Delta\,t_{(p)}\)</span> and if the
+<li><p>if <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is lower than <span class="math notranslate nohighlight">\(\Delta\,t_{(p)}\)</span> and if the
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">LimitTimeIncrementDecrease</span></code> parameter is <cite>true</cite>,
 <span class="math notranslate nohighlight">\(\Delta\, t_{3}\)</span> is limited by
 <span class="math notranslate nohighlight">\(\alpha_{\textrm{d}}\,\Delta\,t_{(p)}\)</span> where
@@ -299,7 +299,7 @@ no user defined validator is defined, the time step is always validated.</p>
 </section>
 <section id="how-simulation-is-stopped">
 <span id="simulation-ending"></span><h3><a class="toc-backref" href="#id6" role="doc-backlink">How simulation is stopped</a><a class="headerlink" href="#how-simulation-is-stopped" title="Link to this heading"></a></h3>
-<p>Simulation may fail du to non-convergence of the coupling scheme and
+<p>Simulation may fail due to non-convergence of the coupling scheme and
 excessive sub-steppings.</p>
 <p>Simulation may stop on success for two reasons:</p>
 <ul class="simple">
@@ -308,10 +308,10 @@ excessive sub-steppings.</p>
 </ul>
 <p>In the second case, the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">run</span></code> method can be called again and again,
 up to the point where the last temporal sequence has been completed.</p>
-<p>To know, if last temporal sequence has been completed, one may check the
+<p>To know if the last temporal sequence has been completed, one may check the
 output of the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getTimes</span></code> methods:</p>
 <ul class="simple">
-<li><p>if the returned array contains only one value (corresponding the the
+<li><p>if the returned array contains only one value (corresponding to the
 value of the time at the end of the last temporal sequence), then the
 last temporal sequence has been completed,</p></li>
 <li><p>if the returned array contains more than one value, one may safely call
@@ -320,24 +320,24 @@ the <code class="code highlight c++ docutils literal highlight-c++"><span class=
 </section>
 <section id="conditions-for-post-processings-to-be-executed">
 <span id="simulation-post-processings"></span><h3><a class="toc-backref" href="#id7" role="doc-backlink">Conditions for post-processings to be executed</a><a class="headerlink" href="#conditions-for-post-processings-to-be-executed" title="Link to this heading"></a></h3>
-<p>Every time a post-processing is called, it recieves a boolean stating if
-the post-processing time as been <em>explicitly requested by the user</em>.</p>
+<p>Every time a post-processing is called, it receives a boolean stating if
+the post-processing time has been <em>explicitly requested by the user</em>.</p>
 <p>Lightweight post-processings (<code class="code highlight c++ docutils literal highlight-c++"><span class="n">Curves</span></code> for instance) may ignore
 this boolean by default.</p>
-<p>This boolean is mostly important for heavy post-processsings in terms of
+<p>This boolean is mostly important for heavy post-processings in terms of
 memory, disk usage or computations, such as the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">VTKExport</span></code>
 post-processing.</p>
 <p>By convention, every post-processing shall expose a parameter named
-boolean <code class="code highlight c++ docutils literal highlight-c++"><span class="n">AllTimeSteps</span></code> which allows to select if the
+boolean <code class="code highlight c++ docutils literal highlight-c++"><span class="n">AllTimeSteps</span></code> which allows selecting if the
 post-processing must be executed at the end of each time step or only at
-at times <em>explicitly requested by the user</em>.</p>
+times <em>explicitly requested by the user</em>.</p>
 <p>The difference between lightweight and heavy post-processings is only
 the default value of this parameter (<code class="code highlight c++ docutils literal highlight-c++"><span class="nb">true</span></code> for lightweight
 post-processings, <code class="code highlight c++ docutils literal highlight-c++"><span class="nb">false</span></code> for heavy post-processings).</p>
 <section id="post-processings-times-explicitly-requested-by-the-user">
 <h4><a class="toc-backref" href="#id8" role="doc-backlink">Post-processings times <em>explicitly requested by the user</em></a><a class="headerlink" href="#post-processings-times-explicitly-requested-by-the-user" title="Link to this heading"></a></h4>
 <p>The end of each temporal sequence is always a post-processing times.</p>
-<p>Two parameters allows to select additional post-processing times:</p>
+<p>Two parameters allow selecting additional post-processing times:</p>
 <ul class="simple">
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">NumberOfTimeStepsBetweenPostProcessings</span></code> the number of time
 steps between two post-processing times marked as <em>explicitly
@@ -348,14 +348,14 @@ marked as <em>explicitly requested by the user</em>.</p></li>
 <p>The criteria (to mark a post-processing time as <em>explicitly requested by
 the user</em>) associated with those parameters rely with some internal
 counters which are reset at each call to the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">run</span></code> method.</p>
-<p>Note also that those criteria are taken evaluated independently, i.e. if
+<p>Note also that those criteria are evaluated independently, i.e. if
 the criterion associated with
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">NumberOfTimeStepsBetweenPostProcessings</span></code> is satisfied, it does
 not reset the internal timer associated with the criterion associated
 with the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">TimeBetweenPostProcessings</span></code>.</p>
 <p>Note that:</p>
 <ul class="simple">
-<li><p>each end of a temporal sequence is always flaged as <em>explicitly
+<li><p>each end of a temporal sequence is always flagged as <em>explicitly
 requested by the user</em>, independently of the
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">NumberOfTimeStepsBetweenPostProcessings</span></code> parameter,</p></li>
 </ul>
@@ -377,7 +377,7 @@ is positive and lower than <span class="math notranslate nohighlight">\(1\)</spa
 steps will be:</p>
 <ol class="arabic simple">
 <li><p><span class="math notranslate nohighlight">\(q\)</span> if <span class="math notranslate nohighlight">\(t_{e}-t\)</span> is exactly proportional to
-<span class="math notranslate nohighlight">\(\Delta\, t_{c}\)</span>. This case can only be verified approximatly by
+<span class="math notranslate nohighlight">\(\Delta\, t_{c}\)</span>. This case can only be verified approximately by
 verifying that <span class="math notranslate nohighlight">\(r\)</span> is close enough to <span class="math notranslate nohighlight">\(0\)</span>. The default
 time increment balancer compares <cite>r</cite> to a value
 <span class="math notranslate nohighlight">\(r_{\textrm{min}}\)</span> whose default value is <span class="math notranslate nohighlight">\(5\,10^{-2}\)</span> and
