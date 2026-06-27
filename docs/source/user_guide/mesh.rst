@@ -29,11 +29,11 @@ Split Mesh
 ^^^^^^^^^^
 
 If your mesh is too large (memory limit), you can also use MFEM's option
-of spliting the mesh into smaller meshes and reading them in parallel.
+of splitting the mesh into smaller meshes and reading them in parallel.
 
 To split the mesh, we use the ``mesh-explorer`` tool
 (https://mfem.org/meshing-miniapps/#mesh-explorer) and you can specify
-the parallel reader using the keywork: ``MeshReadMode``.
+the parallel reader using the keyword: ``MeshReadMode``.
 
 
 Install Mesh-explorer
@@ -56,7 +56,7 @@ The binary file is then located at:
 
 .. note::
 
-  If you installed mfem-mgis using the spack installation procedure. The installation has already been performed with the miniapps.
+  If you installed mfem-mgis using the spack installation procedure, the installation has already been performed with the miniapps.
 
 
 CMake version:
@@ -79,7 +79,7 @@ The binary file is then located at:
 Mesh generation
 ---------------
 
-The mesh explorer works interactively. Here is a series of options for splitting a gmsh mesh named into `128` meshes named `output-mesh.XXXXXX`
+The mesh explorer works interactively. Here is a series of options for splitting a gmsh mesh into `128` meshes named `output-mesh.XXXXXX`
 
 Run:
 
@@ -92,17 +92,17 @@ Create partitioning:
 
 .. code-block::
 
-  press p > for Generate a partitioning
-  press 1 > Choose the partitioning method
+  press p > to generate a partitioning
+  press 1 > choose the partitioning method
   press 128 > choose the number of MPI processes
-  
+
 Save mesh in parallel format:
 
 .. code-block::
 
   press T > choose to save in parallel format
   press output-mesh. > prefix name for output files
-  press 6 > number of digit
+  press 6 > number of digits
 
 
 Load your mesh with MFEM-MGIS
@@ -110,7 +110,7 @@ Load your mesh with MFEM-MGIS
 
 .. note::
 
-  Please, verify that the splited mesh chosen is splited in 128 files if you want to run it on 128 mpi processes.
+  Please, verify that the split mesh chosen is split into 128 files if you want to run it on 128 mpi processes.
 
 Example: 
 

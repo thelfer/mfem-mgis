@@ -93,7 +93,7 @@ library named ``libBehaviour.so`` which shall have been generated using
 behaviours.
 
 Internally, the ``addBehaviourIntegrator`` method calls an abstract
-factory which instanciates a ``BehaviourIntegrator`` dedicated to the
+factory which instantiates a ``BehaviourIntegrator`` dedicated to the
 kind of behaviour selected by the user (small or finite strain) and the
 modelling hypothesis declared by the problem (plane strain, plane
 stress, tridimensional, etc.).

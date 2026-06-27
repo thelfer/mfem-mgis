@@ -61,7 +61,7 @@ where:
   of the time step.
 - :math:`\bts{\mathbb{F}_{i}}` denotes the inner forces at the beginning
   of the time step.
-- :math:`\Delta\,\mathbb{u}` is submitted to the the increment of the
+- :math:`\Delta\,\mathbb{u}` is submitted to the increment of the
   imposed Dirichlet boundary conditions.
 
 .. note::
@@ -107,9 +107,9 @@ where:
   beginning of the time step.
 - :math:`\ets{\tilde{\mathbb{F}}_{i}}` denotes an approximation inner
   forces at the end of the time step computed by assuming that the
-  gradients are constant over the time (and thus egal to their values at
+  gradients are constant over the time (and thus equal to their values at
   the beginning of the time step).
-- :math:`\Delta\,\mathbb{u}` is submitted to the the increment of the
+- :math:`\Delta\,\mathbb{u}` is submitted to the increment of the
   imposed Dirichlet boundary conditions.
 
 The behaviour integration allows taking into account:
@@ -127,7 +127,7 @@ The following operators are available:
 - :cxx:`IntegrationOperator::TANGENT`: the tangent operator, defined by
   the time-continuous derivative of the thermodynamic force with respect
   to the gradients,
-- :cxx:`IntegrationOperator::CONSISTENT_TANGENT`: the constistent
+- :cxx:`IntegrationOperator::CONSISTENT_TANGENT`: the consistent
   tangent operator, defined by the derivative of the thermodynamic force
   with respect to the gradients at the end of the time step. See
   :cite:`simo_consistent_1985` for details.
@@ -180,5 +180,5 @@ follows:
 
    \mathbb{u}^{(n+1)} = \mathbb{u}^{(n)}+\frac{1}{2}\,\delta\,\mathbb{u}^{(n)}
 
-This reduction of the amplitude repeated until a estimation of the
-solution that does not lead to an integration failure
+This reduction of the amplitude is repeated until an estimation of the
+solution that does not lead to an integration failure is found.

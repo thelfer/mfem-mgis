@@ -14,11 +14,11 @@ The ``MFEM/MGIS`` project
    developer_guide/developer_guide.rst
 
 The aim of the ``MFEM/MGIS`` project is to provide a ``C++`` library to
-build advanced mechanical simulation based on ``MFront`` behaviours with
-``MFEM`` . The ``MGIS`` project is used to interface
-``MFront`` behaviours .
+build advanced mechanical simulations based on ``MFront`` behaviours with
+``MFEM``. The ``MGIS`` project is used to interface
+``MFront`` behaviours.
 
-The ``MFEM-MGIS`` project, aims at efficiently use supercomputers in
+The ``MFEM-MGIS`` project aims at efficiently using supercomputers in
 order to describe coupled multiphysics phenomena with a particular focus
 on thermo-mechanics. This open-source library is based on several
 components as prerequisites:
@@ -33,17 +33,17 @@ Thanks to the features embedded within ``MGIS`` and ``MFront`` and
 thanks to specific developments, ``MFEM-MGIS`` adds several mechanical
 features compared to a pure ``MFEM`` approach.
 
-The library tackles some peculiarities of nonlinear mechanics. In
-particular, the support of complex constitutive laws and the management
+The library tackles some peculiarities of nonlinear mechanics, in
+particular the support of complex constitutive laws and the management
 of advanced boundary conditions. It provides a high level of abstraction
-based focused on the physics to be treated.
+focused on the physics to be treated.
 
 .. figure:: img/mfem-mgis-illustration.png
 
 Statement of need
 =================
 
-The solid mechanic examples in ``MFEM`` are mostly limited to simple
+The solid mechanics examples in ``MFEM`` are mostly limited to simple
 constitutive equations such as elasticity and hyperelasticity without
 internal state variables. This is insufficient to address many
 engineering studies and in particular complex nuclear fuel
@@ -72,10 +72,10 @@ of state of the art solvers which have an interface with ``MFront``.
 
 However, those solvers lack many features provided by ``MFEM`` that the
 authors found interesting to explore in the field of solid mechanics
-(see the above section for a detailed list). The authors also found
+(see the above section for a detailed list). The authors also found it
 interesting to take a platform designed from the start for high
-performance computing and adapt it to engineering needs and evaluate
-the resulting performances.
+performance computing, adapt it to engineering needs, and evaluate
+the resulting performance.
 
 References
 ==========
