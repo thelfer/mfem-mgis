@@ -237,7 +237,25 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif (MFEM_USE_MPI)
   endfunction(add_point_wise_model_test)
 
-  add_point_wise_model_test()
+  add_executable(PointWiseModelTest-2
+    EXCLUDE_FROM_ALL
+    PointWiseModelTest-2.cxx)
+  target_include_directories(PointWiseModelTest-2
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(PointWiseModelTest-2
+    PRIVATE MFEMMGIS)
+  add_dependencies(check PointWiseModelTest-2)
+
+  function(add_point_wise_model_test_2)
+    set(test "PointWiseModelTest-2")
+    set(PointWiseModelTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh")
+    add_test(NAME ${test}  COMMAND ./PointWiseModelTest-2 ${PointWiseModelTestParameters} "--parallel" "0")
+    if (MFEM_USE_MPI)
+      add_test(NAME ${test}P  COMMAND mpirun -n 2 ./PointWiseModelTest-2 ${PointWiseModelTestParameters} "--parallel" "1")
+    endif (MFEM_USE_MPI)
+  endfunction(add_point_wise_model_test_2)
+  
+  add_point_wise_model_test_2()
 
   add_executable(L2ProjectionTest
     EXCLUDE_FROM_ALL
