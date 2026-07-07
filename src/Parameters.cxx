@@ -362,4 +362,15 @@ namespace mfem_mgis {
     return r;
   }  // end of extract
 
+  Parameters remove(const Parameters& parameters,
+                    const std::map<std::string, std::string>& descriptions) noexcept {
+    auto r = Parameters{};
+    for (const auto& [k, p] : parameters) {
+      if (descriptions.find(k) != descriptions.end()) {
+        r.replaceOrInsert(k, p);
+      }
+    }
+    return r;
+  }  // end of extract
+
 }  // namespace mfem_mgis
