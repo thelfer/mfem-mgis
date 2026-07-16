@@ -1,8 +1,34 @@
-#include <MFEMMGIS/Profiler.hxx>
+/*!
+ * \file   src/Profiler.cxx
+ * \brief  This file implements the profiling output utilities
+ */
+
+#include "MGIS/Context.hxx"
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
+#include <iomanip>
+#include <numeric>
+#include <algorithm>
+#include <cassert>
+#include <fstream>
+#include <sstream>
+#include <mfem.hpp>
+
 #ifdef MFEM_USE_MPI
 #include "mpi.h"
 #endif
-#include <numeric>
+
+#ifdef MFEM_USE_MPI
+const int cWidth = 20;
+const int nColumns = 6;
+const std::string cName[nColumns] = {
+    "number Of Calls", "min(s)",  "mean(s)",
+    "max(s)",          "part(%)", "imb(%)"}; 
+#else
+const int cWidth = 20;
+const int nColumns = 3;
+const std::string cName[nColumns] = {"number Of Calls", "max(s)", "part(%)"};
+#endif
 
 namespace mfem_mgis {
   namespace Profiler {
@@ -10,28 +36,28 @@ namespace mfem_mgis {
       constexpr int master = 0;
 
       double sum(double in) {
-        double res = 0;
+        double res = in;
 #ifdef MFEM_USE_MPI
         MPI_Reduce(&in, &res, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 #endif
         return res;
-      }
+      }  // end of sum
 
       int sum(int in) {
-        int res = 0;
+        int res = in;
 #ifdef MFEM_USE_MPI
         MPI_Reduce(&in, &res, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 #endif
         return res;
-      }
+      }  // end of sum
 
       int64_t sum(int64_t in) {
-        int64_t res = 0;
+        int64_t res = in;
 #ifdef MFEM_USE_MPI
         MPI_Reduce(&in, &res, 1, MPI_INT64_T, MPI_SUM, 0, MPI_COMM_WORLD);
 #endif
         return res;
-      }
+      }  // end of sum
 
       bool is_master() {
 #ifdef MFEM_USE_MPI
@@ -41,360 +67,242 @@ namespace mfem_mgis {
 #else
         return true;
 #endif
-      }
+      }  // end of is_master
 
       double reduce_max(double a_duration) {
 #ifdef MFEM_USE_MPI
-        double global = 0.0;
+        double global = a_duration;
         MPI_Reduce(&a_duration, &global, 1, MPI_DOUBLE, MPI_MAX, master,
-                   MPI_COMM_WORLD);  // master rank is 0
+                   MPI_COMM_WORLD);
         return global;
 #else
         return a_duration;
 #endif
-      }
+      }  // end of reduce_max
 
     }  // namespace Utils
 
-    namespace timers {
-      using duration = std::chrono::duration<double>;
+    namespace OutputManager {
 
-      // constructor
-      ProfilerTimeSection::ProfilerTimeSection()
-          : m_daughter()  // only used for root
-      {
-        m_name = "root";
-        m_iteration = 1;
-        m_level = 0;
-        m_mother = nullptr;
-      }
-
-      ProfilerTimeSection::ProfilerTimeSection(std::string name,
-                                               ProfilerTimeSection* mother)
-          : m_daughter(), m_duration(0) {
-        m_name = name;
-        m_iteration = 1;
-        m_level = mother->m_level + 1;
-        m_mother = mother;
-      }
-
-      ProfilerTimeSection* ProfilerTimeSection::find(std::string name) {
-        assert(this != nullptr);
-        for (auto it = m_daughter.begin(); it < m_daughter.end(); it++) {
-          if ((*it)->m_name == name) {
-            (*it)->m_iteration++;
-            return (*it);
-          }
-        }
-        ProfilerTimeSection* myTmp = new ProfilerTimeSection(name, this);
-        m_daughter.push_back(myTmp);
-        return myTmp;
-      }
-
-      void ProfilerTimeSection::printReplicate(int begin,
-                                               int end,
-                                               std::string motif) {
-        for (int i = begin; i < end; i++) mfem::out << motif;
-      }
-
-      void ProfilerTimeSection::space() { mfem::out << " "; }
-
-      void ProfilerTimeSection::column() { mfem::out << "|"; }
-
-      void ProfilerTimeSection::endline() { mfem::out << std::endl; }
-
-      void ProfilerTimeSection::printBanner(int shift) {
-        if (m_name == "root") {
-#ifndef MFEM_USE_MPI
-          Profiler::Utils::Message(
-              " MPI feature is disable for timers, if you use MPI please add "
-              "-DMFEM_USE_MPI ");
-#else
-          if (Profiler::Utils::is_master()) {
-            Profiler::Utils::Message(" MPI feature activated, rank 0:");
-#endif
-          mfem::out << std::endl;
-          mfem::out << "Glossary: " << std::endl;
-          mfem::out << "NS: Newton Solver Class" << std::endl;
-          mfem::out << "NLEPIB: Non Linear Evolution Problem Implementation "
-                       "Base Class"
-                    << std::endl;
-          mfem::out << "FED: Finite Element Discretization Class" << std::endl;
-          mfem::out << std::endl;
-
-          std::string start_name = " |-- start timetable ";
-          mfem::out << start_name;
-          int end = shift + nColumns * (cWidth + 1) + 1;
-          printReplicate(start_name.size(), end, "-");
-          column();
-          endline();
-          std::string name = " |    name";
-          mfem::out << name;
-          printReplicate(name.size(), shift + 1, " ");
-          for (int i = 0; i < nColumns; i++) {
-            column();
-            int size = cName[i].size();
-            printReplicate(0, (int(cWidth) - size - 1), " ");
-            mfem::out << cName[i];
-            space();
-          }
-          column();
-          endline();
-          space();
-          column();
-          printReplicate(2, end, "-");
-          column();
-          endline();
+      std::string build_name() {
+        std::string base_name = "mfem-mgis";
 #ifdef MFEM_USE_MPI
-        }
-#endif
-      }
-    }  // namespace timers
-
-    void ProfilerTimeSection::printEnding(int shift) {
-      if (m_name == "root") {
-        if (Profiler::Utils::is_master()) {
-          shift += nColumns * (cWidth + 1) + 1;  // +1 for "|";
-          std::string end_name = " |-- end timetable ";
-          mfem::out << end_name;
-          printReplicate(end_name.size(), shift, "-");
-          column();
-          endline();
-        }
-      }
-    }
-
-    duration* ProfilerTimeSection::get_ptr_duration() { return &m_duration; }
-
-    void ProfilerTimeSection::print(int shift, double total_time) {
-      assert(total_time >= 0);
-      std::string cValue[nColumns];
-      if (Profiler::Utils::is_master()) {
-        int realShift = shift;
-        space();
-        column();
-        space();
-        int currentShift = 3;
-        for (int i = 0; i < int(m_level) - 1; i++) {
-          int spaceSize = 3;
-          for (int j = 0; j < spaceSize; j++) space();
-          currentShift += spaceSize;
-        }
-        if (m_level > 0) {
-          mfem::out << "|--";
-          currentShift += 3;
-        }
-        mfem::out << "> " << m_name;
-        currentShift += m_name.size() + 1;
-        printReplicate(currentShift, realShift, " ");
-
-        cValue[0] = std::to_string(m_iteration);
-      }
-#ifdef MFEM_USE_MPI
-      double local = m_duration.count();
-      int size = -1;
-      MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-      assert(size > 0);
-      std::vector<double> list;
-
-      if (Profiler::Utils::is_master()) list.resize(size);
-
-      MPI_Gather(&local, 1, MPI_DOUBLE, list.data(), 1, MPI_DOUBLE, 0,
-                 MPI_COMM_WORLD);  // master rank is 0
-
-      if (Profiler::Utils::is_master()) {
-        const auto [min, max] = std::minmax_element(list.begin(), list.end());
-        auto global_max = *max;
-        auto global_min = *min;
-        auto sum = std::accumulate(list.begin(), list.end(), double(0.));
-        auto global_mean = sum / double(size);
-        auto part_time = (global_max / total_time) * 100;
-
-        assert(global_mean >= 0);
-        assert(global_min >= 0);
-        assert(global_max >= 0);
-
-        assert(global_max >= global_mean);
-        assert(global_mean >= global_min);
-
-        cValue[1] = std::to_string(global_min);
-        cValue[2] = std::to_string(global_mean);
-        cValue[3] = std::to_string(global_max);
-        cValue[4] = std::to_string(part_time) + "%";
-        cValue[5] = std::to_string((global_max / global_mean) - 1) + "%";
-      }
+        int mpiSize;
+        MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
+        std::string file_name =
+            base_name + "." + std::to_string(mpiSize) + ".perf";
 #else
-          cValue[1] = std::to_string(m_duration.count());
-          cValue[2] = std::to_string((m_duration.count() / total_time) * 100);
-#endif
-      if (Profiler::Utils::is_master()) {
-        for (int i = 0; i < nColumns; i++) {
-          column();
-          int _size = cValue[i].size();
-          printReplicate(0, (int(cWidth) - _size - 1), " ");
-          mfem::out << cValue[i];
-          space();
-        }
-        column();
-        endline();
-      }
-    }
-
-    std::string ProfilerTimeSection::getName() { return m_name; }
-
-    double ProfilerTimeSection::get_duration() { return m_duration.count(); }
-
-    int ProfilerTimeSection::get_iteration() { return m_iteration; }
-
-    int ProfilerTimeSection::get_level() { return m_level; }
-
-    std::vector<ProfilerTimeSection*>& ProfilerTimeSection::get_daughter() {
-      return m_daughter;
-    }
-
-    ProfilerTimeSection* ProfilerTimeSection::get_mother() { return m_mother; }
-
-    void init_timers() {
-      Profiler::Utils::Message(" Init timers ");
-      ProfilerTimeSection*& root_timer_ptr =
-          Profiler::timers::get_timer<ROOT>();
-      assert(root_timer_ptr == nullptr);
-      root_timer_ptr = new ProfilerTimeSection();
-      ProfilerTimeSection*& current = Profiler::timers::get_timer<CURRENT>();
-      current = root_timer_ptr;
-      assert(current != nullptr);
-      Profiler::timer::start_global_timer<ROOT>();
-    }
-
-    void print_and_write_timers() {
-      Profiler::timer::end_global_timer<ROOT>();
-      Profiler::OutputManager::writeFile();
-      Profiler::OutputManager::printTimeTable();
-    }
-
-    void print_timers() {
-      Profiler::timer::end_global_timer<ROOT>();
-      Profiler::OutputManager::printTimeTable();
-    }
-
-    void write_timers() {
-      Profiler::timer::end_global_timer<ROOT>();
-      Profiler::OutputManager::writeFile();
-    }
-  }  // namespace Profiler
-
-  namespace timer {
-    TimeSection::TimeSection(duration* acc) {
-      m_duration = acc;
-      start();
-    }
-
-    inline void TimeSection::start() { m_start = steady_clock::now(); }
-
-    inline void TimeSection::end() {
-      assert(m_duration != nullptr && "duration has to be initialised");
-      m_stop = steady_clock::now();
-      *m_duration += m_stop - m_start;
-      assert(m_duration->count() >= 0);
-    }
-
-    TimeSection::~TimeSection() {
-      end();
-      auto& current_timer = Profiler::timers::get_timer<CURRENT>();
-      current_timer = current_timer->get_mother();
-    }
-  }  // namespace timer
-
-  namespace OutputManager {
-    std::string build_name() {
-      std::string base_name = "mfem-mgis";
-#ifdef MFEM_USE_MPI
-      int mpiSize;
-      MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
-      std::string file_name =
-          base_name + "." + std::to_string(mpiSize) + ".perf";
-#else
-          int nthreads = 0;
+        int nthreads = 0;
 #if defined(_OPENMP)
 #pragma omp parallel
-          { nthreads = omp_get_num_threads(); }
+        { nthreads = omp_get_num_threads(); }
 #endif
-          std::string file_name =
-              base_name + "." + std::to_string(nthreads) + ".perf";
+        std::string file_name =
+            base_name + "." + std::to_string(nthreads) + ".perf";
 #endif
-      return file_name;
-    }
+        return file_name;
+      }  // end of build_name
 
-    void printTimeTable() {
-      ProfilerTimeSection* root_timer = Profiler::timers::get_timer<ROOT>();
-      double runtime = root_timer->get_duration();
-      runtime =
-          Profiler::Utils::reduce_max(runtime);  // if MPI, else return runtime
+      static void printReplicate(int begin, int end, std::string motif) {
+        for (int i = begin; i < end; i++) mfem::out << motif;
+      }  // end of printReplicate
 
-      auto my_print = [](ProfilerTimeSection* a_ptr, int a_shift,
-                         double a_runtime) {
-        a_ptr->print(a_shift, a_runtime);
-      };
+      static int get_max_length(const mgis::ProfilingData& node, int level) {
+        int length = level * 3 + node.name.size();
+        int max_len = length;
+        for (const auto& child : node.children) {
+          max_len = std::max(max_len, get_max_length(*child, level + 1));
+        }
+        return max_len;
+      }  // end of get_max_length
 
-//#define SortPrintTimeTable 0
-#ifdef SortPrintTimeTable
-      auto sort_comp = [](ProfilerTimeSection* a_ptr,
-                          ProfilerTimeSection* b_ptr) {
-        return a_ptr->get_duration() > b_ptr->get_duration();
-      };
-#endif
+      static void printBanner(int shift) {
+        if (!Utils::is_master()) return;
+        
+        mfem::out << std::endl;
+        mfem::out << "Glossary: " << std::endl;
+        mfem::out << "NS: Newton Solver Class" << std::endl;
+        mfem::out << "NLEPIB: Non Linear Evolution Problem Implementation Base Class" << std::endl;
+        mfem::out << "FED: Finite Element Discretization Class" << std::endl;
+        mfem::out << std::endl;
 
-      auto max_length = [](ProfilerTimeSection* a_ptr, int& a_count,
-                           int& a_nbElem) {
-        int length = a_ptr->get_level() * 3 + a_ptr->getName().size();
-        a_count = std::max(a_count, length);
-        a_nbElem++;
-      };
-      int count(0), nbElem(0);
+        std::string start_name = " |-- start timetable ";
+        mfem::out << start_name;
+        int end = shift + nColumns * (cWidth + 1) + 1;
+        printReplicate(start_name.size(), end, "-");
+        mfem::out << "|\n";
+        
+        std::string name = " |    name";
+        mfem::out << name;
+        printReplicate(name.size(), shift + 1, " ");
+        for (int i = 0; i < nColumns; i++) {
+          mfem::out << "|";
+          int size = cName[i].size();
+          printReplicate(0, cWidth - size - 1, " ");
+          mfem::out << cName[i] << " ";
+        }
+        mfem::out << "|\n |";
+        printReplicate(2, end, "-");
+        mfem::out << "|\n";
+      }  // end of printBanner
 
-      recursive_call(max_length, root_timer, count, nbElem);
-      count += 6;
-      root_timer->printBanner(count);
-#ifdef SortPrintTimeTable
-      recursive_sorted_call(my_print, sort_comp, root_timer, count, runtime);
+      static void printNode(const mgis::ProfilingData& node, int level, double root_time, int shift) {
+        std::string cValue[nColumns];
+        
+        if (Utils::is_master()) {
+          mfem::out << " | ";
+          int currentShift = 3;
+          
+          for (int i = 0; i < level - 1; i++) {
+            mfem::out << "   ";
+            currentShift += 3;
+          }
+          if (level > 0) {
+            mfem::out << "|--> ";
+            currentShift += 5;
+          } else {
+            mfem::out << "> ";
+            currentShift += 2;
+          }
+          mfem::out << node.name;
+          currentShift += node.name.size();
+          printReplicate(currentShift, shift, " ");
+
+          cValue[0] = std::to_string(node.calls);
+        }
+
+#ifdef MFEM_USE_MPI
+        double local = (level == 0) ? root_time : node.time_in_seconds;
+        int size = -1;
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
+        std::vector<double> list;
+        
+        if (Utils::is_master()) list.resize(size);
+        
+        MPI_Gather(&local, 1, MPI_DOUBLE, list.data(), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+        if (Utils::is_master()) {
+          const auto [min, max] = std::minmax_element(list.begin(), list.end());
+          auto global_max = *max;
+          auto global_min = *min;
+          auto sum = std::accumulate(list.begin(), list.end(), 0.0);
+          auto global_mean = sum / double(size);
+          auto part_time = (global_max / root_time) * 100.0;
+
+          auto fmt = [](double val) {
+            std::ostringstream out;
+            out << std::fixed << std::setprecision(6) << val;
+            return out.str();
+          };
+
+          cValue[1] = fmt(global_min);
+          cValue[2] = fmt(global_mean);
+          cValue[3] = fmt(global_max);
+          cValue[4] = fmt(part_time) + "%";
+          if (global_mean > 0) {
+            cValue[5] = fmt(((global_max / global_mean) - 1.0) * 100.0) + "%";
+          } else {
+            cValue[5] = "0.000000%";
+          }
+        }
 #else
-          recursive_call(my_print, root_timer, count, runtime);
+        if (Utils::is_master()) {
+          auto fmt = [](double val) {
+            std::ostringstream out;
+            out << std::fixed << std::setprecision(6) << val;
+            return out.str();
+          };
+          double local_time = (level == 0) ? root_time : node.time_in_seconds;
+          cValue[1] = fmt(local_time);
+          cValue[2] = fmt((local_time / root_time) * 100.0) + "%";
+        }
 #endif
-      root_timer->printEnding(count);
-    }
 
-    void writeFile() {
-      std::string name = build_name();
-      writeFile(name);
-    }
+        if (Utils::is_master()) {
+          for (int i = 0; i < nColumns; i++) {
+            mfem::out << "|";
+            int _size = cValue[i].size();
+            printReplicate(0, cWidth - _size - 1, " ");
+            mfem::out << cValue[i] << " ";
+          }
+          mfem::out << "|\n";
+        }
 
-    void writeFile(std::string a_name) {
-      using namespace Profiler::Utils;
-      // using Profiler::Utils::reduce_max;
+        for (const auto& child : node.children) {
+          printNode(*child, level + 1, root_time, shift);
+        }
+      }  // end of printNode
 
-      std::ofstream myFile(a_name, std::ofstream::out);
-      ProfilerTimeSection* root_timer = Profiler::timers::get_timer<ROOT>();
-      auto rootTime = root_timer->get_duration();
-      rootTime = Profiler::Utils::reduce_max(rootTime);
-      auto my_write = [rootTime](ProfilerTimeSection* a_ptr,
-                                 std::ofstream& a_file) {
+      void printTimeTable(const mgis::Context& ctx) {
+        if (!ctx.isProfilingEnabled()) return;
+
+        const auto& root = ctx.getProfilingResultTree();
+        double root_time = Utils::reduce_max(root.time_in_seconds);
+        
+        if (root_time <= 0.0) {
+          for (const auto& child : root.children) {
+            root_time += Utils::reduce_max(child->time_in_seconds);
+          }
+        }
+
+        if (root_time <= 0.0) root_time = 1e-9; 
+
+        int shift = get_max_length(root, 0) + 6;
+
+        printBanner(shift);
+        printNode(root, 0, root_time, shift);
+        
+        if (Utils::is_master()) {
+          int end = shift + nColumns * (cWidth + 1) + 1;
+          std::string end_name = " |-- end timetable ";
+          mfem::out << end_name;
+          printReplicate(end_name.size(), end, "-");
+          mfem::out << "|\n";
+        }
+      }  // end of printTimeTable
+
+      static void writeNode(const mgis::ProfilingData& node, int level, double root_time, std::ofstream& file) {
         std::string space;
         std::string motif = "   ";
 
-        for (int i = 0; i < a_ptr->get_level(); i++) space += motif;
+        for (int i = 0; i < level; i++) space += motif;
 
-        const auto max_time = reduce_max(a_ptr->get_duration());
+        const auto max_time = Utils::reduce_max(node.time_in_seconds);
 
-        if (is_master()) {
-          a_file << space << a_ptr->getName() << " " << a_ptr->get_iteration()
-                 << " " << max_time << " " << (max_time / rootTime) * 100
-                 << std::endl;
+        if (Utils::is_master()) {
+          file << space << node.name << " " << node.calls
+               << " " << max_time << " " << (max_time / root_time) * 100
+               << std::endl;
         }
-      };
 
-      recursive_call(my_write, root_timer, myFile);
-    }
-  }  // namespace OutputManager
+        for (const auto& child : node.children) {
+          writeNode(*child, level + 1, root_time, file);
+        }
+      }  // end of writeNode
+
+      void writeFile(const mgis::Context& ctx) {
+        std::string name = build_name();
+        writeFile(ctx, name);
+      }  // end of writeFile
+
+      void writeFile(const mgis::Context& ctx, std::string a_name) {
+        if (!ctx.isProfilingEnabled()) return;
+
+        std::ofstream myFile(a_name, std::ofstream::out);
+        const auto& root = ctx.getProfilingResultTree();
+        auto rootTime = Utils::reduce_max(root.time_in_seconds);
+        
+        if (rootTime <= 0.0) {
+          for (const auto& child : root.children) {
+            rootTime += Utils::reduce_max(child->time_in_seconds);
+          }
+        }
+
+        if (rootTime <= 0.0) rootTime = 1e-9;
+
+        writeNode(root, 0, rootTime, myFile);
+      }  // end of writeFile
+
+    }  // namespace OutputManager
+  }  // namespace Profiler
 }  // namespace mfem_mgis
-}  // namespace Profiler

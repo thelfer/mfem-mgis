@@ -6,6 +6,7 @@
  */
 
 #include "MGIS/Raise.hxx"
+#include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
@@ -40,6 +41,16 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<true>& p,
       const std::span<const real>& corner1,
       const std::span<const real>& corner2) {
+    mgis::Context ctx;
+    setPeriodicBoundaryConditions(ctx, p, corner1, corner2);
+  }
+
+  void setPeriodicBoundaryConditions(
+      Context& ctx,
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const std::span<const real>& corner1,
+      const std::span<const real>& corner2) {
+    CatchTimeSection(ctx, "PeriodicNonLinEvPB::set_bc");
     const FiniteElementSpace<true>& fes = p.getFiniteElementSpace();
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -60,10 +71,8 @@ namespace mfem_mgis {
         for (int j = 0; j < dim; ++j) {
           int id_unk;
           if (bynodes) {
-            // id_unk = (j * size + i);
             id_unk = p.getFiniteElementSpace().GetLocalTDofNumber(j * size + i);
           } else {
-            // id_unk = (i * dim + j);
             id_unk = p.getFiniteElementSpace().GetLocalTDofNumber(i * dim + j);
           }
           if (id_unk >= 0) {
@@ -83,6 +92,15 @@ namespace mfem_mgis {
   void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<true>& p,
       const mfem_mgis::BoundaryConditionType bct) {
+    mgis::Context ctx;
+    setPeriodicBoundaryConditions(ctx, p, bct);
+  }
+
+  void setPeriodicBoundaryConditions(
+      Context& ctx,
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const mfem_mgis::BoundaryConditionType bct) {
+    CatchTimeSection(ctx, "PeriodicNonLinEvPB::set_bc");
     const FiniteElementSpace<true>& fes = p.getFiniteElementSpace();
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -121,11 +139,9 @@ namespace mfem_mgis {
         for (int j = 0; j < dim; ++j) {
           refcoord[j] = curcoord[j];
           if (bynodes) {
-            // id_unk = (j * size + i);
             id_unk[j] =
                 p.getFiniteElementSpace().GetLocalTDofNumber(j * size + i);
           } else {
-            // id_unk = (i * dim + j);
             id_unk[j] =
                 p.getFiniteElementSpace().GetLocalTDofNumber(i * dim + j);
           }
@@ -174,6 +190,16 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<false>& p,
       const std::span<const real>& corner1,
       const std::span<const real>& corner2) {
+    mgis::Context ctx;
+    setPeriodicBoundaryConditions(ctx, p, corner1, corner2);
+  }
+
+  void setPeriodicBoundaryConditions(
+      Context& ctx,
+      NonLinearEvolutionProblemImplementation<false>& p,
+      const std::span<const real>& corner1,
+      const std::span<const real>& corner2) {
+    CatchTimeSection(ctx, "PeriodicNonLinEvPB::set_bc");
     const FiniteElementSpace<false>& fes = p.getFiniteElementSpace();
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -212,7 +238,15 @@ namespace mfem_mgis {
   void setPeriodicBoundaryConditions(
       NonLinearEvolutionProblemImplementation<false>& p,
       const mfem_mgis::BoundaryConditionType bct) {
-    CatchTimeSection("PeriodicNonLinEvPB::set_bc");
+    mgis::Context ctx;
+    setPeriodicBoundaryConditions(ctx, p, bct);
+  }
+
+  void setPeriodicBoundaryConditions(
+      Context& ctx,
+      NonLinearEvolutionProblemImplementation<false>& p,
+      const mfem_mgis::BoundaryConditionType bct) {
+    CatchTimeSection(ctx, "PeriodicNonLinEvPB::set_bc");
     const FiniteElementSpace<false>& fes = p.getFiniteElementSpace();
     const auto* const mesh = p.getFiniteElementSpace().GetMesh();
     const auto dim = mesh->Dimension();
@@ -270,7 +304,6 @@ namespace mfem_mgis {
       const std::span<const real>& corner2)
       : NonLinearEvolutionProblem(fed,
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
-    CatchTimeSection("PeriodicNonLinEvPB::constructor_with_corners");
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       setPeriodicBoundaryConditions(this->getImplementation<true>(), corner1,
@@ -287,11 +320,33 @@ namespace mfem_mgis {
   }  // end of PeriodicNonLinearEvolutionProblem
 
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
+      mgis::Context& ctx,
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const std::span<const real>& corner1,
+      const std::span<const real>& corner2)
+      : NonLinearEvolutionProblem(fed,
+                                  mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
+    CatchTimeSection(ctx, "PeriodicNonLinEvPB::constructor_with_corners");
+    if (fed->describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      setPeriodicBoundaryConditions(ctx, this->getImplementation<true>(), corner1,
+                                    corner2);
+#else
+      raise(
+          "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
+          "unsupported parallel computations");
+#endif
+    } else {
+      setPeriodicBoundaryConditions(ctx, this->getImplementation<false>(), corner1,
+                                    corner2);
+    }
+  }  // end of PeriodicNonLinearEvolutionProblem
+
+  PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
       std::shared_ptr<FiniteElementDiscretization> fed,
       const mfem_mgis::BoundaryConditionType bct)
       : NonLinearEvolutionProblem(fed,
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
-    CatchTimeSection("PeriodicNonLinEvPB::constructor_with_bct");
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       setPeriodicBoundaryConditions(this->getImplementation<true>(), bct);
@@ -302,6 +357,26 @@ namespace mfem_mgis {
 #endif
     } else {
       setPeriodicBoundaryConditions(this->getImplementation<false>(), bct);
+    }
+  }  // end of PeriodicNonLinearEvolutionProblem
+
+  PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
+      mgis::Context& ctx,
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const mfem_mgis::BoundaryConditionType bct)
+      : NonLinearEvolutionProblem(fed,
+                                  mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
+    CatchTimeSection(ctx, "PeriodicNonLinEvPB::constructor_with_bct");
+    if (fed->describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      setPeriodicBoundaryConditions(ctx, this->getImplementation<true>(), bct);
+#else
+      raise(
+          "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
+          "unsupported parallel computations");
+#endif
+    } else {
+      setPeriodicBoundaryConditions(ctx, this->getImplementation<false>(), bct);
     }
   }  // end of PeriodicNonLinearEvolutionProblem
 

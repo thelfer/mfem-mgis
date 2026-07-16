@@ -40,6 +40,7 @@ namespace mfem_mgis {
     [[noreturn]] static void reportInvalidSequentialFiniteElementSpace();
     //!
     static std::vector<std::string> getParametersList();
+
     /*!
      * \brief constructor
      * \param[in] params: parameters
@@ -47,11 +48,11 @@ namespace mfem_mgis {
      * The following parameters are expected:
      *
      * - parameters describing the mesh (see the `MeshDiscretization` class for
-     *   details)
+     * details)
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used. Supported families are:
-     *   - `H1`
-     *   The default value if `H1`.
+     * used. Supported families are:
+     * - `H1`
+     * The default value if `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `UnknownsSize` (int): number of components of the unknows
      */
@@ -64,9 +65,9 @@ namespace mfem_mgis {
      * The following parameters are expected:
      *
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used. Supported families are:
-     *   - `H1`:
-     *   The default value if `H1`.
+     * used. Supported families are:
+     * - `H1`:
+     * The default value if `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `UnknownsSize` (int): number of components of the unknows
      */
@@ -79,13 +80,37 @@ namespace mfem_mgis {
      * The following parameters are expected:
      *
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used. Supported families are:
-     *   - `H1`:
-     *   The default value if `H1`.
+     * used. Supported families are:
+     * - `H1`:
+     * The default value if `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `UnknownsSize` (int): number of components of the unknows
      */
     FiniteElementDiscretization(std::shared_ptr<Mesh<true>>, const Parameters&);
+
+    /*!
+     * \brief constructor with profiling support
+     * \param[in, out] ctx: execution context used for profiling
+     * \param[in] params: parameters
+     */
+    FiniteElementDiscretization(mgis::Context& ctx, const Parameters&);
+    /*!
+     * \brief constructor with profiling support
+     * \param[in, out] ctx: execution context used for profiling
+     * \param[in] m: mesh
+     * \param[in] params: parameters
+     */
+    FiniteElementDiscretization(mgis::Context& ctx, const MeshDiscretization&,
+                                const Parameters&);
+    /*!
+     * \brief constructor with profiling support
+     * \param[in, out] ctx: execution context used for profiling
+     * \param[in] m: mesh
+     * \param[in] params: parameters
+     */
+    FiniteElementDiscretization(mgis::Context& ctx, std::shared_ptr<Mesh<true>>,
+                                const Parameters&);
+
     /*!
      * \brief constructor
      * \param[in] m: mesh
@@ -94,9 +119,9 @@ namespace mfem_mgis {
      * The following parameters are expected:
      *
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used. Supported families are:
-     *   - `H1`:
-     *   The default value if `H1`.
+     * used. Supported families are:
+     * - `H1`:
+     * The default value if `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `UnknownsSize` (int): number of components of the unknows
      */
@@ -142,6 +167,7 @@ namespace mfem_mgis {
     FiniteElementDiscretization(std::shared_ptr<Mesh<false>>,
                                 std::shared_ptr<const FiniteElementCollection>,
                                 std::unique_ptr<FiniteElementSpace<false>>);
+
     //! \return the finite element space
     template <bool parallel>
     [[nodiscard]] FiniteElementSpace<parallel>& getFiniteElementSpace();

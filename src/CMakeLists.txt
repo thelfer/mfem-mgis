@@ -85,6 +85,7 @@ list(APPEND MFEMMGIS_SOURCES
   CouplingSchemeBase.cxx
   LoopCouplingScheme.cxx
   IterativeCouplingScheme.cxx
+  CouplingSchemeConvergenceCriterionBase.cxx
   AbstractModel.cxx
   ModelBase.cxx
   NonLinearModel.cxx

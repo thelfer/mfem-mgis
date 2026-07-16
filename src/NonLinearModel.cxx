@@ -64,7 +64,7 @@ namespace mfem_mgis {
       return false;
     }
     if (b) {
-      this->problem->executePostProcessings(ts.begin, ts.end);
+      this->problem->executePostProcessings(ctx, ts.begin, ts.end);
     }
     return true;
   }

@@ -18,6 +18,7 @@
 #include <mfem/fem/pfespace.hpp>
 #endif
 #include "MGIS/Raise.hxx"
+#include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
@@ -57,14 +58,15 @@ namespace mfem_mgis {
    * \param[in] s: string corresponding to a file name
    *
    * \note MED format is handled in addition to standard MFEM
-   *       input formats.
+   * input formats.
    */
   static std::shared_ptr<Mesh<false>> loadMeshSequential(
+      mgis::Context& ctx,
       const std::string& mesh_name,
       int generate_edges = 0,
       int refine = 1,
       bool /* fix_orientation */ = true) {
-    CatchTimeSection("Mesh::LoadMesh");
+    CatchTimeSection(ctx, "Mesh::LoadMesh");
 #ifdef MFEM_USE_MED
     const auto extension = getFileExt(mesh_name);
     if (extension == "med") {
@@ -88,8 +90,9 @@ namespace mfem_mgis {
   }  // end of loadMeshSequential
 
   static std::shared_ptr<Mesh<true>> loadMeshParallel(
+      mgis::Context& ctx,
       const std::string& mesh_name) {
-    CatchTimeSection("Mesh::LoadMeshInParallel");
+    CatchTimeSection(ctx, "Mesh::LoadMeshInParallel");
 #ifdef MFEM_USE_MED
     const auto extension = getFileExt(mesh_name);
     if (extension == "med") {
@@ -379,7 +382,8 @@ namespace mfem_mgis {
   }  // end of getParametersList
 
   MeshDiscretization::MeshDiscretization(const Parameters& params) {
-    CatchTimeSection("Mesh::Constructor");
+    mgis::Context ctx;
+    CatchTimeSection(ctx, "Mesh::Constructor");
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};
       for (const auto& p : parameters) {
@@ -400,7 +404,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       size_type ref_level = 0;
       if (mesh_mode == "FromScratch") {
-        auto smesh = loadMeshSequential(mesh_file, 0, 1, true);
+        auto smesh = loadMeshSequential(ctx, mesh_file, 0, 1, true);
         // Perform a uniform refinement on the sequential mesh if it doesn't
         // have enough elements. Assume that each subdomain should have at leat
         // 8 elements Not superior to nrefinement
@@ -415,12 +419,12 @@ namespace mfem_mgis {
         this->parallel_mesh =
             std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
       } else if (mesh_mode == "Restart") {
-        this->parallel_mesh = loadMeshParallel(mesh_file);
+        this->parallel_mesh = loadMeshParallel(ctx, mesh_file);
       } else {
         raise("Wrong MeshReadMode value");
       }
       for (size_type i = ref_level; i < nrefinement; ++i) {
-        CatchNestedTimeSection("Mesh::Run_ParUniformRefinement");
+        CatchTimeSection(ctx, "Mesh::Run_ParUniformRefinement");
         this->parallel_mesh->UniformRefinement();
       }
 #else  /* MFEM_USE_MPI */
@@ -432,9 +436,104 @@ namespace mfem_mgis {
             "Aborting. The option 'Restart' is not handled while running a "
             "sequential program");
       }
-      this->sequential_mesh = loadMeshSequential(mesh_file, 0, 1, true);
+      this->sequential_mesh = loadMeshSequential(ctx, mesh_file, 0, 1, true);
       for (size_type i = 0; i < nrefinement; ++i) {
-        CatchNestedTimeSection("Mesh::Run_SeqUniformRefinement");
+        CatchTimeSection(ctx, "Mesh::Run_SeqUniformRefinement");
+        this->sequential_mesh->UniformRefinement();
+      }
+    }
+    // building the finite element collection
+    // declaring materials and boundaries
+    auto mnames = [&params, extractMap]() -> std::map<size_type, std::string> {
+      if (contains(params, MeshDiscretization::Materials)) {
+        return extractMap(
+            get<Parameters>(throwing, params, MeshDiscretization::Materials));
+      }
+      return {};
+    }();
+    auto bnames = [&params, extractMap]() -> std::map<size_type, std::string> {
+      if (contains(params, MeshDiscretization::Boundaries)) {
+        return extractMap(
+            get<Parameters>(throwing, params, MeshDiscretization::Boundaries));
+      }
+      return {};
+    }();
+    if (parallel) {
+#ifdef MFEM_USE_MPI
+      updateNamesFromAttributesSets<true>(throwing, mnames, bnames,
+                                          *(this->parallel_mesh));
+#else
+      reportUnsupportedParallelComputations();
+#endif
+    } else {
+      updateNamesFromAttributesSets<false>(throwing, mnames, bnames,
+                                           *(this->sequential_mesh));
+    }
+    if (!mnames.empty()) {
+      this->setMaterialsNames(throwing, mnames);
+    }
+    if (!bnames.empty()) {
+      this->setBoundariesNames(throwing, bnames);
+    }
+  }  // end of MeshDiscretization
+
+  MeshDiscretization::MeshDiscretization(const Parameters& params, mgis::Context& ctx) {
+    CatchTimeSection(ctx, "Mesh::Constructor");
+    auto extractMap = [](const Parameters& parameters) {
+      auto m = std::map<size_type, std::string>{};
+      for (const auto& p : parameters) {
+        m[get<int>(throwing, p.second)] = p.first;
+      }
+      return m;
+    };
+    checkParameters(throwing, params, MeshDiscretization::getParametersList());
+    const auto parallel =
+        get_if<bool>(throwing, params, MeshDiscretization::Parallel, false);
+    const auto& mesh_file =
+        get<std::string>(throwing, params, MeshDiscretization::MeshFileName);
+    const auto nrefinement = get_if<int>(
+        throwing, params, MeshDiscretization::NumberOfUniformRefinements, 0);
+    const auto mesh_mode = get_if<std::string>(
+        throwing, params, MeshDiscretization::MeshReadMode, "FromScratch");
+    if (parallel) {
+#ifdef MFEM_USE_MPI
+      size_type ref_level = 0;
+      if (mesh_mode == "FromScratch") {
+        auto smesh = loadMeshSequential(ctx, mesh_file, 0, 1, true);
+        // Perform a uniform refinement on the sequential mesh if it doesn't
+        // have enough elements. Assume that each subdomain should have at leat
+        // 8 elements Not superior to nrefinement
+        if (nrefinement > 0) {
+          double numberOfProcs = double(mfem::Mpi::WorldSize());
+          while ((double(smesh->GetNE()) / numberOfProcs) < 8 &&
+                 ref_level < nrefinement) {
+            smesh->UniformRefinement();
+            ref_level++;
+          }
+        }
+        this->parallel_mesh =
+            std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
+      } else if (mesh_mode == "Restart") {
+        this->parallel_mesh = loadMeshParallel(ctx, mesh_file);
+      } else {
+        raise("Wrong MeshReadMode value");
+      }
+      for (size_type i = ref_level; i < nrefinement; ++i) {
+        CatchTimeSection(ctx, "Mesh::Run_ParUniformRefinement");
+        this->parallel_mesh->UniformRefinement();
+      }
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      if (mesh_mode == "Restart") {
+        raise(
+            "Aborting. The option 'Restart' is not handled while running a "
+            "sequential program");
+      }
+      this->sequential_mesh = loadMeshSequential(ctx, mesh_file, 0, 1, true);
+      for (size_type i = 0; i < nrefinement; ++i) {
+        CatchTimeSection(ctx, "Mesh::Run_SeqUniformRefinement");
         this->sequential_mesh->UniformRefinement();
       }
     }

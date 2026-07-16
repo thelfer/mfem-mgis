@@ -85,7 +85,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool addPostProcessing(Context&,
                                          std::string_view,
                                          const Parameters&) noexcept override;
-    void executePostProcessings(const real, const real) override;
+    void executePostProcessings(Context&, const real, const real) override;
     [[nodiscard]] GridFunction<true>& getUnknownsAsGridFunction(
         const TimeStepStage) noexcept;
     [[nodiscard]] const GridFunction<true>& getUnknownsAsGridFunction(
@@ -182,7 +182,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool addPostProcessing(Context&,
                                          std::string_view,
                                          const Parameters&) noexcept override;
-    void executePostProcessings(const real, const real) override;
+    void executePostProcessings(Context&, const real, const real) override;
     //
     [[nodiscard]] GridFunction<false>& getUnknownsAsGridFunction(
         const TimeStepStage) noexcept;

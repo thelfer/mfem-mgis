@@ -33,7 +33,8 @@ namespace mfem_mgis {
         const Parameters &,
         const std::string_view);
     //
-    void execute(NonLinearEvolutionProblemImplementation<parallel> &,
+    void execute(Context&,
+                 NonLinearEvolutionProblemImplementation<parallel> &,
                  const real,
                  const real) override;
     //! \brief destructor

@@ -360,9 +360,9 @@ namespace mfem_mgis {
       }
     }
     return r;
-  }  // end of extract
+  }  // end of remove
 
-  Parameters remove(const Parameters& parameters,
+  Parameters extract(const Parameters& parameters,
                     const std::map<std::string, std::string>& descriptions) noexcept {
     auto r = Parameters{};
     for (const auto& [k, p] : parameters) {

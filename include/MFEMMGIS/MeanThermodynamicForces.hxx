@@ -30,7 +30,8 @@ namespace mfem_mgis {
     MeanThermodynamicForces(NonLinearEvolutionProblemImplementation<parallel>&,
                             const Parameters&);
     //
-    void execute(NonLinearEvolutionProblemImplementation<parallel>&,
+    void execute(Context&,
+                 NonLinearEvolutionProblemImplementation<parallel>&,
                  const real,
                  const real) override;
     //! \brief destructor

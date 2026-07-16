@@ -4,6 +4,8 @@
  * \date   05/12/2022
  */
 
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/AbstractModel.hxx"
 #include "MFEMMGIS/NonLinearModel.hxx"
 #include "MFEMMGIS/CouplingSchemeBase.hxx"
@@ -204,6 +206,11 @@ namespace mfem_mgis {
 
   bool CouplingSchemeBase::performInitializationTaksAtTheBeginningOfTheTimeStep(
       Context &ctx, const TimeStep &ts) noexcept {
+
+    auto profiler = ctx.startNewProfiling(
+        "CouplingSchemeBase::performInitializationTaks", 
+        ctx.isProfilingEnabled());
+    
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
       ctx.log(verboseLevel2,
