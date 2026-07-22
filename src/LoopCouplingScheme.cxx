@@ -123,7 +123,7 @@ namespace mfem_mgis {
       std::ignore = ctx.registerErrorMessage("invalid number of iterations");
       return {ExitStatus::unrecoverableError, {}};
     }
-    CatchTimeSection("LoopCouplingScheme::computeNextState"); // Timer pour la fonction
+    CatchTimeSection("LoopCouplingScheme::computeNextState");
     auto status = ExitStatus{};
     auto iterationsOutputs = std::vector<Parameter>{};
     auto iterationOutputs = std::vector<Parameter>{};
@@ -135,7 +135,7 @@ namespace mfem_mgis {
       for (const auto &m : this->items) {
         ctx.log(verboseLevel2, "* calling computeNextState for '" +
                                    getShortDescription(*m) + "'");
-        CatchTimeSection(m->getName()); // Timer pour le modèle
+        CatchTimeSection(m->getName());
         auto cs = update(ctx, *m);
         const auto o = m->computeNextState(ctx, ts);
         restore(ctx, cs);

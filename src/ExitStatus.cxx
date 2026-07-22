@@ -14,7 +14,7 @@ namespace mfem_mgis {
 
   void ExitStatus::synchronize(const MPI_Comm c) noexcept {
     MPI_Allreduce(MPI_IN_PLACE, &(this->status.value), 1, mpi_type<size_type>,
-                  MPI_SUM, c);
+                  MPI_MAX, c);
   }  // end of synchronize
 
   ExitStatus synchronize(const ExitStatus s, const MPI_Comm c) noexcept {

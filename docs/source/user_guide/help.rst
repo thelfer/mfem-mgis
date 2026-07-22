@@ -5,7 +5,7 @@ Getting help
 The :cxx:`info` function
 ========================
 
-The :cxx:`info` function allows to display information about an object
+The :cxx:`info` function allows displaying information about an object
 in an output stream.
 
 Example of usage

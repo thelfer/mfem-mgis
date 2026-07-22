@@ -1050,8 +1050,13 @@ namespace mfem_mgis {
     }();
     updateAndSynchronize(r.first);
     if (!s.shallContinue()) {
-      std::ignore = ctx.registerErrorMessage(
-          "resolution of the non linear problem failed");
+      if (isValid(this->physicalSystem)) {
+        std::ignore = ctx.registerErrorMessage(
+            "finding the next state of the physical system failed");
+      } else {
+        std::ignore = ctx.registerErrorMessage(
+            "resolution of the non linear problem failed");
+      }
       return s;
     }
     for (auto &c : this->timeIncrementComputers) {
