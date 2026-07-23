@@ -47,7 +47,7 @@ For symmetry reasons, only half of the notched beam is represented in
 Figure :ref:`fig:mfem_mgis:ssna303:mesh`. The height (h) of the beam is
 (30,mm). The half-width (w) of the beam is (5.4,mm).
 
-The positions of the points (p1) (p2) and (c) are respectivly
+The positions of the points (p1) (p2) and (c) are respectively
 (3,mm, 0), (5.4,mm, 4.8,mm), and (9,mm, 0).
 
 This notched beam has been meshed using `Cast3M <http://www-cast3m.cea.fr/>`_ and exported in the ``MED`` 
@@ -73,9 +73,9 @@ gradient is set equal to (1).
 Boundary conditions
 -------------------
 
-Dirichlet boundary conditions force the solution to attain certain a
-priori prescribed values on some boundaries. The beam is fixed along the
-bottom line ((y=0)) and a displacement (U_{y}) is imposed an the top of
+Dirichlet boundary conditions force the solution to attain certain
+prescribed values a priori on some boundaries. The beam is fixed along the
+bottom line ((y=0)) and a displacement (U_{y}) is imposed at the top of
 the beam ((y=h)).
 
 The symmetry axis on the left is blocked in the ``x``-direction.
@@ -157,13 +157,13 @@ The ``initialize`` function must be called at the very beginning of the
 
    **The ``mfem_mgis`` namespace**
 
-   All the classes and funtions of the ``MFEM/MGIS`` project are place
+   All the classes and functions of the ``MFEM/MGIS`` project are placed
    in the ``mfem_mgis`` namespace.
 
 This call is mostly useful in parallel and handles:
 
 -  The initialization of interprocess communications handled by the
-   `MPI`` framework.
+   ``MPI`` framework.
 -  The initialization of the `PETSc <https://www.mcs.anl.gov/petsc/>`_ scientific
    toolkit, if supported and
    requested.
@@ -172,7 +172,7 @@ Constant variables
 ~~~~~~~~~~~~~~~~~~
 
 The code then defines some constant variables defining the path to the
-mesh file, the path the the ``MFront`` shared library, and the name of
+mesh file, the path to the ``MFront`` shared library, and the name of
 the behaviour:
 
 .. code:: cpp
@@ -192,10 +192,10 @@ The proposed implementation allows the following options:
 
 -  ``--order`` which specifies the finite element order (polynomial
    degree).
--  ``--parallel`` which specifices if the simulation must be run in
+-  ``--parallel`` which specifies if the simulation must be run in
    parallel.
 
-Those options options are associated with local variables which are
+Those options are associated with local variables which are
 default initialized as follows:
 
 .. code:: cpp
@@ -216,7 +216,7 @@ If left unchanged, those default values select:
 If ``MFEM`` was built with support of ``PETSc`` library, the following
 options are added by the ``mfem_mgis::declareDefaultOptions`` function:
 
--  ``--use-petsc`` which speficies that linear and non linear solvers of
+-  ``--use-petsc`` which specifies that linear and non linear solvers of
    the ``PETSc`` toolkit must be used.
 -  ``--petsc-configuration-file`` which specifies a configuration file
    for the ``PETSc`` toolkit.
@@ -254,7 +254,7 @@ The non linear evolution problem is defined as follows:
           {"Parallel", parallel}});
 
 The constructor of the ``NonLinearEvolutionProblem`` class takes an
-object of ``Parameters`` type which is able to store various kind of
+object of ``Parameters`` type which is able to store various kinds of
 data in a hierarchical structure. The valid parameters for the
 construction of a non linear evolution problem are described in the
 ``doxygen`` documentation of the ``NonLinearEvolutionProblem`` class.
@@ -268,7 +268,7 @@ in the interface of the ``NonLinearEvolutionProblem`` class, the
 ``MFEM/MGIS`` exposes a high level API (Application Programming
 Interface) which hides (by default) all the details related to
 parallelization and memory management. For example, the parameter
-``Parallel`` allows to switch from a parallel computation to a parallel
+``Parallel`` allows switching from a sequential computation to a parallel
 one at runtime.
 
    **Input files and ``python`` wrappers**
@@ -278,9 +278,9 @@ one at runtime.
    not yet implemented.
 
 Although based on the ``MFEM`` library, the standard end-user of the
-``MFEM/MGIS`` library would barely never used directly the ``MFEM``
-data-structures. However, the ``MFEM/MGIS`` library does not preclude to
-directly use the ``MFEM`` data-structures, built-in non linear forms,
+``MFEM/MGIS`` library would barely ever directly use the ``MFEM``
+data-structures. However, the ``MFEM/MGIS`` library does not preclude directly using the ``MFEM``
+data-structures, built-in non linear forms,
 etc. This lower level API is however not described in this tutorial.
 
 Names boundaries and materials
@@ -288,7 +288,7 @@ Names boundaries and materials
 
 ``MFEM`` distinguishes elements of the mesh (materials and boundaries)
 by integers. This may seem unpractical to most users. The ``MFEM/MGIS``
-allows to associate names to materials and boundaries as follows:
+allows associating names to materials and boundaries as follows:
 
 .. code:: cpp
 
@@ -326,9 +326,9 @@ The four arguments of the ``addBehaviourIntegrator`` are:
    ``Mechanics`` and ``HeatTransfer``. Support for other physical
    problems can be plugged in at runtime if needed.
 -  The material identifier, as defined in the mesh file. This identifier
-   may be either an integer or a string. In the later case, the string
+   may be either an integer or a string. In the latter case, the string
    is interpreted as a regular expression, a feature introduced by the
-   ``Licos`` fuel performance code and which proved very pratical in
+   ``Licos`` fuel performance code and which proved very practical in
    many cases :cite:`helfer_licos_2015`.
 -  The shared library containing the behaviour to be used.
 -  The name of the behaviour to be used.
@@ -338,11 +338,11 @@ The four arguments of the ``addBehaviourIntegrator`` are:
    **Information associated with the behaviour and automatic memory
    management**
 
-   Thanks to the ```MGIS``
+   Thanks to the ``MGIS``
    project :cite:`helfer_mfrontgenericinterfacesupport_2020`, all the information
    related to the mechanical behaviour is retrieved, including:
 
-   -  The type of behaviour (finite strain mechanical behaviour is this
+   -  The type of behaviour (finite strain mechanical behaviour in this
       case).
    -  The names of material properties, parameters, state variables and
       external state variables.
@@ -354,7 +354,7 @@ The four arguments of the ``addBehaviourIntegrator`` are:
 Initialisation of the temperature
 ---------------------------------
 
-The following lines define an uniform temperature on the material at the
+The following lines define a uniform temperature on the material at the
 beginning of the time step and at the end of time step:
 
 .. code:: cpp
@@ -365,18 +365,18 @@ beginning of the time step and at the end of time step:
 
 Defining the temperature is required by all ``MFront`` behaviours.
 
-The object returned a by the ``getMaterial`` method returns a thin
+The object returned by the ``getMaterial`` method is a thin
 wrapper around the ``MaterialDataManager`` provided by the `MGIS <https://thelfer.github.io/mfem-mgis/index.html>`_ project
 :cite:`helfer_mfrontgenericinterfacesupport_2020`.
 
-In the previous lines, ``m1.s0`` and ``m1.s1`` denotes respectively the
+In the previous lines, ``m1.s0`` and ``m1.s1`` denote respectively the
 state of the material at the beginning of the time step and at the end
 of the time step.
 
 Boundary Condition
 ------------------
 
-The ``NonLinearEvolutionProblem`` class allows to define uniform
+The ``NonLinearEvolutionProblem`` class allows defining uniform
 Dirichlet boundary conditions (imposed displacement) using the
 ``addUniformDirichletBoundaryCondition`` method as follows:
 
@@ -397,14 +397,14 @@ Dirichlet boundary conditions (imposed displacement) using the
 Again, the code is almost self-explanatory. If the value of the imposed
 displacement is not specified (using the ``LoadingEvolution``
 parameter), the selected component is set to zero. The
-``LoadingEvolution`` parameter allows to specify the evolution of the
-imposed displacement using a function of time (defined her using a
+``LoadingEvolution`` parameter allows specifying the evolution of the
+imposed displacement using a function of time (defined here using a
 ``C++`` lambda expression).
 
 Non linear solver parameters.
 -----------------------------
 
-If ``PETSc`` is not used, the following line set the parameters of the
+If ``PETSc`` is not used, the following line sets the parameters of the
 Newton-Raphson solver used to find the equilibrium of the whole
 structure:
 
@@ -420,7 +420,7 @@ structure:
 Valid parameters for the ``setSolverParameters`` are described in the
 ``doxygen`` documentation of the library.
 
-If ``PETSc`` is used (see the ``--use-petcs`` command line option), the
+If ``PETSc`` is used (see the ``--use-petsc`` command line option), the
 parameters associated with the choice of the non linear solver must be
 provided by an external configuration file (see the
 ``--petsc-configuration-file`` command line option).
@@ -444,18 +444,18 @@ If ``PETSc`` is not used, the linear solver can be selected using the
 
 The second argument is an object of the ``Parameters`` type which can be
 used to fine tune the linear solver and, in the case of iterative
-solvers, optionnaly define a preconditioner. For direct solvers, no
+solvers, optionally define a preconditioner. For direct solvers, no
 parameters are required.
 
 Post-processings
 ----------------
 
-The ``addPostProcessing`` method let the user define some built-in
+The ``addPostProcessing`` method lets the user define some built-in
 postprocessings.
 
 In this example, we export the displacements for visualization in
 `paraview <https://www.paraview.org/>`_ and compute the resultant
-force on the boundary where the displacement as follows:
+force on the boundary where the displacement is imposed, as follows:
 
 .. code:: cpp
 
@@ -472,23 +472,23 @@ force on the boundary where the displacement as follows:
                                {{"Boundary", 2}, {"OutputFileName", "force.txt"}});
 
 These post-processings are called using the ``executePostProcessings``
-method during the runtime using the state at the end of time step. The
-user may also plugged in its own post-processing.
+method at runtime using the state at the end of the time step. The
+user may also plug in their own post-processing.
 
 Resolution
 ----------
 
 The ``NonLinearEvolutionProblem`` class is meant to solve the problem on
-one time step only. This allows to easily built weakly coupled non
+one time step only. This makes it easy to build weakly coupled non
 linear resolutions (for example, thermo-mechanical resolutions where the
-heat tranfer and mechanical problems are solved using a staggered
-scheme) or set-up couplings with external solvers.
+heat transfer and mechanical problems are solved using a staggered
+scheme) or set up couplings with external solvers.
 
 In this tutorial, a local time-substepping scheme is set up to handle
 resolution failures.
 
 The loading starts at time (0) and ends at time (1). This range is
-divided in (50) time steps.
+divided into (50) time steps.
 
 .. code:: cpp
 
@@ -525,7 +525,7 @@ The local time substepping scheme is simply set up as follows:
          }
        }
 
-Every time a resolution is sucessful, the material state is updated
+Every time a resolution is successful, the material state is updated
 using the ``update`` method, the current time is incremented and the
 number of the remaining substeps is decreased. The loop stops when the
 remaining number of sub-steps goes to zero.

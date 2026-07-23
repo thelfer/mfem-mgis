@@ -12,14 +12,13 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   CouplingSchemeBase::getParametersDescription() noexcept {
-    //    auto d = getCouplingItemParametersDescription();
+    return getCouplingItemParametersDescription();
     //     d.insert(
     //         {"PrintResourcesUsage",
     //          "boolean stating if a coarse grain profiling of resources usage
     //          shall " "be displayed on the standard output at each iteration
     //          (false by " "default)"});
     //     d.insert({"CouplingItems", "list of coupling items"});
-    return {};
   }  // end of getParametersDescription
 
   CouplingSchemeBase::ContextState CouplingSchemeBase::update(
@@ -48,10 +47,25 @@ namespace mfem_mgis {
   CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m) noexcept
       : mesh(m) {}
 
+  CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m,
+                                         const Parameters &parameters)
+      : mesh(m) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    checkParameters(ctx, parameters,
+                    CouplingSchemeBase::getParametersDescription()) |
+        or_raise;
+    handleCouplingItemParameters(ctx, *this, parameters) | or_raise;
+  }  // end of CouplingSchemeBase
+
   MeshDiscretization CouplingSchemeBase::getMeshDiscretization()
       const noexcept {
     return this->mesh;
   }  // end of getMeshDiscretization
+
+  void CouplingSchemeBase::setName(std::string_view n) noexcept {
+    this->name = n;
+  }
 
   std::vector<std::string> CouplingSchemeBase::getLocations() const noexcept {
     return {};

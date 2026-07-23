@@ -29,8 +29,15 @@ namespace mfem_mgis {
      * \param[in] m: mesh
      */
     CouplingSchemeBase(const MeshDiscretization &) noexcept;
+    /*!
+     * \brief constructor
+     * \param[in] m: mesh
+     * \param[in] parameters: parameters
+     */
+    CouplingSchemeBase(const MeshDiscretization &, const Parameters &);
     //
     MeshDiscretization getMeshDiscretization() const noexcept override;
+    void setName(std::string_view) noexcept override final;
     [[nodiscard]] std::vector<std::string> getLocations()
         const noexcept override;
     [[nodiscard]] VerbosityLevel getVerbosityLevel()
@@ -117,6 +124,8 @@ namespace mfem_mgis {
     std::optional<VerbosityLevel> verbosity_level;
     //! \brief a log stream associated with the coupling scheme
     std::shared_ptr<std::ostream> log_stream;
+    //! \brief name of the model, specified externally
+    std::optional<std::string> name;
   };  // end of CouplingSchemeBase
 
 }  // namespace mfem_mgis
