@@ -83,6 +83,7 @@ list(APPEND MFEMMGIS_SOURCES
   AbstractCouplingSchemeConvergenceCriterion.cxx
   FirstIterationConvergenceCriterion.cxx
   CouplingSchemeBase.cxx
+  CouplingSchemeConvergenceCriterionBase.cxx
   LoopCouplingScheme.cxx
   IterativeCouplingScheme.cxx
   AbstractModel.cxx
