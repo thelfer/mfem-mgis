@@ -12,52 +12,58 @@
 #include <cassert>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include <mfem.hpp>
 
 #ifdef MFEM_USE_MPI
 #include "mpi.h"
 #endif
 
-#ifdef MFEM_USE_MPI
-const int cWidth = 20;
-const int nColumns = 6;
-const std::string cName[nColumns] = {
-    "number Of Calls", "min(s)",  "mean(s)",
-    "max(s)",          "part(%)", "imb(%)"}; 
-#else
-const int cWidth = 20;
-const int nColumns = 3;
-const std::string cName[nColumns] = {"number Of Calls", "max(s)", "part(%)"};
-#endif
-
 namespace mfem_mgis {
   namespace Profiler {
     namespace Utils {
       constexpr int master = 0;
+      constexpr int cWidth = 20;
+
+      int get_mpi_size() {
+#ifdef MFEM_USE_MPI
+        int size;
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
+        return size;
+#else
+        return 1;
+#endif
+      }
 
       double sum(double in) {
         double res = in;
 #ifdef MFEM_USE_MPI
-        MPI_Reduce(&in, &res, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        if (get_mpi_size() > 1) {
+            MPI_Reduce(&in, &res, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        }
 #endif
         return res;
-      }  // end of sum
+      }
 
       int sum(int in) {
         int res = in;
 #ifdef MFEM_USE_MPI
-        MPI_Reduce(&in, &res, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+        if (get_mpi_size() > 1) {
+            MPI_Reduce(&in, &res, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+        }
 #endif
         return res;
-      }  // end of sum
+      }
 
       int64_t sum(int64_t in) {
         int64_t res = in;
 #ifdef MFEM_USE_MPI
-        MPI_Reduce(&in, &res, 1, MPI_INT64_T, MPI_SUM, 0, MPI_COMM_WORLD);
+        if (get_mpi_size() > 1) {
+            MPI_Reduce(&in, &res, 1, MPI_INT64_T, MPI_SUM, 0, MPI_COMM_WORLD);
+        }
 #endif
         return res;
-      }  // end of sum
+      }
 
       bool is_master() {
 #ifdef MFEM_USE_MPI
@@ -67,18 +73,19 @@ namespace mfem_mgis {
 #else
         return true;
 #endif
-      }  // end of is_master
+      }
 
       double reduce_max(double a_duration) {
 #ifdef MFEM_USE_MPI
         double global = a_duration;
-        MPI_Reduce(&a_duration, &global, 1, MPI_DOUBLE, MPI_MAX, master,
-                   MPI_COMM_WORLD);
+        if (get_mpi_size() > 1) {
+            MPI_Reduce(&a_duration, &global, 1, MPI_DOUBLE, MPI_MAX, master, MPI_COMM_WORLD);
+        }
         return global;
 #else
         return a_duration;
 #endif
-      }  // end of reduce_max
+      }
 
     }  // namespace Utils
 
@@ -86,26 +93,23 @@ namespace mfem_mgis {
 
       std::string build_name() {
         std::string base_name = "mfem-mgis";
-#ifdef MFEM_USE_MPI
-        int mpiSize;
-        MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
-        std::string file_name =
-            base_name + "." + std::to_string(mpiSize) + ".perf";
-#else
-        int nthreads = 0;
+        int mpiSize = Utils::get_mpi_size();
+        
+        if (mpiSize > 1) {
+            return base_name + "." + std::to_string(mpiSize) + ".perf";
+        } else {
+            int nthreads = 0;
 #if defined(_OPENMP)
 #pragma omp parallel
-        { nthreads = omp_get_num_threads(); }
+            { nthreads = omp_get_num_threads(); }
 #endif
-        std::string file_name =
-            base_name + "." + std::to_string(nthreads) + ".perf";
-#endif
-        return file_name;
-      }  // end of build_name
+            return base_name + "." + std::to_string(nthreads) + ".perf";
+        }
+      }
 
       static void printReplicate(int begin, int end, std::string motif) {
         for (int i = begin; i < end; i++) mfem::out << motif;
-      }  // end of printReplicate
+      }
 
       static int get_max_length(const mgis::ProfilingData& node, int level) {
         int length = level * 3 + node.name.size();
@@ -114,9 +118,9 @@ namespace mfem_mgis {
           max_len = std::max(max_len, get_max_length(*child, level + 1));
         }
         return max_len;
-      }  // end of get_max_length
+      }
 
-      static void printBanner(int shift) {
+      static void printBanner(int shift, int mpi_size) {
         if (!Utils::is_master()) return;
         
         mfem::out << std::endl;
@@ -126,33 +130,41 @@ namespace mfem_mgis {
         mfem::out << "FED: Finite Element Discretization Class" << std::endl;
         mfem::out << std::endl;
 
+        std::vector<std::string> headers;
+        if (mpi_size > 1) {
+            headers = {"number Of Calls", "min(s)", "mean(s)", "max(s)", "part(%)", "imb(%)"};
+        } else {
+            headers = {"number Of Calls", "time(s)", "part(%)"};
+        }
+
+        int nCols = headers.size();
         std::string start_name = " |-- start timetable ";
         mfem::out << start_name;
-        int end = shift + nColumns * (cWidth + 1) + 1;
+        int end = shift + nCols * (Utils::cWidth + 1) + 1;
         printReplicate(start_name.size(), end, "-");
         mfem::out << "|\n";
         
         std::string name = " |    name";
         mfem::out << name;
         printReplicate(name.size(), shift + 1, " ");
-        for (int i = 0; i < nColumns; i++) {
+        for (int i = 0; i < nCols; i++) {
           mfem::out << "|";
-          int size = cName[i].size();
-          printReplicate(0, cWidth - size - 1, " ");
-          mfem::out << cName[i] << " ";
+          int size = headers[i].size();
+          printReplicate(0, Utils::cWidth - size - 1, " ");
+          mfem::out << headers[i] << " ";
         }
         mfem::out << "|\n |";
         printReplicate(2, end, "-");
         mfem::out << "|\n";
-      }  // end of printBanner
+      }
 
-      static void printNode(const mgis::ProfilingData& node, int level, double root_time, int shift) {
-        std::string cValue[nColumns];
+      static void printNode(const mgis::ProfilingData& node, int level, double root_time, int shift, int mpi_size) {
+        int nCols = (mpi_size > 1) ? 6 : 3;
+        std::vector<std::string> cValue(nCols);
         
         if (Utils::is_master()) {
           mfem::out << " | ";
           int currentShift = 3;
-          
           for (int i = 0; i < level - 1; i++) {
             mfem::out << "   ";
             currentShift += 3;
@@ -167,75 +179,70 @@ namespace mfem_mgis {
           mfem::out << node.name;
           currentShift += node.name.size();
           printReplicate(currentShift, shift, " ");
-
           cValue[0] = std::to_string(node.calls);
         }
 
+        double local_time = (level == 0) ? root_time : node.time_in_seconds;
+
+        if (mpi_size > 1) {
 #ifdef MFEM_USE_MPI
-        double local = (level == 0) ? root_time : node.time_in_seconds;
-        int size = -1;
-        MPI_Comm_size(MPI_COMM_WORLD, &size);
-        std::vector<double> list;
-        
-        if (Utils::is_master()) list.resize(size);
-        
-        MPI_Gather(&local, 1, MPI_DOUBLE, list.data(), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+          std::vector<double> list;
+          if (Utils::is_master()) list.resize(mpi_size);
+          
+          MPI_Gather(&local_time, 1, MPI_DOUBLE, list.data(), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-        if (Utils::is_master()) {
-          const auto [min, max] = std::minmax_element(list.begin(), list.end());
-          auto global_max = *max;
-          auto global_min = *min;
-          auto sum = std::accumulate(list.begin(), list.end(), 0.0);
-          auto global_mean = sum / double(size);
-          auto part_time = (global_max / root_time) * 100.0;
+          if (Utils::is_master()) {
+            const auto [min, max] = std::minmax_element(list.begin(), list.end());
+            auto global_max = *max;
+            auto global_min = *min;
+            auto sum = std::accumulate(list.begin(), list.end(), 0.0);
+            auto global_mean = sum / double(mpi_size);
+            auto part_time = (global_max / root_time) * 100.0;
 
-          auto fmt = [](double val) {
-            std::ostringstream out;
-            out << std::fixed << std::setprecision(6) << val;
-            return out.str();
-          };
+            auto fmt = [](double val) {
+              std::ostringstream out;
+              out << std::fixed << std::setprecision(6) << val;
+              return out.str();
+            };
 
-          cValue[1] = fmt(global_min);
-          cValue[2] = fmt(global_mean);
-          cValue[3] = fmt(global_max);
-          cValue[4] = fmt(part_time) + "%";
-          if (global_mean > 0) {
-            cValue[5] = fmt(((global_max / global_mean) - 1.0) * 100.0) + "%";
-          } else {
-            cValue[5] = "0.000000%";
+            cValue[1] = fmt(global_min);
+            cValue[2] = fmt(global_mean);
+            cValue[3] = fmt(global_max);
+            cValue[4] = fmt(part_time) + "%";
+            cValue[5] = (global_mean > 0) ? fmt(((global_max / global_mean) - 1.0) * 100.0) + "%" : "0.000000%";
+          }
+#endif
+        } else {
+          if (Utils::is_master()) {
+            auto fmt = [](double val) {
+              std::ostringstream out;
+              out << std::fixed << std::setprecision(6) << val;
+              return out.str();
+            };
+            cValue[1] = fmt(local_time);
+            cValue[2] = fmt((local_time / root_time) * 100.0) + "%";
           }
         }
-#else
-        if (Utils::is_master()) {
-          auto fmt = [](double val) {
-            std::ostringstream out;
-            out << std::fixed << std::setprecision(6) << val;
-            return out.str();
-          };
-          double local_time = (level == 0) ? root_time : node.time_in_seconds;
-          cValue[1] = fmt(local_time);
-          cValue[2] = fmt((local_time / root_time) * 100.0) + "%";
-        }
-#endif
 
         if (Utils::is_master()) {
-          for (int i = 0; i < nColumns; i++) {
+          for (int i = 0; i < nCols; i++) {
             mfem::out << "|";
             int _size = cValue[i].size();
-            printReplicate(0, cWidth - _size - 1, " ");
+            printReplicate(0, Utils::cWidth - _size - 1, " ");
             mfem::out << cValue[i] << " ";
           }
           mfem::out << "|\n";
         }
 
         for (const auto& child : node.children) {
-          printNode(*child, level + 1, root_time, shift);
+          printNode(*child, level + 1, root_time, shift, mpi_size);
         }
-      }  // end of printNode
+      }
 
       void printTimeTable(const mgis::Context& ctx) {
         if (!ctx.isProfilingEnabled()) return;
 
+        int mpi_size = Utils::get_mpi_size();
         const auto& root = ctx.getProfilingResultTree();
         double root_time = Utils::reduce_max(root.time_in_seconds);
         
@@ -249,17 +256,18 @@ namespace mfem_mgis {
 
         int shift = get_max_length(root, 0) + 6;
 
-        printBanner(shift);
-        printNode(root, 0, root_time, shift);
+        printBanner(shift, mpi_size);
+        printNode(root, 0, root_time, shift, mpi_size);
         
         if (Utils::is_master()) {
-          int end = shift + nColumns * (cWidth + 1) + 1;
+          int nCols = (mpi_size > 1) ? 6 : 3;
+          int end = shift + nCols * (Utils::cWidth + 1) + 1;
           std::string end_name = " |-- end timetable ";
           mfem::out << end_name;
           printReplicate(end_name.size(), end, "-");
           mfem::out << "|\n";
         }
-      }  // end of printTimeTable
+      }
 
       static void writeNode(const mgis::ProfilingData& node, int level, double root_time, std::ofstream& file) {
         std::string space;
@@ -267,7 +275,7 @@ namespace mfem_mgis {
 
         for (int i = 0; i < level; i++) space += motif;
 
-        const auto max_time = Utils::reduce_max(node.time_in_seconds);
+        const auto max_time = (level == 0) ? root_time : Utils::reduce_max(node.time_in_seconds);
 
         if (Utils::is_master()) {
           file << space << node.name << " " << node.calls
@@ -278,12 +286,11 @@ namespace mfem_mgis {
         for (const auto& child : node.children) {
           writeNode(*child, level + 1, root_time, file);
         }
-      }  // end of writeNode
+      }
 
       void writeFile(const mgis::Context& ctx) {
-        std::string name = build_name();
-        writeFile(ctx, name);
-      }  // end of writeFile
+        writeFile(ctx, build_name());
+      }
 
       void writeFile(const mgis::Context& ctx, std::string a_name) {
         if (!ctx.isProfilingEnabled()) return;
@@ -301,7 +308,7 @@ namespace mfem_mgis {
         if (rootTime <= 0.0) rootTime = 1e-9;
 
         writeNode(root, 0, rootTime, myFile);
-      }  // end of writeFile
+      }
 
     }  // namespace OutputManager
   }  // namespace Profiler
