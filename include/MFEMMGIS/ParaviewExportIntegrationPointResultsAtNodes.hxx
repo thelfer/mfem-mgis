@@ -102,7 +102,7 @@ namespace mfem_mgis {
    * The functions to be exported can be either:
    *
    * 1. automatically extracted from the materials defined in a nonlinear
-   *    evolution problem
+   * evolution problem
    * 2. explicitely given by the user
    */
   template <bool parallel>
@@ -144,7 +144,8 @@ namespace mfem_mgis {
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);
     //
-    void execute(NonLinearEvolutionProblemImplementation<parallel> &,
+    void execute(Context&,
+                 NonLinearEvolutionProblemImplementation<parallel> &,
                  const real,
                  const real) override;
     //! \brief destructor
@@ -197,33 +198,46 @@ namespace mfem_mgis {
             ExportedFunctionsDescription;
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] params: parameters passed to the post-processing
      */
-    ParaviewExportIntegrationPointResultsAtNodes(NonLinearEvolutionProblem &,
+    ParaviewExportIntegrationPointResultsAtNodes(Context &,
+                                                 NonLinearEvolutionProblem &,
                                                  const Parameters &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] d: functions to be exported
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodes(
+        Context &,
         NonLinearEvolutionProblem &,
         const ExportedFunctionsDescription &,
         const std::string &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] ds: functions to be exported
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodes(
+        Context &,
         NonLinearEvolutionProblem &,
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);
     //
-    void execute(NonLinearEvolutionProblem &, const real, const real);
+    /*!
+     * \brief execute the export
+     * \param[in,out] ctx: execution context
+     * \param[in] p: non linear problem
+     * \param[in] t: current time
+     * \param[in] dt: current time step
+     */
+    void execute(Context &, NonLinearEvolutionProblem &, const real, const real);
     //! \brief destructor
     ~ParaviewExportIntegrationPointResultsAtNodes();
 
@@ -285,7 +299,8 @@ namespace mfem_mgis {
         std::function<bool(Context &, PartialQuadratureFunction &)>,
         std::string_view);
     //
-    void execute(NonLinearEvolutionProblemImplementation<parallel> &p,
+    void execute(Context &ctx,
+                 NonLinearEvolutionProblemImplementation<parallel> &p,
                  const real t,
                  const real dt) override;
 

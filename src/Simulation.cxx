@@ -923,7 +923,7 @@ namespace mfem_mgis {
       }
       // executing post-processing tasks
       if (isValid(this->nonlinearEvolutionProblem)) {
-        this->nonlinearEvolutionProblem->executePostProcessings(t, *ote - t);
+        this->nonlinearEvolutionProblem->executePostProcessings(ctx, t, *ote - t);
       }
       if (isValid(this->physicalSystem)) {
         if (!this->physicalSystem->executePostProcessingTasks(

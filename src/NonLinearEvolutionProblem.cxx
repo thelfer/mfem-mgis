@@ -7,6 +7,7 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/BoundaryUtilities.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
@@ -211,7 +212,7 @@ namespace mfem_mgis {
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(
       Context& ctx, const real t, const real dt) noexcept {
-    CatchTimeSection("NLEP::solve");
+    CatchTimeSection(ctx, "NLEP::solve");
     if (!this->setup(ctx, t, dt)) {
       return InvalidResult{};
     }
@@ -220,7 +221,6 @@ namespace mfem_mgis {
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
-    CatchTimeSection("NLEP::solve");
     this->setup(t, dt);
     return this->pimpl->solve(t, dt);
   }  // end of solve
@@ -228,7 +228,6 @@ namespace mfem_mgis {
   bool NonLinearEvolutionProblem::integrate(const mfem::Vector& U,
                                             const IntegrationType it,
                                             const std::optional<real> odt) {
-    CatchTimeSection("NLEP::integrate");
     return this->pimpl->integrate(U, it, odt);
   }  // end of solve
 
@@ -352,9 +351,10 @@ namespace mfem_mgis {
     this->pimpl->addPostProcessing(n, p);
   }  // end of addPostProcessing
 
-  void NonLinearEvolutionProblem::executePostProcessings(const real t,
+  void NonLinearEvolutionProblem::executePostProcessings(Context& ctx,
+                                                         const real t,
                                                          const real dt) {
-    this->pimpl->executePostProcessings(t, dt);
+    this->pimpl->executePostProcessings(ctx, t, dt);
   }
 
   std::optional<std::map<size_type, size_type>>

@@ -8,6 +8,7 @@
 #ifndef LIB_MFEM_MGIS_POSTPROCESSING_HXX
 #define LIB_MFEM_MGIS_POSTPROCESSING_HXX
 
+#include "MGIS/Context.hxx"
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
@@ -33,7 +34,8 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void execute(NonLinearEvolutionProblemImplementation<true>&,
+    virtual void execute(mgis::Context& ctx,
+                         NonLinearEvolutionProblemImplementation<true>&,
                          const real,
                          const real) = 0;
     //! \brief destructor
@@ -51,7 +53,8 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void execute(NonLinearEvolutionProblemImplementation<false>&,
+    virtual void execute(mgis::Context& ctx,
+                         NonLinearEvolutionProblemImplementation<false>&,
                          const real,
                          const real) = 0;
     //! \brief destructor

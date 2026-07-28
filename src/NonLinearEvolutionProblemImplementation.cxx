@@ -229,7 +229,8 @@ namespace mfem_mgis {
         const std::function<void(const real, const real)>& fct)
         : f(fct) {}  // end of StdFunctionPostProcessing
     //
-    void execute(NonLinearEvolutionProblemImplementation<parallel>&,
+    void execute(Context &ctx,
+                 NonLinearEvolutionProblemImplementation<parallel>&,
                  const real t,
                  const real dt) override {
       this->f(t, dt);
@@ -372,7 +373,7 @@ namespace mfem_mgis {
     if (isInvalid(s)) {
       return ctx.registerErrorMessage("invalid linear solver");
     }
-    this->updateLinearSolver(std::move(s));
+    this->updateLinearSolver(ctx, std::move(s));
     return true;
   }
 
@@ -392,7 +393,7 @@ namespace mfem_mgis {
     if (isInvalid(s)) {
       return false;
     }
-    this->updateLinearSolver(std::move(s));
+    this->updateLinearSolver(ctx, std::move(s));
     return true;
   }  // end of setLinearSolver
 
@@ -403,9 +404,9 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblemImplementation<true>::executePostProcessings(
-      const real t, const real dt) {
+      Context& ctx, const real t, const real dt) {
     for (auto& p : this->postprocessings) {
-      p->execute(*this, t, dt);
+      p->execute(ctx, *this, t, dt);
     }
   }  // end of executePostProcessings
 
@@ -599,9 +600,9 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblemImplementation<false>::executePostProcessings(
-      const real t, const real dt) {
+      Context& ctx, const real t, const real dt) {
     for (auto& p : this->postprocessings) {
-      p->execute(*this, t, dt);
+      p->execute(ctx, *this, t, dt);
     }
   }  // end of executePostProcessings
 
@@ -630,7 +631,7 @@ namespace mfem_mgis {
     if (isInvalid(s)) {
       return ctx.registerErrorMessage("invalid linear solver");
     }
-    this->updateLinearSolver(std::move(s));
+    this->updateLinearSolver(ctx, std::move(s));
     return true;
   }
 
@@ -650,7 +651,7 @@ namespace mfem_mgis {
     if (isInvalid(s)) {
       return false;
     }
-    this->updateLinearSolver(std::move(s));
+    this->updateLinearSolver(ctx, std::move(s));
     return true;
   }  // end of setLinearSolver
 

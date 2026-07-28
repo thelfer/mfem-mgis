@@ -168,7 +168,6 @@ namespace mfem_mgis {
       }
       Finalizer::get().initialize(argc, argv);
       first = false;
-      Profiler::timers::init_timers();
     }
   }  // end of initialize
 
@@ -176,7 +175,6 @@ namespace mfem_mgis {
 
   void initialize(int&, MainFunctionArguments&) {
     Finalizer::get();
-    Profiler::timers::init_timers();
   }  // end of initialize
 
 #endif /* MFEM_USE_MPI */

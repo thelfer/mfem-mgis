@@ -145,6 +145,7 @@ namespace mfem_mgis {
   template <bool parallel>
   void
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::execute(
+      Context &ctx,
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const real t,
       const real dt) {
@@ -206,14 +207,15 @@ namespace mfem_mgis {
 
   template <bool parallel>
   void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
-      parallel>::execute(NonLinearEvolutionProblemImplementation<parallel>& p,
+      parallel>::execute(Context &ctx,
+                         NonLinearEvolutionProblemImplementation<parallel>& p,
                          const real t,
                          const real dt) {
-    Context ctx;
-    if (!this->functions.update(ctx, this->update_function)) {
+    Context local_ctx;
+    if (!this->functions.update(local_ctx, this->update_function)) {
       raise(ctx.getErrorMessage());
     }
-    this->exporter.execute(p, t, dt);
+    this->exporter.execute(ctx, p, t, dt);
   }  // end of execute
 
 #endif /* MGIS_FUNCTION_SUPPORT */

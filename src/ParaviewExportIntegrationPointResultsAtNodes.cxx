@@ -6,6 +6,8 @@
  */
 
 #include <utility>
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #ifdef MGIS_FUNCTION_SUPPORT
 #include "MFEMMGIS/PartialQuadratureFunctionsSet.hxx"
 #endif /* MGIS_FUNCTION_SUPPORT */
@@ -119,7 +121,6 @@ namespace mfem_mgis {
           const NonLinearEvolutionProblemImplementationBase& p,
           const MaterialIntegrationPointResultBase& r) {
     auto fcts = std::vector<ImmutablePartialQuadratureFunctionView>{};
-    // creating the partial functions per materials
     for (const auto& mid : this->materials_identifiers) {
       const auto& m = p.getMaterial(mid);
       if (r.category == MaterialIntegrationPointResultBase::GRADIENTS) {
@@ -135,9 +136,10 @@ namespace mfem_mgis {
   }  // end of getPartialQuadratureFunctionViews
 
   ParaviewExportIntegrationPointResultsAtNodes::
-      ParaviewExportIntegrationPointResultsAtNodes(NonLinearEvolutionProblem& p,
+      ParaviewExportIntegrationPointResultsAtNodes(Context& ctx,
+                                                   NonLinearEvolutionProblem& p,
                                                    const Parameters& params) {
-    auto ctx = Context{};
+    CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
     const auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
@@ -158,10 +160,11 @@ namespace mfem_mgis {
 
   ParaviewExportIntegrationPointResultsAtNodes::
       ParaviewExportIntegrationPointResultsAtNodes(
+          Context& ctx,
           NonLinearEvolutionProblem& p,
           const ExportedFunctionsDescription& efcts,
           const std::string& d) {
-    auto ctx = Context{};
+    CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
     const auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
@@ -182,10 +185,11 @@ namespace mfem_mgis {
 
   ParaviewExportIntegrationPointResultsAtNodes::
       ParaviewExportIntegrationPointResultsAtNodes(
+          Context& ctx,
           NonLinearEvolutionProblem& p,
           const std::vector<ExportedFunctionsDescription>& ds,
           const std::string& d) {
-    auto ctx = Context{};
+    CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
     const auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
@@ -205,7 +209,8 @@ namespace mfem_mgis {
   }
 
   void ParaviewExportIntegrationPointResultsAtNodes::execute(
-      NonLinearEvolutionProblem& p, const real t, const real dt) {
+      Context& ctx, NonLinearEvolutionProblem& p, const real t, const real dt) {
+    CatchTimeSection(ctx, "ParaviewExportResults::Execute");
     const auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
@@ -213,7 +218,7 @@ namespace mfem_mgis {
       std::get<
           ParaviewExportIntegrationPointResultsAtNodesImplementation<true>>(
           this->implementations)
-          .execute(i, t, dt);
+          .execute(ctx, i, t, dt);
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
@@ -222,7 +227,7 @@ namespace mfem_mgis {
       std::get<
           ParaviewExportIntegrationPointResultsAtNodesImplementation<false>>(
           this->implementations)
-          .execute(i, t, dt);
+          .execute(ctx, i, t, dt);
     }
   }
 

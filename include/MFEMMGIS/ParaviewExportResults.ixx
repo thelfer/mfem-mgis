@@ -9,6 +9,7 @@
 #define LIB_MFEMMGIS_PARAVIEWEXPORTRESULTS_IXX
 
 #include "mfem.hpp"
+#include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include <MFEMMGIS/Profiler.hxx>
@@ -39,7 +40,6 @@ namespace mfem_mgis {
       : exporter(get<std::string>(throwing, params, "OutputFileName")),
         result(&p.getFiniteElementSpace()),
         cycle(0) {
-    CatchTimeSection("ParaviewExportResults::Constructor");
     auto& u1 = p.getUnknowns(ets);
     this->result.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
 
@@ -168,11 +168,148 @@ namespace mfem_mgis {
   }  // end of ParaviewExportResults
 
   template <bool parallel>
+  ParaviewExportResults<parallel>::ParaviewExportResults(
+    mgis::Context& ctx,
+    NonLinearEvolutionProblemImplementation<parallel>& pb,
+    const Parameters& params)
+    : exporter(get<std::string>(throwing, params, "OutputFileName")),
+        result(&pb.getFiniteElementSpace()),
+        cycle(0) {
+    CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
+    auto& u1 = pb.getUnknowns(ets);
+    this->result.MakeTRef(&pb.getFiniteElementSpace(), u1, 0);
+
+    /** Default, the mesh is the entire mesh */
+    Mesh<parallel>& pmesh = pb.getMesh();
+
+    bool contains_brd =
+        contains(params, "Boundary") || contains(params, "Boundaries");
+    bool contains_mat =
+        contains(params, "Material") || contains(params, "Materials");
+
+    if (contains_brd && contains_mat) {
+      Profiler::Utils::Message(
+          "You can not define 'Material' and 'Boundary' in a single "
+          "ParaviewExportResults post processing");
+      std::exit(0);
+    }
+
+    if (contains_mat) { /** Materials and Sub mesh */
+      /** "false" means that we double check if params include Material or
+       * Materials */
+      auto materials_ids = getMaterialsIdentifiers(throwing, pb, params, false);
+      mfem::Array<int> mat_attributes;
+
+      /** Create Submesh using the material identifiers */
+      for (const auto& mid : materials_ids) {
+        mat_attributes.Append(mid);
+      }
+
+      this->submesh = std::make_shared<SubMesh<parallel>>(
+          SubMesh<parallel>::CreateFromDomain(pmesh, mat_attributes));
+
+      /** Create the corresponding Grid Function */
+      auto& FED = pb.getFiniteElementDiscretization();
+      const auto& fec_subdomain = FED.getFiniteElementCollection();
+
+      this->fes_sm = std::make_shared<FiniteElementSpace<parallel>>(
+          FiniteElementSpace<parallel>(
+              this->submesh.get(), &fec_subdomain,
+              FED.template getFiniteElementSpace<parallel>().GetVDim()));
+
+      /** init the grid function corresponding to the sub mesh */
+      this->result_sm = std::make_shared<mfem_mgis::GridFunction<parallel>>(
+          mfem_mgis::GridFunction<parallel>(fes_sm.get()));
+
+      /** Update exporter */
+      this->exporter.SetMesh(this->submesh.get());
+      this->exporter.SetDataFormat(mfem::VTKFormat::BINARY);
+
+      if (contains(params, "Verbosity")) {
+        if (get<int>(throwing, params, "Verbosity") >= 1) {
+          Profiler::Utils::Message(
+              "Submesh information [for domain attributes]");
+          print_mesh_information(this->submesh.get());
+        }
+      }
+
+      if (contains(params, "OutputFieldName")) {
+        this->exporter.RegisterField(
+            get<std::string>(throwing, params, "OutputFieldName"),
+            this->result_sm.get());
+      } else {
+        this->exporter.RegisterField("u", this->result_sm.get());
+      }
+    }                        /** No Domain Attributes */
+    else if (contains_brd) { /** Boundaries and Sub mesh */
+
+      /** "false" means that we double check if params include Material or
+       * Materials */
+      auto bdrAttributes = getBoundariesIdentifiers(throwing, pb, params, false);
+
+      /** Get the list of boundary attributes */
+      mfem::Array<int> bdr_attributes;
+
+      /** Create Submesh using the domain attributes */
+      for (const auto& dattr : bdrAttributes) {
+        bdr_attributes.Append(dattr);
+      }
+
+      /** Use the list of boundary attributes to define the sub mesh */
+      this->submesh = std::make_shared<SubMesh<parallel>>(SubMesh<parallel>(
+          SubMesh<parallel>::CreateFromBoundary(pmesh, bdr_attributes)));
+
+      /** Create the corresponding Grid Function */
+      auto& FED = pb.getFiniteElementDiscretization();
+      const auto& fec_subdomain = FED.getFiniteElementCollection();
+
+      this->fes_sm = std::make_shared<FiniteElementSpace<parallel>>(
+          FiniteElementSpace<parallel>(this->submesh.get(), &fec_subdomain,
+                                       pmesh.Dimension()));
+
+      /** init the grid function corresponding to the sub mesh */
+      this->result_sm = std::make_shared<mfem_mgis::GridFunction<parallel>>(
+          mfem_mgis::GridFunction<parallel>(fes_sm.get()));
+
+      /** Update exporter */
+      this->exporter.SetMesh(this->submesh.get());
+      this->exporter.SetDataFormat(mfem::VTKFormat::BINARY);
+
+      if (contains(params, "Verbosity")) {
+        if (get<int>(throwing, params, "Verbosity") >= 1) {
+          Profiler::Utils::Message(
+              "Submesh information [for boundary attributes]");
+          print_mesh_information(this->submesh.get());
+        }
+      }
+
+      if (contains(params, "OutputFieldName")) {
+        this->exporter.RegisterField(
+            get<std::string>(throwing, params, "OutputFieldName"),
+            this->result_sm.get());
+      } else {
+        this->exporter.RegisterField("u", this->result_sm.get());
+      }
+    }      /** No BoundaryAttributes */
+    else { /** Not a sub mesh */
+      exporter.SetMesh(&pmesh);
+      if (contains(params, "OutputFieldName")) {
+        this->exporter.RegisterField(
+            get<std::string>(throwing, params, "OutputFieldName"),
+            &(this->result));
+      } else {
+        this->exporter.RegisterField("u", &(this->result));
+      }
+    }
+  }  // end of ParaviewExportResults
+
+  template <bool parallel>
   void ParaviewExportResults<parallel>::execute(
+      mgis::Context& ctx,
       NonLinearEvolutionProblemImplementation<parallel>&,
       const real t,
       const real dt) {
-    CatchTimeSection("ParaviewExportResults::Execute");
+    CatchTimeSection(ctx, "ParaviewExportResults::Execute");
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
     // SetFromTrueVector needed here in MFEM for at least two rationales:

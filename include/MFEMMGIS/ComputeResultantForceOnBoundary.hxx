@@ -69,7 +69,8 @@ namespace mfem_mgis {
     ComputeResultantForceOnBoundary(
         NonLinearEvolutionProblemImplementation<true>&, const Parameters&);
     //
-    void execute(NonLinearEvolutionProblemImplementation<true>&,
+    void execute(Context&,
+                 NonLinearEvolutionProblemImplementation<true>&,
                  const real,
                  const real) override;
     //! \brief destructor
@@ -94,7 +95,8 @@ namespace mfem_mgis {
     ComputeResultantForceOnBoundary(
         NonLinearEvolutionProblemImplementation<false>&, const Parameters&);
     //
-    void execute(NonLinearEvolutionProblemImplementation<false>&,
+    void execute(Context&,
+                 NonLinearEvolutionProblemImplementation<false>&,
                  const real,
                  const real) override;
     //! \brief destructor

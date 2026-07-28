@@ -59,6 +59,12 @@ namespace mfem_mgis {
      */
     MeshDiscretization(const Parameters&);
     /*!
+     * \brief constructor with profiling support
+     * \param[in] params: parameters describing the mesh
+     * \param[in, out] ctx: execution context used for profiling
+     */
+    MeshDiscretization(const Parameters&, mgis::Context&);
+    /*!
      * \brief constructor
      * \param[in] m: mesh
      */
