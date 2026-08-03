@@ -26,6 +26,9 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
+
+  auto ctx = mfem_mgis::Context{};
+
   constexpr auto pi = mfem_mgis::real{3.14159265358979323846};
   constexpr auto Gc = mfem_mgis::real{1};
   constexpr auto l0 = mfem_mgis::real{0.1};
@@ -102,12 +105,11 @@ int main(int argc, char** argv) {
     if (!problem.solve(t, dt)) {
       mfem_mgis::raise("non convergence");
     }
-    problem.executePostProcessings(t, dt);
+    problem.executePostProcessings(ctx, t, dt);
     problem.update();
     t += dt;
   }
   //
-  auto ctx = mfem_mgis::Context{};
   const auto osuccess = mfem_mgis::compareToAnalyticalSolution(
       ctx, problem,
       [](mfem::Vector& u, const mfem::Vector& x) {

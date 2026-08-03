@@ -61,6 +61,8 @@ int main(int argc, char* argv[]) {
   /** mpi initialization here, note that this command initializes the timers */
   mfem_mgis::initialize(argc, argv);
 
+  mgis::Context ctx;
+
   // get parameters
   TestParameters p;
   double time = 0.0;
@@ -193,8 +195,8 @@ int main(int argc, char* argv[]) {
   problem.update();
 
   /** Run post processings previously defined */
-  problem.executePostProcessings(time, dt);
+  problem.executePostProcessings(ctx, time, dt);
 
-  mfem_mgis::Profiler::timers::print_timers();
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return 0;
 }

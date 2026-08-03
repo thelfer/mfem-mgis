@@ -173,6 +173,9 @@ buildMicromorphicProblem(
 }
 
 int main(int argc, char** argv) {
+
+  auto ctx = mgis::Context{};
+
   constexpr auto iter_max = mfem_mgis::size_type{200};
   auto test_parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
@@ -279,8 +282,8 @@ int main(int argc, char** argv) {
         mfem_mgis::raise("non convergence of the fixed-point problem");
       }
     }
-    mechanical_problem->executePostProcessings(t, dt);
-    micromorphic_problem->executePostProcessings(t, dt);
+    mechanical_problem->executePostProcessings(ctx, t, dt);
+    micromorphic_problem->executePostProcessings(ctx, t, dt);
     mechanical_problem->update();
     micromorphic_problem->update();
     t += dt;

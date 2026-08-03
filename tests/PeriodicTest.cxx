@@ -268,7 +268,10 @@ void executeMFEMMGISTest(const TestParameters& p) {
     if (!problem.solve(0, 1)) {
       mfem_mgis::abort(EXIT_FAILURE);
     }
-    problem.executePostProcessings(0, 1);
+
+    auto ctx = mgis::Context{};
+
+    problem.executePostProcessings(ctx, 0, 1);
     //
     if (!checkSolution(problem, p.tcase)) {
       mfem_mgis::abort(EXIT_FAILURE);
@@ -278,9 +281,10 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
 int main(int argc, char* argv[]) {
   mfem_mgis::initialize(argc, argv);
-  mfem_mgis::Profiler::timers::init_timers();
+  auto ctx = mgis::Context{};
+  ctx.enableProfiling(true);
   const auto p = parseCommandLineOptions(argc, argv);
   executeMFEMMGISTest(p);
-  mfem_mgis::Profiler::timers::print_and_write_timers();
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return EXIT_SUCCESS;
 }

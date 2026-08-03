@@ -84,7 +84,7 @@ void add_post_processings(Problem& p, std::string msg) {
 template <typename Problem>
 void execute_post_processings(mgis::Context& ctx, Problem& p, double start, double end) {
   CatchTimeSection(ctx, "common::post_processing_step");
-  p.executePostProcessings(start, end);
+  p.executePostProcessings(ctx, start, end);
 }
 
 void setup_properties(mgis::Context& ctx, const TestParameters& p, 
@@ -220,6 +220,6 @@ int main(int argc, char* argv[]) {
   if (use_post_processing) execute_post_processings(ctx, problem, 0, 1);
 
   // print and write timetable
-  mfem_mgis::Profiler::timers::print_and_write_timers(ctx);
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return (EXIT_SUCCESS);
 }

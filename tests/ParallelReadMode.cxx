@@ -277,7 +277,8 @@ void executeMFEMMGISTest(const TestParameters& p) {
     if (!problem.solve(0, 1)) {
       mfem_mgis::abort(EXIT_FAILURE);
     }
-    problem.executePostProcessings(0, 1);
+    auto ctx = mfem_mgis::Context{};
+    problem.executePostProcessings(ctx, 0, 1);
     //
     if (!checkSolution(problem, p.tcase)) {
       mfem_mgis::abort(EXIT_FAILURE);
