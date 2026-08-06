@@ -133,6 +133,8 @@ mfem_mgis_header(MFEMMGIS/PostProcessing PointsSetCurves.hxx)
 mfem_mgis_header(MFEMMGIS/PostProcessing PointsSetCurvesWriter.hxx)
 mfem_mgis_header(MFEMMGIS/PostProcessing PointsSetCurvesPostProcessing.hxx)
 
+mfem_mgis_header(MFEMMGIS AbstractAdditionalConvergenceCriterion.hxx)
+
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   mfem_mgis_header(MFEMMGIS MechanicalPostProcessings.hxx)
   mfem_mgis_header(MFEMMGIS PartialQuadratureFunctionsSet.hxx)

@@ -36,6 +36,35 @@ namespace mfem_mgis {
   NewtonSolver::NewtonSolver(NonLinearEvolutionProblemImplementation<false> &p)
       : NonLinearSolverBase(p) {}  // end of NewtonSolver
 
+  
+  void NewtonSolver::addAdditionalConvergenceCheck(std::unique_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> cv_check) {
+    // TODO
+    //CatchTimeSection("NS::addAdditionalConvergenceCheck);
+    this->acc_actions.push_back(std::move(cv_check));
+
+  } // end of addAdditionalConvergenceCheck
+
+  /* // Unused ? Because of the change from std::function to a struct */
+  bool NewtonSolver::processAdditionalConvergenceCheck(Context& ctx, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
+    //TODO
+    //CatchTimeSection("NS::processAdditionalConvergenceCheck");
+    for (auto& a : this->acc_actions) {
+      if (!a->check(ctx,s)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of processAdditionalConvergenceCheck
+
+  void NewtonSolver::processAdditionalConvergenceReset()  {
+    //TODO
+    //CatchTimeSection("NS::processAdditionalConvergenceReset");
+    for (auto& a : this->acc_actions) {
+      a->reset();
+    }
+  }  // end of processAdditionalConvergenceCheck
+
+
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     auto profiler_mult =
         this->ctx_ptr != nullptr
@@ -173,11 +202,22 @@ namespace mfem_mgis {
           break;
         }
       }
-
+     
       updateResidual();
       previous_norms[0] = previous_norms[1];
       previous_norms[1] = norm;
       norm = this->Norm(r);
+     
+      this->processAdditionalConvergenceCheck(*this->ctx_ptr, {
+          .residual_norm = norm,
+          .reference_residual_norm = this->reference_residual_norm.value(),
+          .iter = it ,
+          .max_iter = this->max_iter,
+          .converged = this->converged,
+          .u = x
+          }
+          );
+ 
       ++it;
     }
     this->final_iter = it;
