@@ -446,6 +446,7 @@ namespace mfem_mgis {
     return this->boundary_conditions;
   }  // end of getBoundaryConditions
 
+  // TODO add getSolver and reset here once the additional convergence criterion struct is made
   bool NonLinearEvolutionProblemImplementationBase::setup(
       Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection(ctx, "NLEPIB::setup");
@@ -470,6 +471,8 @@ namespace mfem_mgis {
       }
       return true;
     }();
+    NewtonSolver& s = this->getSolver();
+    s.processAdditionalConvergenceReset(); 
     return isTrueOnAllProcesses(*(this->fe_discretization), success);
   }  // end of setup
 
@@ -546,6 +549,9 @@ namespace mfem_mgis {
     return this->prediction_policy;
   }  // end of getPredictionPolicy
 
+  NewtonSolver& NonLinearEvolutionProblemImplementationBase::getSolver() noexcept {
+    return *this->solver; 
+  }  // end of getSolver
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       const real t, const real dt) {
     auto ctx = Context{};
