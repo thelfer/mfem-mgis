@@ -34,10 +34,13 @@ namespace mfem_mgis {
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(const Parameters& p) {
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
+    auto ctx = Context{};
     const auto h = mgis::behaviour::fromString(get<std::string>(
         throwing, p, NonLinearEvolutionProblem::HypothesisParameter));
     const auto fed = std::make_shared<FiniteElementDiscretization>(
+        ctx,
         extract(throwing, p, FiniteElementDiscretization::getParametersList()));
+
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
@@ -57,22 +60,26 @@ namespace mfem_mgis {
                                                        const Hypothesis h,
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
-            std::make_shared<FiniteElementDiscretization>(
-                m,
-                extract(throwing,
-                        p,
-                        FiniteElementDiscretization::getParametersList())),
+            [&m, &p]() {
+              auto ctx = Context{};
+              return std::make_shared<FiniteElementDiscretization>(
+                  ctx, m,
+                  extract(throwing, p,
+                          FiniteElementDiscretization::getParametersList()));
+            }(),
             h,
             p) {}  // end of NonLinearEvolutionProblem
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
-            std::make_shared<FiniteElementDiscretization>(
-                m,
-                extract(throwing,
-                        p,
-                        FiniteElementDiscretization::getParametersList())),
+            [&m, &p]() {
+              auto ctx = Context{};
+              return std::make_shared<FiniteElementDiscretization>(
+                  ctx, m,
+                  extract(throwing, p,
+                          FiniteElementDiscretization::getParametersList()));
+            }(),
             mgis::behaviour::fromString(get<std::string>(
                 throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
             remove(p, {NonLinearEvolutionProblem::HypothesisParameter})) {

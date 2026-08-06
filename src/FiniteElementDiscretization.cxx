@@ -97,31 +97,7 @@ namespace mfem_mgis {
   }  // end of buildFiniteElementCollectionAndSpace
 
 
-  /* ========================================================================= */
-  /* === Surcharges des Constructeurs : Version AVEC et SANS chronométrage === */
-  /* ========================================================================= */
-
-  // 1A. Version SANS Profilage
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      const MeshDiscretization& m, const Parameters& params)
-      : MeshDiscretization(m) {
-    checkParameters(throwing, params,
-                    FiniteElementDiscretization::getParametersList());
-    if (this->describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      std::tie(this->fec, this->parallel_fe_space) =
-          buildFiniteElementCollectionAndSpace<true>(*this, params);
-#else
-      reportUnsupportedParallelComputations();
-#endif
-    } else {
-      std::tie(this->fec, this->sequential_fe_space) =
-          buildFiniteElementCollectionAndSpace<false>(*this, params);
-    }
-  }  // end of FiniteElementDiscretization (without ctx)
-
-  // 1B. Version AVEC Profilage
-  FiniteElementDiscretization::FiniteElementDiscretization(
+FiniteElementDiscretization::FiniteElementDiscretization(
       mgis::Context& ctx, const MeshDiscretization& m, const Parameters& params)
       : MeshDiscretization(m) {
     CatchTimeSection(ctx, "FED::Constructor");
@@ -138,23 +114,8 @@ namespace mfem_mgis {
       std::tie(this->fec, this->sequential_fe_space) =
           buildFiniteElementCollectionAndSpace<false>(*this, params);
     }
-  }  // end of FiniteElementDiscretization (with ctx)
+  }  // end of FiniteElementDiscretization
 
-  // 2A. Version SANS Profilage
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      std::shared_ptr<Mesh<true>> m, const Parameters& params)
-      : MeshDiscretization(m) {
-    checkParameters(throwing, params,
-                    FiniteElementDiscretization::getParametersList());
-#ifdef MFEM_USE_MPI
-    std::tie(this->fec, this->parallel_fe_space) =
-        buildFiniteElementCollectionAndSpace<true>(*this, params);
-#else
-    reportUnsupportedParallelComputations();
-#endif
-  }  // end of FiniteElementDiscretization (without ctx)
-
-  // 2B. Version AVEC Profilage
   FiniteElementDiscretization::FiniteElementDiscretization(
       mgis::Context& ctx, std::shared_ptr<Mesh<true>> m, const Parameters& params)
       : MeshDiscretization(m) {
@@ -167,9 +128,8 @@ namespace mfem_mgis {
 #else
     reportUnsupportedParallelComputations();
 #endif
-  }  // end of FiniteElementDiscretization (with ctx)
+  }  // end of FiniteElementDiscretization
 
-  // 3. Constructeur Mesh<false> (Non modifié, n'avait pas de profilage)
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<false>> m, const Parameters& params)
       : MeshDiscretization(m) {
@@ -177,27 +137,6 @@ namespace mfem_mgis {
         buildFiniteElementCollectionAndSpace<false>(*this, params);
   }  // end of FiniteElementDiscretization
 
-  // 4A. Version SANS Profilage
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      const Parameters& params)
-      : MeshDiscretization(extract(
-            throwing, params, MeshDiscretization::getParametersList())) {
-    if (this->describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      std::tie(this->fec, this->parallel_fe_space) =
-          buildFiniteElementCollectionAndSpace<true>(
-              *this, remove(params, MeshDiscretization::getParametersList()));
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    } else {
-      std::tie(this->fec, this->sequential_fe_space) =
-          buildFiniteElementCollectionAndSpace<false>(
-              *this, remove(params, MeshDiscretization::getParametersList()));
-    }
-  }  // end of FiniteElementDiscretization (without ctx)
-
-  // 4B. Version AVEC Profilage
   FiniteElementDiscretization::FiniteElementDiscretization(
       mgis::Context& ctx, const Parameters& params)
       : MeshDiscretization(extract(
@@ -216,12 +155,7 @@ namespace mfem_mgis {
           buildFiniteElementCollectionAndSpace<false>(
               *this, remove(params, MeshDiscretization::getParametersList()));
     }
-  }  // end of FiniteElementDiscretization (with ctx)
-
-
-  /* ========================================================================= */
-  /* === Suite des constructeurs intacts ===================================== */
-  /* ========================================================================= */
+  }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       std::shared_ptr<Mesh<true>> m,

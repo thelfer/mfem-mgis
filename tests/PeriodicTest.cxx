@@ -199,11 +199,11 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   return p;
 }
 
-void executeMFEMMGISTest(const TestParameters& p) {
+void executeMFEMMGISTest(mgis::Context& ctx, const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
-  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(ctx, 
       mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
                             {"FiniteElementFamily", "H1"},
                             {"FiniteElementOrder", p.order},
@@ -215,7 +215,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
     // building the non linear problem
     std::vector<mfem_mgis::real> corner1({0., 0., 0.});
     std::vector<mfem_mgis::real> corner2({xmax, xmax, xmax});
-    mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed, corner1, corner2);
+    mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed, corner1, corner2);
     problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
     problem.addBehaviourIntegrator("Mechanics", 2, p.library, "Elasticity");
     // materials
@@ -284,7 +284,7 @@ int main(int argc, char* argv[]) {
   auto ctx = mgis::Context{};
   ctx.enableProfiling(true);
   const auto p = parseCommandLineOptions(argc, argv);
-  executeMFEMMGISTest(p);
+  executeMFEMMGISTest(ctx, p);
   mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return EXIT_SUCCESS;
 }

@@ -22,13 +22,6 @@ namespace mfem_mgis {
   struct ParaviewExportResults final : public PostProcessing<parallel> {
     /*!
      * \brief constructor
-     * \param[in] p: non linear problem
-     * \param[in] params: parameters passed to the post-processing
-     */
-    ParaviewExportResults(NonLinearEvolutionProblemImplementation<parallel>&,
-                          const Parameters&);
-    /*!
-     * \brief constructor
      * \param[in] ctx: context
      * \param[in] p: non linear problem
      * \param[in] params: parameters passed to the post-processing

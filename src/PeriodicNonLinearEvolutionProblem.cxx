@@ -299,27 +299,6 @@ namespace mfem_mgis {
   }  // end of setPeriodicBoundaryConditions
 
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
-      std::shared_ptr<FiniteElementDiscretization> fed,
-      const std::span<const real>& corner1,
-      const std::span<const real>& corner2)
-      : NonLinearEvolutionProblem(fed,
-                                  mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
-    if (fed->describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      setPeriodicBoundaryConditions(this->getImplementation<true>(), corner1,
-                                    corner2);
-#else
-      raise(
-          "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
-          "unsupported parallel computations");
-#endif
-    } else {
-      setPeriodicBoundaryConditions(this->getImplementation<false>(), corner1,
-                                    corner2);
-    }
-  }  // end of PeriodicNonLinearEvolutionProblem
-
-  PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
       mgis::Context& ctx,
       std::shared_ptr<FiniteElementDiscretization> fed,
       const std::span<const real>& corner1,
@@ -339,24 +318,6 @@ namespace mfem_mgis {
     } else {
       setPeriodicBoundaryConditions(ctx, this->getImplementation<false>(), corner1,
                                     corner2);
-    }
-  }  // end of PeriodicNonLinearEvolutionProblem
-
-  PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
-      std::shared_ptr<FiniteElementDiscretization> fed,
-      const mfem_mgis::BoundaryConditionType bct)
-      : NonLinearEvolutionProblem(fed,
-                                  mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
-    if (fed->describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      setPeriodicBoundaryConditions(this->getImplementation<true>(), bct);
-#else
-      raise(
-          "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
-          "unsupported parallel computations");
-#endif
-    } else {
-      setPeriodicBoundaryConditions(this->getImplementation<false>(), bct);
     }
   }  // end of PeriodicNonLinearEvolutionProblem
 

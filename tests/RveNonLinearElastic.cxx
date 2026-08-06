@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
   constexpr const auto dim = mfem_mgis::size_type{3};
 
   // creating the finite element workspace
-  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(ctx, 
       mfem_mgis::Parameters{
           {"MeshFileName", p.mesh_file},
           {"FiniteElementFamily", "H1"},
@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) {
           {"UnknownsSize", dim},
           {"NumberOfUniformRefinements", p.parallel ? p.refinement : 0},
           {"Parallel", bool(p.parallel)}});
-  mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);
+  mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed);
 
   // set problem
   setup_properties(ctx, p, problem);
