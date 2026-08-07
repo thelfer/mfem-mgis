@@ -10,14 +10,19 @@
 
 namespace mfem_mgis {
 
-  NonLinearModel::NonLinearModel(MeshDiscretization &m,
+  NonLinearModel::NonLinearModel(Context& ctx,
+                                 MeshDiscretization &m,
                                  const Parameters &parameters)
       : ModelBase(
+            ctx,
             m,
             extract(
                 throwing, parameters, ModelBase::getParametersDescription())),
+        // IL MANQUAIT LE CONTEXTE ICI :
         problem(std::make_shared<NonLinearEvolutionProblem>(
-            m, remove(parameters, ModelBase::getParametersDescription()))) {
+            ctx,
+            m, 
+            remove(parameters, ModelBase::getParametersDescription()))) {
     auto valid_parameters = NonLinearEvolutionProblem::getParametersList();
     for (const auto &[k, d] : ModelBase::getParametersDescription()) {
       static_cast<void>(d);
@@ -26,8 +31,9 @@ namespace mfem_mgis {
     checkParameters(throwing, parameters, valid_parameters);
   }
 
-  NonLinearModel::NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem> p)
-      : ModelBase(p->getFiniteElementDiscretization()), problem(p) {
+  NonLinearModel::NonLinearModel(Context& ctx, std::shared_ptr<NonLinearEvolutionProblem> p)
+      : ModelBase(ctx, p->getFiniteElementDiscretization()), // <--- IL MANQUAIT LE CONTEXTE ICI
+        problem(p) {
     if (p.get() == nullptr) {
       raise("invalid problem");
     }

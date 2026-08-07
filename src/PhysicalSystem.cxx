@@ -231,7 +231,7 @@ namespace mfem_mgis {
     if (m->getMeshDiscretization() != this->mesh) {
       return ctx.registerErrorMessage("inconsistent meshes");
     }
-    auto c = make_shared<LoopCouplingScheme>(ctx, this->mesh);
+    auto c = make_shared<LoopCouplingScheme>(ctx, std::ref(this->mesh));
     if (isInvalid(c)) {
       return false;
     }

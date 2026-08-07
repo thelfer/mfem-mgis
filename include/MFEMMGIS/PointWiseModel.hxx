@@ -21,10 +21,12 @@ namespace mfem_mgis {
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] qspace: partial quadrature space
      * \param[in] parameters: parameters
      */
-    PointWiseModel(std::shared_ptr<const PartialQuadratureSpace>,
+    PointWiseModel(Context &,
+                   std::shared_ptr<const PartialQuadratureSpace>,
                    const Parameters &);
     //! \brief return the underlying material
     Material &getMaterial() noexcept;

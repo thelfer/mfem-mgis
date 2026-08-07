@@ -247,10 +247,11 @@ namespace mfem_mgis {
 
   NonLinearEvolutionProblemImplementation<true>::
       NonLinearEvolutionProblemImplementation(
+          Context& ctx,
           std::shared_ptr<FiniteElementDiscretization> fed,
           const Hypothesis h,
           const Parameters& p)
-      : NonLinearEvolutionProblemImplementationBase(fed, h, p),
+      : NonLinearEvolutionProblemImplementationBase(ctx, fed, h, p),
         mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())),
         unknowns0(&(fed->getFiniteElementSpace<true>()), this->u0),
         unknowns1(&(fed->getFiniteElementSpace<true>()), this->u1) {
@@ -491,10 +492,11 @@ namespace mfem_mgis {
 
   NonLinearEvolutionProblemImplementation<false>::
       NonLinearEvolutionProblemImplementation(
+          Context& ctx,
           std::shared_ptr<FiniteElementDiscretization> fed,
           const Hypothesis h,
           const Parameters& p)
-      : NonLinearEvolutionProblemImplementationBase(fed, h, p),
+      : NonLinearEvolutionProblemImplementationBase(ctx, fed, h, p),
         mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())),
         unknowns0(&(fed->getFiniteElementSpace<false>()), this->u0),
         unknowns1(&(fed->getFiniteElementSpace<false>()), this->u1) {

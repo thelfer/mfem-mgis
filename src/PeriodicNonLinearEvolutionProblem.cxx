@@ -303,7 +303,7 @@ namespace mfem_mgis {
       std::shared_ptr<FiniteElementDiscretization> fed,
       const std::span<const real>& corner1,
       const std::span<const real>& corner2)
-      : NonLinearEvolutionProblem(fed,
+      : NonLinearEvolutionProblem(ctx, fed,
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
     CatchTimeSection(ctx, "PeriodicNonLinEvPB::constructor_with_corners");
     if (fed->describesAParallelComputation()) {
@@ -325,7 +325,7 @@ namespace mfem_mgis {
       mgis::Context& ctx,
       std::shared_ptr<FiniteElementDiscretization> fed,
       const mfem_mgis::BoundaryConditionType bct)
-      : NonLinearEvolutionProblem(fed,
+      : NonLinearEvolutionProblem(ctx, fed,
                                   mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
     CatchTimeSection(ctx, "PeriodicNonLinEvPB::constructor_with_bct");
     if (fed->describesAParallelComputation()) {

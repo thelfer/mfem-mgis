@@ -29,8 +29,8 @@ namespace mfem_mgis {
     return {};
   }  // end of getParametersDescription
 
-  IterativeCouplingScheme::IterativeCouplingScheme(const MeshDiscretization &m)
-      : CouplingSchemeBase(m) {}  // end of IterativeCouplingScheme
+  IterativeCouplingScheme::IterativeCouplingScheme(Context& ctx, const MeshDiscretization &m)
+      : CouplingSchemeBase(ctx, m) {}  // end of IterativeCouplingScheme
 
   bool IterativeCouplingScheme::setMaximumNumberOfIterations(
       Context &ctx, const size_type n) noexcept {

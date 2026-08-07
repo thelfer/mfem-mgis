@@ -20,6 +20,7 @@
 
 static std::shared_ptr<mfem_mgis::NonLinearEvolutionProblem>
 buildMechanicalProblem(
+    mgis::Context& ctx,
     const mfem_mgis::unit_tests::TestParameters& test_parameters,
     const mfem_mgis::Parameters& common_problem_parameters) {
   constexpr auto E = mfem_mgis::real{200};
@@ -28,7 +29,7 @@ buildMechanicalProblem(
   auto lparameters = common_problem_parameters;
   lparameters.insert(mfem_mgis::throwing, {{"UnknownsSize", 2}});
   auto problem =
-      std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(lparameters);
+      std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(ctx, lparameters);
   problem->addBehaviourIntegrator("Mechanics", "beam", test_parameters.library,
                                   "MicromorphicDamageI_SpectralSplit");
   auto& m = problem->getMaterial("beam");
@@ -87,6 +88,7 @@ buildMechanicalProblem(
 
 static std::shared_ptr<mfem_mgis::NonLinearEvolutionProblem>
 buildMicromorphicProblem(
+    mgis::Context& ctx,
     const mfem_mgis::unit_tests::TestParameters& test_parameters,
     const mfem_mgis::Parameters& common_problem_parameters) {
   constexpr auto Gc = mfem_mgis::real{1};
@@ -95,7 +97,7 @@ buildMicromorphicProblem(
   auto lparameters = common_problem_parameters;
   lparameters.insert(mfem_mgis::throwing, {{"UnknownsSize", 1}});
   auto problem =
-      std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(lparameters);
+      std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(ctx, lparameters);
   problem->addBehaviourIntegrator("MicromorphicDamage", "beam",
                                   test_parameters.library,
                                   test_parameters.behaviour);
@@ -163,9 +165,9 @@ int main(int argc, char** argv) {
            {"left", 3}, {"right", 1}, {"upper", 6}, {"lower", 7}}},
       {"Parallel", bool(test_parameters.parallel)}};
   auto mechanical_problem =
-      buildMechanicalProblem(test_parameters, common_problem_parameters);
+      buildMechanicalProblem(ctx, test_parameters, common_problem_parameters);
   auto micromorphic_problem =
-      buildMicromorphicProblem(test_parameters, common_problem_parameters);
+      buildMicromorphicProblem(ctx, test_parameters, common_problem_parameters);
   // solving the problem in 5 time steps, put t1 to 1 and nstep to 100 for the
   // full simulation
   const auto t0 = mfem_mgis::real{0};

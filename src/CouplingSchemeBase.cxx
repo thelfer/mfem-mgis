@@ -46,13 +46,14 @@ namespace mfem_mgis {
     ctx.setLogStream(s.log_stream);
   }  // end of restore
 
-  CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m) noexcept
+  CouplingSchemeBase::CouplingSchemeBase(Context& ctx, const MeshDiscretization &m) noexcept
       : mesh(m) {}
 
-  CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m,
+  CouplingSchemeBase::CouplingSchemeBase(Context& ctx, 
+                                         const MeshDiscretization &m,
                                          const Parameters &parameters)
       : mesh(m) {
-    auto ctx = Context{};
+        
     auto or_raise = ctx.getThrowingFailureHandler();
     checkParameters(ctx, parameters,
                     CouplingSchemeBase::getParametersDescription()) |

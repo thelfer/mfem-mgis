@@ -17,8 +17,8 @@ namespace mfem_mgis {
 
   //! \brief a model based on a nonlinear evolution problem
   struct MFEM_MGIS_EXPORT NonLinearModel : ModelBase {
-    NonLinearModel(MeshDiscretization &, const Parameters &);
-    NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem>);
+    NonLinearModel(Context &, MeshDiscretization &, const Parameters &);
+    NonLinearModel(Context &, std::shared_ptr<NonLinearEvolutionProblem>);
     //
     [[nodiscard]] NonLinearEvolutionProblem &getProblem() noexcept;
     [[nodiscard]] const NonLinearEvolutionProblem &getProblem() const noexcept;

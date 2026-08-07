@@ -193,16 +193,16 @@ namespace mfem_mgis {
     return r;
   }
 
-  Simulation::Simulation(AbstractNonLinearEvolutionProblem &p,
+  Simulation::Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &p,
                          const Parameters &parameters)
       : nonlinearEvolutionProblem(&p),
         timesDescription(::mfem_mgis::getTimes(throwing, parameters)),
         keepOutputs(get_if(throwing, parameters, "KeepOutputs", false)) {
-    this->treatParameters(throwing, parameters);
+    this->treatParameters(ctx, parameters);
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(AbstractNonLinearEvolutionProblem &p,
+  Simulation::Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &p,
                          const TimesDescription &times)
       : nonlinearEvolutionProblem(&p),
         timesDescription(times),
@@ -210,7 +210,7 @@ namespace mfem_mgis {
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(AbstractNonLinearEvolutionProblem &p,
+  Simulation::Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &p,
                          const std::initializer_list<real> &times)
       : nonlinearEvolutionProblem(&p),
         timesDescription(times),
@@ -218,26 +218,26 @@ namespace mfem_mgis {
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(PhysicalSystem &ps, const Parameters &parameters)
+  Simulation::Simulation(Context &ctx, PhysicalSystem &ps, const Parameters &parameters)
       : physicalSystem(&ps),
         timesDescription(::mfem_mgis::getTimes(throwing, parameters)),
         keepOutputs(get_if(throwing, parameters, "KeepOutputs", false)) {
-    this->treatParameters(throwing, parameters);
+    this->treatParameters(ctx, parameters);
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(PhysicalSystem &ps, const TimesDescription &times)
+  Simulation::Simulation(Context &ctx, PhysicalSystem &ps, const TimesDescription &times)
       : physicalSystem(&ps), timesDescription(times), keepOutputs(false) {
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(PhysicalSystem &ps,
+  Simulation::Simulation(Context &ctx, PhysicalSystem &ps,
                          const std::initializer_list<real> &times)
       : physicalSystem(&ps), timesDescription(times), keepOutputs(false) {
     this->completeInitialization();
   }  // end of Simulation
 
-  void Simulation::treatParameters(attributes::Throwing,
+  void Simulation::treatParameters(Context& ctx,
                                    const Parameters &parameters) {
     checkParameters(throwing, parameters,
                     Simulation::getParametersDescription());
@@ -438,7 +438,6 @@ namespace mfem_mgis {
       }
     }
     if (contains(parameters, "Monitors")) {
-      auto ctx = Context{};
       for (const auto &m :
            get<std::vector<Parameter>>(throwing, parameters, "Monitors")) {
         const auto [n, mparams] =

@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
   mfem_mgis::unit_tests::parseCommandLineOptions(parameters, argc, argv);
   auto success = true;
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(
+  mfem_mgis::NonLinearEvolutionProblem problem(ctx,
       {{"MeshFileName", parameters.mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", parameters.order},

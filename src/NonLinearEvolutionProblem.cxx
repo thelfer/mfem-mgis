@@ -31,10 +31,10 @@ namespace mfem_mgis {
     return params;
   }  // end of getParametersList
 
-  NonLinearEvolutionProblem::NonLinearEvolutionProblem(const Parameters& p) {
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(Context& ctx,
+                                                       const Parameters& p) {
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
-    auto ctx = Context{};
     const auto h = mgis::behaviour::fromString(get<std::string>(
         throwing, p, NonLinearEvolutionProblem::HypothesisParameter));
     const auto fed = std::make_shared<FiniteElementDiscretization>(
@@ -45,49 +45,50 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
           NonLinearEvolutionProblemImplementation<true>;
-      this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
+      this->pimpl = std::make_unique<ParallelImplementation>(ctx, fed, h, p);
 #else
       raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
     } else {
-      this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
+      this->pimpl = std::make_unique<SequentialImplementation>(ctx, fed, h, p);
     }
   }  // end of NonLinearEvolutionProblem
 
-  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(Context& ctx,
+                                                       MeshDiscretization& m,
                                                        const Hypothesis h,
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
-            [&m, &p]() {
-              auto ctx = Context{};
-              return std::make_shared<FiniteElementDiscretization>(
-                  ctx, m,
-                  extract(throwing, p,
-                          FiniteElementDiscretization::getParametersList()));
-            }(),
+            ctx,
+            std::make_shared<FiniteElementDiscretization>(
+                ctx, m,
+                extract(throwing, p,
+                        FiniteElementDiscretization::getParametersList())),
             h,
             p) {}  // end of NonLinearEvolutionProblem
 
-  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(Context& ctx,
+                                                       MeshDiscretization& m,
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
-            [&m, &p]() {
-              auto ctx = Context{};
-              return std::make_shared<FiniteElementDiscretization>(
-                  ctx, m,
-                  extract(throwing, p,
-                          FiniteElementDiscretization::getParametersList()));
-            }(),
+            ctx,
+            std::make_shared<FiniteElementDiscretization>(
+                ctx, m,
+                extract(throwing, p,
+                        FiniteElementDiscretization::getParametersList())),
             mgis::behaviour::fromString(get<std::string>(
                 throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
             remove(p, {NonLinearEvolutionProblem::HypothesisParameter})) {
   }  // end of NonLinearEvolutionProblem
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
-      std::shared_ptr<FiniteElementDiscretization> fed, const Parameters& p)
+      Context& ctx,
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const Parameters& p)
       : NonLinearEvolutionProblem(
+            ctx,
             fed,
             mgis::behaviour::fromString(get<std::string>(
                 throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
@@ -95,6 +96,7 @@ namespace mfem_mgis {
   }  // end of NonLinearEvolutionProblem
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
+      Context& ctx,
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
       const Parameters& p) {
@@ -111,14 +113,14 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
           NonLinearEvolutionProblemImplementation<true>;
-      this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
+      this->pimpl = std::make_unique<ParallelImplementation>(ctx, fed, h, p);
 #else
       raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
     } else {
-      this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
+      this->pimpl = std::make_unique<SequentialImplementation>(ctx, fed, h, p);
     }
   }  // end of NonLinearEvolutionProblem
 

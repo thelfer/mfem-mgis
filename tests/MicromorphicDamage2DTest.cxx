@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     mfem_mgis::abort("no internal state variable expected");
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(
+  mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
       {{"MeshFileName", parameters.mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", parameters.order},

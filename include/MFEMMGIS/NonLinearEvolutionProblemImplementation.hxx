@@ -40,11 +40,13 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblemImplementation(
+        Context& ctx,
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
         const Parameters&);
@@ -143,6 +145,7 @@ namespace mfem_mgis {
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblemImplementation(
+        Context& ctx,
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
         const Parameters&);

@@ -37,6 +37,7 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: parameters.
      *
      * The following parameters are the most common (see also the
@@ -52,9 +53,10 @@ namespace mfem_mgis {
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
-    NonLinearEvolutionProblem(const Parameters &);
+    NonLinearEvolutionProblem(Context& ctx, const Parameters &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] p: parameters use to initialize the underlying finite element
      * discretization
@@ -69,9 +71,10 @@ namespace mfem_mgis {
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
-    NonLinearEvolutionProblem(MeshDiscretization &, const Parameters &);
+    NonLinearEvolutionProblem(Context& ctx, MeshDiscretization &, const Parameters &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters use to initialize the underlying finite element
@@ -86,23 +89,28 @@ namespace mfem_mgis {
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
-    NonLinearEvolutionProblem(MeshDiscretization &,
+    NonLinearEvolutionProblem(Context& ctx, 
+                              MeshDiscretization &,
                               const Hypothesis,
                               const Parameters & = Parameters());
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] p: parameters
      */
-    NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
+    NonLinearEvolutionProblem(Context& ctx, 
+                              std::shared_ptr<FiniteElementDiscretization>,
                               const Parameters &);
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
-    NonLinearEvolutionProblem(std::shared_ptr<FiniteElementDiscretization>,
+    NonLinearEvolutionProblem(Context& ctx, 
+                              std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis,
                               const Parameters & = Parameters());
     //! \return the implementation

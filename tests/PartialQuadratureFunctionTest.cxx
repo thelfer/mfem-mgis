@@ -19,6 +19,8 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
+
+  auto ctx = mgis::Context{};
   constexpr const auto dim = mfem_mgis::size_type{3};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
@@ -26,7 +28,7 @@ int main(int argc, char** argv) {
   mfem_mgis::unit_tests::parseCommandLineOptions(parameters, argc, argv);
   auto success = true;
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(
+  mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
       {{"MeshFileName", parameters.mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", parameters.order},
