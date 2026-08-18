@@ -229,7 +229,7 @@ namespace mfem_mgis {
         const std::function<void(const real, const real)>& fct)
         : f(fct) {}  // end of StdFunctionPostProcessing
     //
-    void execute(Context &ctx,
+    void execute(Context&,
                  NonLinearEvolutionProblemImplementation<parallel>&,
                  const real t,
                  const real dt) override {

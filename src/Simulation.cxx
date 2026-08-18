@@ -202,7 +202,7 @@ namespace mfem_mgis {
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &p,
+  Simulation::Simulation(Context&, AbstractNonLinearEvolutionProblem &p,
                          const TimesDescription &times)
       : nonlinearEvolutionProblem(&p),
         timesDescription(times),
@@ -210,7 +210,7 @@ namespace mfem_mgis {
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &p,
+  Simulation::Simulation(Context&, AbstractNonLinearEvolutionProblem &p,
                          const std::initializer_list<real> &times)
       : nonlinearEvolutionProblem(&p),
         timesDescription(times),
@@ -226,12 +226,12 @@ namespace mfem_mgis {
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(Context &ctx, PhysicalSystem &ps, const TimesDescription &times)
+  Simulation::Simulation(Context&, PhysicalSystem &ps, const TimesDescription &times)
       : physicalSystem(&ps), timesDescription(times), keepOutputs(false) {
     this->completeInitialization();
   }  // end of Simulation
 
-  Simulation::Simulation(Context &ctx, PhysicalSystem &ps,
+  Simulation::Simulation(Context&, PhysicalSystem &ps,
                          const std::initializer_list<real> &times)
       : physicalSystem(&ps), timesDescription(times), keepOutputs(false) {
     this->completeInitialization();

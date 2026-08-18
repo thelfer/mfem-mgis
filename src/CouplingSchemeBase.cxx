@@ -46,7 +46,7 @@ namespace mfem_mgis {
     ctx.setLogStream(s.log_stream);
   }  // end of restore
 
-  CouplingSchemeBase::CouplingSchemeBase(Context& ctx, const MeshDiscretization &m) noexcept
+  CouplingSchemeBase::CouplingSchemeBase(Context&, const MeshDiscretization &m) noexcept
       : mesh(m) {}
 
   CouplingSchemeBase::CouplingSchemeBase(Context& ctx, 

@@ -15,7 +15,7 @@ namespace mfem_mgis {
     return getCouplingItemParametersDescription();
   }  // end of getParametersDescription
 
-  ModelBase::ModelBase(Context& ctx, const MeshDiscretization &m) noexcept
+  ModelBase::ModelBase(Context&, const MeshDiscretization &m) noexcept
       : mesh(m) {}  // end of ModelBase
 
   ModelBase::ModelBase(Context& ctx,

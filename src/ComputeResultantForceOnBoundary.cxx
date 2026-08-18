@@ -66,7 +66,7 @@ namespace mfem_mgis {
   }  // end of ComputeResultantForceOnBoundary
 
   void ComputeResultantForceOnBoundary<true>::execute(
-      Context &ctx,
+      Context&,
       NonLinearEvolutionProblemImplementation<true>& p,
       const real t,
       const real dt) {
@@ -107,7 +107,7 @@ namespace mfem_mgis {
   }  // end of ComputeResultantForceOnBoundary
 
   void ComputeResultantForceOnBoundary<false>::execute(
-      Context &ctx,
+      Context&,
       NonLinearEvolutionProblemImplementation<false>& p,
       const real t,
       const real dt) {
