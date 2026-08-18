@@ -286,11 +286,11 @@ which penalizes the difference between the deformation gradient
 <p>This regularization is enabled by passing an additional parameter to the
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Mechanics</span></code> behaviour integrator, as follows:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">faltus_parameters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Regularization&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Regularization"</span><span class="p">,</span>
 <span class="w">     </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
-<span class="w">         </span><span class="p">{</span><span class="s">&quot;Faltus2026&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;PenalizationCoefficient&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e11</span><span class="p">}}}}}};</span>
-<span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Mechanics&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ThirdMedium&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">library</span><span class="p">,</span>
+<span class="w">         </span><span class="p">{</span><span class="s">"Faltus2026"</span><span class="p">,</span>
+<span class="w">          </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"PenalizationCoefficient"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e11</span><span class="p">}}}}}};</span>
+<span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"Mechanics"</span><span class="p">,</span><span class="w"> </span><span class="s">"ThirdMedium"</span><span class="p">,</span><span class="w"> </span><span class="n">library</span><span class="p">,</span>
 <span class="w">                                 </span><span class="n">behaviour2</span><span class="p">,</span><span class="w"> </span><span class="n">faltus_parameters</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">or_die</span><span class="p">;</span>
 </pre></div>
 </div>

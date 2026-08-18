@@ -125,8 +125,8 @@ via gmsh by specifying the <cite>MFEM</cite> input format with the <code class="
 </tr>
 </tbody>
 </table>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mfem_mgis</span><span class="p">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s2">&quot;MeshFileName&quot;</span><span class="p">,</span> <span class="s2">&quot;mesh-explorer.mesh.&quot;</span><span class="p">},</span>
-                      <span class="p">{</span><span class="s2">&quot;MeshReadMode&quot;</span><span class="p">,</span> <span class="s2">&quot;Restart&quot;</span><span class="p">},</span> <span class="o">...</span> <span class="p">}</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mfem_mgis</span><span class="p">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s2">"MeshFileName"</span><span class="p">,</span> <span class="s2">"mesh-explorer.mesh."</span><span class="p">},</span>
+                      <span class="p">{</span><span class="s2">"MeshReadMode"</span><span class="p">,</span> <span class="s2">"Restart"</span><span class="p">},</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -197,13 +197,13 @@ spack, but we will also add the installation procedure with cmake.</p>
 <li><p>One example is available here: tests/ParallelReadMode.cxx</p></li>
 </ul>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">fed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">FiniteElementDiscretization</span><span class="o">&gt;</span><span class="p">(</span>
-<span class="w">  </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;MeshFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;output-mesh.&quot;</span><span class="p">},</span>
-<span class="w">                        </span><span class="p">{</span><span class="s">&quot;MeshReadMode&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Restart&quot;</span><span class="p">},</span>
-<span class="w">                        </span><span class="p">{</span><span class="s">&quot;FiniteElementFamily&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;H1&quot;</span><span class="p">},</span>
-<span class="w">                        </span><span class="p">{</span><span class="s">&quot;FiniteElementOrder&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">order</span><span class="p">},</span>
-<span class="w">                        </span><span class="p">{</span><span class="s">&quot;UnknownsSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">dim</span><span class="p">},</span>
-<span class="w">                        </span><span class="p">{</span><span class="s">&quot;NumberOfUniformRefinements&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">parallel</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
-<span class="w">                        </span><span class="p">{</span><span class="s">&quot;Parallel&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">parallel</span><span class="p">}});</span>
+<span class="w">  </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"MeshFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"output-mesh."</span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span><span class="s">"MeshReadMode"</span><span class="p">,</span><span class="w"> </span><span class="s">"Restart"</span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span><span class="s">"FiniteElementFamily"</span><span class="p">,</span><span class="w"> </span><span class="s">"H1"</span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span><span class="s">"FiniteElementOrder"</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">order</span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span><span class="s">"UnknownsSize"</span><span class="p">,</span><span class="w"> </span><span class="n">dim</span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span><span class="s">"NumberOfUniformRefinements"</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">parallel</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span><span class="s">"Parallel"</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">parallel</span><span class="p">}});</span>
 </pre></div>
 </div>
 </section>

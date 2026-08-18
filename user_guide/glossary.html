@@ -218,7 +218,7 @@ function.</p>
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;MUMPSSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;Symmetric&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">}})</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"MUMPSSolver"</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">"Symmetric"</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">}})</span>
 </pre></div>
 </div>
 </section>
@@ -235,7 +235,7 @@ function.</p>
 <li><p>Parameters: None</p></li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;UMFPackSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{})</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"UMFPackSolver"</span><span class="p">,</span><span class="w"> </span><span class="p">{})</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -289,10 +289,10 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;CGSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span><span class="s">&quot;AbsoluteTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span><span class="s">&quot;RelativeTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">}</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"CGSolver"</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">          </span><span class="p">{</span><span class="s">"AbsoluteTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">          </span><span class="p">{</span><span class="s">"RelativeTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">          </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">}</span>
 <span class="w">          </span><span class="p">})</span>
 </pre></div>
 </div>
@@ -329,11 +329,11 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;GMRESSolver&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;AbsoluteTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;RelativeTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"GMRESSolver"</span><span class="p">,</span>
+<span class="w">        </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"AbsoluteTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"RelativeTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">}});</span>
 </pre></div>
 </div>
 </section>
@@ -369,11 +369,11 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;BiCGSTABSolver&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;AbsoluteTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;RelativeTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"BiCGSTABSolver"</span><span class="p">,</span>
+<span class="w">        </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"AbsoluteTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"RelativeTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">}});</span>
 </pre></div>
 </div>
 </section>
@@ -409,11 +409,11 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;MINRESSolver&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;AbsoluteTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;RelativeTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"MINRESSolver"</span><span class="p">,</span>
+<span class="w">        </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"AbsoluteTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"RelativeTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">}});</span>
 </pre></div>
 </div>
 </section>
@@ -449,11 +449,11 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;SLISolver&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;AbsoluteTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;RelativeTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"SLISolver"</span><span class="p">,</span>
+<span class="w">        </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"AbsoluteTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"RelativeTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">}});</span>
 </pre></div>
 </div>
 </section>
@@ -491,10 +491,10 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example with a Jacobi preconditioner:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;HyprePCG&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;Tolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;Preconditioner&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">diagscale</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"HyprePCG"</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"Tolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"Preconditioner"</span><span class="p">,</span><span class="w"> </span><span class="n">diagscale</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">}});</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -539,10 +539,10 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example with a  Parasail preconditioner:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;HypreGMRES&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">       </span><span class="p">{</span><span class="s">&quot;Tolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">       </span><span class="p">{</span><span class="s">&quot;Preconditioner&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">parasail</span><span class="p">},</span>
-<span class="w">       </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"HypreGMRES"</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">       </span><span class="p">{</span><span class="s">"Tolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">       </span><span class="p">{</span><span class="s">"Preconditioner"</span><span class="p">,</span><span class="w"> </span><span class="n">parasail</span><span class="p">},</span>
+<span class="w">       </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">}});</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -587,10 +587,10 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example with a ILU preconditioner:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;HypreFGMRES&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;Tolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;Preconditioner&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ilu</span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"HypreFGMRES"</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"Tolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-12</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"Preconditioner"</span><span class="p">,</span><span class="w"> </span><span class="n">ilu</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">}});</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -628,8 +628,8 @@ version.</p>
 <li><p>website: <a class="reference external" href="https://hypre.readthedocs.io/en/latest/solvers-boomeramg.html">https://hypre.readthedocs.io/en/latest/solvers-boomeramg.html</a></p></li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Strategy&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">}};</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">amg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;Name&quot;</span><span class="p">,</span><span class="s">&quot;HypreBoomerAMG&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Options&quot;</span><span class="p">,</span><span class="n">options</span><span class="p">}};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"Strategy"</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">}};</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">amg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"Name"</span><span class="p">,</span><span class="s">"HypreBoomerAMG"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"Options"</span><span class="p">,</span><span class="n">options</span><span class="p">}};</span>
 </pre></div>
 </div>
 <p><strong>Reference:</strong></p>
@@ -659,8 +659,8 @@ version.</p>
 <li><p>website: <a class="reference external" href="https://hypre.readthedocs.io/en/latest/solvers-euclid.html">https://hypre.readthedocs.io/en/latest/solvers-euclid.html</a></p></li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}};</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">euclid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;Name&quot;</span><span class="p">,</span><span class="s">&quot;HypreEuclid&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Options&quot;</span><span class="p">,</span><span class="n">options</span><span class="p">}};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}};</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">euclid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"Name"</span><span class="p">,</span><span class="s">"HypreEuclid"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"Options"</span><span class="p">,</span><span class="n">options</span><span class="p">}};</span>
 </pre></div>
 </div>
 <p><strong>Reference:</strong></p>
@@ -695,7 +695,7 @@ version.</p>
 <li><p>website: <a class="reference external" href="https://hypre.readthedocs.io/en/latest/solvers-ilu.html">https://hypre.readthedocs.io/en/latest/solvers-ilu.html</a></p></li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ilu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;Name&quot;</span><span class="p">,</span><span class="s">&quot;HypreILU&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Options&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;HypreILULevelOfFill&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}}}};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ilu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"Name"</span><span class="p">,</span><span class="s">"HypreILU"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"Options"</span><span class="p">,</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"HypreILULevelOfFill"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}}}};</span>
 </pre></div>
 </div>
 </section>
@@ -722,8 +722,8 @@ version.</p>
 <li><p>website: <a class="reference external" href="https://hypre.readthedocs.io/en/latest/solvers-parasails.html">https://hypre.readthedocs.io/en/latest/solvers-parasails.html</a></p></li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}};</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">parasail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;Name&quot;</span><span class="p">,</span><span class="s">&quot;HypreParaSails&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Options&quot;</span><span class="p">,</span><span class="n">options</span><span class="p">}};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}};</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">parasail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"Name"</span><span class="p">,</span><span class="s">"HypreParaSails"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"Options"</span><span class="p">,</span><span class="n">options</span><span class="p">}};</span>
 </pre></div>
 </div>
 <p><strong>Reference:</strong></p>
@@ -754,8 +754,8 @@ version.</p>
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}};</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">diagscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;Name&quot;</span><span class="p">,</span><span class="s">&quot;HypreDiagScale&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Options&quot;</span><span class="p">,</span><span class="n">options</span><span class="p">}};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}};</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">diagscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"Name"</span><span class="p">,</span><span class="s">"HypreDiagScale"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"Options"</span><span class="p">,</span><span class="n">options</span><span class="p">}};</span>
 </pre></div>
 </div>
 </section>
@@ -801,12 +801,12 @@ version.</p>
 </div>
 <p>CPP example:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">fed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">FiniteElementDiscretization</span><span class="o">&gt;</span><span class="p">(</span>
-<span class="w">    </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">&quot;MeshFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">mesh_file</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;FiniteElementFamily&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;H1&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;FiniteElementOrder&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;UnknownsSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;NumberOfUniformRefinements&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Parallel&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">}});</span>
+<span class="w">    </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"MeshFileName"</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">mesh_file</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"FiniteElementFamily"</span><span class="p">,</span><span class="w"> </span><span class="s">"H1"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"FiniteElementOrder"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"UnknownsSize"</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"NumberOfUniformRefinements"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Parallel"</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">}});</span>
 <span class="n">mfem_mgis</span><span class="o">::</span><span class="n">PeriodicNonLinearEvolutionProblem</span><span class="w"> </span><span class="nf">problem</span><span class="p">(</span><span class="n">fed</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -839,7 +839,7 @@ version.</p>
 <p>This is how to apply a dirichlet boundary condition to several boundaries.</p>
 <p><strong>Example:</strong></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// boundary conditions</span>
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">boundary</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;left&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;right&quot;</span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">boundary</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="s">"left"</span><span class="p">,</span><span class="w"> </span><span class="s">"right"</span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">dof</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">problem</span><span class="p">.</span><span class="n">addBoundaryCondition</span><span class="p">(</span>
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">UniformDirichletBoundaryCondition</span><span class="o">&gt;</span><span class="p">(</span>

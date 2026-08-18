@@ -337,7 +337,7 @@ rm<span class="w"> </span>-r<span class="w"> </span>~/.spack
 <span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>/share/spack/setup-env.sh
 <span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>
 git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="o">=</span>develop<span class="w"> </span>https://github.com/spack/spack-packages.git
-spack<span class="w"> </span>repo<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--destination<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/spack-packages&quot;</span><span class="w"> </span><span class="nb">builtin</span>
+spack<span class="w"> </span>repo<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--destination<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/spack-packages"</span><span class="w"> </span><span class="nb">builtin</span>
 <span class="nb">cd</span><span class="w"> </span>..
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/thelfer/mfem-mgis.git
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/latug0/mfem-mgis-examples.git
@@ -401,7 +401,7 @@ files are automatically removed after 3 months.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$MY_DEST</span>
 tar<span class="w"> </span>xvf<span class="w"> </span>archive.tar.gz
 <span class="nb">source</span><span class="w"> </span><span class="nv">$PWD</span>/spack/share/spack/setup-env.sh
-spack<span class="w"> </span>repo<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--destination<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/spack/spack-packages&quot;</span><span class="w"> </span><span class="nb">builtin</span>
+spack<span class="w"> </span>repo<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--destination<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/spack/spack-packages"</span><span class="w"> </span><span class="nb">builtin</span>
 spack<span class="w"> </span>bootstrap<span class="w"> </span>reset<span class="w"> </span>-y
 spack<span class="w"> </span>bootstrap<span class="w"> </span>add<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>--trust<span class="w"> </span>local-binaries<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/metadata/binaries/
 spack<span class="w"> </span>bootstrap<span class="w"> </span>add<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>--trust<span class="w"> </span>local-sources<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/metadata/sources/
@@ -437,12 +437,12 @@ spack<span class="w"> </span>bootstrap<span class="w"> </span>status
 <p><strong>Export SPACK Variables</strong></p>
 <p>To use <code class="docutils literal notranslate"><span class="pre">MFront</span></code>, you need to export some <code class="docutils literal notranslate"><span class="pre">SPACK</span></code> variables. Please execute
 the following commands:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">CC</span><span class="o">=</span><span class="s1">&#39;gcc&#39;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">CXX</span><span class="o">=</span><span class="s1">&#39;g++&#39;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">FC</span><span class="o">=</span><span class="s1">&#39;mpifort&#39;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">OMPI_CC</span><span class="o">=</span><span class="s1">&#39;gcc&#39;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">OMPI_CXX</span><span class="o">=</span><span class="s1">&#39;g++&#39;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">OMPI_FC</span><span class="o">=</span><span class="s1">&#39;gfortran&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">CC</span><span class="o">=</span><span class="s1">'gcc'</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CXX</span><span class="o">=</span><span class="s1">'g++'</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">FC</span><span class="o">=</span><span class="s1">'mpifort'</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMPI_CC</span><span class="o">=</span><span class="s1">'gcc'</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMPI_CXX</span><span class="o">=</span><span class="s1">'g++'</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMPI_FC</span><span class="o">=</span><span class="s1">'gfortran'</span>
 </pre></div>
 </div>
 <p><strong>Install MFEM-MGIS</strong></p>

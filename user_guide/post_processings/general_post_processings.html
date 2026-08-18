@@ -127,8 +127,8 @@ evolution problem for visualization in <code class="code docutils literal notran
 <li><p>Key: <code class="docutils literal notranslate"><span class="pre">ParaviewExportResults</span></code></p></li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportResults&quot;</span><span class="p">,</span>
-<span class="w">                          </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SatohTestOutput&quot;</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">"ParaviewExportResults"</span><span class="p">,</span>
+<span class="w">                          </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"SatohTestOutput"</span><span class="p">}});</span>
 </pre></div>
 </div>
 <p><strong>Results</strong></p>
@@ -137,29 +137,29 @@ evolution problem for visualization in <code class="code docutils literal notran
 </figure>
 <p>It is also possible to extract only portions of the mesh by defining either the boundary zones or the materials (domain attributes). This is particularly useful for reducing the size of output files when only a small part is to be studied.</p>
 <p><strong>Example</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameter</span><span class="o">&gt;</span><span class="w"> </span><span class="n">materials</span><span class="p">{</span><span class="s">&quot;Attr1&quot;</span><span class="p">,</span><span class="s">&quot;Attr2&quot;</span><span class="p">};</span>
-<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameter</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdrs</span><span class="p">{</span><span class="s">&quot;left&quot;</span><span class="p">,</span><span class="s">&quot;right&quot;</span><span class="p">};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameter</span><span class="o">&gt;</span><span class="w"> </span><span class="n">materials</span><span class="p">{</span><span class="s">"Attr1"</span><span class="p">,</span><span class="s">"Attr2"</span><span class="p">};</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameter</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdrs</span><span class="p">{</span><span class="s">"left"</span><span class="p">,</span><span class="s">"right"</span><span class="p">};</span>
 <span class="cm">/** You can not define Materials and Boundaries in a single post processing */</span>
-<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportResults&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;TestPPSubMeshOutputDir/AllMesh&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Materials&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">materials</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;OutputFieldName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Displacement&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Verbosity&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
-<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportResults&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;TestPPSubMeshOutputDir/Attribute1&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;OutputFieldName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Displacement&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Material&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Attr1&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Verbosity&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
-<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportResults&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;TestPPSubMeshOutputDir/Attribute2&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;OutputFieldName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Displacement&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Material&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Attr2&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Verbosity&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
-<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportResults&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;TestPPSubMeshOutputDir/Boundaries&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;OutputFieldName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Displacement&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Boundaries&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bdrs</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="s">&quot;Verbosity&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
+<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">"ParaviewExportResults"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"TestPPSubMeshOutputDir/AllMesh"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Materials"</span><span class="p">,</span><span class="w"> </span><span class="n">materials</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"OutputFieldName"</span><span class="p">,</span><span class="w"> </span><span class="s">"Displacement"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Verbosity"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
+<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">"ParaviewExportResults"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"TestPPSubMeshOutputDir/Attribute1"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"OutputFieldName"</span><span class="p">,</span><span class="w"> </span><span class="s">"Displacement"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Material"</span><span class="p">,</span><span class="w"> </span><span class="s">"Attr1"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Verbosity"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
+<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">"ParaviewExportResults"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"TestPPSubMeshOutputDir/Attribute2"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"OutputFieldName"</span><span class="p">,</span><span class="w"> </span><span class="s">"Displacement"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Material"</span><span class="p">,</span><span class="w"> </span><span class="s">"Attr2"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Verbosity"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
+<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">"ParaviewExportResults"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"TestPPSubMeshOutputDir/Boundaries"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"OutputFieldName"</span><span class="p">,</span><span class="w"> </span><span class="s">"Displacement"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Boundaries"</span><span class="p">,</span><span class="w"> </span><span class="n">bdrs</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Verbosity"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -206,12 +206,12 @@ evolution problem for visualization in <code class="code docutils literal notran
 </ul>
 <p><strong>Example:</strong></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameter</span><span class="o">&gt;</span><span class="p">{</span>
-<span class="w">    </span><span class="s">&quot;Stress&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ImposedTemperature&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;HydrostaticPressure&quot;</span><span class="p">};</span>
+<span class="w">    </span><span class="s">"Stress"</span><span class="p">,</span><span class="w"> </span><span class="s">"ImposedTemperature"</span><span class="p">,</span><span class="w"> </span><span class="s">"HydrostaticPressure"</span><span class="p">};</span>
 <span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;ParaviewExportIntegrationPointResultsAtNodes&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SatohTestIntegrationPointOutput&quot;</span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;Materials&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;plate&quot;</span><span class="p">}},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;Results&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">results</span><span class="p">}});</span>
+<span class="w">    </span><span class="s">"ParaviewExportIntegrationPointResultsAtNodes"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"SatohTestIntegrationPointOutput"</span><span class="p">},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"Materials"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">"plate"</span><span class="p">}},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"Results"</span><span class="p">,</span><span class="w"> </span><span class="n">results</span><span class="p">}});</span>
 </pre></div>
 </div>
 <p><strong>Results</strong></p>
@@ -235,14 +235,14 @@ evolution problem for visualization in <code class="code docutils literal notran
 </ul>
 <p><strong>Example: print the average stress of one inclusion into a matrix (RVE)</strong></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;MeanThermodynamicForces&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;avgStress&quot;</span><span class="p">}});</span>
+<span class="w">    </span><span class="s">"MeanThermodynamicForces"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"avgStress"</span><span class="p">}});</span>
 </pre></div>
 </div>
 <p><strong>Results</strong></p>
 <p>We display the average stress SZZ over the RVE (composed of 83% matrix and 17% inclusion), we process the avgstress file and then plot the result:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>awk &#39;{if(NR&gt;13) print $1 &quot; &quot; 0.83*$4+0.17*$10}&#39; avgStress &gt; res-mfem-mgis.txt
-plot &quot;res-mfem-mgis.txt&quot; u 1:2 w l title &quot;mfem-mgis&quot;
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>awk '{if(NR&gt;13) print $1 " " 0.83*$4+0.17*$10}' avgStress &gt; res-mfem-mgis.txt
+plot "res-mfem-mgis.txt" u 1:2 w l title "mfem-mgis"
 </pre></div>
 </div>
 <figure class="align-default">
@@ -256,8 +256,8 @@ plot &quot;res-mfem-mgis.txt&quot; u 1:2 w l title &quot;mfem-mgis&quot;
 </ul>
 <p><strong>Example:</strong></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;StoredEnergy&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;energy.txt&quot;</span><span class="p">}});</span>
+<span class="w">    </span><span class="s">"StoredEnergy"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"energy.txt"</span><span class="p">}});</span>
 </pre></div>
 </div>
 </section>
@@ -268,8 +268,8 @@ plot &quot;res-mfem-mgis.txt&quot; u 1:2 w l title &quot;mfem-mgis&quot;
 </ul>
 <p><strong>Example:</strong></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;DissipatedEnergy&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dissiped_energy.txt&quot;</span><span class="p">}});</span>
+<span class="w">    </span><span class="s">"DissipatedEnergy"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"dissiped_energy.txt"</span><span class="p">}});</span>
 </pre></div>
 </div>
 </section>

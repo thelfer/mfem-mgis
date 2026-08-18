@@ -254,9 +254,9 @@ requested.</p></li>
 <p>The code then defines some constant variables defining the path to the
 mesh file, the path to the <code class="docutils literal notranslate"><span class="pre">MFront</span></code> shared library, and the name of
 the behaviour:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">mesh_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;ssna303.msh&quot;</span><span class="p">;</span>
-<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">library</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;src/libBehaviour.so&quot;</span><span class="p">;</span>
-<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">behaviour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Plasticity&quot;</span><span class="p">;</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">mesh_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ssna303.msh"</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">library</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"src/libBehaviour.so"</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">behaviour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Plasticity"</span><span class="p">;</span>
 </pre></div>
 </div>
 </section>
@@ -300,10 +300,10 @@ for the <code class="docutils literal notranslate"><span class="pre">PETSc</span
 The expected options are declared and the <code class="docutils literal notranslate"><span class="pre">Parse</span></code> method is called:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">mfem</span><span class="o">::</span><span class="n">OptionsParser</span><span class="w"> </span><span class="nf">args</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
 <span class="n">mfem_mgis</span><span class="o">::</span><span class="n">declareDefaultOptions</span><span class="p">(</span><span class="n">args</span><span class="p">);</span>
-<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">parallel</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-p&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;--parallel&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="s">&quot;Perform parallel computations.&quot;</span><span class="p">);</span>
-<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">order</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-o&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;--order&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="s">&quot;Finite element order (polynomial degree).&quot;</span><span class="p">);</span>
+<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">parallel</span><span class="p">,</span><span class="w"> </span><span class="s">"-p"</span><span class="p">,</span><span class="w"> </span><span class="s">"--parallel"</span><span class="p">,</span>
+<span class="w">               </span><span class="s">"Perform parallel computations."</span><span class="p">);</span>
+<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">order</span><span class="p">,</span><span class="w"> </span><span class="s">"-o"</span><span class="p">,</span><span class="w"> </span><span class="s">"--order"</span><span class="p">,</span>
+<span class="w">               </span><span class="s">"Finite element order (polynomial degree)."</span><span class="p">);</span>
 <span class="n">args</span><span class="p">.</span><span class="n">Parse</span><span class="p">();</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">args</span><span class="p">.</span><span class="n">Good</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">PrintUsage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">);</span>
@@ -317,12 +317,12 @@ The expected options are declared and the <code class="docutils literal notransl
 <h3>Declaring the non linear problem<a class="headerlink" href="#declaring-the-non-linear-problem" title="Link to this heading"></a></h3>
 <p>The non linear evolution problem is defined as follows:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">NonLinearEvolutionProblem</span><span class="w"> </span><span class="n">problem</span><span class="p">(</span>
-<span class="w">     </span><span class="p">{{</span><span class="s">&quot;MeshFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">mesh_file</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;FiniteElementFamily&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;H1&quot;</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;FiniteElementOrder&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;UnknownsSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">dim</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;Hypothesis&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PlaneStrain&quot;</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;Parallel&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">parallel</span><span class="p">}});</span>
+<span class="w">     </span><span class="p">{{</span><span class="s">"MeshFileName"</span><span class="p">,</span><span class="w"> </span><span class="n">mesh_file</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"FiniteElementFamily"</span><span class="p">,</span><span class="w"> </span><span class="s">"H1"</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"FiniteElementOrder"</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"UnknownsSize"</span><span class="p">,</span><span class="w"> </span><span class="n">dim</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"Hypothesis"</span><span class="p">,</span><span class="w"> </span><span class="s">"PlaneStrain"</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"Parallel"</span><span class="p">,</span><span class="w"> </span><span class="n">parallel</span><span class="p">}});</span>
 </pre></div>
 </div>
 <p>The constructor of the <code class="docutils literal notranslate"><span class="pre">NonLinearEvolutionProblem</span></code> class takes an
@@ -357,9 +357,9 @@ etc. This lower level API is however not described in this tutorial.</p>
 <p><code class="docutils literal notranslate"><span class="pre">MFEM</span></code> distinguishes elements of the mesh (materials and boundaries)
 by integers. This may seem unpractical to most users. The <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code>
 allows associating names to materials and boundaries as follows:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setMaterialsNames</span><span class="p">({{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;NotchedBeam&quot;</span><span class="p">}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setMaterialsNames</span><span class="p">({{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"NotchedBeam"</span><span class="p">}});</span>
 <span class="n">problem</span><span class="p">.</span><span class="n">setBoundariesNames</span><span class="p">(</span>
-<span class="w">    </span><span class="p">{{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;LowerBoundary&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymmetryAxis&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UpperBoundary&quot;</span><span class="p">}});</span>
+<span class="w">    </span><span class="p">{{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">"LowerBoundary"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="s">"SymmetryAxis"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">"UpperBoundary"</span><span class="p">}});</span>
 </pre></div>
 </div>
 <blockquote>
@@ -375,9 +375,9 @@ names of materials and boundaries.</p>
 <h3>Declaring the mechanical behaviour<a class="headerlink" href="#declaring-the-mechanical-behaviour" title="Link to this heading"></a></h3>
 <p>The following line associates a mechanical behaviour to the first
 material:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="s">&quot;Mechanics&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;NotchedBeam&quot;</span><span class="p">,</span>
-<span class="w">                               </span><span class="s">&quot;src/libBehaviour.so&quot;</span><span class="p">,</span>
-<span class="w">                               </span><span class="s">&quot;Plasticity&quot;</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="s">"Mechanics"</span><span class="p">,</span><span class="w"> </span><span class="s">"NotchedBeam"</span><span class="p">,</span>
+<span class="w">                               </span><span class="s">"src/libBehaviour.so"</span><span class="p">,</span>
+<span class="w">                               </span><span class="s">"Plasticity"</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The four arguments of the <code class="docutils literal notranslate"><span class="pre">addBehaviourIntegrator</span></code> are:</p>
@@ -415,9 +415,9 @@ automatically allocated.</p>
 <h3>Initialisation of the temperature<a class="headerlink" href="#initialisation-of-the-temperature" title="Link to this heading"></a></h3>
 <p>The following lines define a uniform temperature on the material at the
 beginning of the time step and at the end of time step:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">m1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">problem</span><span class="p">.</span><span class="n">getMaterial</span><span class="p">(</span><span class="s">&quot;NotchedBeam&quot;</span><span class="p">);</span>
-<span class="n">mgis</span><span class="o">::</span><span class="n">behaviour</span><span class="o">::</span><span class="n">setExternalStateVariable</span><span class="p">(</span><span class="n">m1</span><span class="p">.</span><span class="n">s0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Temperature&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">293.15</span><span class="p">);</span>
-<span class="n">mgis</span><span class="o">::</span><span class="n">behaviour</span><span class="o">::</span><span class="n">setExternalStateVariable</span><span class="p">(</span><span class="n">m1</span><span class="p">.</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Temperature&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">293.15</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">m1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">problem</span><span class="p">.</span><span class="n">getMaterial</span><span class="p">(</span><span class="s">"NotchedBeam"</span><span class="p">);</span>
+<span class="n">mgis</span><span class="o">::</span><span class="n">behaviour</span><span class="o">::</span><span class="n">setExternalStateVariable</span><span class="p">(</span><span class="n">m1</span><span class="p">.</span><span class="n">s0</span><span class="p">,</span><span class="w"> </span><span class="s">"Temperature"</span><span class="p">,</span><span class="w"> </span><span class="mf">293.15</span><span class="p">);</span>
+<span class="n">mgis</span><span class="o">::</span><span class="n">behaviour</span><span class="o">::</span><span class="n">setExternalStateVariable</span><span class="p">(</span><span class="n">m1</span><span class="p">.</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="s">"Temperature"</span><span class="p">,</span><span class="w"> </span><span class="mf">293.15</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Defining the temperature is required by all <code class="docutils literal notranslate"><span class="pre">MFront</span></code> behaviours.</p>
@@ -434,13 +434,13 @@ of the time step.</p>
 Dirichlet boundary conditions (imposed displacement) using the
 <code class="docutils literal notranslate"><span class="pre">addUniformDirichletBoundaryCondition</span></code> method as follows:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addUniformDirichletBoundaryCondition</span><span class="p">(</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;Boundary&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;LowerBoundary&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Component&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"Boundary"</span><span class="p">,</span><span class="w"> </span><span class="s">"LowerBoundary"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"Component"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}});</span>
 <span class="n">problem</span><span class="p">.</span><span class="n">addUniformDirichletBoundaryCondition</span><span class="p">(</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;Boundary&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymmetryAxis&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Component&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}});</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"Boundary"</span><span class="p">,</span><span class="w"> </span><span class="s">"SymmetryAxis"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"Component"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}});</span>
 <span class="n">problem</span><span class="p">.</span><span class="n">addUniformDirichletBoundaryCondition</span><span class="p">(</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;Boundary&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UpperBoundary&quot;</span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;Component&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;LoadingEvolution&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"Boundary"</span><span class="p">,</span><span class="w"> </span><span class="s">"UpperBoundary"</span><span class="p">},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"Component"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"LoadingEvolution"</span><span class="p">,</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">6e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">u</span><span class="p">;</span>
 <span class="w">      </span><span class="p">}}});</span>
@@ -459,10 +459,10 @@ imposed displacement using a function of time (defined here using a
 Newton-Raphson solver used to find the equilibrium of the whole
 structure:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">usePETSc</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">problem</span><span class="p">.</span><span class="n">setSolverParameters</span><span class="p">({{</span><span class="s">&quot;VerbosityLevel&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
-<span class="w">                               </span><span class="p">{</span><span class="s">&quot;RelativeTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">},</span>
-<span class="w">                               </span><span class="p">{</span><span class="s">&quot;AbsoluteTolerance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">0.</span><span class="p">},</span>
-<span class="w">                               </span><span class="p">{</span><span class="s">&quot;MaximumNumberOfIterations&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">}});</span>
+<span class="w">  </span><span class="n">problem</span><span class="p">.</span><span class="n">setSolverParameters</span><span class="p">({{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
+<span class="w">                               </span><span class="p">{</span><span class="s">"RelativeTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">},</span>
+<span class="w">                               </span><span class="p">{</span><span class="s">"AbsoluteTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">0.</span><span class="p">},</span>
+<span class="w">                               </span><span class="p">{</span><span class="s">"MaximumNumberOfIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">}});</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -480,9 +480,9 @@ provided by an external configuration file (see the
 <code class="docutils literal notranslate"><span class="pre">UMFPack</span></code> in sequential:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">usePETSc</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">parallel</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;MUMPSSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
+<span class="w">    </span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"MUMPSSolver"</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
 <span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">&quot;UMFPackSolver&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
+<span class="w">    </span><span class="n">problem</span><span class="p">.</span><span class="n">setLinearSolver</span><span class="p">(</span><span class="s">"UMFPackSolver"</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -499,17 +499,17 @@ postprocessings.</p>
 <p>In this example, we export the displacements for visualization in
 <a class="reference external" href="https://www.paraview.org/">paraview</a> and compute the resultant
 force on the boundary where the displacement is imposed, as follows:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportResults&quot;</span><span class="p">,</span>
-<span class="w">                          </span><span class="p">{{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ssna303-displacements&quot;</span><span class="p">}});</span>
-<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ParaviewExportIntegrationPointResultsAtNodes&quot;</span><span class="p">,</span>
-<span class="w">                          </span><span class="p">{{{</span><span class="s">&quot;Results&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;FirstPiolaKirchhoffStress&quot;</span><span class="p">},</span>
-<span class="w">                            </span><span class="p">{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ssna303-stress&quot;</span><span class="p">}}});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">"ParaviewExportResults"</span><span class="p">,</span>
+<span class="w">                          </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"ssna303-displacements"</span><span class="p">}});</span>
+<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">"ParaviewExportIntegrationPointResultsAtNodes"</span><span class="p">,</span>
+<span class="w">                          </span><span class="p">{{{</span><span class="s">"Results"</span><span class="p">,</span><span class="w"> </span><span class="s">"FirstPiolaKirchhoffStress"</span><span class="p">},</span>
+<span class="w">                            </span><span class="p">{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"ssna303-stress"</span><span class="p">}}});</span>
 <span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;ParaviewExportIntegrationPointResultsAtNodes&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{{</span><span class="s">&quot;Results&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;EquivalentPlasticStrain&quot;</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ssna303-equivalent-plastic-strain&quot;</span><span class="p">}}});</span>
-<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">&quot;ComputeResultantForceOnBoundary&quot;</span><span class="p">,</span>
-<span class="w">                          </span><span class="p">{{</span><span class="s">&quot;Boundary&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;OutputFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;force.txt&quot;</span><span class="p">}});</span>
+<span class="w">    </span><span class="s">"ParaviewExportIntegrationPointResultsAtNodes"</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{{</span><span class="s">"Results"</span><span class="p">,</span><span class="w"> </span><span class="s">"EquivalentPlasticStrain"</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"ssna303-equivalent-plastic-strain"</span><span class="p">}}});</span>
+<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="s">"ComputeResultantForceOnBoundary"</span><span class="p">,</span>
+<span class="w">                          </span><span class="p">{{</span><span class="s">"Boundary"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"force.txt"</span><span class="p">}});</span>
 </pre></div>
 </div>
 <p>These post-processings are called using the <code class="docutils literal notranslate"><span class="pre">executePostProcessings</span></code>
@@ -532,8 +532,8 @@ divided into (50) time steps.</p>
 <span class="k">auto</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">real</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">size_type</span><span class="p">{};</span>
 <span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">size_type</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">nsteps</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;iteration &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">iteration</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; from &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; to &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dt</span>
-<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"iteration "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">iteration</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" from "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" to "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dt</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>The local time substepping scheme is simply set up as follows:</p>
@@ -553,7 +553,7 @@ divided into (50) time steps.</p>
 <span class="w">    </span><span class="o">++</span><span class="n">nsubsteps</span><span class="p">;</span>
 <span class="w">    </span><span class="n">problem</span><span class="p">.</span><span class="n">revert</span><span class="p">();</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nsubsteps</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">raise</span><span class="p">(</span><span class="s">&quot;maximum number of substeps&quot;</span><span class="p">);</span>
+<span class="w">      </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">raise</span><span class="p">(</span><span class="s">"maximum number of substeps"</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>

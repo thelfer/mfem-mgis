@@ -131,12 +131,12 @@ interest over a single time step for a given phenomenon.</p>
 transfer, and micromorphic damage.</p>
 <p>The following snippet declares a new nonlinear evolution problem:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">NonLinearEvolutionProblem</span><span class="w"> </span><span class="n">problem</span><span class="p">(</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">&quot;MeshFileName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;fuel.msh&quot;</span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;FiniteElementFamily&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;H1&quot;</span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;FiniteElementOrder&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;UnknownsSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;Hypothesis&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Tridimensional&quot;</span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span><span class="s">&quot;Parallel&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">}});</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"MeshFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"fuel.msh"</span><span class="p">},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"FiniteElementFamily"</span><span class="p">,</span><span class="w"> </span><span class="s">"H1"</span><span class="p">},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"FiniteElementOrder"</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"UnknownsSize"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"Hypothesis"</span><span class="p">,</span><span class="w"> </span><span class="s">"Tridimensional"</span><span class="p">},</span>
+<span class="w">     </span><span class="p">{</span><span class="s">"Parallel"</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">}});</span>
 </pre></div>
 </div>
 <p>As the unknown is scalar (according to the <code class="docutils literal notranslate"><span class="pre">UnknownsSize</span></code> parameter),
@@ -182,9 +182,9 @@ modelling hypothesis (plane strain, plane stress).</p>
 <p>The following snippet assigns the behaviour integrator named
 <code class="docutils literal notranslate"><span class="pre">Mechanics</span></code> to the material named <code class="docutils literal notranslate"><span class="pre">beam</span></code> to the mechanical non
 linear evolution problem named <code class="docutils literal notranslate"><span class="pre">Mechanics</span></code>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="s">&quot;Mechanics&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;beam&quot;</span><span class="p">,</span>
-<span class="w">                                  </span><span class="s">&quot;src/libBehaviour.so&quot;</span><span class="p">,</span>
-<span class="w">                                  </span><span class="s">&quot;MicromorphicDamageI_SpectralSplit&quot;</span><span class="p">);</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="s">"Mechanics"</span><span class="p">,</span><span class="w"> </span><span class="s">"beam"</span><span class="p">,</span>
+<span class="w">                                  </span><span class="s">"src/libBehaviour.so"</span><span class="p">,</span>
+<span class="w">                                  </span><span class="s">"MicromorphicDamageI_SpectralSplit"</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The behaviour <code class="docutils literal notranslate"><span class="pre">MicromorphicDamageI_SpectralSplit</span></code> is loaded from a

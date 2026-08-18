@@ -1082,14 +1082,14 @@ data are available: <code class="docutils literal notranslate"><span class="pre"
 <code class="docutils literal notranslate"><span class="pre">results/res-mfem-mgis-634sphere-o2.txt</span></code>.</p>
 <p>For example, the average stress SZZ over the RVE (composed of 83% matrix
 and 17% inclusion) can be calculated with the awk command under unix:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>awk<span class="w"> </span><span class="s1">&#39;{if(NR&gt;13) print $1 &quot; &quot; 0.83*$4+0.17*$10}&#39;</span><span class="w"> </span>avgStress<span class="w"> </span>&gt;<span class="w"> </span>res-mfem-mgis.txt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>awk<span class="w"> </span><span class="s1">'{if(NR&gt;13) print $1 " " 0.83*$4+0.17*$10}'</span><span class="w"> </span>avgStress<span class="w"> </span>&gt;<span class="w"> </span>res-mfem-mgis.txt
 </pre></div>
 </div>
 </section>
 <section id="display-results-with-gnuplot">
 <h4>Display results with gnuplot<a class="headerlink" href="#display-results-with-gnuplot" title="Link to this heading"></a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gnuplot&gt;<span class="w"> </span>plot<span class="w"> </span><span class="s2">&quot;res-fft.txt&quot;</span><span class="w"> </span>u<span class="w"> </span><span class="m">1</span>:10<span class="w"> </span>w<span class="w"> </span>l<span class="w"> </span>title<span class="w"> </span><span class="s2">&quot;fft&quot;</span>
-gnuplot&gt;<span class="w"> </span>replot<span class="w"> </span><span class="s2">&quot;res-mfem-mgis.txt&quot;</span><span class="w"> </span>u<span class="w"> </span><span class="m">1</span>:2<span class="w"> </span>w<span class="w"> </span>l<span class="w"> </span>title<span class="w"> </span><span class="s2">&quot;mfem-mgis&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gnuplot&gt;<span class="w"> </span>plot<span class="w"> </span><span class="s2">"res-fft.txt"</span><span class="w"> </span>u<span class="w"> </span><span class="m">1</span>:10<span class="w"> </span>w<span class="w"> </span>l<span class="w"> </span>title<span class="w"> </span><span class="s2">"fft"</span>
+gnuplot&gt;<span class="w"> </span>replot<span class="w"> </span><span class="s2">"res-mfem-mgis.txt"</span><span class="w"> </span>u<span class="w"> </span><span class="m">1</span>:2<span class="w"> </span>w<span class="w"> </span>l<span class="w"> </span>title<span class="w"> </span><span class="s2">"mfem-mgis"</span>
 </pre></div>
 </div>
 </section>
