@@ -1,7 +1,3 @@
-find_package(CURL REQUIRED)
-link_libraries(CURL::libcurl)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lcurl")
-
 function(add_test_case name)
   add_executable(${name} EXCLUDE_FROM_ALL ${name}.cxx)
   target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
