@@ -38,14 +38,6 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
 
   void setPeriodicBoundaryConditions(
-      NonLinearEvolutionProblemImplementation<true>& p,
-      const std::span<const real>& corner1,
-      const std::span<const real>& corner2) {
-    mgis::Context ctx;
-    setPeriodicBoundaryConditions(ctx, p, corner1, corner2);
-  }
-
-  void setPeriodicBoundaryConditions(
       Context& ctx,
       NonLinearEvolutionProblemImplementation<true>& p,
       const std::span<const real>& corner1,
@@ -88,13 +80,6 @@ namespace mfem_mgis {
     MFEM_VERIFY(found, "Corner point was not found");
     p.SetEssentialTrueDofs(ess_tdof_list);
   }  // end of setPeriodicBoundaryConditions
-
-  void setPeriodicBoundaryConditions(
-      NonLinearEvolutionProblemImplementation<true>& p,
-      const mfem_mgis::BoundaryConditionType bct) {
-    mgis::Context ctx;
-    setPeriodicBoundaryConditions(ctx, p, bct);
-  }
 
   void setPeriodicBoundaryConditions(
       Context& ctx,
@@ -187,14 +172,6 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
 
   void setPeriodicBoundaryConditions(
-      NonLinearEvolutionProblemImplementation<false>& p,
-      const std::span<const real>& corner1,
-      const std::span<const real>& corner2) {
-    mgis::Context ctx;
-    setPeriodicBoundaryConditions(ctx, p, corner1, corner2);
-  }
-
-  void setPeriodicBoundaryConditions(
       Context& ctx,
       NonLinearEvolutionProblemImplementation<false>& p,
       const std::span<const real>& corner1,
@@ -234,13 +211,6 @@ namespace mfem_mgis {
     MFEM_VERIFY(found, "Corner point was not found");
     p.SetEssentialTrueDofs(ess_tdof_list);
   }  // end of setPeriodicBoundaryConditions
-
-  void setPeriodicBoundaryConditions(
-      NonLinearEvolutionProblemImplementation<false>& p,
-      const mfem_mgis::BoundaryConditionType bct) {
-    mgis::Context ctx;
-    setPeriodicBoundaryConditions(ctx, p, bct);
-  }
 
   void setPeriodicBoundaryConditions(
       Context& ctx,
