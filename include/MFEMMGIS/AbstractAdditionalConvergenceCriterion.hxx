@@ -35,7 +35,7 @@ namespace mfem_mgis::nonlinear_solver {
 
 
         virtual void reset() noexcept = 0;
-        [[nodiscard]] virtual std::optional<bool> check(Context&, const CheckArguments&) const noexcept = 0;
+        [[nodiscard]] virtual std::optional<bool> check(Context&, const CheckArguments&) noexcept = 0;
         virtual ~AbstractAdditionalConvergenceCriterion() = default;
     };  // end of struct AbstractAdditionalConvergenceCriterion
 

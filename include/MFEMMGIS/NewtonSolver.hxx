@@ -56,7 +56,7 @@ namespace mfem_mgis {
      * \param[in] a: action
      */
     //   outdated ? TODO
-    virtual void addAdditionalConvergenceCheck(std::unique_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> ); 
+    virtual void addAdditionalConvergenceCheck(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> ); 
     
     /*!
      * \brief method called when the non-linear solver has converged 
@@ -127,7 +127,7 @@ namespace mfem_mgis {
      * \brief actions performed when the non-linear solver converges via a structure
      */
     // outdated ? TODO
-    std::vector<std::unique_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> > acc_actions;
+    std::vector<std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> > acc_actions;
 
     /*!
      * \brief data containing the reference value for the norm of the residual.

@@ -15,6 +15,7 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/NewtonSolver.hxx"
 
 namespace mfem_mgis {
 
@@ -140,6 +141,7 @@ namespace mfem_mgis {
         const TimeStepStage) const noexcept override;
     [[nodiscard]] bool setSolverParameters(
         Context &, const Parameters &) noexcept override;
+    [[nodiscard]] NewtonSolver& getSolver() noexcept override;
     [[nodiscard]] bool setLinearSolver(Context &,
                                        LinearSolverHandler) noexcept override;
     [[nodiscard]] bool setLinearSolver(Context &,

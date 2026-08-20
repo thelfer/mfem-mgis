@@ -121,7 +121,7 @@ namespace mfem_mgis {
   void NewtonSolver::unsetContext() noexcept { this->ctx_ptr = nullptr; }
 
   
-  void NewtonSolver::addAdditionalConvergenceCheck(std::unique_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> cv_check) {
+  void NewtonSolver::addAdditionalConvergenceCheck(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> cv_check) {
     // TODO
     //CatchTimeSection("NS::addAdditionalConvergenceCheck);
     this->acc_actions.push_back(std::move(cv_check));
@@ -133,9 +133,9 @@ namespace mfem_mgis {
     //TODO
     //CatchTimeSection("NS::processAdditionalConvergenceCheck");
     for (auto& a : this->acc_actions) {
-      if (!a->check(ctx,s)) {
-        return false;
-      }
+        if (!a->check(ctx,s)) {
+            return false;
+        }
     }
     return true;
   }  // end of processAdditionalConvergenceCheck
@@ -146,8 +146,7 @@ namespace mfem_mgis {
     for (auto& a : this->acc_actions) {
       a->reset();
     }
-  }  // end of processAdditionalConvergenceCheck
-
+  }  // end of processAdditionalConvergenceReset
 
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     auto profiler_mult =
@@ -286,7 +285,7 @@ namespace mfem_mgis {
       previous_norms[0] = previous_norms[1];
       previous_norms[1] = norm;
       norm = this->Norm(r);
-     
+
       this->processAdditionalConvergenceCheck(*this->ctx_ptr, {
           .residual_norm = norm,
           .reference_residual_norm = this->reference_residual_norm.value(),
@@ -296,8 +295,7 @@ namespace mfem_mgis {
           .u = x
           }
           );
- 
-      ++it;
+     ++it;
     }
     this->final_iter = it;
     this->final_norm = norm;
