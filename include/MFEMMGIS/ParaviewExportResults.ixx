@@ -57,7 +57,7 @@ namespace mfem_mgis {
       Profiler::Utils::Message(
           "You can not define 'Material' and 'Boundary' in a single "
           "ParaviewExportResults post processing");
-      std::exit(0);
+      std::exit(EXIT_FAILLURE);
     }
 
     if (contains_mat) { /** Materials and Sub mesh */
