@@ -139,7 +139,7 @@ FiniteElementDiscretization::FiniteElementDiscretization(
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       mgis::Context& ctx, const Parameters& params)
-      : MeshDiscretization(extract(
+      : MeshDiscretization(ctx, extract(
             throwing, params, MeshDiscretization::getParametersList())) {
     CatchTimeSection(ctx, "FED::Constructor");
     if (this->describesAParallelComputation()) {

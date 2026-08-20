@@ -45,6 +45,7 @@ namespace mfem_mgis {
     [[nodiscard]] static std::vector<std::string> getParametersList() noexcept;
     /*!
      * \brief constructor
+     * \param[in, out] ctx: execution context used for profiling
      * \param[in] params: parameters
      *
      * The following parameters are expected:
@@ -57,13 +58,7 @@ namespace mfem_mgis {
      * - `GeneralVerbosityLevel` (int): with large positive numbers, expect more
      * verbosity
      */
-    MeshDiscretization(const Parameters&);
-    /*!
-     * \brief constructor with profiling support
-     * \param[in] params: parameters describing the mesh
-     * \param[in, out] ctx: execution context used for profiling
-     */
-    MeshDiscretization(const Parameters&, mgis::Context&);
+    MeshDiscretization(mgis::Context&, const Parameters&);
     /*!
      * \brief constructor
      * \param[in] m: mesh
