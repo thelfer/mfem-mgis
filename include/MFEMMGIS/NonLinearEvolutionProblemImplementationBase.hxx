@@ -160,7 +160,7 @@ namespace mfem_mgis {
                                            const Parameters&) noexcept override;
     [[nodiscard]] PredictionPolicy getPredictionPolicy()
         const noexcept override;
-    [[nodiscard]] NewtonSolver& getSolver() noexcept;
+    [[nodiscard]] NewtonSolver& getSolver() noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(Context&,
                                                   const real,
                                                   const real) noexcept override;
