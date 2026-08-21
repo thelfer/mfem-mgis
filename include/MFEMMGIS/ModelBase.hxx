@@ -28,15 +28,18 @@ namespace mfem_mgis {
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      */
-    ModelBase(const MeshDiscretization &) noexcept;
+    ModelBase(Context& ctx, const MeshDiscretization &) noexcept;
+    
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] parameters: parameters
      */
-    ModelBase(const MeshDiscretization &, const Parameters &);
+    ModelBase(Context& ctx, const MeshDiscretization &, const Parameters &);
     //
     [[nodiscard]] std::string getIdentifier() const noexcept override final;
     MeshDiscretization getMeshDiscretization() const noexcept override;

@@ -47,7 +47,7 @@ static void parseCommandLineOptions(TestParameters& params,
 template <bool parallel>
 bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   using namespace mfem_mgis;
-  auto fed = FiniteElementDiscretization{
+  auto fed = FiniteElementDiscretization{ctx, 
       {{"MeshFileName", params.mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", params.order},
@@ -95,7 +95,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
 template <bool parallel>
 bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
   using namespace mfem_mgis;
-  auto fed = FiniteElementDiscretization{
+  auto fed = FiniteElementDiscretization{ctx, 
       {{"MeshFileName", params.mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", params.order},

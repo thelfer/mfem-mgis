@@ -204,11 +204,11 @@ TestParameters parseCommandLineOptions(int& argc, char* argv[]) {
   return p;
 }
 
-void executeMFEMMGISTest(const TestParameters& p) {
+void executeMFEMMGISTest(mgis::Context& ctx, const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
-  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(ctx, 
       mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
                             {"MeshReadMode", p.mesh_mode},
                             {"FiniteElementFamily", "H1"},
@@ -221,7 +221,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
     // building the non linear problem
     std::vector<mfem_mgis::real> corner1({0., 0., 0.});
     std::vector<mfem_mgis::real> corner2({xmax, xmax, xmax});
-    mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed, corner1, corner2);
+    mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed, corner1, corner2);
     problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
     problem.addBehaviourIntegrator("Mechanics", 2, p.library, "Elasticity");
     // materials
@@ -277,7 +277,7 @@ void executeMFEMMGISTest(const TestParameters& p) {
     if (!problem.solve(0, 1)) {
       mfem_mgis::abort(EXIT_FAILURE);
     }
-    problem.executePostProcessings(0, 1);
+    problem.executePostProcessings(ctx, 0, 1);
     //
     if (!checkSolution(problem, p.tcase)) {
       mfem_mgis::abort(EXIT_FAILURE);
@@ -287,7 +287,8 @@ void executeMFEMMGISTest(const TestParameters& p) {
 
 int main(int argc, char* argv[]) {
   mfem_mgis::initialize(argc, argv);
+  auto ctx = mgis::Context{};
   const auto p = parseCommandLineOptions(argc, argv);
-  executeMFEMMGISTest(p);
+  executeMFEMMGISTest(ctx, p);
   return EXIT_SUCCESS;
 }

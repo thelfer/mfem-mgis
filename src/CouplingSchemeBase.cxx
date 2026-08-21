@@ -4,6 +4,8 @@
  * \date   05/12/2022
  */
 
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/AbstractModel.hxx"
 #include "MFEMMGIS/NonLinearModel.hxx"
 #include "MFEMMGIS/CouplingSchemeBase.hxx"
@@ -44,13 +46,14 @@ namespace mfem_mgis {
     ctx.setLogStream(s.log_stream);
   }  // end of restore
 
-  CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m) noexcept
+  CouplingSchemeBase::CouplingSchemeBase(Context&, const MeshDiscretization &m) noexcept
       : mesh(m) {}
 
-  CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m,
+  CouplingSchemeBase::CouplingSchemeBase(Context& ctx, 
+                                         const MeshDiscretization &m,
                                          const Parameters &parameters)
       : mesh(m) {
-    auto ctx = Context{};
+        
     auto or_raise = ctx.getThrowingFailureHandler();
     checkParameters(ctx, parameters,
                     CouplingSchemeBase::getParametersDescription()) |
@@ -204,6 +207,11 @@ namespace mfem_mgis {
 
   bool CouplingSchemeBase::performInitializationTaksAtTheBeginningOfTheTimeStep(
       Context &ctx, const TimeStep &ts) noexcept {
+
+    auto profiler = ctx.startNewProfiling(
+        "CouplingSchemeBase::performInitializationTaks", 
+        ctx.isProfilingEnabled());
+    
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
       ctx.log(verboseLevel2,

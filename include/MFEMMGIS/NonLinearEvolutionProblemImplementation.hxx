@@ -40,11 +40,13 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblemImplementation(
+        Context& ctx,
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
         const Parameters&);
@@ -85,7 +87,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool addPostProcessing(Context&,
                                          std::string_view,
                                          const Parameters&) noexcept override;
-    void executePostProcessings(const real, const real) override;
+    void executePostProcessings(Context&, const real, const real) override;
     [[nodiscard]] GridFunction<true>& getUnknownsAsGridFunction(
         const TimeStepStage) noexcept;
     [[nodiscard]] const GridFunction<true>& getUnknownsAsGridFunction(
@@ -143,6 +145,7 @@ namespace mfem_mgis {
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblemImplementation(
+        Context& ctx,
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
         const Parameters&);
@@ -182,7 +185,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool addPostProcessing(Context&,
                                          std::string_view,
                                          const Parameters&) noexcept override;
-    void executePostProcessings(const real, const real) override;
+    void executePostProcessings(Context&, const real, const real) override;
     //
     [[nodiscard]] GridFunction<false>& getUnknownsAsGridFunction(
         const TimeStepStage) noexcept;

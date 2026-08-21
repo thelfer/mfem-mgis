@@ -9,9 +9,10 @@
 #include <iomanip>
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
-#include "MFEMMGIS/Profiler.hxx"
 
 namespace mfem_mgis {
 
@@ -94,7 +95,9 @@ namespace mfem_mgis {
   void NewtonSolver::unsetContext() noexcept { this->ctx_ptr = nullptr; }
 
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
-    CatchTimeSection("NS::Mult");
+    auto profiler_mult = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::Mult", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{}; // fallback RAII
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
@@ -135,7 +138,7 @@ namespace mfem_mgis {
     c.SetSize(this->oper->Width());
 
     auto updateResidual = [this, &r, &x] {
-      this->computeResidual(r, x);
+      this->computeResidual(*this->ctx_ptr, r, x);
       return this->Norm(r);
     };
 
@@ -162,7 +165,9 @@ namespace mfem_mgis {
 
     this->converged = 0;
     while (true) {
-      CatchTimeSection("NS::Mult::WhileLoop");
+      auto profiler_while = this->ctx_ptr != nullptr 
+          ? this->ctx_ptr->startNewProfiling("NS::Mult::WhileLoop", this->ctx_ptr->isProfilingEnabled())
+          : mgis::ProfilingSection{};
       MFEM_ASSERT(mfem::IsFinite(norm), "norm = " << norm);
       if (shall_print) {
         log << "Newton iteration " << std::setw(2) << it
@@ -246,9 +251,10 @@ namespace mfem_mgis {
     }
   }  // end of Mult
 
-  void NewtonSolver::computeResidual(mfem::Vector &r,
+  void NewtonSolver::computeResidual(Context& ctx,
+                                     mfem::Vector &r,
                                      const mfem::Vector &u) const {
-    CatchTimeSection("NS::computeResidual");
+    CatchTimeSection(ctx, "NS::computeResidual");
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     this->oper->Mult(u, r);
@@ -257,7 +263,9 @@ namespace mfem_mgis {
   bool NewtonSolver::computeNewtonCorrection(mfem::Vector &c,
                                              const mfem::Vector &r,
                                              const mfem::Vector &u) const {
-    CatchTimeSection("NS::computeNewtonCorrection");
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::computeNewtonCorrection", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
@@ -266,7 +274,9 @@ namespace mfem_mgis {
         dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
     this->prec->SetOperator(this->getJacobian(u));
     {
-      CatchNestedTimeSection("MFEM::Mult(r,c)");
+      auto profiler_mfem = this->ctx_ptr != nullptr 
+          ? this->ctx_ptr->startNewProfiling("MFEM::Mult(r,c)", this->ctx_ptr->isProfilingEnabled())
+          : mgis::ProfilingSection{};
       this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
     }
     if (usesIterativeLinearSolver) {
@@ -278,7 +288,9 @@ namespace mfem_mgis {
   }  // end of computeNewtonCorrection
 
   mfem::Operator &NewtonSolver::getJacobian(const mfem::Vector &u) const {
-    CatchTimeSection("NS::getJacobian");
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::getJacobian", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
     MFEM_ASSERT(this->oper != nullptr,
                 "the Operator is not set (use SetOperator).");
     return this->oper->GetGradient(u);
@@ -286,12 +298,16 @@ namespace mfem_mgis {
 
   void NewtonSolver::addNewUnknownsEstimateActions(
       std::function<bool(const mfem::Vector &)> a) {
-    CatchTimeSection("NS::addNewUnknownsEstimateActions");
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::addNewUnknownsEstimateActions", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
     this->nue_actions.push_back(std::move(a));
   }  // end of addNewUnknownsEstimateActions
 
   bool NewtonSolver::processNewUnknownsEstimate(const mfem::Vector &u) const {
-    CatchTimeSection("NS::processNewUnknownsEstimate");
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::processNewUnknownsEstimate", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
     for (const auto &a : this->nue_actions) {
       if (!a(u)) {
         return false;

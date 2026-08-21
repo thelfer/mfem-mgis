@@ -98,7 +98,8 @@ int main(int argc, char** argv) {
   // mpi initialization here
   mfem_mgis::initialize(argc, argv);
   // init timers
-  mfem_mgis::Profiler::timers::init_timers();
+  auto ctx = mgis::Context{};
+  ctx.enableProfiling(true);
 
   // get parameters
   TestParameters p;
@@ -107,7 +108,7 @@ int main(int argc, char** argv) {
 
   auto success = true;
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(
+  mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
       {{"MeshFileName", p.mesh_file},
        {"Materials", mfem_mgis::Parameters{{"plate", 1}}},
        {"Boundaries", mfem_mgis::Parameters{{"left", 2}, {"right", 4}}},
@@ -162,14 +163,15 @@ int main(int argc, char** argv) {
        {"Results", results}});
   // solving the problem on 1 time step
   auto r = problem.solve(0, 1);
-  problem.executePostProcessings(0, 1);
+  problem.executePostProcessings(ctx, 0, 1);
   // manual export
   auto export_stress = mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes{
+      ctx,
       problem,
       {{.name = "Stress",
         .functions = {mfem_mgis::getThermodynamicForce(m1, "Stress")}}},
       "SatohTestStressOutput"};
-  export_stress.execute(problem, 0, 1);
+  export_stress.execute(ctx, problem, 0, 1);
   //
   std::ofstream output("HydrostaticPressure.txt");
   const auto pr = getInternalStateVariable(

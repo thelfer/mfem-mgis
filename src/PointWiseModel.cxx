@@ -34,9 +34,10 @@ namespace mfem_mgis {
   }  // end of getParametersDescription
 
   PointWiseModel::PointWiseModel(
+      Context &ctx,
       std::shared_ptr<const PartialQuadratureSpace> qspace,
       const Parameters& parameters)
-      : ModelBase(qspace->getFiniteElementDiscretization()),
+      : ModelBase(ctx, qspace->getFiniteElementDiscretization()),
         Material(qspace, loadModel(throwing, parameters)) {
     checkParameters(throwing, parameters,
                     PointWiseModel::getParametersDescription());

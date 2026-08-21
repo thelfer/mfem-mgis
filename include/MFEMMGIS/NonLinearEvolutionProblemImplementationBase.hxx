@@ -59,10 +59,13 @@ namespace mfem_mgis {
     static std::vector<std::string> getParametersList();
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
+     * \param[in] p: parameters
      */
     NonLinearEvolutionProblemImplementationBase(
+        Context& ctx,
         std::shared_ptr<FiniteElementDiscretization>,
         const Hypothesis,
         const Parameters&);
@@ -88,7 +91,9 @@ namespace mfem_mgis {
      * \brief set the linear solver
      * \param[in] s: linear solver handler
      */
-    virtual void updateLinearSolver(LinearSolverHandler);
+    virtual void updateLinearSolver(
+      Context& ctx,
+      LinearSolverHandler s);
     //
     [[nodiscard]] FiniteElementDiscretization&
     getFiniteElementDiscretization() noexcept override;

@@ -9,6 +9,7 @@
 #define LIB_MFEMMGIS_PARAVIEWEXPORTRESULTS_IXX
 
 #include "mfem.hpp"
+#include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include <MFEMMGIS/Profiler.hxx>
@@ -34,17 +35,18 @@ namespace mfem_mgis {
 
   template <bool parallel>
   ParaviewExportResults<parallel>::ParaviewExportResults(
-      NonLinearEvolutionProblemImplementation<parallel>& p,
-      const Parameters& params)
-      : exporter(get<std::string>(throwing, params, "OutputFileName")),
-        result(&p.getFiniteElementSpace()),
+    mgis::Context& ctx,
+    NonLinearEvolutionProblemImplementation<parallel>& pb,
+    const Parameters& params)
+    : exporter(get<std::string>(throwing, params, "OutputFileName")),
+        result(&pb.getFiniteElementSpace()),
         cycle(0) {
-    CatchTimeSection("ParaviewExportResults::Constructor");
-    auto& u1 = p.getUnknowns(ets);
-    this->result.MakeTRef(&p.getFiniteElementSpace(), u1, 0);
+    CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
+    auto& u1 = pb.getUnknowns(ets);
+    this->result.MakeTRef(&pb.getFiniteElementSpace(), u1, 0);
 
     /** Default, the mesh is the entire mesh */
-    Mesh<parallel>& pmesh = p.getMesh();
+    Mesh<parallel>& pmesh = pb.getMesh();
 
     bool contains_brd =
         contains(params, "Boundary") || contains(params, "Boundaries");
@@ -55,13 +57,13 @@ namespace mfem_mgis {
       Profiler::Utils::Message(
           "You can not define 'Material' and 'Boundary' in a single "
           "ParaviewExportResults post processing");
-      std::exit(0);
+      std::exit(EXIT_FAILURE);
     }
 
     if (contains_mat) { /** Materials and Sub mesh */
       /** "false" means that we double check if params include Material or
        * Materials */
-      auto materials_ids = getMaterialsIdentifiers(throwing, p, params, false);
+      auto materials_ids = getMaterialsIdentifiers(throwing, pb, params, false);
       mfem::Array<int> mat_attributes;
 
       /** Create Submesh using the material identifiers */
@@ -73,7 +75,7 @@ namespace mfem_mgis {
           SubMesh<parallel>::CreateFromDomain(pmesh, mat_attributes));
 
       /** Create the corresponding Grid Function */
-      auto& FED = p.getFiniteElementDiscretization();
+      auto& FED = pb.getFiniteElementDiscretization();
       const auto& fec_subdomain = FED.getFiniteElementCollection();
 
       this->fes_sm = std::make_shared<FiniteElementSpace<parallel>>(
@@ -109,7 +111,7 @@ namespace mfem_mgis {
 
       /** "false" means that we double check if params include Material or
        * Materials */
-      auto bdrAttributes = getBoundariesIdentifiers(throwing, p, params, false);
+      auto bdrAttributes = getBoundariesIdentifiers(throwing, pb, params, false);
 
       /** Get the list of boundary attributes */
       mfem::Array<int> bdr_attributes;
@@ -124,7 +126,7 @@ namespace mfem_mgis {
           SubMesh<parallel>::CreateFromBoundary(pmesh, bdr_attributes)));
 
       /** Create the corresponding Grid Function */
-      auto& FED = p.getFiniteElementDiscretization();
+      auto& FED = pb.getFiniteElementDiscretization();
       const auto& fec_subdomain = FED.getFiniteElementCollection();
 
       this->fes_sm = std::make_shared<FiniteElementSpace<parallel>>(
@@ -169,10 +171,11 @@ namespace mfem_mgis {
 
   template <bool parallel>
   void ParaviewExportResults<parallel>::execute(
+      mgis::Context& ctx,
       NonLinearEvolutionProblemImplementation<parallel>&,
       const real t,
       const real dt) {
-    CatchTimeSection("ParaviewExportResults::Execute");
+    CatchTimeSection(ctx, "ParaviewExportResults::Execute");
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
     // SetFromTrueVector needed here in MFEM for at least two rationales:

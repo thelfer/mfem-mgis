@@ -4,6 +4,8 @@
  * `IterativeCouplingScheme` class \date   05/12/2022
  */
 
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/AbstractCouplingSchemeConvergenceCriterion.hxx"
 #include "MFEMMGIS/IterativeCouplingScheme.hxx"
 
@@ -27,8 +29,8 @@ namespace mfem_mgis {
     return {};
   }  // end of getParametersDescription
 
-  IterativeCouplingScheme::IterativeCouplingScheme(const MeshDiscretization &m)
-      : CouplingSchemeBase(m) {}  // end of IterativeCouplingScheme
+  IterativeCouplingScheme::IterativeCouplingScheme(Context& ctx, const MeshDiscretization &m)
+      : CouplingSchemeBase(ctx, m) {}  // end of IterativeCouplingScheme
 
   bool IterativeCouplingScheme::setMaximumNumberOfIterations(
       Context &ctx, const size_type n) noexcept {
@@ -126,8 +128,10 @@ namespace mfem_mgis {
   std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
   IterativeCouplingScheme::computeNextState(Context &ctx,
                                             const TimeStep &ts) noexcept {
-    //     [[maybe_unused]] auto profiler =
-    //         ctx.startResourcesProfiling<1>("LoopCouplingScheme::computeNextState");
+    auto profiler_global = ctx.startNewProfiling(
+        "IterativeCouplingScheme::computeNextState", 
+        ctx.isProfilingEnabled());
+
     if (this->convergence_criteria.empty()) {
       std::ignore =
           ctx.registerErrorMessage("no convergence criterion defined");
@@ -146,9 +150,9 @@ namespace mfem_mgis {
       ctx.log(verboseLevel2, "* iteration " + std::to_string(i) +
                                  " of the iterative coupling scheme");
       for (const auto &m : this->items) {
-        //         [[maybe_unused]] auto iprofiler =
-        //             ctx.startResourcesProfiling<1>(m->getName() +
-        //             "::computeNextState");
+        auto profiler_item = ctx.startNewProfiling(
+              m->getName(), 
+              ctx.isProfilingEnabled());
         ctx.log(verboseLevel2, "* calling computeNextState for '" +
                                    getShortDescription(*m) + "'");
         auto cs = CouplingSchemeBase::update(ctx, *m);
