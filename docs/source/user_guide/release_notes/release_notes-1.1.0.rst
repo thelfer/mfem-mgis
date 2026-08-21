@@ -26,7 +26,10 @@ Highlights
   takes and `MGIS`'s :cxx:`Context` as their first argument.
 - The regularization proposed by Faltus et al. in the context of the
   third medium contact has been implemented for plane strain, plane
-  stress and tridmensional hypotheses
+  stress and tridmensional hypotheses.
+- MGIS contexts now handle gathering computation time information to
+  create the performance table instead of the previously used
+  CatchTimeSection.
   
 
 New features
@@ -254,6 +257,21 @@ Physical system, coupling schemes and models
 
 Line-search-like handling of behaviour integration failures
 -----------------------------------------------------------
+
+Profiling Toolkit
+-----------------
+
+Timers are now accessible by MGIS contexts, offering greater flexibility:
+
+- Eliminates the need for a single global object
+- Allows multiple contexts and the ability to distinguish different parts of the code managed through separate objects
+- Prevents potential negative interactions with other code using the same timer type.
+
+Example of usage:
+
+.. code:: c++
+
+   CatchTimeSection(ctx, "Class::FunctionName");
 
 Issues fixed
 ============
