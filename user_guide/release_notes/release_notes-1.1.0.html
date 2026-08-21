@@ -140,9 +140,10 @@
 <li><p><a class="reference internal" href="#the-simulation-class" id="id16">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Simulation</span></code> class</a></p></li>
 <li><p><a class="reference internal" href="#physical-system-coupling-schemes-and-models" id="id17">Physical system, coupling schemes and models</a></p></li>
 <li><p><a class="reference internal" href="#line-search-like-handling-of-behaviour-integration-failures" id="id18">Line-search-like handling of behaviour integration failures</a></p></li>
+<li><p><a class="reference internal" href="#profiling-toolkit" id="id19">Profiling Toolkit</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id19">Issues fixed</a></p></li>
+<li><p><a class="reference internal" href="#issues-fixed" id="id20">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="highlights">
@@ -155,7 +156,10 @@ scheme based on <cite>MGIS</cite>’s one. As such, many methods and functions n
 takes and <cite>MGIS</cite>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as their first argument.</p></li>
 <li><p>The regularization proposed by Faltus et al. in the context of the
 third medium contact has been implemented for plane strain, plane
-stress and tridmensional hypotheses</p></li>
+stress and tridmensional hypotheses.</p></li>
+<li><p>MGIS contexts now handle gathering computation time information to
+create the performance table instead of the previously used
+CatchTimeSection.</p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -359,6 +363,19 @@ an output stream using the <code class="code highlight c++ docutils literal high
 </section>
 <section id="line-search-like-handling-of-behaviour-integration-failures">
 <h3>Line-search-like handling of behaviour integration failures<a class="headerlink" href="#line-search-like-handling-of-behaviour-integration-failures" title="Link to this heading"></a></h3>
+</section>
+<section id="profiling-toolkit">
+<h3>Profiling Toolkit<a class="headerlink" href="#profiling-toolkit" title="Link to this heading"></a></h3>
+<p>Timers are now accessible by MGIS contexts, offering greater flexibility:</p>
+<ul class="simple">
+<li><p>Eliminates the need for a single global object</p></li>
+<li><p>Allows multiple contexts and the ability to distinguish different parts of the code managed through separate objects</p></li>
+<li><p>Prevents potential negative interactions with other code using the same timer type.</p></li>
+</ul>
+<p>Example of usage:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CatchTimeSection</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"Class::FunctionName"</span><span class="p">);</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="issues-fixed">
