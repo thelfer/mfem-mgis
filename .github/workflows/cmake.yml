@@ -29,8 +29,6 @@ jobs:
 
     - name: Install mpich
       run: sudo apt-get install mpich
-    - name: Install tbb
-      run: sudo apt-get install libtbb-dev
     - name: Install libfabric
       run: sudo apt-get install libfabric-dev 
     - name: Get Spack repo [required by mgis]
@@ -72,7 +70,8 @@ jobs:
         make check
     - name: clone MFEM-MGIS-EXAMPLES
       run: git clone https://github.com/latug0/mfem-mgis-examples.git
-      
+    - name: Install tbb
+      run: sudo apt-get install libtbb-dev    
     - name: CMake && Compile MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
       run: |
