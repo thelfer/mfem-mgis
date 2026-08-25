@@ -182,7 +182,6 @@ namespace mfem_mgis {
       return dt;
     }();
     //
-#pragma message("HERE")
     //    auto b = isTrueOnAllProcesses(isValid(odt));
     auto b = isValid(odt);
     if (!b) {
