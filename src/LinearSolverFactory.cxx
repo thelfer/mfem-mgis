@@ -372,7 +372,8 @@ namespace mfem_mgis {
       const char* const Krylov_Dimension = "KDim";
       const auto allowed_parameters = std::vector<std::string>{
           Problem::SolverVerbosityLevel, SolverTolerance,
-          Problem::SolverMaximumNumberOfIterations, Preconditioner};
+          Problem::SolverMaximumNumberOfIterations, Preconditioner,
+          Krylov_Dimension};
       auto s = std::make_unique<mfem::HypreGMRES>(fespace.GetComm());
       s->iterative_mode = false;
       if (!checkParameters(ctx, params, allowed_parameters)) {
@@ -450,7 +451,8 @@ namespace mfem_mgis {
       const char* const Krylov_Dimension = "KDim";
       const auto allowed_parameters = std::vector<std::string>{
           Problem::SolverVerbosityLevel, SolverTolerance,
-          Problem::SolverMaximumNumberOfIterations, Preconditioner};
+          Problem::SolverMaximumNumberOfIterations, Preconditioner,
+          Krylov_Dimension};
       auto s = std::make_unique<mfem::HypreFGMRES>(fespace.GetComm());
       s->iterative_mode = false;
       if (!checkParameters(ctx, params, allowed_parameters)) {
