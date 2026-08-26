@@ -134,6 +134,5 @@ endif(BENCHMARKS)
 # install
 install(FILES
    ${PROJECT_SOURCE_DIR}/cmake/modules/FindMFEM.cmake
-   ${PROJECT_SOURCE_DIR}/cmake/modules/FindMFrontGenericInterface.cmake
    ${PROJECT_SOURCE_DIR}/cmake/modules/ParELAGCMakeUtilities.cmake
    DESTINATION share/mfem-mgis/cmake)
