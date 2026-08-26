@@ -3,7 +3,7 @@ function(add_test_case name)
   target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(${name} PRIVATE MFEMMGIS)
   add_test(NAME ${name} COMMAND ${name})
-  add_dependencies(check ${name})
+  add_dependencies(build-tests ${name})
 endfunction()
 
 function(add_test_case_mpi name parameters)
@@ -13,7 +13,7 @@ function(add_test_case_mpi name parameters)
     target_link_libraries(${name} PRIVATE MFEMMGIS)
     add_test(NAME ${name} COMMAND ${name} ${${parameters}} "--parallel" "0")
     add_test(NAME ${name}P COMMAND mpirun -n 2 ./${name} ${${parameters}} "--parallel" "1")
-    add_dependencies(check ${name})
+    add_dependencies(build-tests ${name})
   endif (MFEM_USE_MPI)
 endfunction()
 
@@ -43,7 +43,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PeriodicTest.cxx)
   target_link_libraries(PeriodicTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check PeriodicTest)
+  add_dependencies(build-tests PeriodicTest)
   
   function(add_periodic_test ncase nsolver)
     set(test "PeriodicTest-${ncase}-${nsolver}")
@@ -71,7 +71,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(UniaxialTensileTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check UniaxialTensileTest)
+  add_dependencies(build-tests UniaxialTensileTest)
 
   function(add_uniaxial_tensile_test behaviour internal_state_variable)
     set(test "UniaxialTensileTest-${behaviour}")
@@ -95,7 +95,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(ImposedPressureTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check ImposedPressureTest)
+  add_dependencies(build-tests ImposedPressureTest)
 
   function(add_imposed_pressure_test behaviour)
     set(test "ImposedPressureTest-${behaviour}")
@@ -113,7 +113,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(ImposedPressureTest2
     PRIVATE MFEMMGIS)
-  add_dependencies(check ImposedPressureTest2)
+  add_dependencies(build-tests ImposedPressureTest2)
 
   function(add_imposed_pressure_test2 behaviour)
     set(test "ImposedPressureTest2-${behaviour}")
@@ -135,7 +135,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(PartialQuadratureFunctionTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check PartialQuadratureFunctionTest)
+  add_dependencies(build-tests PartialQuadratureFunctionTest)
 
   add_executable(PartialQuadratureSpaceTest
     EXCLUDE_FROM_ALL
@@ -144,7 +144,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(PartialQuadratureSpaceTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check PartialQuadratureSpaceTest)
+  add_dependencies(build-tests PartialQuadratureSpaceTest)
   
   function(add_partial_quadrature_space_test behaviour internal_state_variable)
     set(test "PartialQuadratureSpaceTest-${behaviour}")
@@ -201,7 +201,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(StationaryNonLinearHeatTransferTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check StationaryNonLinearHeatTransferTest)
+  add_dependencies(build-tests StationaryNonLinearHeatTransferTest)
   
   function(add_stationary_non_linear_heat_transfer_test nsolver)
     set(test "StationaryNonLinearHeatTransferTest-${nsolver}")
@@ -226,7 +226,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(PointWiseModelTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check PointWiseModelTest)
+  add_dependencies(build-tests PointWiseModelTest)
   
   function(add_point_wise_model_test)
     set(test "PointWiseModelTest")
@@ -244,7 +244,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(PointWiseModelTest-2
     PRIVATE MFEMMGIS)
-  add_dependencies(check PointWiseModelTest-2)
+  add_dependencies(build-tests PointWiseModelTest-2)
 
   function(add_point_wise_model_test_2)
     set(test "PointWiseModelTest-2")
@@ -264,7 +264,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(L2ProjectionTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check L2ProjectionTest)
+  add_dependencies(build-tests L2ProjectionTest)
   
   function(add_l2_projection_test nsolver)
     set(test "L2ProjectionTest-${nsolver}")
@@ -284,7 +284,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(GridFunctionTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check GridFunctionTest)
+  add_dependencies(build-tests GridFunctionTest)
   
   function(add_grid_function_test)
     set(test "GridFunctionTest")
@@ -304,7 +304,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(ImplicitGradientRegularizationTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check ImplicitGradientRegularizationTest)
+  add_dependencies(build-tests ImplicitGradientRegularizationTest)
   
   function(add_implicit_gradient_regularization_test nsolver)
     set(test "ImplicitGradientRegularizationTest-${nsolver}")
@@ -329,7 +329,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(MicromorphicDamage2DTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check MicromorphicDamage2DTest)
+  add_dependencies(build-tests MicromorphicDamage2DTest)
   
   function(add_micromorphic_damage_2d_test nsolver)
     set(test "MicromorphicDamage2DTest-${nsolver}")
@@ -354,7 +354,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(MicromorphicDamage2DTest2
     PRIVATE MFEMMGIS)
-  add_dependencies(check MicromorphicDamage2DTest2)
+  add_dependencies(build-tests MicromorphicDamage2DTest2)
 
   function(add_micromorphic_damage_2d_test2 nsolver)
     set(test "MicromorphicDamage2DTest2-${nsolver}")
@@ -374,7 +374,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(MicromorphicDamage3DTest
     PRIVATE MFEMMGIS)
-  add_dependencies(check MicromorphicDamage3DTest)
+  add_dependencies(build-tests MicromorphicDamage3DTest)
 
   function(add_micromorphic_damage_3d_test nsolver)
     set(test "MicromorphicDamage3DTest-${nsolver}")
@@ -401,7 +401,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     add_executable(${test} EXCLUDE_FROM_ALL ${test}.cxx)
     target_include_directories(${test} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(${test} PRIVATE MFEMMGIS)
-    add_dependencies(check ${test})
+    add_dependencies(build-tests ${test})
     set(PredictionTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh" "--library" "$<TARGET_FILE:BehaviourTest>")
     add_test(NAME ${test}  COMMAND "./${test}" ${PredictionTestParameters} "--parallel" "0")
     set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
@@ -421,7 +421,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     set_target_properties(ParallelReadMode PROPERTIES COMPILE_FLAGS "-DDO_USE_MPI" )
     target_link_libraries(ParallelReadMode
       PRIVATE MFEMMGIS)
-    add_dependencies(check ParallelReadMode)
+    add_dependencies(build-tests ParallelReadMode)
 #    add_test(NAME Restart_Parallel_Read_Mode_MPI_2
 #      COMMAND mpirun -n 2 ./ParallelReadMode --mesh ${CMAKE_CURRENT_SOURCE_DIR}/mesh-test. --library "$<TARGET_FILE:BehaviourTest>" --read-mesh-mode Restart)
   endif(MFEM_USE_MPI)
@@ -432,7 +432,7 @@ if (MFEM_USE_MPI)
       PostProSubMesh.cxx)
   target_link_libraries(PostProSubMesh
     PRIVATE MFEMMGIS)
-  add_dependencies(check PostProSubMesh)
+  add_dependencies(build-tests PostProSubMesh)
   add_test(NAME PostProSubMeshPar
       COMMAND mpirun -n 2 ./PostProSubMesh --mesh ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library "$<TARGET_FILE:BehaviourTest>")
 endif(MFEM_USE_MPI)

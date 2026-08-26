@@ -276,6 +276,7 @@ Example of usage:
 Issues fixed
 ============
 
+- Issue 240: Small bug in `LinearSolverFactory.cxx`
 - Issue 218: [performance] synchronize success of the setup methods at a
   higher level to minimize collective communications enhancement
 - Issue 213: ￼ Add a simple way to resolve dependencies (material

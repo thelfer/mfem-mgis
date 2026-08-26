@@ -98,23 +98,29 @@ add_compile_definitions(MFEM_HYPRE_VERSION=${MFEM_HYPRE_VERSION})
 # testing
 set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
 
+add_custom_target(build-tests)
 if(CMAKE_CONFIGURATION_TYPES)
    if (NOT TARGET check)
       add_custom_target(check COMMAND 
-         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>)
+         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>
+         DEPENDS build-tests)
    else(NOT TARGET check)
       add_custom_target(mgis_check COMMAND 
-         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>)
+         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>
+         DEPENDS build-tests)
    endif(NOT TARGET check)
 else(CMAKE_CONFIGURATION_TYPES)
    if (NOT TARGET check)
       add_custom_target(check COMMAND 
-      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure )
+      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure 
+        DEPENDS build-tests)
    else(NOT TARGET check)
       add_custom_target(mgis_check COMMAND 
-      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure )
+      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure 
+        DEPENDS build-tests)
    endif(NOT TARGET check)
 endif(CMAKE_CONFIGURATION_TYPES)
+
 
 mfem_mgis_buildenv()
 
