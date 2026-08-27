@@ -54,12 +54,12 @@ namespace mfem_mgis {
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValue(
       const size_type o) const {
     return *(this->immutable_values.data() + this->getDataOffset(o));
-  }  // end of getIntegrationPointValues
+  }  // end of getIntegrationPointValue
 
   inline const real* ImmutablePartialQuadratureFunctionView::data(
       const size_type o) const {
     return this->immutable_values.data() + this->getDataOffset(o);
-  }  // end of getIntegrationPointValues
+  }  // end of data
 
   inline std::span<const real>
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValues(

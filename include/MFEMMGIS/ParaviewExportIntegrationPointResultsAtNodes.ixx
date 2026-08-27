@@ -29,8 +29,13 @@ namespace mfem_mgis {
                     {"OutputFileName", "Materials", "Results"});
     // if Materials exists, use it, otherwise, take all materials
     this->materials_identifiers = getMaterialsIdentifiers(throwing, p, params);
-    this->createSubMesh(p);
-    this->exporter.SetMesh(this->submesh.get());
+    const auto all_mids = p.getAssignedMaterialsIdentifiers();
+    if (this->materials_identifiers.size() == all_mids.size()) {
+      this->exporter.SetMesh(&(p.getMesh()));
+    } else {
+      this->createSubMesh(p);
+      this->exporter.SetMesh(this->submesh.get());
+    }
     //
     if (!contains(params, "Results")) {
       raise(
