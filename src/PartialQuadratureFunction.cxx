@@ -165,6 +165,7 @@ namespace mfem_mgis {
       raise("invalid partial quadrature space pointer");
     }
     this->data_begin = db;
+    this->data_stride = ds;
     this->data_size = ds;
     if (this->qspace->getNumberOfIntegrationPoints() == 0) {
       // this may happen due to partionning in parallel
