@@ -143,6 +143,11 @@ namespace mfem_mgis {
     this->data_stride = ds;
     this->data_begin = db;
     this->data_size = nv;
+    if (this->qspace->getNumberOfIntegrationPoints() == 0) {
+      // this may happen due to partionning in parallel
+      this->data_stride = 0;
+      return;
+    }
     if (this->data_begin < 0) {
       raise("invalid start of the data");
     }
@@ -173,6 +178,10 @@ namespace mfem_mgis {
       return;
     }
     checkPartialQuadratureFunctionConstructorArguments(s, v, db, ds);
+#pragma message("HERE")
+    const auto d = std::div(static_cast<size_type>(v.size()),
+                            this->qspace->getNumberOfIntegrationPoints());
+    this->data_stride = d.quot;
     this->immutable_values = v;
   }  // end of ImmutablePartialQuadratureFunctionView
 
@@ -195,12 +204,12 @@ namespace mfem_mgis {
   const real* ImmutablePartialQuadratureFunctionView::data(
       const size_type e, const size_type i) const {
     return this->data(this->qspace->getOffset(e) + i);
-  }  // end of getIntegrationPointValues
+  }  // end of data
 
   const real& ImmutablePartialQuadratureFunctionView::getIntegrationPointValue(
       const size_type e, const size_type i) const {
     return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
-  }  // end of getIntegrationPointValues
+  }  // end of getIntegrationPointValue
 
   std::span<const real>
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValues(
