@@ -8,17 +8,20 @@ Benchmarks
 Profiling tools
 ^^^^^^^^^^^^^^^
 
-``MFEM-MGIS`` provides a simple tool for profiling your application, consisting mainly in generating a time table of timed sections respecting the call stack (tree). The master or root timer of the call stack is initialized during the general initialization of mfem-mgis: 
+``MFEM-MGIS`` provides a simple tool for profiling your application, consisting mainly in generating a time table of timed sections respecting the call stack (tree). 
+
+In the current architecture, all timers and profiling states are managed directly by an ``mgis::Context`` object. This allows for thread-safe and instance-specific profiling. To use the profiling tools, you must first create a context and explicitly enable profiling:
 
 .. code-block:: c++
 
-  mfem_mgis::initialize(argc, argv);
+  mgis::Context ctx;
+  ctx.enableProfiling(true); // Timers are now active for this context
 
-Displaying the time table in your terminal is done by adding the following function call: 
+Displaying the time table in your terminal is done by passing your context to the output manager: 
 
 .. code-block:: c++
 
-  mfem_mgis::Profiler::timers::print_timers();
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
 
 This is an example of an output:
 
@@ -45,11 +48,15 @@ This is an example of an output:
   | |--> PeriodicNonLinEvPB::constructor_with_bct                            |                  1 |           0.000045 |           0.000047 |           0.000050 |          0.081340% |          0.053553% |
   |-- end timetable ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
-Writing the time table to a file is done by adding the following function call:
+.. note::
+
+  Running your code sequentially will remove the columns related to load imbalance (``min(s), max(s), imb(%)``), as they are specific to parallel (MPI) executions.
+
+Writing the time table to a file is done by calling:
 
 .. code-block:: c++
 
-  mfem_mgis::Profiler::timers::write_timers();
+  mfem_mgis::Profiler::OutputManager::writeFile(ctx);
 
 
 Each line is composed of the section name, number of calls, time in seconds, and ratio to total time. This is an example of an output:
@@ -75,25 +82,24 @@ Each line is composed of the section name, number of calls, time in seconds, and
 
 .. note::
 
-  You can specify the name of your output file by using ``mfem_mgis::Profiler::OutputManager::writeFile("OutputTimerFile.perf")``.
+  You can specify the name of your output file by using ``mfem_mgis::Profiler::OutputManager::writeFile(ctx, "OutputTimerFile.perf")``.
 
-.. note::
 
-  Both functions can be called directly using ``print_and_write_timers()``.
+You can instrument each of your functions using section timers. Because timers are now firmly attached to the context, you must pass ``ctx`` to the profiling macros. A major advantage of this approach is that if ``ctx.enableProfiling(false)`` is set, the macros will instantly bypass the time measurements with virtually zero overhead. This allows you to safely keep the instrumentation in your production code.
 
-You can instrument each of your functions using section timers. It's important to remember that adding timers can add extra cost, negligible for "big" functions but very costly for functions called in each element.
+It's important to remember that adding timers can add extra cost, negligible for "big" functions but very costly for functions called in each element.
 
 - To time a function, place this instruction at the start of your function; the timer will stop at the end of the scope (the second time point is hidden in the timer destructor).
 
 .. code-block:: c++
 
-  CatchTimeSection("NameOfYourFunction");
+  CatchTimeSection(ctx, "NameOfYourFunction");
 
 - To add a second timer to the same scope, you can use:
 
 .. code-block:: c++
 
-  CatchNestedTimeSection("NameOfYourNestedSection");
+  CatchNestedTimeSection(ctx, "NameOfYourNestedSection");
 
 Benchmarks RVE MOX
 ^^^^^^^^^^^^^^^^^^

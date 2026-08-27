@@ -1094,3 +1094,166 @@ References
 .. [#portelette2018] Portelette, L., Amodeo, J., Madec, R., *et al.*  
    *Crystal viscoplastic modeling of UO₂ single crystal.*  
    *Journal of Nuclear Materials*, **510**, 635–643 (2018).
+
+
+Thermo-Mechanical Simulation of U3Si2/ALFENI Nuclear Fuel Elements
+==================================================================
+
+This simulation models the thermo-mechanical behavior of a nuclear fuel element (U3Si2 fuel, ALFENI cladding, and stiffeners) under a transient power ramp. It relies on a fully coupled non-linear resolution using the MFEM-MGIS framework, integrating MFront behavior laws for heat transfer, solid swelling, and visco-plasticity.
+
+Problem solved
+--------------
+
+.. code:: text
+
+   Problem : 3D Thermo-Mechanical Iterative Coupling 
+
+   Parameters : 
+   start time = 0 s
+   power ramp = 100,000 s
+   end time   = 2,000,000 s (configurable)
+
+   Power History : 
+           [ P_max * (t / 100,000)  for t <= 100,000 ]
+   P(t) =  [ P_max                  for t >  100,000 ]
+
+   Materials and MFront Behavior Laws :
+   [ Domain     | ID | Heat Transfer           | Mechanics                                   ]
+   [ U3Si2 Fuel | 1  | U3SI2_ThermiqueCouplee  | U3SI2_NortonPRQ + U3SI2_SolidSwelling       ]
+   [ ALFENI Clad| 2  | ALFENI_ThermiqueCouplee | ALFENI_HyperElastic                         ]
+   [ Stiffeners | 3  | ALFENI_ThermiqueCouplee | ALFENI_HyperElastic                         ]
+
+   Coupling Scheme:
+   IterativeCouplingScheme (Max iterations: 10, Tol: 1e-6)
+   1. Heat Transfer Model
+   2. Power Field Updater (External Model forcing power variation at integration points)
+   3. Swelling Model (PointWise)
+   4. Mechanics Model
+
+   Element :
+   - Family H1
+   - Order defined by user (default: 1 or 2)
+
+Temperature distribution
+~~~~~~~~~~~~~~~~~~~~~~~~
+  .. image:: img/Temperature_couronne.png
+
+Displacement
+~~~~~~~~~~~~
+  .. image:: img/Deplacement_couronne.png
+
+How to run the simulation
+-------------------------
+
+
+Build the mesh
+--------------
+
+The mesh is generated using a dedicated Python script (``assemblage_hexa.py``), which automatically builds the geometry and outputs a ready-to-use ``.msh`` file. This mesh perfectly defines the 3 physical domains corresponding to the material IDs (1: fuel, 2: cladding, 3: stiffeners).
+
+.. code:: bash
+
+   # generate the perfectly configured .msh file
+   python3 assemblage_hexa.py
+
+Run the simulation
+------------------
+
+Run a minimal version of the simulation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to run the simulation in sequential computing mode, provide the mesh and the compiled MFront libraries:
+
+.. code:: bash
+
+   # run the simulation specifying the mesh and material libraries
+   ./Thermomechanical --mesh assemblage_hexa.msh -lU src/libU3SI2-generic.so -lA src/libALFENI-generic.so
+
+Available options
+~~~~~~~~~~~~~~~~~
+
+To customize the simulation, several options are available, as detailed below.
+
++----------------------------+-------------------------------------------------+
+| Command line               | Description                                     |
++============================+=================================================+
+| --mesh or -m               | Specify the mesh file                           |
++----------------------------+-------------------------------------------------+
+| --libraryU3SI2 or -lU      | MFront material library for U3Si2               |
++----------------------------+-------------------------------------------------+
+| --libraryALFENI or -lA     | MFront material library for ALFENI              |
++----------------------------+-------------------------------------------------+
+| --solverTh or -svTh        | Linear solver for heat transfer                 |
++----------------------------+-------------------------------------------------+
+| --preconditionnerTh or     | Preconditioner for heat transfer                |
+| -pcTh                      |                                                 |
++----------------------------+-------------------------------------------------+
+| --solverMc or -svMc        | Linear solver for mechanics                     |
++----------------------------+-------------------------------------------------+
+| --preconditionnerMc or     | Preconditioner for mechanics                    |
+| -pcMc                      |                                                 |
++----------------------------+-------------------------------------------------+
+| --order or -o              | Finite element order (polynomial degree)        |
++----------------------------+-------------------------------------------------+
+| --refinement or -r         | Uniform refinement level of the mesh (parallel) |
++----------------------------+-------------------------------------------------+
+| --post-processing or -p    | Enable Paraview VTU exports (default = 0)       |
++----------------------------+-------------------------------------------------+
+| --verbosity-level or -v    | Output verbosity (default = 0)                  |
++----------------------------+-------------------------------------------------+
+| --debug or -d              | Enable physics statistics output at end of run  |
++----------------------------+-------------------------------------------------+
+
+Example of a customized simulation with debugging and post-processing enabled:
+
+.. code:: bash
+
+   ./Thermomechanical -m assemblage_hexa.msh -lU src/libU3SI2-generic.so -lA src/libALFENI-generic.so -p 1 -d
+
+Parallel computing mode
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The simulation is fully compatible with MPI. 
+
+.. code:: bash
+
+   # run locally with 8 cores
+   mpirun -n 8 Thermomechanical -m assemblage_hexa.msh -lU src/libU3SI2-generic.so -lA src/libALFENI-generic.so -p 1
+
+Simulation can be run on supercomputers. For example, on Topaze, a CCRT-hosted supercomputer co-designed by Atos and CEA, the commands are:
+
+.. code:: bash
+
+   ccc_mprun -n 128 -c 1 -p milan Thermomechanical -m assemblage_hexa.msh -lU src/libU3SI2-generic.so -lA src/libALFENI-generic.so -r 1
+
+.. note::
+
+   You might want to split your mesh file before proceeding, see the
+   `MeshReader documentation <https://thelfer.github.io/mfem-mgis/user_guide/mesh.html>`_.
+
+Post-processing and Visualization
+---------------------------------
+
+Live Physics Statistics (Sanity Check)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the ``--debug`` (or ``-d``) flag is used, the simulation will output a global MPI-reduced sanity check at the end of the calculation. This is highly recommended to quickly detect numerical divergence or unphysical states. It includes Global Min, Max, Mean, and Standard Deviation for:
+
+* Temperature (Nodal)
+* Displacement Magnitude (Nodal)
+* Solid Swelling (Integration points, on the fuel only)
+
+Visualization with Paraview
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the ``--post-processing 1`` flag is used, results are exported in the ``Results/`` directory as ``.vtu`` (Unstructured Grid) and ``.pvd`` (Collection) files:
+
+* ``Results/Thermal_*.vtu``: Temperature fields.
+* ``Results/Mechanics_*.vtu``: Displacement, Strain, and Stress fields.
+* ``Results/Swelling_*.vtu``: Solid swelling field (projected at nodes for the fuel domain).
+
+**Recommended Paraview Pipeline:**
+
+1. Open the ``.pvd`` files in Paraview.
+2. To visualize the thermo-mechanical expansion, apply a **Warp By Vector** filter on the ``Mechanics`` dataset using the ``Displacement`` array.
+3. *Note on Swelling:* The ``Swelling`` data exported to Paraview is mathematically projected from integration points to nodes. For absolute extreme values (Min/Max), always refer to the raw integration point data provided by the ``--debug`` terminal output.
