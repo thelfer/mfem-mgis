@@ -100,27 +100,14 @@ set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
 
 add_custom_target(build-tests)
 if(CMAKE_CONFIGURATION_TYPES)
-   if (NOT TARGET check)
-      add_custom_target(check COMMAND 
-         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>
-         DEPENDS build-tests)
-   else(NOT TARGET check)
-      add_custom_target(mgis_check COMMAND 
-         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>
-         DEPENDS build-tests)
-   endif(NOT TARGET check)
+   add_custom_target(check COMMAND 
+     ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>
+     DEPENDS build-tests)
 else(CMAKE_CONFIGURATION_TYPES)
-   if (NOT TARGET check)
-      add_custom_target(check COMMAND 
-      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure 
-        DEPENDS build-tests)
-   else(NOT TARGET check)
-      add_custom_target(mgis_check COMMAND 
-      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure 
-        DEPENDS build-tests)
-   endif(NOT TARGET check)
+   add_custom_target(check COMMAND 
+     ${CMAKE_CTEST_COMMAND} -T test --output-on-failure 
+     DEPENDS build-tests)
 endif(CMAKE_CONFIGURATION_TYPES)
-
 
 mfem_mgis_buildenv()
 
