@@ -63,10 +63,10 @@ namespace mfem_mgis {
      * \param[in] s:struct containing the arguments TODO
      */
     //Outdated ?
-    virtual bool processAdditionalConvergenceCheck(Context&, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments&) const ; 
+    virtual std::optional<bool> processAdditionalConvergenceCheck(Context&, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments&) const ; 
     
     virtual void processAdditionalConvergenceReset();
-
+    virtual void processAdditionalConvergenceHelper();
   
     /*!
      * \brief compute the correction associated with the given residual
