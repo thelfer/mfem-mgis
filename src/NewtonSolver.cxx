@@ -45,15 +45,19 @@ namespace mfem_mgis {
   } // end of addAdditionalConvergenceCheck
 
   /* // Unused ? Because of the change from std::function to a struct */
-  bool NewtonSolver::processAdditionalConvergenceCheck(Context& ctx, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
+  std::optional<bool> NewtonSolver::processAdditionalConvergenceCheck(Context& ctx, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
     //TODO
     //CatchTimeSection("NS::processAdditionalConvergenceCheck");
-    for (auto& a : this->acc_actions) {
-        if (!a->check(ctx,s)) {
-            return false;
-        }
-    }
-    return true;
+    bool cv = s.converged;
+    // a->check must be called (for each element of the list, in case it manipulates some values as a side effect)
+      for (auto& a : this->acc_actions) {
+          std::optional<bool> result = a->check(ctx,s);
+          if (isInvalid(result)){
+              return {};
+          }
+          cv = cv && *result; 
+      }
+    return cv;
   }  // end of processAdditionalConvergenceCheck
 
   void NewtonSolver::processAdditionalConvergenceReset()  {
@@ -61,6 +65,14 @@ namespace mfem_mgis {
     //CatchTimeSection("NS::processAdditionalConvergenceReset");
     for (auto& a : this->acc_actions) {
       a->reset();
+    }
+  }  // end of processAdditionalConvergenceReset
+  
+  void NewtonSolver::processAdditionalConvergenceHelper()  {
+    //TODO
+    //CatchTimeSection("NS::processAdditionalConvergenceHelper");
+    for (auto& a : this->acc_actions) {
+      a->helper();
     }
   }  // end of processAdditionalConvergenceReset
 
@@ -156,9 +168,22 @@ namespace mfem_mgis {
       }
       this->Monitor(it, norm, r, x);
       //
-      if (norm <= norm_goal) {
-        this->converged = 1;
+      auto result = this->processAdditionalConvergenceCheck(*this->ctx_ptr, {
+          .residual_norm = norm,
+          .reference_residual_norm = this->reference_residual_norm.value(),
+          .iter = it ,
+          .max_iter = this->max_iter,
+          .converged = norm <= norm_goal,
+          .u = x
+          }
+          );     
+      if (isInvalid(result)){
+        this->converged=false;
         break;
+      }
+      this->converged = *result;
+      if (this->converged){
+          break;
       }
       //
       if (it >= this->max_iter) {
@@ -207,15 +232,6 @@ namespace mfem_mgis {
       previous_norms[1] = norm;
       norm = this->Norm(r);
 
-      this->processAdditionalConvergenceCheck(*this->ctx_ptr, {
-          .residual_norm = norm,
-          .reference_residual_norm = this->reference_residual_norm.value(),
-          .iter = it ,
-          .max_iter = this->max_iter,
-          .converged = this->converged,
-          .u = x
-          }
-          );
      ++it;
     }
     this->final_iter = it;

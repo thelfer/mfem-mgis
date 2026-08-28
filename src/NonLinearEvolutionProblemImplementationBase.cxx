@@ -475,8 +475,9 @@ namespace mfem_mgis {
       }
       return true;
     }();
-    NewtonSolver& s = this->getSolver();
-    s.processAdditionalConvergenceReset(); 
+     NewtonSolver& s = this->getSolver();
+    s.processAdditionalConvergenceHelper();
+    
     return isTrueOnAllProcesses(*(this->fe_discretization), success);
   }  // end of setup
 
@@ -572,6 +573,10 @@ namespace mfem_mgis {
     this->setTimeIncrement(dt);
     this->setup(t, dt);
     NonLinearResolutionOutput output;
+
+    NewtonSolver& newton = this->getSolver();
+    //newton.processAdditionalConvergenceHelper(); 
+
     if (this->prediction_policy.strategy !=
         PredictionStrategy::DEFAULT_PREDICTION) {
       const auto onorm = this->computePrediction(ctx, t, dt);
@@ -586,6 +591,9 @@ namespace mfem_mgis {
         }
       }
     }
+
+    newton.processAdditionalConvergenceReset();
+    
     auto fill_output = [&output](auto& s) {
       output.status = s.GetConverged();
       output.iterations = s.GetNumIterations();
