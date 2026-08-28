@@ -50,7 +50,7 @@ if (MFEM_USE_MPI)
 endif(MFEM_USE_MPI)
 
 # Support for OpenMP
-if(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
+if(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP) 
   find_package(OpenMP REQUIRED)
 endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
 
@@ -59,9 +59,9 @@ find_package (MFrontGenericInterface REQUIRED PATH_SUFFIXES share/mgis/cmake)
 set(MFEM_MGIS_ENABLE_TFEL_TESTS OFF)
 if(MGIS_HAVE_TFEL)
   if(TARGET tfel::TFELTests)
-    set(MFEM_MGIS_ENABLE_TFEL_TESTS ON)
-  endif(TARGET tfel::TFELTests)
-endif(MGIS_HAVE_TFEL)
+    set(MFEM_MGIS_ENABLE_TFEL_TESTS ON)    
+  endif(TARGET tfel::TFELTests) 
+endif(MGIS_HAVE_TFEL) 
 
 if(NOT MFEM_MGIS_ENABLE_TFEL_TESTS)
   option(enable-tfel-tests "enable tests based on TFEL tests" OFF)
@@ -73,7 +73,7 @@ if(NOT MFEM_MGIS_ENABLE_TFEL_TESTS)
 endif(NOT MFEM_MGIS_ENABLE_TFEL_TESTS)
 
 # find mfront for testing purposes
-include(cmake/modules/tfel.cmake)
+include(cmake/modules/tfel.cmake)  
 
 # documentation
 if (NOT TARGET doc)
@@ -94,7 +94,7 @@ if(enable-doxygen-doc)
     add_dependencies(doc doc-html)
     list(APPEND CPACK_COMPONENTS_ALL doxygen)
     set(CPACK_COMPONENT_DOXYGEN_DESCRIPTION
-      "Contains the TFEL doxygen documentation")
+      "Contains the MFEM/MGIS doxygen documentation")
     set(GENERATE_DOXYGEN ON)
   else(DOXYGEN_FOUND)
     message(FATAL_ERROR "doxygen is required")
@@ -106,29 +106,22 @@ endif(enable-doxygen-doc)
 add_subdirectory(docs)
 
 # HYPRE version
-include(cmake/modules/hypre.cmake)
+include(cmake/modules/hypre.cmake)  
 set(MFEM_HYPRE_VERSION ${HYPRE_VERSION})
 add_compile_definitions(MFEM_HYPRE_VERSION=${MFEM_HYPRE_VERSION})
 
 # testing
 set(CTEST_CONFIGURATION_TYPE "${JOB_BUILD_CONFIGURATION}")
 
+add_custom_target(build-tests)
 if(CMAKE_CONFIGURATION_TYPES)
-   if (NOT TARGET check)
-      add_custom_target(check COMMAND
-         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>)
-   else(NOT TARGET check)
-      add_custom_target(mgis_check COMMAND
-         ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>)
-   endif(NOT TARGET check)
+   add_custom_target(check COMMAND 
+     ${CMAKE_CTEST_COMMAND} -T test --output-on-failure -C $<CONFIGURATION>
+     DEPENDS build-tests)
 else(CMAKE_CONFIGURATION_TYPES)
-   if (NOT TARGET check)
-      add_custom_target(check COMMAND
-      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure )
-   else(NOT TARGET check)
-      add_custom_target(mgis_check COMMAND
-      ${CMAKE_CTEST_COMMAND} -T test --output-on-failure )
-   endif(NOT TARGET check)
+   add_custom_target(check COMMAND 
+     ${CMAKE_CTEST_COMMAND} -T test --output-on-failure 
+     DEPENDS build-tests)
 endif(CMAKE_CONFIGURATION_TYPES)
 
 mfem_mgis_buildenv()
@@ -143,6 +136,5 @@ endif(BENCHMARKS)
 # install
 install(FILES
    ${PROJECT_SOURCE_DIR}/cmake/modules/FindMFEM.cmake
-   ${PROJECT_SOURCE_DIR}/cmake/modules/FindMFrontGenericInterface.cmake
    ${PROJECT_SOURCE_DIR}/cmake/modules/ParELAGCMakeUtilities.cmake
    DESTINATION share/mfem-mgis/cmake)

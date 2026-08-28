@@ -39,7 +39,9 @@ namespace mfem_mgis {
   
   void NewtonSolver::addAdditionalConvergenceCheck(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> cv_check) {
     // TODO
-    //CatchTimeSection("NS::addAdditionalConvergenceCheck);
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::addAdditionalConvergenceCheck", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
     this->acc_actions.push_back(std::move(cv_check));
 
   } // end of addAdditionalConvergenceCheck
@@ -47,7 +49,9 @@ namespace mfem_mgis {
   /* // Unused ? Because of the change from std::function to a struct */
   std::optional<bool> NewtonSolver::processAdditionalConvergenceCheck(Context& ctx, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
     //TODO
-    //CatchTimeSection("NS::processAdditionalConvergenceCheck");
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCheck", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
     bool cv = s.converged;
     // a->check must be called (for each element of the list, in case it manipulates some values as a side effect)
       for (auto& a : this->acc_actions) {
@@ -62,7 +66,9 @@ namespace mfem_mgis {
 
   void NewtonSolver::processAdditionalConvergenceReset()  {
     //TODO
-    //CatchTimeSection("NS::processAdditionalConvergenceReset");
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceReset", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
     for (auto& a : this->acc_actions) {
       a->reset();
     }
@@ -70,7 +76,9 @@ namespace mfem_mgis {
   
   void NewtonSolver::processAdditionalConvergenceHelper()  {
     //TODO
-    //CatchTimeSection("NS::processAdditionalConvergenceHelper");
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceHelper", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
     for (auto& a : this->acc_actions) {
       a->helper();
     }
