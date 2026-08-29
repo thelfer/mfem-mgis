@@ -56,7 +56,22 @@ endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
 
 # MFontGenericInterface
 find_package (MFrontGenericInterface REQUIRED)
- 
+set(MFEM_MGIS_ENABLE_TFEL_TESTS OFF)
+if(MGIS_HAVE_TFEL)
+  if(TARGET tfel::TFELTests)
+    set(MFEM_MGIS_ENABLE_TFEL_TESTS ON)    
+  endif(TARGET tfel::TFELTests) 
+endif(MGIS_HAVE_TFEL) 
+
+if(NOT MFEM_MGIS_ENABLE_TFEL_TESTS)
+  option(enable-tfel-tests "enable tests based on TFEL tests" OFF)
+  if(enable-tfel-tests)
+    find_package(TFELTests REQUIRED
+      HINTS "${TFEL_DIR}")
+    set(MFEM_MGIS_ENABLE_TFEL_TESTS ON)
+  endif(enable-tfel-tests)
+endif(NOT MFEM_MGIS_ENABLE_TFEL_TESTS)
+
 # find mfront for testing purposes
 include(cmake/modules/tfel.cmake)  
 
@@ -79,7 +94,7 @@ if(enable-doxygen-doc)
     add_dependencies(doc doc-html)
     list(APPEND CPACK_COMPONENTS_ALL doxygen)
     set(CPACK_COMPONENT_DOXYGEN_DESCRIPTION
-      "Contains the TFEL doxygen documentation")
+      "Contains the MFEM/MGIS doxygen documentation")
     set(GENERATE_DOXYGEN ON)
   else(DOXYGEN_FOUND)
     message(FATAL_ERROR "doxygen is required")

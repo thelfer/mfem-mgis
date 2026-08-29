@@ -281,16 +281,6 @@ namespace mfem_mgis {
       raise("invalid partial quadrature space pointer");
     }
     this->qspace = s;
-    if (sm == StorageMode::EXTERNAL_STORAGE) {
-      this->local_values_storage.resize(v.size());
-      std::copy(v.begin(), v.end(), this->local_values_storage.begin());
-      this->mutable_values = std::span<real>(this->local_values_storage);
-      this->immutable_values =
-          std::span<const real>(this->local_values_storage);
-    } else {
-      this->mutable_values = v;
-      this->immutable_values = std::span<const real>(v);
-    }
     //
     this->data_begin = db;
     this->data_size = ds;
@@ -303,6 +293,17 @@ namespace mfem_mgis {
     const auto d = std::div(static_cast<size_type>(v.size()),
                             this->qspace->getNumberOfIntegrationPoints());
     this->data_stride = d.quot;
+    //
+    if (sm == StorageMode::EXTERNAL_STORAGE) {
+      this->mutable_values = v;
+      this->immutable_values = std::span<const real>(v);
+    } else {
+      this->local_values_storage.resize(v.size());
+      std::copy(v.begin(), v.end(), this->local_values_storage.begin());
+      this->mutable_values = std::span<real>(this->local_values_storage);
+      this->immutable_values =
+          std::span<const real>(this->local_values_storage);
+    }
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 
   void PartialQuadratureFunction::makeView(PartialQuadratureFunction& f) {

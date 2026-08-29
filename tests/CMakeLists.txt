@@ -1,9 +1,19 @@
 # Helper function to create a test executable and add it to build-tests
-function(add_test_executable name)
+function(add_test_executable_base name libs)
   add_executable(${name} EXCLUDE_FROM_ALL ${name}.cxx)
   target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-  target_link_libraries(${name} PRIVATE MFEMMGIS)
+  target_link_libraries(${name} PRIVATE "${libs}")
   add_dependencies(build-tests ${name})
+endfunction()
+
+function(add_test_executable name)
+  add_test_executable_base("${name}" "mfem-mgis::MFEMMGIS")
+endfunction()
+
+function(add_tfel_test_executable name)
+  if(MFEM_MGIS_ENABLE_TFEL_TESTS)
+    add_test_executable_base("${name}" "mfem-mgis::MFEMMGIS;tfel::TFELTests")
+  endif(MFEM_MGIS_ENABLE_TFEL_TESTS)
 endfunction()
 
 # Helper function to add a simple test case (serial only)
@@ -174,7 +184,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_imposed_pressure_test2(Elasticity)
 
   # PartialQuadratureFunctionTest executable
-  add_test_executable(PartialQuadratureFunctionTest)
+  add_tfel_test_executable(PartialQuadratureFunctionTest)
 
   # PartialQuadratureSpaceTest executable
   add_test_executable(PartialQuadratureSpaceTest)
