@@ -477,6 +477,24 @@ namespace mfem_mgis {
     std::vector<real> local_values_storage;
   };  // end of struct PartialQuadratureFunction
 
+  /*:
+   * \brief assign the values of an immutable view to the values of a mutable
+   * view. \return
+   *
+   * \param[in] ctx: execution context
+   * \param[in] f: mutable view
+   * \param[in] v: immutable view
+   * \return true on success, false on failure
+   *
+   * \pre both views must have the same number of components.
+   * \note partial quadrature spaces of the views may be
+   * different, we only require them to have the same size.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool assign_values(
+      Context& ctx,
+      PartialQuadratureFunctionView,
+      const ImmutablePartialQuadratureFunctionView&) noexcept;
+
   /*!
    * \brief update the partial quadrature function from the given grid function
    * \param[in,out] ctx: execution context

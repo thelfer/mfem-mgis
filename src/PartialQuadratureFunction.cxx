@@ -339,31 +339,78 @@ namespace mfem_mgis {
 
   void PartialQuadratureFunction::copyValues(
       const ImmutablePartialQuadratureFunctionView& v) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    assign_values(ctx, *this, v) | or_die;
+  }  // end of copy
+
+  MFEM_MGIS_EXPORT [[nodiscard]] bool assign_values(
+      Context& ctx,
+      PartialQuadratureFunctionView f,
+      const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    //
+    auto& qspace = f.getPartialQuadratureSpace();
+    const auto n = getSpaceSize(qspace);
+    if (n != getSpaceSize(v.getPartialQuadratureSpace())) {
+      return ctx.registerErrorMessage("unmatched space size");
+    }
+    const auto nc = f.getNumberOfComponents();
+    if (nc != v.getNumberOfComponents()) {
+      return ctx.registerErrorMessage("unmatched number of components");
+    }
+    //
+    if (getSpaceSize(qspace) == 0) {
+      return true;
+    }
+    //
+    auto* f_values = f.getValues().data() + f.getDataOffset();
     const auto* const v_values = v.getValues().data() + v.getDataOffset();
+    const auto fs = f.getDataStride();
     const auto vs = v.getDataStride();
-    if (vs == v.getNumberOfComponents()) {
-      // data are continous in v
-      std::copy(v_values, v_values + this->mutable_values.size(),
-                this->mutable_values.begin());
+    const auto f_data_continuous = fs == nc;
+    if (f_data_continuous) {
+      //       if (f.getDataOffset() != 0) {
+      //         ctx.registerErrorMessage("inconsistent function view") |
+      //         or_die;
+      //       }
+      //       if (v.getDataOffset() != 0) {
+      //         ctx.registerErrorMessage("inconsistent function view") |
+      //         or_die;
+      //       }
+      if (vs == v.getNumberOfComponents()) {
+        // data are also continous in v
+        std::copy(v_values, v_values + n, f_values);
+      } else {
+        if (nc == 1) {
+          // special case for scalars
+          for (size_type i = 0; i != n; ++i) {
+            f_values[i] = v_values[i * vs];
+          }
+        } else {
+          auto pvalues = f_values;
+          for (size_type i = 0; i != n; ++i) {
+            const auto b = v_values + i * vs;
+            const auto e = b + nc;
+            std::copy(b, e, pvalues);
+            pvalues += nc;
+          }
+        }
+      }
     } else {
-      if (this->data_size == 1) {
-        // special case for scalars
-        for (size_type i = 0; i != this->mutable_values.size(); ++i) {
-          this->mutable_values[i] = v_values[i * vs];
+      if (nc == 1) {
+        for (size_type i = 0; i != n; ++i) {
+          f_values[i * fs] = v_values[i * vs];
         }
       } else {
-        const auto n =
-            this->getPartialQuadratureSpace().getNumberOfIntegrationPoints();
-        auto pv = this->mutable_values.begin();
         for (size_type i = 0; i != n; ++i) {
           const auto b = v_values + i * vs;
-          const auto e = b + this->data_size;
-          std::copy(b, e, pv);
-          pv += this->data_size;
+          const auto e = b + nc;
+          std::copy(b, e, f_values + i * fs);
         }
       }
     }
-  }  // end of copy
+    return true;
+  }  // end of assign_values
 
   real* PartialQuadratureFunctionView::data(const size_type e,
                                             const size_type i) {

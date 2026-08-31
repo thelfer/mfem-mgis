@@ -359,85 +359,85 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_implicit_gradient_regularization_test(0)
 
-  # # MicromorphicDamage2DTest executable
-  # add_test_executable(MicromorphicDamage2DTest)
+  # MicromorphicDamage2DTest executable
+  add_test_executable(MicromorphicDamage2DTest)
 
-  # # Helper function for MicromorphicDamage2DTest cases
-  # function(add_micromorphic_damage_2d_test nsolver)
-  #   set(test "MicromorphicDamage2DTest-${nsolver}")
-  #   set(params
-  #       "--mesh"
-  #       "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
-  #       "--library"
-  #       "$<TARGET_FILE:BehaviourTest>"
-  #       "--behaviour"
-  #       "MiehePhaseFieldDamage"
-  #       "--linearsolver"
-  #       "${nsolver}")
-  #   add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest ${params}
-  #                                 "--parallel" "0")
-  #   set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
-  #   if(MFEM_USE_MPI)
-  #     add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest
-  #                                    ${params} "--parallel" "1")
-  #     set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
-  #   endif(MFEM_USE_MPI)
-  # endfunction()
+  # Helper function for MicromorphicDamage2DTest cases
+  function(add_micromorphic_damage_2d_test nsolver)
+    set(test "MicromorphicDamage2DTest-${nsolver}")
+    set(params
+        "--mesh"
+        "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
+        "--library"
+        "$<TARGET_FILE:BehaviourTest>"
+        "--behaviour"
+        "MiehePhaseFieldDamage"
+        "--linearsolver"
+        "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest ${params}
+                                  "--parallel" "0")
+    set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+    if(MFEM_USE_MPI)
+      add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest
+                                     ${params} "--parallel" "1")
+      set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
+    endif(MFEM_USE_MPI)
+  endfunction()
 
-  # # MicromorphicDamage2DTest2 executable
-  # add_test_executable(MicromorphicDamage2DTest2)
+  # MicromorphicDamage2DTest2 executable
+  add_test_executable(MicromorphicDamage2DTest2)
 
-  # # Helper function for MicromorphicDamage2DTest2 cases
-  # function(add_micromorphic_damage_2d_test2 nsolver)
-  #   set(test "MicromorphicDamage2DTest2-${nsolver}")
-  #   set(params
-  #       "--mesh"
-  #       "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
-  #       "--library"
-  #       "$<TARGET_FILE:BehaviourTest>"
-  #       "--behaviour"
-  #       "MicromorphicDamageII"
-  #       "--linearsolver"
-  #       "${nsolver}")
-  #   add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest2 ${params}
-  #                                 "--parallel" "0")
-  #   set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
-  #   if(MFEM_USE_MPI)
-  #     add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest2
-  #                                    ${params} "--parallel" "1")
-  #     set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
-  #   endif(MFEM_USE_MPI)
-  # endfunction()
+  # Helper function for MicromorphicDamage2DTest2 cases
+  function(add_micromorphic_damage_2d_test2 nsolver)
+    set(test "MicromorphicDamage2DTest2-${nsolver}")
+    set(params
+        "--mesh"
+        "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh"
+        "--library"
+        "$<TARGET_FILE:BehaviourTest>"
+        "--behaviour"
+        "MicromorphicDamageII"
+        "--linearsolver"
+        "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage2DTest2 ${params}
+                                  "--parallel" "0")
+    set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+    if(MFEM_USE_MPI)
+      add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage2DTest2
+                                     ${params} "--parallel" "1")
+      set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
+    endif(MFEM_USE_MPI)
+  endfunction()
 
-  # # MicromorphicDamage3DTest executable
-  # add_test_executable(MicromorphicDamage3DTest)
+  # MicromorphicDamage3DTest executable
+  add_test_executable(MicromorphicDamage3DTest)
 
-  # # Helper function for MicromorphicDamage3DTest cases
-  # function(add_micromorphic_damage_3d_test nsolver)
-  #   set(test "MicromorphicDamage3DTest-${nsolver}")
-  #   set(params
-  #       "--mesh"
-  #       "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
-  #       "--library"
-  #       "$<TARGET_FILE:BehaviourTest>"
-  #       "--behaviour"
-  #       "MicromorphicDamageII"
-  #       "--linearsolver"
-  #       "${nsolver}")
-  #   add_test(NAME ${test} COMMAND ./MicromorphicDamage3DTest ${params}
-  #                                 "--parallel" "0")
-  #   set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
-  #   if(MFEM_USE_MPI)
-  #     add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage3DTest
-  #                                    ${params} "--parallel" "1")
-  #     set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
-  #   endif(MFEM_USE_MPI)
-  # endfunction()
+  # Helper function for MicromorphicDamage3DTest cases
+  function(add_micromorphic_damage_3d_test nsolver)
+    set(test "MicromorphicDamage3DTest-${nsolver}")
+    set(params
+        "--mesh"
+        "${CMAKE_CURRENT_SOURCE_DIR}/bar-with-defect-3D.msh"
+        "--library"
+        "$<TARGET_FILE:BehaviourTest>"
+        "--behaviour"
+        "MicromorphicDamageII"
+        "--linearsolver"
+        "${nsolver}")
+    add_test(NAME ${test} COMMAND ./MicromorphicDamage3DTest ${params}
+                                  "--parallel" "0")
+    set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+    if(MFEM_USE_MPI)
+      add_test(NAME ${test}P COMMAND mpirun -n 2 ./MicromorphicDamage3DTest
+                                     ${params} "--parallel" "1")
+      set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
+    endif(MFEM_USE_MPI)
+  endfunction()
 
-  # # Micromorphic damage tests
-  # add_micromorphic_damage_2d_test2(0)
-  # add_micromorphic_damage_2d_test(0)
-  # add_micromorphic_damage_3d_test(0)
+  # Micromorphic damage tests
+  add_micromorphic_damage_2d_test2(0)
+  add_micromorphic_damage_2d_test(0)
+  add_micromorphic_damage_3d_test(0)
 
   # Helper function for PredictionTest cases
   function(add_prediction_test test)
