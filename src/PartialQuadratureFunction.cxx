@@ -230,7 +230,7 @@ namespace mfem_mgis {
       ~ImmutablePartialQuadratureFunctionView() = default;
 
   PartialQuadratureFunction::PartialQuadratureFunction(
-      PartialQuadratureFunction&& f, const bool local_copy) {
+      PartialQuadratureFunction&& f) {
     if (!f.local_values_storage.empty()) {
       // the function holds the memory, just take it from him
       static_cast<PartialQuadratureFunctionDataLayout&>(*this).operator=(f);
@@ -240,23 +240,19 @@ namespace mfem_mgis {
       this->immutable_values = local_values_storage;
     } else {
       // the function does not hold the memory
-      if (local_copy) {
-        this->copy(f);
-      } else {
-        this->makeView(f);
-      }
+      this->makeView(f);
     }
   }  // end of PartialQuadratureFunction
 
-  PartialQuadratureFunction::PartialQuadratureFunction(
-      const PartialQuadratureFunction& v)
-      : PartialQuadratureFunctionView() {
-    this->copy(v);
-  }  // end of PartialQuadratureFunction
-
-  PartialQuadratureFunction::PartialQuadratureFunction(
-      const ImmutablePartialQuadratureFunctionView& v) {
-    this->copy(v);
+  [[nodiscard]] std::optional<PartialQuadratureFunction>
+  PartialQuadratureFunction::copy(
+      Context& ctx, const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    try {
+      return {PartialQuadratureFunction(v)};
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
   }  // end of ImmutablePartialQuadratureFunctionView
 
   PartialQuadratureFunction::PartialQuadratureFunction(
@@ -270,6 +266,21 @@ namespace mfem_mgis {
     this->mutable_values = std::span<real>(this->local_values_storage);
     this->immutable_values = std::span<const real>(this->local_values_storage);
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
+
+  std::optional<PartialQuadratureFunction> PartialQuadratureFunction::borrow(
+      Context& ctx,
+      std::shared_ptr<const PartialQuadratureSpace> s,
+      std::span<real> v,
+      const size_type db,
+      const size_type ds) noexcept {
+    try {
+      return {PartialQuadratureFunction(s, StorageMode::EXTERNAL_STORAGE, v, db,
+                                        ds)};
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of borrow
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s,
@@ -313,23 +324,7 @@ namespace mfem_mgis {
     this->immutable_values = f.immutable_values;
   }
 
-  PartialQuadratureFunction& PartialQuadratureFunction::operator=(
-      const PartialQuadratureFunction& src) {
-    if (&src != this) {
-      this->copy(src);
-    }
-    return *this;
-  }
-
-  PartialQuadratureFunction& PartialQuadratureFunction::operator=(
-      const ImmutablePartialQuadratureFunctionView& src) {
-    if (&src != this) {
-      this->copy(src);
-    }
-    return *this;
-  }
-
-  void PartialQuadratureFunction::copy(
+  PartialQuadratureFunction::PartialQuadratureFunction(
       const ImmutablePartialQuadratureFunctionView& v) {
     this->qspace = v.getPartialQuadratureSpacePointer();
     const auto n = this->qspace->getNumberOfIntegrationPoints();

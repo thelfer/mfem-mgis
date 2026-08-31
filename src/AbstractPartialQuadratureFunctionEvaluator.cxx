@@ -28,26 +28,7 @@ namespace mfem_mgis {
 
   PartialQuadratureFunctionEvaluatorResult::
       PartialQuadratureFunctionEvaluatorResult(
-          const PartialQuadratureFunction& v) noexcept
-      : f(v) {
-    this->qspace = this->f->getPartialQuadratureSpacePointer();
-    this->data_begin = this->f->getDataOffset();
-    this->data_size = this->f->getNumberOfComponents();
-    this->data_stride = this->f->getDataStride();
-    this->immutable_values = this->f->getValues();
-  }  // end of PartialQuadratureFunctionEvaluatorResult
-
-  PartialQuadratureFunctionEvaluatorResult::
-      PartialQuadratureFunctionEvaluatorResult(
           PartialQuadratureFunctionEvaluatorResult&&) noexcept = default;
-
-  PartialQuadratureFunctionEvaluatorResult::
-      PartialQuadratureFunctionEvaluatorResult(
-          const PartialQuadratureFunctionEvaluatorResult&) noexcept = default;
-
-  PartialQuadratureFunctionEvaluatorResult&
-  PartialQuadratureFunctionEvaluatorResult::operator=(
-      PartialQuadratureFunctionEvaluatorResult&&) noexcept = default;
 
   PartialQuadratureFunctionEvaluatorResult::
       ~PartialQuadratureFunctionEvaluatorResult() noexcept = default;
@@ -76,11 +57,11 @@ namespace mfem_mgis {
       return oresult;
     }
     // copy the result of the evaluation to a new partial quadrature function
-    auto r =
-        PartialQuadratureFunction(oresult->getPartialQuadratureSpacePointer(),
-                                  oresult->getNumberOfComponents());
-    r = *oresult;
-    return {std::move(r)};
+    auto of = PartialQuadratureFunction::copy(ctx, *oresult);
+    if (isInvalid(of)) {
+      return {};
+    }
+    return {std::move(*of)};
   }  // end of evaluate
 
 }  // end of namespace mfem_mgis

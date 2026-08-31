@@ -370,12 +370,76 @@ namespace mfem_mgis {
         std::shared_ptr<const PartialQuadratureSpace>,
         std::function<real(real, real, real)>);
     /*!
+     * \return a newly created `PartialQuadratureFunction` which contains a copy
+     * of the values of the source
+     *
+     * \param[in] ctx: execution context
+     * \param[in] src: view being copied
+     *
+     * \note: this method has been introduced to avoid defining a copy
+     * constructor and an assignement operator in the
+     * `PartialQuadratureFunction` class
+     *
+     * \note: we strongly recommend not using this function, as it uses
+     * `std::copy` to copy the values. It is much better to create another
+     * version relying an the `assign` algorithm using the parallel programming
+     * model you wish to use
+     */
+    [[nodiscard]] static std::optional<PartialQuadratureFunction> copy(
+        Context&, const ImmutablePartialQuadratureFunctionView&) noexcept;
+
+    /*!
+     * \return a partial quadrature function that does not manage its
+     * values, but borrows them to an external memory
+     *
+     * \param[in] ctx: execution context
+     * \param[in] s: quadrature space.
+     * \param[in] v: values
+     * \param[in] db: start of the view inside the given data (i.e. the data
+     * offset)
+     * \param[in] ds: size of the view
+     *
+     * \note the data stride is taken as the quotient of the value size by
+     * the size of the partial quadrature space
+     * \note if unspecified, the data size is calculed as the difference of the
+     * data_stride and the data offset
+     */
+    [[nodiscard]] static std::optional<PartialQuadratureFunction> borrow(
+        Context&,
+        std::shared_ptr<const PartialQuadratureSpace>,
+        std::span<real>,
+        const size_type = 0,
+        const size_type = std::numeric_limits<size_type>::max()) noexcept;
+    /*!
      * \brief constructor
      * \param[in] s: quadrature space.
      * \param[in] size: size of the data stored per integration points.
      */
     PartialQuadratureFunction(std::shared_ptr<const PartialQuadratureSpace>,
                               const size_type = 1);
+    /*!
+     * \brief move constructor
+     * \param[in] f: moved function
+     * \param[in] local_copy: copy locally the function values if the moved
+     * function does not holds them, i.e. is a view.
+     * \note if the moved function holds the memory, the move constructor will
+     * take ownership of the memory
+     */
+    PartialQuadratureFunction(PartialQuadratureFunction&&);
+    //
+    PartialQuadratureFunctionView view();
+    //
+    ImmutablePartialQuadratureFunctionView view() const;
+
+    //! \brief destructor
+    ~PartialQuadratureFunction();
+
+   protected:
+    /*!
+     * \brief constructor
+     * \param[in] src: view to be copied
+     */
+    PartialQuadratureFunction(const ImmutablePartialQuadratureFunctionView&);
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
@@ -390,39 +454,6 @@ namespace mfem_mgis {
         std::span<real>,
         const size_type = 0,
         const size_type = std::numeric_limits<size_type>::max());
-    /*!
-     * \brief move constructor
-     * \param[in] f: moved function
-     * \param[in] local_copy: copy locally the function values if the moved
-     * function does not holds them, i.e. is a view.
-     * \note if the moved function holds the memory, the move constructor will
-     * take ownership of the memory
-     */
-    PartialQuadratureFunction(PartialQuadratureFunction&&, const bool = false);
-    //! \brief copy constructor
-    PartialQuadratureFunction(const PartialQuadratureFunction&);
-    /*!
-     * \brief constructor from an immutable view
-     *
-     * \note: data are copied in a local array
-     * \param[in] v: view
-     */
-    explicit PartialQuadratureFunction(
-        const ImmutablePartialQuadratureFunctionView&);
-    //! \brief assignement operator
-    PartialQuadratureFunction& operator=(
-        const ImmutablePartialQuadratureFunctionView&);
-    //! \brief standard assignement operator
-    PartialQuadratureFunction& operator=(const PartialQuadratureFunction&);
-    //
-    PartialQuadratureFunctionView view();
-    //
-    ImmutablePartialQuadratureFunctionView view() const;
-
-    //! \brief destructor
-    ~PartialQuadratureFunction();
-
-   protected:
     /*!
      * \brief turns this function into a view to the given function
      * \param[in] f: function

@@ -199,22 +199,22 @@ namespace mfem_mgis {
     if (isInvalid(os)) {
       return {};
     }
-    return PartialQuadratureFunction(qs, StorageMode::EXTERNAL_STORAGE, values,
-                                     *oo, *os);
+    return PartialQuadratureFunction::borrow(ctx, qs, values, *oo, *os);
   }  // end of buildPartialQuadratureFunction
 
-  static PartialQuadratureFunction buildPartialQuadratureFunction(
-      std::shared_ptr<const PartialQuadratureSpace> qs,
-      std::span<mgis::real> values,
-      const std::vector<mgis::behaviour::Variable> &variables,
-      const std::string_view n,
-      const Hypothesis h) {
-    const auto o = getVariableOffset(variables, n, h);
-    const auto s =
-        getVariableSize(mgis::behaviour::getVariable(variables, n), h);
-    return PartialQuadratureFunction(qs, StorageMode::EXTERNAL_STORAGE, values,
-                                     o, s);
-  }  // end of buildPartialQuadratureFunction
+  //   static PartialQuadratureFunction buildPartialQuadratureFunction(
+  //       std::shared_ptr<const PartialQuadratureSpace> qs,
+  //       std::span<mgis::real> values,
+  //       const std::vector<mgis::behaviour::Variable> &variables,
+  //       const std::string_view n,
+  //       const Hypothesis h) {
+  //     const auto o = getVariableOffset(variables, n, h);
+  //     const auto s =
+  //         getVariableSize(mgis::behaviour::getVariable(variables, n), h);
+  //     return PartialQuadratureFunction(qs, StorageMode::EXTERNAL_STORAGE,
+  //     values,
+  //                                      o, s);
+  //   }  // end of buildPartialQuadratureFunction
 
   static std::optional<ImmutablePartialQuadratureFunctionView>
   buildImmutablePartialQuadratureFunctionView(
@@ -273,18 +273,26 @@ namespace mfem_mgis {
   PartialQuadratureFunction getGradient(Material &m,
                                         const std::string_view n,
                                         const Material::StateSelection s) {
-    return buildPartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    return buildPartialQuadratureFunction(ctx,
+                                          m.getPartialQuadratureSpacePointer(),
                                           getStateManager(m, s).gradients,
-                                          m.b.gradients, n, m.b.hypothesis);
+                                          m.b.gradients, n, m.b.hypothesis) |
+           or_die;
   }  // end of getGradient
 
   ImmutablePartialQuadratureFunctionView getGradient(
       const Material &m,
       const std::string_view n,
       const Material::StateSelection s) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     return buildImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), getStateManager(m, s).gradients,
-        m.b.gradients, n, m.b.hypothesis);
+               ctx, m.getPartialQuadratureSpacePointer(),
+               getStateManager(m, s).gradients, m.b.gradients, n,
+               m.b.hypothesis) |
+           or_die;
   }  // end of getGradient
 
   std::optional<PartialQuadratureFunction> getThermodynamicForce(
@@ -311,20 +319,26 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction getThermodynamicForce(
       Material &m, const std::string_view n, const Material::StateSelection s) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     return buildPartialQuadratureFunction(
-        m.getPartialQuadratureSpacePointer(),
-        getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
-        m.b.hypothesis);
+               ctx, m.getPartialQuadratureSpacePointer(),
+               getStateManager(m, s).thermodynamic_forces,
+               m.b.thermodynamic_forces, n, m.b.hypothesis) |
+           or_die;
   }  // end of getThermodynamicForce
 
   ImmutablePartialQuadratureFunctionView getThermodynamicForce(
       const Material &m,
       const std::string_view n,
       const Material::StateSelection s) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     return buildImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(),
-        getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
-        m.b.hypothesis);
+               ctx, m.getPartialQuadratureSpacePointer(),
+               getStateManager(m, s).thermodynamic_forces,
+               m.b.thermodynamic_forces, n, m.b.hypothesis) |
+           or_die;
   }  // end of getThermodynamicForce
 
   std::optional<PartialQuadratureFunction> getInternalStateVariable(
@@ -333,9 +347,9 @@ namespace mfem_mgis {
       const std::string_view n,
       const Material::StateSelection s) noexcept {
     return buildPartialQuadratureFunction(
-        ctx, m.getPartialQuadratureSpacePointer(),
-        getStateManager(m, s).internal_state_variables, m.b.isvs, n,
-        m.b.hypothesis);
+               ctx, m.getPartialQuadratureSpacePointer(),
+               getStateManager(m, s).internal_state_variables, m.b.isvs, n,
+               m.b.hypothesis);
   }  // end of getInternalStateVariable
 
   std::optional<ImmutablePartialQuadratureFunctionView>
@@ -344,27 +358,33 @@ namespace mfem_mgis {
                            const std::string_view n,
                            const Material::StateSelection s) noexcept {
     return buildImmutablePartialQuadratureFunctionView(
-        ctx, m.getPartialQuadratureSpacePointer(),
-        getStateManager(m, s).internal_state_variables, m.b.isvs, n,
-        m.b.hypothesis);
+               ctx, m.getPartialQuadratureSpacePointer(),
+               getStateManager(m, s).internal_state_variables, m.b.isvs, n,
+               m.b.hypothesis);
   }  // end of getInternalStateVariable
 
   PartialQuadratureFunction getInternalStateVariable(
       Material &m, const std::string_view n, const Material::StateSelection s) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     return buildPartialQuadratureFunction(
-        m.getPartialQuadratureSpacePointer(),
-        getStateManager(m, s).internal_state_variables, m.b.isvs, n,
-        m.b.hypothesis);
+               ctx, m.getPartialQuadratureSpacePointer(),
+               getStateManager(m, s).internal_state_variables, m.b.isvs, n,
+               m.b.hypothesis) |
+           or_die;
   }  // end of getInternalStateVariable
 
   ImmutablePartialQuadratureFunctionView getInternalStateVariable(
       const Material &m,
       const std::string_view n,
       const Material::StateSelection s) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     return buildImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(),
-        getStateManager(m, s).internal_state_variables, m.b.isvs, n,
-        m.b.hypothesis);
+               ctx, m.getPartialQuadratureSpacePointer(),
+               getStateManager(m, s).internal_state_variables, m.b.isvs, n,
+               m.b.hypothesis) |
+           or_die;
   }  // end of getInternalStateVariable
 
   std::optional<PartialQuadratureFunction> getStoredEnergy(
@@ -373,9 +393,11 @@ namespace mfem_mgis {
     if (!sm.b.computesStoredEnergy) {
       return {};
     }
-    return PartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
-                                     StorageMode::EXTERNAL_STORAGE,
-                                     sm.stored_energies);
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    return PartialQuadratureFunction::borrow(
+               ctx, m.getPartialQuadratureSpacePointer(), sm.stored_energies) |
+           or_die;
   }  // end of getStoredEnergy
 
   std::optional<ImmutablePartialQuadratureFunctionView> getStoredEnergy(
@@ -394,9 +416,12 @@ namespace mfem_mgis {
     if (!sm.b.computesDissipatedEnergy) {
       return {};
     }
-    return PartialQuadratureFunction(m.getPartialQuadratureSpacePointer(),
-                                     StorageMode::EXTERNAL_STORAGE,
-                                     sm.dissipated_energies);
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    return PartialQuadratureFunction::borrow(
+               ctx, m.getPartialQuadratureSpacePointer(),
+               sm.dissipated_energies) |
+           or_die;
   }  // end of getDissipatedEnergy
 
   std::optional<ImmutablePartialQuadratureFunctionView> getDissipatedEnergy(
