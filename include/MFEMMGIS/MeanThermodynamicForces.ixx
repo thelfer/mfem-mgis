@@ -36,7 +36,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   void MeanThermodynamicForces<parallel>::execute(
-      Context&,
+      Context &,
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const real t,
       const real dt) {

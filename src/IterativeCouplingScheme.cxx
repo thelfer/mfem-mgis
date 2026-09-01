@@ -29,7 +29,8 @@ namespace mfem_mgis {
     return {};
   }  // end of getParametersDescription
 
-  IterativeCouplingScheme::IterativeCouplingScheme(Context& ctx, const MeshDiscretization &m)
+  IterativeCouplingScheme::IterativeCouplingScheme(Context &ctx,
+                                                   const MeshDiscretization &m)
       : CouplingSchemeBase(ctx, m) {}  // end of IterativeCouplingScheme
 
   bool IterativeCouplingScheme::setMaximumNumberOfIterations(
@@ -129,8 +130,7 @@ namespace mfem_mgis {
   IterativeCouplingScheme::computeNextState(Context &ctx,
                                             const TimeStep &ts) noexcept {
     auto profiler_global = ctx.startNewProfiling(
-        "IterativeCouplingScheme::computeNextState", 
-        ctx.isProfilingEnabled());
+        "IterativeCouplingScheme::computeNextState", ctx.isProfilingEnabled());
 
     if (this->convergence_criteria.empty()) {
       std::ignore =
@@ -150,9 +150,8 @@ namespace mfem_mgis {
       ctx.log(verboseLevel2, "* iteration " + std::to_string(i) +
                                  " of the iterative coupling scheme");
       for (const auto &m : this->items) {
-        auto profiler_item = ctx.startNewProfiling(
-              m->getName(), 
-              ctx.isProfilingEnabled());
+        auto profiler_item =
+            ctx.startNewProfiling(m->getName(), ctx.isProfilingEnabled());
         ctx.log(verboseLevel2, "* calling computeNextState for '" +
                                    getShortDescription(*m) + "'");
         auto cs = CouplingSchemeBase::update(ctx, *m);

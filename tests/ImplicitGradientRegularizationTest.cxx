@@ -49,7 +49,8 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   using namespace mfem_mgis;
   constexpr auto pi = mfem_mgis::real{3.14159265358979323846};
   constexpr auto l0 = mfem_mgis::real{0.1};
-  auto fed = FiniteElementDiscretization{ctx, 
+  auto fed = FiniteElementDiscretization{
+      ctx,
       {{"MeshFileName", params.mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", params.order},

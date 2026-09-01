@@ -46,14 +46,14 @@ namespace mfem_mgis {
     ctx.setLogStream(s.log_stream);
   }  // end of restore
 
-  CouplingSchemeBase::CouplingSchemeBase(Context&, const MeshDiscretization &m) noexcept
+  CouplingSchemeBase::CouplingSchemeBase(Context &,
+                                         const MeshDiscretization &m) noexcept
       : mesh(m) {}
 
-  CouplingSchemeBase::CouplingSchemeBase(Context& ctx, 
+  CouplingSchemeBase::CouplingSchemeBase(Context &ctx,
                                          const MeshDiscretization &m,
                                          const Parameters &parameters)
       : mesh(m) {
-        
     auto or_raise = ctx.getThrowingFailureHandler();
     checkParameters(ctx, parameters,
                     CouplingSchemeBase::getParametersDescription()) |
@@ -207,11 +207,10 @@ namespace mfem_mgis {
 
   bool CouplingSchemeBase::performInitializationTaksAtTheBeginningOfTheTimeStep(
       Context &ctx, const TimeStep &ts) noexcept {
+    auto profiler =
+        ctx.startNewProfiling("CouplingSchemeBase::performInitializationTaks",
+                              ctx.isProfilingEnabled());
 
-    auto profiler = ctx.startNewProfiling(
-        "CouplingSchemeBase::performInitializationTaks", 
-        ctx.isProfilingEnabled());
-    
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
       ctx.log(verboseLevel2,

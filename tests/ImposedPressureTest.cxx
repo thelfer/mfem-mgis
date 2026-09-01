@@ -21,7 +21,6 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
-
   auto ctx = mgis::Context{};
   constexpr const auto dim = mfem_mgis::size_type{3};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
@@ -31,15 +30,15 @@ int main(int argc, char** argv) {
   auto success = true;
   {
     // building the non linear problem
-    mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
-        {{"MeshFileName", parameters.mesh_file},
-         {"FiniteElementFamily", "H1"},
-         {"FiniteElementOrder", parameters.order},
-         {"UnknownsSize", dim},
-         {"NumberOfUniformRefinements", 0},  // faster for testing
-         //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-         {"Hypothesis", "Tridimensional"},
-         {"Parallel", bool(parameters.parallel)}});
+    mfem_mgis::NonLinearEvolutionProblem problem(
+        ctx, {{"MeshFileName", parameters.mesh_file},
+              {"FiniteElementFamily", "H1"},
+              {"FiniteElementOrder", parameters.order},
+              {"UnknownsSize", dim},
+              {"NumberOfUniformRefinements", 0},  // faster for testing
+              //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
+              {"Hypothesis", "Tridimensional"},
+              {"Parallel", bool(parameters.parallel)}});
     // materials
     problem.addBehaviourIntegrator("Mechanics", 1, parameters.library,
                                    parameters.behaviour);

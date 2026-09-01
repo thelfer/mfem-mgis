@@ -117,25 +117,30 @@ namespace mfem_mgis {
      *   convergence failure of the resolution shall be handled.
      * - `TimeStepValidator`: strategy used to validatoe the time step.
      */
-    Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &, const Parameters &);
-    
+    Simulation(Context &ctx,
+               AbstractNonLinearEvolutionProblem &,
+               const Parameters &);
+
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] times: description of the temporal sequences
      */
-    Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &, const TimesDescription &);
-    
+    Simulation(Context &ctx,
+               AbstractNonLinearEvolutionProblem &,
+               const TimesDescription &);
+
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] times: list of times
      */
-    Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &,
+    Simulation(Context &ctx,
+               AbstractNonLinearEvolutionProblem &,
                const std::initializer_list<real> &);
-               
+
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -151,7 +156,7 @@ namespace mfem_mgis {
      * - `TimeStepValidator`: strategy used to validatoe the time step.
      */
     Simulation(Context &ctx, PhysicalSystem &, const Parameters &);
-    
+
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -159,14 +164,16 @@ namespace mfem_mgis {
      * \param[in] times: description of the temporal sequences
      */
     Simulation(Context &ctx, PhysicalSystem &, const TimesDescription &);
-    
+
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] times: list of times
      */
-    Simulation(Context &ctx, PhysicalSystem &, const std::initializer_list<real> &);
+    Simulation(Context &ctx,
+               PhysicalSystem &,
+               const std::initializer_list<real> &);
     /*!
      * \brief add a task to be performed at the beginning of the simulation
      * \param[in] n: name of the initialization task
@@ -279,7 +286,7 @@ namespace mfem_mgis {
      * is throwing exceptions in case of errors \param[in] parameters:
      * parameters used to initialize the simulation
      */
-    void treatParameters(Context& ctx, const Parameters &);
+    void treatParameters(Context &ctx, const Parameters &);
     /*!
      * \brief structure describing the state of a simulation'run
      */

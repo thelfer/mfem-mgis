@@ -58,8 +58,7 @@ namespace mfem_mgis {
       : fe_discretization(fed),
         u0(getTrueVSize(*fed)),
         u1(getTrueVSize(*fed)),
-        mgis_integrator(
-            buildMultiMaterialNonLinearIntegrator(ctx, fed, h, p)),
+        mgis_integrator(buildMultiMaterialNonLinearIntegrator(ctx, fed, h, p)),
         hypothesis(h) {
     this->u0 = real{0};
     this->u1 = real{0};
@@ -501,8 +500,7 @@ namespace mfem_mgis {
   }  // end of updateLinearSolver
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
-      Context& ctx,
-      LinearSolverHandler s) {
+      Context& ctx, LinearSolverHandler s) {
     CatchTimeSection(ctx, "NLEPIB::updateLinearSolver");
     this->updateLinearSolver(std::move(s.linear_solver),
                              std::move(s.preconditioner));

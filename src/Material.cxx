@@ -347,9 +347,9 @@ namespace mfem_mgis {
       const std::string_view n,
       const Material::StateSelection s) noexcept {
     return buildPartialQuadratureFunction(
-               ctx, m.getPartialQuadratureSpacePointer(),
-               getStateManager(m, s).internal_state_variables, m.b.isvs, n,
-               m.b.hypothesis);
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).internal_state_variables, m.b.isvs, n,
+        m.b.hypothesis);
   }  // end of getInternalStateVariable
 
   std::optional<ImmutablePartialQuadratureFunctionView>
@@ -358,9 +358,9 @@ namespace mfem_mgis {
                            const std::string_view n,
                            const Material::StateSelection s) noexcept {
     return buildImmutablePartialQuadratureFunctionView(
-               ctx, m.getPartialQuadratureSpacePointer(),
-               getStateManager(m, s).internal_state_variables, m.b.isvs, n,
-               m.b.hypothesis);
+        ctx, m.getPartialQuadratureSpacePointer(),
+        getStateManager(m, s).internal_state_variables, m.b.isvs, n,
+        m.b.hypothesis);
   }  // end of getInternalStateVariable
 
   PartialQuadratureFunction getInternalStateVariable(

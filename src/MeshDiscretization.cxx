@@ -90,8 +90,7 @@ namespace mfem_mgis {
   }  // end of loadMeshSequential
 
   static std::shared_ptr<Mesh<true>> loadMeshParallel(
-      mgis::Context& ctx,
-      const std::string& mesh_name) {
+      mgis::Context& ctx, const std::string& mesh_name) {
     CatchTimeSection(ctx, "Mesh::LoadMeshInParallel");
 #ifdef MFEM_USE_MED
     const auto extension = getFileExt(mesh_name);
@@ -381,7 +380,8 @@ namespace mfem_mgis {
             MeshDiscretization::GeneralVerbosityLevel};
   }  // end of getParametersList
 
-  MeshDiscretization::MeshDiscretization(mgis::Context& ctx, const Parameters& params) {
+  MeshDiscretization::MeshDiscretization(mgis::Context& ctx,
+                                         const Parameters& params) {
     CatchTimeSection(ctx, "Mesh::Constructor");
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};

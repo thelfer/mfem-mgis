@@ -96,8 +96,7 @@ namespace mfem_mgis {
     }
   }  // end of buildFiniteElementCollectionAndSpace
 
-
-FiniteElementDiscretization::FiniteElementDiscretization(
+  FiniteElementDiscretization::FiniteElementDiscretization(
       mgis::Context& ctx, const MeshDiscretization& m, const Parameters& params)
       : MeshDiscretization(m) {
     CatchTimeSection(ctx, "FED::Constructor");
@@ -117,7 +116,9 @@ FiniteElementDiscretization::FiniteElementDiscretization(
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
-      mgis::Context& ctx, std::shared_ptr<Mesh<true>> m, const Parameters& params)
+      mgis::Context& ctx,
+      std::shared_ptr<Mesh<true>> m,
+      const Parameters& params)
       : MeshDiscretization(m) {
     CatchTimeSection(ctx, "FED::Constructor");
     checkParameters(throwing, params,
@@ -139,8 +140,10 @@ FiniteElementDiscretization::FiniteElementDiscretization(
 
   FiniteElementDiscretization::FiniteElementDiscretization(
       mgis::Context& ctx, const Parameters& params)
-      : MeshDiscretization(ctx, extract(
-            throwing, params, MeshDiscretization::getParametersList())) {
+      : MeshDiscretization(
+            ctx,
+            extract(
+                throwing, params, MeshDiscretization::getParametersList())) {
     CatchTimeSection(ctx, "FED::Constructor");
     if (this->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI

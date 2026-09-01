@@ -81,12 +81,16 @@ void add_post_processings(Problem& p, std::string msg) {
 }  // end timer add_postprocessing_and_outputs
 
 template <typename Problem>
-void execute_post_processings(mgis::Context& ctx, Problem& p, double start, double end) {
+void execute_post_processings(mgis::Context& ctx,
+                              Problem& p,
+                              double start,
+                              double end) {
   CatchTimeSection(ctx, "common::post_processing_step");
   p.executePostProcessings(ctx, start, end);
 }
 
-void setup_properties(mgis::Context& ctx, const TestParameters& p,
+void setup_properties(mgis::Context& ctx,
+                      const TestParameters& p,
                       mfem_mgis::PeriodicNonLinearEvolutionProblem& problem) {
   using namespace mgis::behaviour;
   using real = mfem_mgis::real;
@@ -124,7 +128,8 @@ void setup_properties(mgis::Context& ctx, const TestParameters& p,
 }
 
 template <typename Problem>
-static void setLinearSolver(mgis::Context& ctx, Problem& p, 
+static void setLinearSolver(mgis::Context& ctx,
+                            Problem& p,
                             bool parallel,
                             const int verbosity = 0,
                             const mfem_mgis::real Tol = 1e-12) {
@@ -194,29 +199,29 @@ int main(int argc, char* argv[]) {
   constexpr const auto dim = mfem_mgis::size_type{3};
 
   // creating the finite element workspace
-  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(ctx, 
-      mfem_mgis::Parameters{
-          {"MeshFileName", p.mesh_file},
-          {"FiniteElementFamily", "H1"},
-          {"FiniteElementOrder", p.order},
-          {"UnknownsSize", dim},
-          {"NumberOfUniformRefinements", p.parallel ? p.refinement : 0},
-          {"Parallel", bool(p.parallel)}});
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+      ctx, mfem_mgis::Parameters{
+               {"MeshFileName", p.mesh_file},
+               {"FiniteElementFamily", "H1"},
+               {"FiniteElementOrder", p.order},
+               {"UnknownsSize", dim},
+               {"NumberOfUniformRefinements", p.parallel ? p.refinement : 0},
+               {"Parallel", bool(p.parallel)}});
   mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed,
                                                        mfem_mgis::FIX_XMIN);
 
   // set problem
-  setup_properties(ctx, p, problem); 
-  setLinearSolver(ctx, problem, p.parallel, p.verbosity_level); 
+  setup_properties(ctx, p, problem);
+  setLinearSolver(ctx, problem, p.parallel, p.verbosity_level);
 
   // add post processings
   if (use_post_processing)
     add_post_processings(problem, "OutputFile-rve-non-linear-elastic");
 
   // main function here
-  run_solve(ctx, problem, 0, 1); 
+  run_solve(ctx, problem, 0, 1);
 
-  if (use_post_processing) execute_post_processings(ctx, problem, 0, 1); 
+  if (use_post_processing) execute_post_processings(ctx, problem, 0, 1);
 
   // print and write timetable
   mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);

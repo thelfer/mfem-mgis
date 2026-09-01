@@ -339,6 +339,12 @@ namespace mfem_mgis {
 
   /*!
    * \brief quadrature function defined on a partial quadrature space.
+   *
+   * A partial quadrature function is movable, but not copyable.
+   * Most of the time, the partial quadrature function holds the memory,
+   * but the `borrow` methods allows to use externally allocated memory
+   *
+   * The may reason for this choice is to force usage of parallel algorithms.
    */
   struct MFEM_MGIS_EXPORT PartialQuadratureFunction
       : PartialQuadratureFunctionView {
@@ -387,7 +393,6 @@ namespace mfem_mgis {
      */
     [[nodiscard]] static std::optional<PartialQuadratureFunction> copy(
         Context&, const ImmutablePartialQuadratureFunctionView&) noexcept;
-
     /*!
      * \return a partial quadrature function that does not manage its
      * values, but borrows them to an external memory

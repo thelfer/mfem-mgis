@@ -350,6 +350,11 @@ namespace mfem_mgis {
       const ImmutablePartialQuadratureFunctionView& v) noexcept {
     //
     auto& qspace = f.getPartialQuadratureSpace();
+    //
+    if (qspace.getId() != v.getPartialQuadratureSpace().getId()) {
+      return ctx.registerErrorMessage("unmatched material");
+    }
+    //
     const auto n = getSpaceSize(qspace);
     if (n != getSpaceSize(v.getPartialQuadratureSpace())) {
       return ctx.registerErrorMessage("unmatched space size");
@@ -369,14 +374,10 @@ namespace mfem_mgis {
     const auto vs = v.getDataStride();
     const auto f_data_continuous = fs == nc;
     if (f_data_continuous) {
-      //       if (f.getDataOffset() != 0) {
-      //         ctx.registerErrorMessage("inconsistent function view") |
-      //         or_die;
-      //       }
-      //       if (v.getDataOffset() != 0) {
-      //         ctx.registerErrorMessage("inconsistent function view") |
-      //         or_die;
-      //       }
+      ctx.assertOrTerminate(f.getDataOffset() == 0,
+                            "inconsistent function view, offset shall be null");
+      ctx.assertOrTerminate(v.getDataOffset() == 0,
+                            "inconsistent function view, offset shall be null");
       if (vs == v.getNumberOfComponents()) {
         // data are also continous in v
         std::copy(v_values, v_values + n, f_values);

@@ -85,7 +85,7 @@ namespace mfem_mgis {
       void writeFile(const mgis::Context& ctx, std::string a_name);
 
     }  // namespace OutputManager
-  }  // namespace Profiler
+  }    // namespace Profiler
 }  // namespace mfem_mgis
 
 #endif /* LIB_MFEMMGIS_PROFILER_HXX */

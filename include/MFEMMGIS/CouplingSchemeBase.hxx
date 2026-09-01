@@ -29,7 +29,7 @@ namespace mfem_mgis {
      * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      */
-    CouplingSchemeBase(Context& ctx, const MeshDiscretization &) noexcept;
+    CouplingSchemeBase(Context &ctx, const MeshDiscretization &) noexcept;
 
     /*!
      * \brief constructor
@@ -37,7 +37,9 @@ namespace mfem_mgis {
      * \param[in] m: mesh
      * \param[in] parameters: parameters
      */
-    CouplingSchemeBase(Context& ctx, const MeshDiscretization &, const Parameters &);
+    CouplingSchemeBase(Context &ctx,
+                       const MeshDiscretization &,
+                       const Parameters &);
     //
     MeshDiscretization getMeshDiscretization() const noexcept override;
     void setName(std::string_view) noexcept override final;
