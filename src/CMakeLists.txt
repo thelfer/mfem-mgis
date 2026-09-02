@@ -54,6 +54,8 @@ list(APPEND MFEMMGIS_SOURCES
   OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.cxx
   OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.cxx
   OrthotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator.cxx
+  FBarIsotropicPlaneStrainBehaviourIntegrator.cxx
+  FBarIsotropicTridimensionalBehaviourIntegrator.cxx
   IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator.cxx
   OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator.cxx
   IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator.cxx
@@ -65,6 +67,7 @@ list(APPEND MFEMMGIS_SOURCES
   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
   TransientHeatTransferBehaviourIntegrator.cxx
   Faltus2026RegularizedBehaviourIntegrators.cxx
+  FBarBehaviourIntegrators.cxx
   L2Projection.cxx
   AbstractTimeStepValidator.cxx
   TimeStepValidatorBase.cxx
