@@ -39,7 +39,7 @@ namespace mfem_mgis {
         double res = in;
 #ifdef MFEM_USE_MPI
         if (get_mpi_size() > 1) {
-            MPI_Reduce(&in, &res, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+          MPI_Reduce(&in, &res, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         }
 #endif
         return res;
@@ -49,7 +49,7 @@ namespace mfem_mgis {
         int res = in;
 #ifdef MFEM_USE_MPI
         if (get_mpi_size() > 1) {
-            MPI_Reduce(&in, &res, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+          MPI_Reduce(&in, &res, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
         }
 #endif
         return res;
@@ -59,7 +59,7 @@ namespace mfem_mgis {
         int64_t res = in;
 #ifdef MFEM_USE_MPI
         if (get_mpi_size() > 1) {
-            MPI_Reduce(&in, &res, 1, MPI_INT64_T, MPI_SUM, 0, MPI_COMM_WORLD);
+          MPI_Reduce(&in, &res, 1, MPI_INT64_T, MPI_SUM, 0, MPI_COMM_WORLD);
         }
 #endif
         return res;
@@ -79,7 +79,8 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
         double global = a_duration;
         if (get_mpi_size() > 1) {
-            MPI_Reduce(&a_duration, &global, 1, MPI_DOUBLE, MPI_MAX, master, MPI_COMM_WORLD);
+          MPI_Reduce(&a_duration, &global, 1, MPI_DOUBLE, MPI_MAX, master,
+                     MPI_COMM_WORLD);
         }
         return global;
 #else
@@ -94,16 +95,16 @@ namespace mfem_mgis {
       std::string build_name() {
         std::string base_name = "mfem-mgis";
         int mpiSize = Utils::get_mpi_size();
-        
+
         if (mpiSize > 1) {
-            return base_name + "." + std::to_string(mpiSize) + ".perf";
+          return base_name + "." + std::to_string(mpiSize) + ".perf";
         } else {
-            int nthreads = 0;
+          int nthreads = 0;
 #if defined(_OPENMP)
 #pragma omp parallel
-            { nthreads = omp_get_num_threads(); }
+          { nthreads = omp_get_num_threads(); }
 #endif
-            return base_name + "." + std::to_string(nthreads) + ".perf";
+          return base_name + "." + std::to_string(nthreads) + ".perf";
         }
       }
 
@@ -122,19 +123,22 @@ namespace mfem_mgis {
 
       static void printBanner(int shift, int mpi_size) {
         if (!Utils::is_master()) return;
-        
+
         mfem::out << std::endl;
         mfem::out << "Glossary: " << std::endl;
         mfem::out << "NS: Newton Solver Class" << std::endl;
-        mfem::out << "NLEPIB: Non Linear Evolution Problem Implementation Base Class" << std::endl;
+        mfem::out
+            << "NLEPIB: Non Linear Evolution Problem Implementation Base Class"
+            << std::endl;
         mfem::out << "FED: Finite Element Discretization Class" << std::endl;
         mfem::out << std::endl;
 
         std::vector<std::string> headers;
         if (mpi_size > 1) {
-            headers = {"number Of Calls", "min(s)", "mean(s)", "max(s)", "part(%)", "imb(%)"};
+          headers = {"number Of Calls", "min(s)",  "mean(s)",
+                     "max(s)",          "part(%)", "imb(%)"};
         } else {
-            headers = {"number Of Calls", "time(s)", "part(%)"};
+          headers = {"number Of Calls", "time(s)", "part(%)"};
         }
 
         int nCols = headers.size();
@@ -143,7 +147,7 @@ namespace mfem_mgis {
         int end = shift + nCols * (Utils::cWidth + 1) + 1;
         printReplicate(start_name.size(), end, "-");
         mfem::out << "|\n";
-        
+
         std::string name = " |    name";
         mfem::out << name;
         printReplicate(name.size(), shift + 1, " ");
@@ -158,10 +162,14 @@ namespace mfem_mgis {
         mfem::out << "|\n";
       }
 
-      static void printNode(const mgis::ProfilingData& node, int level, double root_time, int shift, int mpi_size) {
+      static void printNode(const mgis::ProfilingData& node,
+                            int level,
+                            double root_time,
+                            int shift,
+                            int mpi_size) {
         int nCols = (mpi_size > 1) ? 6 : 3;
         std::vector<std::string> cValue(nCols);
-        
+
         if (Utils::is_master()) {
           mfem::out << " | ";
           int currentShift = 3;
@@ -188,11 +196,13 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
           std::vector<double> list;
           if (Utils::is_master()) list.resize(mpi_size);
-          
-          MPI_Gather(&local_time, 1, MPI_DOUBLE, list.data(), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+          MPI_Gather(&local_time, 1, MPI_DOUBLE, list.data(), 1, MPI_DOUBLE, 0,
+                     MPI_COMM_WORLD);
 
           if (Utils::is_master()) {
-            const auto [min, max] = std::minmax_element(list.begin(), list.end());
+            const auto [min, max] =
+                std::minmax_element(list.begin(), list.end());
             auto global_max = *max;
             auto global_min = *min;
             auto sum = std::accumulate(list.begin(), list.end(), 0.0);
@@ -209,7 +219,10 @@ namespace mfem_mgis {
             cValue[2] = fmt(global_mean);
             cValue[3] = fmt(global_max);
             cValue[4] = fmt(part_time) + "%";
-            cValue[5] = (global_mean > 0) ? fmt(((global_max / global_mean) - 1.0) * 100.0) + "%" : "0.000000%";
+            cValue[5] =
+                (global_mean > 0)
+                    ? fmt(((global_max / global_mean) - 1.0) * 100.0) + "%"
+                    : "0.000000%";
           }
 #endif
         } else {
@@ -245,20 +258,20 @@ namespace mfem_mgis {
         int mpi_size = Utils::get_mpi_size();
         const auto& root = ctx.getProfilingResultTree();
         double root_time = Utils::reduce_max(root.time_in_seconds);
-        
+
         if (root_time <= 0.0) {
           for (const auto& child : root.children) {
             root_time += Utils::reduce_max(child->time_in_seconds);
           }
         }
 
-        if (root_time <= 0.0) root_time = 1e-9; 
+        if (root_time <= 0.0) root_time = 1e-9;
 
         int shift = get_max_length(root, 0) + 6;
 
         printBanner(shift, mpi_size);
         printNode(root, 0, root_time, shift, mpi_size);
-        
+
         if (Utils::is_master()) {
           int nCols = (mpi_size > 1) ? 6 : 3;
           int end = shift + nCols * (Utils::cWidth + 1) + 1;
@@ -269,18 +282,21 @@ namespace mfem_mgis {
         }
       }
 
-      static void writeNode(const mgis::ProfilingData& node, int level, double root_time, std::ofstream& file) {
+      static void writeNode(const mgis::ProfilingData& node,
+                            int level,
+                            double root_time,
+                            std::ofstream& file) {
         std::string space;
         std::string motif = "   ";
 
         for (int i = 0; i < level; i++) space += motif;
 
-        const auto max_time = (level == 0) ? root_time : Utils::reduce_max(node.time_in_seconds);
+        const auto max_time =
+            (level == 0) ? root_time : Utils::reduce_max(node.time_in_seconds);
 
         if (Utils::is_master()) {
-          file << space << node.name << " " << node.calls
-               << " " << max_time << " " << (max_time / root_time) * 100
-               << std::endl;
+          file << space << node.name << " " << node.calls << " " << max_time
+               << " " << (max_time / root_time) * 100 << std::endl;
         }
 
         for (const auto& child : node.children) {
@@ -288,9 +304,7 @@ namespace mfem_mgis {
         }
       }
 
-      void writeFile(const mgis::Context& ctx) {
-        writeFile(ctx, build_name());
-      }
+      void writeFile(const mgis::Context& ctx) { writeFile(ctx, build_name()); }
 
       void writeFile(const mgis::Context& ctx, std::string a_name) {
         if (!ctx.isProfilingEnabled()) return;
@@ -298,7 +312,7 @@ namespace mfem_mgis {
         std::ofstream myFile(a_name, std::ofstream::out);
         const auto& root = ctx.getProfilingResultTree();
         auto rootTime = Utils::reduce_max(root.time_in_seconds);
-        
+
         if (rootTime <= 0.0) {
           for (const auto& child : root.children) {
             rootTime += Utils::reduce_max(child->time_in_seconds);
@@ -311,5 +325,5 @@ namespace mfem_mgis {
       }
 
     }  // namespace OutputManager
-  }  // namespace Profiler
+  }    // namespace Profiler
 }  // namespace mfem_mgis

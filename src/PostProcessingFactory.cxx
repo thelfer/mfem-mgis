@@ -77,7 +77,7 @@ namespace mfem_mgis {
                  const Parameters& params) {
                 auto ctx = Context{};
                 return std::make_unique<ParaviewExportResults<true>>(ctx, p,
-                                                                      params);
+                                                                     params);
               });
     this->add(
         "ParaviewExportIntegrationPointResultsAtNodes",

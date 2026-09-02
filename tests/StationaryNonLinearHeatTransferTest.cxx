@@ -20,7 +20,6 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
-
   auto ctx = mgis::Context{};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
@@ -32,14 +31,14 @@ int main(int argc, char** argv) {
   auto success = true;
   {
     // building the non linear problem
-    mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
-        {{"MeshFileName", parameters.mesh_file},
-         {"FiniteElementFamily", "H1"},
-         {"FiniteElementOrder", parameters.order},
-         {"UnknownsSize", 1},
-         {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-         {"Hypothesis", "Tridimensional"},
-         {"Parallel", bool(parameters.parallel)}});
+    mfem_mgis::NonLinearEvolutionProblem problem(
+        ctx, {{"MeshFileName", parameters.mesh_file},
+              {"FiniteElementFamily", "H1"},
+              {"FiniteElementOrder", parameters.order},
+              {"UnknownsSize", 1},
+              {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
+              {"Hypothesis", "Tridimensional"},
+              {"Parallel", bool(parameters.parallel)}});
     //
     problem.getUnknowns(mfem_mgis::bts) = 293.15;
     problem.getUnknowns(mfem_mgis::ets) = 293.15;

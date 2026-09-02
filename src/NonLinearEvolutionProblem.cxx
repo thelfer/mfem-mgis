@@ -63,8 +63,10 @@ namespace mfem_mgis {
       : NonLinearEvolutionProblem(
             ctx,
             std::make_shared<FiniteElementDiscretization>(
-                ctx, m,
-                extract(throwing, p,
+                ctx,
+                m,
+                extract(throwing,
+                        p,
                         FiniteElementDiscretization::getParametersList())),
             h,
             p) {}  // end of NonLinearEvolutionProblem
@@ -75,8 +77,10 @@ namespace mfem_mgis {
       : NonLinearEvolutionProblem(
             ctx,
             std::make_shared<FiniteElementDiscretization>(
-                ctx, m,
-                extract(throwing, p,
+                ctx,
+                m,
+                extract(throwing,
+                        p,
                         FiniteElementDiscretization::getParametersList())),
             mgis::behaviour::fromString(get<std::string>(
                 throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),

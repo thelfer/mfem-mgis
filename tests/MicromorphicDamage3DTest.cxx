@@ -175,9 +175,8 @@ buildMicromorphicProblem(
 }
 
 int main(int argc, char** argv) {
-
   auto ctx = mgis::Context{};
-
+  auto or_die = ctx.getFatalFailureHandler();
   constexpr auto iter_max = mfem_mgis::size_type{200};
   auto test_parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
@@ -259,16 +258,26 @@ int main(int argc, char** argv) {
         mfem_mgis::raise("non convergence of the mechanical problem");
       }
       // passing the energy release rate to the micromorphic problem
-      Y = mfem_mgis::getInternalStateVariable(
-          mechanical_problem->getMaterial("beam"), "EnergyReleaseRate");
+      ::mfem_mgis::assign_values(
+          ctx, Y,
+          mfem_mgis::getInternalStateVariable(
+              static_cast<const ::mfem_mgis::Material&>(
+                  mechanical_problem->getMaterial("beam")),
+              "EnergyReleaseRate")) |
+          or_die;
       // solving the micromorphic problem
       auto micromorphic_output = micromorphic_problem->solve(t, dt);
       if (!micromorphic_output.status) {
         mfem_mgis::raise("non convergence of the micromorphic problem");
       }
       // passing the damage to the mechanical problem
-      d = mfem_mgis::getInternalStateVariable(
-          micromorphic_problem->getMaterial("beam"), "Damage");
+      ::mfem_mgis::assign_values(
+          ctx, d,
+          mfem_mgis::getInternalStateVariable(
+              static_cast<const ::mfem_mgis::Material&>(
+                  micromorphic_problem->getMaterial("beam")),
+              "Damage")) |
+          or_die;
       if (iter == 0) {
         mechanical_problem_initial_residual =
             mechanical_output.initial_residual_norm;

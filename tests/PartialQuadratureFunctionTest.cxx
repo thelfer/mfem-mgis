@@ -27,7 +27,7 @@ auto ctx = mgis::Context{};
 
 struct PartialQuadratureFunctionTest final : public tfel::tests::TestCase {
   PartialQuadratureFunctionTest()
-      : tfel::tests::TestCase("MFEMMGIS", "PartialQuadratureFunctionTest"){
+      : tfel::tests::TestCase("MFEMMGIS", "PartialQuadratureFunctionTest") {
   }  // end of PartialQuadratureFunctionTest
   tfel::tests::TestResult execute() override {
     this->setup();
@@ -53,12 +53,12 @@ struct PartialQuadratureFunctionTest final : public tfel::tests::TestCase {
       return;
     }
     problem->addBehaviourIntegrator(ctx, "Mechanics", 1, parameters.library,
-                                   parameters.behaviour) |
+                                    parameters.behaviour) |
         or_raise;
     auto& m1 = problem->getMaterial(ctx, 1, 0) | or_raise;
     mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
     mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
-  } // end of setup
+  }  // end of setup
 
   template <bool mutable_version>
   void test1() {
@@ -74,15 +74,15 @@ struct PartialQuadratureFunctionTest final : public tfel::tests::TestCase {
     auto or_raise = ctx.getThrowingFailureHandler();
     auto& b = this->problem->getBehaviourIntegrator(ctx, 1, 0) | or_raise;
     const auto& qspace = b.getPartialQuadratureSpace();
-    auto& mutable_material =b.getMaterial(ctx) | or_raise;
+    auto& mutable_material = b.getMaterial(ctx) | or_raise;
     auto& m1 = static_cast<MaterialReference&>(mutable_material);
     auto strain = getGradient(ctx, m1, "Strain") | or_raise;
     auto stress = getThermodynamicForce(ctx, m1, "Stress") | or_raise;
     auto p = getInternalStateVariable(ctx, m1, "EquivalentStrain") | or_raise;
-    TFEL_TESTS_STATIC_ASSERT((
-        std::same_as<decltype(strain), ExpectedResultType>));
-    TFEL_TESTS_STATIC_ASSERT((
-        std::same_as<decltype(stress), ExpectedResultType>));
+    TFEL_TESTS_STATIC_ASSERT(
+        (std::same_as<decltype(strain), ExpectedResultType>));
+    TFEL_TESTS_STATIC_ASSERT(
+        (std::same_as<decltype(stress), ExpectedResultType>));
     TFEL_TESTS_STATIC_ASSERT((std::same_as<decltype(p), ExpectedResultType>));
     TFEL_TESTS_ASSERT(strain.getNumberOfComponents() == 6);
     TFEL_TESTS_ASSERT(stress.getNumberOfComponents() == 6);
@@ -111,7 +111,8 @@ struct PartialQuadratureFunctionTest final : public tfel::tests::TestCase {
   std::unique_ptr<mfem_mgis::NonLinearEvolutionProblem> problem;
 };
 
-TFEL_TESTS_GENERATE_PROXY(PartialQuadratureFunctionTest, "PartialQuadratureFunctionTest");
+TFEL_TESTS_GENERATE_PROXY(PartialQuadratureFunctionTest,
+                          "PartialQuadratureFunctionTest");
 
 int main(int argc, char** argv) {
   // options treatment
@@ -119,10 +120,10 @@ int main(int argc, char** argv) {
   mfem_mgis::unit_tests::parseCommandLineOptions(parameters, argc, argv);
   //
   auto& m = tfel::tests::TestManager::getTestManager();
-  m.addTestOutput(std::cout);//mfem_mgis::getDefaultLogStream());
+  m.addTestOutput(std::cout);  // mfem_mgis::getDefaultLogStream());
   m.addXMLTestOutput("PartialQuadratureFunctionTest-" +
                      std::string(parameters.behaviour) + "-" +
                      std::to_string(mfem_mgis::getMPIsize()) + "-" +
                      std::to_string(mfem_mgis::getMPIrank()) + ".xml");
   return m.execute().success() ? EXIT_SUCCESS : EXIT_FAILURE;
-} // end of main
+}  // end of main

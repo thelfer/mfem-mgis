@@ -40,7 +40,8 @@ namespace mfem_mgis {
    * \brief set the boundary conditions specific to periodic problems
    * \param[in,out] ctx: execution context used for profiling
    * \param[in] p: problem
-   * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
+   * \param[in] bct: impose the zero value on displacement field at xmin, or
+   * ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       mgis::Context&,
@@ -66,7 +67,8 @@ namespace mfem_mgis {
    * \brief set the boundary conditions specific to periodic problems
    * \param[in,out] ctx: execution context used for profiling
    * \param[in] p: problem
-   * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
+   * \param[in] bct: impose the zero value on displacement field at xmin, or
+   * ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
       mgis::Context&,
@@ -90,7 +92,6 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT PeriodicNonLinearEvolutionProblem
       : NonLinearEvolutionProblem {
-
     /*!
      * \brief constructor with profiling support
      * \param[in, out] ctx: execution context used for profiling

@@ -212,7 +212,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
-      parallel>::execute(Context &ctx,
+      parallel>::execute(Context& ctx,
                          NonLinearEvolutionProblemImplementation<parallel>& p,
                          const real t,
                          const real dt) {

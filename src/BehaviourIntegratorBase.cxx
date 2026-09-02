@@ -233,7 +233,10 @@ namespace mfem_mgis {
         if (isInvalid(of)) {
           return false;
         }
-        this->wks.pqfcts_mps_bts.insert_or_assign(name, std::move(*of));
+        if (this->wks.pqfcts_mps_bts.contains(name)) {
+          this->wks.pqfcts_mps_bts.erase(name);
+        }
+        this->wks.pqfcts_mps_bts.insert({name, std::move(*of)});
       }
     }
     for (const auto& [name, e] : this->material_properties_evaluators_ets) {
@@ -261,7 +264,10 @@ namespace mfem_mgis {
         if (isInvalid(of)) {
           return false;
         }
-        this->wks.pqfcts_mps_ets.insert_or_assign(name, std::move(*of));
+        if (this->wks.pqfcts_mps_ets.contains(name)) {
+          this->wks.pqfcts_mps_ets.erase(name);
+        }
+        this->wks.pqfcts_mps_ets.insert({name, std::move(*of)});
       }
     }
     for (const auto& [name, e] :
@@ -290,7 +296,10 @@ namespace mfem_mgis {
         if (isInvalid(of)) {
           return false;
         }
-        this->wks.pqfcts_esvs_bts.insert_or_assign(name, std::move(*of));
+        if (this->wks.pqfcts_esvs_bts.contains(name)) {
+          this->wks.pqfcts_esvs_bts.erase(name);
+        }
+        this->wks.pqfcts_esvs_bts.insert({name, std::move(*of)});
       }
     }
     for (const auto& [name, e] :
@@ -319,7 +328,10 @@ namespace mfem_mgis {
         if (isInvalid(of)) {
           return false;
         }
-        this->wks.pqfcts_esvs_ets.insert_or_assign(name, std::move(*of));
+        if (this->wks.pqfcts_esvs_ets.contains(name)) {
+          this->wks.pqfcts_esvs_ets.erase(name);
+        }
+        this->wks.pqfcts_esvs_ets.insert({name, std::move(*of)});
       }
     }
     //

@@ -91,9 +91,7 @@ namespace mfem_mgis {
      * \brief set the linear solver
      * \param[in] s: linear solver handler
      */
-    virtual void updateLinearSolver(
-      Context& ctx,
-      LinearSolverHandler s);
+    virtual void updateLinearSolver(Context& ctx, LinearSolverHandler s);
     //
     [[nodiscard]] FiniteElementDiscretization&
     getFiniteElementDiscretization() noexcept override;

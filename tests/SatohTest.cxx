@@ -108,16 +108,16 @@ int main(int argc, char** argv) {
 
   auto success = true;
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
-      {{"MeshFileName", p.mesh_file},
-       {"Materials", mfem_mgis::Parameters{{"plate", 1}}},
-       {"Boundaries", mfem_mgis::Parameters{{"left", 2}, {"right", 4}}},
-       {"FiniteElementFamily", "H1"},
-       {"FiniteElementOrder", p.order},
-       {"UnknownsSize", 2},
-       {"NumberOfUniformRefinements", 2},
-       {"Hypothesis", "PlaneStrain"},
-       {"Parallel", p.parallel}});
+  mfem_mgis::NonLinearEvolutionProblem problem(
+      ctx, {{"MeshFileName", p.mesh_file},
+            {"Materials", mfem_mgis::Parameters{{"plate", 1}}},
+            {"Boundaries", mfem_mgis::Parameters{{"left", 2}, {"right", 4}}},
+            {"FiniteElementFamily", "H1"},
+            {"FiniteElementOrder", p.order},
+            {"UnknownsSize", 2},
+            {"NumberOfUniformRefinements", 2},
+            {"Hypothesis", "PlaneStrain"},
+            {"Parallel", p.parallel}});
   // materials
   problem.addBehaviourIntegrator("Mechanics", "plate", p.library, p.behaviour);
   auto& m1 = problem.getMaterial("plate");

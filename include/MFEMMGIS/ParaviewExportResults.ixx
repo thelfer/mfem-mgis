@@ -35,10 +35,10 @@ namespace mfem_mgis {
 
   template <bool parallel>
   ParaviewExportResults<parallel>::ParaviewExportResults(
-    mgis::Context& ctx,
-    NonLinearEvolutionProblemImplementation<parallel>& pb,
-    const Parameters& params)
-    : exporter(get<std::string>(throwing, params, "OutputFileName")),
+      mgis::Context& ctx,
+      NonLinearEvolutionProblemImplementation<parallel>& pb,
+      const Parameters& params)
+      : exporter(get<std::string>(throwing, params, "OutputFileName")),
         result(&pb.getFiniteElementSpace()),
         cycle(0) {
     CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
@@ -111,7 +111,8 @@ namespace mfem_mgis {
 
       /** "false" means that we double check if params include Material or
        * Materials */
-      auto bdrAttributes = getBoundariesIdentifiers(throwing, pb, params, false);
+      auto bdrAttributes =
+          getBoundariesIdentifiers(throwing, pb, params, false);
 
       /** Get the list of boundary attributes */
       mfem::Array<int> bdr_attributes;

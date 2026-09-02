@@ -24,10 +24,11 @@ namespace mfem_mgis {
     return d;
   }  // end of getParametersDescription
 
-  LoopCouplingScheme::LoopCouplingScheme(Context& ctx, const MeshDiscretization &m)
+  LoopCouplingScheme::LoopCouplingScheme(Context &ctx,
+                                         const MeshDiscretization &m)
       : CouplingSchemeBase(ctx, m) {}  // end of LoopCouplingScheme
 
-  LoopCouplingScheme::LoopCouplingScheme(Context& ctx,
+  LoopCouplingScheme::LoopCouplingScheme(Context &ctx,
                                          const MeshDiscretization &m,
                                          const Parameters &params)
       : CouplingSchemeBase(

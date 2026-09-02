@@ -34,24 +34,18 @@ namespace mfem_mgis {
     //! \brief constructor from a r-value to a partial quadrature function
     PartialQuadratureFunctionEvaluatorResult(
         PartialQuadratureFunction&&) noexcept;
-    //! \brief constructor taking a copy of a partial quadrature function
-    explicit PartialQuadratureFunctionEvaluatorResult(
-        const PartialQuadratureFunction&) noexcept;
     //! \brief move constructor
     PartialQuadratureFunctionEvaluatorResult(
         PartialQuadratureFunctionEvaluatorResult&&) noexcept;
-    //! \brief copy constructor
-    PartialQuadratureFunctionEvaluatorResult(
-        const PartialQuadratureFunctionEvaluatorResult&) noexcept;
-    //! \brief move assignement
+    //
     PartialQuadratureFunctionEvaluatorResult& operator=(
-        PartialQuadratureFunctionEvaluatorResult&&) noexcept;
+        PartialQuadratureFunctionEvaluatorResult&&) noexcept = delete;
+    PartialQuadratureFunctionEvaluatorResult& operator=(
+        const PartialQuadratureFunctionEvaluatorResult&&) = delete;
     //! \brief destructor
     ~PartialQuadratureFunctionEvaluatorResult() noexcept;
 
    private:
-    PartialQuadratureFunctionEvaluatorResult& operator=(
-        const PartialQuadratureFunctionEvaluatorResult&&) = delete;
     //! \brief internal pointer for memory management, if required
     std::optional<PartialQuadratureFunction> f;
   };

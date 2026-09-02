@@ -351,8 +351,9 @@ namespace mfem_mgis {
     return r;
   }  // end of remove
 
-  Parameters remove(const Parameters& parameters,
-                    const std::map<std::string, std::string>& descriptions) noexcept {
+  Parameters remove(
+      const Parameters& parameters,
+      const std::map<std::string, std::string>& descriptions) noexcept {
     auto r = Parameters{};
     for (const auto& [k, p] : parameters) {
       if (descriptions.find(k) == descriptions.end()) {
@@ -361,5 +362,5 @@ namespace mfem_mgis {
     }
     return r;
   }  // end of remove
-  
+
 }  // namespace mfem_mgis

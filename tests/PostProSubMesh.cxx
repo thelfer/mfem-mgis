@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
   mfem::OptionsParser args(argc, argv);
   common_parameters(args, p);
 
-  auto fed = mfem_mgis::Parameters{ 
+  auto fed = mfem_mgis::Parameters{
       {"MeshFileName", p.mesh_file},
       {"FiniteElementFamily", "H1"},
       {"FiniteElementOrder", p.order},

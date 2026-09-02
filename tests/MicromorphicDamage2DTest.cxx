@@ -26,7 +26,6 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
-
   auto ctx = mfem_mgis::Context{};
 
   constexpr auto pi = mfem_mgis::real{3.14159265358979323846};
@@ -40,14 +39,14 @@ int main(int argc, char** argv) {
     mfem_mgis::abort("no internal state variable expected");
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
-      {{"MeshFileName", parameters.mesh_file},
-       {"FiniteElementFamily", "H1"},
-       {"FiniteElementOrder", parameters.order},
-       {"UnknownsSize", 1},
-       {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-       {"Hypothesis", "PlaneStrain"},
-       {"Parallel", bool(parameters.parallel)}});
+  mfem_mgis::NonLinearEvolutionProblem problem(
+      ctx, {{"MeshFileName", parameters.mesh_file},
+            {"FiniteElementFamily", "H1"},
+            {"FiniteElementOrder", parameters.order},
+            {"UnknownsSize", 1},
+            {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
+            {"Hypothesis", "PlaneStrain"},
+            {"Parallel", bool(parameters.parallel)}});
   // materials
   problem.addBehaviourIntegrator("MicromorphicDamage", 5, parameters.library,
                                  parameters.behaviour);

@@ -144,7 +144,7 @@ namespace mfem_mgis {
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);
     //
-    void execute(Context&,
+    void execute(Context &,
                  NonLinearEvolutionProblemImplementation<parallel> &,
                  const real,
                  const real) override;
@@ -237,7 +237,10 @@ namespace mfem_mgis {
      * \param[in] t: current time
      * \param[in] dt: current time step
      */
-    void execute(Context &, NonLinearEvolutionProblem &, const real, const real);
+    void execute(Context &,
+                 NonLinearEvolutionProblem &,
+                 const real,
+                 const real);
     //! \brief destructor
     ~ParaviewExportIntegrationPointResultsAtNodes();
 

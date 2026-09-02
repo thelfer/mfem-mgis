@@ -26,14 +26,16 @@ namespace mfem_mgis {
      * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      */
-    LoopCouplingScheme(Context& ctx, const MeshDiscretization &);
+    LoopCouplingScheme(Context &ctx, const MeshDiscretization &);
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] params: parameters
      */
-    LoopCouplingScheme(Context& ctx, const MeshDiscretization &, const Parameters &);
+    LoopCouplingScheme(Context &ctx,
+                       const MeshDiscretization &,
+                       const Parameters &);
     /*!
      * \brief set the number of iterations
      * \param[in] ctx: execution context
