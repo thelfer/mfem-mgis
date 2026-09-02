@@ -104,6 +104,7 @@ namespace mfem_mgis {
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] parameters: parameters passed to the simulation
      *
@@ -116,22 +117,28 @@ namespace mfem_mgis {
      *   convergence failure of the resolution shall be handled.
      * - `TimeStepValidator`: strategy used to validatoe the time step.
      */
-    Simulation(AbstractNonLinearEvolutionProblem &, const Parameters &);
+    Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &, const Parameters &);
+    
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] times: description of the temporal sequences
      */
-    Simulation(AbstractNonLinearEvolutionProblem &, const TimesDescription &);
+    Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &, const TimesDescription &);
+    
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] times: list of times
      */
-    Simulation(AbstractNonLinearEvolutionProblem &,
+    Simulation(Context &ctx, AbstractNonLinearEvolutionProblem &,
                const std::initializer_list<real> &);
+               
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] parameters: parameters passed to the simulation
      *
@@ -143,19 +150,23 @@ namespace mfem_mgis {
      convergence failure of the resolution shall be handled.
      * - `TimeStepValidator`: strategy used to validatoe the time step.
      */
-    Simulation(PhysicalSystem &, const Parameters &);
+    Simulation(Context &ctx, PhysicalSystem &, const Parameters &);
+    
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] times: description of the temporal sequences
      */
-    Simulation(PhysicalSystem &, const TimesDescription &);
+    Simulation(Context &ctx, PhysicalSystem &, const TimesDescription &);
+    
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] times: list of times
      */
-    Simulation(PhysicalSystem &, const std::initializer_list<real> &);
+    Simulation(Context &ctx, PhysicalSystem &, const std::initializer_list<real> &);
     /*!
      * \brief add a task to be performed at the beginning of the simulation
      * \param[in] n: name of the initialization task
@@ -268,7 +279,7 @@ namespace mfem_mgis {
      * is throwing exceptions in case of errors \param[in] parameters:
      * parameters used to initialize the simulation
      */
-    void treatParameters(attributes::Throwing, const Parameters &);
+    void treatParameters(Context& ctx, const Parameters &);
     /*!
      * \brief structure describing the state of a simulation'run
      */

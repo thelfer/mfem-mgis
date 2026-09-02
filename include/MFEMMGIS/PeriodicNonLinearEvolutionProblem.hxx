@@ -25,46 +25,57 @@ namespace mfem_mgis {
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
+   * \param[in,out] ctx: execution context used for profiling
    * \param[in] p: problem
+   * \param[in] corner1: one corner of the computation domain
+   * \param[in] corner2: second corner of the computation domain
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
+      mgis::Context&,
       NonLinearEvolutionProblemImplementation<true>&,
       const std::span<const real>&,
       const std::span<const real>&);
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
+   * \param[in,out] ctx: execution context used for profiling
    * \param[in] p: problem
-   * \param[in] bct: impose the zero value on displacement field at xmin, or
-   * ymin, or zmin
+   * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
+      mgis::Context&,
       NonLinearEvolutionProblemImplementation<true>&,
       const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
+
 #endif /* MFEM_USE_MPI */
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
+   * \param[in,out] ctx: execution context used for profiling
    * \param[in] p: problem
+   * \param[in] corner1: one corner of the computation domain
+   * \param[in] corner2: second corner of the computation domain
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
+      mgis::Context&,
       NonLinearEvolutionProblemImplementation<false>&,
       const std::span<const real>&,
       const std::span<const real>&);
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
+   * \param[in,out] ctx: execution context used for profiling
    * \param[in] p: problem
-   * \param[in] bct: impose the zero value on displacement field at xmin, or
-   * ymin, or zmin
+   * \param[in] bct: impose the zero value on displacement field at xmin, or ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
+      mgis::Context&,
       NonLinearEvolutionProblemImplementation<false>&,
       const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
 
   /*!
    * \brief compute minimal distance from corners to point
-   *        identified in vector `nodes` at index `index`
+   * identified in vector `nodes` at index `index`
    */
   real getNodesDistance(const mfem::GridFunction& nodes,
                         const bool reorder_space,
@@ -79,24 +90,29 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT PeriodicNonLinearEvolutionProblem
       : NonLinearEvolutionProblem {
+
     /*!
-     * \brief constructor
+     * \brief constructor with profiling support
+     * \param[in, out] ctx: execution context used for profiling
      * \param[in] fed: finite element discretization
      * \param[in] corner1: one corner of the computation domain
      * \param[in] corner2: second corner of the computation domain
      */
     PeriodicNonLinearEvolutionProblem(
+        mgis::Context& ctx,
         std::shared_ptr<FiniteElementDiscretization>,
         const std::span<const real>&,
         const std::span<const real>&);
 
     /*!
-     * \brief constructor
+     * \brief constructor with profiling support
+     * \param[in, out] ctx: execution context used for profiling
      * \param[in] fed: finite element discretization
      * \param[in] bct: impose the zero value on displacement field at xmin, or
      * ymin, or zmin
      */
     PeriodicNonLinearEvolutionProblem(
+        mgis::Context& ctx,
         std::shared_ptr<FiniteElementDiscretization>,
         const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
     // disable adding boundary conditions
@@ -139,4 +155,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_PERIODICNONLINEAREVOLUTIONPROBLEM */
+#endif /* LIB_MFEM_MGIS_PERIODICNONLINEAREVOLUTIONPROBLEM_HXX */

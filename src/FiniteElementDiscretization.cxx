@@ -18,6 +18,7 @@
 #include <mfem/fem/pfespace.hpp>
 #endif
 #include "MGIS/Raise.hxx"
+#include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -95,10 +96,11 @@ namespace mfem_mgis {
     }
   }  // end of buildFiniteElementCollectionAndSpace
 
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      const MeshDiscretization& m, const Parameters& params)
+
+FiniteElementDiscretization::FiniteElementDiscretization(
+      mgis::Context& ctx, const MeshDiscretization& m, const Parameters& params)
       : MeshDiscretization(m) {
-    CatchTimeSection("FED::Constructor");
+    CatchTimeSection(ctx, "FED::Constructor");
     checkParameters(throwing, params,
                     FiniteElementDiscretization::getParametersList());
     if (this->describesAParallelComputation()) {
@@ -115,9 +117,9 @@ namespace mfem_mgis {
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
-      std::shared_ptr<Mesh<true>> m, const Parameters& params)
+      mgis::Context& ctx, std::shared_ptr<Mesh<true>> m, const Parameters& params)
       : MeshDiscretization(m) {
-    CatchTimeSection("FED::Constructor");
+    CatchTimeSection(ctx, "FED::Constructor");
     checkParameters(throwing, params,
                     FiniteElementDiscretization::getParametersList());
 #ifdef MFEM_USE_MPI
@@ -136,10 +138,10 @@ namespace mfem_mgis {
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
-      const Parameters& params)
-      : MeshDiscretization(extract(
+      mgis::Context& ctx, const Parameters& params)
+      : MeshDiscretization(ctx, extract(
             throwing, params, MeshDiscretization::getParametersList())) {
-    CatchTimeSection("FED::Constructor");
+    CatchTimeSection(ctx, "FED::Constructor");
     if (this->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       std::tie(this->fec, this->parallel_fe_space) =

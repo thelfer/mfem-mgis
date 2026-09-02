@@ -215,6 +215,15 @@ namespace mfem_mgis {
                                       const Parameters&,
                                       const std::vector<std::string>&);
   /*!
+   * \brief extract the given parameters if they exists
+   * \param[in] parameters: parameters
+   * \param[in] descriptions: description of parameters to be extracted
+   */
+  MFEM_MGIS_EXPORT Parameters
+  extract(attributes::Throwing,
+          const Parameters&,
+          const std::map<std::string, std::string>&);
+  /*!
    * \return the information required to build an object from a factory
    * \param[in, out] ctx: execution context
    * \param[in] p: parameters
@@ -235,6 +244,13 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT Parameters remove(const Parameters&,
                                      const std::vector<std::string>&) noexcept;
+  /*!
+   * \brief remove in the output parameters the given parameters if they exists
+   * \param[in] parameters: parameters
+   * \param[in] descriptions: description of parameters to be extracted
+   */
+  MFEM_MGIS_EXPORT Parameters
+  remove(const Parameters&, const std::map<std::string, std::string>&) noexcept;
 
 }  // end of namespace mfem_mgis
 

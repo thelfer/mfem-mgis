@@ -4,6 +4,8 @@
  * \date   05/12/2022
  */
 
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/AbstractModel.hxx"
 #include "MFEMMGIS/NonLinearModel.hxx"
 #include "MFEMMGIS/CouplingSchemeBase.hxx"
@@ -12,14 +14,13 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   CouplingSchemeBase::getParametersDescription() noexcept {
-    //    auto d = getCouplingItemParametersDescription();
+    return getCouplingItemParametersDescription();
     //     d.insert(
     //         {"PrintResourcesUsage",
     //          "boolean stating if a coarse grain profiling of resources usage
     //          shall " "be displayed on the standard output at each iteration
     //          (false by " "default)"});
     //     d.insert({"CouplingItems", "list of coupling items"});
-    return {};
   }  // end of getParametersDescription
 
   CouplingSchemeBase::ContextState CouplingSchemeBase::update(
@@ -45,13 +46,29 @@ namespace mfem_mgis {
     ctx.setLogStream(s.log_stream);
   }  // end of restore
 
-  CouplingSchemeBase::CouplingSchemeBase(const MeshDiscretization &m) noexcept
+  CouplingSchemeBase::CouplingSchemeBase(Context&, const MeshDiscretization &m) noexcept
       : mesh(m) {}
+
+  CouplingSchemeBase::CouplingSchemeBase(Context& ctx, 
+                                         const MeshDiscretization &m,
+                                         const Parameters &parameters)
+      : mesh(m) {
+        
+    auto or_raise = ctx.getThrowingFailureHandler();
+    checkParameters(ctx, parameters,
+                    CouplingSchemeBase::getParametersDescription()) |
+        or_raise;
+    handleCouplingItemParameters(ctx, *this, parameters) | or_raise;
+  }  // end of CouplingSchemeBase
 
   MeshDiscretization CouplingSchemeBase::getMeshDiscretization()
       const noexcept {
     return this->mesh;
   }  // end of getMeshDiscretization
+
+  void CouplingSchemeBase::setName(std::string_view n) noexcept {
+    this->name = n;
+  }
 
   std::vector<std::string> CouplingSchemeBase::getLocations() const noexcept {
     return {};
@@ -190,6 +207,11 @@ namespace mfem_mgis {
 
   bool CouplingSchemeBase::performInitializationTaksAtTheBeginningOfTheTimeStep(
       Context &ctx, const TimeStep &ts) noexcept {
+
+    auto profiler = ctx.startNewProfiling(
+        "CouplingSchemeBase::performInitializationTaks", 
+        ctx.isProfilingEnabled());
+    
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
       ctx.log(verboseLevel2,

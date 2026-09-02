@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "MGIS/Context.hxx"
+
 #include "mfem/general/optparser.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
@@ -80,17 +82,17 @@ void add_post_processings(Problem& p, std::string msg) {
 }  // end timer add_postprocessing_and_outputs
 
 template <typename Problem>
-void execute_post_processings(Problem& p, double start, double end) {
-  CatchTimeSection("common::post_processing_step");
-  p.executePostProcessings(start, end);
+void execute_post_processings(mgis::Context& ctx, Problem& p, double start, double end) {
+  CatchTimeSection(ctx, "common::post_processing_step");
+  p.executePostProcessings(ctx, start, end);
 }
 
-void setup_properties(const TestParameters& p,
+void setup_properties(mgis::Context& ctx, const TestParameters& p, 
                       mfem_mgis::PeriodicNonLinearEvolutionProblem& problem) {
   using namespace mgis::behaviour;
   using real = mfem_mgis::real;
 
-  CatchTimeSection("set_mgis_stuff");
+  CatchTimeSection(ctx, "set_mgis_stuff");
   problem.addBehaviourIntegrator("Mechanics", 1, p.library, p.behaviour);
   problem.addBehaviourIntegrator("Mechanics", 2, p.library, p.behaviour);
   // materials
@@ -123,11 +125,11 @@ void setup_properties(const TestParameters& p,
 }
 
 template <typename Problem>
-static void setLinearSolver(Problem& p,
+static void setLinearSolver(mgis::Context& ctx, Problem& p,
                             bool parallel,
                             const int verbosity = 0,
                             const mfem_mgis::real Tol = 1e-12) {
-  CatchTimeSection("set_linear_solver");
+  CatchTimeSection(ctx, "set_linear_solver");
   // pilote
   constexpr int defaultMaxNumOfIt = 5000;  // MaximumNumberOfIterations
   auto solverParameters = mfem_mgis::Parameters{};
@@ -164,8 +166,8 @@ static void setLinearSolver(Problem& p,
 }
 
 template <typename Problem>
-void run_solve(Problem& p, double start, double end) {
-  CatchTimeSection("Solve");
+void run_solve(mgis::Context& ctx, Problem& p, double start, double end) { 
+  CatchTimeSection(ctx, "Solve");
   // solving the problem
   auto statistics = p.solve(start, end);
 
@@ -179,8 +181,8 @@ int main(int argc, char* argv[]) {
   // mpi initialization here
   mfem_mgis::initialize(argc, argv);
 
-  // init timers
-  mfem_mgis::Profiler::timers::init_timers();
+  auto ctx = mgis::Context{};
+  ctx.enableProfiling(true);
 
   // get parameters
   TestParameters p;
@@ -194,7 +196,7 @@ int main(int argc, char* argv[]) {
   constexpr const auto dim = mfem_mgis::size_type{3};
 
   // creating the finite element workspace
-  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(ctx, 
       mfem_mgis::Parameters{
           {"MeshFileName", p.mesh_file},
           {"FiniteElementFamily", "H1"},
@@ -202,22 +204,22 @@ int main(int argc, char* argv[]) {
           {"UnknownsSize", dim},
           {"NumberOfUniformRefinements", p.parallel ? p.refinement : 0},
           {"Parallel", bool(p.parallel)}});
-  mfem_mgis::PeriodicNonLinearEvolutionProblem problem(fed);
+  mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed);
 
   // set problem
-  setup_properties(p, problem);
-  setLinearSolver(problem, p.parallel, p.verbosity_level);
+  setup_properties(ctx, p, problem);
+  setLinearSolver(ctx, problem, p.parallel, p.verbosity_level);
 
   // add post processings
   if (use_post_processing)
     add_post_processings(problem, "OutputFile-rve-non-linear-elastic");
 
   // main function here
-  run_solve(problem, 0, 1);
+  run_solve(ctx, problem, 0, 1);
 
-  if (use_post_processing) execute_post_processings(problem, 0, 1);
+  if (use_post_processing) execute_post_processings(ctx, problem, 0, 1);
 
   // print and write timetable
-  mfem_mgis::Profiler::timers::print_and_write_timers();
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return (EXIT_SUCCESS);
 }

@@ -61,6 +61,8 @@ int main(int argc, char* argv[]) {
   /** mpi initialization here, note that this command initializes the timers */
   mfem_mgis::initialize(argc, argv);
 
+  auto ctx = mgis::Context{};
+
   // get parameters
   TestParameters p;
   double time = 0.0;
@@ -69,7 +71,7 @@ int main(int argc, char* argv[]) {
   mfem::OptionsParser args(argc, argv);
   common_parameters(args, p);
 
-  auto fed = mfem_mgis::Parameters{
+  auto fed = mfem_mgis::Parameters{ 
       {"MeshFileName", p.mesh_file},
       {"FiniteElementFamily", "H1"},
       {"FiniteElementOrder", p.order},
@@ -80,7 +82,7 @@ int main(int argc, char* argv[]) {
       {"Hypothesis", "Tridimensional"},
       {"Parallel", true}};
 
-  mfem_mgis::NonLinearEvolutionProblem problem(fed);
+  mfem_mgis::NonLinearEvolutionProblem problem(ctx, fed);
 
   // set material properties
   problem.addBehaviourIntegrator("Mechanics", 1, p.library, p.behaviour);
@@ -193,8 +195,8 @@ int main(int argc, char* argv[]) {
   problem.update();
 
   /** Run post processings previously defined */
-  problem.executePostProcessings(time, dt);
+  problem.executePostProcessings(ctx, time, dt);
 
-  mfem_mgis::Profiler::timers::print_timers();
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return 0;
 }

@@ -253,7 +253,7 @@ Repository: ``https://github.com/rprat-pro/mm-opera-hpc/tree/main/bubble``
 Problem description
 -------------------
 
-The default example is constituted by a single spherical porosity in a quasi-infinite medium. The finite element solution can be compared with an analytical solution giving the elastic stress field as a function of the internal pressure, the bubble radius, and the distance from the bubble. As mentioned above, the boundary conditions for the problem are periodical, and we consider a null macroscopic displacement gradient, which in turns generate a uniform compressive hydrostatic pressure on the REV. In this case with one porosity in a quasi-infinite medium, the compressive hydrostatic pressure is negligeable, in agreement with the analytical solution mentioned above.
+The default example consists of a single spherical porosity in a quasi-infinite medium. The finite element solution can be compared with an analytical solution giving the elastic stress field as a function of the internal pressure, the bubble radius, and the distance from the bubble. As mentioned above, the boundary conditions for the problem are periodic, and we consider a null macroscopic displacement gradient, which in turn generates a uniform compressive hydrostatic pressure on the RVE. In this case with one porosity in a quasi-infinite medium, the compressive hydrostatic pressure is negligible, in agreement with the analytical solution mentioned above.
 
 Modify the geometry for the single bubble case and mesh it
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -295,13 +295,13 @@ geometries when using ``Mérope``, given the characteristic length scale of the 
 inclusions.
 
 The geometry is meshed using quadratic elements, to better describe the spherical
-inclusions contained in the representative elementary volume (REV). Despite ``MFEM``
-allowing sub-, super-, and isoparametric analyses, we recommend to stick at least to the
+inclusions contained in the representative volume element (RVE). Despite ``MFEM``
+allowing sub-, super-, and isoparametric analyses, we recommend sticking at least to the
 isoparametric choice (i.e., not subparametric) for the polynomial shape functions.
 
-The boundary conditions for the problem are periodical, and we consider a null macroscopic
+The boundary conditions for the problem are periodic, and we consider a null macroscopic
 displacement gradient, which in turn generates a uniform compressive hydrostatic pressure
-on the REV.
+on the RVE.
 
 Parameters
 ~~~~~~~~~~
@@ -386,7 +386,7 @@ solution to the MMM one:
 
    python3 mmm_vs_analytical.py
 
-The comparison between the computational results and the analytical solution is showed below.
+The comparison between the computational results and the analytical solution is shown below.
 
 .. image:: img/comparison_analytical_mmm.png
    :align: center
@@ -717,19 +717,19 @@ Description:
 
 .. warning::
 
-  Complet the description
+  Complete the description
 
 Problem Solved
 --------------
 
 .. code:: text
 
-  Export the internal value name plasticity strain 
+  Export the internal value named plasticity strain
 
   Solver : Conjugate Gradient (default)
   Preconditioner : Depends on the solver
 
-  The default is plasticity, behavior law parameter are defined into the lib loaded.
+  The default is plasticity; behaviour law parameters are defined in the loaded library.
 
   Element: 
   - Family H1
@@ -750,9 +750,9 @@ To customize the simulation, several options are available, as detailed
 below.
 
 +---------------------------------+--------------------------------------------+
-| Command line                    | Descritption                               |
+| Command line                    | Description                               |
 +=================================+============================================+
-| --mesh or -m                    | specify the mesh “.msh” used (default =    |
+| --mesh or -m                    | Specify the mesh “.msh” used (default =    |
 |                                 | inclusion.msh)                             |
 +---------------------------------+--------------------------------------------+
 | --refinement or -r              | The reference file                         |
@@ -767,7 +767,7 @@ below.
 | --library or -l                 | Material library                           |
 |                                 | (default = src/libBehaviour.so)            |
 +---------------------------------+--------------------------------------------+
-| --linearsolver or -ls           | identifier of the linear solver: 0 -> CG,  |
+| --linearsolver or -ls           | Identifier of the linear solver: 0 -> CG,  |
 |                                 | 1 -> GMRES, 2 -> UMFPack (serial),         |
 |                                 | 3-> MUMPS(serial), 2 -> HypreFGMRES (//),  | 
 |                                 | 3 -> HyprePCG (//), 4 -> HypreGMRES (//).  |
@@ -775,7 +775,7 @@ below.
 | --order or -o                   | Finite element order (polynomial degree)   |
 |                                 | (default = 2)                              |
 +---------------------------------+--------------------------------------------+
-| --parallel or -p                | run parallel execution                     |
+| --parallel or -p                | Run parallel execution                     |
 |                                 | (default = 0, serial)                      |
 +---------------------------------+--------------------------------------------+
 
@@ -804,7 +804,7 @@ website: https://github.com/latug0/mfem-mgis-examples/tree/master/ex5
 Description:
 ------------
 
-Modelling plate of length 1 in plane strain clamped on the left and right boundaries and submitted to a parabolic thermal gradient along the x-axis. (source code 5)
+Modelling of a plate of length 1, in plane strain, clamped on the left and right boundaries and subjected to a parabolic thermal gradient along the x-axis. (source code 5)
 
 
 .. figure:: img/SatohTest.png
@@ -816,8 +816,8 @@ Problem solved
 
 .. code:: text
 
-  This test models a 2D plate of lenght 1 in plane strain clamped on the left
-  and right boundaries and submitted to a parabolic thermal gradient along the
+  This test models a 2D plate of length 1 in plane strain clamped on the left
+  and right boundaries and subjected to a parabolic thermal gradient along the
   x-axis:
   
   - the temperature profile is minimal on the left and right boundaries
@@ -842,7 +842,7 @@ Problem solved
 Run the simulation
 ------------------
 
-Paramerters are hardcode into this example.
+Parameters are hardcoded in this example.
 
 .. code-block:: bash
 
@@ -869,7 +869,7 @@ Simulation of a Representative Volume Element (RVE) with a non-linear elastic be
 Build the mesh
 --------------
 
-Use GMSH to mesh the geometry. Files ``.geo`` is in the depository ``ex6``. Command line:
+Use GMSH to mesh the geometry. The ``.geo`` file is in the ``ex6`` repository. Command line:
 
 .. code:: bash
 
@@ -890,19 +890,19 @@ To customize the simulation, several options are available, as detailed
 below.
 
 +-------------------------+--------------------------------------------+
-| Command line            | Descritption                               |
+| Command line            | Description                               |
 +=========================+============================================+
-| --mesh or -m            | specify the mesh “.msh” used (default =    |
+| --mesh or -m            | Specify the mesh “.msh” used (default =    |
 |                         | inclusion.msh)                             |
 +-------------------------+--------------------------------------------+
-| --refinement or -r      | refinement level of the mesh (default = 0) |
+| --refinement or -r      | Refinement level of the mesh (default = 0) |
 +-------------------------+--------------------------------------------+
 | --order or -o           | Finite element order (polynomial degree)   |
 |                         | (default = 2)                              |
 +-------------------------+--------------------------------------------+
-| --verbosity-level or -v | choose the verbosity level (default = 0)   |
+| --verbosity-level or -v | Choose the verbosity level (default = 0)   |
 +-------------------------+--------------------------------------------+
-| --post-processing or -p | run post processing step (default = 1)     |
+| --post-processing or -p | Run post processing step (default = 1)     |
 +-------------------------+--------------------------------------------+
 
 Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications
@@ -932,7 +932,7 @@ Problem solved
                [   0  ,   0  ,  a ]
        with a = 0.012
 
-       Solver : HyprePCG
+       Solver : HypreGMRES
        Preconditioner : HypreBoomerAMG
 
        Moduli and Norton behavior law parameters :
@@ -944,7 +944,7 @@ Problem solved
        [ Temperature      , 293.15   , 293.15     ];
 
        Element :
-       - Familly H1
+       - Family H1
        - Order 2
 
 .. figure:: img/mox-order2.png
@@ -1003,7 +1003,7 @@ To customize the simulation, several options are available, as detailed
 below.
 
 +----------------------------+--------------------------------------------+
-| Command line               | Descritption                               |
+| Command line               | Description                               |
 +============================+============================================+
 | --mesh or -m               | Specify the mesh “.msh” used (default =    |
 |                            | inclusion.msh)                             |
@@ -1017,7 +1017,7 @@ below.
 +----------------------------+--------------------------------------------+
 | --post-processing or -p    | Run post processing step (default = 1)     |
 +----------------------------+--------------------------------------------+
-| --use-petsc                | Activate petsc if petsc is availabled      |
+| --use-petsc                | Activate PETSc if PETSc is available       |
 +----------------------------+--------------------------------------------+
 | --petsc-configuration-file | Name of the Petsc source file              |
 +----------------------------+--------------------------------------------+

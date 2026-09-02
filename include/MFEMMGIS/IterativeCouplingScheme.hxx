@@ -25,9 +25,10 @@ namespace mfem_mgis {
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
+     * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      */
-    IterativeCouplingScheme(const MeshDiscretization &);
+    IterativeCouplingScheme(Context& ctx, const MeshDiscretization &);
     /*!
      * \brief set the maximum number of iterations
      * \param[in] ctx: execution context

@@ -4,6 +4,8 @@
  * class \date   05/12/2022
  */
 
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/LoopCouplingScheme.hxx"
 
@@ -17,14 +19,36 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   LoopCouplingScheme::getParametersDescription() noexcept {
-    //     auto d = CouplingSchemeBase::getParametersDescription();
-    //     d.insert({"numberOfIterations", "number of iterations of the
-    //     scheme"}); return d;
-    return {};
+    auto d = CouplingSchemeBase::getParametersDescription();
+    d.insert({"NumberOfIterations", "number of iterations of the  scheme"});
+    return d;
   }  // end of getParametersDescription
 
-  LoopCouplingScheme::LoopCouplingScheme(const MeshDiscretization &m)
-      : CouplingSchemeBase(m) {}  // end of LoopCouplingScheme
+  LoopCouplingScheme::LoopCouplingScheme(Context& ctx, const MeshDiscretization &m)
+      : CouplingSchemeBase(ctx, m) {}  // end of LoopCouplingScheme
+
+  LoopCouplingScheme::LoopCouplingScheme(Context& ctx,
+                                         const MeshDiscretization &m,
+                                         const Parameters &params)
+      : CouplingSchemeBase(
+            ctx,
+            m,
+            extract(throwing,
+                    params,
+                    CouplingSchemeBase::getParametersDescription())) {
+    checkParameters(throwing, params,
+                    LoopCouplingScheme::getParametersDescription());
+    if (contains(params, "NumberOfIterations")) {
+      if (!is<int>(throwing, params, "NumberOfIterations")) {
+        raise("invalid parameter 'NumberOfIterations', must be an integer");
+      }
+      const auto n = get<int>(throwing, params, "NumberOfIterations");
+      if (n < 1) {
+        raise("invalid number of iterations");
+      }
+      this->number_of_iterations = n;
+    }
+  }  // end of LoopCouplingScheme
 
   bool LoopCouplingScheme::setNumberOfIterations(Context &ctx,
                                                  const size_type n) noexcept {
@@ -51,7 +75,7 @@ namespace mfem_mgis {
   }  // end of addConvergenceCriterion
 
   std::string LoopCouplingScheme::getName() const noexcept {
-    return "LoopCouplingScheme";
+    return this->name.value_or("LoopCouplingScheme");
   }  // end of getName
 
   std::optional<std::string> LoopCouplingScheme::describe(
@@ -102,6 +126,7 @@ namespace mfem_mgis {
       std::ignore = ctx.registerErrorMessage("invalid number of iterations");
       return {ExitStatus::unrecoverableError, {}};
     }
+    CatchTimeSection(ctx, "LoopCouplingScheme::computeNextState");
     auto status = ExitStatus{};
     auto iterationsOutputs = std::vector<Parameter>{};
     auto iterationOutputs = std::vector<Parameter>{};
@@ -113,6 +138,7 @@ namespace mfem_mgis {
       for (const auto &m : this->items) {
         ctx.log(verboseLevel2, "* calling computeNextState for '" +
                                    getShortDescription(*m) + "'");
+        CatchTimeSection(ctx, m->getName());
         auto cs = update(ctx, *m);
         const auto o = m->computeNextState(ctx, ts);
         restore(ctx, cs);

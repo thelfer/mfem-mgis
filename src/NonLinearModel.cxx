@@ -10,13 +10,30 @@
 
 namespace mfem_mgis {
 
-  NonLinearModel::NonLinearModel(MeshDiscretization &m,
+  NonLinearModel::NonLinearModel(Context& ctx,
+                                 MeshDiscretization &m,
                                  const Parameters &parameters)
-      : NonLinearModel(
-            std::make_shared<NonLinearEvolutionProblem>(m, parameters)) {}
+      : ModelBase(
+            ctx,
+            m,
+            extract(
+                throwing, parameters, ModelBase::getParametersDescription())),
+        // IL MANQUAIT LE CONTEXTE ICI :
+        problem(std::make_shared<NonLinearEvolutionProblem>(
+            ctx,
+            m, 
+            remove(parameters, ModelBase::getParametersDescription()))) {
+    auto valid_parameters = NonLinearEvolutionProblem::getParametersList();
+    for (const auto &[k, d] : ModelBase::getParametersDescription()) {
+      static_cast<void>(d);
+      valid_parameters.push_back(k);
+    }
+    checkParameters(throwing, parameters, valid_parameters);
+  }
 
-  NonLinearModel::NonLinearModel(std::shared_ptr<NonLinearEvolutionProblem> p)
-      : ModelBase(p->getFiniteElementDiscretization()), problem(p) {
+  NonLinearModel::NonLinearModel(Context& ctx, std::shared_ptr<NonLinearEvolutionProblem> p)
+      : ModelBase(ctx, p->getFiniteElementDiscretization()), // <--- IL MANQUAIT LE CONTEXTE ICI
+        problem(p) {
     if (p.get() == nullptr) {
       raise("invalid problem");
     }
@@ -31,7 +48,7 @@ namespace mfem_mgis {
   }  // end of getProblem
 
   std::string NonLinearModel::getName() const noexcept {
-    return "NonLinearModel";
+    return this->name.value_or("NonLinearModel");
   }  // end of getName
 
   bool NonLinearModel::performInitializationTaksAtTheBeginningOfTheTimeStep(
@@ -53,7 +70,7 @@ namespace mfem_mgis {
       return false;
     }
     if (b) {
-      this->problem->executePostProcessings(ts.begin, ts.end);
+      this->problem->executePostProcessings(ctx, ts.begin, ts.end);
     }
     return true;
   }

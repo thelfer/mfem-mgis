@@ -34,6 +34,7 @@ function(mfem_mgis_library name)
     message(FATAL_ERROR "mfem_mgis_library_internal : no source specified")
   endif(${ARGC} LESS 2)
   add_library(${name} STATIC ${ARGN})
+  add_library(mfem-mgis::${name} ALIAS ${name})
   target_include_directories(${name}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     PUBLIC $<INSTALL_INTERFACE:include>

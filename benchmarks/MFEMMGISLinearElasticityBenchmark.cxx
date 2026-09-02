@@ -125,8 +125,9 @@ int main(int argc, char* argv[]) {
   // mpi initialization here
   mfem_mgis::initialize(argc, argv);
 
-  // init timers
-  mfem_mgis::Profiler::timers::init_timers();
+  // init timers via Context
+  auto ctx = mgis::Context{};
+  ctx.enableProfiling(true);
 
   [[maybe_unused]] double start, end;
   start = MPI_Wtime();
@@ -228,10 +229,10 @@ int main(int argc, char* argv[]) {
   time += dt;
 
   problem.update();
-  if (p.post_processing == 1) problem.executePostProcessings(time, dt);
+  if (p.post_processing == 1) problem.executePostProcessings(ctx, time, dt);
 
   end = MPI_Wtime();
   // printf("Duration: %1.6f s \n", end-start);fflush(stdout);
-  mfem_mgis::Profiler::timers::print_timers();
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return 0;
 }

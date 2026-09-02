@@ -29,8 +29,13 @@ namespace mfem_mgis {
                     {"OutputFileName", "Materials", "Results"});
     // if Materials exists, use it, otherwise, take all materials
     this->materials_identifiers = getMaterialsIdentifiers(throwing, p, params);
-    this->createSubMesh(p);
-    this->exporter.SetMesh(this->submesh.get());
+    const auto all_mids = p.getAssignedMaterialsIdentifiers();
+    if (this->materials_identifiers.size() == all_mids.size()) {
+      this->exporter.SetMesh(&(p.getMesh()));
+    } else {
+      this->createSubMesh(p);
+      this->exporter.SetMesh(this->submesh.get());
+    }
     //
     if (!contains(params, "Results")) {
       raise(
@@ -145,6 +150,7 @@ namespace mfem_mgis {
   template <bool parallel>
   void
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::execute(
+      Context&,
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const real t,
       const real dt) {
@@ -206,14 +212,15 @@ namespace mfem_mgis {
 
   template <bool parallel>
   void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
-      parallel>::execute(NonLinearEvolutionProblemImplementation<parallel>& p,
+      parallel>::execute(Context &ctx,
+                         NonLinearEvolutionProblemImplementation<parallel>& p,
                          const real t,
                          const real dt) {
-    Context ctx;
-    if (!this->functions.update(ctx, this->update_function)) {
+    Context local_ctx;
+    if (!this->functions.update(local_ctx, this->update_function)) {
       raise(ctx.getErrorMessage());
     }
-    this->exporter.execute(p, t, dt);
+    this->exporter.execute(ctx, p, t, dt);
   }  // end of execute
 
 #endif /* MGIS_FUNCTION_SUPPORT */

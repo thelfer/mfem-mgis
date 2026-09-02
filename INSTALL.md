@@ -96,7 +96,7 @@ Change to the `mfem-mgis` directory, add the Spack repository, and install the p
 
 ```sh
 git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-spack repo add spack-repo-mfem-mgi
+spack repo add spack-repo-mfem-mgis
 spack install -j 8 mfem-mgis
 ```
 

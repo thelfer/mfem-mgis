@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
   args.PrintOptions(mfem_mgis::getOutputStream());
   //
   auto ctx = mfem_mgis::Context{};
-  mfem_mgis::NonLinearEvolutionProblem problem(
+  mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
       {{"MeshFileName", mesh_file},
        {"FiniteElementFamily", "H1"},
        {"FiniteElementOrder", order},

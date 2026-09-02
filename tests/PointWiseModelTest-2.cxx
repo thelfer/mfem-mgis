@@ -9,6 +9,9 @@
 #include "MGIS/Model/Model.hxx"
 #include "MGIS/Behaviour/Integrate.hxx"
 #include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/PointWiseModel.hxx"
+#include "MFEMMGIS/PhysicalSystem.hxx"
+#include "MFEMMGIS/TimeStep.hxx"
 #include "UnitTestingUtilities.hxx"
 
 struct TestParameters {
@@ -38,39 +41,49 @@ static void parseCommandLineOptions(TestParameters& params,
 template <bool parallel>
 bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   using namespace mfem_mgis;
-  auto fed = FiniteElementDiscretization{ctx, 
-      {{"MeshFileName", params.mesh_file},
-       {"FiniteElementFamily", "H1"},
-       {"FiniteElementOrder", params.order},
-       {"UnknownsSize", 1},
-       {"NumberOfUniformRefinements", parallel ? 1 : 0},
-       {"Parallel", parallel}}};
-  auto qspace = std::make_shared<PartialQuadratureSpace>(
-      fed, 5,
-      [](const mfem::FiniteElement& e,
-         const mfem::ElementTransformation&) noexcept
-      -> const mfem::IntegrationRule& {
-        return mfem::IntRules.Get(e.GetGeomType(), 0);
-      });
-  const char* library = "./libBehaviourTest.so";
-  auto omodel = mgis::model::load(ctx, library, "UO2Shrinkage_RAPHAEL2008",
-                                  mgis::behaviour::Hypothesis::PLANESTRAIN);
-  if (isInvalid(omodel)) {
+  auto or_die = ctx.getFatalFailureHandler();
+  auto fed =
+      make_shared<FiniteElementDiscretization>(
+          ctx, Parameters{{"MeshFileName", params.mesh_file},
+                          {"FiniteElementFamily", "H1"},
+                          {"FiniteElementOrder", params.order},
+                          {"UnknownsSize", 1},
+                          {"NumberOfUniformRefinements", parallel ? 1 : 0},
+                          {"Parallel", parallel}}) |
+      or_die;
+  auto qspace = make_shared<const PartialQuadratureSpace>(
+                    ctx, *fed, 5,
+                    [](const mfem::FiniteElement& e,
+                       const mfem::ElementTransformation&) noexcept
+                    -> const mfem::IntegrationRule& {
+                      return mfem::IntRules.Get(e.GetGeomType(), 0);
+                    }) |
+                or_die;
+  auto model = make_shared<PointWiseModel>(
+                   ctx, qspace,
+                   Parameters{{"Library", "./libBehaviourTest.so"},
+                              {"Model", "UO2Shrinkage_RAPHAEL2008"},
+                              {"Hypothesis", "PlaneStrain"}}) |
+               or_die;
+  auto& m = model->getMaterial();
+  mgis::behaviour::setExternalStateVariable(ctx, m.s0, "Temperature", 893.15) |
+      or_die;
+  mgis::behaviour::setExternalStateVariable(ctx, m.s0, "BurnUp_AtPercent", 0) |
+      or_die;
+  mgis::behaviour::setExternalStateVariable(ctx, m.s1, "Temperature", 893.15) |
+      or_die;
+  mgis::behaviour::setExternalStateVariable(ctx, m.s1, "BurnUp_AtPercent", 5) |
+      or_die;
+  //
+  auto ps = construct<PhysicalSystem>(ctx, *fed) | or_die;
+  ps.setModel(ctx, model) | or_die;
+  const auto r = ps.computeNextState(ctx, {.begin = 0, .end = 1, .dt = 1});
+  if (!r.first.shallContinue()) {
     std::cerr << ctx.getErrorMessage() << '\n';
-    return EXIT_FAILURE;
+    std::exit(-1);
   }
-  auto m = Material(qspace, std::make_unique<Behaviour>(*omodel));
-  mgis::behaviour::setExternalStateVariable(m.s0, "Temperature", 893.15);
-  mgis::behaviour::setExternalStateVariable(m.s0, "BurnUp_AtPercent", 0);
-  mgis::behaviour::setExternalStateVariable(m.s1, "Temperature", 893.15);
-  mgis::behaviour::setExternalStateVariable(m.s1, "BurnUp_AtPercent", 5);
-  const auto r = mgis::behaviour::integrate(
-      m, mgis::behaviour::IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR, 1,
-      0, m.n);
-  if (!((r == 1) || (r == 0))) {
-    return false;
-  }
-  const auto s = getInternalStateVariable(m, "Shrinkage", ets);
+  //
+  const auto s = getInternalStateVariable(ctx, m, "Shrinkage", ets) | or_die;
   const auto Ta = real{750};
   const auto Tm = real{893.15};
   const auto A = std::max(real{5.e-3}, real{-1.26e-2 + 1.8e-5 * Tm});

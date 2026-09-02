@@ -50,7 +50,7 @@ MUMPS Solver
 +----------------------+----------------------------------------------------+
 | Key                  | Description                                        |
 +======================+====================================================+
-| ``Symetric``         | Specify if the matrix is symetric. [bool]          |
+| ``Symmetric``        | Specify if the matrix is symmetric. [bool]         |
 +----------------------+----------------------------------------------------+
 | ``PositiveDefinite`` | Specify if the matrix is positive definite. [bool] |
 +----------------------+----------------------------------------------------+
@@ -71,7 +71,7 @@ UMFPack Solver
   - ``MFEM_USE_SUITESPARSE``
   - not parallel
 
-- Parameters:None
+- Parameters: None
 
 **Example:**
 
@@ -85,7 +85,7 @@ UMFPack Solver
 
 .. note::
 
-  We advise you to not use the direct solvers using the parallel option for large systems,
+  We advise you not to use the direct solvers with the parallel option for large systems,
   this advice is mainly due to the fact that these solvers don't scale
   in memory on large problems (e.g. meshes with more than a hundred
   thousand points). Nevertheless, these solvers are maintained within the
@@ -109,7 +109,7 @@ Conjugate Gradient
 +-------------------------------+--------------------------------------------------+
 | Key                           | Description                                      |
 +===============================+==================================================+
-| ``Precondition``              | Define your preconditioner. [Parameters]         |
+| ``Preconditioner``            | Define your preconditioner. [Parameters]         |
 +-------------------------------+--------------------------------------------------+
 | ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
 +-------------------------------+--------------------------------------------------+
@@ -141,7 +141,7 @@ Generalized Minimal Residual (GMRES)
 +-------------------------------+--------------------------------------------------+
 | Key                           | Description                                      |
 +===============================+==================================================+
-| ``Precondition``              | Define your preconditioner. [Parameters]         |
+| ``Preconditioner``            | Define your preconditioner. [Parameters]         |
 +-------------------------------+--------------------------------------------------+
 | ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
 +-------------------------------+--------------------------------------------------+
@@ -173,7 +173,7 @@ Biconjugate Gradient Stabilized (BiCGSTAB)
 +-------------------------------+--------------------------------------------------+
 | Key                           | Description                                      |
 +===============================+==================================================+
-| ``Precondition``              | Define your preconditioner. [Parameters]         |
+| ``Preconditioner``            | Define your preconditioner. [Parameters]         |
 +-------------------------------+--------------------------------------------------+
 | ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
 +-------------------------------+--------------------------------------------------+
@@ -205,7 +205,7 @@ Minimal Residual (MINRES)
 +-------------------------------+--------------------------------------------------+
 | Key                           | Description                                      |
 +===============================+==================================================+
-| ``Precondition``              | Define your preconditioner. [Parameters]         |
+| ``Preconditioner``            | Define your preconditioner. [Parameters]         |
 +-------------------------------+--------------------------------------------------+
 | ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
 +-------------------------------+--------------------------------------------------+
@@ -236,7 +236,7 @@ Stationary Linear Iteration (SLI)
 +-------------------------------+--------------------------------------------------+
 | Key                           | Description                                      |
 +===============================+==================================================+
-| ``Precondition``              | Define your preconditioner. [Parameters]         |
+| ``Preconditioner``            | Define your preconditioner. [Parameters]         |
 +-------------------------------+--------------------------------------------------+
 | ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
 +-------------------------------+--------------------------------------------------+
@@ -269,15 +269,15 @@ Preconditioned Conjugate Gradient (HyprePCG)
 - Parameters:
 
 +-------------------------------+--------------------------------------------------+
-| key                           | description                                      |
+| Key                           | Description                                      |
 +===============================+==================================================+
-| ``precondition``              | define your preconditioner. [parameters]         |
+| ``Preconditioner``            | Define your preconditioner. [Parameters]         |
 +-------------------------------+--------------------------------------------------+
-| ``verbositylevel``            | define the verbosity of the solver. [int: 0,1]   |
+| ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
 +-------------------------------+--------------------------------------------------+
-| ``tolerance``                 | define the tolerance, >0. [double]               |
+| ``Tolerance``                 | Define the tolerance, >0. [double]               |
 +-------------------------------+--------------------------------------------------+
-| ``maximumnumberofiterations`` | maximum number of krylov iterations, >= 1. [int] |
+| ``MaximumNumberOfIterations`` | Maximum number of Krylov iterations, >= 1. [int] |
 +-------------------------------+--------------------------------------------------+
 
 
@@ -310,7 +310,7 @@ Generalized Minimal Residual (HypreGMRES)
 +===============================+==================================================+
 | ``KDim``                      | Define the Krylov dimension, >= 1. [int]         |
 +-------------------------------+--------------------------------------------------+
-| ``Precondition``              | Define your preconditioner. [Parameters]         |
+| ``Preconditioner``            | Define your preconditioner. [Parameters]         |
 +-------------------------------+--------------------------------------------------+
 | ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
 +-------------------------------+--------------------------------------------------+
@@ -349,7 +349,7 @@ Flexible GMRES (HypreFGMRES)
 +===============================+==================================================+
 | ``KDim``                      | Define the Krylov dimension, >= 1. [int]         |
 +-------------------------------+--------------------------------------------------+
-| ``Precondition``              | Define your preconditioner. [Parameters]         |
+| ``Preconditioner``            | Define your preconditioner. [Parameters]         |
 +-------------------------------+--------------------------------------------------+
 | ``VerbosityLevel``            | Define the verbosity of the solver. [int: 0,1]   |
 +-------------------------------+--------------------------------------------------+
@@ -521,7 +521,7 @@ PeriodicNonLinearEvolutionProblem
 +----------------------------+----------------------------------------------------------+
 | Key                        | Description                                              |
 +============================+==========================================================+
-| FiniteElementFamily        | Finite Element Familly, ex: H1 [string]                  |
+| FiniteElementFamily        | Finite Element Family, ex: H1 [string]                   |
 +----------------------------+----------------------------------------------------------+
 | MeshFileName               | Path to the mesh file [string]                           |
 +----------------------------+----------------------------------------------------------+
@@ -529,14 +529,14 @@ PeriodicNonLinearEvolutionProblem
 +----------------------------+----------------------------------------------------------+
 | UnknownsSize               | Number of unknowns, >=1 [int]                            |
 +----------------------------+----------------------------------------------------------+
-| NumberOfUniformRefinements | Number of time the mesh is Uniform refiined, >= 0 [int]  |
+| NumberOfUniformRefinements | Number of times the mesh is uniformly refined, >= 0 [int]|
 +----------------------------+----------------------------------------------------------+
 | Parallel                   | Run parallel execution [bool]                            |
 +----------------------------+----------------------------------------------------------+
 
 .. note::
 
-  The uniform refinement process is done after spliting the mesh across the mpi processes. 
+  The uniform refinement process is done after splitting the mesh across the mpi processes.
 
 CPP example:
 

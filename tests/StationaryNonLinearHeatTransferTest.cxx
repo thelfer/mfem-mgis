@@ -20,6 +20,8 @@
 #include "UnitTestingUtilities.hxx"
 
 int main(int argc, char** argv) {
+
+  auto ctx = mgis::Context{};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
   mfem_mgis::initialize(argc, argv);
@@ -30,7 +32,7 @@ int main(int argc, char** argv) {
   auto success = true;
   {
     // building the non linear problem
-    mfem_mgis::NonLinearEvolutionProblem problem(
+    mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
         {{"MeshFileName", parameters.mesh_file},
          {"FiniteElementFamily", "H1"},
          {"FiniteElementOrder", parameters.order},
@@ -105,6 +107,6 @@ int main(int argc, char** argv) {
     //         mfem_mgis::unit_tests::checkResults(r, m1, parameters, eps, E *
     //         eps);
   }
-  mfem_mgis::Profiler::timers::print_timers();
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

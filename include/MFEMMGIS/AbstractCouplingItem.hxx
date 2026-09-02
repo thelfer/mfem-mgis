@@ -37,6 +37,10 @@ namespace mfem_mgis {
     static const std::string verbosityLevelParameter;
     //! \brief name of the parameter associated with an output file
     static const std::string logFileParameter;
+    //! \brief name of coupling item
+    static const std::string nameParameter;
+    //! \return set the name of the coupling item
+    virtual void setName(std::string_view) noexcept = 0;
     //! \return a name describing the coupling item
     [[nodiscard]] virtual std::string getName() const noexcept = 0;
     //! \brief return the mesh discretization
@@ -53,18 +57,22 @@ namespace mfem_mgis {
     virtual void setLogStream(std::shared_ptr<std::ostream>) noexcept = 0;
     /*!
      * \return a pointer to a log stream. This pointer may be null if the
-     * coupling item does not declare a specific log stream. \param[in] s: log
-     * stream
+     * coupling item does not declare a specific log stream.
+     *
+     * \param[in] s: log stream
      */
     [[nodiscard]] virtual std::shared_ptr<std::ostream>
     getLogStreamPointer() noexcept = 0;
     /*!
      * \brief set the verbosity level to be used when the coupling item is
-     * called \param[in] l: the new verbose level
+     * called
+     *
+     * \param[in] l: the new verbose level
      */
     virtual void setVerbosityLevel(const VerbosityLevel) noexcept = 0;
     /*!
      * \return a description of the coupling item
+     *
      * \param[in] b: boolean being the default value for information requests.
      * \param[in] parameters: dictionary that allows the parametrize the output.
      * This dictionary is meant to contains boolean values corresponding

@@ -7,6 +7,7 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
+#include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/BoundaryUtilities.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
@@ -30,47 +31,52 @@ namespace mfem_mgis {
     return params;
   }  // end of getParametersList
 
-  NonLinearEvolutionProblem::NonLinearEvolutionProblem(const Parameters& p) {
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(Context& ctx,
+                                                       const Parameters& p) {
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
     const auto h = mgis::behaviour::fromString(get<std::string>(
         throwing, p, NonLinearEvolutionProblem::HypothesisParameter));
     const auto fed = std::make_shared<FiniteElementDiscretization>(
+        ctx,
         extract(throwing, p, FiniteElementDiscretization::getParametersList()));
+
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
           NonLinearEvolutionProblemImplementation<true>;
-      this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
+      this->pimpl = std::make_unique<ParallelImplementation>(ctx, fed, h, p);
 #else
       raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
     } else {
-      this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
+      this->pimpl = std::make_unique<SequentialImplementation>(ctx, fed, h, p);
     }
   }  // end of NonLinearEvolutionProblem
 
-  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(Context& ctx,
+                                                       MeshDiscretization& m,
                                                        const Hypothesis h,
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
+            ctx,
             std::make_shared<FiniteElementDiscretization>(
-                m,
-                extract(throwing,
-                        p,
+                ctx, m,
+                extract(throwing, p,
                         FiniteElementDiscretization::getParametersList())),
             h,
             p) {}  // end of NonLinearEvolutionProblem
 
-  NonLinearEvolutionProblem::NonLinearEvolutionProblem(MeshDiscretization& m,
+  NonLinearEvolutionProblem::NonLinearEvolutionProblem(Context& ctx,
+                                                       MeshDiscretization& m,
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
+            ctx,
             std::make_shared<FiniteElementDiscretization>(
-                m,
-                extract(throwing,
-                        p,
+                ctx, m,
+                extract(throwing, p,
                         FiniteElementDiscretization::getParametersList())),
             mgis::behaviour::fromString(get<std::string>(
                 throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
@@ -78,8 +84,11 @@ namespace mfem_mgis {
   }  // end of NonLinearEvolutionProblem
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
-      std::shared_ptr<FiniteElementDiscretization> fed, const Parameters& p)
+      Context& ctx,
+      std::shared_ptr<FiniteElementDiscretization> fed,
+      const Parameters& p)
       : NonLinearEvolutionProblem(
+            ctx,
             fed,
             mgis::behaviour::fromString(get<std::string>(
                 throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
@@ -87,6 +96,7 @@ namespace mfem_mgis {
   }  // end of NonLinearEvolutionProblem
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
+      Context& ctx,
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
       const Parameters& p) {
@@ -103,14 +113,14 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
           NonLinearEvolutionProblemImplementation<true>;
-      this->pimpl = std::make_unique<ParallelImplementation>(fed, h, p);
+      this->pimpl = std::make_unique<ParallelImplementation>(ctx, fed, h, p);
 #else
       raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
     } else {
-      this->pimpl = std::make_unique<SequentialImplementation>(fed, h, p);
+      this->pimpl = std::make_unique<SequentialImplementation>(ctx, fed, h, p);
     }
   }  // end of NonLinearEvolutionProblem
 
@@ -211,7 +221,7 @@ namespace mfem_mgis {
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(
       Context& ctx, const real t, const real dt) noexcept {
-    CatchTimeSection("NLEP::solve");
+    CatchTimeSection(ctx, "NLEP::solve");
     if (!this->setup(ctx, t, dt)) {
       return InvalidResult{};
     }
@@ -220,7 +230,6 @@ namespace mfem_mgis {
 
   NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
                                                              const real dt) {
-    CatchTimeSection("NLEP::solve");
     this->setup(t, dt);
     return this->pimpl->solve(t, dt);
   }  // end of solve
@@ -228,7 +237,6 @@ namespace mfem_mgis {
   bool NonLinearEvolutionProblem::integrate(const mfem::Vector& U,
                                             const IntegrationType it,
                                             const std::optional<real> odt) {
-    CatchTimeSection("NLEP::integrate");
     return this->pimpl->integrate(U, it, odt);
   }  // end of solve
 
@@ -352,9 +360,10 @@ namespace mfem_mgis {
     this->pimpl->addPostProcessing(n, p);
   }  // end of addPostProcessing
 
-  void NonLinearEvolutionProblem::executePostProcessings(const real t,
+  void NonLinearEvolutionProblem::executePostProcessings(Context& ctx,
+                                                         const real t,
                                                          const real dt) {
-    this->pimpl->executePostProcessings(t, dt);
+    this->pimpl->executePostProcessings(ctx, t, dt);
   }
 
   std::optional<std::map<size_type, size_type>>

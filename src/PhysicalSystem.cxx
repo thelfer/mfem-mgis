@@ -231,7 +231,7 @@ namespace mfem_mgis {
     if (m->getMeshDiscretization() != this->mesh) {
       return ctx.registerErrorMessage("inconsistent meshes");
     }
-    auto c = make_shared<LoopCouplingScheme>(ctx, this->mesh);
+    auto c = make_shared<LoopCouplingScheme>(ctx, std::ref(this->mesh));
     if (isInvalid(c)) {
       return false;
     }
@@ -340,7 +340,7 @@ namespace mfem_mgis {
   }  // end of revert
 
   bool PhysicalSystem::addPostProcessing(
-      Context &ctx, std::string_view n, const Parameters &parameters) noexcept {
+      Context&, std::string_view n, const Parameters &parameters) noexcept {
 #pragma message("HERE")
     //     const auto &f = PostProcessingFactory::get();
     //     return this->addPostProcessing(
@@ -349,7 +349,7 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   bool PhysicalSystem::addPostProcessing(
-      Context &ctx, std::shared_ptr<AbstractPostProcessing> p) noexcept {
+      Context&, std::shared_ptr<AbstractPostProcessing> p) noexcept {
 #pragma message("HERE")
     //     if (p.get() == nullptr) {
     //       return ctx.registerErrorMessage("invalid post-processing");

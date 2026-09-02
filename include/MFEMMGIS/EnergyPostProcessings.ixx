@@ -41,6 +41,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   void EnergyPostProcessingBase<parallel>::execute(
+      Context&,
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const real t,
       const real dt) {

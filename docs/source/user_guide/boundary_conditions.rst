@@ -14,10 +14,10 @@ General purpose boundary conditions
 The :code:`UniformDirichletBoundaryCondition` boundary condition
 ----------------------------------------------------------------
 
-The :code:`UniformDirichletBoundaryCondition` allows to impose
+The :code:`UniformDirichletBoundaryCondition` allows imposing
 a prescribed value on a boundary.
 
-The following snipet sets to zero the first component of the unknowns
+The following snippet sets to zero the first component of the unknowns
 on the boundary labeled :code:`5`:
 
 .. code:: c++
@@ -47,7 +47,7 @@ where:
 - :math:`\vec{N}` is normal to the boundary in the reference configuration,
 - :math:`\vec{u}^{\star}` is a virtual displacement.
 
-The following snippet imposes an uniform pressure, which evolves linearly
+The following snippet imposes a uniform pressure, which evolves linearly
 with time, on the boundary labeled :code:`3`:
 
 .. code:: c++
@@ -74,7 +74,7 @@ where:
 - :math:`q` is the heat source,
 - :math:`T^{\star}` is a virtual temperature.
 
-The following snippet imposes an uniform heat source, which evolves
+The following snippet imposes a uniform heat source, which evolves
 linearly with time, on the material named :code:`fuel`:
 
 .. code:: c++

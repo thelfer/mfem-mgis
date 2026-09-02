@@ -86,11 +86,14 @@ list(APPEND MFEMMGIS_SOURCES
   AbstractCouplingSchemeConvergenceCriterion.cxx
   FirstIterationConvergenceCriterion.cxx
   CouplingSchemeBase.cxx
+  CouplingSchemeConvergenceCriterionBase.cxx
   LoopCouplingScheme.cxx
   IterativeCouplingScheme.cxx
+  CouplingSchemeConvergenceCriterionBase.cxx
   AbstractModel.cxx
   ModelBase.cxx
   NonLinearModel.cxx
+  PointWiseModel.cxx
   PhysicalSystem.cxx
   Simulation.cxx
 )
