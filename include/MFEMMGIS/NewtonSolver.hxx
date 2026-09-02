@@ -53,7 +53,7 @@ namespace mfem_mgis {
      * \param[in] r: residual
      * \param[in] u: current estimate of the unknowns
      */
-    void computeResidual(Context&, mfem::Vector &, const mfem::Vector &) const;
+    void computeResidual(Context &, mfem::Vector &, const mfem::Vector &) const;
     /*!
      * \brief set the reference value for the norm of the residual.
      */

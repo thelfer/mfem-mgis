@@ -82,12 +82,16 @@ void add_post_processings(Problem& p, std::string msg) {
 }  // end timer add_postprocessing_and_outputs
 
 template <typename Problem>
-void execute_post_processings(mgis::Context& ctx, Problem& p, double start, double end) {
+void execute_post_processings(mgis::Context& ctx,
+                              Problem& p,
+                              double start,
+                              double end) {
   CatchTimeSection(ctx, "common::post_processing_step");
   p.executePostProcessings(ctx, start, end);
 }
 
-void setup_properties(mgis::Context& ctx, const TestParameters& p, 
+void setup_properties(mgis::Context& ctx,
+                      const TestParameters& p,
                       mfem_mgis::PeriodicNonLinearEvolutionProblem& problem) {
   using namespace mgis::behaviour;
   using real = mfem_mgis::real;
@@ -125,7 +129,8 @@ void setup_properties(mgis::Context& ctx, const TestParameters& p,
 }
 
 template <typename Problem>
-static void setLinearSolver(mgis::Context& ctx, Problem& p,
+static void setLinearSolver(mgis::Context& ctx,
+                            Problem& p,
                             bool parallel,
                             const int verbosity = 0,
                             const mfem_mgis::real Tol = 1e-12) {
@@ -166,7 +171,7 @@ static void setLinearSolver(mgis::Context& ctx, Problem& p,
 }
 
 template <typename Problem>
-void run_solve(mgis::Context& ctx, Problem& p, double start, double end) { 
+void run_solve(mgis::Context& ctx, Problem& p, double start, double end) {
   CatchTimeSection(ctx, "Solve");
   // solving the problem
   auto statistics = p.solve(start, end);
@@ -196,14 +201,14 @@ int main(int argc, char* argv[]) {
   constexpr const auto dim = mfem_mgis::size_type{3};
 
   // creating the finite element workspace
-  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(ctx, 
-      mfem_mgis::Parameters{
-          {"MeshFileName", p.mesh_file},
-          {"FiniteElementFamily", "H1"},
-          {"FiniteElementOrder", p.order},
-          {"UnknownsSize", dim},
-          {"NumberOfUniformRefinements", p.parallel ? p.refinement : 0},
-          {"Parallel", bool(p.parallel)}});
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+      ctx, mfem_mgis::Parameters{
+               {"MeshFileName", p.mesh_file},
+               {"FiniteElementFamily", "H1"},
+               {"FiniteElementOrder", p.order},
+               {"UnknownsSize", dim},
+               {"NumberOfUniformRefinements", p.parallel ? p.refinement : 0},
+               {"Parallel", bool(p.parallel)}});
   mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed);
 
   // set problem

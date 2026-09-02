@@ -295,7 +295,7 @@ namespace mfem_mgis::unit_tests {
     extractInitialResults(r, m1, parameters);
 
     auto ctx = mgis::Context{};
-    
+
     // loop over time step
     auto t = t0;
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {

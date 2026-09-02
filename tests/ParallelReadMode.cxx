@@ -208,7 +208,8 @@ void executeMFEMMGISTest(mgis::Context& ctx, const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
-  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(ctx, 
+  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
+      ctx,
       mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
                             {"MeshReadMode", p.mesh_mode},
                             {"FiniteElementFamily", "H1"},
@@ -221,7 +222,8 @@ void executeMFEMMGISTest(mgis::Context& ctx, const TestParameters& p) {
     // building the non linear problem
     std::vector<mfem_mgis::real> corner1({0., 0., 0.});
     std::vector<mfem_mgis::real> corner2({xmax, xmax, xmax});
-    mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed, corner1, corner2);
+    mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed, corner1,
+                                                         corner2);
     problem.addBehaviourIntegrator("Mechanics", 1, p.library, "Elasticity");
     problem.addBehaviourIntegrator("Mechanics", 2, p.library, "Elasticity");
     // materials

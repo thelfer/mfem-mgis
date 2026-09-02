@@ -159,15 +159,15 @@ int main(int argc, char *argv[]) {
   args.PrintOptions(mfem_mgis::getOutputStream());
   //
   auto ctx = mfem_mgis::Context{};
-  mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
-      {{"MeshFileName", mesh_file},
-       {"FiniteElementFamily", "H1"},
-       {"FiniteElementOrder", order},
-       {"UnknownsSize", 3},
-       {"NumberOfUniformRefinements", 2},  // faster for testing
-       //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-       {"Hypothesis", "Tridimensional"},
-       {"Parallel", bool(parallel)}});
+  mfem_mgis::NonLinearEvolutionProblem problem(
+      ctx, {{"MeshFileName", mesh_file},
+            {"FiniteElementFamily", "H1"},
+            {"FiniteElementOrder", order},
+            {"UnknownsSize", 3},
+            {"NumberOfUniformRefinements", 2},  // faster for testing
+            //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
+            {"Hypothesis", "Tridimensional"},
+            {"Parallel", bool(parallel)}});
   //
   problem.addBehaviourIntegrator("Mechanics", 1, library, "Elasticity");
   auto &m1 = problem.getMaterial(1);

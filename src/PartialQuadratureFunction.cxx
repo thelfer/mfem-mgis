@@ -230,7 +230,7 @@ namespace mfem_mgis {
       ~ImmutablePartialQuadratureFunctionView() = default;
 
   PartialQuadratureFunction::PartialQuadratureFunction(
-      PartialQuadratureFunction&& f, const bool local_copy) {
+      PartialQuadratureFunction&& f) {
     if (!f.local_values_storage.empty()) {
       // the function holds the memory, just take it from him
       static_cast<PartialQuadratureFunctionDataLayout&>(*this).operator=(f);
@@ -240,23 +240,19 @@ namespace mfem_mgis {
       this->immutable_values = local_values_storage;
     } else {
       // the function does not hold the memory
-      if (local_copy) {
-        this->copy(f);
-      } else {
-        this->makeView(f);
-      }
+      this->makeView(f);
     }
   }  // end of PartialQuadratureFunction
 
-  PartialQuadratureFunction::PartialQuadratureFunction(
-      const PartialQuadratureFunction& v)
-      : PartialQuadratureFunctionView() {
-    this->copy(v);
-  }  // end of PartialQuadratureFunction
-
-  PartialQuadratureFunction::PartialQuadratureFunction(
-      const ImmutablePartialQuadratureFunctionView& v) {
-    this->copy(v);
+  [[nodiscard]] std::optional<PartialQuadratureFunction>
+  PartialQuadratureFunction::copy(
+      Context& ctx, const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    try {
+      return {PartialQuadratureFunction(v)};
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
   }  // end of ImmutablePartialQuadratureFunctionView
 
   PartialQuadratureFunction::PartialQuadratureFunction(
@@ -270,6 +266,21 @@ namespace mfem_mgis {
     this->mutable_values = std::span<real>(this->local_values_storage);
     this->immutable_values = std::span<const real>(this->local_values_storage);
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
+
+  std::optional<PartialQuadratureFunction> PartialQuadratureFunction::borrow(
+      Context& ctx,
+      std::shared_ptr<const PartialQuadratureSpace> s,
+      std::span<real> v,
+      const size_type db,
+      const size_type ds) noexcept {
+    try {
+      return {PartialQuadratureFunction(s, StorageMode::EXTERNAL_STORAGE, v, db,
+                                        ds)};
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
+  }  // end of borrow
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s,
@@ -313,23 +324,7 @@ namespace mfem_mgis {
     this->immutable_values = f.immutable_values;
   }
 
-  PartialQuadratureFunction& PartialQuadratureFunction::operator=(
-      const PartialQuadratureFunction& src) {
-    if (&src != this) {
-      this->copy(src);
-    }
-    return *this;
-  }
-
-  PartialQuadratureFunction& PartialQuadratureFunction::operator=(
-      const ImmutablePartialQuadratureFunctionView& src) {
-    if (&src != this) {
-      this->copy(src);
-    }
-    return *this;
-  }
-
-  void PartialQuadratureFunction::copy(
+  PartialQuadratureFunction::PartialQuadratureFunction(
       const ImmutablePartialQuadratureFunctionView& v) {
     this->qspace = v.getPartialQuadratureSpacePointer();
     const auto n = this->qspace->getNumberOfIntegrationPoints();
@@ -344,31 +339,79 @@ namespace mfem_mgis {
 
   void PartialQuadratureFunction::copyValues(
       const ImmutablePartialQuadratureFunctionView& v) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    assign_values(ctx, *this, v) | or_die;
+  }  // end of copy
+
+  MFEM_MGIS_EXPORT [[nodiscard]] bool assign_values(
+      Context& ctx,
+      PartialQuadratureFunctionView f,
+      const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    //
+    auto& qspace = f.getPartialQuadratureSpace();
+    //
+    if (qspace.getId() != v.getPartialQuadratureSpace().getId()) {
+      return ctx.registerErrorMessage("unmatched material");
+    }
+    //
+    const auto n = getSpaceSize(qspace);
+    if (n != getSpaceSize(v.getPartialQuadratureSpace())) {
+      return ctx.registerErrorMessage("unmatched space size");
+    }
+    const auto nc = f.getNumberOfComponents();
+    if (nc != v.getNumberOfComponents()) {
+      return ctx.registerErrorMessage("unmatched number of components");
+    }
+    //
+    if (getSpaceSize(qspace) == 0) {
+      return true;
+    }
+    //
+    auto* f_values = f.getValues().data() + f.getDataOffset();
     const auto* const v_values = v.getValues().data() + v.getDataOffset();
+    const auto fs = f.getDataStride();
     const auto vs = v.getDataStride();
-    if (vs == v.getNumberOfComponents()) {
-      // data are continous in v
-      std::copy(v_values, v_values + this->mutable_values.size(),
-                this->mutable_values.begin());
+    const auto f_data_continuous = fs == nc;
+    if (f_data_continuous) {
+      ctx.assertOrTerminate(f.getDataOffset() == 0,
+                            "inconsistent function view, offset shall be null");
+      ctx.assertOrTerminate(v.getDataOffset() == 0,
+                            "inconsistent function view, offset shall be null");
+      if (vs == v.getNumberOfComponents()) {
+        // data are also continous in v
+        std::copy(v_values, v_values + n, f_values);
+      } else {
+        if (nc == 1) {
+          // special case for scalars
+          for (size_type i = 0; i != n; ++i) {
+            f_values[i] = v_values[i * vs];
+          }
+        } else {
+          auto pvalues = f_values;
+          for (size_type i = 0; i != n; ++i) {
+            const auto b = v_values + i * vs;
+            const auto e = b + nc;
+            std::copy(b, e, pvalues);
+            pvalues += nc;
+          }
+        }
+      }
     } else {
-      if (this->data_size == 1) {
-        // special case for scalars
-        for (size_type i = 0; i != this->mutable_values.size(); ++i) {
-          this->mutable_values[i] = v_values[i * vs];
+      if (nc == 1) {
+        for (size_type i = 0; i != n; ++i) {
+          f_values[i * fs] = v_values[i * vs];
         }
       } else {
-        const auto n =
-            this->getPartialQuadratureSpace().getNumberOfIntegrationPoints();
-        auto pv = this->mutable_values.begin();
         for (size_type i = 0; i != n; ++i) {
           const auto b = v_values + i * vs;
-          const auto e = b + this->data_size;
-          std::copy(b, e, pv);
-          pv += this->data_size;
+          const auto e = b + nc;
+          std::copy(b, e, f_values + i * fs);
         }
       }
     }
-  }  // end of copy
+    return true;
+  }  // end of assign_values
 
   real* PartialQuadratureFunctionView::data(const size_type e,
                                             const size_type i) {

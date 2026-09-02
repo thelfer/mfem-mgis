@@ -439,11 +439,6 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_micromorphic_damage_2d_test(0)
   add_micromorphic_damage_3d_test(0)
 
-  # Disable SuiteSparse tests
-  if(MFEM_USE_SUITESPARSE)
-    message(STATUS "Micromorphic damage tests disabled with SUITE SPARSE")
-  endif()
-
   # Helper function for PredictionTest cases
   function(add_prediction_test test)
     add_test_executable(${test})

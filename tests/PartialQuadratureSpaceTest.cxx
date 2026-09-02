@@ -29,14 +29,14 @@ int main(int argc, char** argv) {
   mfem_mgis::initialize(argc, argv);
   mfem_mgis::unit_tests::parseCommandLineOptions(parameters, argc, argv);
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(ctx, 
-      {{"MeshFileName", parameters.mesh_file},
-       {"FiniteElementFamily", "H1"},
-       {"FiniteElementOrder", parameters.order},
-       {"UnknownsSize", dim},
-       {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-       {"Hypothesis", "Tridimensional"},
-       {"Parallel", bool(parameters.parallel)}});
+  mfem_mgis::NonLinearEvolutionProblem problem(
+      ctx, {{"MeshFileName", parameters.mesh_file},
+            {"FiniteElementFamily", "H1"},
+            {"FiniteElementOrder", parameters.order},
+            {"UnknownsSize", dim},
+            {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
+            {"Hypothesis", "Tridimensional"},
+            {"Parallel", bool(parameters.parallel)}});
   // materials
   problem.addBehaviourIntegrator("Mechanics", 1, parameters.library,
                                  parameters.behaviour);

@@ -53,7 +53,8 @@ namespace mfem_mgis {
      * \param[in] m: mesh
      * \param[in] params: parameters
      */
-    FiniteElementDiscretization(mgis::Context& ctx, const MeshDiscretization&,
+    FiniteElementDiscretization(mgis::Context& ctx,
+                                const MeshDiscretization&,
                                 const Parameters&);
     /*!
      * \brief constructor with profiling support
@@ -61,7 +62,8 @@ namespace mfem_mgis {
      * \param[in] m: mesh
      * \param[in] params: parameters
      */
-    FiniteElementDiscretization(mgis::Context& ctx, std::shared_ptr<Mesh<true>>,
+    FiniteElementDiscretization(mgis::Context& ctx,
+                                std::shared_ptr<Mesh<true>>,
                                 const Parameters&);
 
     /*!

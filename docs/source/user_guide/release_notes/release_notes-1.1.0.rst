@@ -30,7 +30,6 @@ Highlights
 - MGIS contexts now handle gathering computation time information to
   create the performance table instead of the previously used
   CatchTimeSection.
-  
 
 New features
 ============
@@ -276,6 +275,7 @@ Example of usage:
 Issues fixed
 ============
 
+- Issue 248: Improve `PartialQuadratureFunction` interface
 - Issue 240: Small bug in `LinearSolverFactory.cxx`
 - Issue 237: [cmake] Add a build-tests target
 - Issue 218: [performance] synchronize success of the setup methods at a

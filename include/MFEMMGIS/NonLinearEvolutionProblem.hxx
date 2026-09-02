@@ -53,7 +53,7 @@ namespace mfem_mgis {
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
-    NonLinearEvolutionProblem(Context& ctx, const Parameters &);
+    NonLinearEvolutionProblem(Context &ctx, const Parameters &);
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -71,7 +71,9 @@ namespace mfem_mgis {
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
-    NonLinearEvolutionProblem(Context& ctx, MeshDiscretization &, const Parameters &);
+    NonLinearEvolutionProblem(Context &ctx,
+                              MeshDiscretization &,
+                              const Parameters &);
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -89,7 +91,7 @@ namespace mfem_mgis {
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
-    NonLinearEvolutionProblem(Context& ctx, 
+    NonLinearEvolutionProblem(Context &ctx,
                               MeshDiscretization &,
                               const Hypothesis,
                               const Parameters & = Parameters());
@@ -99,7 +101,7 @@ namespace mfem_mgis {
      * \param[in] fed: finite element discretization
      * \param[in] p: parameters
      */
-    NonLinearEvolutionProblem(Context& ctx, 
+    NonLinearEvolutionProblem(Context &ctx,
                               std::shared_ptr<FiniteElementDiscretization>,
                               const Parameters &);
     /*!
@@ -109,7 +111,7 @@ namespace mfem_mgis {
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
-    NonLinearEvolutionProblem(Context& ctx, 
+    NonLinearEvolutionProblem(Context &ctx,
                               std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis,
                               const Parameters & = Parameters());
@@ -164,7 +166,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool addPostProcessing(Context &,
                                          std::string_view,
                                          const Parameters &) noexcept override;
-    void executePostProcessings(Context& ctx, const real, const real) override;
+    void executePostProcessings(Context &ctx, const real, const real) override;
     std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
         Context &,
         const std::string &,
