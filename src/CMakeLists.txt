@@ -8,6 +8,7 @@ list(APPEND MFEMMGIS_SOURCES
   Parameters.cxx
   MeshDiscretization.cxx
   FiniteElementDiscretization.cxx
+  GridFunctionUtilities.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx

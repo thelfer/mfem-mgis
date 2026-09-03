@@ -457,6 +457,24 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_prediction_test(PredictionTest)
   add_prediction_test(PredictionTest2)
 
+  if(MFEM_USE_GSLIB)
+    # CurveTest executable
+    add_tfel_test_executable(CurveTest)
+    
+    # Helper function for CurveTest
+    function(add_curve_test)
+      set(test "CurveTest")
+      set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh")
+      add_test(NAME ${test} COMMAND ./CurveTest ${params} "--serial")
+      if(MFEM_USE_MPI)
+        add_test(NAME ${test}P
+                 COMMAND mpirun -n 2 ./CurveTest ${params} "--parallel")
+      endif(MFEM_USE_MPI)
+    endfunction()
+    
+    add_curve_test()
+  endif(MFEM_USE_GSLIB)
+
   # ParallelReadMode executable (MPI only)
   if(MFEM_USE_MPI)
     add_test_executable(ParallelReadMode)
