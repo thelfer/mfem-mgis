@@ -8,6 +8,7 @@ list(APPEND MFEMMGIS_SOURCES
   Parameters.cxx
   MeshDiscretization.cxx
   FiniteElementDiscretization.cxx
+  GridFunctionUtilities.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx
@@ -94,6 +95,16 @@ list(APPEND MFEMMGIS_SOURCES
   PhysicalSystem.cxx
   Simulation.cxx
 )
+
+if(MGIS_HAVE_TFEL)
+  list(APPEND MFEMMGIS_SOURCES
+       Geometry.cxx)
+endif(MGIS_HAVE_TFEL)
+
+if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+list(APPEND MFEMMGIS_SOURCES
+     GridFunctionInterpolator.cxx)
+endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES

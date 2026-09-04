@@ -457,6 +457,29 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_prediction_test(PredictionTest)
   add_prediction_test(PredictionTest2)
 
+  if(MGIS_HAVE_TFEL)
+    add_tfel_test_executable(GeometryTest)
+    add_test(NAME GeometryTest COMMAND ./GeometryTest)
+  endif(MGIS_HAVE_TFEL)
+
+  if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+    # GridFunctionInterpolatorTest executable
+    add_tfel_test_executable(GridFunctionInterpolatorTest)
+    
+    # Helper function for GridFunctionInterpolatorTest
+    function(add_grid_function_interpolator_test)
+      set(test "GridFunctionInterpolatorTest")
+      set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh")
+      add_test(NAME ${test} COMMAND ./GridFunctionInterpolatorTest ${params} "--serial")
+      if(MFEM_USE_MPI)
+        add_test(NAME ${test}P
+                 COMMAND mpirun -n 2 ./GridFunctionInterpolatorTest ${params} "--parallel")
+      endif(MFEM_USE_MPI)
+    endfunction()
+    
+    add_grid_function_interpolator_test()
+  endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+
   # ParallelReadMode executable (MPI only)
   if(MFEM_USE_MPI)
     add_test_executable(ParallelReadMode)

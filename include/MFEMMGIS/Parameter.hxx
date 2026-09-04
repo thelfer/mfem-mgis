@@ -30,9 +30,7 @@ namespace mfem_mgis {
                                         Parameters,
                                         std::function<real(const real)>>;
 
-  /*!
-   *
-   */
+  //! \brief variant class used to initialize objects
   struct MFEM_MGIS_EXPORT [[nodiscard]] Parameter : private ParameterVariant {
     /*!
      * \brief report that the type of a parameter is the expected one.
@@ -279,6 +277,13 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT [[nodiscard]] Parameter get_if(const Parameters&,
                                                   std::string_view,
                                                   const Parameter&) noexcept;
+  /*!
+   * \brief convert a parameter to the given type
+   * \param[in, out] ctx: execution context
+   * \param[in] p: parameter
+   */
+  template <typename ValueType>
+  [[nodiscard]] auto convert(Context&, const Parameter&) noexcept;
 
 }  // end of namespace mfem_mgis
 
