@@ -1,13 +1,16 @@
 /*!
- * \file   CurveTest.cxx
- * \brief    
+ * \file   GridFunctionInterpolatorTest.cxx
+ * \brief  Tests of the `GridFunctionInterpolatorTest` class
  * \author Thomas Helfer
  * \date   02/09/2026
  */
 
 #include <cmath>
 #include <limits>
+#include <vector>
+#include <variant>
 #include <cstdlib>
+#include <optional>
 #include "mfem/general/optparser.hpp"
 #include "mfem/mesh/mesh.hpp"
 #include "mfem/mesh/pmesh.hpp"
@@ -20,10 +23,7 @@
 #include "MFEMMGIS/MeshDiscretization.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/GridFunctionUtilities.hxx"
-
-#ifndef MFEM_USE_GSLIB
-#error "gslib support in MFEM is not enabled"
-#endif
+#include "MFEMMGIS/GridFunctionInterpolator.hxx"
 
 struct {
   const char* mesh_file = nullptr;
@@ -31,21 +31,25 @@ struct {
   bool parallel = false;
 } parameters;
 
-struct CurveTest final : public tfel::tests::TestCase {
-  CurveTest()
-      : tfel::tests::TestCase("MFEMMGIS", "CurveTest") {
-  }  // end of CurveTest
+struct GridFunctionInterpolatorTest final : public tfel::tests::TestCase {
+  GridFunctionInterpolatorTest()
+      : tfel::tests::TestCase("MFEMMGIS", "GridFunctionInterpolatorTest") {
+  }  // end of GridFunctionInterpolatorTest
   tfel::tests::TestResult execute() override {
     if (parameters.parallel) {
+#ifdef MFEM_USE_MPI
       this->test1<true>();
+      this->test2<true>();
+#endif /* MFEM_USE_MPI */
     } else {
       this->test1<false>();
+      this->test2<false>();
     }
     return this->result;
   }
 
  private:
-
+  //
   template <bool parallel>
   void test1() {
     using namespace mfem_mgis;
@@ -91,24 +95,60 @@ struct CurveTest final : public tfel::tests::TestCase {
     if (fespace.GetOrdering() == mfem::Ordering::byNODES) {
       for (size_type i = 0; i != 2; ++i) {
         TFEL_TESTS_CHECK(std::abs(x_values[i] - pts[2 * i]) < 1e-14);
-        TFEL_TESTS_CHECK(
-            std::abs(x_values[3 + i] - pts[2 * i + 1]) < 1e-14);
+        TFEL_TESTS_CHECK(std::abs(x_values[3 + i] - pts[2 * i + 1]) < 1e-14);
       }
       TFEL_TESTS_CHECK(std::isnan(x_values[2]));
       TFEL_TESTS_CHECK(std::isnan(x_values[5]));
     } else {
       for (size_type i = 0; i != 2; ++i) {
         TFEL_TESTS_CHECK(std::abs(x_values[2 * i] - pts[2 * i]) < 1e-14);
-        TFEL_TESTS_CHECK(
-            std::abs(x_values[2 * i + 1]- pts[2 * i + 1]) < 1e-14);
+        TFEL_TESTS_CHECK(std::abs(x_values[2 * i + 1] - pts[2 * i + 1]) <
+                         1e-14);
       }
       TFEL_TESTS_CHECK(std::isnan(x_values[4]));
       TFEL_TESTS_CHECK(std::isnan(x_values[5]));
     }
   }  // end of test1
+     //
+  template <bool parallel>
+  void test2() {
+    using namespace mfem_mgis;
+    auto ctx = Context{};
+    auto ofed = construct<FiniteElementDiscretization>(
+        ctx,
+        Parameters{{"MeshFileName", parameters.mesh_file},
+                   {"FiniteElementFamily", "H1"},
+                   {"FiniteElementOrder", parameters.order},
+                   {"UnknownsSize", 2},
+                   {"NumberOfUniformRefinements", 0},  // faster for testing
+                   {"Parallel", parameters.parallel}});
+    TFEL_TESTS_ASSERT(isValid(ofed));
+    auto& fespace = ofed->template getFiniteElementSpace<parallel>();
+    auto& m = ofed->template getMesh<parallel>();
+    //
+    auto ocoords = makeGridFunction<parallel>(ctx, fespace, 2);
+    TFEL_TESTS_ASSERT(isValid(ocoords));
+    m.SetNodalGridFunction(ocoords->f.get());
+    //
+    const auto pts = std::vector<GridFunctionInterpolator::Point<2>>{
+        {0.583, 0.2}, {0.583, 0.1}};
+    auto ointerpolator = construct<GridFunctionInterpolator>(ctx, pts);
+    TFEL_TESTS_ASSERT(isValid(ointerpolator));
+    const auto ovalues = ointerpolator->interpolate(ctx, *(ocoords->f));
+    TFEL_TESTS_ASSERT(isValid(ovalues));
+    TFEL_TESTS_CHECK_EQUAL(ovalues->getNumberOfRows(), 2);
+    TFEL_TESTS_CHECK_EQUAL(ovalues->getNumberOfColumns(), 2);
+    for (size_type i = 0; i != 2; ++i) {
+      const auto x = ovalues->operator()(i, 0);
+      const auto y = ovalues->operator()(i, 1);
+      TFEL_TESTS_CHECK(std::abs(x - pts[i][0]) < 1e-14);
+      TFEL_TESTS_CHECK(std::abs(y - pts[i][1]) < 1e-14);
+    }
+  }  // end of test2
 };
 
-TFEL_TESTS_GENERATE_PROXY(CurveTest, "CurveTest");
+TFEL_TESTS_GENERATE_PROXY(GridFunctionInterpolatorTest,
+                          "GridFunctionInterpolatorTest");
 
 int main(int argc, char** argv) {
   mfem_mgis::initialize(argc, argv);
@@ -137,8 +177,9 @@ int main(int argc, char** argv) {
   auto& m = tfel::tests::TestManager::getTestManager();
   m.addTestOutput(std::cout);
   if (::mfem_mgis::getMPIrank() == 0) {
-    m.addXMLTestOutput(parameters.parallel ? "ParallelCurveTest.xml"
-                                           : "CurveTest.xml");
+    m.addXMLTestOutput(parameters.parallel
+                           ? "ParallelGridFunctionInterpolatorTest.xml"
+                           : "GridFunctionInterpolatorTest.xml");
   }
   return m.execute().success() ? EXIT_SUCCESS : EXIT_FAILURE;
-} // end of main
+}  // end of main

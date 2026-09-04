@@ -96,6 +96,11 @@ list(APPEND MFEMMGIS_SOURCES
   Simulation.cxx
 )
 
+if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+list(APPEND MFEMMGIS_SOURCES
+     GridFunctionInterpolator.cxx)
+endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES
        PartialQuadratureFunctionEvaluator.cxx
