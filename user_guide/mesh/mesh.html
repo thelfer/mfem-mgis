@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partial quadrature spaces and functions &mdash; The MFEM MGIS project  documentation</title>
+  <title>Mesh &mdash; The MFEM MGIS project  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Partial quadrature spaces" href="partial_quadrature_spaces.html" />
-    <link rel="prev" title="Available nonlinear algorithms" href="../nonlinear_algorithms.html" /> 
+    <link rel="next" title="Mesh Reader" href="mesh-reader.html" />
+    <link rel="prev" title="Overview and main concepts" href="../overview.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,17 +48,17 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../user_guide.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../tutorial.html">A tutorial introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview.html">Overview and main concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mesh/mesh.html">Mesh</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mesh</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mesh-reader.html">Mesh Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="curves.html">Defining curves</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../simulation/simulation.html">Simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../behaviour_integrators.html">Behaviour integrators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../boundary_conditions.html">Boundary conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../post_processings/post_processings.html">Post-processings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Partial quadrature spaces and functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="partial_quadrature_spaces.html">Partial quadrature spaces</a></li>
-<li class="toctree-l3"><a class="reference internal" href="partial_quadrature_functions.html">Partial quadrature functions</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../help.html">Getting help</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release_notes/release_notes.html">Release notes</a></li>
@@ -84,9 +84,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../user_guide.html">User guide</a></li>
-      <li class="breadcrumb-item active">Partial quadrature spaces and functions</li>
+      <li class="breadcrumb-item active">Mesh</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/user_guide/partial_quadrature_functions/partial_quadrature_spaces_and_functions.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/user_guide/mesh/mesh.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -94,12 +94,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="partial-quadrature-spaces-and-functions">
-<span id="mfem-mgis-partial-quadrature-spaces-and-functions"></span><h1>Partial quadrature spaces and functions<a class="headerlink" href="#partial-quadrature-spaces-and-functions" title="Link to this heading"></a></h1>
+  <section id="mesh">
+<span id="mfem-mgis-mesh"></span><h1>Mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="partial_quadrature_spaces.html">Partial quadrature spaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partial_quadrature_functions.html">Partial quadrature functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh-reader.html">Mesh Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curves.html">Defining curves</a></li>
 </ul>
 </div>
 </section>
@@ -108,8 +108,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../nonlinear_algorithms.html" class="btn btn-neutral float-left" title="Available nonlinear algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="partial_quadrature_spaces.html" class="btn btn-neutral float-right" title="Partial quadrature spaces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../overview.html" class="btn btn-neutral float-left" title="Overview and main concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mesh-reader.html" class="btn btn-neutral float-right" title="Mesh Reader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

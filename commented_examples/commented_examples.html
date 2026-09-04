@@ -862,6 +862,49 @@ Element:
 <h3>Available options<a class="headerlink" href="#available-options" title="Link to this heading"></a></h3>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command line</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–mesh or -m</p></td>
+<td><p>Specify the mesh “.msh” used (default =
+inclusion.msh)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–refinement or -r</p></td>
+<td><p>The reference file
+(default = Plasticity.ref)</p></td>
+</tr>
+<tr class="row-even"><td><p>–behaviour or -b</p></td>
+<td><p>Name of the behaviour law
+(default = Plasticity)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–internal-state-variable or -v</p></td>
+<td><p>Internal variable name to be post-processed
+(default = EquivalentPlasticStrain)</p></td>
+</tr>
+<tr class="row-even"><td><p>–library or -l</p></td>
+<td><p>Material library
+(default = src/libBehaviour.so)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–linearsolver or -ls</p></td>
+<td><p>Identifier of the linear solver: 0 -&gt; CG,
+1 -&gt; GMRES, 2 -&gt; UMFPack (serial),
+3-&gt; MUMPS(serial), 2 -&gt; HypreFGMRES (//),
+3 -&gt; HyprePCG (//), 4 -&gt; HypreGMRES (//).</p></td>
+</tr>
+<tr class="row-even"><td><p>–order or -o</p></td>
+<td><p>Finite element order (polynomial degree)
+(default = 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–parallel or -p</p></td>
+<td><p>Run parallel execution
+(default = 0, serial)</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 <section id="ssna303-example-2d-and-3d">
@@ -953,6 +996,32 @@ gmsh<span class="w"> </span>-3<span class="w"> </span>inclusions_49.geo
 <h4>Available options<a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command line</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–mesh or -m</p></td>
+<td><p>Specify the mesh “.msh” used (default =
+inclusion.msh)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–refinement or -r</p></td>
+<td><p>Refinement level of the mesh (default = 0)</p></td>
+</tr>
+<tr class="row-even"><td><p>–order or -o</p></td>
+<td><p>Finite element order (polynomial degree)
+(default = 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–verbosity-level or -v</p></td>
+<td><p>Choose the verbosity level (default = 0)</p></td>
+</tr>
+<tr class="row-even"><td><p>–post-processing or -p</p></td>
+<td><p>Run post processing step (default = 1)</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 </section>
@@ -1043,6 +1112,38 @@ command line:</p>
 <h4>Available options<a class="headerlink" href="#id15" title="Link to this heading"></a></h4>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command line</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–mesh or -m</p></td>
+<td><p>Specify the mesh “.msh” used (default =
+inclusion.msh)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–refinement or -r</p></td>
+<td><p>Refinement level of the mesh (default = 0)</p></td>
+</tr>
+<tr class="row-even"><td><p>–order or -o</p></td>
+<td><p>Finite element order (polynomial degree)
+(default = 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–verbosity-level or -v</p></td>
+<td><p>Choose the verbosity level (default = 0)</p></td>
+</tr>
+<tr class="row-even"><td><p>–post-processing or -p</p></td>
+<td><p>Run post processing step (default = 1)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–use-petsc</p></td>
+<td><p>Activate PETSc if PETSc is available</p></td>
+</tr>
+<tr class="row-even"><td><p>–petsc-configuration-file</p></td>
+<td><p>Name of the Petsc source file</p></td>
+</tr>
+</tbody>
+</table>
 <p>Example of customized simulation:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># run the simulation in sequential computing mode with various options</span>
 ./mox2<span class="w"> </span>-r<span class="w"> </span><span class="m">2</span><span class="w"> </span>-o<span class="w"> </span><span class="m">3</span><span class="w"> </span>--mesh<span class="w"> </span>OneSphere.msh
