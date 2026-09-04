@@ -750,7 +750,7 @@ To customize the simulation, several options are available, as detailed
 below.
 
 +---------------------------------+--------------------------------------------+
-| Command line                    | Description                               |
+| Command line                    | Description                                |
 +=================================+============================================+
 | --mesh or -m                    | Specify the mesh “.msh” used (default =    |
 |                                 | inclusion.msh)                             |
@@ -890,7 +890,7 @@ To customize the simulation, several options are available, as detailed
 below.
 
 +-------------------------+--------------------------------------------+
-| Command line            | Description                               |
+| Command line            | Description                                |
 +=========================+============================================+
 | --mesh or -m            | Specify the mesh “.msh” used (default =    |
 |                         | inclusion.msh)                             |
@@ -1003,7 +1003,7 @@ To customize the simulation, several options are available, as detailed
 below.
 
 +----------------------------+--------------------------------------------+
-| Command line               | Description                               |
+| Command line               | Description                                |
 +============================+============================================+
 | --mesh or -m               | Specify the mesh “.msh” used (default =    |
 |                            | inclusion.msh)                             |
