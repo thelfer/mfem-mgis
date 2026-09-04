@@ -96,6 +96,11 @@ list(APPEND MFEMMGIS_SOURCES
   Simulation.cxx
 )
 
+if(MGIS_HAVE_TFEL)
+  list(APPEND MFEMMGIS_SOURCES
+       Geometry.cxx)
+endif(MGIS_HAVE_TFEL)
+
 if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
 list(APPEND MFEMMGIS_SOURCES
      GridFunctionInterpolator.cxx)

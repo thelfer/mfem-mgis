@@ -38,7 +38,7 @@ namespace mfem_mgis::internals {
       Context& ctx,
       std::optional<size_type>& space_dimension,
       std::vector<real>& points,
-      const std::vector<GridFunctionInterpolator::Point<N>>& pts) noexcept {
+      const std::vector<Point<N>>& pts) noexcept {
     if (!setSpaceDimension<N>(ctx, space_dimension)) {
       return ctx.registerErrorMessage(
           "GridFunctionInterpolator::addPoints failed");

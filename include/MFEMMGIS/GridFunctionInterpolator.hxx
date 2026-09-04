@@ -15,9 +15,9 @@
 #include <vector>
 #include <optional>
 #include "TFEL/Math/matrix.hxx"
-#include "TFEL/Math/tvector.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
+#include "MFEMMGIS/Geometry.hxx"
 
 namespace mfem_mgis {
 
@@ -29,9 +29,6 @@ namespace mfem_mgis {
    * built around it.
    */
   struct MFEM_MGIS_EXPORT GridFunctionInterpolator {
-    //! \brief a simple alias
-    template <size_type N>
-    requires((N == 2) || (N == 3)) using Point = ::tfel::math::tvector<N, real>;
     //! \brief default constructor
     GridFunctionInterpolator();
     /*!

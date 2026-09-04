@@ -130,8 +130,7 @@ struct GridFunctionInterpolatorTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(isValid(ocoords));
     m.SetNodalGridFunction(ocoords->f.get());
     //
-    const auto pts = std::vector<GridFunctionInterpolator::Point<2>>{
-        {0.583, 0.2}, {0.583, 0.1}};
+    const auto pts = std::vector<Point<2>>{{0.583, 0.2}, {0.583, 0.1}};
     auto ointerpolator = construct<GridFunctionInterpolator>(ctx, pts);
     TFEL_TESTS_ASSERT(isValid(ointerpolator));
     const auto ovalues = ointerpolator->interpolate(ctx, *(ocoords->f));

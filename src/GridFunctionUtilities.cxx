@@ -1,8 +1,7 @@
 /*!
  * \file   src/GridFunctionUtilities.cxx
- * \brief  Implementation of the functions defined in `MFEMMGIS/GridFunctionUtilities.hxx`
- * \author Thomas Helfer
- * \date   03/09/2026
+ * \brief  Implementation of the functions defined in
+ * `MFEMMGIS/GridFunctionUtilities.hxx` \author Thomas Helfer \date   03/09/2026
  */
 
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
@@ -11,10 +10,10 @@
 namespace mfem_mgis {
 
   template <>
-  std::optional<MakeGridFunctionResult<true>>
-  makeGridFunction<true>(Context& ctx,
-                         const FiniteElementDiscretization& fed,
-                         const size_type nc) noexcept {
+  std::optional<MakeGridFunctionResult<true>> makeGridFunction<true>(
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type nc) noexcept {
 #ifdef MFEM_USE_MPI
     if (!fed.describesAParallelComputation()) {
       return ctx.registerErrorMessage(
@@ -28,17 +27,17 @@ namespace mfem_mgis {
   }    // end of makeGridFunction<true>
 
   template <>
-  std::optional<MakeGridFunctionResult<false>>
-  makeGridFunction<false>(Context& ctx,
-                         const FiniteElementDiscretization& fed,
-                         const size_type nc) noexcept {
+  std::optional<MakeGridFunctionResult<false>> makeGridFunction<false>(
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type nc) noexcept {
     if (fed.describesAParallelComputation()) {
       return ctx.registerErrorMessage(
           "can't create a sequential grid function on a finite element "
           "discretization describing a parallel computation");
     }
     return makeGridFunction<false>(ctx, fed.getFiniteElementSpace<false>(), nc);
-  } // end of makeGridFunction<false>
+  }  // end of makeGridFunction<false>
 
   template <bool parallel>
   std::optional<MakeGridFunctionResult<parallel>> makeGridFunction_impl(
@@ -73,9 +72,7 @@ namespace mfem_mgis {
 #else
   template <>
   std::optional<MakeGridFunctionResult<true>> makeGridFunction<true>(
-      Context&,
-      const FiniteElementSpace<true>&,
-      const size_type ) noexcept {
+      Context&, const FiniteElementSpace<true>&, const size_type) noexcept {
     reportUnsupportedParallelComputations();
   }  // end of makeGridFunction<true>
 #endif

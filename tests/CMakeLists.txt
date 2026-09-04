@@ -457,6 +457,11 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_prediction_test(PredictionTest)
   add_prediction_test(PredictionTest2)
 
+  if(MGIS_HAVE_TFEL)
+    add_tfel_test_executable(GeometryTest)
+    add_test(NAME GeometryTest COMMAND ./GeometryTest)
+  endif(MGIS_HAVE_TFEL)
+
   if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
     # GridFunctionInterpolatorTest executable
     add_tfel_test_executable(GridFunctionInterpolatorTest)
@@ -473,7 +478,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     endfunction()
     
     add_grid_function_interpolator_test()
-  endif(MFEM_USE_GSLIB  AND MGIS_HAVE_TFEL)
+  endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
 
   # ParallelReadMode executable (MPI only)
   if(MFEM_USE_MPI)
