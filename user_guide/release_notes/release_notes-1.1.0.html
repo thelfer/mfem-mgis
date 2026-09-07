@@ -50,7 +50,6 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../user_guide.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../tutorial.html">A tutorial introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview.html">Overview and main concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mesh/mesh.html">Mesh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../simulation/simulation.html">Simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../behaviour_integrators.html">Behaviour integrators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../boundary_conditions.html">Boundary conditions</a></li>
@@ -58,6 +57,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../nonlinear_algorithms.html">Available nonlinear algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../partial_quadrature_functions/partial_quadrature_spaces_and_functions.html">Partial quadrature spaces and functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary Of Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mesh.html">Mesh Reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../help.html">Getting help</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="release_notes.html">Release notes</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Release notes of Version 1.1</a><ul>
@@ -381,6 +381,7 @@ an output stream using the <code class="code highlight c++ docutils literal high
 <section id="issues-fixed">
 <h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p>Issue 253: Incomplete linear solver convergence checks in NonLinearEvolutionProblemImplementation.cxx and NewtonSolver.cxx</p></li>
 <li><p>Issue 248: Improve <cite>PartialQuadratureFunction</cite> interface</p></li>
 <li><p>Issue 240: Small bug in <cite>LinearSolverFactory.cxx</cite></p></li>
 <li><p>Issue 237: [cmake] Add a build-tests target</p></li>
