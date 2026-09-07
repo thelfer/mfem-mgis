@@ -10,6 +10,7 @@
 #ifndef LIB_MFEMMGIS_GEOMETRY_HXX
 #define LIB_MFEMMGIS_GEOMETRY_HXX
 
+#include <string>
 #include "TFEL/Math/tvector.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
@@ -28,8 +29,17 @@ namespace mfem_mgis {
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
+      [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsSet(
+          Context&, const Parameter&) noexcept;
+
+  template <size_type N>
+  requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsOnCurve(
           Context&, const Parameters&) noexcept;
+
+  template <unsigned short N>
+  requires((N == 2) || (N == 3))  //
+      [[nodiscard]] std::string toString(const Point<N>&) noexcept;
 
   // partial specialisation
   template <>
@@ -40,10 +50,22 @@ namespace mfem_mgis {
       Context&, const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<2>>>
+  makePointsSet<2>(Context&, const Parameter&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<3>>>
+  makePointsSet<3>(Context&, const Parameter&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<2>>>
   makePointsOnCurve<2>(Context&, const Parameters&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<3>>>
   makePointsOnCurve<3>(Context&, const Parameters&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::string toString<2>(
+      const Point<2>&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::string toString<3>(
+      const Point<3>&) noexcept;
 
 }  // end of namespace mfem_mgis
 

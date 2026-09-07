@@ -12,6 +12,10 @@
 #error "gslib support in MFEM is not enabled"
 #endif
 
+#ifndef MGIS_HAVE_TFEL
+#error "TFEL support in MGIS is not enabled"
+#endif
+
 #include <vector>
 #include <optional>
 #include "TFEL/Math/matrix.hxx"
@@ -74,7 +78,7 @@ namespace mfem_mgis {
      * used to build order finite element spaces.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
-        Context&, GridFunction<true>&) noexcept;
+        Context&, const GridFunction<true>&) noexcept;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief interpolate the given grid function at the previously defined
@@ -88,7 +92,7 @@ namespace mfem_mgis {
      * used to build order finite element spaces.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
-        Context&, GridFunction<false>&) noexcept;
+        Context&, const GridFunction<false>&) noexcept;
 
     //! \brief destructor
     ~GridFunctionInterpolator();

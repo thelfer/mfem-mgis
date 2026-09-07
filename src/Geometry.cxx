@@ -30,6 +30,27 @@ namespace mfem_mgis::internals {
     }
   }  // end of makePoint_impl
 
+  template <size_type N>
+  requires((N == 2) || (N == 3))                                 //
+      [[nodiscard]] static std::optional<std::vector<Point<N>>>  //
+      makePointsSet_impl(Context& ctx, const Parameter& p) noexcept {
+    if (!is<std::vector<Parameter>>(p)) {
+      return ctx.registerErrorMessage(
+          "can't extract points set from parameter (invalid parameter type)");
+    }
+    const auto& parameters = get<std::vector<Parameter>>(throwing, p);
+    auto points = std::vector<Point<N>>{};
+    points.reserve(parameters.size());
+    for (const auto& parameter : parameters) {
+      const auto opt = makePoint<N>(ctx, parameter);
+      if (isInvalid(opt)) {
+        return {};
+      }
+      points.push_back(*opt);
+    }
+    return points;
+  }  // end of makePointsSet_impl
+
   static std::optional<std::vector<real>> getUniformDensityWeights(
       Context& ctx, const Parameters& p) noexcept {
     if (!checkParameters(ctx, p,
@@ -62,12 +83,13 @@ namespace mfem_mgis::internals {
   static std::optional<std::vector<real>>
   getDensityWeightsFollowingAGeometricProgression(
       Context& ctx, const Parameters& p) noexcept {
-    if (!checkParameters(
-            ctx, p,
-            std::map<std::string, std::string>{
-                {"NormalizedInitialDensity", "targeted density at the inital point"},
-                {"NormalizedFinalDensity", "targeted density at the final point"},
-                {"NumberOfPoints", "number of points"}})) {
+    if (!checkParameters(ctx, p,
+                         std::map<std::string, std::string>{
+                             {"NormalizedInitialDensity",
+                              "targeted density at the inital point"},
+                             {"NormalizedFinalDensity",
+                              "targeted density at the final point"},
+                             {"NumberOfPoints", "number of points"}})) {
       return {};
     }
     if (!contains(p, "NormalizedInitialDensity")) {
@@ -94,12 +116,14 @@ namespace mfem_mgis::internals {
     }
     if (!is<double>(throwing, p, "NormalizedInitialDensity")) {
       return ctx.registerErrorMessage(
-          "invalid type for parameter 'NormalizedInitialDensity', expected a floating "
+          "invalid type for parameter 'NormalizedInitialDensity', expected a "
+          "floating "
           "point number");
     }
     if (!is<double>(throwing, p, "NormalizedFinalDensity")) {
       return ctx.registerErrorMessage(
-          "invalid type for parameter 'NormalizedFinalDensity', expected a floating "
+          "invalid type for parameter 'NormalizedFinalDensity', expected a "
+          "floating "
           "point number");
     }
     const auto di = get<double>(throwing, p, "NormalizedInitialDensity");
@@ -224,6 +248,18 @@ namespace mfem_mgis {
   }  // end of makePoint
 
   template <>
+  std::optional<std::vector<Point<2>>> makePointsSet<2>(
+      Context& ctx, const Parameter& p) noexcept {
+    return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, p);
+  }  // end of makePointsSet
+
+  template <>
+  std::optional<std::vector<Point<3>>> makePointsSet<3>(
+      Context& ctx, const Parameter& p) noexcept {
+    return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, p);
+  }  // end of makePointsSet
+
+  template <>
   std::optional<std::vector<Point<2>>> makePointsOnCurve<2>(
       Context& ctx, const Parameters& p) noexcept {
     return ::mfem_mgis::internals::makePointsOnCurve_impl<2>(ctx, p);
@@ -234,5 +270,17 @@ namespace mfem_mgis {
       Context& ctx, const Parameters& p) noexcept {
     return ::mfem_mgis::internals::makePointsOnCurve_impl<3>(ctx, p);
   }  // end of makePointsOnCurve
+
+  template <>
+  std::string toString<2>(const Point<2>& pt) noexcept {
+    return '(' + std::to_string(pt[0]) + ", " + std::to_string(pt[1]) + ')';
+  }  // end of toString
+
+  template <>
+  std::string toString<3>(const Point<3>& pt) noexcept {
+    return '(' + std::to_string(pt[0]) + ", " +  //
+           std::to_string(pt[1]) + ", " +        //
+           std::to_string(pt[2]) + ')';
+  }  // end of toString
 
 }  // end of namespace mfem_mgis

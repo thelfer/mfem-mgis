@@ -94,6 +94,14 @@ list(APPEND MFEMMGIS_SOURCES
   PointWiseModel.cxx
   PhysicalSystem.cxx
   Simulation.cxx
+  DataFileUtilities.cxx
+  AbstractPostProcessing.cxx
+  PostProcessingBase.cxx
+  AbstractCurve.cxx
+  MultipleCurves.cxx
+  GridFunctionValuesCurve.cxx
+  CurveWriter.cxx
+  CurvesPostProcessing.cxx
 )
 
 if(MGIS_HAVE_TFEL)
@@ -114,6 +122,10 @@ if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
 endif(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
 
 mfem_mgis_library(MFEMMGIS ${MFEMMGIS_SOURCES})
+if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+ target_compile_definitions(MFEMMGIS PUBLIC 
+   MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR)
+endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
 
 if(OpenMP_FOUND)
   target_link_libraries(MFEMMGIS

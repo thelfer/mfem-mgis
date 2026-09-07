@@ -214,10 +214,11 @@ struct GeometryTest final : public tfel::tests::TestCase {
                {"InitialPoint", std::vector<Parameter>{x0, y0}},  //
                {"FinalPoint", std::vector<Parameter>{x1, y1}},
                {"Discretization",
-                Parameters{{"GeometricProgression",
-                            Parameters{{"NumberOfPoints", 10},
-                                       {"NormalizedInitialDensity", real{1} / 150},
-                                       {"NormalizedFinalDensity", real{1} / 3}}}}}}}};
+                Parameters{
+                    {"GeometricProgression",
+                     Parameters{{"NumberOfPoints", 10},
+                                {"NormalizedInitialDensity", real{1} / 150},
+                                {"NormalizedFinalDensity", real{1} / 3}}}}}}}};
       const auto opts = makePointsOnCurve<2>(ctx, params);
       TFEL_TESTS_ASSERT(isValid(opts));
       TFEL_TESTS_ASSERT(opts->size() == 11u);

@@ -60,7 +60,7 @@ namespace mfem_mgis::internals {
   requires((N == 2) || (N == 3))
       [[nodiscard]] static std::optional<tfel::math::matrix<real>>  //
       interpolate_impl(Context& ctx,
-                       GridFunction<parallel>& f,
+                       const GridFunction<parallel>& f,
                        std::vector<real>& points) {
     auto* const fespace = [&f] {
       if constexpr (parallel) {
@@ -167,7 +167,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
   std::optional<tfel::math::matrix<real>> GridFunctionInterpolator::interpolate(
-      Context& ctx, GridFunction<true>& f) noexcept {
+      Context& ctx, const GridFunction<true>& f) noexcept {
     if (!this->space_dimension.has_value()) {
       return ctx.registerErrorMessage("no points defined");
     }
@@ -179,7 +179,7 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
 
   std::optional<tfel::math::matrix<real>> GridFunctionInterpolator::interpolate(
-      Context& ctx, GridFunction<false>& f) noexcept {
+      Context& ctx, const GridFunction<false>& f) noexcept {
     if (!this->space_dimension.has_value()) {
       return ctx.registerErrorMessage("no points defined");
     }

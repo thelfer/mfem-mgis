@@ -9,6 +9,7 @@
 #include "MFEMMGIS/AbstractModel.hxx"
 #include "MFEMMGIS/AbstractCouplingScheme.hxx"
 #include "MFEMMGIS/LoopCouplingScheme.hxx"
+#include "MFEMMGIS/PostProcessing/AbstractPostProcessing.hxx"
 #include "MFEMMGIS/PhysicalSystem.hxx"
 
 namespace mfem_mgis {
@@ -284,21 +285,20 @@ namespace mfem_mgis {
     if (isInvalid(this->coupling_scheme)) {
       return ctx.registerErrorMessage("no coupling scheme defined");
     }
-#pragma message("HERE")
-    //     for (const auto &p : this->post_processings) {
-    //       ctx.log(
-    //           verboseLevel2,
-    //           "* calling executeInitialPostProcessingTasks on post-processing
-    //           '" +
-    //               p->getName() + "'");
-    //       auto r = p->executeInitialPostProcessingTasks(ctx);
-    //       if (!r) {
-    //         ctx.debug(
-    //             "* executeInitialPostProcessingTasks failed for
-    //             post-processing '" + p->getName() + "'");
-    //         return false;
-    //       }
-    //     }
+    for (const auto &p : this->post_processings) {
+      ctx.log(
+          verboseLevel2,
+          "* calling executeInitialPostProcessingTasks on post-processing '" +
+              p->getName() + "'");
+      auto r = p->executeInitialPostProcessingTasks(ctx, t);
+      if (!r) {
+        ctx.debug(
+            "* executeInitialPostProcessingTasks failed for post-processing "
+            "'" +
+            p->getName() + "'");
+        return false;
+      }
+    }
     return this->coupling_scheme->executeInitialPostProcessingTasks(ctx, t);
   }  // end of executeInitialPostProcessingTasks
 
@@ -308,20 +308,17 @@ namespace mfem_mgis {
     if (isInvalid(this->coupling_scheme)) {
       return ctx.registerErrorMessage("no coupling scheme defined");
     }
-#pragma message("HERE")
-    //     for (const auto &p : this->post_processings) {
-    //       ctx.log(verboseLevel2,
-    //               "* calling executePostProcessingTasks on post-processing '"
-    //               +
-    //                   p->getName() + "'");
-    //       auto r = p->executePostProcessingTasks(ctx, b);
-    //       if (!r) {
-    //         ctx.debug("* executePostProcessingTasks failed for
-    //         post-processing '" +
-    //                   p->getName() + "'");
-    //         return false;
-    //       }
-    //     }
+    for (const auto &p : this->post_processings) {
+      ctx.log(verboseLevel2,
+              "* calling executePostProcessingTasks on post-processing '" +
+                  p->getName() + "'");
+      auto r = p->executePostProcessingTasks(ctx, ts, b);
+      if (!r) {
+        ctx.debug("* executePostProcessingTasks failed for post-processing '" +
+                  p->getName() + "'");
+        return false;
+      }
+    }
     return this->coupling_scheme->executePostProcessingTasks(ctx, ts, b);
   }  // end of executePostProcessingTasks
 
@@ -349,18 +346,17 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   bool PhysicalSystem::addPostProcessing(
-      Context &, std::shared_ptr<AbstractPostProcessing> p) noexcept {
-#pragma message("HERE")
-    //     if (p.get() == nullptr) {
-    //       return ctx.registerErrorMessage("invalid post-processing");
-    //     }
-    //     for (const auto &lp : this->post_processings) {
-    //       if (lp.get() == p.get()) {
-    //         // post-processing already registered
-    //         return true;
-    //       }
-    //     }
-    //     this->post_processings.push_back(p);
+      Context &ctx, std::shared_ptr<AbstractPostProcessing> p) noexcept {
+    if (p.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid post-processing");
+    }
+    for (const auto &lp : this->post_processings) {
+      if (lp.get() == p.get()) {
+        // post-processing already registered
+        return true;
+      }
+    }
+    this->post_processings.push_back(p);
     return true;
   }  // end of addPostProcessing
 
