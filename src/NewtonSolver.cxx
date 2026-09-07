@@ -12,6 +12,7 @@
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
+#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
 
 namespace mfem_mgis {
@@ -276,8 +277,6 @@ namespace mfem_mgis {
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
                 "the Solver is not set (use setLinearSolver).");
-    const auto usesIterativeLinearSolver =
-        dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
     this->prec->SetOperator(this->getJacobian(u));
     {
       auto profiler_mfem =
@@ -287,12 +286,7 @@ namespace mfem_mgis {
               : mgis::ProfilingSection{};
       this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
     }
-    if (usesIterativeLinearSolver) {
-      const auto &iprec =
-          static_cast<const mfem::IterativeSolver &>(*(this->prec));
-      return iprec.GetConverged();
-    }
-    return true;
+    return hasConverged(*(this->prec));
   }  // end of computeNewtonCorrection
 
   mfem::Operator &NewtonSolver::getJacobian(const mfem::Vector &u) const {
