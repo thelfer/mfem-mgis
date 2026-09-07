@@ -175,8 +175,8 @@ Must be greater than or equal to 2.</p></li>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">NumberOfPoints</span></code>: An integer specifying the number of points to generate along the line.
 Must be greater than or equal to 2.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">InitialDensity</span></code>: A positive real number representing the density of points at the start of the line.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">FinalDensity</span></code>: A positive real number representing the density of points at the end of the line.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NormalizedInitialDensity</span></code>: A positive real number representing the density of points at the start of the line. This density is normalised for a curve of length 1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NormalizedFinalDensity</span></code>: A positive real number representing the density of points at the end of the line. This density is normalised for a curve of length 1.</p></li>
 </ul>
 <p><strong>Example:</strong></p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
@@ -189,8 +189,8 @@ Must be greater than or equal to 2.</p></li>
 <span class="w">              </span><span class="p">{</span><span class="s">"GeometricProgression"</span><span class="p">,</span>
 <span class="w">               </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
 <span class="w">                   </span><span class="p">{</span><span class="s">"NumberOfPoints"</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">},</span>
-<span class="w">                   </span><span class="p">{</span><span class="s">"InitialDensity"</span><span class="p">,</span><span class="w"> </span><span class="n">real</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">150</span><span class="p">},</span>
-<span class="w">                   </span><span class="p">{</span><span class="s">"FinalDensity"</span><span class="p">,</span><span class="w"> </span><span class="n">real</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">}}}}</span>
+<span class="w">                   </span><span class="p">{</span><span class="s">"NormalizedInitialDensity"</span><span class="p">,</span><span class="w"> </span><span class="n">real</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">150</span><span class="p">},</span>
+<span class="w">                   </span><span class="p">{</span><span class="s">"NormalizedFinalDensity"</span><span class="p">,</span><span class="w"> </span><span class="n">real</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">}}}}</span>
 <span class="w">     </span><span class="p">}}};</span>
 <span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">makePointsOnCurve</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">);</span>
 </pre></div>

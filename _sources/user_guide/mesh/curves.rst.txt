@@ -69,8 +69,8 @@ The function accepts a ``Parameters`` object structured as follows:
 
    - ``NumberOfPoints``: An integer specifying the number of points to generate along the line.
      Must be greater than or equal to 2.
-   - ``InitialDensity``: A positive real number representing the density of points at the start of the line.
-   - ``FinalDensity``: A positive real number representing the density of points at the end of the line.
+   - ``NormalizedInitialDensity``: A positive real number representing the density of points at the start of the line. This density is normalised for a curve of length 1.
+   - ``NormalizedFinalDensity``: A positive real number representing the density of points at the end of the line. This density is normalised for a curve of length 1.
 
    **Example:**
 
@@ -86,8 +86,8 @@ The function accepts a ``Parameters`` object structured as follows:
                     {"GeometricProgression",
                      mfem_mgis::Parameters{
                          {"NumberOfPoints", 10},
-                         {"InitialDensity", real{1} / 150},
-                         {"FinalDensity", real{1} / 3}}}}
+                         {"NormalizedInitialDensity", real{1} / 150},
+                         {"NormalizedFinalDensity", real{1} / 3}}}}
            }}};
       const auto points = mfem_mgis::makePointsOnCurve<2>(ctx, params);
 
