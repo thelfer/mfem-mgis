@@ -275,6 +275,7 @@ Example of usage:
 Issues fixed
 ============
 
+- Issue 253: Incomplete linear solver convergence checks in NonLinearEvolutionProblemImplementation.cxx and NewtonSolver.cxx
 - Issue 248: Improve `PartialQuadratureFunction` interface
 - Issue 240: Small bug in `LinearSolverFactory.cxx`
 - Issue 237: [cmake] Add a build-tests target
