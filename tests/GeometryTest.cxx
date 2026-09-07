@@ -216,8 +216,8 @@ struct GeometryTest final : public tfel::tests::TestCase {
                {"Discretization",
                 Parameters{{"GeometricProgression",
                             Parameters{{"NumberOfPoints", 10},
-                                       {"InitialDensity", real{1} / 150},
-                                       {"FinalDensity", real{1} / 3}}}}}}}};
+                                       {"NormalizedInitialDensity", real{1} / 150},
+                                       {"NormalizedFinalDensity", real{1} / 3}}}}}}}};
       const auto opts = makePointsOnCurve<2>(ctx, params);
       TFEL_TESTS_ASSERT(isValid(opts));
       TFEL_TESTS_ASSERT(opts->size() == 11u);

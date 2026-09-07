@@ -65,18 +65,18 @@ namespace mfem_mgis::internals {
     if (!checkParameters(
             ctx, p,
             std::map<std::string, std::string>{
-                {"InitialDensity", "targeted density at the inital point"},
-                {"FinalDensity", "targeted density at the final point"},
+                {"NormalizedInitialDensity", "targeted density at the inital point"},
+                {"NormalizedFinalDensity", "targeted density at the final point"},
                 {"NumberOfPoints", "number of points"}})) {
       return {};
     }
-    if (!contains(p, "InitialDensity")) {
+    if (!contains(p, "NormalizedInitialDensity")) {
       return ctx.registerErrorMessage(
-          "intial density undefined (no parameter 'InitialDensity')");
+          "intial density undefined (no parameter 'NormalizedInitialDensity')");
     }
-    if (!contains(p, "FinalDensity")) {
+    if (!contains(p, "NormalizedFinalDensity")) {
       return ctx.registerErrorMessage(
-          "final density undefined (no parameter 'FinalDensity')");
+          "final density undefined (no parameter 'NormalizedFinalDensity')");
     }
     if (!contains(p, "NumberOfPoints")) {
       return ctx.registerErrorMessage(
@@ -92,18 +92,18 @@ namespace mfem_mgis::internals {
       return ctx.registerErrorMessage("invalid number of point (" +
                                       std::to_string(n) + ")");
     }
-    if (!is<double>(throwing, p, "InitialDensity")) {
+    if (!is<double>(throwing, p, "NormalizedInitialDensity")) {
       return ctx.registerErrorMessage(
-          "invalid type for parameter 'InitialDensity', expected a floating "
+          "invalid type for parameter 'NormalizedInitialDensity', expected a floating "
           "point number");
     }
-    if (!is<double>(throwing, p, "FinalDensity")) {
+    if (!is<double>(throwing, p, "NormalizedFinalDensity")) {
       return ctx.registerErrorMessage(
-          "invalid type for parameter 'FinalDensity', expected a floating "
+          "invalid type for parameter 'NormalizedFinalDensity', expected a floating "
           "point number");
     }
-    const auto di = get<double>(throwing, p, "InitialDensity");
-    const auto de = get<double>(throwing, p, "FinalDensity");
+    const auto di = get<double>(throwing, p, "NormalizedInitialDensity");
+    const auto de = get<double>(throwing, p, "NormalizedFinalDensity");
     if (!(di > 0)) {
       return ctx.registerErrorMessage(
           "invalid initial density, expected a positive number");
