@@ -6,6 +6,9 @@
  */
 
 #include "mfem/linalg/solvers.hpp"
+#ifdef MFEM_USE_MPI
+#include "mfem/linalg/hypre.hpp"
+#endif /* MFEM_USE_MPI */
 #ifdef MFEM_USE_PETSC
 #include "mfem/linalg/petsc.hpp"
 #endif /* MFEM_USE_PETSC */
@@ -83,5 +86,32 @@ namespace mfem_mgis {
     setSolverParametersImplementation(throwing, s, params);
   }    // end of setSolverParameters
 #endif /* MFEM_USE_PETSC */
+
+  bool hasConverged(const LinearSolver& ls) noexcept {
+    if (const auto* isolver = dynamic_cast<const IterativeSolver*>(&ls);
+        isolver != nullptr) {
+      return isolver->GetConverged();
+    }
+#ifdef MFEM_USE_MPI
+    auto check_hypre_solver_convergence = [](const auto* hptr) {
+      int niter;
+      hptr->GetNumIterations(niter);
+      return niter < hptr->GetMaxIter();
+    };
+    if (const auto* hptr = dynamic_cast<const mfem::HyprePCG*>(&ls);
+        hptr != nullptr) {
+      return check_hypre_solver_convergence(hptr);
+    }
+    if (const auto* hptr = dynamic_cast<const mfem::HypreGMRES*>(&ls);
+        hptr != nullptr) {
+      return check_hypre_solver_convergence(hptr);
+    }
+    if (const auto* hptr = dynamic_cast<const mfem::HypreFGMRES*>(&ls);
+        hptr != nullptr) {
+      return check_hypre_solver_convergence(hptr);
+    }
+#endif /* MFEM_USE_MPI */
+    return true;
+  }  // end of hasConverged
 
 }  // end of namespace mfem_mgis

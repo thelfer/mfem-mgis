@@ -199,13 +199,8 @@ namespace mfem_mgis {
     ls.SetOperator(A);
     ls.Mult(B, X);
     // check for convergence
-    const auto usesIterativeLinearSolver =
-        dynamic_cast<const IterativeSolver*>(&ls) != nullptr;
-    if (usesIterativeLinearSolver) {
-      const auto& isolver = static_cast<const mfem::IterativeSolver&>(ls);
-      if (!isolver.GetConverged()) {
-        return ctx.registerErrorMessage("linear solver did not converge");
-      }
+    if (!hasConverged(ls)) {
+      return ctx.registerErrorMessage("linear solver did not converge");
     }
     //
     a.RecoverFEMSolution(X, b, *mdu);

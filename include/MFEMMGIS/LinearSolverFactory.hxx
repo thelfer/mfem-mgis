@@ -23,6 +23,9 @@ namespace mfem_mgis {
    * \brief an abstract factory for behaviour integrators
    * \tparam parallel: boolean stating if parallel post-processing are
    * considered
+   *
+   * \note if a linear solver is added, the `hadConverged` function in
+   * `SolverUtilities.hxx` shall also be modified
    */
   template <bool parallel>
   struct LinearSolverFactory;
