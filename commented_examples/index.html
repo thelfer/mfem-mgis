@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Developer guide &mdash; The MFEM MGIS project  documentation</title>
+  <title>Commented Examples &mdash; The MFEM MGIS project  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Benchmarks" href="benchmark.html" />
-    <link rel="prev" title="Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications" href="../commented_examples/rve_mox.html" /> 
+    <link rel="next" title="Basic Tests" href="basic_tests.html" />
+    <link rel="prev" title="List of unit tests" href="../user_guide/tests/unit_tests.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,13 +46,16 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../commented_examples/index.html">Commented Examples</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchmark.html">Benchmarks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="contributing_guide.html">Contributing guide</a></li>
-<li class="toctree-l2"><a class="reference internal" href="contributors.html">Contributors</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Commented Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basic_tests.html">Basic Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rve_elastic_inclusions.html">Representative Volume Element with Elastic inclusions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bubbles.html">Simulation of pressurized bubbles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="polycrystal.html">Polycrystal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cermet.html">Cermet simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/developer_guide.html">Developer guide</a></li>
 </ul>
 
         </div>
@@ -69,9 +72,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Developer guide</li>
+      <li class="breadcrumb-item active">Commented Examples</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/developer_guide/developer_guide.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/commented_examples/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -79,15 +82,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="developer-guide">
-<span id="mfem-mgis-developer-guide"></span><h1>Developer guide<a class="headerlink" href="#developer-guide" title="Link to this heading"></a></h1>
-<p>This project is written in <code class="docutils literal notranslate"><span class="pre">C++-20</span></code>.</p>
-<p>The <cite>doxygen</cite> documentation is available on <a class="reference external" href="https://thelfer.github.io/mfem-mgis-doxygen/index.html">this page</a>.</p>
+  <section id="commented-examples">
+<h1>Commented Examples<a class="headerlink" href="#commented-examples" title="Link to this heading"></a></h1>
+<p>All the examples presented in this section can be found in the git repositories: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples">https://github.com/latug0/mfem-mgis-examples</a> and <a class="reference external" href="https://github.com/rprat-pro/mm-opera-hpc">https://github.com/rprat-pro/mm-opera-hpc</a> (developed as part of operaHPC project).</p>
 <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Basic Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="benchmark.html">Benchmarks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing_guide.html">Contributing guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributors.html">Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_tests.html">Basic Tests</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Representative Volume Element Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rve_elastic_inclusions.html">Representative Volume Element with Elastic inclusions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bubbles.html">Simulation of pressurized bubbles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polycrystal.html">Polycrystal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cermet.html">Cermet simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
 </ul>
 </div>
 </section>
@@ -96,8 +107,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../commented_examples/rve_mox.html" class="btn btn-neutral float-left" title="Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="benchmark.html" class="btn btn-neutral float-right" title="Benchmarks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../user_guide/tests/unit_tests.html" class="btn btn-neutral float-left" title="List of unit tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="basic_tests.html" class="btn btn-neutral float-right" title="Basic Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

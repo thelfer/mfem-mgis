@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Developer guide" href="../developer_guide/developer_guide.html" />
+    <link rel="prev" title="Cermet simulation" href="cermet.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Commented Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_tests.html">Basic Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rve_elastic_inclusions.html">Representative Volume Element with Elastic inclusions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bubbles.html">Simulation of pressurized bubbles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="polycrystal.html">Polycrystal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cermet.html">Cermet simulation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#problem-solved">Problem solved</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-simulation-rve-mox">How to run the simulation “RVE MOX”</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-the-mesh">Build the mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-the-simulation">Run the simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#run-a-minimal-version-of-the-simulation">Run a minimal version of the simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#available-options">Available options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parallel-computing-mode">Parallel computing mode</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#post-processing-of-simulation-data">Post-processing of simulation data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#extract-simulation-data-from-mmm">Extract simulation data from MMM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#display-results-with-gnuplot">Display results with gnuplot</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/developer_guide.html">Developer guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Commented Examples</a></li>
+      <li class="breadcrumb-item active">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/commented_examples/rve_mox.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications">
+<h1><a class="toc-backref" href="#id2" role="doc-backlink">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a><a class="headerlink" href="#representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications" title="Link to this heading"></a></h1>
+<nav class="contents" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#representative-volume-element-of-combustible-mixed-oxides-for-nuclear-applications" id="id2">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></p>
+<ul>
+<li><p><a class="reference internal" href="#problem-solved" id="id3">Problem solved</a></p></li>
+<li><p><a class="reference internal" href="#how-to-run-the-simulation-rve-mox" id="id4">How to run the simulation “RVE MOX”</a></p></li>
+<li><p><a class="reference internal" href="#build-the-mesh" id="id5">Build the mesh</a></p></li>
+<li><p><a class="reference internal" href="#run-the-simulation" id="id6">Run the simulation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#run-a-minimal-version-of-the-simulation" id="id7">Run a minimal version of the simulation</a></p></li>
+<li><p><a class="reference internal" href="#available-options" id="id8">Available options</a></p></li>
+<li><p><a class="reference internal" href="#parallel-computing-mode" id="id9">Parallel computing mode</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#post-processing-of-simulation-data" id="id10">Post-processing of simulation data</a></p>
+<ul>
+<li><p><a class="reference internal" href="#extract-simulation-data-from-mmm" id="id11">Extract simulation data from MMM</a></p></li>
+<li><p><a class="reference internal" href="#display-results-with-gnuplot" id="id12">Display results with gnuplot</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+<p>This simulation represents an RVE of MOx (Mixed Oxide) material under
+uniform macroscopic deformation. The aim of this simulation is to
+reproduce and compare the results obtained by (Fauque et al., 2021;
+Masson et al., 2020) who used an FFT method. (source code: ex7)</p>
+<section id="problem-solved">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Problem solved</a><a class="headerlink" href="#problem-solved" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Problem : RVE MOx 2 phases with elasto-viscoplastic behavior laws
+
+Parameters :
+
+start time = 0
+end time = 5s
+number of time step = 40
+
+Imposed strain tensor :
+        [ -a/2 ,   0  ,  0 ]
+eps  =  [   0  , -a/2 ,  0 ]
+        [   0  ,   0  ,  a ]
+with a = 0.012
+
+Solver : HypreGMRES
+Preconditioner : HypreBoomerAMG
+
+Moduli and Norton behavior law parameters :
+[ parameters       , inclusions   , matrix ]
+[ Young Modulus    , 8.182e9  , 2*8.182e9  ];
+[ Poisson Ratio    , 0.364    , 0.364      ];
+[ Stress Threshold , 100.0e6  , 100.0e12   ];
+[ Norton Exponent  , 3.333333 , 3.333333   ];
+[ Temperature      , 293.15   , 293.15     ];
+
+Element :
+- Family H1
+- Order 2
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Illustration of a RVE with 634 spheres after 5 seconds." src="../_images/mox-order2.png" />
+<figcaption>
+<p><span class="caption-text">Illustration of a RVE with 634 spheres after 5 seconds.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="how-to-run-the-simulation-rve-mox">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">How to run the simulation “RVE MOX”</a><a class="headerlink" href="#how-to-run-the-simulation-rve-mox" title="Link to this heading"></a></h2>
+</section>
+<section id="build-the-mesh">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Build the mesh</a><a class="headerlink" href="#build-the-mesh" title="Link to this heading"></a></h2>
+<p>The mesh is generated with MEROPE and GMSH through the following steps:</p>
+<ul class="simple">
+<li><p>First step, use MEROPE to generate a <code class="docutils literal notranslate"><span class="pre">.geo</span></code> file using the RSA
+algorithm. Scripts are in directory <code class="docutils literal notranslate"><span class="pre">script_merope</span></code>. Command line:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate .geo file with MEROPE</span>
+python3<span class="w"> </span>script_17percent_minimal.py
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Second step, use GMSH to mesh the geometry. Files <code class="docutils literal notranslate"><span class="pre">.geo</span></code> are in the
+directory <code class="docutils literal notranslate"><span class="pre">file_geo</span></code>. Command line:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate the .msh file with GMSH</span>
+gmsh<span class="w"> </span>-3<span class="w"> </span>OneSphere.geo
+</pre></div>
+</div>
+</section>
+<section id="run-the-simulation">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Run the simulation</a><a class="headerlink" href="#run-the-simulation" title="Link to this heading"></a></h2>
+<section id="run-a-minimal-version-of-the-simulation">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Run a minimal version of the simulation</a><a class="headerlink" href="#run-a-minimal-version-of-the-simulation" title="Link to this heading"></a></h3>
+<p>In order to run the simulation in sequential computing mode, use the
+command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># run the simulation by specifying the mesh with --mesh option</span>
+./mox2<span class="w"> </span>--mesh<span class="w"> </span>OneSphere.msh
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">MPI</span></code> + <code class="docutils literal notranslate"><span class="pre">Petsc</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>mox2<span class="w"> </span>-m<span class="w"> </span>mesh/OneSphere.msh<span class="w"> </span>-o<span class="w"> </span><span class="m">1</span><span class="w"> </span>--use-petsc<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--petsc-configuration-file<span class="w"> </span>petscrc
+</pre></div>
+</div>
+</section>
+<section id="available-options">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Available options</a><a class="headerlink" href="#available-options" title="Link to this heading"></a></h3>
+<p>To customize the simulation, several options are available, as detailed
+below.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command line</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–mesh or -m</p></td>
+<td><p>Specify the mesh “.msh” used (default =
+inclusion.msh)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–refinement or -r</p></td>
+<td><p>Refinement level of the mesh (default = 0)</p></td>
+</tr>
+<tr class="row-even"><td><p>–order or -o</p></td>
+<td><p>Finite element order (polynomial degree)
+(default = 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–verbosity-level or -v</p></td>
+<td><p>Choose the verbosity level (default = 0)</p></td>
+</tr>
+<tr class="row-even"><td><p>–post-processing or -p</p></td>
+<td><p>Run post processing step (default = 1)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–use-petsc</p></td>
+<td><p>Activate PETSc if PETSc is available</p></td>
+</tr>
+<tr class="row-even"><td><p>–petsc-configuration-file</p></td>
+<td><p>Name of the Petsc source file</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example of customized simulation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># run the simulation in sequential computing mode with various options</span>
+./mox2<span class="w"> </span>-r<span class="w"> </span><span class="m">2</span><span class="w"> </span>-o<span class="w"> </span><span class="m">3</span><span class="w"> </span>--mesh<span class="w"> </span>OneSphere.msh
+</pre></div>
+</div>
+</section>
+<section id="parallel-computing-mode">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Parallel computing mode</a><a class="headerlink" href="#parallel-computing-mode" title="Link to this heading"></a></h3>
+<p>The simulation can be run in parallel computing mode by using the
+command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># run the simulation by specifying the mesh with --mesh option</span>
+mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./mox2<span class="w"> </span>--mesh<span class="w"> </span>634Spheres.msh
+</pre></div>
+</div>
+<p>Simulation can be run on supercomputers. The command depends on the
+server manager. For example, on Topaze, a CCRT-hosted supercomputer
+co-designed by Atos and CEA, the commands are :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ccc_mprun<span class="w"> </span>-n<span class="w"> </span><span class="m">8</span><span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>-p<span class="w"> </span>milan<span class="w"> </span>./mox2<span class="w"> </span>-r<span class="w"> </span><span class="m">0</span><span class="w"> </span>-o<span class="w"> </span><span class="m">3</span><span class="w"> </span>--mesh<span class="w"> </span>OneSphere.msh
+ccc_mprun<span class="w"> </span>-n<span class="w"> </span><span class="m">2048</span><span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>-p<span class="w"> </span>milan<span class="w"> </span>./mox2<span class="w"> </span>-r<span class="w"> </span><span class="m">2</span><span class="w"> </span>-o<span class="w"> </span><span class="m">1</span><span class="w"> </span>--mesh<span class="w"> </span>634Sphere.msh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="post-processing-of-simulation-data">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Post-processing of simulation data</a><a class="headerlink" href="#post-processing-of-simulation-data" title="Link to this heading"></a></h2>
+<p>The aim of this exercise is to reproduce the simulation results of
+(Fauque et al., 2021; Masson et al., 2020). To this end, the average
+stresses in the z-axis direction (SZZ) will be analyzed. The reference
+values, obtained by (Fauque et al., 2021; Masson et al., 2020), can be
+found in the directory <code class="docutils literal notranslate"><span class="pre">results</span></code>, file res-fft.txt (Average stress
+versus time).</p>
+<section id="extract-simulation-data-from-mmm">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Extract simulation data from MMM</a><a class="headerlink" href="#extract-simulation-data-from-mmm" title="Link to this heading"></a></h3>
+<p>The avgStress post-processing file generated by MMM contains average
+stress values as a function of time, by material phase. MMM simulation
+data are available: <code class="docutils literal notranslate"><span class="pre">results/res-mfem-mgis-onesphere-o3.txt</span></code> and
+<code class="docutils literal notranslate"><span class="pre">results/res-mfem-mgis-634sphere-o2.txt</span></code>.</p>
+<p>For example, the average stress SZZ over the RVE (composed of 83% matrix
+and 17% inclusion) can be calculated with the awk command under unix:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>awk<span class="w"> </span><span class="s1">'{if(NR&gt;13) print $1 " " 0.83*$4+0.17*$10}'</span><span class="w"> </span>avgStress<span class="w"> </span>&gt;<span class="w"> </span>res-mfem-mgis.txt
+</pre></div>
+</div>
+</section>
+<section id="display-results-with-gnuplot">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Display results with gnuplot</a><a class="headerlink" href="#display-results-with-gnuplot" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gnuplot&gt;<span class="w"> </span>plot<span class="w"> </span><span class="s2">"res-fft.txt"</span><span class="w"> </span>u<span class="w"> </span><span class="m">1</span>:10<span class="w"> </span>w<span class="w"> </span>l<span class="w"> </span>title<span class="w"> </span><span class="s2">"fft"</span>
+gnuplot&gt;<span class="w"> </span>replot<span class="w"> </span><span class="s2">"res-mfem-mgis.txt"</span><span class="w"> </span>u<span class="w"> </span><span class="m">1</span>:2<span class="w"> </span>w<span class="w"> </span>l<span class="w"> </span>title<span class="w"> </span><span class="s2">"mfem-mgis"</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cermet.html" class="btn btn-neutral float-left" title="Cermet simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../developer_guide/developer_guide.html" class="btn btn-neutral float-right" title="Developer guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic Tests &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Representative Volume Element with Elastic inclusions" href="rve_elastic_inclusions.html" />
+    <link rel="prev" title="Commented Examples" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Commented Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Basic Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensiletest">TensileTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#problem-solved">Problem Solved</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-this-simulation">Run This Simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#available-options">Available options</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#satoh">Satoh</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Problem solved</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-the-simulation">Run the simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ssna303-example-2d-and-3d">Ssna303 Example (2D and 3D)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rve_elastic_inclusions.html">Representative Volume Element with Elastic inclusions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bubbles.html">Simulation of pressurized bubbles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="polycrystal.html">Polycrystal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cermet.html">Cermet simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/developer_guide.html">Developer guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Commented Examples</a></li>
+      <li class="breadcrumb-item active">Basic Tests</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/commented_examples/basic_tests.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="basic-tests">
+<h1><a class="toc-backref" href="#id2" role="doc-backlink">Basic Tests</a><a class="headerlink" href="#basic-tests" title="Link to this heading"></a></h1>
+<nav class="contents" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#basic-tests" id="id2">Basic Tests</a></p>
+<ul>
+<li><p><a class="reference internal" href="#tensiletest" id="id3">TensileTest</a></p>
+<ul>
+<li><p><a class="reference internal" href="#problem-solved" id="id4">Problem Solved</a></p></li>
+<li><p><a class="reference internal" href="#run-this-simulation" id="id5">Run This Simulation</a></p></li>
+<li><p><a class="reference internal" href="#available-options" id="id6">Available options</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#satoh" id="id7">Satoh</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id8">Problem solved</a></p></li>
+<li><p><a class="reference internal" href="#run-the-simulation" id="id9">Run the simulation</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#ssna303-example-2d-and-3d" id="id10">Ssna303 Example (2D and 3D)</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="tensiletest">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">TensileTest</a><a class="headerlink" href="#tensiletest" title="Link to this heading"></a></h2>
+<p>website : <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex1">https://github.com/latug0/mfem-mgis-examples/tree/master/ex1</a></p>
+<p>Description:</p>
+<figure class="align-default">
+<img alt="Illustration of the start of the TensileTest simulation." src="../_images/ex1Start.png" />
+</figure>
+<figure class="align-default">
+<img alt="Illustration of the start of the TensileTest simulation." src="../_images/ex1End.png" />
+</figure>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Complete the description</p>
+</div>
+<section id="problem-solved">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">Problem Solved</a><a class="headerlink" href="#problem-solved" title="Link to this heading"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Export the internal value named plasticity strain
+
+Solver : Conjugate Gradient (default)
+Preconditioner : Depends on the solver
+
+The default is plasticity; behaviour law parameters are defined in the loaded library.
+
+Element:
+- Family H1
+- Order 1
+</pre></div>
+</div>
+</section>
+<section id="run-this-simulation">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Run This Simulation</a><a class="headerlink" href="#run-this-simulation" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">10</span><span class="w"> </span>./UniaxialTensileTestEx<span class="w"> </span>-m<span class="w"> </span>cube.mesh<span class="w"> </span>-l<span class="w">  </span>src/libBehaviour.so<span class="w"> </span>-b<span class="w"> </span>Plasticity<span class="w"> </span>-r<span class="w"> </span>Plasticity.ref<span class="w"> </span>-ls<span class="w"> </span><span class="m">1</span><span class="w"> </span>-p<span class="w"> </span><span class="m">1</span><span class="w"> </span>-v<span class="w"> </span>EquivalentPlasticStrain
+</pre></div>
+</div>
+</section>
+<section id="available-options">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Available options</a><a class="headerlink" href="#available-options" title="Link to this heading"></a></h3>
+<p>To customize the simulation, several options are available, as detailed
+below.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command line</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–mesh or -m</p></td>
+<td><p>Specify the mesh “.msh” used (default =
+inclusion.msh)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–refinement or -r</p></td>
+<td><p>The reference file
+(default = Plasticity.ref)</p></td>
+</tr>
+<tr class="row-even"><td><p>–behaviour or -b</p></td>
+<td><p>Name of the behaviour law
+(default = Plasticity)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–internal-state-variable or -v</p></td>
+<td><p>Internal variable name to be post-processed
+(default = EquivalentPlasticStrain)</p></td>
+</tr>
+<tr class="row-even"><td><p>–library or -l</p></td>
+<td><p>Material library
+(default = src/libBehaviour.so)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–linearsolver or -ls</p></td>
+<td><p>Identifier of the linear solver: 0 -&gt; CG,
+1 -&gt; GMRES, 2 -&gt; UMFPack (serial),
+3-&gt; MUMPS(serial), 2 -&gt; HypreFGMRES (//),
+3 -&gt; HyprePCG (//), 4 -&gt; HypreGMRES (//).</p></td>
+</tr>
+<tr class="row-even"><td><p>–order or -o</p></td>
+<td><p>Finite element order (polynomial degree)
+(default = 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–parallel or -p</p></td>
+<td><p>Run parallel execution
+(default = 0, serial)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="satoh">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Satoh</a><a class="headerlink" href="#satoh" title="Link to this heading"></a></h2>
+<p>website: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex5">https://github.com/latug0/mfem-mgis-examples/tree/master/ex5</a></p>
+<p>Description:</p>
+<p>Modelling of a plate of length 1, in plane strain, clamped on the left and right boundaries and subjected to a parabolic thermal gradient along the x-axis. (source code 5)</p>
+<figure class="align-default">
+<img alt="Illustration of the displacement of the plate." src="../_images/SatohTest.png" />
+</figure>
+<section id="id1">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Problem solved</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>This test models a 2D plate of length 1 in plane strain clamped on the left
+and right boundaries and subjected to a parabolic thermal gradient along the
+x-axis:
+
+- the temperature profile is minimal on the left and right boundaries
+- the temperature profile is maximal for x = 0.5
+
+This example shows how to define an external state variable using an
+analytical profile.
+
+Solver : UMFPackSolver
+Preconditioner : None
+
+Elastic behavior law parameters :
+[ parameters       , material ]
+[ Young Modulus    , 150e9    ];
+[ Poisson Ratio    , 0.3      ];
+[ Temperature      , 293.15   ];
+
+Element:
+- Family H1
+- Order 2
+</pre></div>
+</div>
+</section>
+<section id="run-the-simulation">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Run the simulation</a><a class="headerlink" href="#run-the-simulation" title="Link to this heading"></a></h3>
+<p>Parameters are hardcoded in this example.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./SatohTest
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to run this example in parallel, you’ll have to change the solver too.</p>
+</div>
+</section>
+</section>
+<section id="ssna303-example-2d-and-3d">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Ssna303 Example (2D and 3D)</a><a class="headerlink" href="#ssna303-example-2d-and-3d" title="Link to this heading"></a></h2>
+<p>This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on a notched beam modeled by finite-strain plastic behavior. See the tutorial section.</p>
+<ul class="simple">
+<li><p>website 2D example: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex2">https://github.com/latug0/mfem-mgis-examples/tree/master/ex2</a></p></li>
+<li><p>website 3D example : <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex4">https://github.com/latug0/mfem-mgis-examples/tree/master/ex4</a></p></li>
+</ul>
+<figure class="align-default">
+<img alt="Illustration of the start of the ssna303 simulation." src="../_images/ssna303Start.png" />
+</figure>
+<figure class="align-default">
+<img alt="Illustration of the start of the ssna303 simulation." src="../_images/ssna303End.png" />
+</figure>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Commented Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rve_elastic_inclusions.html" class="btn btn-neutral float-right" title="Representative Volume Element with Elastic inclusions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -10,7 +10,7 @@ The ``MFEM/MGIS`` project
 
    installation_guide/installation_guide.rst
    user_guide/user_guide.rst
-   commented_examples/commented_examples.rst
+   commented_examples/index.rst
    developer_guide/developer_guide.rst
 
 The aim of the ``MFEM/MGIS`` project is to provide a ``C++`` library to

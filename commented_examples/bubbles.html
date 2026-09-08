@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulation of pressurized bubbles &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"tex": {"macros": {"paren": ["{\\left(#1\\right)}", 1], "transpose": ["{\\left.#1\\right.^{T}}", 1], "bts": ["{\\left.#1\\right|_{\\mathrm{bts}}}", 1], "ets": ["{\\left.#1\\right|_{\\mathrm{ets}}}", 1]}}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Polycrystal" href="polycrystal.html" />
+    <link rel="prev" title="Representative Volume Element with Elastic inclusions" href="rve_elastic_inclusions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Commented Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_tests.html">Basic Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rve_elastic_inclusions.html">Representative Volume Element with Elastic inclusions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Simulation of pressurized bubbles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#problem-description">Problem description</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#modify-the-geometry-for-the-single-bubble-case-and-mesh-it">Modify the geometry for the single bubble case and mesh it</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#set-up-the-physical-problem">Set-up the physical problem</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#verification-against-the-analytical-solution">Verification against the analytical solution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="polycrystal.html">Polycrystal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cermet.html">Cermet simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/developer_guide.html">Developer guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Commented Examples</a></li>
+      <li class="breadcrumb-item active">Simulation of pressurized bubbles</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/commented_examples/bubbles.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="simulation-of-pressurized-bubbles">
+<h1><a class="toc-backref" href="#id1" role="doc-backlink">Simulation of pressurized bubbles</a><a class="headerlink" href="#simulation-of-pressurized-bubbles" title="Link to this heading"></a></h1>
+<img alt="../_images/bubbles.png" class="align-center" src="../_images/bubbles.png" />
+<nav class="contents" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#simulation-of-pressurized-bubbles" id="id1">Simulation of pressurized bubbles</a></p>
+<ul>
+<li><p><a class="reference internal" href="#problem-description" id="id2">Problem description</a></p>
+<ul>
+<li><p><a class="reference internal" href="#modify-the-geometry-for-the-single-bubble-case-and-mesh-it" id="id3">Modify the geometry for the single bubble case and mesh it</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#set-up-the-physical-problem" id="id4">Set-up the physical problem</a></p>
+<ul>
+<li><p><a class="reference internal" href="#parameters" id="id5">Parameters</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#verification-against-the-analytical-solution" id="id6">Verification against the analytical solution</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<p>Repository: <code class="docutils literal notranslate"><span class="pre">https://github.com/rprat-pro/mm-opera-hpc/tree/main/bubble</span></code></p>
+<section id="problem-description">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Problem description</a><a class="headerlink" href="#problem-description" title="Link to this heading"></a></h2>
+<p>The default example consists of a single spherical porosity in a quasi-infinite medium. The finite element solution can be compared with an analytical solution giving the elastic stress field as a function of the internal pressure, the bubble radius, and the distance from the bubble. As mentioned above, the boundary conditions for the problem are periodic, and we consider a null macroscopic displacement gradient, which in turn generates a uniform compressive hydrostatic pressure on the RVE. In this case with one porosity in a quasi-infinite medium, the compressive hydrostatic pressure is negligible, in agreement with the analytical solution mentioned above.</p>
+<section id="modify-the-geometry-for-the-single-bubble-case-and-mesh-it">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Modify the geometry for the single bubble case and mesh it</a><a class="headerlink" href="#modify-the-geometry-for-the-single-bubble-case-and-mesh-it" title="Link to this heading"></a></h3>
+<p>The geometry for the test case is contained in the file <code class="docutils literal notranslate"><span class="pre">.geo</span></code> stored in the <code class="docutils literal notranslate"><span class="pre">mesh</span></code>
+folder, and considers a sphere of radius equal to 400 nm at the centre of a (periodic)
+cube of 10 µm of size. For a more handy management of the geometry and of the mesh, the
+units in the geometry file are expressed in <span class="math notranslate nohighlight">\(\mathrm{\mu m}\)</span>. One can modify it and
+use it as an input for <code class="docutils literal notranslate"><span class="pre">gmsh</span></code> to generate the computational mesh for the case by:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gmsh<span class="w"> </span>-3<span class="w"> </span>single_sphere.geo
+</pre></div>
+</div>
+<p>A file <code class="docutils literal notranslate"><span class="pre">.msh</span></code> is already provided in the folder <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, generated based on the
+aforementioned geometry file. We have seen some slight differences in the final mesh based
+on the version of <code class="docutils literal notranslate"><span class="pre">gmsh</span></code> employed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the bubble center, radius, or the surface label are modified, the corresponding data
+stored in <code class="docutils literal notranslate"><span class="pre">single_bubble.txt</span></code> must also be changed.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">single_bubble_ci.txt</span></code> is used for GitHub continuous integration.</p>
+</div>
+</section>
+</section>
+<section id="set-up-the-physical-problem">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Set-up the physical problem</a><a class="headerlink" href="#set-up-the-physical-problem" title="Link to this heading"></a></h2>
+<p>The simulation considers an empty (i.e., not meshed) cavity, on whose surface we impose an
+arbitrary uniform pressure (unitary by default). The medium is described by a purely
+elastic constitutive relationship, characterized by two elastic constants:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(E = 150\ \mathrm{N}\ \mu\mathrm{m}^{-3}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\nu = 0.3\)</span></p></li>
+</ul>
+<p>The elastic modulus is rescaled to coherently describe the geometry in micrometers, rather
+than in S.I. units. This choice is done to facilitate the creation of more complex
+geometries when using <code class="docutils literal notranslate"><span class="pre">Mérope</span></code>, given the characteristic length scale of the considered
+inclusions.</p>
+<p>The geometry is meshed using quadratic elements, to better describe the spherical
+inclusions contained in the representative volume element (RVE). Despite <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>
+allowing sub-, super-, and isoparametric analyses, we recommend sticking at least to the
+isoparametric choice (i.e., not subparametric) for the polynomial shape functions.</p>
+<p>The boundary conditions for the problem are periodic, and we consider a null macroscopic
+displacement gradient, which in turn generates a uniform compressive hydrostatic pressure
+on the RVE.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<p>Command-line Usage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Usage:<span class="w"> </span>./test-bubble<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>...
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 10.0%" />
+<col style="width: 20.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>Print the help message and exit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--mesh</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh/single_sphere.msh</span></code></p></td>
+<td><p>Mesh file to use.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--library</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/libBehaviour.so</span></code></p></td>
+<td><p>Material behaviour library.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--bubble-file</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh/single_bubble.txt</span></code></p></td>
+<td><p>File containing the bubble definitions.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--order</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Finite element order (polynomial degree).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--refinement</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Refinement level of the mesh (default = 0).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--post-processing</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Run the post-processing step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--verbosity-level</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Verbosity level of the output.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The command to execute the test-case is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">6</span><span class="w"> </span>./test-bubble
+</pre></div>
+</div>
+<p>Below we show a contour plot of the <span class="math notranslate nohighlight">\(YY\)</span> component of the stress tensor (upper
+half of the cube) and of the first principal stress (bottom half of the cube).</p>
+<img alt="../_images/bubble.png" class="align-center" src="../_images/bubble.png" />
+</section>
+</section>
+<section id="verification-against-the-analytical-solution">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Verification against the analytical solution</a><a class="headerlink" href="#verification-against-the-analytical-solution" title="Link to this heading"></a></h2>
+<p>The problem of a pressurized spherical inclusion in an infinite elastic medium has a
+closed-form solution for the expressions of the hoop stress as a function of the distance
+from the sphere center:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{\theta\theta}(r) \;=\; \dfrac{p_{in}\,R_b^3}{2\,r^3}\]</div>
+<p>where <span class="math notranslate nohighlight">\(p_{in}\)</span> is the internal pressure, <span class="math notranslate nohighlight">\(R_b\)</span> the bubble radius, and the
+expression holds for <span class="math notranslate nohighlight">\(r &gt; R_b\)</span>.</p>
+<p>The script available in <code class="docutils literal notranslate"><span class="pre">verification/bubble</span></code> can be used to compare the analytical
+solution to the MMM one:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>mmm_vs_analytical.py
+</pre></div>
+</div>
+<p>The comparison between the computational results and the analytical solution is shown below.</p>
+<img alt="../_images/comparison_analytical_mmm.png" class="align-center" src="../_images/comparison_analytical_mmm.png" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rve_elastic_inclusions.html" class="btn btn-neutral float-left" title="Representative Volume Element with Elastic inclusions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polycrystal.html" class="btn btn-neutral float-right" title="Polycrystal" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

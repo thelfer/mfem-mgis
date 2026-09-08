@@ -1,0 +1,463 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cermet simulation &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"tex": {"macros": {"paren": ["{\\left(#1\\right)}", 1], "transpose": ["{\\left.#1\\right.^{T}}", 1], "bts": ["{\\left.#1\\right|_{\\mathrm{bts}}}", 1], "ets": ["{\\left.#1\\right|_{\\mathrm{ets}}}", 1]}}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications" href="rve_mox.html" />
+    <link rel="prev" title="Polycrystal" href="polycrystal.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Commented Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_tests.html">Basic Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rve_elastic_inclusions.html">Representative Volume Element with Elastic inclusions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bubbles.html">Simulation of pressurized bubbles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="polycrystal.html">Polycrystal</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Cermet simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-generation">Mesh generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#small-example">Small Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#large-example">Large Example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#run-your-simulation">Run your simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#command-line-usage">Command-line Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-to-run-it">How to Run it</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#results">Results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#plot-and-compare">Plot and Compare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#check-the-values">Check the values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/developer_guide.html">Developer guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Commented Examples</a></li>
+      <li class="breadcrumb-item active">Cermet simulation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/commented_examples/cermet.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cermet-simulation">
+<h1><a class="toc-backref" href="#id2" role="doc-backlink">Cermet simulation</a><a class="headerlink" href="#cermet-simulation" title="Link to this heading"></a></h1>
+<img alt="../_images/cermet.png" class="align-center" src="../_images/cermet.png" />
+<nav class="contents" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cermet-simulation" id="id2">Cermet simulation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#description" id="id3">Description</a></p></li>
+<li><p><a class="reference internal" href="#mesh-generation" id="id4">Mesh generation</a></p></li>
+<li><p><a class="reference internal" href="#options" id="id5">Options</a></p>
+<ul>
+<li><p><a class="reference internal" href="#small-example" id="id6">Small Example</a></p></li>
+<li><p><a class="reference internal" href="#large-example" id="id7">Large Example</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#run-your-simulation" id="id8">Run your simulation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#command-line-usage" id="id9">Command-line Usage</a></p></li>
+<li><p><a class="reference internal" href="#how-to-run-it" id="id10">How to Run it</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#results" id="id11">Results</a></p>
+<ul>
+<li><p><a class="reference internal" href="#plot-and-compare" id="id12">Plot and Compare</a></p></li>
+<li><p><a class="reference internal" href="#check-the-values" id="id13">Check the values</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#references" id="id14">References</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<p>Repository: <code class="docutils literal notranslate"><span class="pre">https://github.com/rprat-pro/mm-opera-hpc/tree/main/cermet</span></code></p>
+<section id="description">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Description</a><a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>This case is similar to the <code class="docutils literal notranslate"><span class="pre">UO2</span></code> polycrystal with the addition of a metallic interface
+at the grain boundary. In the Gmsh mesh each grain has a material ID (from 2 to
+<span class="math notranslate nohighlight">\(N_{\text{grain}} + 1\)</span>), as well as its orientation needed for the orthotropic
+basis. The metallic interface has the material ID equal to 1, and is considered to be made
+of an isotropic elasto-viscoplastic material. In addition to the mechanical analysis, this
+example implements a fixed-point algorithm enabling the simulation of a uniaxial
+compression/tensile test with periodic boundary conditions.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><p><strong>Boundary conditions:</strong> periodic boundary conditions are applied on the RVE faces.
+The loading is imposed in one direction, ensuring compatibility and equilibrium across
+periodic faces. More precisely, the axial component <span class="math notranslate nohighlight">\(F_{zz}\)</span> of the macroscopic
+deformation gradient is imposed. The off-diagonal components of the macroscopic
+deformation gradient are set to zero.
+The components <span class="math notranslate nohighlight">\(F_{xx}\)</span> and <span class="math notranslate nohighlight">\(F_{yy}\)</span> are the unknowns, determined via the
+fixed-point algorithm imposing null values for the components <span class="math notranslate nohighlight">\(S_{xx}\)</span> and
+<span class="math notranslate nohighlight">\(S_{yy}\)</span> of the macroscopic Cauchy stress tensor.
+The main result used for verification is a stress-strain curve with the evolution of the
+axial component <span class="math notranslate nohighlight">\(S_{zz}\)</span> of the Cauchy stress as a function of <span class="math notranslate nohighlight">\(F_{xx}\)</span>.</p></li>
+<li><p><strong>[Crystal] Constitutive law:</strong>
+The UO₂ crystal plasticity law used in the example is detailed in the reference <a class="footnote-reference brackets" href="#portelette2018" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
+The corresponding MFront file is available on the MMM GitHub repository.
+For uranium dioxide, the crystal symmetry is cubic, with the following orthotropic
+elastic properties:</p>
+<ul class="simple">
+<li><p>Young’s modulus = <span class="math notranslate nohighlight">\(222\times10^9\ \text{Pa}\)</span></p></li>
+<li><p>Poisson ratio = 0.27</p></li>
+<li><p>Shear modulus = <span class="math notranslate nohighlight">\(54\times10^9\ \text{Pa}\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>[Metallic Interface] Constitutive law:</strong>
+The Norton creep law used for the interface is derived from the elasto-viscoplastic
+properties of chromium coatings used in eATF claddings, as proposed in the literature.
+The corresponding MFront file is available on the MMM GitHub repository.</p></li>
+<li><p><strong>Elastic properties:</strong>
+- Young’s modulus = <span class="math notranslate nohighlight">\(276\times10^9\ \text{Pa}\)</span>
+- Shear modulus = <span class="math notranslate nohighlight">\(54\times10^9\ \text{Pa}\)</span></p></li>
+<li><p><strong>Norton creep law:</strong></p>
+<div class="math notranslate nohighlight">
+\[\dot{\varepsilon}_{eq} =
+\frac{A D_0 \exp\!\left(-\frac{Q}{R T}\right)}{b^2}
+\left( \frac{\sigma_{eq}}{C} \right)^n\]</div>
+<p>with the parameters:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(A = 2.5\times10^{11}\)</span> [a.u.]</p></li>
+<li><p><span class="math notranslate nohighlight">\(n = 4.75\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(Q = 3.0627\times10^{5}\)</span> [a.u.]</p></li>
+<li><p><span class="math notranslate nohighlight">\(D_0 = 1.55\times10^{-5}\)</span> [a.u.]</p></li>
+<li><p><span class="math notranslate nohighlight">\(b = 2.5\times10^{-10}\)</span> [a.u.]</p></li>
+</ul>
+</li>
+<li><p><strong>Finite element order:</strong> 1 (linear interpolation)</p></li>
+<li><p><strong>Finite element space:</strong> H1</p></li>
+<li><p><strong>Simulation duration:</strong> 200 s</p></li>
+<li><p><strong>Number of time steps:</strong> 500</p></li>
+<li><p><strong>Linear solver:</strong> HyprePCG (solver / preconditioner)</p></li>
+</ul>
+</section>
+<section id="mesh-generation">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Mesh generation</a><a class="headerlink" href="#mesh-generation" title="Link to this heading"></a></h2>
+<p>This section explains how to generate a sample mesh with <code class="docutils literal notranslate"><span class="pre">Merope</span></code>.</p>
+<p>Before running the script, make sure that the environment variable
+<code class="docutils literal notranslate"><span class="pre">MEROPE_DIR</span></code> is properly loaded.</p>
+<p>Then, you can generate the mesh in two steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">MEROPE_DIR</span><span class="si">}</span>/Env_Merope.sh
+python3<span class="w"> </span>mesh/5grains.py<span class="w">    </span><span class="c1"># generate 5grains.geo</span>
+gmsh<span class="w"> </span>-3<span class="w"> </span>5grains.geo<span class="w">        </span><span class="c1"># generate 5grains.msh</span>
+</pre></div>
+</div>
+<p>You will obtain a 3D mesh (<code class="docutils literal notranslate"><span class="pre">5grains.msh</span></code>) of a polycrystalline sample with 5 grains.</p>
+</section>
+<section id="options">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Options</a><a class="headerlink" href="#options" title="Link to this heading"></a></h2>
+<p><strong>Mesh Generation Examples</strong></p>
+<p>The mesh can be customized by adjusting the input parameters in the Python script.</p>
+<p>Below are two examples:</p>
+<section id="small-example">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Small Example</a><a class="headerlink" href="#small-example" title="Link to this heading"></a></h3>
+<p>This setup generates a small polycrystalline mesh (Gmsh version <code class="docutils literal notranslate"><span class="pre">11.1</span></code>):</p>
+<ul class="simple">
+<li><p>5 grains</p></li>
+<li><p>12,992 nodes</p></li>
+<li><p>88,687 elements</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">nbSpheres</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">distMin</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">randomSeed</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">layer</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">MeshOrder</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">MeshSize</span> <span class="o">=</span> <span class="mf">0.05</span>
+</pre></div>
+</div>
+<img alt="Cermet Case (5 grains)" class="align-center" src="../_images/cermet-5grains.png" />
+<img alt="Cermet Mesh Visualization" class="align-center" src="../_images/cermet-5grains-gmsh.png" />
+</section>
+<section id="large-example">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Large Example</a><a class="headerlink" href="#large-example" title="Link to this heading"></a></h3>
+<p>This setup generates a realistic polycrystalline mesh with:</p>
+<ul class="simple">
+<li><p>250 grains</p></li>
+<li><p>12,913,361 nodes</p></li>
+<li><p>86,213,779 elements</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">nbSpheres</span> <span class="o">=</span> <span class="mi">250</span>
+<span class="n">distMin</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">randomSeed</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">layer</span> <span class="o">=</span> <span class="mf">0.04</span>
+<span class="n">MeshOrder</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">MeshSize</span> <span class="o">=</span> <span class="mf">0.02</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="run-your-simulation">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Run your simulation</a><a class="headerlink" href="#run-your-simulation" title="Link to this heading"></a></h2>
+<section id="command-line-usage">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Command-line Usage</a><a class="headerlink" href="#command-line-usage" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Usage:<span class="w"> </span>./cermet<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>...
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.8%" />
+<col style="width: 8.3%" />
+<col style="width: 20.8%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>Print the help message and exit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--mesh</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh/5grains.msh</span></code></p></td>
+<td><p>Mesh file to use.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--order</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Finite element order (polynomial degree).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--refinement</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Refinement level of the mesh (default = 1).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--post-processing</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Run the post-processing step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--verbosity-level</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Verbosity level of the output.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">&lt;double&gt;,</span> <span class="pre">--duration</span> <span class="pre">&lt;double&gt;</span></code></p></td>
+<td><p>double</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">200</span></code></p></td>
+<td><p>Duration of the simulation (default = 5).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">--nstep</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">400</span></code></p></td>
+<td><p>Number of simulation steps (default = 40).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">&lt;string&gt;,</span> <span class="pre">--file</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">vectors_5grains.txt</span></code></p></td>
+<td><p>Vector file to use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--macroscopic-stress-output-file</span> <span class="pre">&lt;string&gt;</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cermet.res</span></code></p></td>
+<td><p>Main output file containing:
+- Evolution of the diagonal components of the deformation gradient.
+- Evolution of the diagonal components of the Cauchy stress.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-to-run-it">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">How to Run it</a><a class="headerlink" href="#how-to-run-it" title="Link to this heading"></a></h3>
+<p>You can run the simulation in parallel using MPI.
+Below are two examples.</p>
+<p><strong>Basic Test</strong></p>
+<p>Runs a short simulation with:</p>
+<ul class="simple">
+<li><p>Duration = 0.5 s</p></li>
+<li><p>1 timestep</p></li>
+<li><p>Mesh = 5grains.msh</p></li>
+<li><p>Refinement level = 0</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./cermet<span class="w"> </span>--duration<span class="w"> </span><span class="m">0</span>.5<span class="w"> </span>--nstep<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p><strong>Full Test</strong></p>
+<p>Runs a longer simulation with:</p>
+<ul class="simple">
+<li><p>Duration = 200 s</p></li>
+<li><p>400 timesteps</p></li>
+<li><p>Custom mesh (<code class="docutils literal notranslate"><span class="pre">yourmesh.msh</span></code>)</p></li>
+<li><p>Refinement level = 1</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./cermet<span class="w"> </span>--duration<span class="w"> </span><span class="m">200</span><span class="w"> </span>--nstep<span class="w"> </span><span class="m">400</span><span class="w"> </span>-r<span class="w"> </span><span class="m">1</span><span class="w"> </span>--mesh<span class="w"> </span>yourmesh.msh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="results">
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">Results</a><a class="headerlink" href="#results" title="Link to this heading"></a></h2>
+<p>By default, the simulation generates the file <code class="docutils literal notranslate"><span class="pre">cermet.res</span></code> when running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./cermet
+</pre></div>
+</div>
+<p>To validate the results, the Cauchy stress component in the z-direction
+(<span class="math notranslate nohighlight">\(\overline{\sigma}_{zz}\)</span>) can be compared with reference values obtained from
+Cast3M.</p>
+<section id="plot-and-compare">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Plot and Compare</a><a class="headerlink" href="#plot-and-compare" title="Link to this heading"></a></h3>
+<p>To visualize and compare the results, run the following Python script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plot_cermet_results.py
+</pre></div>
+</div>
+<p>This script generates a figure named <code class="docutils literal notranslate"><span class="pre">plot_cermet.png</span></code> as shown below.
+In this figure, we observe good agreement between Cast3M and MFEM-MGIS results.
+As observed for the polycrystal test case, there are some oscillations in the Cast3M
+solution, which is of poorer quality compared to the MFEM-MGIS results.
+The main conclusion is that the implicit formulation of MFEM-MGIS (full Newton algorithm
+using the tangent stiffness) is highly performant—thanks to quadratic convergence and
+parallelization—and provides a high-quality solution.
+For verification, the number of time steps has been significantly increased to minimize
+the oscillations observed in Cast3M.</p>
+<img alt="Comparison MFEM-MGIS vs Cast3M" class="align-center" src="../_images/plot_cermet.png" />
+</section>
+<section id="check-the-values">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Check the values</a><a class="headerlink" href="#check-the-values" title="Link to this heading"></a></h3>
+<p>To verify the simulation results, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">check_cermet_restults</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The expected output is: <code class="docutils literal notranslate"><span class="pre">Check</span> <span class="pre">PASS</span></code>.</p>
+<p>Example of the detailed output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>       Time     MFEM/MGIS      CAST3M  RelDiff_% Status
+0      0.4  2.837174e+07  29462000.0   3.842755     OK
+1      0.8  4.101172e+07  41798000.0   1.917200     OK
+2      1.2  4.674008e+07  47113000.0   0.797856     OK
+3      1.6  5.042402e+07  50687000.0   0.521535     OK
+4      2.0  5.321536e+07  53452000.0   0.444677     OK
+..     ...           ...         ...        ...    ...
+495  198.4  8.775101e+07  87802000.0   0.058103     OK
+496  198.8  8.775917e+07  87724000.0  -0.040076     OK
+497  199.2  8.776730e+07  87804000.0   0.041820     OK
+498  199.6  8.777539e+07  87814000.0   0.043988     OK
+499  200.0  8.778345e+07  87737000.0  -0.052917     OK
+
+                        [500 rows x 5 columns]
+                        Check PASS.
+</pre></div>
+</div>
+<p>This table shows the comparison between the simulated Cauchy stress values and the
+reference Cast3M results, along with the relative difference and a status check.</p>
+</section>
+</section>
+<section id="references">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">References</a><a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="portelette2018" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Portelette, L., Amodeo, J., Madec, R., <em>et al.</em>
+<em>Crystal viscoplastic modeling of UO₂ single crystal.</em>
+<em>Journal of Nuclear Materials</em>, <strong>510</strong>, 635–643 (2018).</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="polycrystal.html" class="btn btn-neutral float-left" title="Polycrystal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rve_mox.html" class="btn btn-neutral float-right" title="Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
