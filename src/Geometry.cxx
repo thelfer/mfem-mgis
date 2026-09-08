@@ -13,8 +13,17 @@ namespace mfem_mgis::internals {
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
-      [[nodiscard]] static std::optional<Point<N>> makePoint_impl(
-          Context& ctx, const Parameter& p) noexcept {
+      static std::optional<Point<N>> makePoint_impl(
+          Context& ctx,
+          const std::map<std::string, Point<N>>& pts,
+          const Parameter& p) noexcept {
+    if (is<std::string>(p)) {
+      const auto n = get<std::string>(throwing, p);
+      if (pts.contains(n)) {
+        return pts.at(n);
+      }
+      return ctx.registerErrorMessage("no point named '" + n + "' registred");
+    }
     const auto opt = convert<std::vector<real>>(ctx, p);
     if (isInvalid(opt)) {
       return ctx.registerErrorMessage("can't extract point from parameter");
@@ -31,9 +40,11 @@ namespace mfem_mgis::internals {
   }  // end of makePoint_impl
 
   template <size_type N>
-  requires((N == 2) || (N == 3))                                 //
-      [[nodiscard]] static std::optional<std::vector<Point<N>>>  //
-      makePointsSet_impl(Context& ctx, const Parameter& p) noexcept {
+  requires((N == 2) || (N == 3))                   //
+      static std::optional<std::vector<Point<N>>>  //
+      makePointsSet_impl(Context& ctx,
+                         const std::map<std::string, Point<N>>& pts,
+                         const Parameter& p) noexcept {
     if (!is<std::vector<Parameter>>(p)) {
       return ctx.registerErrorMessage(
           "can't extract points set from parameter (invalid parameter type)");
@@ -42,7 +53,7 @@ namespace mfem_mgis::internals {
     auto points = std::vector<Point<N>>{};
     points.reserve(parameters.size());
     for (const auto& parameter : parameters) {
-      const auto opt = makePoint<N>(ctx, parameter);
+      const auto opt = makePoint<N>(ctx, pts, parameter);
       if (isInvalid(opt)) {
         return {};
       }
@@ -167,8 +178,10 @@ namespace mfem_mgis::internals {
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
-      [[nodiscard]] static std::optional<std::vector<Point<N>>> makeLine_impl(
-          Context& ctx, const Parameters& p) noexcept {
+      static std::optional<std::vector<Point<N>>> makeLine_impl(
+          Context& ctx,
+          const std::map<std::string, Point<N>>& pts,
+          const Parameters& p) noexcept {
     if (!checkParameters(
             ctx, p,
             std::map<std::string, std::string>{
@@ -194,8 +207,10 @@ namespace mfem_mgis::internals {
       return ctx.registerErrorMessage(
           "invalid type for the parameter 'Discretization'");
     }
-    const auto op0 = makePoint_impl<N>(ctx, get(throwing, p, "InitialPoint"));
-    const auto op1 = makePoint_impl<N>(ctx, get(throwing, p, "FinalPoint"));
+    const auto op0 =
+        makePoint_impl<N>(ctx, pts, get(throwing, p, "InitialPoint"));
+    const auto op1 =
+        makePoint_impl<N>(ctx, pts, get(throwing, p, "FinalPoint"));
     const auto oweights = getDiscretizationWeights(
         ctx, get<Parameters>(throwing, p, "Discretization"));
     if (!areValid(op0, op1, oweights)) {
@@ -204,27 +219,27 @@ namespace mfem_mgis::internals {
     ctx.assertOrTerminate(oweights->size() >= 2,
                           "internal error: invalid discretization weights");
     const auto dp = *op1 - *op0;
-    auto pts = std::vector<Point<N>>(oweights->size());
+    auto npts = std::vector<Point<N>>(oweights->size());
     for (std::size_t i = 0; i != oweights->size(); ++i) {
-      pts[i] = *op0 + oweights->at(i) * dp;
+      npts[i] = *op0 + oweights->at(i) * dp;
     }
-    pts.back() = *op1;
-    return pts;
+    npts.back() = *op1;
+    return npts;
   }  // end of makeLine_impl
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
-      [[nodiscard]] static std::optional<
-          std::vector<Point<N>>> makePointsOnCurve_impl(Context& ctx,
-                                                        const Parameters&
-                                                            p) noexcept {
+      static std::optional<std::vector<Point<N>>> makePointsOnCurve_impl(
+          Context& ctx,
+          const std::map<std::string, Point<N>>& pts,
+          const Parameters& p) noexcept {
     const auto ostrategy = extractFactoryArgument(ctx, p);
     if (isInvalid(ostrategy)) {
       return {};
     }
     const auto [n, params] = *ostrategy;
     if (n == "Line") {
-      return makeLine_impl<N>(ctx, params);
+      return makeLine_impl<N>(ctx, pts, params);
     }
     return ctx.registerErrorMessage(
         "unknown curve generator '" + n +
@@ -238,37 +253,37 @@ namespace mfem_mgis {
   template <>
   std::optional<Point<2>> makePoint<2>(Context& ctx,
                                        const Parameter& p) noexcept {
-    return ::mfem_mgis::internals::makePoint_impl<2>(ctx, p);
+    return ::mfem_mgis::internals::makePoint_impl<2>(ctx, {}, p);
   }  // end of makePoint
 
   template <>
   std::optional<Point<3>> makePoint<3>(Context& ctx,
                                        const Parameter& p) noexcept {
-    return ::mfem_mgis::internals::makePoint_impl<3>(ctx, p);
+    return ::mfem_mgis::internals::makePoint_impl<3>(ctx, {}, p);
   }  // end of makePoint
 
   template <>
   std::optional<std::vector<Point<2>>> makePointsSet<2>(
       Context& ctx, const Parameter& p) noexcept {
-    return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, p);
+    return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, {}, p);
   }  // end of makePointsSet
 
   template <>
   std::optional<std::vector<Point<3>>> makePointsSet<3>(
       Context& ctx, const Parameter& p) noexcept {
-    return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, p);
+    return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, {}, p);
   }  // end of makePointsSet
 
   template <>
   std::optional<std::vector<Point<2>>> makePointsOnCurve<2>(
       Context& ctx, const Parameters& p) noexcept {
-    return ::mfem_mgis::internals::makePointsOnCurve_impl<2>(ctx, p);
+    return ::mfem_mgis::internals::makePointsOnCurve_impl<2>(ctx, {}, p);
   }  // end of makePointsOnCurve
 
   template <>
   std::optional<std::vector<Point<3>>> makePointsOnCurve<3>(
       Context& ctx, const Parameters& p) noexcept {
-    return ::mfem_mgis::internals::makePointsOnCurve_impl<3>(ctx, p);
+    return ::mfem_mgis::internals::makePointsOnCurve_impl<3>(ctx, {}, p);
   }  // end of makePointsOnCurve
 
   template <>
@@ -282,5 +297,53 @@ namespace mfem_mgis {
            std::to_string(pt[1]) + ", " +        //
            std::to_string(pt[2]) + ')';
   }  // end of toString
+
+  template <>
+  std::optional<Point<2>> makePoint<2>(
+      Context& ctx,
+      const std::map<std::string, Point<2>>& pts,
+      const Parameter& p) noexcept {
+    return ::mfem_mgis::internals::makePoint_impl<2>(ctx, pts, p);
+  }  // end of makePoint<2>
+
+  template <>
+  std::optional<std::vector<Point<2>>> makePointsSet<2>(
+      Context& ctx,
+      const std::map<std::string, Point<2>>& pts,
+      const Parameter& p) noexcept {
+    return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, pts, p);
+  }  // end of makePointsSet<2>
+
+  template <>
+  std::optional<std::vector<Point<2>>> makePointsOnCurve<2>(
+      Context& ctx,
+      const std::map<std::string, Point<2>>& pts,
+      const Parameters& p) noexcept {
+    return ::mfem_mgis::internals::makePointsOnCurve_impl<2>(ctx, pts, p);
+  }  // end of makePointsOnCurve<2>
+
+  template <>
+  std::optional<Point<3>> makePoint<3>(
+      Context& ctx,
+      const std::map<std::string, Point<3>>& pts,
+      const Parameter& p) noexcept {
+    return ::mfem_mgis::internals::makePoint_impl<3>(ctx, pts, p);
+  }  // end of makePoint<3>
+
+  template <>
+  std::optional<std::vector<Point<3>>> makePointsSet<3>(
+      Context& ctx,
+      const std::map<std::string, Point<3>>& pts,
+      const Parameter& p) noexcept {
+    return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, pts, p);
+  }  // end of makePointsSet<3>
+
+  template <>
+  std::optional<std::vector<Point<3>>> makePointsOnCurve<3>(
+      Context& ctx,
+      const std::map<std::string, Point<3>>& pts,
+      const Parameters& p) noexcept {
+    return ::mfem_mgis::internals::makePointsOnCurve_impl<3>(ctx, pts, p);
+  }  // end of makePointsOnCurve<3>
 
 }  // end of namespace mfem_mgis

@@ -793,6 +793,149 @@ namespace mfem_mgis {
     return this->boundaries_names;
   }  // end of getBoundariesNames
 
+#ifdef MGIS_HAVE_TFEL
+
+  bool MeshDiscretization::addPoint(Context& ctx,
+                                    std::string_view n,
+                                    const Point<2>& pt) noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 2) {
+      return ctx.registerErrorMessage("can't add a 2D point to a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    if (n.empty()) {
+      return ctx.registerErrorMessage("empty name");
+    }
+    if (this->points2D.contains(n)) {
+      return ctx.registerErrorMessage("a point named '" + std::string{n} +
+                                      "' is already declared");
+    }
+    this->points2D.insert(std::pair<std::string, Point<2>>{n, pt});
+    return true;
+  }  // end of addPoint
+
+  bool MeshDiscretization::addPoint(Context& ctx,
+                                    std::string_view n,
+                                    const Point<3>& pt) noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 3) {
+      return ctx.registerErrorMessage("can't add a 3D point to a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    if (n.empty()) {
+      return ctx.registerErrorMessage("empty name");
+    }
+    if (this->points3D.contains(n)) {
+      return ctx.registerErrorMessage("a point named '" + std::string{n} +
+                                      "' is already declared");
+    }
+    this->points3D.insert(std::pair<std::string, Point<3>>{n, pt});
+    return true;
+  }  // end of addPoint
+
+  std::optional<Point<2>> MeshDiscretization::getPoint2D(
+      Context& ctx, std::string_view n) const noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 2) {
+      return ctx.registerErrorMessage("can't return a 2D point from a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    const auto p = this->points2D.find(n);
+    if (p == this->points2D.end()) {
+      return ctx.registerErrorMessage("no point named '" + std::string{n} +
+                                      "' declared");
+    }
+    return p->second;
+  }  // end of getPoint2D
+
+  std::optional<Point<3>> MeshDiscretization::getPoint3D(
+      Context& ctx, std::string_view n) const noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 3) {
+      return ctx.registerErrorMessage("can't return a 3D point from a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    const auto p = this->points3D.find(n);
+    if (p == this->points3D.end()) {
+      return ctx.registerErrorMessage("no point named '" + std::string{n} +
+                                      "' declared");
+    }
+    return p->second;
+  }  // end of getPoint3D
+
+  bool MeshDiscretization::addPointsSet(Context& ctx,
+                                        std::string_view n,
+                                        const std::vector<Point<2>>& pts) noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 2) {
+      return ctx.registerErrorMessage("can't add a 2D points set to a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    if (n.empty()) {
+      return ctx.registerErrorMessage("empty name");
+    }
+    if (this->pointsSet2D.contains(n)) {
+      return ctx.registerErrorMessage("a points set named '" + std::string{n} +
+                                      "' is already declared");
+    }
+    this->pointsSet2D.insert(
+        std::pair<std::string, std::vector<Point<2>>>{n, pts});
+    return true;
+  }  // end of addPointsSet
+
+  bool MeshDiscretization::addPointsSet(
+      Context& ctx,
+      std::string_view n,
+      const std::vector<Point<3>>& pts) noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 3) {
+      return ctx.registerErrorMessage("can't add a 3D points set to a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    if (n.empty()) {
+      return ctx.registerErrorMessage("empty name");
+    }
+    if (this->pointsSet3D.contains(n)) {
+      return ctx.registerErrorMessage("a points set named '" + std::string{n} +
+                                      "' is already declared");
+    }
+    this->pointsSet3D.insert(
+        std::pair<std::string, std::vector<Point<3>>>{n, pts});
+    return true;
+  }  // end of addPointsSet
+
+  std::optional<std::vector<Point<2>>> MeshDiscretization::getPointsSet2D(
+      Context& ctx, std::string_view n) const noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 2) {
+      return ctx.registerErrorMessage("can't return a 2D point from a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    const auto p = this->pointsSet2D.find(n);
+    if (p == this->pointsSet2D.end()) {
+      return ctx.registerErrorMessage("no points set named '" + std::string{n} +
+                                      "' declared");
+    }
+    return p->second;
+  }  // end of getPointsSet2D
+
+  std::optional<std::vector<Point<3>>> MeshDiscretization::getPointsSet3D(
+      Context& ctx, std::string_view n) const noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 3) {
+      return ctx.registerErrorMessage("can't return a 3D point from a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    const auto p = this->pointsSet3D.find(n);
+    if (p == this->pointsSet3D.end()) {
+      return ctx.registerErrorMessage("no points set named '" + std::string{n} +
+                                      "' declared");
+    }
+    return p->second;
+  }  // end of getPointsSet3D
+
+#endif /* MGIS_HAVE_TFEL */
+
   MeshDiscretization::~MeshDiscretization() = default;
 
   size_type getSpaceDimension(const MeshDiscretization& fed) {
@@ -866,5 +1009,75 @@ namespace mfem_mgis {
   }  // isMainProcess
 
 #endif MFEM_USE_MPI
+
+#ifdef MGIS_HAVE_TFEL
+
+  template <>
+  MFEM_MGIS_EXPORT std::optional<Point<2>> makePoint<2>(
+      Context& ctx, const MeshDiscretization& m, const Parameter& p) noexcept {
+    const auto opts = m.getPoints<2>(ctx);
+    if (isInvalid(opts)) {
+      return {};
+    }
+    return makePoint<2>(ctx, *opts, p);
+  }  // end of makePoint<2>
+
+  template <>
+  MFEM_MGIS_EXPORT std::optional<Point<3>> makePoint<3>(
+      Context& ctx, const MeshDiscretization& m, const Parameter& p) noexcept{
+    const auto opts = m.getPoints<3>(ctx);
+    if (isInvalid(opts)) {
+      return {};
+    }
+    return makePoint<3>(ctx, *opts, p);
+  }  // end of makePoint<3>
+
+  template <>
+  MFEM_MGIS_EXPORT std::optional<std::vector<Point<2>>>
+  makePointsSet<2>(Context& ctx,
+                   const MeshDiscretization& m,
+                   const Parameter& p) noexcept{
+    const auto opts = m.getPoints<2>(ctx);
+    if (isInvalid(opts)) {
+      return {};
+    }
+    return makePointsSet<2>(ctx, *opts, p);
+  } // end of makePointsSet<2>
+
+  template <>
+  MFEM_MGIS_EXPORT std::optional<std::vector<Point<3>>>
+  makePointsSet<3>(Context& ctx,
+                   const MeshDiscretization& m,
+                   const Parameter& p) noexcept{
+    const auto opts = m.getPoints<3>(ctx);
+    if (isInvalid(opts)) {
+      return {};
+    }
+    return makePointsSet<3>(ctx, *opts, p);
+  }  // end of makePointsSet<3>
+
+  template <>
+  MFEM_MGIS_EXPORT std::optional<std::vector<Point<2>>> makePointsOnCurve<2>(
+      Context& ctx, const MeshDiscretization& m, const Parameters& p) noexcept {
+    const auto opts = m.getPoints<2>(ctx);
+    if (isInvalid(opts)) {
+      return {};
+    }
+    return makePointsOnCurve<2>(ctx, *opts, p);
+  }  // end of makePointsOnCurve<2>
+
+  template <>
+  MFEM_MGIS_EXPORT std::optional<std::vector<Point<3>>>
+  makePointsOnCurve<3>(Context& ctx,
+                       const MeshDiscretization& m,
+                       const Parameters& p) noexcept{
+    const auto opts = m.getPoints<3>(ctx);
+    if (isInvalid(opts)) {
+      return {};
+    }
+    return makePointsOnCurve<3>(ctx, *opts, p);
+  }  // end of makePointsOnCurve<3>
+
+#endif /* MGIS_HAVE_TFEL */
 
 }  // end of namespace mfem_mgis
