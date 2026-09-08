@@ -850,6 +850,26 @@ namespace mfem_mgis {
 
 #ifdef MGIS_HAVE_TFEL
 
+  OptionalReference<const std::map<std::string, Point<2>, std::less<>>>
+  MeshDiscretization::getPoints2D(Context& ctx) const noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 2) {
+      return ctx.registerErrorMessage("can't return a 2D points from a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    return {&(this->points2D)};
+  }  // end of getPoints2D
+
+  OptionalReference<const std::map<std::string, Point<3>, std::less<>>>
+  MeshDiscretization::getPoints3D(Context& ctx) const noexcept {
+    const auto d = getSpaceDimension(*this);
+    if (d != 3) {
+      return ctx.registerErrorMessage("can't return a 3D points from a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    return {&(this->points3D)};
+  }  // end of getPoints3D
+
   bool MeshDiscretization::addPoint(Context& ctx,
                                     std::string_view n,
                                     const Point<2>& pt) noexcept {
@@ -918,9 +938,10 @@ namespace mfem_mgis {
     return p->second;
   }  // end of getPoint3D
 
-  bool MeshDiscretization::addPointsSet(Context& ctx,
-                                        std::string_view n,
-                                        const std::vector<Point<2>>& pts) noexcept {
+  bool MeshDiscretization::addPointsSet(
+      Context& ctx,
+      std::string_view n,
+      const std::vector<Point<2>>& pts) noexcept {
     const auto d = getSpaceDimension(*this);
     if (d != 2) {
       return ctx.registerErrorMessage("can't add a 2D points set to a " +
@@ -959,8 +980,9 @@ namespace mfem_mgis {
     return true;
   }  // end of addPointsSet
 
-  std::optional<std::vector<Point<2>>> MeshDiscretization::getPointsSet2D(
-      Context& ctx, std::string_view n) const noexcept {
+  OptionalReference<const std::vector<Point<2>>>
+  MeshDiscretization::getPointsSet2D(Context& ctx,
+                                     std::string_view n) const noexcept {
     const auto d = getSpaceDimension(*this);
     if (d != 2) {
       return ctx.registerErrorMessage("can't return a 2D point from a " +
@@ -971,11 +993,12 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("no points set named '" + std::string{n} +
                                       "' declared");
     }
-    return p->second;
+    return {&(p->second)};
   }  // end of getPointsSet2D
 
-  std::optional<std::vector<Point<3>>> MeshDiscretization::getPointsSet3D(
-      Context& ctx, std::string_view n) const noexcept {
+  OptionalReference<const std::vector<Point<3>>>
+  MeshDiscretization::getPointsSet3D(Context& ctx,
+                                     std::string_view n) const noexcept {
     const auto d = getSpaceDimension(*this);
     if (d != 3) {
       return ctx.registerErrorMessage("can't return a 3D point from a " +
@@ -986,7 +1009,7 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("no points set named '" + std::string{n} +
                                       "' declared");
     }
-    return p->second;
+    return {&(p->second)};
   }  // end of getPointsSet3D
 
 #endif /* MGIS_HAVE_TFEL */
@@ -1079,7 +1102,7 @@ namespace mfem_mgis {
 
   template <>
   MFEM_MGIS_EXPORT std::optional<Point<3>> makePoint<3>(
-      Context& ctx, const MeshDiscretization& m, const Parameter& p) noexcept{
+      Context& ctx, const MeshDiscretization& m, const Parameter& p) noexcept {
     const auto opts = m.getPoints<3>(ctx);
     if (isInvalid(opts)) {
       return {};
@@ -1088,22 +1111,18 @@ namespace mfem_mgis {
   }  // end of makePoint<3>
 
   template <>
-  MFEM_MGIS_EXPORT std::optional<std::vector<Point<2>>>
-  makePointsSet<2>(Context& ctx,
-                   const MeshDiscretization& m,
-                   const Parameter& p) noexcept{
+  MFEM_MGIS_EXPORT std::optional<std::vector<Point<2>>> makePointsSet<2>(
+      Context& ctx, const MeshDiscretization& m, const Parameter& p) noexcept {
     const auto opts = m.getPoints<2>(ctx);
     if (isInvalid(opts)) {
       return {};
     }
     return makePointsSet<2>(ctx, *opts, p);
-  } // end of makePointsSet<2>
+  }  // end of makePointsSet<2>
 
   template <>
-  MFEM_MGIS_EXPORT std::optional<std::vector<Point<3>>>
-  makePointsSet<3>(Context& ctx,
-                   const MeshDiscretization& m,
-                   const Parameter& p) noexcept{
+  MFEM_MGIS_EXPORT std::optional<std::vector<Point<3>>> makePointsSet<3>(
+      Context& ctx, const MeshDiscretization& m, const Parameter& p) noexcept {
     const auto opts = m.getPoints<3>(ctx);
     if (isInvalid(opts)) {
       return {};
@@ -1122,10 +1141,8 @@ namespace mfem_mgis {
   }  // end of makePointsOnCurve<2>
 
   template <>
-  MFEM_MGIS_EXPORT std::optional<std::vector<Point<3>>>
-  makePointsOnCurve<3>(Context& ctx,
-                       const MeshDiscretization& m,
-                       const Parameters& p) noexcept{
+  MFEM_MGIS_EXPORT std::optional<std::vector<Point<3>>> makePointsOnCurve<3>(
+      Context& ctx, const MeshDiscretization& m, const Parameters& p) noexcept {
     const auto opts = m.getPoints<3>(ctx);
     if (isInvalid(opts)) {
       return {};

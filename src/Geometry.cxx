@@ -15,7 +15,7 @@ namespace mfem_mgis::internals {
   requires((N == 2) || (N == 3))  //
       static std::optional<Point<N>> makePoint_impl(
           Context& ctx,
-          const std::map<std::string, Point<N>>& pts,
+          const std::map<std::string, Point<N>, std::less<>>& pts,
           const Parameter& p) noexcept {
     if (is<std::string>(p)) {
       const auto n = get<std::string>(throwing, p);
@@ -157,7 +157,7 @@ namespace mfem_mgis::internals {
   requires((N == 2) || (N == 3))  //
       static std::optional<std::vector<Point<N>>> makeLine_impl(
           Context& ctx,
-          const std::map<std::string, Point<N>>& pts,
+          const std::map<std::string, Point<N>, std::less<>>& pts,
           const Parameters& p) noexcept {
     if (!checkParameters(
             ctx, p,
@@ -208,7 +208,7 @@ namespace mfem_mgis::internals {
   requires((N == 2) || (N == 3))  //
       static std::optional<std::vector<Point<N>>> makePointsOnCurve_impl(
           Context& ctx,
-          const std::map<std::string, Point<N>>& pts,
+          const std::map<std::string, Point<N>, std::less<>>& pts,
           const Parameters& p) noexcept {
     const auto ostrategy = extractFactoryArgument(ctx, p);
     if (isInvalid(ostrategy)) {
@@ -226,9 +226,10 @@ namespace mfem_mgis::internals {
   template <size_type N>
   requires((N == 2) || (N == 3))                   //
       static std::optional<std::vector<Point<N>>>  //
-      makePointsSet_impl(Context& ctx,
-                         const std::map<std::string, Point<N>>& pts,
-                         const Parameter& p) noexcept {
+      makePointsSet_impl(
+          Context& ctx,
+          const std::map<std::string, Point<N>, std::less<>>& pts,
+          const Parameter& p) noexcept {
     if (is<Parameters>(p)) {
       return makePointsOnCurve_impl<N>(ctx, pts, get<Parameters>(throwing, p));
     }
@@ -304,7 +305,7 @@ namespace mfem_mgis {
   template <>
   std::optional<Point<2>> makePoint<2>(
       Context& ctx,
-      const std::map<std::string, Point<2>>& pts,
+      const std::map<std::string, Point<2>, std::less<>>& pts,
       const Parameter& p) noexcept {
     return ::mfem_mgis::internals::makePoint_impl<2>(ctx, pts, p);
   }  // end of makePoint<2>
@@ -312,7 +313,7 @@ namespace mfem_mgis {
   template <>
   std::optional<std::vector<Point<2>>> makePointsSet<2>(
       Context& ctx,
-      const std::map<std::string, Point<2>>& pts,
+      const std::map<std::string, Point<2>, std::less<>>& pts,
       const Parameter& p) noexcept {
     return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, pts, p);
   }  // end of makePointsSet<2>
@@ -320,7 +321,7 @@ namespace mfem_mgis {
   template <>
   std::optional<std::vector<Point<2>>> makePointsOnCurve<2>(
       Context& ctx,
-      const std::map<std::string, Point<2>>& pts,
+      const std::map<std::string, Point<2>, std::less<>>& pts,
       const Parameters& p) noexcept {
     return ::mfem_mgis::internals::makePointsOnCurve_impl<2>(ctx, pts, p);
   }  // end of makePointsOnCurve<2>
@@ -328,7 +329,7 @@ namespace mfem_mgis {
   template <>
   std::optional<Point<3>> makePoint<3>(
       Context& ctx,
-      const std::map<std::string, Point<3>>& pts,
+      const std::map<std::string, Point<3>, std::less<>>& pts,
       const Parameter& p) noexcept {
     return ::mfem_mgis::internals::makePoint_impl<3>(ctx, pts, p);
   }  // end of makePoint<3>
@@ -336,7 +337,7 @@ namespace mfem_mgis {
   template <>
   std::optional<std::vector<Point<3>>> makePointsSet<3>(
       Context& ctx,
-      const std::map<std::string, Point<3>>& pts,
+      const std::map<std::string, Point<3>, std::less<>>& pts,
       const Parameter& p) noexcept {
     return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, pts, p);
   }  // end of makePointsSet<3>
@@ -344,7 +345,7 @@ namespace mfem_mgis {
   template <>
   std::optional<std::vector<Point<3>>> makePointsOnCurve<3>(
       Context& ctx,
-      const std::map<std::string, Point<3>>& pts,
+      const std::map<std::string, Point<3>, std::less<>>& pts,
       const Parameters& p) noexcept {
     return ::mfem_mgis::internals::makePointsOnCurve_impl<3>(ctx, pts, p);
   }  // end of makePointsOnCurve<3>

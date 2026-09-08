@@ -50,21 +50,21 @@ namespace mfem_mgis {
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<Point<N>> makePoint(
           Context&,
-          const std::map<std::string, Point<N>>&,
+          const std::map<std::string, Point<N>, std::less<>>&,
           const Parameter&) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsSet(
           Context&,
-          const std::map<std::string, Point<N>>&,
+          const std::map<std::string, Point<N>, std::less<>>&,
           const Parameter&) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsOnCurve(
           Context&,
-          const std::map<std::string, Point<N>>&,
+          const std::map<std::string, Point<N>, std::less<>>&,
           const Parameters&) noexcept;
 
   // partial specialisation
@@ -95,32 +95,32 @@ namespace mfem_mgis {
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<Point<2>> makePoint<2>(
       Context&,
-      const std::map<std::string, Point<2>>&,
+      const std::map<std::string, Point<2>, std::less<>>&,
       const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<2>>>
   makePointsSet<2>(Context&,
-                   const std::map<std::string, Point<2>>&,
+                   const std::map<std::string, Point<2>, std::less<>>&,
                    const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<2>>>
   makePointsOnCurve<2>(Context&,
-                       const std::map<std::string, Point<2>>&,
+                       const std::map<std::string, Point<2>, std::less<>>&,
                        const Parameters&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<Point<3>> makePoint<3>(
       Context&,
-      const std::map<std::string, Point<3>>&,
+      const std::map<std::string, Point<3>, std::less<>>&,
       const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<3>>>
   makePointsSet<3>(Context&,
-                   const std::map<std::string, Point<3>>&,
+                   const std::map<std::string, Point<3>, std::less<>>&,
                    const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<3>>>
   makePointsOnCurve<3>(Context&,
-                       const std::map<std::string, Point<3>>&,
+                       const std::map<std::string, Point<3>, std::less<>>&,
                        const Parameters&) noexcept;
 
 }  // end of namespace mfem_mgis

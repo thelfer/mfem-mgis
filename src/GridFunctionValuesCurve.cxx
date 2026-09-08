@@ -19,7 +19,7 @@
 namespace mfem_mgis {
 
   std::map<std::string, std::string> getParametersDescription() noexcept {
-    return {{"points",
+    return {{"Points",
              "list of points on which the grid function is interpolated"}};
   }  // end of getParametersDescription()
 
@@ -36,16 +36,16 @@ namespace mfem_mgis {
     auto or_raise = ctx.getThrowingFailureHandler();
     checkParameters(throwing, parameters,
                     GridFunctionValuesCurve::getParametersDescription());
-    if (contains(parameters, "points")) {
+    if (contains(parameters, "Points")) {
       const auto &m = this->physicalSystem.getMeshDiscretization();
       const auto d = getSpaceDimension(m);
       if (d == 2) {
         this->points =
-            makePointsSet<2>(ctx, get(throwing, parameters, "points")) |
+            makePointsSet<2>(ctx, m, get(throwing, parameters, "Points")) |
             or_raise;
       } else if (d == 3) {
         this->points =
-            makePointsSet<3>(ctx, get(throwing, parameters, "points")) |
+            makePointsSet<3>(ctx, m, get(throwing, parameters, "Points")) |
             or_raise;
       } else {
         raise("unsupported space dimension");

@@ -101,20 +101,21 @@ namespace mfem_mgis {
   }  // end of getPoint
 
   template <size_type N>
-  requires((N == 2) || (N == 3))  //
-      std::optional<std::vector<Point<N>>> MeshDiscretization::getPointsSet(
-          Context& ctx, std::string_view n)
+  requires((N == 2) || (N == 3))                      //
+      OptionalReference<const std::vector<Point<N>>>  //
+      MeshDiscretization::getPointsSet(Context& ctx, std::string_view n)
   const noexcept {
     if constexpr (N == 2) {
-      return this->getPointsSet2D(ctx,n);
+      return this->getPointsSet2D(ctx, n);
     } else {
-      return this->getPointsSet3D(ctx,n);
+      return this->getPointsSet3D(ctx, n);
     }
   }  // end of getPointsSet
 
   template <size_type N>
-  requires((N == 2) || (N == 3))  //
-      std::optional<std::map<std::string,Point<N>>> MeshDiscretization::getPoints(Context& ctx)
+  requires((N == 2) || (N == 3))                                             //
+      OptionalReference<const std::map<std::string, Point<N>, std::less<>>>  //
+      MeshDiscretization::getPoints(Context& ctx)
   const noexcept {
     if constexpr (N == 2) {
       return this->getPoints2D(ctx);
@@ -124,7 +125,6 @@ namespace mfem_mgis {
   }  // end of getPoints
 
 #endif /* MGIS_HAVE_TFEL */
-
 
 }  // end of namespace mfem_mgis
 
