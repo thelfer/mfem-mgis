@@ -77,6 +77,9 @@ namespace mfem_mgis {
       attributes::Throwing, mfem::PetscNonlinearSolver&, const Parameters&);
 #endif /* MFEM_USE_PETSC */
 
+  MFEM_MGIS_EXPORT [[nodiscard]] bool hasConverged(
+      const LinearSolver&) noexcept;  // end of hasConverged
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_SOLVERUTILITIES_HXX */

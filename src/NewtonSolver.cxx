@@ -12,6 +12,7 @@
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
+#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/NewtonSolver.hxx"
 
 namespace mfem_mgis {
@@ -53,6 +54,31 @@ namespace mfem_mgis {
           u, IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR, {});
     });
   }  // end of NewtonSolver
+
+  bool NewtonSolver::setSolverParameters(Context &ctx,
+                                         const Parameters &params) noexcept {
+    auto allowed_parameters = getIterativeSolverParametersList();
+    allowed_parameters.push_back("DiscardLinearSolverFailure");
+    if (!checkParameters(ctx, params, allowed_parameters)) {
+      return false;
+    }
+    const auto osubparams =
+        extract(ctx, params, getIterativeSolverParametersList());
+    if (isInvalid(osubparams)) {
+      return false;
+    }
+    if (!mfem_mgis::setSolverParameters(ctx, *this, *osubparams)) {
+      return false;
+    }
+    if (contains(params, "DiscardLinearSolverFailure")) {
+      const auto ob = get<bool>(ctx, params, "DiscardLinearSolverFailure");
+      if (isInvalid(ob)) {
+        return false;
+      }
+      this->discardLinearSolverFailure = *ob;
+    }
+    return true;
+  }  // end of setSolverParameters
 
   void NewtonSolver::SetOperator(const mfem::Operator &) {
     raise("NewtonSolver::SetOperator: invalid call");
@@ -264,6 +290,10 @@ namespace mfem_mgis {
     this->oper->Mult(u, r);
   }  // end of NewtonSolver::computeResidual
 
+  bool NewtonSolver::isLinearSolverFailureDiscarded() const noexcept {
+    return this->discardLinearSolverFailure;
+  }  // end of isLinearSolverFailureDiscarded
+
   bool NewtonSolver::computeNewtonCorrection(mfem::Vector &c,
                                              const mfem::Vector &r,
                                              const mfem::Vector &u) const {
@@ -276,8 +306,6 @@ namespace mfem_mgis {
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
                 "the Solver is not set (use setLinearSolver).");
-    const auto usesIterativeLinearSolver =
-        dynamic_cast<const IterativeSolver *>(this->prec) != nullptr;
     this->prec->SetOperator(this->getJacobian(u));
     {
       auto profiler_mfem =
@@ -287,12 +315,10 @@ namespace mfem_mgis {
               : mgis::ProfilingSection{};
       this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
     }
-    if (usesIterativeLinearSolver) {
-      const auto &iprec =
-          static_cast<const mfem::IterativeSolver &>(*(this->prec));
-      return iprec.GetConverged();
+    if (this->discardLinearSolverFailure) {
+      return true;
     }
-    return true;
+    return hasConverged(*(this->prec));
   }  // end of computeNewtonCorrection
 
   mfem::Operator &NewtonSolver::getJacobian(const mfem::Vector &u) const {

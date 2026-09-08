@@ -19,17 +19,30 @@ This version inherits from all the features introduced in:
 Highlights
 ==========
 
-- The name of the materials and boundaries are automatically retrieved
-  from |MFEM|'s mesh.
-- Many methods have been deprecated to have a consistent error handling
-  scheme based on `MGIS`'s one. As such, many methods and functions now
-  takes and `MGIS`'s :cxx:`Context` as their first argument.
+- `NonLinearEvolutionProblem` are now able to make a prediction of the
+  solution, removing major convergence issues when imposed displacements
+  are imposed.
 - The regularization proposed by Faltus et al. in the context of the
   third medium contact has been implemented for plane strain, plane
   stress and tridmensional hypotheses.
-- MGIS contexts now handle gathering computation time information to
+- `MGIS`'s contexts now handle gathering computation time information to
   create the performance table instead of the previously used
-  CatchTimeSection.
+  `CatchTimeSection`.
+- Many methods have been deprecated to have a consistent error handling
+  scheme based on `MGIS`'s one. As such, many methods and functions now
+  takes and `MGIS`'s :cxx:`Context` as their first argument.
+- The name of the materials and boundaries are automatically retrieved
+  from |MFEM|'s mesh.
+
+Known incompatibilites
+======================
+
+- In previous versions, the failure of Hypre's linear iterative solvers
+  were discarded by `MFEM/MGIS`'s Newton solver due to the lack of
+  methods to test their convergence in |MFEM|'s version prior to 4.10.
+  The parameter `DiscardLinearSolverFailure` can be passed to
+  `MFEM/MGIS`'s Newton solver to recover the behavior of previous
+  versions.
 
 New features
 ============
@@ -275,6 +288,9 @@ Example of usage:
 Issues fixed
 ============
 
+- Issue 257: Allow NewtonSolver to discard linear solver failures
+- Issue 254: Missing parameter option for GMRESSolver
+- Issue 253: Incomplete linear solver convergence checks in NonLinearEvolutionProblemImplementation.cxx and NewtonSolver.cxx
 - Issue 248: Improve `PartialQuadratureFunction` interface
 - Issue 240: Small bug in `LinearSolverFactory.cxx`
 - Issue 237: [cmake] Add a build-tests target
