@@ -62,6 +62,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="release_notes.html">Release notes</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Release notes of Version 1.1</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#highlights">Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#known-incompatibilites">Known incompatibilites</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#new-features">New features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#issues-fixed">Issues fixed</a></li>
 </ul>
@@ -116,50 +117,65 @@
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#highlights" id="id4">Highlights</a></p></li>
-<li><p><a class="reference internal" href="#new-features" id="id5">New features</a></p>
+<li><p><a class="reference internal" href="#known-incompatibilites" id="id5">Known incompatibilites</a></p></li>
+<li><p><a class="reference internal" href="#new-features" id="id6">New features</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prediction-of-the-solution" id="id6">Prediction of the solution</a></p>
+<li><p><a class="reference internal" href="#prediction-of-the-solution" id="id7">Prediction of the solution</a></p>
 <ul>
-<li><p><a class="reference internal" href="#available-strategies" id="id7">Available strategies</a></p></li>
+<li><p><a class="reference internal" href="#available-strategies" id="id8">Available strategies</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#faltus-2026-regularization" id="id8">Faltus 2026 regularization</a></p></li>
-<li><p><a class="reference internal" href="#the-info-function" id="id9">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function</a></p>
+<li><p><a class="reference internal" href="#faltus-2026-regularization" id="id9">Faltus 2026 regularization</a></p></li>
+<li><p><a class="reference internal" href="#the-info-function" id="id10">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function</a></p>
 <ul>
-<li><p><a class="reference internal" href="#retrieving-information-on-a-finite-element-discretization" id="id10">Retrieving information on a finite element discretization</a></p></li>
-<li><p><a class="reference internal" href="#retrieving-information-on-a-partial-quadrature-space" id="id11">Retrieving information on a partial quadrature space</a></p></li>
+<li><p><a class="reference internal" href="#retrieving-information-on-a-finite-element-discretization" id="id11">Retrieving information on a finite element discretization</a></p></li>
+<li><p><a class="reference internal" href="#retrieving-information-on-a-partial-quadrature-space" id="id12">Retrieving information on a partial quadrature space</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#evaluators-of-quantities-at-integration-points" id="id12">Evaluators of quantities at integration points</a></p>
+<li><p><a class="reference internal" href="#evaluators-of-quantities-at-integration-points" id="id13">Evaluators of quantities at integration points</a></p>
 <ul>
-<li><p><a class="reference internal" href="#overview" id="id13">Overview</a></p></li>
-<li><p><a class="reference internal" href="#the-setmaterialproperty-and-setexternalstatevariable-methods-of-behaviour-integrators" id="id14">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setMaterialProperty</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setExternalStateVariable</span></code> methods of behaviour integrators</a></p></li>
+<li><p><a class="reference internal" href="#overview" id="id14">Overview</a></p></li>
+<li><p><a class="reference internal" href="#the-setmaterialproperty-and-setexternalstatevariable-methods-of-behaviour-integrators" id="id15">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setMaterialProperty</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setExternalStateVariable</span></code> methods of behaviour integrators</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#resolution-of-dependencies-of-a-nonlinear-evolution-problemn-using-another" id="id15">Resolution of dependencies of a nonlinear evolution problemn using another</a></p></li>
-<li><p><a class="reference internal" href="#the-simulation-class" id="id16">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Simulation</span></code> class</a></p></li>
-<li><p><a class="reference internal" href="#physical-system-coupling-schemes-and-models" id="id17">Physical system, coupling schemes and models</a></p></li>
-<li><p><a class="reference internal" href="#line-search-like-handling-of-behaviour-integration-failures" id="id18">Line-search-like handling of behaviour integration failures</a></p></li>
-<li><p><a class="reference internal" href="#profiling-toolkit" id="id19">Profiling Toolkit</a></p></li>
+<li><p><a class="reference internal" href="#resolution-of-dependencies-of-a-nonlinear-evolution-problemn-using-another" id="id16">Resolution of dependencies of a nonlinear evolution problemn using another</a></p></li>
+<li><p><a class="reference internal" href="#the-simulation-class" id="id17">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Simulation</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#physical-system-coupling-schemes-and-models" id="id18">Physical system, coupling schemes and models</a></p></li>
+<li><p><a class="reference internal" href="#line-search-like-handling-of-behaviour-integration-failures" id="id19">Line-search-like handling of behaviour integration failures</a></p></li>
+<li><p><a class="reference internal" href="#profiling-toolkit" id="id20">Profiling Toolkit</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id20">Issues fixed</a></p></li>
+<li><p><a class="reference internal" href="#issues-fixed" id="id21">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>The name of the materials and boundaries are automatically retrieved
-from mfem’s mesh.</p></li>
-<li><p>Many methods have been deprecated to have a consistent error handling
-scheme based on <cite>MGIS</cite>’s one. As such, many methods and functions now
-takes and <cite>MGIS</cite>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as their first argument.</p></li>
+<li><p><cite>NonLinearEvolutionProblem</cite> are now able to make a prediction of the
+solution, removing major convergence issues when imposed displacements
+are imposed.</p></li>
 <li><p>The regularization proposed by Faltus et al. in the context of the
 third medium contact has been implemented for plane strain, plane
 stress and tridmensional hypotheses.</p></li>
-<li><p>MGIS contexts now handle gathering computation time information to
+<li><p><cite>MGIS</cite>’s contexts now handle gathering computation time information to
 create the performance table instead of the previously used
-CatchTimeSection.</p></li>
+<cite>CatchTimeSection</cite>.</p></li>
+<li><p>Many methods have been deprecated to have a consistent error handling
+scheme based on <cite>MGIS</cite>’s one. As such, many methods and functions now
+takes and <cite>MGIS</cite>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as their first argument.</p></li>
+<li><p>The name of the materials and boundaries are automatically retrieved
+from mfem’s mesh.</p></li>
+</ul>
+</section>
+<section id="known-incompatibilites">
+<h2>Known incompatibilites<a class="headerlink" href="#known-incompatibilites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>In previous versions, the failure of Hypre’s linear iterative solvers
+were discarded by <cite>MFEM/MGIS</cite>’s Newton solver due to the lack of
+methods to test their convergence in mfem’s version prior to 4.10.
+The parameter <cite>DiscardLinearSolverFailure</cite> can be passed to
+<cite>MFEM/MGIS</cite>’s Newton solver to recover the behavior of previous
+versions.</p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -381,6 +397,8 @@ an output stream using the <code class="code highlight c++ docutils literal high
 <section id="issues-fixed">
 <h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p>Issue 257: Allow NewtonSolver to discard linear solver failures</p></li>
+<li><p>Issue 254: Missing parameter option for GMRESSolver</p></li>
 <li><p>Issue 253: Incomplete linear solver convergence checks in NonLinearEvolutionProblemImplementation.cxx and NewtonSolver.cxx</p></li>
 <li><p>Issue 248: Improve <cite>PartialQuadratureFunction</cite> interface</p></li>
 <li><p>Issue 240: Small bug in <cite>LinearSolverFactory.cxx</cite></p></li>
