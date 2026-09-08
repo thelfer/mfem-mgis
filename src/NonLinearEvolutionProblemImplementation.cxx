@@ -98,7 +98,8 @@ namespace mfem_mgis {
       mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& p,
       LinearSolver& ls,
       const real t,
-      const real dt) noexcept {
+      const real dt,
+      const bool discardLinearSolverFailure) noexcept {
     auto& fed = p.getFiniteElementDiscretization();
     auto& fespace = fed.template getFiniteElementSpace<parallel>();
     const auto& u0 = p.getUnknowns(mfem_mgis::bts);
@@ -199,7 +200,7 @@ namespace mfem_mgis {
     ls.SetOperator(A);
     ls.Mult(B, X);
     // check for convergence
-    if (!hasConverged(ls)) {
+    if ((!discardLinearSolverFailure) && (!hasConverged(ls))) {
       return ctx.registerErrorMessage("linear solver did not converge");
     }
     //
@@ -280,8 +281,14 @@ namespace mfem_mgis {
     if (this->linear_solver.get() == nullptr) {
       return ctx.registerErrorMessage("linear solver not initialized");
     }
+    const auto discardLinearSolverFailure = [this] {
+      if (this->solver.get() != nullptr) {
+        return this->solver->isLinearSolverFailureDiscarded();
+      }
+      return false;
+    }();
     const auto oresult = ::mfem_mgis::computePrediction<true>(
-        ctx, *this, *(this->linear_solver), t, dt);
+        ctx, *this, *(this->linear_solver), t, dt, discardLinearSolverFailure);
 #pragma message("required ?")
     this->solver->setLinearSolver(*(this->linear_solver));
     if (isInvalid(oresult)) {
@@ -515,8 +522,14 @@ namespace mfem_mgis {
     if (this->linear_solver.get() == nullptr) {
       return ctx.registerErrorMessage("linear solver not initialized");
     }
+    const auto discardLinearSolverFailure = [this] {
+      if (this->solver.get() != nullptr) {
+        return this->solver->isLinearSolverFailureDiscarded();
+      }
+      return false;
+    }();
     const auto oresult = ::mfem_mgis::computePrediction<false>(
-        ctx, *this, *(this->linear_solver), t, dt);
+        ctx, *this, *(this->linear_solver), t, dt, discardLinearSolverFailure);
     this->solver->setLinearSolver(*(this->linear_solver));
     if (isInvalid(oresult)) {
       return {};

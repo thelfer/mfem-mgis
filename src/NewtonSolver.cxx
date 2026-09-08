@@ -55,6 +55,31 @@ namespace mfem_mgis {
     });
   }  // end of NewtonSolver
 
+  bool NewtonSolver::setSolverParameters(Context &ctx,
+                                         const Parameters &params) noexcept {
+    auto allowed_parameters = getIterativeSolverParametersList();
+    allowed_parameters.push_back("DiscardLinearSolverFailure");
+    if (!checkParameters(ctx, params, allowed_parameters)) {
+      return false;
+    }
+    const auto osubparams =
+        extract(ctx, params, getIterativeSolverParametersList());
+    if (isInvalid(osubparams)) {
+      return false;
+    }
+    if (!mfem_mgis::setSolverParameters(ctx, *this, *osubparams)) {
+      return false;
+    }
+    if (contains(params, "DiscardLinearSolverFailure")) {
+      const auto ob = get<bool>(ctx, params, "DiscardLinearSolverFailure");
+      if (isInvalid(ob)) {
+        return false;
+      }
+      this->discardLinearSolverFailure = *ob;
+    }
+    return true;
+  }  // end of setSolverParameters
+
   void NewtonSolver::SetOperator(const mfem::Operator &) {
     raise("NewtonSolver::SetOperator: invalid call");
   }  // end of SetOperator
@@ -265,6 +290,10 @@ namespace mfem_mgis {
     this->oper->Mult(u, r);
   }  // end of NewtonSolver::computeResidual
 
+  bool NewtonSolver::isLinearSolverFailureDiscarded() const noexcept {
+    return this->discardLinearSolverFailure;
+  }  // end of isLinearSolverFailureDiscarded
+
   bool NewtonSolver::computeNewtonCorrection(mfem::Vector &c,
                                              const mfem::Vector &r,
                                              const mfem::Vector &u) const {
@@ -285,6 +314,9 @@ namespace mfem_mgis {
                     "MFEM::Mult(r,c)", this->ctx_ptr->isProfilingEnabled())
               : mgis::ProfilingSection{};
       this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
+    }
+    if (this->discardLinearSolverFailure) {
+      return true;
     }
     return hasConverged(*(this->prec));
   }  // end of computeNewtonCorrection
