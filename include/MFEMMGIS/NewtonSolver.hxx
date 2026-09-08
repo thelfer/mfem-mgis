@@ -26,7 +26,15 @@ namespace mfem_mgis {
 
     //! \brief default constructor
     NewtonSolver(NonLinearEvolutionProblemImplementation<false> &);
-
+    /*!
+     * \brief set the solver parameters
+     * \param[in, out] ctx: execution context
+     * \param[in] params: parameters
+     */
+    [[nodiscard]] bool setSolverParameters(Context&,
+                                           const Parameters&) noexcept;
+    //! \return if the failure of the linear solver is discarded
+    [[nodiscard]] bool isLinearSolverFailureDiscarded() const noexcept;
     /*!
      * \brief set the linear solver for inverting the Jacobian.
      * \param[in] s: linear solver
@@ -102,10 +110,13 @@ namespace mfem_mgis {
      * the residual at the first iteration.
      */
     mutable std::optional<real> reference_residual_norm;
-    /*!
-     * \brief pointer to an execution context
-     */
+    //! \brief pointer to an execution context
     Context *ctx_ptr = nullptr;
+    /*!
+     * \brief boolean stating if failure of the linear solver must not be
+     * checked
+     */
+    bool discardLinearSolverFailure = false;
   };  // end of struct NewtonSolver
 
 }  // end of namespace mfem_mgis

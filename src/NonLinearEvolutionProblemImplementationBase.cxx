@@ -389,9 +389,9 @@ namespace mfem_mgis {
     if (usePETSc()) {
       return mfem_mgis::setSolverParameters(ctx, *(this->petsc_solver), params);
     }
-    return mfem_mgis::setSolverParameters(ctx, *(this->solver), params);
+    return this->solver->setSolverParameters(ctx, params);
 #else  /* MFEM_USE_PETSC */
-    return mfem_mgis::setSolverParameters(ctx, *(this->solver), params);
+    return this->solver->setSolverParameters(ctx, params);
 #endif /* MFEM_USE_PETSC */
   }    // end of setSolverParameters
 

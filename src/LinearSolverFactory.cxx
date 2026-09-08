@@ -268,9 +268,16 @@ namespace mfem_mgis {
                             FiniteElementSpace<parallel>& fespace,
                             const Parameters& params) {
     const char* const Preconditioner = "Preconditioner";
+    const char* const Krylov_Dimension = "KDim";
+    const auto is_gmres_solver =
+        (dynamic_cast<mfem::GMRESSolver*>(&s) != nullptr) ||
+        (dynamic_cast<mfem::FGMRESSolver*>(&s) != nullptr);
     s.iterative_mode = false;
     auto allowed_parameters = getIterativeSolverParametersList();
     allowed_parameters.push_back(Preconditioner);
+    if (is_gmres_solver) {
+      allowed_parameters.push_back(Krylov_Dimension);
+    }
     if (!checkParameters(ctx, params, allowed_parameters)) {
       return {};
     }
@@ -281,6 +288,25 @@ namespace mfem_mgis {
     }
     if (!setSolverParameters(ctx, s, *oparams)) {
       return {};
+    }
+    if ((is_gmres_solver) && (contains(params, Krylov_Dimension))) {
+      const auto odim = get<int>(ctx, params, Krylov_Dimension);
+      if (isInvalid(odim)) {
+        return {};
+      }
+      if (*odim < 1) {
+        std::ignore = ctx.registerErrorMessage(
+            "invalid Krylov dimension (must be greater than one)");
+        return {};
+      }
+      if (auto* const ptr = dynamic_cast<mfem::GMRESSolver*>(&s);
+          ptr != nullptr) {
+        ptr->SetKDim(*odim);
+      }
+      if (auto* const ptr = dynamic_cast<mfem::FGMRESSolver*>(&s);
+          ptr != nullptr) {
+        ptr->SetKDim(*odim);
+      }
     }
     if (contains(params, Preconditioner)) {
       const auto opr = get<Parameters>(ctx, params, Preconditioner);
@@ -405,6 +431,10 @@ namespace mfem_mgis {
         const auto odim = get<int>(ctx, params, Krylov_Dimension);
         if (isInvalid(odim)) {
           return {};
+        }
+        if (*odim < 1) {
+          return ctx.registerErrorMessage(
+              "invalid Krylov dimension (must be greater than one)");
         }
         s->SetKDim(*odim);
       }
