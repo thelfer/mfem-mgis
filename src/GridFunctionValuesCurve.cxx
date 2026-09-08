@@ -178,11 +178,9 @@ namespace mfem_mgis {
     const auto s = static_cast<std::size_t>(ovalues->getNumberOfRows() *
                                             ovalues->getNumberOfColumns());
     oresults = std::vector<real>{ovalues->data(), ovalues->data() + s};
-    return oresults;
-#else  /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
-    return oresults;
 #endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
-  }    // end of getValues
+    return oresults;
+  }  // end of getValues
 
   bool GridFunctionValuesCurve::arePointsDefined() const noexcept {
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR

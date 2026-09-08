@@ -4,10 +4,27 @@
  * `MFEMMGIS/GridFunctionUtilities.hxx` \author Thomas Helfer \date   03/09/2026
  */
 
+#include "mfem/fem/gridfunc.hpp"
+#ifdef MFEM_USE_MPI
+#include "mfem/fem/pgridfunc.hpp"
+#endif /* MFEM_USE_MPI */
+
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/GridFunctionUtilities.hxx"
 
 namespace mfem_mgis {
+
+#ifdef MFEM_USE_MPI
+
+  size_type getNumberOfComponents(const GridFunction<true>& f) noexcept {
+    return f.ParFESpace()->GetVDim();
+  }  // end of getNumberOfComponents
+
+#endif /* MFEM_USE_MPI */
+
+  size_type getNumberOfComponents(const GridFunction<false>& f) noexcept {
+    return f.FESpace()->GetVDim();
+  }  // end of getNumberOfComponents
 
   template <>
   std::optional<MakeGridFunctionResult<true>> makeGridFunction<true>(

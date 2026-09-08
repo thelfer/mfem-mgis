@@ -250,6 +250,27 @@ namespace mfem_mgis::internals {
     return points;
   }  // end of makePointsSet_impl
 
+  template <size_type N>
+  requires((N == 2) || (N == 3))
+      std::vector<real> computeCurvilinearAbscissae_impl(
+          const std::vector<Point<N>>& pts)
+  noexcept {
+    if (pts.empty()) {
+      return {};
+    }
+    if (pts.size() == 1) {
+      return {0};
+    }
+    const auto s = static_cast<std::size_t>(pts.size() - 1);
+    auto c = std::vector<real>{};
+    auto l = real{};
+    for (std::size_t i = 0; i != s; ++i) {
+      l += norm(pts[i + 1] - pts[i]);
+      c.push_back(l);
+    }
+    return c;
+  }  // end of computeCurvilinearAbscissae_impl
+
 }  // end of namespace mfem_mgis::internals
 
 namespace mfem_mgis {
@@ -349,5 +370,15 @@ namespace mfem_mgis {
       const Parameters& p) noexcept {
     return ::mfem_mgis::internals::makePointsOnCurve_impl<3>(ctx, pts, p);
   }  // end of makePointsOnCurve<3>
+
+  std::vector<real> computeCurvilinearAbscissae(
+      const std::vector<Point<2>>& pts) noexcept {
+    return ::mfem_mgis::internals::computeCurvilinearAbscissae_impl<2>(pts);
+  }  // end of computeCurvilinearAbscissae
+
+  std::vector<real> computeCurvilinearAbscissae(
+      const std::vector<Point<3>>& pts) noexcept {
+    return ::mfem_mgis::internals::computeCurvilinearAbscissae_impl<3>(pts);
+  }  // end of computeCurvilinearAbscissae
 
 }  // end of namespace mfem_mgis

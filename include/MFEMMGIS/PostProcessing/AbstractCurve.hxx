@@ -42,7 +42,7 @@ namespace mfem_mgis {
      * \param[in] ctx: execution context
      * \param[in] ts: time step stage
      *
-     * \note all MPI processes must be synchronize after this call
+     * \note all MPI processes are synchronized after this call
      */
     [[nodiscard]] virtual std::optional<std::vector<real>> getValues(
         Context &, const TimeStepStage) const noexcept = 0;

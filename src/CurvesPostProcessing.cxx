@@ -1,6 +1,7 @@
 /*!
- * \file   manta/post_processing/curves_post_processing.cpp
+ * \file   src/CurvesPostProcessing.cxx
  * \brief  This file implements the `CurvesPostProcessing` class
+ * \author Thomas Helfer
  * \date   29/09/2023
  */
 
@@ -17,9 +18,9 @@ namespace mfem_mgis {
   std::map<std::string, std::string>
   CurvesPostProcessing::getParametersDescription() noexcept {
     auto d = PostProcessingBase::getParametersDescription();
-    const auto cd = CurveWriter::getParametersDescription();
+    const auto cd = CurvesWriter::getParametersDescription();
     d.insert(cd.begin(), cd.end());
-    d.insert({{"executeInitialPostProcessing",
+    d.insert({{"ExecuteInitialPostProcessing",
                "export values at the beginning of the first time step"}});
     return d;
   }  // end of getParametersDescription
@@ -37,11 +38,10 @@ namespace mfem_mgis {
       : PostProcessingBase(ps, params, true),
         writer(ctx,
                ps,
-               extract(throwing,
-                       params,
-                       CurvesPostProcessing::getParametersDescription())),
+               extract(
+                   throwing, params, CurvesWriter::getParametersDescription())),
         executeInitialPostProcessing(get_if<bool>(
-            throwing, params, "executeInitialPostProcessing", true)) {
+            throwing, params, "ExecuteInitialPostProcessing", true)) {
     checkParameters(throwing, params,
                     CurvesPostProcessing::getParametersDescription());
   }  // end of CurvesPostProcessing
@@ -55,7 +55,7 @@ namespace mfem_mgis {
     if (!this->writer.writeFileHeader(ctx)) {
       return false;
     }
-    return this->writer.writeValues(ctx, t, bts);
+    return this->writer.writeValues(ctx, {.begin = t, .end = t, .dt = 0}, bts);
   }  // end of executeInitialPostProcessingTasks
 
   bool CurvesPostProcessing::executePostProcessingTasks(
@@ -63,7 +63,7 @@ namespace mfem_mgis {
       const TimeStep &ts,
       const bool isPostProcessingRequired) noexcept {
     if ((this->allTimeSteps) || isPostProcessingRequired) {
-      return this->writer.writeValues(ctx, ts.end, ets);
+      return this->writer.writeValues(ctx, ts, ets);
     }
     return true;
   }  // end of executePostProcessingTasks

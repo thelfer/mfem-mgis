@@ -100,8 +100,11 @@ list(APPEND MFEMMGIS_SOURCES
   AbstractCurve.cxx
   MultipleCurves.cxx
   GridFunctionValuesCurve.cxx
-  CurveWriter.cxx
+  CurvesWriter.cxx
   CurvesPostProcessing.cxx
+  PointsSetCurves.cxx
+  PointsSetCurvesWriter.cxx
+  PointsSetCurvesPostProcessing.cxx
 )
 
 if(MGIS_HAVE_TFEL)

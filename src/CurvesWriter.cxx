@@ -1,6 +1,6 @@
 /*!
- * \file   src/CurveWriter.cxx
- * \brief  This file implements the `CurveWriter` classs
+ * \file   src/CurvesWriter.cxx
+ * \brief  This file implements the `CurvesWriter` classs
  * \author Thomas Helfer
  * \date   07/09/2026
  */
@@ -9,41 +9,41 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/PhysicalSystem.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
-#include "MFEMMGIS/PostProcessing/CurveWriter.hxx"
+#include "MFEMMGIS/PostProcessing/CurvesWriter.hxx"
 
 namespace mfem_mgis {
 
   std::map<std::string, std::string>
-  CurveWriter::getParametersDescription() noexcept {
+  CurvesWriter::getParametersDescription() noexcept {
     return {
-        {"file", "name of the output file"},
-        {"precision",
+        {"File", "name of the output file"},
+        {"Precision",
          "number of significant digits in the output file. A precision of 0 "
          "means that only the integer part of the number is represented "
          "(see https://en.cppreference.com/w/cpp/io/manip/setprecision for "
          "details)"},
-        {"fileFormat", "data file format. Expected values are 'txt' or 'csv'"}};
+        {"FileFormat", "data file format. Expected values are 'txt' or 'csv'"}};
   }  // end of getParametersDescription
 
-  CurveWriter::CurveWriter(Context &ctx,
-                           const PhysicalSystem &ps,
-                           const Parameters &parameters)
-      : CurveWriter(ctx, ps.getMeshDiscretization(), parameters) {
-  }  // end of CurveWriter
+  CurvesWriter::CurvesWriter(Context &ctx,
+                             const PhysicalSystem &ps,
+                             const Parameters &parameters)
+      : CurvesWriter(ctx, ps.getMeshDiscretization(), parameters) {
+  }  // end of CurvesWriter
 
-  CurveWriter::CurveWriter(Context &ctx,
-                           const MeshDiscretization &m,
-                           const Parameters &parameters)
+  CurvesWriter::CurvesWriter(Context &ctx,
+                             const MeshDiscretization &m,
+                             const Parameters &parameters)
       : isMainProcess(::mfem_mgis::isMainProcess(m)) {
     checkParameters(throwing, parameters,
-                    CurveWriter::getParametersDescription());
-    if (!contains(parameters, "file")) {
-      raise("no parameter 'file' specified");
+                    CurvesWriter::getParametersDescription());
+    if (!contains(parameters, "File")) {
+      raise("no parameter 'File' specified");
     }
-    if (!is<std::string>(throwing, parameters, "file")) {
-      raise("the parameter 'file' must be a string");
+    if (!is<std::string>(throwing, parameters, "File")) {
+      raise("the parameter 'File' must be a string");
     }
-    const auto &fname = get<std::string>(throwing, parameters, "file");
+    const auto &fname = get<std::string>(throwing, parameters, "File");
     auto success = true;
     if (this->isMainProcess) {
       this->out.open(fname);
@@ -59,8 +59,8 @@ namespace mfem_mgis {
       raise("opening of file '" + fname + "' failed");
     }
     //
-    if (contains(parameters, "precision")) {
-      const auto p = get<int>(throwing, parameters, "precision");
+    if (contains(parameters, "Precision")) {
+      const auto p = get<int>(throwing, parameters, "Precision");
       if (p < 0) {
         raise("invalid value for the 'precision' parameter (" +
               std::to_string(p) + ")");
@@ -69,8 +69,8 @@ namespace mfem_mgis {
         this->out.precision(p);
       }
     }
-    if (contains(parameters, "fileFormat")) {
-      const auto &ff = get<std::string>(throwing, parameters, "fileFormat");
+    if (contains(parameters, "FileFormat")) {
+      const auto &ff = get<std::string>(throwing, parameters, "FileFormat");
       const auto of = getDataFileFormat(ctx, ff);
       if (isInvalid(of)) {
         raise("invalid file format '" + ff + "'");
@@ -84,18 +84,18 @@ namespace mfem_mgis {
       }
       this->fileFormat = *of;
     }
-  }  // end of CurveWriter
+  }  // end of CurvesWriter
 
-  bool CurveWriter::addCurve(Context &ctx,
-                             std::shared_ptr<const AbstractCurve> c) {
-    if (!this->allowNewCuves) {
+  bool CurvesWriter::addCurve(Context &ctx,
+                              std::shared_ptr<const AbstractCurve> c) {
+    if (!this->allowNewCurves) {
       return ctx.registerErrorMessage("no new curve allowed");
     }
     return this->curves.addCurve(ctx, c);
   }  // end of addCurve
 
-  bool CurveWriter::writeFileHeader(Context &ctx) {
-    this->allowNewCuves = false;
+  bool CurvesWriter::writeFileHeader(Context &ctx) {
+    this->allowNewCurves = false;
     const auto cd = this->curves.getDescriptions();
     auto d = std::vector<std::string>{};
     d.push_back("time");
@@ -103,15 +103,16 @@ namespace mfem_mgis {
     return writeDataFileHeader(ctx, this->out, this->fileFormat, d);
   }  // end of writeFileHeader
 
-  bool CurveWriter::writeValues(Context &ctx,
-                                const real t,
-                                const TimeStepStage &ts) {
-    this->allowNewCuves = false;
+  bool CurvesWriter::writeValues(Context &ctx,
+                                 const TimeStep &ts,
+                                 const TimeStepStage &tss) {
+    this->allowNewCurves = false;
+    const auto t = (tss == bts) ? ts.begin : ts.end;
     const auto os = getValueSeparator(ctx, this->fileFormat);
     if (isInvalid(os)) {
       return false;
     }
-    const auto ovalues = this->curves.getValues(ctx, ts);
+    const auto ovalues = this->curves.getValues(ctx, tss);
     if (isInvalid(ovalues)) {
       return false;
     }

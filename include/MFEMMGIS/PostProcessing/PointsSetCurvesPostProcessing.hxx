@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/PostProcessing/CurvesPostProcessing.hxx
- * \brief  This file declares the `CurvesPostProcessing` class
+ * \file   MFEMMGIS/PostProcessing/PointsSetCurvesPostProcessing.hxx
+ * \brief  This file declares the `PointsSetCurvesPostProcessing` class
  * \author Thomas Helfer
  * \date   29/09/2023
  */
@@ -11,21 +11,21 @@
 #include <fstream>
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/PostProcessing/CurvesWriter.hxx"
+#include "MFEMMGIS/PostProcessing/PointsSetCurvesWriter.hxx"
 #include "MFEMMGIS/PostProcessing/PostProcessingBase.hxx"
 
 namespace mfem_mgis {
 
   // forward declaration
   struct Parameters;
-  struct AbstractCurve;
   struct Context;
 
   /*!
    * \brief post-processing meant to export values extracted using
    * instances of the `AbstractCurve` struct to a file.
    */
-  struct MFEM_MGIS_EXPORT CurvesPostProcessing : public PostProcessingBase {
+  struct MFEM_MGIS_EXPORT PointsSetCurvesPostProcessing
+      : public PostProcessingBase {
     //! \return a description of each parameters of this struct
     static std::map<std::string, std::string>
     getParametersDescription() noexcept;
@@ -37,7 +37,27 @@ namespace mfem_mgis {
      * \param[in] ps: physical system
      * \param[in] params: parameters
      */
-    CurvesPostProcessing(Context &, PhysicalSystem &, const Parameters &);
+    PointsSetCurvesPostProcessing(PhysicalSystem &, const Parameters &);
+#ifdef MFEM_USE_MPI
+    /*!
+     * \brief add a grid function  (parallel version)
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the grid function
+     * \param[in] f: grid function
+     */
+    [[nodiscard]] bool add(Context &,
+                           std::string_view,
+                           const GridFunction<true> &) noexcept;
+#endif /* MFEM_USE_MPI */
+    /*!
+     * \brief add a grid function (sequential version)
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the grid function
+     * \param[in] f: grid function
+     */
+    [[nodiscard]] bool add(Context &,
+                           std::string_view,
+                           const GridFunction<false> &) noexcept;
     //
     [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] bool executeInitialPostProcessingTasks(
@@ -45,27 +65,12 @@ namespace mfem_mgis {
     [[nodiscard]] bool executePostProcessingTasks(Context &,
                                                   const TimeStep &,
                                                   const bool) noexcept override;
-    /*!
-     * \brief add a new curve
-     * \param[in] ctx: execution context
-     * \param[in] c: curve
-     */
-    [[nodiscard]] bool add(Context &, std::shared_ptr<AbstractCurve>) noexcept;
-    //     /*!
-    //      * \brief add a new curve
-    //      * \param[in] ctx: execution context
-    //      * \param[in] n: name of the curve
-    //      * \param[in] params: parameters
-    //      */
-    //     [[nodiscard]] bool add(Context &,
-    //                            std::string_view,
-    //                            const Parameters &) noexcept;
     // \brief destructor
-    ~CurvesPostProcessing() noexcept override;
+    ~PointsSetCurvesPostProcessing() noexcept override;
 
    private:
     //! \brief curve writer
-    CurvesWriter writer;
+    PointsSetCurvesWriter writer;
     /*!
      * \brief boolean stating if values shall be exported at the beginning of
      * the first time step

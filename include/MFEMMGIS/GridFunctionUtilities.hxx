@@ -24,6 +24,24 @@ namespace mfem_mgis {
   // forward declaration
   struct FiniteElementDiscretization;
 
+#ifdef MFEM_USE_MPI
+
+  /*!
+   * \brief return the number of components of a parallel grid function
+   * \param[in] f: grid function
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] size_type getNumberOfComponents(
+      const GridFunction<true>&) noexcept;
+
+#endif /* MFEM_USE_MPI */
+
+  /*!
+   * \brief return the number of components of a parallel grid function
+   * \param[in] f: grid function
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] size_type getNumberOfComponents(
+      const GridFunction<false>&) noexcept;
+
   //! \brief result `makeGridFunction`
   template <bool parallel>
   struct MakeGridFunctionResult {
@@ -53,13 +71,13 @@ namespace mfem_mgis {
 
   // partial specialisations
   template <>
-  [[nodiscard]] std::optional<MakeGridFunctionResult<true>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<true>>
   makeGridFunction<true>(Context&,
                          const FiniteElementDiscretization&,
                          const size_type) noexcept;
 
   template <>
-  [[nodiscard]] std::optional<MakeGridFunctionResult<false>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<false>>
   makeGridFunction<false>(Context&,
                           const FiniteElementDiscretization&,
                           const size_type) noexcept;
@@ -77,19 +95,19 @@ namespace mfem_mgis {
    *
    */
   template <bool parallel>
-  [[nodiscard]] std::optional<MakeGridFunctionResult<parallel>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<parallel>>
   makeGridFunction(Context&,
                    const FiniteElementSpace<parallel>&,
                    const size_type) noexcept;
 
   // partial specialisations
   template <>
-  [[nodiscard]] std::optional<MakeGridFunctionResult<true>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<true>>
   makeGridFunction<true>(Context&,
                          const FiniteElementSpace<true>&,
                          const size_type) noexcept;
   template <>
-  [[nodiscard]] std::optional<MakeGridFunctionResult<false>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<false>>
   makeGridFunction<false>(Context&,
                           const FiniteElementSpace<false>&,
                           const size_type) noexcept;

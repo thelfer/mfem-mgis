@@ -16,6 +16,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "TFEL/Math/tvector.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
@@ -66,6 +67,19 @@ namespace mfem_mgis {
           Context&,
           const std::map<std::string, Point<N>, std::less<>>&,
           const Parameters&) noexcept;
+
+  /*!
+   * \return the curvilinear abscissae along the given points set
+   * \param[in] pts: points set
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<real> computeCurvilinearAbscissae(
+      const std::vector<Point<2>>&) noexcept;
+  /*!
+   * \return the curvilinear abscissae along the given points set
+   * \param[in] pts: points set
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<real> computeCurvilinearAbscissae(
+      const std::vector<Point<3>>&) noexcept;
 
   // partial specialisation
   template <>
