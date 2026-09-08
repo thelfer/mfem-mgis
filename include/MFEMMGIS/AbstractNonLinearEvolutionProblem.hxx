@@ -245,13 +245,14 @@ namespace mfem_mgis {
         const TimeStepStage) const noexcept = 0;
     /*!
      * \brief set the solver parameters
+     * \param[in, out] ctx: execution context
      * \param[in] params: parameters
      */
     [[nodiscard]] virtual bool setSolverParameters(
         Context &, const Parameters &) noexcept = 0;
     /*!
      * \brief set the linear solver
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] s: linear solver
      */
     [[nodiscard]] virtual bool setLinearSolver(

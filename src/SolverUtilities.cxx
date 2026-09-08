@@ -87,17 +87,27 @@ namespace mfem_mgis {
   }    // end of setSolverParameters
 #endif /* MFEM_USE_PETSC */
 
+  template <typename SolverType>
+  inline constexpr auto hasGetMaxIter = requires(const SolverType& l) {
+    { l.GetMaxIter() } -> std::same_as<int>;
+  };
+
   bool hasConverged(const LinearSolver& ls) noexcept {
     if (const auto* isolver = dynamic_cast<const IterativeSolver*>(&ls);
         isolver != nullptr) {
       return isolver->GetConverged();
     }
 #ifdef MFEM_USE_MPI
-    auto check_hypre_solver_convergence = [](const auto* hptr) {
-      int niter;
-      hptr->GetNumIterations(niter);
-      return niter < hptr->GetMaxIter();
-    };
+    auto check_hypre_solver_convergence =
+        []<typename SolverType>(const SolverType* ptr) {
+          if constexpr (hasGetMaxIter<SolverType>) {
+            int niter;
+            ptr->GetNumIterations(niter);
+            return niter < ptr->GetMaxIter();
+          } else {
+            return true;
+          }
+        };
     if (const auto* hptr = dynamic_cast<const mfem::HyprePCG*>(&ls);
         hptr != nullptr) {
       return check_hypre_solver_convergence(hptr);
