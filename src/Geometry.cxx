@@ -39,29 +39,6 @@ namespace mfem_mgis::internals {
     }
   }  // end of makePoint_impl
 
-  template <size_type N>
-  requires((N == 2) || (N == 3))                   //
-      static std::optional<std::vector<Point<N>>>  //
-      makePointsSet_impl(Context& ctx,
-                         const std::map<std::string, Point<N>>& pts,
-                         const Parameter& p) noexcept {
-    if (!is<std::vector<Parameter>>(p)) {
-      return ctx.registerErrorMessage(
-          "can't extract points set from parameter (invalid parameter type)");
-    }
-    const auto& parameters = get<std::vector<Parameter>>(throwing, p);
-    auto points = std::vector<Point<N>>{};
-    points.reserve(parameters.size());
-    for (const auto& parameter : parameters) {
-      const auto opt = makePoint<N>(ctx, pts, parameter);
-      if (isInvalid(opt)) {
-        return {};
-      }
-      points.push_back(*opt);
-    }
-    return points;
-  }  // end of makePointsSet_impl
-
   static std::optional<std::vector<real>> getUniformDensityWeights(
       Context& ctx, const Parameters& p) noexcept {
     if (!checkParameters(ctx, p,
@@ -245,6 +222,32 @@ namespace mfem_mgis::internals {
         "unknown curve generator '" + n +
         "'. Currently the only supported generator is 'Line'");
   }  // end of makePointsOnCurve_impl
+
+  template <size_type N>
+  requires((N == 2) || (N == 3))                   //
+      static std::optional<std::vector<Point<N>>>  //
+      makePointsSet_impl(Context& ctx,
+                         const std::map<std::string, Point<N>>& pts,
+                         const Parameter& p) noexcept {
+    if (is<Parameters>(p)) {
+      return makePointsOnCurve_impl<N>(ctx, pts, get<Parameters>(throwing, p));
+    }
+    if (!is<std::vector<Parameter>>(p)) {
+      return ctx.registerErrorMessage(
+          "can't extract points set from parameter (invalid parameter type)");
+    }
+    const auto& parameters = get<std::vector<Parameter>>(throwing, p);
+    auto points = std::vector<Point<N>>{};
+    points.reserve(parameters.size());
+    for (const auto& parameter : parameters) {
+      const auto opt = makePoint<N>(ctx, pts, parameter);
+      if (isInvalid(opt)) {
+        return {};
+      }
+      points.push_back(*opt);
+    }
+    return points;
+  }  // end of makePointsSet_impl
 
 }  // end of namespace mfem_mgis::internals
 

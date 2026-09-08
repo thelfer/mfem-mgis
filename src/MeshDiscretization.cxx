@@ -25,7 +25,7 @@
 
 namespace mfem_mgis {
 
-  //! \brief remove extra spaces on the rigth
+  //! \brief remove extra spaces on the right
   [[nodiscard]] static std::string trim_right(const std::string& s) noexcept {
     auto r = std::string{s};
     r.erase(std::find_if(
@@ -320,11 +320,53 @@ namespace mfem_mgis {
     }
   }  // end of updateNamesFromAttributesSets
 
+  static void addPoints(attributes::Throwing,
+                        MeshDiscretization& m,
+                        const Parameters& parameters) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    const auto d = getSpaceDimension(m);
+    if ((d != 2) && (d != 3)) {
+      raise("can only add points in 2D or 3D");
+    }
+    for (const auto& [n, p] : parameters) {
+      if (d == 2) {
+        const auto pt = makePoint<2>(ctx, p) | or_raise;
+        m.addPoint(ctx, n, pt) | or_raise;
+      } else {
+        const auto pt = makePoint<3>(ctx, p) | or_raise;
+        m.addPoint(ctx, n, pt) | or_raise;
+      }
+    }
+  }  // end of addPoints
+
+  static void addPointsSets(attributes::Throwing,
+                            MeshDiscretization& m,
+                            const Parameters& parameters) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    const auto d = getSpaceDimension(m);
+    if ((d != 2) && (d != 3)) {
+      raise("can only add points sets in 2D or 3D");
+    }
+    for (const auto& [n, p] : parameters) {
+      if (d == 2) {
+        const auto pts = makePointsSet<2>(ctx, m, p) | or_raise;
+        m.addPointsSet(ctx, n, pts) | or_raise;
+      } else {
+        const auto pts = makePointsSet<3>(ctx, m, p) | or_raise;
+        m.addPointsSet(ctx, n, pts) | or_raise;
+      }
+    }
+  }  // end of addPointsSet
+
   const char* const MeshDiscretization::Parallel = "Parallel";
   const char* const MeshDiscretization::MeshFileName = "MeshFileName";
   const char* const MeshDiscretization::MeshReadMode = "MeshReadMode";
   const char* const MeshDiscretization::Materials = "Materials";
   const char* const MeshDiscretization::Boundaries = "Boundaries";
+  const char* const MeshDiscretization::Points = "Points";
+  const char* const MeshDiscretization::PointsSets = "PointsSets";
   const char* const MeshDiscretization::NumberOfUniformRefinements =
       "NumberOfUniformRefinements";
   const char* const MeshDiscretization::GeneralVerbosityLevel =
@@ -377,6 +419,8 @@ namespace mfem_mgis {
             MeshDiscretization::NumberOfUniformRefinements,
             MeshDiscretization::Materials,
             MeshDiscretization::Boundaries,
+            MeshDiscretization::Points,
+            MeshDiscretization::PointsSets,
             MeshDiscretization::GeneralVerbosityLevel};
   }  // end of getParametersList
 
@@ -473,6 +517,17 @@ namespace mfem_mgis {
     }
     if (!bnames.empty()) {
       this->setBoundariesNames(throwing, bnames);
+    }
+    //
+    if (contains(params, MeshDiscretization::Points)) {
+      addPoints(throwing, *this,
+                get<Parameters>(throwing, params, MeshDiscretization::Points));
+    }
+    //
+    if (contains(params, MeshDiscretization::PointsSets)) {
+      addPointsSets(
+          throwing, *this,
+          get<Parameters>(throwing, params, MeshDiscretization::PointsSets));
     }
   }  // end of MeshDiscretization
 

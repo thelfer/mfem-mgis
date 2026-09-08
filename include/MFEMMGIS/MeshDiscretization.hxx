@@ -36,6 +36,10 @@ namespace mfem_mgis {
     static const char* const Materials;
     //! \brief string associated to the `Boundaries` parameter
     static const char* const Boundaries;
+    //! \brief string associated to the `Points` parameter
+    static const char* const Points;
+    //! \brief string associated to the `PointsSets` parameter
+    static const char* const PointsSets;
     //! \brief string associated to the `NumberOfUniformRefinements` parameter
     static const char* const NumberOfUniformRefinements;
     //! \brief string associated to the `VerbosityLevel` parameter
