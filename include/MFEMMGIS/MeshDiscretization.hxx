@@ -246,6 +246,15 @@ namespace mfem_mgis {
             const std::map<std::string, Point<N>, std::less<>>>  //
         getPoints(Context&) const noexcept;
     /*!
+     * \return the registred points sets
+     * \param[in, out] ctx: execution context
+     */
+    template <size_type N>
+    requires((N == 2) || (N == 3))  //
+        [[nodiscard]] OptionalReference<
+            const std::map<std::string, std::vector<Point<N>>, std::less<>>>  //
+        getPointsSets(Context&) const noexcept;
+    /*!
      * \return the registred set of points
      * \param[in, out] ctx: execution context
      */
@@ -334,19 +343,33 @@ namespace mfem_mgis {
                             const std::map<size_type, std::string>&);
 #ifdef MGIS_HAVE_TFEL
     /*!
-     * \return the registred points
+     * \return the registred points in 2D
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, Point<2>, std::less<>>>
     getPoints2D(Context&) const noexcept;
     /*!
-     * \return the registred points
+     * \return the registred points in 3D
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, Point<3>, std::less<>>>
     getPoints3D(Context&) const noexcept;
+    /*!
+     * \return the registred points in 2D
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, std::vector<Point<2>>, std::less<>>>
+    getPointsSets2D(Context&) const noexcept;
+    /*!
+     * \return the registred points in 3D
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, std::vector<Point<3>>, std::less<>>>
+    getPointsSets3D(Context&) const noexcept;
     /*!
      * \return the point with the given name
      * \param[in, out] ctx: execution context
@@ -393,9 +416,9 @@ namespace mfem_mgis {
     //! \brief points declared by the user, only valid for a 3D mesh
     std::map<std::string, Point<3>, std::less<>> points3D;
     //! \brief points set declared by the user, only valid for a 2D mesh
-    std::map<std::string, std::vector<Point<2>>, std::less<>> pointsSet2D;
+    std::map<std::string, std::vector<Point<2>>, std::less<>> pointsSets2D;
     //! \brief points set declared by the user, only valid for a 3D mesh
-    std::map<std::string, std::vector<Point<3>>, std::less<>> pointsSet3D;
+    std::map<std::string, std::vector<Point<3>>, std::less<>> pointsSets3D;
 #endif /* MGIS_HAVE_TFEL */
   };   // end of MeshDiscretization
 

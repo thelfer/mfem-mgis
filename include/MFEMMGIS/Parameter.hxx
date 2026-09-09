@@ -30,6 +30,11 @@ namespace mfem_mgis {
                                         Parameters,
                                         std::function<real(const real)>>;
 
+  /* aliases to equivalent python' types */
+
+  using list = std::vector<Parameter>;
+  using dict = Parameters;
+
   //! \brief variant class used to initialize objects
   struct MFEM_MGIS_EXPORT [[nodiscard]] Parameter : private ParameterVariant {
     /*!

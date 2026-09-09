@@ -86,6 +86,9 @@ namespace mfem_mgis::internals {
     //
     // set the node fespace if required
     const auto shall_set_nodal_fespace = [mesh, fespace] {
+      if (fespace->GetVDim() != N) {
+        return true;
+      }
       // nodes is a pointer to a grid function, even in parallel
       const auto* const nodes = mesh->GetNodes();
       if (nodes == nullptr) {
@@ -93,8 +96,16 @@ namespace mfem_mgis::internals {
       }
       return nodes->FESpace() != fespace;
     }();
+    //
+    auto nodal_fespace = std::unique_ptr<FiniteElementSpace<parallel>>{};
     if (shall_set_nodal_fespace) {
-      mesh->SetNodalFESpace(const_cast<FiniteElementSpace<parallel>*>(fespace));
+      nodal_fespace = make_unique<FiniteElementSpace<parallel>>(
+          ctx, static_cast<Mesh<parallel>*>(fespace->GetMesh()),
+          fespace->FEColl(), N, fespace->GetOrdering());
+      if (isInvalid(nodal_fespace)) {
+        return {};
+      }
+      mesh->SetNodalFESpace(nodal_fespace.get());
     }
     //
     auto finder = mfem::FindPointsGSLIB{};

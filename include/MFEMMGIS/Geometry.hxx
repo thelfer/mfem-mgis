@@ -58,6 +58,7 @@ namespace mfem_mgis {
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsSet(
           Context&,
+          const std::map<std::string, std::vector<Point<N>>, std::less<>>&,
           const std::map<std::string, Point<N>, std::less<>>&,
           const Parameter&) noexcept;
 
@@ -113,9 +114,11 @@ namespace mfem_mgis {
       const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<2>>>
-  makePointsSet<2>(Context&,
-                   const std::map<std::string, Point<2>, std::less<>>&,
-                   const Parameter&) noexcept;
+  makePointsSet<2>(
+      Context&,
+      const std::map<std::string, std::vector<Point<2>>, std::less<>>&,
+      const std::map<std::string, Point<2>, std::less<>>&,
+      const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<2>>>
   makePointsOnCurve<2>(Context&,
@@ -128,9 +131,11 @@ namespace mfem_mgis {
       const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<3>>>
-  makePointsSet<3>(Context&,
-                   const std::map<std::string, Point<3>, std::less<>>&,
-                   const Parameter&) noexcept;
+  makePointsSet<3>(
+      Context&,
+      const std::map<std::string, std::vector<Point<3>>, std::less<>>&,
+      const std::map<std::string, Point<3>, std::less<>>&,
+      const Parameter&) noexcept;
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<3>>>
   makePointsOnCurve<3>(Context&,

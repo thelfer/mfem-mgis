@@ -228,26 +228,37 @@ namespace mfem_mgis::internals {
       static std::optional<std::vector<Point<N>>>  //
       makePointsSet_impl(
           Context& ctx,
-          const std::map<std::string, Point<N>, std::less<>>& pts,
+          const std::map<std::string, std::vector<Point<N>>, std::less<>>&
+              pointsSets,
+          const std::map<std::string, Point<N>, std::less<>>& points,
           const Parameter& p) noexcept {
+    if (is<std::string>(p)) {
+      const auto& n = get<std::string>(throwing, p);
+      auto pi = pointsSets.find(n);
+      if (pi == pointsSets.end()) {
+        return ctx.registerErrorMessage("no points set '" + n + "' registred");
+      }
+      return pi->second;
+    }
     if (is<Parameters>(p)) {
-      return makePointsOnCurve_impl<N>(ctx, pts, get<Parameters>(throwing, p));
+      return makePointsOnCurve_impl<N>(ctx, points,
+                                       get<Parameters>(throwing, p));
     }
     if (!is<std::vector<Parameter>>(p)) {
       return ctx.registerErrorMessage(
           "can't extract points set from parameter (invalid parameter type)");
     }
     const auto& parameters = get<std::vector<Parameter>>(throwing, p);
-    auto points = std::vector<Point<N>>{};
-    points.reserve(parameters.size());
+    auto pts = std::vector<Point<N>>{};
+    pts.reserve(parameters.size());
     for (const auto& parameter : parameters) {
-      const auto opt = makePoint<N>(ctx, pts, parameter);
+      const auto opt = makePoint<N>(ctx, points, parameter);
       if (isInvalid(opt)) {
         return {};
       }
-      points.push_back(*opt);
+      pts.push_back(*opt);
     }
-    return points;
+    return pts;
   }  // end of makePointsSet_impl
 
   template <size_type N>
@@ -263,7 +274,9 @@ namespace mfem_mgis::internals {
     }
     const auto s = static_cast<std::size_t>(pts.size() - 1);
     auto c = std::vector<real>{};
+    c.reserve(pts.size());
     auto l = real{};
+    c.push_back(l);
     for (std::size_t i = 0; i != s; ++i) {
       l += norm(pts[i + 1] - pts[i]);
       c.push_back(l);
@@ -290,13 +303,13 @@ namespace mfem_mgis {
   template <>
   std::optional<std::vector<Point<2>>> makePointsSet<2>(
       Context& ctx, const Parameter& p) noexcept {
-    return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, {}, p);
+    return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, {}, {}, p);
   }  // end of makePointsSet
 
   template <>
   std::optional<std::vector<Point<3>>> makePointsSet<3>(
       Context& ctx, const Parameter& p) noexcept {
-    return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, {}, p);
+    return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, {}, {}, p);
   }  // end of makePointsSet
 
   template <>
@@ -334,9 +347,12 @@ namespace mfem_mgis {
   template <>
   std::optional<std::vector<Point<2>>> makePointsSet<2>(
       Context& ctx,
+      const std::map<std::string, std::vector<Point<2>>, std::less<>>&
+          pointsSets,
       const std::map<std::string, Point<2>, std::less<>>& pts,
       const Parameter& p) noexcept {
-    return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, pts, p);
+    return ::mfem_mgis::internals::makePointsSet_impl<2>(ctx, pointsSets, pts,
+                                                         p);
   }  // end of makePointsSet<2>
 
   template <>
@@ -358,9 +374,12 @@ namespace mfem_mgis {
   template <>
   std::optional<std::vector<Point<3>>> makePointsSet<3>(
       Context& ctx,
+      const std::map<std::string, std::vector<Point<3>>, std::less<>>&
+          pointsSets,
       const std::map<std::string, Point<3>, std::less<>>& pts,
       const Parameter& p) noexcept {
-    return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, pts, p);
+    return ::mfem_mgis::internals::makePointsSet_impl<3>(ctx, pointsSets, pts,
+                                                         p);
   }  // end of makePointsSet<3>
 
   template <>

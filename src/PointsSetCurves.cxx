@@ -220,11 +220,11 @@ namespace mfem_mgis {
     auto r = std::vector<std::vector<real>>{};
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
     auto add = [&r](const tfel::math::matrix<real> &values) {
-      for (std::size_t nr = 0; nr != values.getNumberOfRows(); ++nr) {
+      for (std::size_t nc = 0; nc != values.getNumberOfColumns(); ++nc) {
         auto nrow = std::vector<real>{};
-        nrow.resize(values.getNumberOfColumns());
-        for (std::size_t nc = 0; nc != values.getNumberOfColumns(); ++nc) {
-          nrow[nc] = values(nr, nc);
+        nrow.resize(values.getNumberOfRows());
+        for (std::size_t nr = 0; nr != values.getNumberOfRows(); ++nr) {
+          nrow[nr] = values(nr, nc);
         }
         r.push_back(std::move(nrow));
       }

@@ -124,6 +124,19 @@ namespace mfem_mgis {
     }
   }  // end of getPoints
 
+  template <size_type N>
+  requires((N == 2) || (N == 3))  //
+      OptionalReference<
+          const std::map<std::string, std::vector<Point<N>>, std::less<>>>  //
+      MeshDiscretization::getPointsSets(Context& ctx)
+  const noexcept {
+    if constexpr (N == 2) {
+      return this->getPointsSets2D(ctx);
+    } else {
+      return this->getPointsSets3D(ctx);
+    }
+  }  // end of getPointsSets
+
 #endif /* MGIS_HAVE_TFEL */
 
 }  // end of namespace mfem_mgis
