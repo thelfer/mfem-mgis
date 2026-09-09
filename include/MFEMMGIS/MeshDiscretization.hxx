@@ -176,6 +176,9 @@ namespace mfem_mgis {
     //! \return the mesh
     template <bool parallel>
     [[nodiscard]] std::shared_ptr<const Mesh<parallel>> getMeshPointer() const;
+    //! \return the mesh
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMutableMeshPointer() const;
     //! \return if this object is built to run parallel computations
     [[nodiscard]] bool describesAParallelComputation() const;
     /*!

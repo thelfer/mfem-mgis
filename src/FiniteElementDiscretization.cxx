@@ -25,11 +25,23 @@
 
 namespace mfem_mgis {
 
-  const char* const FiniteElementDiscretization::FiniteElementFamily =
-      "FiniteElementFamily";
-  const char* const FiniteElementDiscretization::FiniteElementOrder =
-      "FiniteElementOrder";
   const char* const FiniteElementDiscretization::UnknownsSize = "UnknownsSize";
+
+  //! list of valid parametres when the mesh is alredy built
+  [[nodiscard]] static std::vector<std::string>
+  getFiniteElementDiscretizationParametersList() {
+    auto d =
+        FiniteElementSpacesManager::getFiniteElementCollectionParametersList();
+    d.push_back(FiniteElementDiscretization::UnknownsSize);
+    return d;
+  }  // end of getFiniteElementDiscretizationParametersList
+
+  std::vector<std::string> FiniteElementDiscretization::getParametersList() {
+    auto d = MeshDiscretization::getParametersList();
+    const auto names = getFiniteElementDiscretizationParametersList();
+    d.insert(d.end(), names.begin(), names.end());
+    return d;
+  }  // end of getParametersList
 
   void FiniteElementDiscretization::reportInvalidParallelFiniteElementSpace() {
     raise(
@@ -45,210 +57,111 @@ namespace mfem_mgis {
         "no sequential finite element space defined");
   }  // end of reportInvalidSequentialFiniteElementSpace
 
-  [[nodiscard]] static std::vector<std::string>
-  getFiniteElementDiscretizationParametersList() {
-    return {FiniteElementDiscretization::FiniteElementFamily,
-            FiniteElementDiscretization::FiniteElementOrder,
-            FiniteElementDiscretization::UnknownsSize};
-  }  // end of getFiniteElementDiscretizationParametersList
-
-  std::vector<std::string> FiniteElementDiscretization::getParametersList() {
-    auto d = MeshDiscretization::getParametersList();
-    const auto names = getFiniteElementDiscretizationParametersList();
-    d.insert(d.end(), names.begin(), names.end());
-    return d;
-  }  // end of getParametersList
-
-  template <bool parallel>
-  std::pair<std::shared_ptr<const FiniteElementCollection>,
-            std::unique_ptr<FiniteElementSpace<parallel>>>
-  buildFiniteElementCollectionAndSpace(MeshDiscretization& m,
-                                       const Parameters& params) {
-    checkParameters(throwing, params,
-                    getFiniteElementDiscretizationParametersList());
-    const auto& fe_family = get_if<std::string>(
-        throwing, params, FiniteElementDiscretization::FiniteElementFamily,
-        "H1");
-    const auto fe_order = get_if<int>(
-        throwing, params, FiniteElementDiscretization::FiniteElementOrder, 1);
-    const auto u_size =
-        get<int>(throwing, params, FiniteElementDiscretization::UnknownsSize);
-    // building the finite element collection
-    if (fe_family != "H1") {
-      raise(
-          "FiniteElementDiscretization::FiniteElementDiscretization: "
-          "unsupported finite element family '" +
-          fe_family + "'");
-    }
-    auto fec =
-        std::make_shared<mfem::H1_FECollection>(fe_order, getSpaceDimension(m));
-    // building the finite element space
-    if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-      return {fec, std::make_unique<FiniteElementSpace<true>>(
-                       m.getMeshPointer<true>().get(), fec.get(), u_size)};
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    } else {
-      return {fec, std::make_unique<FiniteElementSpace<false>>(
-                       m.getMeshPointer<false>().get(), fec.get(), u_size)};
-    }
-  }  // end of buildFiniteElementCollectionAndSpace
-
   FiniteElementDiscretization::FiniteElementDiscretization(
-      mgis::Context& ctx, const MeshDiscretization& m, const Parameters& params)
-      : MeshDiscretization(m) {
-    CatchTimeSection(ctx, "FED::Constructor");
-    checkParameters(throwing, params,
-                    FiniteElementDiscretization::getParametersList());
-    if (this->describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      std::tie(this->fec, this->parallel_fe_space) =
-          buildFiniteElementCollectionAndSpace<true>(*this, params);
-#else
-      reportUnsupportedParallelComputations();
-#endif
-    } else {
-      std::tie(this->fec, this->sequential_fe_space) =
-          buildFiniteElementCollectionAndSpace<false>(*this, params);
-    }
-  }  // end of FiniteElementDiscretization
-
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      mgis::Context& ctx,
-      std::shared_ptr<Mesh<true>> m,
+      Context& ctx,
+      const FiniteElementSpacesManager& m,
       const Parameters& params)
-      : MeshDiscretization(m) {
+      : MeshDiscretization(m.getMeshDiscretization()), fespaces_manager(m) {
     CatchTimeSection(ctx, "FED::Constructor");
-    checkParameters(throwing, params,
-                    FiniteElementDiscretization::getParametersList());
-#ifdef MFEM_USE_MPI
-    std::tie(this->fec, this->parallel_fe_space) =
-        buildFiniteElementCollectionAndSpace<true>(*this, params);
-#else
-    reportUnsupportedParallelComputations();
-#endif
-  }  // end of FiniteElementDiscretization
-
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      std::shared_ptr<Mesh<false>> m, const Parameters& params)
-      : MeshDiscretization(m) {
-    std::tie(this->fec, this->sequential_fe_space) =
-        buildFiniteElementCollectionAndSpace<false>(*this, params);
-  }  // end of FiniteElementDiscretization
-
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      mgis::Context& ctx, const Parameters& params)
-      : MeshDiscretization(
-            ctx,
-            extract(
-                throwing, params, MeshDiscretization::getParametersList())) {
-    CatchTimeSection(ctx, "FED::Constructor");
+    checkParameters(
+        throwing, params,
+        std::vector<std::string>{FiniteElementDiscretization::UnknownsSize});
+    auto or_raise = ctx.getThrowingFailureHandler();
+    const auto usize =
+        get<int>(throwing, params, FiniteElementDiscretization::UnknownsSize);
     if (this->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      std::tie(this->fec, this->parallel_fe_space) =
-          buildFiniteElementCollectionAndSpace<true>(
-              *this, remove(params, MeshDiscretization::getParametersList()));
-#else  /* MFEM_USE_MPI */
+      this->parallel_fe_space =
+          this->fespaces_manager.getFiniteElementSpace<true>(ctx, usize) |
+          or_raise;
+#else
       reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
+#endif
     } else {
-      std::tie(this->fec, this->sequential_fe_space) =
-          buildFiniteElementCollectionAndSpace<false>(
-              *this, remove(params, MeshDiscretization::getParametersList()));
+      this->sequential_fe_space =
+          this->fespaces_manager.getFiniteElementSpace<false>(ctx, usize) |
+          or_raise;
     }
+  }
+
+  FiniteElementDiscretization::FiniteElementDiscretization(
+      Context& ctx, const Parameters& params)
+      : FiniteElementDiscretization(
+            ctx,
+            MeshDiscretization(
+                ctx,
+                extract(
+                    throwing, params, MeshDiscretization::getParametersList())),
+            extract(throwing,
+                    params,
+                    getFiniteElementDiscretizationParametersList())) {
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
+      Context& ctx, const MeshDiscretization& m, const Parameters& params)
+      : FiniteElementDiscretization(
+            ctx,
+            FiniteElementSpacesManager(
+                ctx,
+                m,
+                extract(throwing,
+                        params,
+                        FiniteElementSpacesManager::
+                            getFiniteElementCollectionParametersList())),
+            remove(params,
+                   FiniteElementSpacesManager::
+                       getFiniteElementCollectionParametersList())) {
+  }  // end of FiniteElementDiscretization
+
+  FiniteElementDiscretization::FiniteElementDiscretization(
+      Context& ctx, std::shared_ptr<Mesh<true>> m, const Parameters& params)
+      : FiniteElementDiscretization(
+            ctx,
+            MeshDiscretization(m),
+            extract(throwing,
+                    params,
+                    getFiniteElementDiscretizationParametersList())) {
+  }  // end of FiniteElementDiscretization
+
+  FiniteElementDiscretization::FiniteElementDiscretization(
+      Context& ctx, std::shared_ptr<Mesh<false>> m, const Parameters& params)
+      : FiniteElementDiscretization(
+            ctx,
+            MeshDiscretization(m),
+            extract(throwing,
+                    params,
+                    getFiniteElementDiscretizationParametersList())) {
+  }  // end of FiniteElementDiscretization
+
+  FiniteElementDiscretization::FiniteElementDiscretization(
+      Context& ctx,
       std::shared_ptr<Mesh<true>> m,
       std::shared_ptr<const FiniteElementCollection> c,
       const size_type d)
-      : MeshDiscretization(std::move(m)), fec(std::move(c)) {
-    if (fec.get() == nullptr) {
-      raise("invalid finite element collection");
-    }
-#ifdef MFEM_USE_MPI
-    this->parallel_fe_space = std::make_unique<FiniteElementSpace<true>>(
-        this->parallel_mesh.get(), this->fec.get(), d);
-#else  /* MFEM_USE_MPI */
-    static_cast<void>(d);
-    reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-  }    // end of FiniteElementDiscretization
+      : FiniteElementDiscretization(
+            ctx,
+            FiniteElementSpacesManager(ctx, m, c),
+            Parameters{{FiniteElementDiscretization::UnknownsSize, d}}) {}
 
   FiniteElementDiscretization::FiniteElementDiscretization(
-      std::shared_ptr<Mesh<true>> m,
-      std::shared_ptr<const FiniteElementCollection> c,
-      std::unique_ptr<FiniteElementSpace<true>> s)
-      : MeshDiscretization(std::move(m)),
-        fec(std::move(c))
-#ifdef MFEM_USE_MPI
-        ,
-        parallel_fe_space(std::move(s))
-#endif /* MFEM_USE_MPI */
-  {
-#ifdef MFEM_USE_MPI
-    if (this->fec.get() == nullptr) {
-      raise("invalid finite element collection");
-    }
-    if (this->parallel_fe_space.get() == nullptr) {
-      raise("invalid finite element space");
-    }
-    if (this->parallel_mesh.get() != this->parallel_fe_space->GetMesh()) {
-      raise(
-          "FiniteElementDiscretization::FiniteElementDiscretization: "
-          "mesh pointer don't match the mesh on which the finite element space "
-          "is built");
-    }
-#else  /* MFEM_USE_MPI */
-    static_cast<void>(s);
-    reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-  }    // end of FiniteElementDiscretization
-
-  FiniteElementDiscretization::FiniteElementDiscretization(
+      Context& ctx,
       std::shared_ptr<Mesh<false>> m,
       std::shared_ptr<const FiniteElementCollection> c,
       const size_type d)
-      : MeshDiscretization(m), fec(std::move(c)) {
-    if (this->fec.get() == nullptr) {
-      raise("invalid finite element collection");
-    }
-    this->sequential_fe_space = std::make_unique<FiniteElementSpace<false>>(
-        this->sequential_mesh.get(), this->fec.get(), d);
-  }  // end of FiniteElementDiscretization
-
-  FiniteElementDiscretization::FiniteElementDiscretization(
-      std::shared_ptr<Mesh<false>> m,
-      std::shared_ptr<const FiniteElementCollection> c,
-      std::unique_ptr<FiniteElementSpace<false>> s)
-      : MeshDiscretization(std::move(m)),
-        fec(std::move(c)),
-        sequential_fe_space(std::move(s)) {
-    if (this->fec.get() == nullptr) {
-      raise("invalid finite element collection");
-    }
-    if (this->sequential_fe_space.get() == nullptr) {
-      raise("invalid finite element space");
-    }
-    if (this->sequential_mesh.get() != this->sequential_fe_space->GetMesh()) {
-      raise(
-          "FiniteElementDiscretization::FiniteElementDiscretization: "
-          "mesh pointer don't match the mesh on which the finite element space "
-          "is built");
-    }
-  }  // end of FiniteElementDiscretization
+      : FiniteElementDiscretization(
+            ctx,
+            FiniteElementSpacesManager(ctx, m, c),
+            Parameters{{FiniteElementDiscretization::UnknownsSize, d}}) {}
 
   const FiniteElementCollection&
   FiniteElementDiscretization::getFiniteElementCollection() const noexcept {
-    return *(this->fec);
+    return this->fespaces_manager.getFiniteElementCollection();
   }  // end of getFiniteElementCollection
 
   std::shared_ptr<const FiniteElementCollection>
   FiniteElementDiscretization::getFiniteElementCollectionPointer()
       const noexcept {
-    return this->fec;
+    return this->fespaces_manager.getFiniteElementCollectionPointer();
   }  // end of getFiniteElementCollection
 
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;

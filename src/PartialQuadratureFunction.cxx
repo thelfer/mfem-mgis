@@ -711,9 +711,9 @@ namespace mfem_mgis {
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
     auto& fes = fed.getFiniteElementSpace<parallel>();
-    auto& mesh = fed.getMesh<parallel>();
+    auto mesh = fed.getMutableMeshPointer<parallel>();
     auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
-        const_cast<Mesh<parallel>*>(&mesh), fes.FEColl(), n, fes.GetOrdering());
+        mesh.get(), fes.FEColl(), n, fes.GetOrdering());
     auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
     return std::make_pair(std::move(fespace), std::move(f));
   }
