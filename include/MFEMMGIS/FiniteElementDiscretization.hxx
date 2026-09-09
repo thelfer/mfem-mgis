@@ -115,6 +115,23 @@ namespace mfem_mgis {
                                 std::shared_ptr<Mesh<false>>,
                                 std::shared_ptr<const FiniteElementCollection>,
                                 const size_type);
+    /*!
+     * \return if the given element space is also managed by the finite element
+     * space manager
+     * \param[in] s: finite element space
+     */
+    template <bool parallel>
+    [[nodiscard]] bool isSlibing(
+        const FiniteElementSpace<parallel>&) const noexcept;
+    //! \return the underlying finite element space manager
+    [[nodiscard]] FiniteElementSpacesManager getFiniteElementSpacesManager()
+        const noexcept;
+    /*!
+     * \brief assign a suitable nodal finite element space to the underlying
+     * mesh
+     * \param[in] ctx: execution context
+     */
+    [[nodiscard]] bool setNodalFiniteElementSpace(Context&) const noexcept;
     //! \return the finite element space
     template <bool parallel>
     [[nodiscard]] FiniteElementSpace<parallel>& getFiniteElementSpace();

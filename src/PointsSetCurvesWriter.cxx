@@ -26,20 +26,21 @@ namespace mfem_mgis {
     return d;
   }  // end of getParametersDescription
 
-  PointsSetCurvesWriter::PointsSetCurvesWriter(const PhysicalSystem &ps,
-                                               const Parameters &parameters)
-      : PointsSetCurvesWriter(ps.getMeshDiscretization(), parameters) {
+  PointsSetCurvesWriter::PointsSetCurvesWriter(
+      const FiniteElementDiscretization &fed, const Parameters &parameters)
+      : PointsSetCurvesWriter(fed.getFiniteElementSpacesManager(), parameters) {
   }  // end of PointsSetCurvesWriter
 
-  PointsSetCurvesWriter::PointsSetCurvesWriter(const MeshDiscretization &m,
-                                               const Parameters &parameters)
-      : mesh(m),
-        curves(m,
+  PointsSetCurvesWriter::PointsSetCurvesWriter(
+      const FiniteElementSpacesManager &manager, const Parameters &parameters)
+      : fespaces_manager(manager),
+        curves(manager,
                extract(throwing,
                        parameters,
                        PointsSetCurves::getParametersDescription())) {
     checkParameters(throwing, parameters,
                     PointsSetCurvesWriter::getParametersDescription());
+    const auto mesh = this->fespaces_manager.getMeshDiscretization();
     if (!contains(parameters, "File")) {
       raise("no parameter 'file' specified");
     }
@@ -48,7 +49,7 @@ namespace mfem_mgis {
     }
     const auto &fname = get<std::string>(throwing, parameters, "File");
     auto success = true;
-    if (isMainProcess(this->mesh)) {
+    if (isMainProcess(mesh)) {
       this->out.open(fname);
       // force the C locale. Otherwise, the LC_NUMERICS environment
       // variable is taken into account and that could lead to
@@ -58,7 +59,7 @@ namespace mfem_mgis {
       this->out.imbue(std::locale("C"));
       success = this->out.is_open();
     }
-    if (!isTrueOnAllProcesses(m, success)) {
+    if (!isTrueOnAllProcesses(mesh, success)) {
       raise("opening of file '" + fname + "' failed");
     }
     //
@@ -68,7 +69,7 @@ namespace mfem_mgis {
         raise("invalid value for the 'Precision' parameter (" +
               std::to_string(p) + ")");
       }
-      if (isMainProcess(this->mesh)) {
+      if (isMainProcess(mesh)) {
         this->out.precision(p);
       }
     }
@@ -97,9 +98,10 @@ namespace mfem_mgis {
   }  // end of add
 
   bool PointsSetCurvesWriter::writeFileHeader(Context &ctx) {
+    const auto mesh = this->fespaces_manager.getMeshDiscretization();
     this->allowNewPointsSetCurves = false;
     auto success = true;
-    if (isMainProcess(this->mesh)) {
+    if (isMainProcess(mesh)) {
       try {
         auto nl = size_type{1};
         if (this->curves.exportCurvilinearAbscissa()) {
@@ -123,7 +125,7 @@ namespace mfem_mgis {
         success = false;
       }
     }
-    if (!isTrueOnAllProcesses(this->mesh, success)) {
+    if (!isTrueOnAllProcesses(mesh, success)) {
       return false;
     }
     return true;
@@ -132,13 +134,14 @@ namespace mfem_mgis {
   bool PointsSetCurvesWriter::writeValues(Context &ctx,
                                           const TimeStep &ts,
                                           const TimeStepStage &tss) {
+    const auto mesh = this->fespaces_manager.getMeshDiscretization();
     this->allowNewPointsSetCurves = false;
     const auto t = (tss == bts) ? ts.begin : ts.end;
-    if (isMainProcess(this->mesh)) {
+    if (isMainProcess(mesh)) {
       this->out << "\n#Time " << t << '\n';
     }
-    auto write_values = [this](const std::vector<real> &values) {
-      if (isMainProcess(this->mesh)) {
+    auto write_values = [this, &mesh](const std::vector<real> &values) {
+      if (isMainProcess(mesh)) {
         bool first = true;
         for (const auto &v : values) {
           if (!first) {
@@ -158,7 +161,7 @@ namespace mfem_mgis {
       } else {
         write_values(*ovalues);
       }
-      if (!isTrueOnAllProcesses(this->mesh, success)) {
+      if (!isTrueOnAllProcesses(mesh, success)) {
         return false;
       }
     }
@@ -172,7 +175,7 @@ namespace mfem_mgis {
           write_values(row);
         }
       }
-      if (!isTrueOnAllProcesses(this->mesh, success)) {
+      if (!isTrueOnAllProcesses(mesh, success)) {
         return false;
       }
     }
@@ -185,10 +188,10 @@ namespace mfem_mgis {
         write_values(row);
       }
     }
-    if (!isTrueOnAllProcesses(this->mesh, success)) {
+    if (!isTrueOnAllProcesses(mesh, success)) {
       return false;
     }
-    if (isMainProcess(this->mesh)) {
+    if (isMainProcess(mesh)) {
       this->out.flush();
     }
     return true;

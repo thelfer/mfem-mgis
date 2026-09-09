@@ -28,10 +28,13 @@ namespace mfem_mgis {
            "function at a set of points";
   }  // end of getDescription
 
-  GridFunctionValuesCurve::GridFunctionValuesCurve(Context &ctx,
-                                                   PhysicalSystem &ps,
-                                                   const Parameters &parameters)
-      : physicalSystem(ps) {
+  GridFunctionValuesCurve::GridFunctionValuesCurve(
+      Context &ctx,
+      PhysicalSystem &ps,
+      const FiniteElementSpacesManager &manager,
+      const Parameters &parameters)
+      : physicalSystem(ps), fespaces_manager(manager) {
+#pragma message("shall check that ps and manager are compatible")
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
     auto or_raise = ctx.getThrowingFailureHandler();
     checkParameters(throwing, parameters,
@@ -158,10 +161,12 @@ namespace mfem_mgis {
     auto ointerpolator = [this, &ctx] {
       if (std::holds_alternative<std::vector<Point<2>>>(this->points)) {
         return construct<GridFunctionInterpolator>(
-            ctx, std::get<std::vector<Point<2>>>(this->points));
+            ctx, this->fespaces_manager,
+            std::get<std::vector<Point<2>>>(this->points));
       }
       return construct<GridFunctionInterpolator>(
-          ctx, std::get<std::vector<Point<3>>>(this->points));
+          ctx, this->fespaces_manager,
+          std::get<std::vector<Point<3>>>(this->points));
     }();
     if (isInvalid(ointerpolator)) {
       return oresults;

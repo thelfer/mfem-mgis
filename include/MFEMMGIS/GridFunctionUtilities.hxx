@@ -46,7 +46,7 @@ namespace mfem_mgis {
   template <bool parallel>
   struct MakeGridFunctionResult {
     //! \brief finite element space on which the grid function is defined
-    std::unique_ptr<FiniteElementSpace<parallel>> fe_space;
+    std::shared_ptr<FiniteElementSpace<parallel>> fe_space;
     //! \brief created grid function
     std::unique_ptr<GridFunction<parallel>> f;
   };  // end of MakeGridFunctionResult
@@ -80,36 +80,6 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<false>>
   makeGridFunction<false>(Context&,
                           const FiniteElementDiscretization&,
-                          const size_type) noexcept;
-
-  /*!
-   * \return a GridFunction with the given number of components, creating a new
-   * finite element space if required.
-   *
-   * In MFEM, a GridFunction has the number of components (VDIM) of the
-   * underlying finite element space, which is quite limiting in practice.
-   *
-   * \param[in] ctx: execution context
-   * \param[in] fed: finite element discretization
-   * \param[in] nc: number of components
-   *
-   */
-  template <bool parallel>
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<parallel>>
-  makeGridFunction(Context&,
-                   const FiniteElementSpace<parallel>&,
-                   const size_type) noexcept;
-
-  // partial specialisations
-  template <>
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<true>>
-  makeGridFunction<true>(Context&,
-                         const FiniteElementSpace<true>&,
-                         const size_type) noexcept;
-  template <>
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<MakeGridFunctionResult<false>>
-  makeGridFunction<false>(Context&,
-                          const FiniteElementSpace<false>&,
                           const size_type) noexcept;
 
 }  // end of namespace mfem_mgis

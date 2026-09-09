@@ -12,6 +12,7 @@
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
+#include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
 #include "MFEMMGIS/Geometry.hxx"
 #endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
@@ -38,9 +39,13 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] ctx: execution context
      * \param[in] ps: physical system
+     * \param[in] manager: finite element spaces manager
      * \param[in] params: parameters
      */
-    GridFunctionValuesCurve(Context &, PhysicalSystem &, const Parameters &);
+    GridFunctionValuesCurve(Context &,
+                            PhysicalSystem &,
+                            const FiniteElementSpacesManager &,
+                            const Parameters &);
     /*!
      * \brief set the grid function to be interpolated (parallel case)
      * \param[in] ctx: execution context
@@ -76,6 +81,8 @@ namespace mfem_mgis {
     [[nodiscard]] bool arePointsDefined() const noexcept;
     //! \brief underlying physical system
     PhysicalSystem &physicalSystem;
+    //! \brief underlying finite element space manager
+    FiniteElementSpacesManager fespaces_manager;
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
     //! \brief list of points
     std::variant<std::vector<Point<2>>, std::vector<Point<3>>> points;

@@ -86,13 +86,27 @@ namespace mfem_mgis {
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<parallel>>
     getFiniteElementSpace(Context&, const size_type) const noexcept;
     /*!
-     * \brief set of the nodal finite element space to the underlying mesh
-     * \param[in] ctx: execution context
+     * \brief assign a suitable nodal finite element space to the underlying
+     * mesh \param[in] ctx: execution context
      *
      * \note if a scalar finite element space has already been declared, it is
      * reused.
      */
     [[nodiscard]] bool setNodalFiniteElementSpace(Context&) const noexcept;
+    /*!
+     * \return if the given element space is also managed by this finite element
+     * space manager
+     * \param[in] s: finite element space
+     */
+    [[nodiscard]] bool manages(
+        const FiniteElementSpace<true>& s) const noexcept;
+    /*!
+     * \return if the given element space is also managed by this finite element
+     * space manager
+     * \param[in] s: finite element space
+     */
+    [[nodiscard]] bool manages(
+        const FiniteElementSpace<false>& s) const noexcept;
 
    private:
     /*!

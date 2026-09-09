@@ -29,14 +29,10 @@ namespace mfem_mgis {
     return d;
   }  // end of getParametersDescription
 
-  PointsSetCurves::PointsSetCurves(const PhysicalSystem &ps,
+  PointsSetCurves::PointsSetCurves(const FiniteElementSpacesManager &manager,
                                    const Parameters &params)
-      : PointsSetCurves(ps.getMeshDiscretization(), params) {
-  }  // end of PointsSetCurves::PointsSetCurves
-
-  PointsSetCurves::PointsSetCurves(const MeshDiscretization &m,
-                                   const Parameters &params)
-      : shallExportCurvilinearAbscissa(
+      : fespaces_manager(manager),
+        shallExportCurvilinearAbscissa(
             get_if<bool>(throwing, params, "ExportCurvilinearAbscissa", true)),
         shallExportCoordinates(
             get_if<bool>(throwing, params, "ExportCoordinates", true)) {
@@ -45,6 +41,7 @@ namespace mfem_mgis {
     if (!contains(params, "PointsSet")) {
       raise("no points set defined");
     }
+    const auto m = this->fespaces_manager.getMeshDiscretization();
     const auto d = ::mfem_mgis::getSpaceDimension(m);
     if (d == 2) {
 #if MGIS_HAVE_TFEL
@@ -82,6 +79,12 @@ namespace mfem_mgis {
   bool PointsSetCurves::add(Context &ctx,
                             std::string_view n,
                             const GridFunction<true> &f) noexcept {
+    if (!this->fespaces_manager.manages(*(f.ParFESpace()))) {
+      return ctx.registerErrorMessage(
+          "the given grid function is defined on a finite element space which "
+          "is not managed by the finite element spaces manager of which the "
+          "points set curves is built");
+    }
     for (const auto &[nf, vf] : this->gridfunctions) {
       static_cast<void>(vf);
       if (nf == n) {
@@ -102,6 +105,12 @@ namespace mfem_mgis {
   bool PointsSetCurves::add(Context &ctx,
                             std::string_view n,
                             const GridFunction<false> &f) noexcept {
+    if (!this->fespaces_manager.manages(*(f.FESpace()))) {
+      return ctx.registerErrorMessage(
+          "the given grid function is defined on a finite element space which "
+          "is not managed by the finite element spaces manager of which the "
+          "points set curves is built");
+    }
     for (const auto &[nf, vf] : this->gridfunctions) {
       static_cast<void>(vf);
       if (nf == n) {
@@ -230,7 +239,7 @@ namespace mfem_mgis {
       }
     };
     //
-    auto interpolator = GridFunctionInterpolator();
+    auto interpolator = GridFunctionInterpolator(this->fespaces_manager);
     if (std::holds_alternative<std::vector<Point<2>>>(points)) {
       const auto &pts = std::get<std::vector<Point<2>>>(points);
       if (!interpolator.addPoints(ctx, pts)) {

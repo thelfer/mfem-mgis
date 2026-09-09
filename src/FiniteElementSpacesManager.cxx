@@ -7,6 +7,7 @@
 
 #include <mfem/mesh/mesh.hpp>
 #include <mfem/fem/fespace.hpp>
+#include <mfem/fem/gridfunc.hpp>
 #ifdef MFEM_USE_MPI
 #include <mfem/mesh/pmesh.hpp>
 #include <mfem/fem/pfespace.hpp>
@@ -171,7 +172,15 @@ namespace mfem_mgis {
         if (isInvalid(ptr)) {
           return false;
         }
-        m.SetNodalFESpace(ptr.get());
+        const auto* const nodes = m.GetNodes();
+        if (nodes == nullptr) {
+          m.SetNodalFESpace(ptr.get());
+        } else {
+          // nodes is a pointer to a grid function, even in parallel
+          if (nodes->FESpace() != ptr.get()) {
+            m.SetNodalFESpace(ptr.get());
+          }
+        }
 #else
         reportUnsupportedParallelComputations();
 #endif /* */
@@ -181,7 +190,14 @@ namespace mfem_mgis {
         if (isInvalid(ptr)) {
           return false;
         }
-        m.SetNodalFESpace(ptr.get());
+        const auto* const nodes = m.GetNodes();
+        if (nodes == nullptr) {
+          m.SetNodalFESpace(ptr.get());
+        } else {
+          if (nodes->FESpace() != ptr.get()) {
+            m.SetNodalFESpace(ptr.get());
+          }
+        }
       }
       return true;
     }
@@ -190,11 +206,49 @@ namespace mfem_mgis {
         const noexcept {
       return *(this->fec);
     }  // end of getFiniteElementCollection
-
+    //! \return the finite element collection
     [[nodiscard]] std::shared_ptr<const FiniteElementCollection>
     getFiniteElementCollectionPointer() const noexcept {
       return this->fec;
     }  // end of getFiniteElementCollectionPointer
+    /*!
+     * \return if the given element space is also managed by this finite element
+     * space manager
+     * \param[in] s: finite element space
+     */
+    [[nodiscard]] bool manages(
+        const FiniteElementSpace<true>& s) const noexcept {
+      if (!this->mesh.describesAParallelComputation()) {
+        return false;
+      }
+#ifdef MFEM_USE_MPI
+      const auto nc = s.GetVDim();
+      const auto p = this->parallel_fespaces.find(nc);
+      if (p == this->parallel_fespaces.end()) {
+        return false;
+      }
+      return p->second.get() == &s;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }  // end of manages
+    /*!
+     * \return if the given element space is also managed by this finite element
+     * space manager
+     * \param[in] s: finite element space
+     */
+    [[nodiscard]] bool manages(
+        const FiniteElementSpace<false>& s) const noexcept {
+      if (this->mesh.describesAParallelComputation()) {
+        return false;
+      }
+      const auto nc = s.GetVDim();
+      const auto p = this->sequential_fespaces.find(nc);
+      if (p == this->sequential_fespaces.end()) {
+        return false;
+      }
+      return p->second.get() == &s;
+    }  // end of manages
 
    private:
     //! \brief mesh
@@ -265,5 +319,15 @@ namespace mfem_mgis {
       const noexcept {
     return this->pimpl->getFiniteElementCollectionPointer();
   }  // end of getFiniteElementCollectionPointer
+
+  bool FiniteElementSpacesManager::manages(
+      const FiniteElementSpace<true>& s) const noexcept {
+    return this->pimpl->manages(s);
+  }  // end of manages
+
+  bool FiniteElementSpacesManager::manages(
+      const FiniteElementSpace<false>& s) const noexcept {
+    return this->pimpl->manages(s);
+  }  // end of manages
 
 }  // end of namespace mfem_mgis

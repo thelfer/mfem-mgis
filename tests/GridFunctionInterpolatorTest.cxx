@@ -67,7 +67,7 @@ struct GridFunctionInterpolatorTest final : public tfel::tests::TestCase {
     auto& m = ofed->template getMesh<parallel>();
     m.SetNodalFESpace(&fespace);
     //
-    auto ox = makeGridFunction<parallel>(ctx, fespace, 2);
+    auto ox = makeGridFunction<parallel>(ctx, *ofed, 2);
     TFEL_TESTS_ASSERT(isValid(ox));
     m.SetNodalGridFunction(ox->f.get());
     //
@@ -123,17 +123,24 @@ struct GridFunctionInterpolatorTest final : public tfel::tests::TestCase {
                    {"NumberOfUniformRefinements", 0},  // faster for testing
                    {"Parallel", parameters.parallel}});
     TFEL_TESTS_ASSERT(isValid(ofed));
-    auto& fespace = ofed->template getFiniteElementSpace<parallel>();
     auto& m = ofed->template getMesh<parallel>();
+    auto& fespace = ofed->template getFiniteElementSpace<parallel>();
+    std::cerr << "fespace: " << &fespace << '\n';
     //
-    auto ocoords = makeGridFunction<parallel>(ctx, fespace, 2);
+    auto ocoords = makeGridFunction<parallel>(ctx, *ofed, 2);
     TFEL_TESTS_ASSERT(isValid(ocoords));
     m.SetNodalGridFunction(ocoords->f.get());
     //
     const auto pts = std::vector<Point<2>>{{0.583, 0.2}, {0.583, 0.1}};
-    auto ointerpolator = construct<GridFunctionInterpolator>(ctx, pts);
+    auto ointerpolator = construct<GridFunctionInterpolator>(ctx, *ofed, pts);
     TFEL_TESTS_ASSERT(isValid(ointerpolator));
     const auto ovalues = ointerpolator->interpolate(ctx, *(ocoords->f));
+    if constexpr (parallel) {
+      std::cerr << "fespace2: " << ocoords->f->ParFESpace() << '\n';
+    } else {
+      std::cerr << "fespace2: " << ocoords->f->FESpace() << '\n';
+    }
+    std::cerr << "error: " << ctx.getErrorMessage() << '\n';
     TFEL_TESTS_ASSERT(isValid(ovalues));
     TFEL_TESTS_CHECK_EQUAL(ovalues->getNumberOfRows(), 2);
     TFEL_TESTS_CHECK_EQUAL(ovalues->getNumberOfColumns(), 2);

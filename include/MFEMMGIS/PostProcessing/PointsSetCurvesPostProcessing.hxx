@@ -35,9 +35,12 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in, out] ctx: execution context
      * \param[in] ps: physical system
+     * \param[in] manager: finite element spaces manager
      * \param[in] params: parameters
      */
-    PointsSetCurvesPostProcessing(PhysicalSystem &, const Parameters &);
+    PointsSetCurvesPostProcessing(PhysicalSystem &,
+                                  const FiniteElementSpacesManager &,
+                                  const Parameters &);
 #ifdef MFEM_USE_MPI
     /*!
      * \brief add a grid function  (parallel version)

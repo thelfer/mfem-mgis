@@ -13,36 +13,14 @@
 #include "mfem/fem/pgridfunc.hpp"
 #endif /* MFEM_USE_MPI */
 #include "mfem/fem/gslib.hpp"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/GridFunctionInterpolator.hxx"
 
 namespace mfem_mgis::internals {
 
   template <size_type N>
-  requires((N == 2) || (N == 3)) [[nodiscard]] static bool setSpaceDimension(
-      Context& ctx, std::optional<size_type>& space_dimension) noexcept {
-    if (!space_dimension.has_value()) {
-      space_dimension = N;
-      return true;
-    }
-    if (*space_dimension != N) {
-      return ctx.registerErrorMessage(
-          "the space dimension is already can't be set to " +
-          std::to_string(N) + "as it is already set to " +
-          std::to_string(*space_dimension));
-    }
-    return true;
-  }  // end of setSpaceDimension
-
-  template <size_type N>
-  requires((N == 2) || (N == 3)) [[nodiscard]] static bool addPoints_impl(
-      Context& ctx,
-      std::optional<size_type>& space_dimension,
-      std::vector<real>& points,
-      const std::vector<Point<N>>& pts) noexcept {
-    if (!setSpaceDimension<N>(ctx, space_dimension)) {
-      return ctx.registerErrorMessage(
-          "GridFunctionInterpolator::addPoints failed");
-    }
+  requires((N == 2) || (N == 3)) static void addPoints_impl(
+      std::vector<real>& points, const std::vector<Point<N>>& pts) noexcept {
     auto n = points.size();
     points.resize(points.size() + N * pts.size());
     for (const auto& p : pts) {
@@ -53,63 +31,38 @@ namespace mfem_mgis::internals {
       }
       n += N;
     }
-    return true;
   }  // end of addPoints_impl
 
   template <bool parallel, size_type N>
   requires((N == 2) || (N == 3))
       [[nodiscard]] static std::optional<tfel::math::matrix<real>>  //
       interpolate_impl(Context& ctx,
+                       const FiniteElementSpacesManager& fespaces_manager,
                        const GridFunction<parallel>& f,
                        std::vector<real>& points) {
-    auto* const fespace = [&f] {
+    const auto& mesh = fespaces_manager.getMeshDiscretization();
+    const auto d = getSpaceDimension(mesh);
+    const auto* fespace = [&f] {
       if constexpr (parallel) {
         return f.ParFESpace();
       } else {
         return f.FESpace();
       }
     }();
-    auto* const mesh = [&fespace] {
-      if constexpr (parallel) {
-        return fespace->GetParMesh();
-      } else {
-        return fespace->GetMesh();
-      }
-    }();
-    if (mesh->SpaceDimension() != N) {
+    if (d != N) {
       return ctx.registerErrorMessage(
           "a grid function defined on a mesh with space dimension " +
-          std::to_string(mesh->SpaceDimension()) +
+          std::to_string(d) +
           " can't be interpolation of points of dimension '" +
           std::to_string(N) + "'");
     }
     //
-    // set the node fespace if required
-    const auto shall_set_nodal_fespace = [mesh, fespace] {
-      if (fespace->GetVDim() != N) {
-        return true;
-      }
-      // nodes is a pointer to a grid function, even in parallel
-      const auto* const nodes = mesh->GetNodes();
-      if (nodes == nullptr) {
-        return true;
-      }
-      return nodes->FESpace() != fespace;
-    }();
-    //
-    auto nodal_fespace = std::unique_ptr<FiniteElementSpace<parallel>>{};
-    if (shall_set_nodal_fespace) {
-      nodal_fespace = make_unique<FiniteElementSpace<parallel>>(
-          ctx, static_cast<Mesh<parallel>*>(fespace->GetMesh()),
-          fespace->FEColl(), N, fespace->GetOrdering());
-      if (isInvalid(nodal_fespace)) {
-        return {};
-      }
-      mesh->SetNodalFESpace(nodal_fespace.get());
+    if (!fespaces_manager.setNodalFiniteElementSpace(ctx)) {
+      return {};
     }
     //
     auto finder = mfem::FindPointsGSLIB{};
-    finder.Setup(*mesh);
+    finder.Setup(*(mesh.getMutableMeshPointer<parallel>()));
     finder.SetDefaultInterpolationValue(std::numeric_limits<real>::quiet_NaN());
     //
     auto pts =
@@ -150,54 +103,108 @@ namespace mfem_mgis::internals {
 
 namespace mfem_mgis {
 
-  GridFunctionInterpolator::GridFunctionInterpolator() = default;
+  GridFunctionInterpolator::GridFunctionInterpolator(
+      const FiniteElementSpacesManager& m) noexcept
+      : fespaces_manager(m) {}
 
   GridFunctionInterpolator::GridFunctionInterpolator(
-      Context& ctx, const std::vector<Point<2>>& pts) {
+      Context& ctx,
+      const FiniteElementSpacesManager& m,
+      const std::vector<Point<2>>& pts)
+      : GridFunctionInterpolator(m) {
     auto or_raise = ctx.getThrowingFailureHandler();
     this->addPoints(ctx, pts) | or_raise;
   }  // end of GridFunctionInterpolator
 
   GridFunctionInterpolator::GridFunctionInterpolator(
-      Context& ctx, const std::vector<Point<3>>& pts) {
+      Context& ctx,
+      const FiniteElementSpacesManager& m,
+      const std::vector<Point<3>>& pts)
+      : GridFunctionInterpolator(m) {
     auto or_raise = ctx.getThrowingFailureHandler();
     this->addPoints(ctx, pts) | or_raise;
+  }  // end of GridFunctionInterpolator
+
+  GridFunctionInterpolator::GridFunctionInterpolator(
+      const FiniteElementDiscretization& fed) noexcept
+      : fespaces_manager(fed.getFiniteElementSpacesManager()) {}
+
+  GridFunctionInterpolator::GridFunctionInterpolator(
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const std::vector<Point<2>>& pts)
+      : GridFunctionInterpolator(
+            ctx, fed.getFiniteElementSpacesManager(), pts) {
+  }  // end of GridFunctionInterpolator
+
+  GridFunctionInterpolator::GridFunctionInterpolator(
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const std::vector<Point<3>>& pts)
+      : GridFunctionInterpolator(
+            ctx, fed.getFiniteElementSpacesManager(), pts) {
   }  // end of GridFunctionInterpolator
 
   bool GridFunctionInterpolator::addPoints(
       Context& ctx, const std::vector<Point<2>>& pts) noexcept {
-    return internals::addPoints_impl<2>(ctx, this->space_dimension,
-                                        this->points, pts);
+    const auto d =
+        getSpaceDimension(this->fespaces_manager.getMeshDiscretization());
+    if (d != 2) {
+      return ctx.registerErrorMessage("can't add 2D points to a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    internals::addPoints_impl<2>(this->points, pts);
+    return true;
   }  // end of GridFunctionInterpolator::addPoints
 
   bool GridFunctionInterpolator::addPoints(
       Context& ctx, const std::vector<Point<3>>& pts) noexcept {
-    return internals::addPoints_impl<3>(ctx, this->space_dimension,
-                                        this->points, pts);
+    const auto d =
+        getSpaceDimension(this->fespaces_manager.getMeshDiscretization());
+    if (d != 3) {
+      return ctx.registerErrorMessage("can't add 3D points to a " +
+                                      std::to_string(d) + "D mesh");
+    }
+    internals::addPoints_impl<3>(this->points, pts);
+    return true;
   }  // end of GridFunctionInterpolator::addPoints
 
 #ifdef MFEM_USE_MPI
   std::optional<tfel::math::matrix<real>> GridFunctionInterpolator::interpolate(
       Context& ctx, const GridFunction<true>& f) noexcept {
-    if (!this->space_dimension.has_value()) {
-      return ctx.registerErrorMessage("no points defined");
+    if (!this->fespaces_manager.manages(*(f.ParFESpace()))) {
+      return ctx.registerErrorMessage(
+          "the given grid function is defined on a finite element space which "
+          "is not managed by the finite element spaces manager of which the "
+          "interpolator is built");
     }
-    if (*(this->space_dimension) == 2) {
-      return internals::interpolate_impl<true, 2>(ctx, f, this->points);
+    const auto d =
+        getSpaceDimension(this->fespaces_manager.getMeshDiscretization());
+    if (d == 2) {
+      return internals::interpolate_impl<true, 2>(ctx, this->fespaces_manager,
+                                                  f, this->points);
     }
-    return internals::interpolate_impl<true, 3>(ctx, f, this->points);
+    return internals::interpolate_impl<true, 3>(ctx, this->fespaces_manager, f,
+                                                this->points);
   }    // end of interpolate
 #endif /* MFEM_USE_MPI */
 
   std::optional<tfel::math::matrix<real>> GridFunctionInterpolator::interpolate(
       Context& ctx, const GridFunction<false>& f) noexcept {
-    if (!this->space_dimension.has_value()) {
-      return ctx.registerErrorMessage("no points defined");
+    if (!this->fespaces_manager.manages(*(f.FESpace()))) {
+      return ctx.registerErrorMessage(
+          "the given grid function is defined on a finite element space which "
+          "is not managed by the finite element spaces manager of which the "
+          "interpolator is built");
     }
-    if (*(this->space_dimension) == 2) {
-      return internals::interpolate_impl<false, 2>(ctx, f, this->points);
+    const auto d =
+        getSpaceDimension(this->fespaces_manager.getMeshDiscretization());
+    if (d == 2) {
+      return internals::interpolate_impl<false, 2>(ctx, this->fespaces_manager,
+                                                   f, this->points);
     }
-    return internals::interpolate_impl<false, 3>(ctx, f, this->points);
+    return internals::interpolate_impl<false, 3>(ctx, this->fespaces_manager, f,
+                                                 this->points);
   }  // end of interpolate
 
   GridFunctionInterpolator::~GridFunctionInterpolator() = default;

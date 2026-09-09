@@ -11,6 +11,12 @@
 namespace mfem_mgis {
 
   template <bool parallel>
+  [[nodiscard]] bool FiniteElementDiscretization::isSlibing(
+      const FiniteElementSpace<parallel>& s) const noexcept {
+    return this->fespaces_manager.manages(s);
+  }  // end of isSibling
+
+  template <bool parallel>
   inline FiniteElementSpace<parallel>&
   FiniteElementDiscretization::getFiniteElementSpace() {
     if constexpr (parallel) {
@@ -50,7 +56,6 @@ namespace mfem_mgis {
       }
       return *(this->sequential_fe_space);
     }
-
   }  // end of getFiniteElementSpace
 
 }  // end of namespace mfem_mgis

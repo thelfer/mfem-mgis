@@ -153,6 +153,16 @@ namespace mfem_mgis {
             FiniteElementSpacesManager(ctx, m, c),
             Parameters{{FiniteElementDiscretization::UnknownsSize, d}}) {}
 
+  FiniteElementSpacesManager
+  FiniteElementDiscretization::getFiniteElementSpacesManager() const noexcept {
+    return this->fespaces_manager;
+  }  // end of getFiniteElementSpacesManager
+
+  bool FiniteElementDiscretization::setNodalFiniteElementSpace(
+      Context& ctx) const noexcept {
+    return this->fespaces_manager.setNodalFiniteElementSpace(ctx);
+  }  // end of setNodalFiniteElementSpace
+
   const FiniteElementCollection&
   FiniteElementDiscretization::getFiniteElementCollection() const noexcept {
     return this->fespaces_manager.getFiniteElementCollection();

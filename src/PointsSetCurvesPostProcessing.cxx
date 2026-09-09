@@ -31,9 +31,11 @@ namespace mfem_mgis {
   }  // end of PointsSetCurvesPostProcessing
 
   PointsSetCurvesPostProcessing::PointsSetCurvesPostProcessing(
-      PhysicalSystem &ps, const Parameters &params)
+      PhysicalSystem &ps,
+      const FiniteElementSpacesManager &manager,
+      const Parameters &params)
       : PostProcessingBase(ps, params, true),
-        writer(ps,
+        writer(manager,
                extract(throwing,
                        params,
                        PointsSetCurvesWriter::getParametersDescription())),
@@ -41,6 +43,7 @@ namespace mfem_mgis {
             throwing, params, "ExecuteInitialPostProcessing", true)) {
     checkParameters(throwing, params,
                     PointsSetCurvesPostProcessing::getParametersDescription());
+#pragma message("shall check that ps and manager are compatible")
   }  // end of PointsSetCurvesPostProcessing
 
   std::string PointsSetCurvesPostProcessing::getName() const noexcept {

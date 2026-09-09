@@ -12,7 +12,7 @@
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/TimeStep.hxx"
 #include "MFEMMGIS/TimeStepStage.hxx"
-#include "MFEMMGIS/MeshDiscretization.hxx"
+#include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 #include "MFEMMGIS/Utilities/DataFileUtilities.hxx"
 #include "MFEMMGIS/PostProcessing/PointsSetCurves.hxx"
 
@@ -20,7 +20,7 @@ namespace mfem_mgis {
 
   // forward declarations
   struct Context;
-  struct PhysicalSystem;
+  struct FiniteElementDiscretization;
 
   /*!
    * \brief helper class meant to write the results of a curve to
@@ -32,16 +32,18 @@ namespace mfem_mgis {
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
-     * \param[in] m: mesh discretization
+     * \param[in] manager: finite element spaces manager
      * \param[in] params: parameters
      */
-    PointsSetCurvesWriter(const MeshDiscretization &, const Parameters &);
+    PointsSetCurvesWriter(const FiniteElementSpacesManager &,
+                          const Parameters &);
     /*!
      * \brief constructor
-     * \param[in] ps: physical system
+     * \param[in] fed: finite element discretization
      * \param[in] params: parameters
      */
-    PointsSetCurvesWriter(const PhysicalSystem &, const Parameters &);
+    PointsSetCurvesWriter(const FiniteElementDiscretization &,
+                          const Parameters &);
 #ifdef MFEM_USE_MPI
     /*!
      * \brief add a grid function  (parallel version)
@@ -76,8 +78,8 @@ namespace mfem_mgis {
     bool writeValues(Context &, const TimeStep &, const TimeStepStage &);
 
    private:
-    //! \brief mesh
-    MeshDiscretization mesh;
+    //! \brief underlying finite element space manager
+    FiniteElementSpacesManager fespaces_manager;
     //! \brief list of registred curves packed into a `MultiplePointsSetCurvess`
     PointsSetCurves curves;
     //! \brief output file

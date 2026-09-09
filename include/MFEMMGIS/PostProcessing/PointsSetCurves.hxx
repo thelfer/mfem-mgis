@@ -19,6 +19,7 @@
 #ifdef MGIS_HAVE_TFEL
 #include "MFEMMGIS/Geometry.hxx"
 #endif /* MGIS_HAVE_TFEL */
+#include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 
 namespace mfem_mgis {
 
@@ -34,16 +35,10 @@ namespace mfem_mgis {
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
-     * \param[in] ps: physical system
+     * \param[in] manager: finite element spaces manager
      * \param[in] params: parameters
      */
-    PointsSetCurves(const PhysicalSystem &, const Parameters &);
-    /*!
-     * \brief constructor
-     * \param[in] m: mesh discretization
-     * \param[in] params: parameters
-     */
-    PointsSetCurves(const MeshDiscretization &, const Parameters &);
+    PointsSetCurves(const FiniteElementSpacesManager &, const Parameters &);
 #ifdef MFEM_USE_MPI
     /*!
      * \brief add a grid function  (parallel version)
@@ -86,6 +81,9 @@ namespace mfem_mgis {
     ~PointsSetCurves() noexcept;
 
    private:
+    //! \brief underlying finite element space manager
+    FiniteElementSpacesManager fespaces_manager;
+    //! \brief list of registred grid functions
 #ifdef MFEM_USE_MPI
     std::vector<std::pair<
         std::string,

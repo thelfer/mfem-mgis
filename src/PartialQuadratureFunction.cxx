@@ -699,7 +699,7 @@ namespace mfem_mgis {
   }  // end of update
 
   template <bool parallel>
-  static std::optional<std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
+  static std::optional<std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
                                  std::unique_ptr<GridFunction<parallel>>>>
   makeGridFunction_impl(
       Context& ctx,
@@ -710,16 +710,17 @@ namespace mfem_mgis {
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
-    auto& fes = fed.getFiniteElementSpace<parallel>();
-    auto mesh = fed.getMutableMeshPointer<parallel>();
-    auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
-        mesh.get(), fes.FEColl(), n, fes.GetOrdering());
+    auto m = fed.getFiniteElementSpacesManager();
+    auto fespace = m.getFiniteElementSpace<parallel>(ctx, n);
+    if (isInvalid(fespace)) {
+      return {};
+    }
     auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
     return std::make_pair(std::move(fespace), std::move(f));
   }
 
   template <>
-  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<true>>,
+  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<true>>,
                           std::unique_ptr<GridFunction<true>>>>
   makeGridFunction<true>(
       Context& ctx,
@@ -732,7 +733,7 @@ namespace mfem_mgis {
   }
 
   template <>
-  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<false>>,
+  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<false>>,
                           std::unique_ptr<GridFunction<false>>>>
   makeGridFunction<false>(
       Context& ctx,
@@ -741,7 +742,7 @@ namespace mfem_mgis {
   }
 
   template <bool parallel>
-  static std::optional<std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
+  static std::optional<std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
                                  std::unique_ptr<GridFunction<parallel>>>>
   makeGridFunction_impl(
       Context& ctx,
@@ -753,15 +754,21 @@ namespace mfem_mgis {
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    const auto& m = fed.getMesh<parallel>();
     auto& fes = fed.getFiniteElementSpace<parallel>();
-    auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
-        const_cast<Mesh<parallel>*>(&mesh), fes.FEColl(), n, fes.GetOrdering());
-    auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
-    return std::make_pair(std::move(fespace), std::move(f));
+    if (&m == &mesh) {
+      return makeGridFunction_impl<parallel>(ctx, fcts);
+    } else {
+      auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
+          const_cast<Mesh<parallel>*>(&mesh), fes.FEColl(), n,
+          fes.GetOrdering());
+      auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
+      return std::make_pair(std::move(fespace), std::move(f));
+    }
   }
 
   template <>
-  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<true>>,
+  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<true>>,
                           std::unique_ptr<GridFunction<true>>>>
   makeGridFunction<true>(
       Context& ctx,
@@ -775,7 +782,7 @@ namespace mfem_mgis {
   }
 
   template <>
-  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<false>>,
+  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<false>>,
                           std::unique_ptr<GridFunction<false>>>>
   makeGridFunction<false>(
       Context& ctx,
@@ -785,7 +792,7 @@ namespace mfem_mgis {
   }
 
   template <bool parallel>
-  static std::optional<std::pair<std::unique_ptr<FiniteElementSpace<parallel>>,
+  static std::optional<std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
                                  std::unique_ptr<GridFunction<parallel>>>>
   makeGridFunction_impl(
       Context& ctx,
@@ -806,7 +813,7 @@ namespace mfem_mgis {
   }
 
   template <>
-  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<true>>,
+  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<true>>,
                           std::unique_ptr<GridFunction<true>>>>
   makeGridFunction<true>(
       Context& ctx,
@@ -820,7 +827,7 @@ namespace mfem_mgis {
   }
 
   template <>
-  std::optional<std::pair<std::unique_ptr<FiniteElementSpace<false>>,
+  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<false>>,
                           std::unique_ptr<GridFunction<false>>>>
   makeGridFunction<false>(
       Context& ctx,
