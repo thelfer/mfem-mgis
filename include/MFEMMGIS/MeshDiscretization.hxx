@@ -307,20 +307,7 @@ namespace mfem_mgis {
      */
     std::shared_ptr<SubMesh<false>> getSequentialSubMesh(
         Context&, const Parameter&) const noexcept;
-    /*!
-     * \brief set names of materials
-     * \param[in] 1: dummy parameter indicated that this function may throw
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    void setMaterialsNames(attributes::Throwing,
-                           const std::map<size_type, std::string>&);
-    /*!
-     * \brief set names of boundaries
-     * \param[in] 1: dummy parameter indicated that this function may throw
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    void setBoundariesNames(attributes::Throwing,
-                            const std::map<size_type, std::string>&);
+
 #ifdef MGIS_HAVE_TFEL
     /*!
      * \return the registred points in 2D

@@ -164,28 +164,33 @@ namespace mfem_mgis {
     return {};
   }  // end of key
 
-  static void setMeshObjectNames(attributes::Throwing,
-                                 std::map<size_type, std::string>& ids,
-                                 const std::map<size_type, std::string>& nids,
-                                 const mfem::Array<size_type>& attributes,
-                                 const std::string& m,
-                                 const std::string& t) {
+  [[nodiscard]] static bool setMeshObjectNames(
+      Context& ctx,
+      std::map<size_type, std::string>& ids,
+      const std::map<size_type, std::string>& nids,
+      const mfem::Array<size_type>& attributes,
+      const std::string& m,
+      const std::string& t) noexcept {
     // checks that the given identifiers are ok
     for (const auto& [a, n] : nids) {
       if (count(nids, n) != 1) {
-        raise(m + ": name " + n + " multiply defined");
+        return ctx.registerErrorMessage(m + ": name " + n +
+                                        " multiply defined");
       }
       if (attributes.Find(a) == -1) {
-        raise(m + ": no " + t + " associated with attribute '" +
-              std::to_string(a) + "'");
+        return ctx.registerErrorMessage(m + ": no " + t +
+                                        " associated with attribute '" +
+                                        std::to_string(a) + "'");
       }
       if (!isValidMeshObjectName(n)) {
-        raise(m + ": " + n + " is not a valid " + t + " identifier");
+        return ctx.registerErrorMessage(m + ": " + n + " is not a valid " + t +
+                                        " identifier");
       }
       auto oa = key(ids, n);
       if (oa.has_value()) {
         if (*oa != a) {
-          raise(m + ": name " + n + " is already associated to another " + t);
+          return ctx.registerErrorMessage(
+              m + ": name " + n + " is already associated to another " + t);
         }
       }
       const auto p = ids.find(a);
@@ -204,6 +209,7 @@ namespace mfem_mgis {
     }
     // declaring attributes
     ids.insert(nids.begin(), nids.end());
+    return true;
   }  // end of setMeshObjectNames
 
   template <bool parallel>
@@ -427,6 +433,7 @@ namespace mfem_mgis {
   MeshDiscretization::MeshDiscretization(mgis::Context& ctx,
                                          const Parameters& params) {
     CatchTimeSection(ctx, "Mesh::Constructor");
+    auto or_raise = ctx.getThrowingFailureHandler();
     auto extractMap = [](const Parameters& parameters) {
       auto m = std::map<size_type, std::string>{};
       for (const auto& p : parameters) {
@@ -513,10 +520,10 @@ namespace mfem_mgis {
                                            *(this->sequential_mesh));
     }
     if (!mnames.empty()) {
-      this->setMaterialsNames(throwing, mnames);
+      this->setMaterialsNames(ctx, mnames) | or_raise;
     }
     if (!bnames.empty()) {
-      this->setBoundariesNames(throwing, bnames);
+      this->setBoundariesNames(ctx, bnames) | or_raise;
     }
     //
     if (contains(params, MeshDiscretization::Points)) {
@@ -581,36 +588,16 @@ namespace mfem_mgis {
 
   bool MeshDiscretization::setMaterialsNames(
       Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
-    try {
-      this->setMaterialsNames(throwing, ids);
-    } catch (...) {
-      return registerExceptionInErrorBacktrace(ctx);
-    }
-    return true;
+    return setMeshObjectNames(ctx, this->materials_names, ids,
+                              getMaterialsAttributes(*this),
+                              "setMaterialsNames", "material");
   }  // end of setMaterialsNames
 
   bool MeshDiscretization::setBoundariesNames(
       Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
-    try {
-      this->setBoundariesNames(throwing, ids);
-    } catch (...) {
-      return registerExceptionInErrorBacktrace(ctx);
-    }
-    return true;
-  }  // end of setBoundariesNames
-
-  void MeshDiscretization::setMaterialsNames(
-      attributes::Throwing, const std::map<size_type, std::string>& ids) {
-    setMeshObjectNames(throwing, this->materials_names, ids,
-                       getMaterialsAttributes(*this), "setMaterialsNames",
-                       "material");
-  }  // end of setMaterialsNames
-
-  void MeshDiscretization::setBoundariesNames(
-      attributes::Throwing, const std::map<size_type, std::string>& ids) {
-    setMeshObjectNames(throwing, this->boundaries_names, ids,
-                       getBoundariesAttributes(*this), "setBoundariesNames",
-                       "boundary");
+    return setMeshObjectNames(ctx, this->boundaries_names, ids,
+                              getBoundariesAttributes(*this),
+                              "setBoundariesNames", "boundary");
   }  // end of setBoundariesNames
 
   std::optional<std::string> MeshDiscretization::getMaterialName(
