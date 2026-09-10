@@ -561,6 +561,16 @@ namespace mfem_mgis {
   MeshDiscretization::MeshDiscretization(const MeshDiscretization&) noexcept =
       default;
 
+  //   std::shared_ptr<SubMesh<true>> MeshDiscretization::getParallelSubMesh(
+  //       Context& ctx, const Parameter& p) const noexcept {
+  //     return this->pimpl->getSubMesh<true>(ctx, p);
+  //   }  // end of getParallelSubMesh
+  //
+  //   std::shared_ptr<SubMesh<false>> MeshDiscretization::getSequentialSubMesh(
+  //       Context& ctx, const Parameter& p) const noexcept {
+  //     return this->pimpl->getSubMesh<false>(ctx, p);
+  //   }  // end of getSequentialSubMesh
+
   bool MeshDiscretization::describesAParallelComputation() const {
 #ifdef MFEM_USE_MPI
     return this->parallel_mesh.get() != nullptr;
@@ -568,16 +578,6 @@ namespace mfem_mgis {
     return false;
 #endif /* MFEM_USE_MPI */
   }    // end of describesAParallelComputation
-
-  void MeshDiscretization::setMaterialsNames(
-      const std::map<size_type, std::string>& ids) {
-    this->setMaterialsNames(throwing, ids);
-  }  // end of setMaterialsNames
-
-  void MeshDiscretization::setBoundariesNames(
-      const std::map<size_type, std::string>& ids) {
-    this->setBoundariesNames(throwing, ids);
-  }  // end of setBoundariesNames
 
   bool MeshDiscretization::setMaterialsNames(
       Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
@@ -736,7 +736,9 @@ namespace mfem_mgis {
   MeshDiscretization::getMaterialsIdentifiers(
       Context& ctx, const Parameter& p) const noexcept {
     try {
-      return this->getMaterialsIdentifiers(p);
+      return selectMeshObjectsIdentifiers(
+          throwing, getMaterialsAttributes(*this), this->materials_names, p,
+          "material", "getMaterialsIdentifiers");
     } catch (...) {
       std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
@@ -747,7 +749,9 @@ namespace mfem_mgis {
   MeshDiscretization::getBoundariesIdentifiers(
       Context& ctx, const Parameter& p) const noexcept {
     try {
-      return this->getBoundariesIdentifiers(p);
+      return selectMeshObjectsIdentifiers(
+          throwing, getBoundariesAttributes(*this), this->boundaries_names, p,
+          "boundary", "getBoundariesIdentifiers");
     } catch (...) {
       std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
@@ -757,7 +761,27 @@ namespace mfem_mgis {
   std::optional<size_type> MeshDiscretization::getMaterialIdentifier(
       Context& ctx, const Parameter& p) const noexcept {
     try {
-      return this->getMaterialIdentifier(p);
+      if (is<size_type>(p)) {
+        const auto id = get<size_type>(throwing, p);
+        const auto ids = getMaterialsAttributes(*this);
+        if (ids.Find(id) == -1) {
+          raise(
+              "getMaterialIdentifier: "
+              "no material id for identifier '" +
+              std::to_string(id) + "'");
+        }
+        return id;
+      }
+      if (!is<std::string>(p)) {
+        raise("getMaterialIdentifier: invalid parameter type");
+      }
+      const auto& n = get<std::string>(throwing, p);
+      for (const auto& [id, name] : this->materials_names) {
+        if (name == n) {
+          return id;
+        }
+      }
+      raise("getMaterialIdentifier: no material named '" + n + "'");
     } catch (...) {
       std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
@@ -767,75 +791,31 @@ namespace mfem_mgis {
   std::optional<size_type> MeshDiscretization::getBoundaryIdentifier(
       Context& ctx, const Parameter& p) const noexcept {
     try {
-      return this->getBoundaryIdentifier(p);
+      if (is<size_type>(p)) {
+        const auto id = get<size_type>(throwing, p);
+        const auto ids = getBoundariesAttributes(*this);
+        if (ids.Find(id) == -1) {
+          raise(
+              "getBoundaryIdentifier: "
+              "no boundary id associated with identifier '" +
+              std::to_string(id) + "'");
+        }
+        return id;
+      }
+      if (!is<std::string>(p)) {
+        raise("getBoundaryIdentifier: invalid parameter type");
+      }
+      const auto& n = get<std::string>(throwing, p);
+      for (const auto& [id, name] : this->boundaries_names) {
+        if (name == n) {
+          return id;
+        }
+      }
+      raise("getMaterialIdentifier: no boundary named '" + n + "'");
     } catch (...) {
       std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
     return {};
-  }  // end of getBoundaryIdentifier
-
-  std::vector<size_type> MeshDiscretization::getMaterialsIdentifiers(
-      const Parameter& p) const {
-    return selectMeshObjectsIdentifiers(throwing, getMaterialsAttributes(*this),
-                                        this->materials_names, p, "material",
-                                        "getMaterialsIdentifiers");
-  }  // end of getMaterialsIdentifiers
-
-  std::vector<size_type> MeshDiscretization::getBoundariesIdentifiers(
-      const Parameter& p) const {
-    return selectMeshObjectsIdentifiers(
-        throwing, getBoundariesAttributes(*this), this->boundaries_names, p,
-        "boundary", "getBoundariesIdentifiers");
-  }  // end of getBoundariesIdentifiers
-
-  size_type MeshDiscretization::getMaterialIdentifier(
-      const Parameter& p) const {
-    if (is<size_type>(p)) {
-      const auto id = get<size_type>(throwing, p);
-      const auto ids = getMaterialsAttributes(*this);
-      if (ids.Find(id) == -1) {
-        raise(
-            "getMaterialIdentifier: "
-            "no material id for identifier '" +
-            std::to_string(id) + "'");
-      }
-      return id;
-    }
-    if (!is<std::string>(p)) {
-      raise("getMaterialIdentifier: invalid parameter type");
-    }
-    const auto& n = get<std::string>(throwing, p);
-    for (const auto& [id, name] : this->materials_names) {
-      if (name == n) {
-        return id;
-      }
-    }
-    raise("getMaterialIdentifier: no material named '" + n + "'");
-  }  // end of getMaterialIdentifier
-
-  size_type MeshDiscretization::getBoundaryIdentifier(
-      const Parameter& p) const {
-    if (is<size_type>(p)) {
-      const auto id = get<size_type>(throwing, p);
-      const auto ids = getBoundariesAttributes(*this);
-      if (ids.Find(id) == -1) {
-        raise(
-            "getBoundaryIdentifier: "
-            "no boundary id associated with identifier '" +
-            std::to_string(id) + "'");
-      }
-      return id;
-    }
-    if (!is<std::string>(p)) {
-      raise("getBoundaryIdentifier: invalid parameter type");
-    }
-    const auto& n = get<std::string>(throwing, p);
-    for (const auto& [id, name] : this->boundaries_names) {
-      if (name == n) {
-        return id;
-      }
-    }
-    raise("getMaterialIdentifier: no boundary named '" + n + "'");
   }  // end of getBoundaryIdentifier
 
   std::map<size_type, std::string> MeshDiscretization::getMaterialsNames()
@@ -1091,6 +1071,22 @@ namespace mfem_mgis {
                   const MeshDiscretization& rhs) noexcept {
     return !(lhs == rhs);
   }  // end of operator !=
+
+  std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,
+                                                 const MeshDiscretization& m,
+                                                 const Parameter& p) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return m.getMaterialsIdentifiers(ctx, p) | or_raise;
+  }
+
+  std::vector<size_type> getBoundariesIdentifiers(attributes::Throwing,
+                                                  const MeshDiscretization& m,
+                                                  const Parameter& p) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return m.getBoundariesIdentifiers(ctx, p) | or_raise;
+  }  // end of getBoundariesIdentifiers
 
 #ifdef MFEM_USE_MPI
 

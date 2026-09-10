@@ -125,7 +125,7 @@ namespace mfem_mgis {
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
         Context&, const Parameter&) const noexcept;
     /*!
-     * \return the material identifier by the given parameter.
+     * \return the boundary identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */
     [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
@@ -267,69 +267,46 @@ namespace mfem_mgis {
         getPointsSet(Context&, std::string_view) const noexcept;
 #endif /* MGIS_HAVE_TFEL */
 
+    /*!
+     * \return the sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    std::shared_ptr<SubMesh<parallel>> getSubMesh(
+        Context&, const Parameter&) const noexcept;
+
     //! \brief destructor
     ~MeshDiscretization();
 
    protected:
+    //! \internal structure to implement the PIMPL idiom
+    struct Implementation;
+    //! \brief pointer to the implementation
+    std::shared_ptr<Implementation> pimpl;
     /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
+     * \return the parallel sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
      */
-    [[deprecated]] void setMaterialsNames(
-        const std::map<size_type, std::string>&);
+    std::shared_ptr<SubMesh<true>> getParallelSubMesh(
+        Context&, const Parameter&) const noexcept;
     /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
+     * \return the sequential sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
      */
-    [[deprecated]] void setBoundariesNames(
-        const std::map<size_type, std::string>&);
-    //
-    /*!
-     * \return the material identifier by the given parameter.
-     * \note The parameter may hold an integer or a string.
-     */
-    [[deprecated, nodiscard]] size_type getMaterialIdentifier(
-        const Parameter&) const;
-    /*!
-     * \return the material identifier by the given parameter.
-     * \note The parameter may hold an integer or a string.
-     */
-    [[deprecated, nodiscard]] size_type getBoundaryIdentifier(
-        const Parameter&) const;
-    /*!
-     * \return the list of materials identifiers described by the given
-     * parameter.
-     *
-     * \note The parameter may hold:
-     *
-     * - an integer
-     * - a string
-     * - a vector of parameters which must be either strings and integers.
-     *
-     * Integers are directly intepreted as materials identifiers.
-     *
-     * Strings are intepreted as regular expressions which allows the selection
-     * of materials by names.
-     */
-    [[deprecated, nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter&) const;
-    /*!
-     * \return the list of boundaries identifiers described by the given
-     * parameter.
-     *
-     * \note The parameter may hold:
-     *
-     * - an integer
-     * - a string
-     * - a vector of parameters which must be either strings and integers.
-     *
-     * Integers are directly intepreted as boundaries identifiers.
-     *
-     * Strings are intepreted as regular expressions which allows the selection
-     * of boundaries by names.
-     */
-    [[deprecated, nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter&) const;
+    std::shared_ptr<SubMesh<false>> getSequentialSubMesh(
+        Context&, const Parameter&) const noexcept;
     /*!
      * \brief set names of materials
      * \param[in] 1: dummy parameter indicated that this function may throw
@@ -477,6 +454,49 @@ namespace mfem_mgis {
   template <>
   MFEM_MGIS_EXPORT bool getInformation<MeshDiscretization>(
       Context&, std::ostream&, const MeshDiscretization&) noexcept;
+
+  /*!
+   * \return the list of materials identifiers described by the given
+   * parameter.
+   * \param[in] throwing: throwing attributes
+   * \param[in] m: mesh discretization
+   * \param[in] p: parameter
+   *
+   * \note The parameter may hold:
+   *
+   * - an integer
+   * - a string
+   * - a vector of parameters which must be either strings and integers.
+   *
+   * Integers are directly intepreted as materials identifiers.
+   *
+   * Strings are intepreted as regular expressions which allows the selection
+   * of materials by names.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
+      attributes::Throwing, const MeshDiscretization&, const Parameter&);
+  /*!
+   * \return the list of boundaries identifiers described by the given
+   * parameter.
+   * \param[in] throwing: throwing attributes
+   * \param[in] m: mesh discretization
+   * \param[in] p: parameter
+   *
+   * \note The parameter may hold:
+   *
+   * - an integer
+   * - a string
+   * - a vector of parameters which must be either strings and integers.
+   *
+   * Integers are directly intepreted as boundaries identifiers.
+   *
+   * Strings are intepreted as regular expressions which allows the selection
+   * of boundaries by names.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<size_type>
+  getBoundariesIdentifiers(attributes::Throwing,
+                           const MeshDiscretization&,
+                           const Parameter&);
 
 #ifdef MFEM_USE_MPI
 

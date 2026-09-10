@@ -163,12 +163,18 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
       const std::map<size_type, std::string>& ids) {
-    this->getFiniteElementDiscretization().setMaterialsNames(ids);
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    this->getFiniteElementDiscretization().setMaterialsNames(ctx, ids) |
+        or_raise;
   }
 
   void NonLinearEvolutionProblemImplementationBase::setBoundariesNames(
       const std::map<size_type, std::string>& ids) {
-    this->getFiniteElementDiscretization().setBoundariesNames(ids);
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    this->getFiniteElementDiscretization().setBoundariesNames(ctx, ids) |
+        or_raise;
   }
 
   std::optional<size_type>
@@ -199,24 +205,32 @@ namespace mfem_mgis {
 
   size_type NonLinearEvolutionProblemImplementationBase::getMaterialIdentifier(
       const Parameter& p) const {
-    return this->getFiniteElementDiscretization().getMaterialIdentifier(p);
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    const auto& fed = this->getFiniteElementDiscretization();
+    return fed.getMaterialIdentifier(ctx, p) | or_raise;
   }  // end of getMaterialIdentifier
 
   size_type NonLinearEvolutionProblemImplementationBase::getBoundaryIdentifier(
       const Parameter& p) const {
-    return this->getFiniteElementDiscretization().getBoundaryIdentifier(p);
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    const auto& fed = this->getFiniteElementDiscretization();
+    return fed.getBoundaryIdentifier(ctx, p) | or_raise;
   }  // end of getBoundaryIdentifier
 
   std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getMaterialsIdentifiers(
       const Parameter& p) const {
-    return this->getFiniteElementDiscretization().getMaterialsIdentifiers(p);
+    return ::mfem_mgis::getMaterialsIdentifiers(
+        throwing, this->getFiniteElementDiscretization(), p);
   }  // end of getMaterialsIdentifiers
 
   std::vector<size_type>
   NonLinearEvolutionProblemImplementationBase::getBoundariesIdentifiers(
       const Parameter& p) const {
-    return this->getFiniteElementDiscretization().getBoundariesIdentifiers(p);
+    return ::mfem_mgis::getBoundariesIdentifiers(
+        throwing, this->getFiniteElementDiscretization(), p);
   }  // end of getBoundariesIdentifiers
 
   std::vector<size_type>

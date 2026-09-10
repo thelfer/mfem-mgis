@@ -145,6 +145,16 @@ namespace mfem_mgis {
 
 #endif /* MGIS_HAVE_TFEL */
 
+  template <bool parallel>
+  std::shared_ptr<SubMesh<parallel>> MeshDiscretization::getSubMesh(
+      Context& ctx, const Parameter& p) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelSubMesh(ctx, p);
+    } else {
+      return this->getSequentialSubMesh(ctx, p);
+    }
+  }  // end of getSubMesh
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_MESHDISCRETIZATION_IXX */
