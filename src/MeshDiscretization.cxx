@@ -641,25 +641,26 @@ namespace mfem_mgis {
     return p->second;
   }  // end of getBoundaryName
 
-  [[nodiscard]] static std::vector<size_type> selectMeshObjectsIdentifiers(
-      attributes::Throwing,
-      const mfem::Array<size_type>& attributes,
-      const size_type id,
-      const std::string& t,
-      const std::string& m) {
+  [[nodiscard]] static std::optional<std::vector<size_type>>
+  selectMeshObjectsIdentifiers(Context& ctx,
+                               const mfem::Array<size_type>& attributes,
+                               const size_type id,
+                               const std::string& t,
+                               const std::string& m) noexcept {
     if (attributes.Find(id) == -1) {
-      raise(m + ": no " + t + " associated with attribute '" +
-            std::to_string(id) + "'");
+      return ctx.registerErrorMessage(m + ": no " + t +
+                                      " associated with attribute '" +
+                                      std::to_string(id) + "'");
     }
-    return {id};
+    return std::vector<size_type>{id};
   }  // end of selectMeshObjectsIdentifiers
 
-  [[nodiscard]] static std::vector<size_type> selectMeshObjectsIdentifiers(
-      attributes::Throwing,
-      const std::map<size_type, std::string>& names,
-      const std::string& id,
-      const std::string& t,
-      const std::string& m) {
+  [[nodiscard]] static std::optional<std::vector<size_type>>
+  selectMeshObjectsIdentifiers(Context& ctx,
+                               const std::map<size_type, std::string>& names,
+                               const std::string& id,
+                               const std::string& t,
+                               const std::string& m) noexcept {
     auto r = std::vector<size_type>{};
     try {
       std::regex e(id);
@@ -669,153 +670,154 @@ namespace mfem_mgis {
         }
       }
       if (r.empty()) {
-        raise(m + ": no " + t + " matching regular expression '" + id + "'");
+        return ctx.registerErrorMessage(
+            m + ": no " + t + " matching regular expression '" + id + "'");
       }
     } catch (std::exception&) {
-      raise(m + ": invalid regular expression '" + id + "'");
+      return ctx.registerErrorMessage(m + ": invalid regular expression '" +
+                                      id + "'");
     }
     return r;
   }  // end of selectMeshObjectsIdentifiers
 
-  [[nodiscard]] static std::vector<size_type> selectMeshObjectsIdentifiers(
-      attributes::Throwing,
-      const mfem::Array<size_type>& attributes,
-      const std::map<size_type, std::string>& names,
-      const std::vector<Parameter>& ids,
-      const std::string& t,
-      const std::string& m) {
+  [[nodiscard]] static std::optional<std::vector<size_type>>
+  selectMeshObjectsIdentifiers(Context& ctx,
+                               const mfem::Array<size_type>& attributes,
+                               const std::map<size_type, std::string>& names,
+                               const std::vector<Parameter>& ids,
+                               const std::string& t,
+                               const std::string& m) noexcept {
     if (ids.empty()) {
-      raise(m + ": empty list of identifiers");
+      return ctx.registerErrorMessage(m + ": empty list of identifiers");
     }
     auto r = std::vector<size_type>{};
-    auto append = [&r, &m](const auto& nids) {
+    auto append = [&ctx, &r, &m](const auto& nids) -> bool {
       for (const auto& id : nids) {
         if (std::find(std::cbegin(r), std::cend(r), id) != std::cend(r)) {
-          raise(m + ": identifier '" + std::to_string(id) +
-                "' multiply selected");
+          return ctx.registerErrorMessage(m + ": identifier '" +
+                                          std::to_string(id) +
+                                          "' multiply selected");
         }
         r.push_back(id);
       }
+      return true;
     };
     for (const auto& id : ids) {
       if (is<size_type>(id)) {
         const auto i = get<size_type>(throwing, id);
-        append(selectMeshObjectsIdentifiers(throwing, attributes, i, t, m));
+        const auto oids =
+            selectMeshObjectsIdentifiers(ctx, attributes, i, t, m);
+        if (isInvalid(oids)) {
+          return {};
+        }
+        if (!append(*oids)) {
+          return {};
+        }
       } else if (is<std::string>(id)) {
         const auto& n = get<std::string>(throwing, id);
-        append(selectMeshObjectsIdentifiers(throwing, names, n, t, m));
+        const auto oids = selectMeshObjectsIdentifiers(ctx, names, n, t, m);
+        if (isInvalid(oids)) {
+          return {};
+        }
+        if (!append(*oids)) {
+          return {};
+        }
       } else {
-        raise(m + ": invalid parameter");
+        return ctx.registerErrorMessage(m + ": invalid parameter");
       }
     }
     return r;
   }  // end of selectMeshObjectsIdentifiers
 
-  static std::vector<size_type> selectMeshObjectsIdentifiers(
-      attributes::Throwing,
-      const mfem::Array<size_type>& attributes,
-      const std::map<size_type, std::string>& names,
-      const Parameter& p,
-      const std::string& t,
-      const std::string& m) {
+  [[nodiscard]] static std::optional<std::vector<size_type>>
+  selectMeshObjectsIdentifiers(Context& ctx,
+                               const mfem::Array<size_type>& attributes,
+                               const std::map<size_type, std::string>& names,
+                               const Parameter& p,
+                               const std::string& t,
+                               const std::string& m) noexcept {
     if (is<size_type>(p)) {
       const auto id = get<size_type>(throwing, p);
-      return selectMeshObjectsIdentifiers(throwing, attributes, id, t, m);
+      return selectMeshObjectsIdentifiers(ctx, attributes, id, t, m);
     } else if (is<std::string>(p)) {
       const auto& id = get<std::string>(throwing, p);
-      return selectMeshObjectsIdentifiers(throwing, names, id, t, m);
+      return selectMeshObjectsIdentifiers(ctx, names, id, t, m);
     }
     if (!is<std::vector<Parameter>>(p)) {
-      raise(m + ": invalid parameter type");
+      return ctx.registerErrorMessage(m + ": invalid parameter type");
     }
     const auto& ids = get<std::vector<Parameter>>(throwing, p);
-    return selectMeshObjectsIdentifiers(throwing, attributes, names, ids, t, m);
+    return selectMeshObjectsIdentifiers(ctx, attributes, names, ids, t, m);
   }  // end of selectMeshObjectsIdentifiers
 
   std::optional<std::vector<size_type>>
   MeshDiscretization::getMaterialsIdentifiers(
       Context& ctx, const Parameter& p) const noexcept {
-    try {
-      return selectMeshObjectsIdentifiers(
-          throwing, getMaterialsAttributes(*this), this->materials_names, p,
-          "material", "getMaterialsIdentifiers");
-    } catch (...) {
-      std::ignore = registerExceptionInErrorBacktrace(ctx);
-    }
-    return {};
+    return selectMeshObjectsIdentifiers(ctx, getMaterialsAttributes(*this),
+                                        this->materials_names, p, "material",
+                                        "getMaterialsIdentifiers");
   }  // end of getMaterialsIdentifiers
 
   std::optional<std::vector<size_type>>
   MeshDiscretization::getBoundariesIdentifiers(
       Context& ctx, const Parameter& p) const noexcept {
-    try {
-      return selectMeshObjectsIdentifiers(
-          throwing, getBoundariesAttributes(*this), this->boundaries_names, p,
-          "boundary", "getBoundariesIdentifiers");
-    } catch (...) {
-      std::ignore = registerExceptionInErrorBacktrace(ctx);
-    }
-    return {};
+    return selectMeshObjectsIdentifiers(ctx, getBoundariesAttributes(*this),
+                                        this->boundaries_names, p, "boundary",
+                                        "getBoundariesIdentifiers");
   }  // end of getBoundariesIdentifiers
 
   std::optional<size_type> MeshDiscretization::getMaterialIdentifier(
       Context& ctx, const Parameter& p) const noexcept {
-    try {
-      if (is<size_type>(p)) {
-        const auto id = get<size_type>(throwing, p);
-        const auto ids = getMaterialsAttributes(*this);
-        if (ids.Find(id) == -1) {
-          raise(
-              "getMaterialIdentifier: "
-              "no material id for identifier '" +
-              std::to_string(id) + "'");
-        }
+    if (is<size_type>(p)) {
+      const auto id = get<size_type>(throwing, p);
+      const auto ids = getMaterialsAttributes(*this);
+      if (ids.Find(id) == -1) {
+        return ctx.registerErrorMessage(
+            "getMaterialIdentifier: "
+            "no material id for identifier '" +
+            std::to_string(id) + "'");
+      }
+      return id;
+    }
+    if (!is<std::string>(p)) {
+      return ctx.registerErrorMessage(
+          "getMaterialIdentifier: invalid parameter type");
+    }
+    const auto& n = get<std::string>(throwing, p);
+    for (const auto& [id, name] : this->materials_names) {
+      if (name == n) {
         return id;
       }
-      if (!is<std::string>(p)) {
-        raise("getMaterialIdentifier: invalid parameter type");
-      }
-      const auto& n = get<std::string>(throwing, p);
-      for (const auto& [id, name] : this->materials_names) {
-        if (name == n) {
-          return id;
-        }
-      }
-      raise("getMaterialIdentifier: no material named '" + n + "'");
-    } catch (...) {
-      std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
-    return {};
+    return ctx.registerErrorMessage(
+        "getMaterialIdentifier: no material named '" + n + "'");
   }  // end of getMaterialIdentifier
 
   std::optional<size_type> MeshDiscretization::getBoundaryIdentifier(
       Context& ctx, const Parameter& p) const noexcept {
-    try {
-      if (is<size_type>(p)) {
-        const auto id = get<size_type>(throwing, p);
-        const auto ids = getBoundariesAttributes(*this);
-        if (ids.Find(id) == -1) {
-          raise(
-              "getBoundaryIdentifier: "
-              "no boundary id associated with identifier '" +
-              std::to_string(id) + "'");
-        }
+    if (is<size_type>(p)) {
+      const auto id = get<size_type>(throwing, p);
+      const auto ids = getBoundariesAttributes(*this);
+      if (ids.Find(id) == -1) {
+        return ctx.registerErrorMessage(
+            "getBoundaryIdentifier: "
+            "no boundary id associated with identifier '" +
+            std::to_string(id) + "'");
+      }
+      return id;
+    }
+    if (!is<std::string>(p)) {
+      return ctx.registerErrorMessage(
+          "getBoundaryIdentifier: invalid parameter type");
+    }
+    const auto& n = get<std::string>(throwing, p);
+    for (const auto& [id, name] : this->boundaries_names) {
+      if (name == n) {
         return id;
       }
-      if (!is<std::string>(p)) {
-        raise("getBoundaryIdentifier: invalid parameter type");
-      }
-      const auto& n = get<std::string>(throwing, p);
-      for (const auto& [id, name] : this->boundaries_names) {
-        if (name == n) {
-          return id;
-        }
-      }
-      raise("getMaterialIdentifier: no boundary named '" + n + "'");
-    } catch (...) {
-      std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
-    return {};
+    return ctx.registerErrorMessage(
+        "getMaterialIdentifier: no boundary named '" + n + "'");
   }  // end of getBoundaryIdentifier
 
   std::map<size_type, std::string> MeshDiscretization::getMaterialsNames()
