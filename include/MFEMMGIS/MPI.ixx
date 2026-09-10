@@ -11,9 +11,8 @@
 namespace mfem_mgis {
 
   template <typename T>
-  bool isValidOnAllProcesses(const FiniteElementDiscretization& fed,
-                             const T& v) noexcept {
-    return isTrueOnAllProcesses(fed, isValid(v));
+  bool isValidOnAllProcesses(const MeshDiscretization& m, const T& v) noexcept {
+    return isTrueOnAllProcesses(m, isValid(v));
   }  // end of isValidOnAllProcesses
 
 }  // end of namespace mfem_mgis

@@ -31,8 +31,8 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] params: parameters
      */
-    [[nodiscard]] bool setSolverParameters(Context&,
-                                           const Parameters&) noexcept;
+    [[nodiscard]] bool setSolverParameters(Context &,
+                                           const Parameters &) noexcept;
     //! \return if the failure of the linear solver is discarded
     [[nodiscard]] bool isLinearSolverFailureDiscarded() const noexcept;
     /*!

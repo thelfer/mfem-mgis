@@ -14,6 +14,9 @@
 #include <memory>
 #include "MFEMMGIS/Info.hxx"
 #include "MFEMMGIS/Config.hxx"
+#ifdef MGIS_HAVE_TFEL
+#include "MFEMMGIS/Geometry.hxx"
+#endif /* MGIS_HAVE_TFEL */
 
 namespace mfem_mgis {
 
@@ -33,6 +36,10 @@ namespace mfem_mgis {
     static const char* const Materials;
     //! \brief string associated to the `Boundaries` parameter
     static const char* const Boundaries;
+    //! \brief string associated to the `Points` parameter
+    static const char* const Points;
+    //! \brief string associated to the `PointsSets` parameter
+    static const char* const PointsSets;
     //! \brief string associated to the `NumberOfUniformRefinements` parameter
     static const char* const NumberOfUniformRefinements;
     //! \brief string associated to the `VerbosityLevel` parameter
@@ -169,6 +176,9 @@ namespace mfem_mgis {
     //! \return the mesh
     template <bool parallel>
     [[nodiscard]] std::shared_ptr<const Mesh<parallel>> getMeshPointer() const;
+    //! \return the mesh
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMutableMeshPointer() const;
     //! \return if this object is built to run parallel computations
     [[nodiscard]] bool describesAParallelComputation() const;
     /*!
@@ -183,6 +193,80 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::map<size_type, std::string> getBoundariesNames()
         const noexcept;
+#ifdef MGIS_HAVE_TFEL
+    /*!
+     * \brief add point
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     * \param[in] pt: coordinates of the point
+     */
+    [[nodiscard]] bool addPoint(Context&,
+                                std::string_view,
+                                const Point<2>&) noexcept;
+    /*!
+     * \brief add point
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     * \param[in] pt: coordinates of the point
+     */
+    [[nodiscard]] bool addPoint(Context&,
+                                std::string_view,
+                                const Point<3>&) noexcept;
+    /*!
+     * \brief add point set
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point set
+     * \param[in] pts: list of points
+     */
+    [[nodiscard]] bool addPointsSet(Context&,
+                                    std::string_view,
+                                    const std::vector<Point<2>>&) noexcept;
+    /*!
+     * \brief add point set
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point set
+     * \param[in] pts: list of points
+     */
+    [[nodiscard]] bool addPointsSet(Context&,
+                                    std::string_view,
+                                    const std::vector<Point<3>>&) noexcept;
+    /*!
+     * \return the point with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     */
+    template <size_type N>
+    requires((N == 2) || (N == 3))  //
+        [[nodiscard]] std::optional<Point<N>> getPoint(
+            Context&, std::string_view) const noexcept;
+    /*!
+     * \return the registred points
+     * \param[in, out] ctx: execution context
+     */
+    template <size_type N>
+    requires((N == 2) || (N == 3))  //
+        [[nodiscard]] OptionalReference<
+            const std::map<std::string, Point<N>, std::less<>>>  //
+        getPoints(Context&) const noexcept;
+    /*!
+     * \return the registred points sets
+     * \param[in, out] ctx: execution context
+     */
+    template <size_type N>
+    requires((N == 2) || (N == 3))  //
+        [[nodiscard]] OptionalReference<
+            const std::map<std::string, std::vector<Point<N>>, std::less<>>>  //
+        getPointsSets(Context&) const noexcept;
+    /*!
+     * \return the registred set of points
+     * \param[in, out] ctx: execution context
+     */
+    template <size_type N>
+    requires((N == 2) || (N == 3))                                    //
+        [[nodiscard]] OptionalReference<const std::vector<Point<N>>>  //
+        getPointsSet(Context&, std::string_view) const noexcept;
+#endif /* MGIS_HAVE_TFEL */
+
     //! \brief destructor
     ~MeshDiscretization();
 
@@ -260,16 +344,86 @@ namespace mfem_mgis {
      */
     void setBoundariesNames(attributes::Throwing,
                             const std::map<size_type, std::string>&);
-    //! \brief mesh
+#ifdef MGIS_HAVE_TFEL
+    /*!
+     * \return the registred points in 2D
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, Point<2>, std::less<>>>
+    getPoints2D(Context&) const noexcept;
+    /*!
+     * \return the registred points in 3D
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, Point<3>, std::less<>>>
+    getPoints3D(Context&) const noexcept;
+    /*!
+     * \return the registred points in 2D
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, std::vector<Point<2>>, std::less<>>>
+    getPointsSets2D(Context&) const noexcept;
+    /*!
+     * \return the registred points in 3D
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, std::vector<Point<3>>, std::less<>>>
+    getPointsSets3D(Context&) const noexcept;
+    /*!
+     * \return the point with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     */
+    [[nodiscard]] std::optional<Point<2>> getPoint2D(
+        Context&, std::string_view) const noexcept;
+    /*!
+     * \return the point with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     */
+    [[nodiscard]] std::optional<Point<3>> getPoint3D(
+        Context&, std::string_view) const noexcept;
+    /*!
+     * \return the points set with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the points set
+     */
+    [[nodiscard]] OptionalReference<const std::vector<Point<2>>> getPointsSet2D(
+        Context&, std::string_view) const noexcept;
+    /*!
+     * \return the point with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the points set
+     */
+    [[nodiscard]] OptionalReference<const std::vector<Point<3>>> getPointsSet3D(
+        Context&, std::string_view) const noexcept;
+#endif /* MGIS_HAVE_TFEL */
+
 #ifdef MFEM_USE_MPI
+    //! \brief parallel mesh
     std::shared_ptr<Mesh<true>> parallel_mesh;
 #endif /* MFEM_USE_MPI */
+    //! \brief sequential mesh
     std::shared_ptr<Mesh<false>> sequential_mesh;
     //! \brief mapping between materials identifiers and names
     std::map<size_type, std::string> materials_names;
     //! \brief mapping between materials boundaries and names
     std::map<size_type, std::string> boundaries_names;
-  };  // end of MeshDiscretization
+#ifdef MGIS_HAVE_TFEL
+    //! \brief points declared by the user, only valid for a 2D mesh
+    std::map<std::string, Point<2>, std::less<>> points2D;
+    //! \brief points declared by the user, only valid for a 3D mesh
+    std::map<std::string, Point<3>, std::less<>> points3D;
+    //! \brief points set declared by the user, only valid for a 2D mesh
+    std::map<std::string, std::vector<Point<2>>, std::less<>> pointsSets2D;
+    //! \brief points set declared by the user, only valid for a 3D mesh
+    std::map<std::string, std::vector<Point<3>>, std::less<>> pointsSets3D;
+#endif /* MGIS_HAVE_TFEL */
+  };   // end of MeshDiscretization
 
   /*!
    * \brief compare two mesh discretisations to see if they point to the same
@@ -343,6 +497,53 @@ namespace mfem_mgis {
       const MeshDiscretization&) noexcept;
 
 #endif /* MFEM_USE_MPI */
+
+#ifdef MGIS_HAVE_TFEL
+
+  template <size_type N>
+  requires((N == 2) || (N == 3))  //
+      [[nodiscard]] std::optional<Point<N>> makePoint(
+          Context&, const MeshDiscretization&, const Parameter&) noexcept;
+
+  template <size_type N>
+  requires((N == 2) || (N == 3))  //
+      [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsSet(
+          Context&, const MeshDiscretization&, const Parameter&) noexcept;
+
+  template <size_type N>
+  requires((N == 2) || (N == 3))  //
+      [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsOnCurve(
+          Context&, const MeshDiscretization&, const Parameters&) noexcept;
+
+  // partial specialisation
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<Point<2>> makePoint<2>(
+      Context&, const MeshDiscretization&, const Parameter&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<Point<3>> makePoint<3>(
+      Context&, const MeshDiscretization&, const Parameter&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<2>>>
+  makePointsSet<2>(Context&,
+                   const MeshDiscretization&,
+                   const Parameter&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<3>>>
+  makePointsSet<3>(Context&,
+                   const MeshDiscretization&,
+                   const Parameter&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<2>>>
+  makePointsOnCurve<2>(Context&,
+                       const MeshDiscretization&,
+                       const Parameters&) noexcept;
+  template <>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<Point<3>>>
+  makePointsOnCurve<3>(Context&,
+                       const MeshDiscretization&,
+                       const Parameters&) noexcept;
+
+#endif /* MGIS_HAVE_TFEL */
 
 }  // end of namespace mfem_mgis
 

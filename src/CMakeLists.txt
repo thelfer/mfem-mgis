@@ -8,6 +8,8 @@ list(APPEND MFEMMGIS_SOURCES
   Parameters.cxx
   MeshDiscretization.cxx
   FiniteElementDiscretization.cxx
+  FiniteElementSpacesManager.cxx
+  GridFunctionUtilities.cxx
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx
@@ -93,7 +95,28 @@ list(APPEND MFEMMGIS_SOURCES
   PointWiseModel.cxx
   PhysicalSystem.cxx
   Simulation.cxx
+  DataFileUtilities.cxx
+  AbstractPostProcessing.cxx
+  PostProcessingBase.cxx
+  AbstractCurve.cxx
+  MultipleCurves.cxx
+  GridFunctionValuesCurve.cxx
+  CurvesWriter.cxx
+  CurvesPostProcessing.cxx
+  PointsSetCurves.cxx
+  PointsSetCurvesWriter.cxx
+  PointsSetCurvesPostProcessing.cxx
 )
+
+if(MGIS_HAVE_TFEL)
+  list(APPEND MFEMMGIS_SOURCES
+       Geometry.cxx)
+endif(MGIS_HAVE_TFEL)
+
+if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+list(APPEND MFEMMGIS_SOURCES
+     GridFunctionInterpolator.cxx)
+endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES
@@ -103,6 +126,10 @@ if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
 endif(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
 
 mfem_mgis_library(MFEMMGIS ${MFEMMGIS_SOURCES})
+if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+ target_compile_definitions(MFEMMGIS PUBLIC 
+   MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR)
+endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
 
 if(OpenMP_FOUND)
   target_link_libraries(MFEMMGIS

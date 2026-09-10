@@ -50,6 +50,12 @@ namespace mfem_mgis {
 
   template <bool parallel>
   std::shared_ptr<Mesh<parallel>> MeshDiscretization::getMeshPointer() {
+    return this->template getMutableMeshPointer<parallel>();
+  }
+
+  template <bool parallel>
+  std::shared_ptr<Mesh<parallel>> MeshDiscretization::getMutableMeshPointer()
+      const {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       if (!this->parallel_mesh.get()) {
@@ -86,6 +92,58 @@ namespace mfem_mgis {
       return this->sequential_mesh;
     }
   }  // end of getMeshPointer
+
+#ifdef MGIS_HAVE_TFEL
+  template <size_type N>
+  requires((N == 2) || (N == 3))  //
+      std::optional<Point<N>> MeshDiscretization::getPoint(Context& ctx,
+                                                           std::string_view n)
+  const noexcept {
+    if constexpr (N == 2) {
+      return this->getPoint2D(ctx, n);
+    } else {
+      return this->getPoint3D(ctx, n);
+    }
+  }  // end of getPoint
+
+  template <size_type N>
+  requires((N == 2) || (N == 3))                      //
+      OptionalReference<const std::vector<Point<N>>>  //
+      MeshDiscretization::getPointsSet(Context& ctx, std::string_view n)
+  const noexcept {
+    if constexpr (N == 2) {
+      return this->getPointsSet2D(ctx, n);
+    } else {
+      return this->getPointsSet3D(ctx, n);
+    }
+  }  // end of getPointsSet
+
+  template <size_type N>
+  requires((N == 2) || (N == 3))                                             //
+      OptionalReference<const std::map<std::string, Point<N>, std::less<>>>  //
+      MeshDiscretization::getPoints(Context& ctx)
+  const noexcept {
+    if constexpr (N == 2) {
+      return this->getPoints2D(ctx);
+    } else {
+      return this->getPoints3D(ctx);
+    }
+  }  // end of getPoints
+
+  template <size_type N>
+  requires((N == 2) || (N == 3))  //
+      OptionalReference<
+          const std::map<std::string, std::vector<Point<N>>, std::less<>>>  //
+      MeshDiscretization::getPointsSets(Context& ctx)
+  const noexcept {
+    if constexpr (N == 2) {
+      return this->getPointsSets2D(ctx);
+    } else {
+      return this->getPointsSets3D(ctx);
+    }
+  }  // end of getPointsSets
+
+#endif /* MGIS_HAVE_TFEL */
 
 }  // end of namespace mfem_mgis
 

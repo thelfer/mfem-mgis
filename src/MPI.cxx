@@ -13,13 +13,13 @@
 
 namespace mfem_mgis {
 
-  bool isTrueOnAllProcesses(const FiniteElementDiscretization& fed,
+  bool isTrueOnAllProcesses(const MeshDiscretization& m,
                             const bool b) noexcept {
-    if (fed.describesAParallelComputation()) {
+    if (m.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       auto r = b;
       MPI_Allreduce(MPI_IN_PLACE, &r, 1, MPI_C_BOOL, MPI_LAND,
-                    fed.getFiniteElementSpace<true>().GetComm());
+                    getMPICommunicator(m));
       return r;
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();

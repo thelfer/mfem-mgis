@@ -243,21 +243,17 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_partial_quadrature_function_test(OrthotropicElasticity EquivalentStrain)
 
+
   # StationaryNonLinearHeatTransferTest executable
   add_test_executable(StationaryNonLinearHeatTransferTest)
 
   # Helper function for StationaryNonLinearHeatTransferTest cases
   function(add_stationary_non_linear_heat_transfer_test nsolver)
     set(test "StationaryNonLinearHeatTransferTest-${nsolver}")
-    set(params
-        "--mesh"
-        "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
-        "--library"
-        "$<TARGET_FILE:BehaviourTest>"
-        "--behaviour"
-        "StationaryNonLinearHeatTransfer"
-        "--linearsolver"
-        "${nsolver}")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+        "--library" "$<TARGET_FILE:BehaviourTest>"
+        "--behaviour" "StationaryNonLinearHeatTransfer"
+        "--linearsolver" "${nsolver}")
     add_test(NAME ${test} COMMAND ./StationaryNonLinearHeatTransferTest
                                   ${params} "--parallel" "0")
     set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
@@ -317,12 +313,29 @@ if(MFEM_MGIS_HAVE_TFEL)
                "${nsolver}")
     add_test(NAME ${test} COMMAND ./L2ProjectionTest ${params} "--parallel" "0")
     if(MFEM_USE_MPI)
-      add_test(NAME ${test}P COMMAND mpirun -n 2 ./L2ProjectionTest ${params}
+      add_test(NAME Parallel${test} COMMAND mpirun -n 2 ./L2ProjectionTest ${params}
                                      "--parallel" "1")
     endif(MFEM_USE_MPI)
   endfunction()
 
   add_l2_projection_test(0)
+
+  # PointsSetCurveTest executable
+  add_tfel_test_executable(PointsSetCurveTest)
+
+  # Helper function for PointsSetCurveTest cases
+  function(add_points_set_curve_test nsolver)
+    set(test "PointsSetCurveTest-${nsolver}")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh" "--linearsolver"
+               "${nsolver}")
+    add_test(NAME ${test} COMMAND ./PointsSetCurveTest ${params} "--parallel" "0")
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test} COMMAND mpirun -n 2 ./PointsSetCurveTest ${params}
+                                     "--parallel" "1")
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_points_set_curve_test(0)
 
   # GridFunctionTest executable
   add_test_executable(GridFunctionTest)
@@ -456,6 +469,29 @@ if(MFEM_MGIS_HAVE_TFEL)
   # PredictionTest cases
   add_prediction_test(PredictionTest)
   add_prediction_test(PredictionTest2)
+
+  if(MGIS_HAVE_TFEL)
+    add_tfel_test_executable(GeometryTest)
+    add_test(NAME GeometryTest COMMAND ./GeometryTest)
+  endif(MGIS_HAVE_TFEL)
+
+  if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
+    # GridFunctionInterpolatorTest executable
+    add_tfel_test_executable(GridFunctionInterpolatorTest)
+    
+    # Helper function for GridFunctionInterpolatorTest
+    function(add_grid_function_interpolator_test)
+      set(test "GridFunctionInterpolatorTest")
+      set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/bar.msh")
+      add_test(NAME ${test} COMMAND ./GridFunctionInterpolatorTest ${params} "--serial")
+      if(MFEM_USE_MPI)
+        add_test(NAME ${test}P
+                 COMMAND mpirun -n 2 ./GridFunctionInterpolatorTest ${params} "--parallel")
+      endif(MFEM_USE_MPI)
+    endfunction()
+    
+    add_grid_function_interpolator_test()
+  endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
 
   # ParallelReadMode executable (MPI only)
   if(MFEM_USE_MPI)

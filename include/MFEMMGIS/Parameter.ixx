@@ -152,6 +152,34 @@ namespace mfem_mgis {
     return v;
   }  // end of get
 
+  namespace internals {
+
+    template <typename ValueType>
+    requires((std::same_as<ValueType, real>) || (std::same_as<ValueType, int>))
+        [[nodiscard]] std::optional<std::vector<ValueType>> convertToVector(
+            Context&, const Parameter&) noexcept;
+
+    template <>
+    MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<real>>
+    convertToVector<real>(Context&, const Parameter&) noexcept;
+
+    template <>
+    MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<int>>
+    convertToVector<int>(Context&, const Parameter&) noexcept;
+
+  }  // end of namespace internals
+
+  template <typename ValueType>
+  [[nodiscard]] auto convert(Context& ctx, const Parameter& p) noexcept {
+    if constexpr (std::same_as<ValueType, std::vector<real>>) {
+      return ::mfem_mgis::internals::convertToVector<real>(ctx, p);
+    } else if constexpr (std::same_as<ValueType, std::vector<int>>) {
+      return ::mfem_mgis::internals::convertToVector<int>(ctx, p);
+    } else {
+      return get<ValueType>(ctx, p);
+    }
+  }  // end of convert
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_PARAMETER_IXX */
