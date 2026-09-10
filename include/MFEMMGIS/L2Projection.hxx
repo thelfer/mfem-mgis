@@ -27,7 +27,7 @@ namespace mfem_mgis {
      */
     std::unique_ptr<SubMesh<parallel>> submesh;
     //! \brief finite element space.
-    std::unique_ptr<FiniteElementSpace<parallel>> fe_space;
+    std::shared_ptr<FiniteElementSpace<parallel>> fe_space;
     //! \brief grid function resulting from the projection
     std::unique_ptr<GridFunction<parallel>> result;
   };

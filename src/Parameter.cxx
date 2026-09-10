@@ -8,6 +8,47 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/Parameter.hxx"
 
+namespace mfem_mgis::internals {
+
+  template <typename ValueType>
+  [[nodiscard]] static std::optional<std::vector<ValueType>>
+  convertToVector_impl(Context& ctx, const Parameter& p) noexcept {
+    if (is<ValueType>(p)) {
+      const auto& value = get<ValueType>(throwing, p);
+      return std::vector<ValueType>(1, value);
+    }
+    if (!is<std::vector<Parameter>>(p)) {
+      return ctx.registerErrorMessage(
+          "can't convert parameter to vector: invalid parameter type");
+    }
+    const auto& values = get<std::vector<Parameter>>(throwing, p);
+    auto r = std::vector<ValueType>{};
+    r.reserve(values.size());
+    for (const auto& v : values) {
+      if (!is<ValueType>(v)) {
+        return ctx.registerErrorMessage(
+            "can't convert parameter to vector: one of the element is not "
+            "convertible to the expected type");
+      }
+      r.push_back(get<ValueType>(throwing, v));
+    }
+    return r;
+  }  // end of convertToVector_impl
+
+  template <>
+  std::optional<std::vector<real>> convertToVector<real>(
+      Context& ctx, const Parameter& p) noexcept {
+    return convertToVector_impl<real>(ctx, p);
+  }
+
+  template <>
+  std::optional<std::vector<int>> convertToVector<int>(
+      Context& ctx, const Parameter& p) noexcept {
+    return convertToVector_impl<int>(ctx, p);
+  }
+
+}  // namespace mfem_mgis::internals
+
 namespace mfem_mgis {
 
   InvalidResult Parameter::reportUnmatchedParameterType(Context& ctx) noexcept {

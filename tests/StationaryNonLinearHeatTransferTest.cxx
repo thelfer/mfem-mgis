@@ -92,13 +92,15 @@ int main(int argc, char** argv) {
     // vtk export
     problem.addPostProcessing(
         "ParaviewExportResults",
-        {{"OutputFileName",
-          "UniaxialTensileTestOutput-" + std::string(parameters.behaviour)}});
+        {{"OutputFileName", "StationaryNonLinearHeatTransferTestOutput-" +
+                                std::string(parameters.behaviour)}});
     // solving the problem in 100 time steps
     auto r = mfem_mgis::unit_tests::solve(problem, parameters, 0, 1, 100);
     // save the results curve
     mfem_mgis::unit_tests::saveResults(
-        "UniaxialTensileTest-" + std::string(parameters.behaviour) + ".txt", r);
+        "StationaryNonLinearHeatTransferTestOutput-" +
+            std::string(parameters.behaviour) + ".txt",
+        r);
     //     // compare to reference files
     //     constexpr const auto eps = mfem_mgis::real(1.e-10);
     //     constexpr const auto E = mfem_mgis::real(70.e9);

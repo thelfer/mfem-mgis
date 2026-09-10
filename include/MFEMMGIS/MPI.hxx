@@ -82,24 +82,24 @@ namespace mfem_mgis {
   /*!
    * \brief a simple reduction for boolean values
    *
-   * \param[in] fed: finite element discretization
+   * \param[in] m: mesh discretization
    * \param[in] b: boolean value in the current process
    *
    * \note if the computations are sequential, no MPI call is made
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool isTrueOnAllProcesses(
-      const FiniteElementDiscretization&, const bool) noexcept;
+      const MeshDiscretization&, const bool) noexcept;
 
   /*!
    * \brief a simple reduction for boolean values
    *
-   * \param[in] fed: finite element discretization
+   * \param[in] m: mesh discretization
    * \param[in] b: boolean value in the current process
    *
    * \note if the computations are sequential, no MPI call is made
    */
   template <typename T>
-  [[nodiscard]] bool isValidOnAllProcesses(const FiniteElementDiscretization&,
+  [[nodiscard]] bool isValidOnAllProcesses(const MeshDiscretization&,
                                            const T&) noexcept;
 
 }  // end of namespace mfem_mgis

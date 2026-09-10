@@ -15,6 +15,7 @@
 #include "MFEMMGIS/Info.hxx"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
+#include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 
 namespace mfem_mgis {
 
@@ -28,10 +29,6 @@ namespace mfem_mgis {
    * - create and handle a finite element space
    */
   struct MFEM_MGIS_EXPORT FiniteElementDiscretization : MeshDiscretization {
-    //! \brief string associated to the `FiniteElementFamily` parameter
-    static const char* const FiniteElementFamily;
-    //! \brief string associated to the `FiniteElementOrder` parameter
-    static const char* const FiniteElementOrder;
     //! \brief string associated to the `UnknownsSize` parameter
     static const char* const UnknownsSize;
     //!
@@ -46,14 +43,23 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context used for profiling
      * \param[in] params: parameters
      */
-    FiniteElementDiscretization(mgis::Context& ctx, const Parameters&);
+    FiniteElementDiscretization(Context& ctx, const Parameters&);
+    /*!
+     * \brief constructor with profiling support
+     * \param[in, out] ctx: execution context used for profiling
+     * \param[in] manager: finite element spaces manager
+     * \param[in] params: parameters
+     */
+    FiniteElementDiscretization(Context& ctx,
+                                const FiniteElementSpacesManager&,
+                                const Parameters&);
     /*!
      * \brief constructor with profiling support
      * \param[in, out] ctx: execution context used for profiling
      * \param[in] m: mesh
      * \param[in] params: parameters
      */
-    FiniteElementDiscretization(mgis::Context& ctx,
+    FiniteElementDiscretization(Context& ctx,
                                 const MeshDiscretization&,
                                 const Parameters&);
     /*!
@@ -62,12 +68,12 @@ namespace mfem_mgis {
      * \param[in] m: mesh
      * \param[in] params: parameters
      */
-    FiniteElementDiscretization(mgis::Context& ctx,
+    FiniteElementDiscretization(Context& ctx,
                                 std::shared_ptr<Mesh<true>>,
                                 const Parameters&);
-
     /*!
      * \brief constructor
+     * \param[in, out] ctx: execution context used for profiling
      * \param[in] m: mesh
      * \param[in] params: parameters
      *
@@ -80,49 +86,52 @@ namespace mfem_mgis {
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `UnknownsSize` (int): number of components of the unknows
      */
-    FiniteElementDiscretization(std::shared_ptr<Mesh<false>>,
+    FiniteElementDiscretization(Context& ctx,
+                                std::shared_ptr<Mesh<false>>,
                                 const Parameters&);
     /*!
      * \brief constructor
+     * \param[in, out] ctx: execution context used for profiling
      * \param[in] m: mesh
      * \param[in] c: finite element collection
      * \param[in] d: size of the unknowns
      *
      * \note this methods creates the finite element space.
      */
-    FiniteElementDiscretization(std::shared_ptr<Mesh<true>>,
+    FiniteElementDiscretization(Context& ctx,
+                                std::shared_ptr<Mesh<true>>,
                                 std::shared_ptr<const FiniteElementCollection>,
                                 const size_type);
     /*!
      * \brief constructor
-     * \param[in] m: mesh
-     * \param[in] c: collection
-     * \param[in] s: finite element space
-     */
-    FiniteElementDiscretization(std::shared_ptr<Mesh<true>>,
-                                std::shared_ptr<const FiniteElementCollection>,
-                                std::unique_ptr<FiniteElementSpace<true>>);
-    /*!
-     * \brief constructor
+     * \param[in, out] ctx: execution context used for profiling
      * \param[in] m: mesh
      * \param[in] c: collection
      * \param[in] d: size of the unknowns
      *
      * \note this methods creates the finite element space.
      */
-    FiniteElementDiscretization(std::shared_ptr<Mesh<false>>,
+    FiniteElementDiscretization(Context& ctx,
+                                std::shared_ptr<Mesh<false>>,
                                 std::shared_ptr<const FiniteElementCollection>,
                                 const size_type);
     /*!
-     * \brief constructor
-     * \param[in] m: mesh
-     * \param[in] c: collection
+     * \return if the given element space is also managed by the finite element
+     * space manager
      * \param[in] s: finite element space
      */
-    FiniteElementDiscretization(std::shared_ptr<Mesh<false>>,
-                                std::shared_ptr<const FiniteElementCollection>,
-                                std::unique_ptr<FiniteElementSpace<false>>);
-
+    template <bool parallel>
+    [[nodiscard]] bool isSlibing(
+        const FiniteElementSpace<parallel>&) const noexcept;
+    //! \return the underlying finite element space manager
+    [[nodiscard]] FiniteElementSpacesManager getFiniteElementSpacesManager()
+        const noexcept;
+    /*!
+     * \brief assign a suitable nodal finite element space to the underlying
+     * mesh
+     * \param[in] ctx: execution context
+     */
+    [[nodiscard]] bool setNodalFiniteElementSpace(Context&) const noexcept;
     //! \return the finite element space
     template <bool parallel>
     [[nodiscard]] FiniteElementSpace<parallel>& getFiniteElementSpace();
@@ -154,13 +163,13 @@ namespace mfem_mgis {
     ~FiniteElementDiscretization();
 
    private:
-    //! \brief finite element collection
-    std::shared_ptr<const FiniteElementCollection> fec;
+    //! \brief manager of the finite element spaces
+    FiniteElementSpacesManager fespaces_manager;
     //! \brief finite element space
 #ifdef MFEM_USE_MPI
-    std::unique_ptr<FiniteElementSpace<true>> parallel_fe_space;
+    std::shared_ptr<FiniteElementSpace<true>> parallel_fe_space;
 #endif /* MFEM_USE_MPI */
-    std::unique_ptr<FiniteElementSpace<false>> sequential_fe_space;
+    std::shared_ptr<FiniteElementSpace<false>> sequential_fe_space;
   };  // end of FiniteElementDiscretization
 
   /*!
