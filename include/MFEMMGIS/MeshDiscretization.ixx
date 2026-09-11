@@ -11,85 +11,38 @@
 namespace mfem_mgis {
 
   template <bool parallel>
-  inline Mesh<parallel>& MeshDiscretization::getMesh() {
-    if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-      if (!this->parallel_mesh.get()) {
-        MeshDiscretization::reportInvalidParallelMesh();
-      }
-      return *(this->parallel_mesh);
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    } else {
-      if (!this->sequential_mesh.get()) {
-        MeshDiscretization::reportInvalidSequentialMesh();
-      }
-      return *(this->sequential_mesh);
-    }
+  inline Mesh<parallel>& MeshDiscretization::getMesh() noexcept {
+    return *(this->template getMeshPointer<parallel>());
   }  // end of getMesh
 
   template <bool parallel>
-  inline const Mesh<parallel>& MeshDiscretization::getMesh() const {
-    if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-      if (!this->parallel_mesh.get()) {
-        MeshDiscretization::reportInvalidParallelMesh();
-      }
-      return *(this->parallel_mesh);
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    } else {
-      if (!this->sequential_mesh.get()) {
-        MeshDiscretization::reportInvalidSequentialMesh();
-      }
-      return *(this->sequential_mesh);
-    }
+  inline const Mesh<parallel>& MeshDiscretization::getMesh() const noexcept {
+    return *(this->template getMeshPointer<parallel>());
   }  // end of getMesh
-
-  template <bool parallel>
-  std::shared_ptr<Mesh<parallel>> MeshDiscretization::getMeshPointer() {
-    return this->template getMutableMeshPointer<parallel>();
-  }
 
   template <bool parallel>
   std::shared_ptr<Mesh<parallel>> MeshDiscretization::getMutableMeshPointer()
-      const {
+      const noexcept {
     if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-      if (!this->parallel_mesh.get()) {
-        MeshDiscretization::reportInvalidParallelMesh();
-      }
-      return this->parallel_mesh;
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
+      return this->getMutableParallelMeshPointer();
     } else {
-      if (!this->sequential_mesh.get()) {
-        MeshDiscretization::reportInvalidSequentialMesh();
-      }
-      return this->sequential_mesh;
+      return this->getMutableSequentialMeshPointer();
     }
   }  // end of getMeshPointer
 
   template <bool parallel>
+  std::shared_ptr<Mesh<parallel>>
+  MeshDiscretization::getMeshPointer() noexcept {
+    return this->template getMutableMeshPointer<parallel>();
+  }
+
+  template <bool parallel>
   std::shared_ptr<const Mesh<parallel>> MeshDiscretization::getMeshPointer()
-      const {
+      const noexcept {
     if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-      if (!this->parallel_mesh.get()) {
-        MeshDiscretization::reportInvalidParallelMesh();
-      }
-      return this->parallel_mesh;
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
+      return this->getParallelMeshPointer();
     } else {
-      if (!this->sequential_mesh.get()) {
-        MeshDiscretization::reportInvalidSequentialMesh();
-      }
-      return this->sequential_mesh;
+      return this->getSequentialMeshPointer();
     }
   }  // end of getMeshPointer
 
@@ -144,6 +97,16 @@ namespace mfem_mgis {
   }  // end of getPointsSets
 
 #endif /* MGIS_HAVE_TFEL */
+
+  template <bool parallel>
+  std::shared_ptr<SubMesh<parallel>> MeshDiscretization::getSubMesh(
+      Context& ctx, const Parameter& p) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelSubMesh(ctx, p);
+    } else {
+      return this->getSequentialSubMesh(ctx, p);
+    }
+  }  // end of getSubMesh
 
 }  // end of namespace mfem_mgis
 
