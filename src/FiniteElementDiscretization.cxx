@@ -176,7 +176,18 @@ namespace mfem_mgis {
 
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;
 
-  size_type getTrueVSize(const FiniteElementDiscretization& fed) {
+  size_type getVSize(const FiniteElementDiscretization& fed) noexcept {
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      return fed.getFiniteElementSpace<true>().GetVSize();
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    return fed.getFiniteElementSpace<false>().GetVSize();
+  }  // end of getVSize
+
+  size_type getTrueVSize(const FiniteElementDiscretization& fed) noexcept {
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       return fed.getFiniteElementSpace<true>().GetTrueVSize();

@@ -99,7 +99,17 @@ namespace mfem_mgis {
 #endif /* MGIS_HAVE_TFEL */
 
   template <bool parallel>
-  std::shared_ptr<SubMesh<parallel>> MeshDiscretization::getSubMesh(
+  OptionalReference<SubMesh<parallel>> MeshDiscretization::getSubMesh(
+      Context& ctx, const Parameter& p) noexcept {
+    if constexpr (parallel) {
+      return this->getParallelSubMesh(ctx, p);
+    } else {
+      return this->getSequentialSubMesh(ctx, p);
+    }
+  }  // end of getSubMesh
+
+  template <bool parallel>
+  OptionalReference<const SubMesh<parallel>> MeshDiscretization::getSubMesh(
       Context& ctx, const Parameter& p) const noexcept {
     if constexpr (parallel) {
       return this->getParallelSubMesh(ctx, p);

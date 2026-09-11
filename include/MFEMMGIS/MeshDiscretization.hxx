@@ -304,7 +304,19 @@ namespace mfem_mgis {
      * parameters which are either string or integers.
      */
     template <bool parallel>
-    std::shared_ptr<SubMesh<parallel>> getSubMesh(
+    OptionalReference<SubMesh<parallel>> getSubMesh(Context&,
+                                                    const Parameter&) noexcept;
+    /*!
+     * \brief return the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    OptionalReference<const SubMesh<parallel>> getSubMesh(
         Context&, const Parameter&) const noexcept;
 
     //! \brief destructor
@@ -343,7 +355,27 @@ namespace mfem_mgis {
      * \note the parameter may contain a integer, a string, a vector of
      * parameters which are either string or integers.
      */
-    std::shared_ptr<SubMesh<true>> getParallelSubMesh(
+    OptionalReference<const SubMesh<true>> getParallelSubMesh(
+        Context&, const Parameter&) const noexcept;
+    /*!
+     * \brief return the parallel sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    OptionalReference<SubMesh<true>> getParallelSubMesh(
+        Context&, const Parameter&) noexcept;
+    /*!
+     * \brief return the sequential sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    OptionalReference<const SubMesh<false>> getSequentialSubMesh(
         Context&, const Parameter&) const noexcept;
     /*!
      * \brief return the sequential sub mesh associated with the given ids
@@ -353,8 +385,8 @@ namespace mfem_mgis {
      * \note the parameter may contain a integer, a string, a vector of
      * parameters which are either string or integers.
      */
-    std::shared_ptr<SubMesh<false>> getSequentialSubMesh(
-        Context&, const Parameter&) const noexcept;
+    OptionalReference<SubMesh<false>> getSequentialSubMesh(
+        Context&, const Parameter&) noexcept;
 
 #ifdef MGIS_HAVE_TFEL
     /*!
