@@ -45,10 +45,6 @@ namespace mfem_mgis {
     //! \brief string associated to the `VerbosityLevel` parameter
     static const char* const GeneralVerbosityLevel;
     //!
-    [[noreturn]] static void reportInvalidParallelMesh();
-    //!
-    [[noreturn]] static void reportInvalidSequentialMesh();
-    //!
     [[nodiscard]] static std::vector<std::string> getParametersList() noexcept;
     /*!
      * \brief constructor
@@ -166,21 +162,23 @@ namespace mfem_mgis {
     getBoundariesIdentifiers(Context&, const Parameter&) const noexcept;
     //! \return the mesh
     template <bool parallel>
-    [[nodiscard]] Mesh<parallel>& getMesh();
+    [[nodiscard]] Mesh<parallel>& getMesh() noexcept;
     //! \return the mesh
     template <bool parallel>
-    [[nodiscard]] const Mesh<parallel>& getMesh() const;
+    [[nodiscard]] const Mesh<parallel>& getMesh() const noexcept;
     //! \return the mesh
     template <bool parallel>
-    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMeshPointer();
+    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMeshPointer() noexcept;
     //! \return the mesh
     template <bool parallel>
-    [[nodiscard]] std::shared_ptr<const Mesh<parallel>> getMeshPointer() const;
+    [[nodiscard]] std::shared_ptr<const Mesh<parallel>> getMeshPointer()
+        const noexcept;
     //! \return the mesh
     template <bool parallel>
-    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMutableMeshPointer() const;
+    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMutableMeshPointer()
+        const noexcept;
     //! \return if this object is built to run parallel computations
-    [[nodiscard]] bool describesAParallelComputation() const;
+    [[nodiscard]] bool describesAParallelComputation() const noexcept;
     /*!
      * \brief return the names of the materials (and their mapping with their
      * identifiers
@@ -283,10 +281,18 @@ namespace mfem_mgis {
     ~MeshDiscretization();
 
    protected:
-    //! \internal structure to implement the PIMPL idiom
-    struct Implementation;
-    //! \brief pointer to the implementation
-    std::shared_ptr<Implementation> pimpl;
+    //! \return a pointer to the underyling mesh
+    [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer()
+        const noexcept;
+    //! \return a pointer to the underyling mesh
+    [[nodiscard]] std::shared_ptr<Mesh<false>> getMutableSequentialMeshPointer()
+        const noexcept;
+    //! \return a pointer to the underyling mesh
+    [[nodiscard]] std::shared_ptr<const Mesh<true>> getParallelMeshPointer()
+        const noexcept;
+    //! \return a pointer to the underyling mesh
+    [[nodiscard]] std::shared_ptr<const Mesh<false>> getSequentialMeshPointer()
+        const noexcept;
     /*!
      * \return the parallel sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
@@ -366,28 +372,11 @@ namespace mfem_mgis {
     [[nodiscard]] OptionalReference<const std::vector<Point<3>>> getPointsSet3D(
         Context&, std::string_view) const noexcept;
 #endif /* MGIS_HAVE_TFEL */
-
-#ifdef MFEM_USE_MPI
-    //! \brief parallel mesh
-    std::shared_ptr<Mesh<true>> parallel_mesh;
-#endif /* MFEM_USE_MPI */
-    //! \brief sequential mesh
-    std::shared_ptr<Mesh<false>> sequential_mesh;
-    //! \brief mapping between materials identifiers and names
-    std::map<size_type, std::string> materials_names;
-    //! \brief mapping between materials boundaries and names
-    std::map<size_type, std::string> boundaries_names;
-#ifdef MGIS_HAVE_TFEL
-    //! \brief points declared by the user, only valid for a 2D mesh
-    std::map<std::string, Point<2>, std::less<>> points2D;
-    //! \brief points declared by the user, only valid for a 3D mesh
-    std::map<std::string, Point<3>, std::less<>> points3D;
-    //! \brief points set declared by the user, only valid for a 2D mesh
-    std::map<std::string, std::vector<Point<2>>, std::less<>> pointsSets2D;
-    //! \brief points set declared by the user, only valid for a 3D mesh
-    std::map<std::string, std::vector<Point<3>>, std::less<>> pointsSets3D;
-#endif /* MGIS_HAVE_TFEL */
-  };   // end of MeshDiscretization
+    //! \brief internal structure to implement the pimpl idiom
+    struct Implementation;
+    //! \brief pointer to the internal implementation
+    std::shared_ptr<Implementation> pimpl;
+  };  // end of MeshDiscretization
 
   /*!
    * \brief compare two mesh discretisations to see if they point to the same
@@ -417,19 +406,19 @@ namespace mfem_mgis {
    * \param[in] m: mesh discretization
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getSpaceDimension(
-      const MeshDiscretization&);
+      const MeshDiscretization&) noexcept;
   /*!
    * \brief return the list of materials attributes
    * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
-  getMaterialsAttributes(const MeshDiscretization&);
+  getMaterialsAttributes(const MeshDiscretization&) noexcept;
   /*!
    * \brief return the list of boundaries attributes
    * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
-  getBoundariesAttributes(const MeshDiscretization&);
+  getBoundariesAttributes(const MeshDiscretization&) noexcept;
 
   /*!
    * \brief display information about a mesh discretization

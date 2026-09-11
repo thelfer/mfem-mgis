@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <mfem/general/error.hpp>
 #include <mfem/mesh/mesh.hpp>
 #include <mfem/fem/fespace.hpp>
 #ifdef MFEM_USE_MPI
@@ -326,46 +327,6 @@ namespace mfem_mgis {
     }
   }  // end of updateNamesFromAttributesSets
 
-  static void addPoints(attributes::Throwing,
-                        MeshDiscretization& m,
-                        const Parameters& parameters) {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    const auto d = getSpaceDimension(m);
-    if ((d != 2) && (d != 3)) {
-      raise("can only add points in 2D or 3D");
-    }
-    for (const auto& [n, p] : parameters) {
-      if (d == 2) {
-        const auto pt = makePoint<2>(ctx, p) | or_raise;
-        m.addPoint(ctx, n, pt) | or_raise;
-      } else {
-        const auto pt = makePoint<3>(ctx, p) | or_raise;
-        m.addPoint(ctx, n, pt) | or_raise;
-      }
-    }
-  }  // end of addPoints
-
-  static void addPointsSets(attributes::Throwing,
-                            MeshDiscretization& m,
-                            const Parameters& parameters) {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    const auto d = getSpaceDimension(m);
-    if ((d != 2) && (d != 3)) {
-      raise("can only add points sets in 2D or 3D");
-    }
-    for (const auto& [n, p] : parameters) {
-      if (d == 2) {
-        const auto pts = makePointsSet<2>(ctx, m, p) | or_raise;
-        m.addPointsSet(ctx, n, pts) | or_raise;
-      } else {
-        const auto pts = makePointsSet<3>(ctx, m, p) | or_raise;
-        m.addPointsSet(ctx, n, pts) | or_raise;
-      }
-    }
-  }  // end of addPointsSet
-
   const char* const MeshDiscretization::Parallel = "Parallel";
   const char* const MeshDiscretization::MeshFileName = "MeshFileName";
   const char* const MeshDiscretization::MeshReadMode = "MeshReadMode";
@@ -377,256 +338,6 @@ namespace mfem_mgis {
       "NumberOfUniformRefinements";
   const char* const MeshDiscretization::GeneralVerbosityLevel =
       "GeneralVerbosityLevel";
-
-  const mfem::Array<size_type>& getMaterialsAttributes(
-      const MeshDiscretization& fed) {
-    if (fed.describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      const auto& mesh = fed.getMesh<true>();
-      return mesh.attributes;
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    }
-    const auto& mesh = fed.getMesh<false>();
-    return mesh.attributes;
-  }  // end of getMaterialsAttributes
-
-  const mfem::Array<size_type>& getBoundariesAttributes(
-      const MeshDiscretization& fed) {
-    if (fed.describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      const auto& mesh = fed.getMesh<true>();
-      return mesh.bdr_attributes;
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    }
-    const auto& mesh = fed.getMesh<false>();
-    return mesh.bdr_attributes;
-  }  // end of getBoundariesAttributes
-
-  void MeshDiscretization::reportInvalidParallelMesh() {
-    raise(
-        "MeshDiscretization::reportInvalidParallelMesh: "
-        "no parallel mesh defined");
-  }  // end of reportInvalidParallelMesh
-
-  void MeshDiscretization::reportInvalidSequentialMesh() {
-    raise(
-        "MeshDiscretization::reportInvalidSequentialMesh: "
-        "no sequential mesh defined");
-  }  // end of reportInvalidSequentialMesh
-
-  std::vector<std::string> MeshDiscretization::getParametersList() noexcept {
-    return {MeshDiscretization::Parallel,
-            MeshDiscretization::MeshFileName,
-            MeshDiscretization::MeshReadMode,
-            MeshDiscretization::NumberOfUniformRefinements,
-            MeshDiscretization::Materials,
-            MeshDiscretization::Boundaries,
-            MeshDiscretization::Points,
-            MeshDiscretization::PointsSets,
-            MeshDiscretization::GeneralVerbosityLevel};
-  }  // end of getParametersList
-
-  MeshDiscretization::MeshDiscretization(mgis::Context& ctx,
-                                         const Parameters& params) {
-    CatchTimeSection(ctx, "Mesh::Constructor");
-    auto or_raise = ctx.getThrowingFailureHandler();
-    auto extractMap = [](const Parameters& parameters) {
-      auto m = std::map<size_type, std::string>{};
-      for (const auto& p : parameters) {
-        m[get<int>(throwing, p.second)] = p.first;
-      }
-      return m;
-    };
-    checkParameters(throwing, params, MeshDiscretization::getParametersList());
-    const auto parallel =
-        get_if<bool>(throwing, params, MeshDiscretization::Parallel, false);
-    const auto& mesh_file =
-        get<std::string>(throwing, params, MeshDiscretization::MeshFileName);
-    const auto nrefinement = get_if<int>(
-        throwing, params, MeshDiscretization::NumberOfUniformRefinements, 0);
-    const auto mesh_mode = get_if<std::string>(
-        throwing, params, MeshDiscretization::MeshReadMode, "FromScratch");
-    if (parallel) {
-#ifdef MFEM_USE_MPI
-      size_type ref_level = 0;
-      if (mesh_mode == "FromScratch") {
-        auto smesh = loadMeshSequential(ctx, mesh_file, 0, 1, true);
-        // Perform a uniform refinement on the sequential mesh if it doesn't
-        // have enough elements. Assume that each subdomain should have at leat
-        // 8 elements Not superior to nrefinement
-        if (nrefinement > 0) {
-          double numberOfProcs = double(mfem::Mpi::WorldSize());
-          while ((double(smesh->GetNE()) / numberOfProcs) < 8 &&
-                 ref_level < nrefinement) {
-            smesh->UniformRefinement();
-            ref_level++;
-          }
-        }
-        this->parallel_mesh =
-            std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
-      } else if (mesh_mode == "Restart") {
-        this->parallel_mesh = loadMeshParallel(ctx, mesh_file);
-      } else {
-        raise("Wrong MeshReadMode value");
-      }
-      for (size_type i = ref_level; i < nrefinement; ++i) {
-        CatchTimeSection(ctx, "Mesh::Run_ParUniformRefinement");
-        this->parallel_mesh->UniformRefinement();
-      }
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    } else {
-      if (mesh_mode == "Restart") {
-        raise(
-            "Aborting. The option 'Restart' is not handled while running a "
-            "sequential program");
-      }
-      this->sequential_mesh = loadMeshSequential(ctx, mesh_file, 0, 1, true);
-      for (size_type i = 0; i < nrefinement; ++i) {
-        CatchTimeSection(ctx, "Mesh::Run_SeqUniformRefinement");
-        this->sequential_mesh->UniformRefinement();
-      }
-    }
-    // building the finite element collection
-    // declaring materials and boundaries
-    auto mnames = [&params, extractMap]() -> std::map<size_type, std::string> {
-      if (contains(params, MeshDiscretization::Materials)) {
-        return extractMap(
-            get<Parameters>(throwing, params, MeshDiscretization::Materials));
-      }
-      return {};
-    }();
-    auto bnames = [&params, extractMap]() -> std::map<size_type, std::string> {
-      if (contains(params, MeshDiscretization::Boundaries)) {
-        return extractMap(
-            get<Parameters>(throwing, params, MeshDiscretization::Boundaries));
-      }
-      return {};
-    }();
-    if (parallel) {
-#ifdef MFEM_USE_MPI
-      updateNamesFromAttributesSets<true>(throwing, mnames, bnames,
-                                          *(this->parallel_mesh));
-#else
-      reportUnsupportedParallelComputations();
-#endif
-    } else {
-      updateNamesFromAttributesSets<false>(throwing, mnames, bnames,
-                                           *(this->sequential_mesh));
-    }
-    if (!mnames.empty()) {
-      this->setMaterialsNames(ctx, mnames) | or_raise;
-    }
-    if (!bnames.empty()) {
-      this->setBoundariesNames(ctx, bnames) | or_raise;
-    }
-    //
-    if (contains(params, MeshDiscretization::Points)) {
-      addPoints(throwing, *this,
-                get<Parameters>(throwing, params, MeshDiscretization::Points));
-    }
-    //
-    if (contains(params, MeshDiscretization::PointsSets)) {
-      addPointsSets(
-          throwing, *this,
-          get<Parameters>(throwing, params, MeshDiscretization::PointsSets));
-    }
-  }  // end of MeshDiscretization
-
-#ifdef MFEM_USE_MPI
-
-  MeshDiscretization::MeshDiscretization(std::shared_ptr<Mesh<true>> m)
-      : parallel_mesh(std::move(m)) {
-    if (this->parallel_mesh.get() == nullptr) {
-      raise("invalid mesh");
-    }
-  }  // end of MeshDiscretization
-
-#else /* MFEM_USE_MPI */
-
-  MeshDiscretization::MeshDiscretization(std::shared_ptr<Mesh<true>>) {
-    reportUnsupportedParallelComputations();
-  }  // end of MeshDiscretization
-
-#endif /* MFEM_USE_MPI */
-
-  MeshDiscretization::MeshDiscretization(std::shared_ptr<Mesh<false>> m)
-      : sequential_mesh(std::move(m)) {
-    if (this->sequential_mesh.get() == nullptr) {
-      raise("invalid mesh");
-    }
-  }  // end of MeshDiscretization
-
-  MeshDiscretization::MeshDiscretization(MeshDiscretization&&) noexcept =
-      default;
-
-  MeshDiscretization::MeshDiscretization(const MeshDiscretization&) noexcept =
-      default;
-
-  //   std::shared_ptr<SubMesh<true>> MeshDiscretization::getParallelSubMesh(
-  //       Context& ctx, const Parameter& p) const noexcept {
-  //     return this->pimpl->getSubMesh<true>(ctx, p);
-  //   }  // end of getParallelSubMesh
-  //
-  //   std::shared_ptr<SubMesh<false>> MeshDiscretization::getSequentialSubMesh(
-  //       Context& ctx, const Parameter& p) const noexcept {
-  //     return this->pimpl->getSubMesh<false>(ctx, p);
-  //   }  // end of getSequentialSubMesh
-
-  bool MeshDiscretization::describesAParallelComputation() const {
-#ifdef MFEM_USE_MPI
-    return this->parallel_mesh.get() != nullptr;
-#else  /* MFEM_USE_MPI */
-    return false;
-#endif /* MFEM_USE_MPI */
-  }    // end of describesAParallelComputation
-
-  bool MeshDiscretization::setMaterialsNames(
-      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
-    return setMeshObjectNames(ctx, this->materials_names, ids,
-                              getMaterialsAttributes(*this),
-                              "setMaterialsNames", "material");
-  }  // end of setMaterialsNames
-
-  bool MeshDiscretization::setBoundariesNames(
-      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
-    return setMeshObjectNames(ctx, this->boundaries_names, ids,
-                              getBoundariesAttributes(*this),
-                              "setBoundariesNames", "boundary");
-  }  // end of setBoundariesNames
-
-  std::optional<std::string> MeshDiscretization::getMaterialName(
-      Context& ctx, const size_type id) const noexcept {
-    const auto& mids = getMaterialsAttributes(*this);
-    if (mids.Find(id) == -1) {
-      return ctx.registerErrorMessage("no material id '" + std::to_string(id) +
-                                      "' defined in the mesh");
-    }
-    const auto p = this->materials_names.find(id);
-    if (p == this->materials_names.end()) {
-      return std::string{};
-    }
-    return p->second;
-  }  // end of getMaterialName
-
-  std::optional<std::string> MeshDiscretization::getBoundaryName(
-      Context& ctx, const size_type id) const noexcept {
-    const auto& bids = getBoundariesAttributes(*this);
-    if (bids.Find(id) == -1) {
-      return ctx.registerErrorMessage("no boundary id '" + std::to_string(id) +
-                                      "' defined in the mesh");
-    }
-    const auto p = this->boundaries_names.find(id);
-    if (p == this->boundaries_names.end()) {
-      return std::string{};
-    }
-    return p->second;
-  }  // end of getBoundaryName
 
   [[nodiscard]] static std::optional<std::vector<size_type>>
   selectMeshObjectsIdentifiers(Context& ctx,
@@ -737,300 +448,871 @@ namespace mfem_mgis {
     return selectMeshObjectsIdentifiers(ctx, attributes, names, ids, t, m);
   }  // end of selectMeshObjectsIdentifiers
 
+  struct MeshDiscretization::Implementation {
+    [[noreturn]] static void reportInvalidParallelMesh() noexcept {
+      mfem::mfem_error(
+          "MeshDiscretization::reportInvalidParallelMesh: "
+          "no parallel mesh defined");
+    }  // end of reportInvalidParallelMesh
+
+    [[noreturn]] static void reportInvalidSequentialMesh() noexcept {
+      mfem::mfem_error(
+          "MeshDiscretization::reportInvalidSequentialMesh: "
+          "no sequential mesh defined");
+    }  // end of reportInvalidSequentialMesh
+
+    //! \brief return the space dimension
+    [[nodiscard]] static size_type getSpaceDimension(
+        const Implementation& m) noexcept {
+      if (m.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+        return m.getMeshPointer<true>()->SpaceDimension();
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      }
+      return m.getMeshPointer<false>()->SpaceDimension();
+    }
+
+    static const mfem::Array<size_type>& getMaterialsAttributes(
+        const Implementation& m) noexcept {
+      if (m.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+        const auto& mesh = *(m.getMeshPointer<true>());
+        return mesh.attributes;
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      }
+      const auto& mesh = *(m.getMeshPointer<false>());
+      return mesh.attributes;
+    }  // end of getMaterialsAttributes
+
+    static const mfem::Array<size_type>& getBoundariesAttributes(
+        const Implementation& m) noexcept {
+      if (m.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+        const auto& mesh = *(m.getMeshPointer<true>());
+        return mesh.bdr_attributes;
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      }
+      const auto& mesh = *(m.getMeshPointer<false>());
+      return mesh.bdr_attributes;
+    }  // end of getBoundariesAttributes
+
+#ifdef MGIS_HAVE_TFEL
+    static void addPoints(attributes::Throwing,
+                          MeshDiscretization::Implementation& m,
+                          const Parameters& parameters) {
+      auto ctx = Context{};
+      auto or_raise = ctx.getThrowingFailureHandler();
+      const auto d = getSpaceDimension(m);
+      if ((d != 2) && (d != 3)) {
+        raise("can only add points in 2D or 3D");
+      }
+      for (const auto& [n, p] : parameters) {
+        if (d == 2) {
+          const auto pt = makePoint<2>(ctx, p) | or_raise;
+          m.addPoint(ctx, n, pt) | or_raise;
+        } else {
+          const auto pt = makePoint<3>(ctx, p) | or_raise;
+          m.addPoint(ctx, n, pt) | or_raise;
+        }
+      }
+    }  // end of addPoints
+
+    static void addPointsSets(attributes::Throwing,
+                              MeshDiscretization::Implementation& m,
+                              const Parameters& parameters) {
+      auto ctx = Context{};
+      auto or_raise = ctx.getThrowingFailureHandler();
+      const auto d = getSpaceDimension(m);
+      if ((d != 2) && (d != 3)) {
+        raise("can only add points sets in 2D or 3D");
+      }
+      for (const auto& [n, p] : parameters) {
+        if (d == 2) {
+          const auto pts =
+              makePointsSet<2>(ctx, m.pointsSets2D, m.points2D, p) | or_raise;
+          m.addPointsSet(ctx, n, pts) | or_raise;
+        } else {
+          const auto pts =
+              makePointsSet<3>(ctx, m.pointsSets3D, m.points3D, p) | or_raise;
+          m.addPointsSet(ctx, n, pts) | or_raise;
+        }
+      }
+    }  // end of addPointsSet
+#endif /* MGIS_HAVE_TFEL */
+
+    Implementation(mgis::Context& ctx, const Parameters& params) {
+      CatchTimeSection(ctx, "Mesh::Constructor");
+      auto or_raise = ctx.getThrowingFailureHandler();
+      auto extractMap = [](const Parameters& parameters) {
+        auto m = std::map<size_type, std::string>{};
+        for (const auto& p : parameters) {
+          m[get<int>(throwing, p.second)] = p.first;
+        }
+        return m;
+      };
+      checkParameters(throwing, params,
+                      MeshDiscretization::getParametersList());
+      const auto parallel =
+          get_if<bool>(throwing, params, MeshDiscretization::Parallel, false);
+      const auto& mesh_file =
+          get<std::string>(throwing, params, MeshDiscretization::MeshFileName);
+      const auto nrefinement = get_if<int>(
+          throwing, params, MeshDiscretization::NumberOfUniformRefinements, 0);
+      const auto mesh_mode = get_if<std::string>(
+          throwing, params, MeshDiscretization::MeshReadMode, "FromScratch");
+      if (parallel) {
+#ifdef MFEM_USE_MPI
+        size_type ref_level = 0;
+        if (mesh_mode == "FromScratch") {
+          auto smesh = loadMeshSequential(ctx, mesh_file, 0, 1, true);
+          // Perform a uniform refinement on the sequential mesh if it doesn't
+          // have enough elements. Assume that each subdomain should have at
+          // leat 8 elements Not superior to nrefinement
+          if (nrefinement > 0) {
+            double numberOfProcs = double(mfem::Mpi::WorldSize());
+            while ((double(smesh->GetNE()) / numberOfProcs) < 8 &&
+                   ref_level < nrefinement) {
+              smesh->UniformRefinement();
+              ref_level++;
+            }
+          }
+          this->parallel_mesh =
+              std::make_shared<Mesh<true>>(MPI_COMM_WORLD, *smesh);
+        } else if (mesh_mode == "Restart") {
+          this->parallel_mesh = loadMeshParallel(ctx, mesh_file);
+        } else {
+          raise("Wrong MeshReadMode value");
+        }
+        for (size_type i = ref_level; i < nrefinement; ++i) {
+          CatchTimeSection(ctx, "Mesh::Run_ParUniformRefinement");
+          this->parallel_mesh->UniformRefinement();
+        }
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      } else {
+        if (mesh_mode == "Restart") {
+          raise(
+              "Aborting. The option 'Restart' is not handled while running a "
+              "sequential program");
+        }
+        this->sequential_mesh = loadMeshSequential(ctx, mesh_file, 0, 1, true);
+        for (size_type i = 0; i < nrefinement; ++i) {
+          CatchTimeSection(ctx, "Mesh::Run_SeqUniformRefinement");
+          this->sequential_mesh->UniformRefinement();
+        }
+      }
+      // building the finite element collection
+      // declaring materials and boundaries
+      auto mnames = [&params,
+                     extractMap]() -> std::map<size_type, std::string> {
+        if (contains(params, MeshDiscretization::Materials)) {
+          return extractMap(
+              get<Parameters>(throwing, params, MeshDiscretization::Materials));
+        }
+        return {};
+      }();
+      auto bnames = [&params,
+                     extractMap]() -> std::map<size_type, std::string> {
+        if (contains(params, MeshDiscretization::Boundaries)) {
+          return extractMap(get<Parameters>(throwing, params,
+                                            MeshDiscretization::Boundaries));
+        }
+        return {};
+      }();
+      if (parallel) {
+#ifdef MFEM_USE_MPI
+        updateNamesFromAttributesSets<true>(throwing, mnames, bnames,
+                                            *(this->parallel_mesh));
+#else
+        reportUnsupportedParallelComputations();
+#endif
+      } else {
+        updateNamesFromAttributesSets<false>(throwing, mnames, bnames,
+                                             *(this->sequential_mesh));
+      }
+      if (!mnames.empty()) {
+        this->setMaterialsNames(ctx, mnames) | or_raise;
+      }
+      if (!bnames.empty()) {
+        this->setBoundariesNames(ctx, bnames) | or_raise;
+      }
+      //
+      if (contains(params, MeshDiscretization::Points)) {
+        addPoints(
+            throwing, *this,
+            get<Parameters>(throwing, params, MeshDiscretization::Points));
+      }
+      //
+      if (contains(params, MeshDiscretization::PointsSets)) {
+        addPointsSets(
+            throwing, *this,
+            get<Parameters>(throwing, params, MeshDiscretization::PointsSets));
+      }
+    }  // end of Implementation
+
+#ifdef MFEM_USE_MPI
+
+    Implementation(std::shared_ptr<Mesh<true>> m)
+        : parallel_mesh(std::move(m)) {
+      if (this->parallel_mesh.get() == nullptr) {
+        raise("invalid mesh");
+      }
+    }  // end of Implementation
+
+#else /* MFEM_USE_MPI */
+
+    Implementation(std::shared_ptr<Mesh<true>>) {
+      reportUnsupportedParallelComputations();
+    }  // end of Implementation
+
+#endif /* MFEM_USE_MPI */
+
+    Implementation(std::shared_ptr<Mesh<false>> m)
+        : sequential_mesh(std::move(m)) {
+      if (this->sequential_mesh.get() == nullptr) {
+        raise("invalid mesh");
+      }
+    }  // end of Implementation
+
+    template <bool parallel>
+    std::shared_ptr<Mesh<parallel>> getMutableMeshPointer() const {
+      if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+        if (!this->parallel_mesh.get()) {
+          reportInvalidParallelMesh();
+        }
+        return this->parallel_mesh;
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      } else {
+        if (!this->sequential_mesh.get()) {
+          reportInvalidSequentialMesh();
+        }
+        return this->sequential_mesh;
+      }
+    }  // end of getMeshPointer
+
+    template <bool parallel>
+    std::shared_ptr<const Mesh<parallel>> getMeshPointer() const {
+      if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+        if (!this->parallel_mesh.get()) {
+          reportInvalidParallelMesh();
+        }
+        return this->parallel_mesh;
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      } else {
+        if (!this->sequential_mesh.get()) {
+          reportInvalidSequentialMesh();
+        }
+        return this->sequential_mesh;
+      }
+    }  // end of getMeshPointer
+
+    //   std::shared_ptr<SubMesh<true>> getParallelSubMesh(
+    //       Context& ctx, const Parameter& p) const noexcept {
+    //     return this->pimpl->getSubMesh<true>(ctx, p);
+    //   }  // end of getParallelSubMesh
+    //
+    //   std::shared_ptr<SubMesh<false>> getSequentialSubMesh(
+    //       Context& ctx, const Parameter& p) const noexcept {
+    //     return this->pimpl->getSubMesh<false>(ctx, p);
+    //   }  // end of getSequentialSubMesh
+
+    [[nodiscard]] bool describesAParallelComputation() const noexcept {
+#ifdef MFEM_USE_MPI
+      return this->parallel_mesh.get() != nullptr;
+#else  /* MFEM_USE_MPI */
+      return false;
+#endif /* MFEM_USE_MPI */
+    }  // end of describesAParallelComputation
+
+    [[nodiscard]] bool setMaterialsNames(
+        Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+      return setMeshObjectNames(ctx, this->materials_names, ids,
+                                getMaterialsAttributes(*this),
+                                "setMaterialsNames", "material");
+    }  // end of setMaterialsNames
+
+    [[nodiscard]] bool setBoundariesNames(
+        Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+      return setMeshObjectNames(ctx, this->boundaries_names, ids,
+                                getBoundariesAttributes(*this),
+                                "setBoundariesNames", "boundary");
+    }  // end of setBoundariesNames
+
+    [[nodiscard]] std::optional<std::string> getMaterialName(
+        Context& ctx, const size_type id) const noexcept {
+      const auto& mids = getMaterialsAttributes(*this);
+      if (mids.Find(id) == -1) {
+        return ctx.registerErrorMessage(
+            "no material id '" + std::to_string(id) + "' defined in the mesh");
+      }
+      const auto p = this->materials_names.find(id);
+      if (p == this->materials_names.end()) {
+        return std::string{};
+      }
+      return p->second;
+    }  // end of getMaterialName
+
+    std::optional<std::string> getBoundaryName(
+        Context& ctx, const size_type id) const noexcept {
+      const auto& bids = getBoundariesAttributes(*this);
+      if (bids.Find(id) == -1) {
+        return ctx.registerErrorMessage(
+            "no boundary id '" + std::to_string(id) + "' defined in the mesh");
+      }
+      const auto p = this->boundaries_names.find(id);
+      if (p == this->boundaries_names.end()) {
+        return std::string{};
+      }
+      return p->second;
+    }  // end of getBoundaryName
+
+    [[nodiscard]] std::optional<std::vector<size_type>> getMaterialsIdentifiers(
+        Context& ctx, const Parameter& p) const noexcept {
+      return selectMeshObjectsIdentifiers(ctx, getMaterialsAttributes(*this),
+                                          this->materials_names, p, "material",
+                                          "getMaterialsIdentifiers");
+    }  // end of getMaterialsIdentifiers
+
+    [[nodiscard]] std::optional<std::vector<size_type>>
+    getBoundariesIdentifiers(Context& ctx, const Parameter& p) const noexcept {
+      return selectMeshObjectsIdentifiers(ctx, getBoundariesAttributes(*this),
+                                          this->boundaries_names, p, "boundary",
+                                          "getBoundariesIdentifiers");
+    }  // end of getBoundariesIdentifiers
+
+    [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
+        Context& ctx, const Parameter& p) const noexcept {
+      if (is<size_type>(p)) {
+        const auto id = get<size_type>(throwing, p);
+        const auto ids = getMaterialsAttributes(*this);
+        if (ids.Find(id) == -1) {
+          return ctx.registerErrorMessage(
+              "getMaterialIdentifier: "
+              "no material id for identifier '" +
+              std::to_string(id) + "'");
+        }
+        return id;
+      }
+      if (!is<std::string>(p)) {
+        return ctx.registerErrorMessage(
+            "getMaterialIdentifier: invalid parameter type");
+      }
+      const auto& n = get<std::string>(throwing, p);
+      for (const auto& [id, name] : this->materials_names) {
+        if (name == n) {
+          return id;
+        }
+      }
+      return ctx.registerErrorMessage(
+          "getMaterialIdentifier: no material named '" + n + "'");
+    }  // end of getMaterialIdentifier
+
+    [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
+        Context& ctx, const Parameter& p) const noexcept {
+      if (is<size_type>(p)) {
+        const auto id = get<size_type>(throwing, p);
+        const auto ids = getBoundariesAttributes(*this);
+        if (ids.Find(id) == -1) {
+          return ctx.registerErrorMessage(
+              "getBoundaryIdentifier: "
+              "no boundary id associated with identifier '" +
+              std::to_string(id) + "'");
+        }
+        return id;
+      }
+      if (!is<std::string>(p)) {
+        return ctx.registerErrorMessage(
+            "getBoundaryIdentifier: invalid parameter type");
+      }
+      const auto& n = get<std::string>(throwing, p);
+      for (const auto& [id, name] : this->boundaries_names) {
+        if (name == n) {
+          return id;
+        }
+      }
+      return ctx.registerErrorMessage(
+          "getMaterialIdentifier: no boundary named '" + n + "'");
+    }  // end of getBoundaryIdentifier
+
+    [[nodiscard]] std::map<size_type, std::string> getMaterialsNames()
+        const noexcept {
+      return this->materials_names;
+    }  // end of getMaterialsNames
+
+    [[nodiscard]] std::map<size_type, std::string> getBoundariesNames()
+        const noexcept {
+      return this->boundaries_names;
+    }  // end of getBoundariesNames
+
+#ifdef MGIS_HAVE_TFEL
+
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, Point<2>, std::less<>>>
+    getPoints2D(Context& ctx) const noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 2) {
+        return ctx.registerErrorMessage("can't return 2D points from a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      return {&(this->points2D)};
+    }  // end of getPoints2D
+
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, Point<3>, std::less<>>>
+    getPoints3D(Context& ctx) const noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 3) {
+        return ctx.registerErrorMessage("can't return 3D points from a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      return {&(this->points3D)};
+    }  // end of getPoints3D
+
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, std::vector<Point<2>>, std::less<>>>
+    getPointsSets2D(Context& ctx) const noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 2) {
+        return ctx.registerErrorMessage("can't return 2D points sets from a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      return {&(this->pointsSets2D)};
+    }  // end of getPointsSets2D
+
+    [[nodiscard]] OptionalReference<
+        const std::map<std::string, std::vector<Point<3>>, std::less<>>>
+    getPointsSets3D(Context& ctx) const noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 3) {
+        return ctx.registerErrorMessage("can't return 3D points sets from a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      return {&(this->pointsSets3D)};
+    }  // end of getPointsSets3D
+
+    [[nodiscard]] bool addPoint(Context& ctx,
+                                std::string_view n,
+                                const Point<2>& pt) noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 2) {
+        return ctx.registerErrorMessage("can't add a 2D point to a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      if (n.empty()) {
+        return ctx.registerErrorMessage("empty name");
+      }
+      if (this->points2D.contains(n)) {
+        return ctx.registerErrorMessage("a point named '" + std::string{n} +
+                                        "' is already declared");
+      }
+      this->points2D.insert(std::pair<std::string, Point<2>>{n, pt});
+      return true;
+    }  // end of addPoint
+
+    [[nodiscard]] bool addPoint(Context& ctx,
+                                std::string_view n,
+                                const Point<3>& pt) noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 3) {
+        return ctx.registerErrorMessage("can't add a 3D point to a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      if (n.empty()) {
+        return ctx.registerErrorMessage("empty name");
+      }
+      if (this->points3D.contains(n)) {
+        return ctx.registerErrorMessage("a point named '" + std::string{n} +
+                                        "' is already declared");
+      }
+      this->points3D.insert(std::pair<std::string, Point<3>>{n, pt});
+      return true;
+    }  // end of addPoint
+
+    [[nodiscard]] std::optional<Point<2>> getPoint2D(
+        Context& ctx, std::string_view n) const noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 2) {
+        return ctx.registerErrorMessage("can't return a 2D point from a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      const auto p = this->points2D.find(n);
+      if (p == this->points2D.end()) {
+        return ctx.registerErrorMessage("no point named '" + std::string{n} +
+                                        "' declared");
+      }
+      return p->second;
+    }  // end of getPoint2D
+
+    [[nodiscard]] std::optional<Point<3>> getPoint3D(
+        Context& ctx, std::string_view n) const noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 3) {
+        return ctx.registerErrorMessage("can't return a 3D point from a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      const auto p = this->points3D.find(n);
+      if (p == this->points3D.end()) {
+        return ctx.registerErrorMessage("no point named '" + std::string{n} +
+                                        "' declared");
+      }
+      return p->second;
+    }  // end of getPoint3D
+
+    [[nodiscard]] bool addPointsSet(Context& ctx,
+                                    std::string_view n,
+                                    const std::vector<Point<2>>& pts) noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 2) {
+        return ctx.registerErrorMessage("can't add a 2D points set to a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      if (n.empty()) {
+        return ctx.registerErrorMessage("empty name");
+      }
+      if (this->pointsSets2D.contains(n)) {
+        return ctx.registerErrorMessage(
+            "a points set named '" + std::string{n} + "' is already declared");
+      }
+      this->pointsSets2D.insert(
+          std::pair<std::string, std::vector<Point<2>>>{n, pts});
+      return true;
+    }  // end of addPointsSet
+
+    [[nodiscard]] bool addPointsSet(Context& ctx,
+                                    std::string_view n,
+                                    const std::vector<Point<3>>& pts) noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 3) {
+        return ctx.registerErrorMessage("can't add a 3D points set to a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      if (n.empty()) {
+        return ctx.registerErrorMessage("empty name");
+      }
+      if (this->pointsSets3D.contains(n)) {
+        return ctx.registerErrorMessage(
+            "a points set named '" + std::string{n} + "' is already declared");
+      }
+      this->pointsSets3D.insert(
+          std::pair<std::string, std::vector<Point<3>>>{n, pts});
+      return true;
+    }  // end of addPointsSet
+
+    [[nodiscard]] OptionalReference<const std::vector<Point<2>>> getPointsSet2D(
+        Context& ctx, std::string_view n) const noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 2) {
+        return ctx.registerErrorMessage("can't return a 2D point from a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      const auto p = this->pointsSets2D.find(n);
+      if (p == this->pointsSets2D.end()) {
+        return ctx.registerErrorMessage("no points set named '" +
+                                        std::string{n} + "' declared");
+      }
+      return {&(p->second)};
+    }  // end of getPointsSet2D
+
+    [[nodiscard]] OptionalReference<const std::vector<Point<3>>> getPointsSet3D(
+        Context& ctx, std::string_view n) const noexcept {
+      const auto d = getSpaceDimension(*this);
+      if (d != 3) {
+        return ctx.registerErrorMessage("can't return a 3D point from a " +
+                                        std::to_string(d) + "D mesh");
+      }
+      const auto p = this->pointsSets3D.find(n);
+      if (p == this->pointsSets3D.end()) {
+        return ctx.registerErrorMessage("no points set named '" +
+                                        std::string{n} + "' declared");
+      }
+      return {&(p->second)};
+    }  // end of getPointsSet3D
+
+#endif /* MGIS_HAVE_TFEL */
+
+    ~Implementation() = default;
+
+   private:
+#ifdef MFEM_USE_MPI
+    //! \brief parallel mesh
+    std::shared_ptr<Mesh<true>> parallel_mesh;
+#endif /* MFEM_USE_MPI */
+    //! \brief sequential mesh
+    std::shared_ptr<Mesh<false>> sequential_mesh;
+    //! \brief mapping between materials identifiers and names
+    std::map<size_type, std::string> materials_names;
+    //! \brief mapping between materials boundaries and names
+    std::map<size_type, std::string> boundaries_names;
+#ifdef MGIS_HAVE_TFEL
+    //! \brief points declared by the user, only valid for a 2D mesh
+    std::map<std::string, Point<2>, std::less<>> points2D;
+    //! \brief points declared by the user, only valid for a 3D mesh
+    std::map<std::string, Point<3>, std::less<>> points3D;
+    //! \brief points set declared by the user, only valid for a 2D mesh
+    std::map<std::string, std::vector<Point<2>>, std::less<>> pointsSets2D;
+    //! \brief points set declared by the user, only valid for a 3D mesh
+    std::map<std::string, std::vector<Point<3>>, std::less<>> pointsSets3D;
+#endif /* MGIS_HAVE_TFEL */
+  };
+
+  std::vector<std::string> MeshDiscretization::getParametersList() noexcept {
+    return {MeshDiscretization::Parallel,
+            MeshDiscretization::MeshFileName,
+            MeshDiscretization::MeshReadMode,
+            MeshDiscretization::NumberOfUniformRefinements,
+            MeshDiscretization::Materials,
+            MeshDiscretization::Boundaries,
+            MeshDiscretization::Points,
+            MeshDiscretization::PointsSets,
+            MeshDiscretization::GeneralVerbosityLevel};
+  }  // end of getParametersList
+
+  MeshDiscretization::MeshDiscretization(mgis::Context& ctx,
+                                         const Parameters& params)
+      : pimpl(std::make_unique<Implementation>(ctx, params)) {
+  }  // end of MeshDiscretization
+
+  MeshDiscretization::MeshDiscretization(std::shared_ptr<Mesh<true>> m)
+      : pimpl(std::make_unique<Implementation>(m)) {
+  }  // end of MeshDiscretization
+
+  MeshDiscretization::MeshDiscretization(std::shared_ptr<Mesh<false>> m)
+      : pimpl(std::make_unique<Implementation>(m)) {
+  }  // end of MeshDiscretization
+
+  MeshDiscretization::MeshDiscretization(MeshDiscretization&&) noexcept =
+      default;
+
+  MeshDiscretization::MeshDiscretization(const MeshDiscretization&) noexcept =
+      default;
+
+  std::shared_ptr<Mesh<true>>
+  MeshDiscretization::getMutableParallelMeshPointer() const noexcept {
+    return this->pimpl->getMutableMeshPointer<true>();
+  }  // end of getMutableSequentialMeshPointer
+
+  std::shared_ptr<Mesh<false>>
+  MeshDiscretization::getMutableSequentialMeshPointer() const noexcept {
+    return this->pimpl->getMutableMeshPointer<false>();
+  }  // end of getMutableSequentialMeshPointer
+
+  std::shared_ptr<const Mesh<true>> MeshDiscretization::getParallelMeshPointer()
+      const noexcept {
+    return this->pimpl->getMeshPointer<true>();
+  }  // end of getParallelMeshPointer
+
+  std::shared_ptr<const Mesh<false>>
+  MeshDiscretization::getSequentialMeshPointer() const noexcept {
+    return this->pimpl->getMeshPointer<false>();
+  }  // end of getSequentialMeshPointer
+
+  //   std::shared_ptr<SubMesh<true>> MeshDiscretization::getParallelSubMesh(
+  //       Context& ctx, const Parameter& p) const noexcept {
+  //     return this->pimpl->getSubMesh<true>(ctx, p);
+  //   }  // end of getParallelSubMesh
+  //
+  //   std::shared_ptr<SubMesh<false>> MeshDiscretization::getSequentialSubMesh(
+  //       Context& ctx, const Parameter& p) const noexcept {
+  //     return this->pimpl->getSubMesh<false>(ctx, p);
+  //   }  // end of getSequentialSubMesh
+
+  bool MeshDiscretization::describesAParallelComputation() const noexcept {
+    return this->pimpl->describesAParallelComputation();
+  }  // end of describesAParallelComputation
+
+  bool MeshDiscretization::setMaterialsNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    return this->pimpl->setMaterialsNames(ctx, ids);
+  }  // end of setMaterialsNames
+
+  bool MeshDiscretization::setBoundariesNames(
+      Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
+    return this->pimpl->setBoundariesNames(ctx, ids);
+  }  // end of setBoundariesNames
+
+  std::optional<std::string> MeshDiscretization::getMaterialName(
+      Context& ctx, const size_type id) const noexcept {
+    return this->pimpl->getMaterialName(ctx, id);
+  }  // end of getMaterialName
+
+  std::optional<std::string> MeshDiscretization::getBoundaryName(
+      Context& ctx, const size_type id) const noexcept {
+    return this->pimpl->getBoundaryName(ctx, id);
+  }  // end of getBoundaryName
+
   std::optional<std::vector<size_type>>
   MeshDiscretization::getMaterialsIdentifiers(
       Context& ctx, const Parameter& p) const noexcept {
-    return selectMeshObjectsIdentifiers(ctx, getMaterialsAttributes(*this),
-                                        this->materials_names, p, "material",
-                                        "getMaterialsIdentifiers");
+    return this->pimpl->getMaterialsIdentifiers(ctx, p);
   }  // end of getMaterialsIdentifiers
 
   std::optional<std::vector<size_type>>
   MeshDiscretization::getBoundariesIdentifiers(
       Context& ctx, const Parameter& p) const noexcept {
-    return selectMeshObjectsIdentifiers(ctx, getBoundariesAttributes(*this),
-                                        this->boundaries_names, p, "boundary",
-                                        "getBoundariesIdentifiers");
+    return this->pimpl->getBoundariesIdentifiers(ctx, p);
   }  // end of getBoundariesIdentifiers
 
   std::optional<size_type> MeshDiscretization::getMaterialIdentifier(
       Context& ctx, const Parameter& p) const noexcept {
-    if (is<size_type>(p)) {
-      const auto id = get<size_type>(throwing, p);
-      const auto ids = getMaterialsAttributes(*this);
-      if (ids.Find(id) == -1) {
-        return ctx.registerErrorMessage(
-            "getMaterialIdentifier: "
-            "no material id for identifier '" +
-            std::to_string(id) + "'");
-      }
-      return id;
-    }
-    if (!is<std::string>(p)) {
-      return ctx.registerErrorMessage(
-          "getMaterialIdentifier: invalid parameter type");
-    }
-    const auto& n = get<std::string>(throwing, p);
-    for (const auto& [id, name] : this->materials_names) {
-      if (name == n) {
-        return id;
-      }
-    }
-    return ctx.registerErrorMessage(
-        "getMaterialIdentifier: no material named '" + n + "'");
+    return this->pimpl->getMaterialIdentifier(ctx, p);
   }  // end of getMaterialIdentifier
 
   std::optional<size_type> MeshDiscretization::getBoundaryIdentifier(
       Context& ctx, const Parameter& p) const noexcept {
-    if (is<size_type>(p)) {
-      const auto id = get<size_type>(throwing, p);
-      const auto ids = getBoundariesAttributes(*this);
-      if (ids.Find(id) == -1) {
-        return ctx.registerErrorMessage(
-            "getBoundaryIdentifier: "
-            "no boundary id associated with identifier '" +
-            std::to_string(id) + "'");
-      }
-      return id;
-    }
-    if (!is<std::string>(p)) {
-      return ctx.registerErrorMessage(
-          "getBoundaryIdentifier: invalid parameter type");
-    }
-    const auto& n = get<std::string>(throwing, p);
-    for (const auto& [id, name] : this->boundaries_names) {
-      if (name == n) {
-        return id;
-      }
-    }
-    return ctx.registerErrorMessage(
-        "getMaterialIdentifier: no boundary named '" + n + "'");
+    return this->pimpl->getBoundaryIdentifier(ctx, p);
   }  // end of getBoundaryIdentifier
 
   std::map<size_type, std::string> MeshDiscretization::getMaterialsNames()
       const noexcept {
-    return this->materials_names;
+    return this->pimpl->getMaterialsNames();
   }  // end of getMaterialsNames
 
   std::map<size_type, std::string> MeshDiscretization::getBoundariesNames()
       const noexcept {
-    return this->boundaries_names;
+    return this->pimpl->getBoundariesNames();
   }  // end of getBoundariesNames
 
 #ifdef MGIS_HAVE_TFEL
 
   OptionalReference<const std::map<std::string, Point<2>, std::less<>>>
   MeshDiscretization::getPoints2D(Context& ctx) const noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 2) {
-      return ctx.registerErrorMessage("can't return 2D points from a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    return {&(this->points2D)};
+    return this->pimpl->getPoints2D(ctx);
   }  // end of getPoints2D
 
   OptionalReference<const std::map<std::string, Point<3>, std::less<>>>
   MeshDiscretization::getPoints3D(Context& ctx) const noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 3) {
-      return ctx.registerErrorMessage("can't return 3D points from a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    return {&(this->points3D)};
+    return this->pimpl->getPoints3D(ctx);
   }  // end of getPoints3D
 
   OptionalReference<
       const std::map<std::string, std::vector<Point<2>>, std::less<>>>
   MeshDiscretization::getPointsSets2D(Context& ctx) const noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 2) {
-      return ctx.registerErrorMessage("can't return 2D points sets from a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    return {&(this->pointsSets2D)};
+    return this->pimpl->getPointsSets2D(ctx);
   }  // end of getPointsSets2D
 
   OptionalReference<
       const std::map<std::string, std::vector<Point<3>>, std::less<>>>
   MeshDiscretization::getPointsSets3D(Context& ctx) const noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 3) {
-      return ctx.registerErrorMessage("can't return 3D points sets from a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    return {&(this->pointsSets3D)};
+    return this->pimpl->getPointsSets3D(ctx);
   }  // end of getPointsSets3D
 
   bool MeshDiscretization::addPoint(Context& ctx,
                                     std::string_view n,
                                     const Point<2>& pt) noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 2) {
-      return ctx.registerErrorMessage("can't add a 2D point to a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    if (n.empty()) {
-      return ctx.registerErrorMessage("empty name");
-    }
-    if (this->points2D.contains(n)) {
-      return ctx.registerErrorMessage("a point named '" + std::string{n} +
-                                      "' is already declared");
-    }
-    this->points2D.insert(std::pair<std::string, Point<2>>{n, pt});
-    return true;
+    return this->pimpl->addPoint(ctx, n, pt);
   }  // end of addPoint
 
   bool MeshDiscretization::addPoint(Context& ctx,
                                     std::string_view n,
                                     const Point<3>& pt) noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 3) {
-      return ctx.registerErrorMessage("can't add a 3D point to a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    if (n.empty()) {
-      return ctx.registerErrorMessage("empty name");
-    }
-    if (this->points3D.contains(n)) {
-      return ctx.registerErrorMessage("a point named '" + std::string{n} +
-                                      "' is already declared");
-    }
-    this->points3D.insert(std::pair<std::string, Point<3>>{n, pt});
-    return true;
+    return this->pimpl->addPoint(ctx, n, pt);
   }  // end of addPoint
 
   std::optional<Point<2>> MeshDiscretization::getPoint2D(
       Context& ctx, std::string_view n) const noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 2) {
-      return ctx.registerErrorMessage("can't return a 2D point from a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    const auto p = this->points2D.find(n);
-    if (p == this->points2D.end()) {
-      return ctx.registerErrorMessage("no point named '" + std::string{n} +
-                                      "' declared");
-    }
-    return p->second;
+    return this->pimpl->getPoint2D(ctx, n);
   }  // end of getPoint2D
 
   std::optional<Point<3>> MeshDiscretization::getPoint3D(
       Context& ctx, std::string_view n) const noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 3) {
-      return ctx.registerErrorMessage("can't return a 3D point from a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    const auto p = this->points3D.find(n);
-    if (p == this->points3D.end()) {
-      return ctx.registerErrorMessage("no point named '" + std::string{n} +
-                                      "' declared");
-    }
-    return p->second;
+    return this->pimpl->getPoint3D(ctx, n);
   }  // end of getPoint3D
 
   bool MeshDiscretization::addPointsSet(
       Context& ctx,
       std::string_view n,
       const std::vector<Point<2>>& pts) noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 2) {
-      return ctx.registerErrorMessage("can't add a 2D points set to a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    if (n.empty()) {
-      return ctx.registerErrorMessage("empty name");
-    }
-    if (this->pointsSets2D.contains(n)) {
-      return ctx.registerErrorMessage("a points set named '" + std::string{n} +
-                                      "' is already declared");
-    }
-    this->pointsSets2D.insert(
-        std::pair<std::string, std::vector<Point<2>>>{n, pts});
-    return true;
+    return this->pimpl->addPointsSet(ctx, n, pts);
   }  // end of addPointsSet
 
   bool MeshDiscretization::addPointsSet(
       Context& ctx,
       std::string_view n,
       const std::vector<Point<3>>& pts) noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 3) {
-      return ctx.registerErrorMessage("can't add a 3D points set to a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    if (n.empty()) {
-      return ctx.registerErrorMessage("empty name");
-    }
-    if (this->pointsSets3D.contains(n)) {
-      return ctx.registerErrorMessage("a points set named '" + std::string{n} +
-                                      "' is already declared");
-    }
-    this->pointsSets3D.insert(
-        std::pair<std::string, std::vector<Point<3>>>{n, pts});
-    return true;
+    return this->pimpl->addPointsSet(ctx, n, pts);
   }  // end of addPointsSet
 
   OptionalReference<const std::vector<Point<2>>>
   MeshDiscretization::getPointsSet2D(Context& ctx,
                                      std::string_view n) const noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 2) {
-      return ctx.registerErrorMessage("can't return a 2D point from a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    const auto p = this->pointsSets2D.find(n);
-    if (p == this->pointsSets2D.end()) {
-      return ctx.registerErrorMessage("no points set named '" + std::string{n} +
-                                      "' declared");
-    }
-    return {&(p->second)};
+    return this->pimpl->getPointsSet2D(ctx, n);
   }  // end of getPointsSet2D
 
   OptionalReference<const std::vector<Point<3>>>
   MeshDiscretization::getPointsSet3D(Context& ctx,
                                      std::string_view n) const noexcept {
-    const auto d = getSpaceDimension(*this);
-    if (d != 3) {
-      return ctx.registerErrorMessage("can't return a 3D point from a " +
-                                      std::to_string(d) + "D mesh");
-    }
-    const auto p = this->pointsSets3D.find(n);
-    if (p == this->pointsSets3D.end()) {
-      return ctx.registerErrorMessage("no points set named '" + std::string{n} +
-                                      "' declared");
-    }
-    return {&(p->second)};
+    return this->pimpl->getPointsSet3D(ctx, n);
   }  // end of getPointsSet3D
 
 #endif /* MGIS_HAVE_TFEL */
 
   MeshDiscretization::~MeshDiscretization() = default;
 
-  size_type getSpaceDimension(const MeshDiscretization& fed) {
-    if (fed.describesAParallelComputation()) {
+  const mfem::Array<size_type>& getMaterialsAttributes(
+      const MeshDiscretization& m) noexcept {
+    if (m.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      return fed.getMesh<true>().SpaceDimension();
+      const auto& mesh = m.getMesh<true>();
+      return mesh.attributes;
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     }
-    return fed.getMesh<false>().SpaceDimension();
+    const auto& mesh = m.getMesh<false>();
+    return mesh.attributes;
+  }  // end of getMaterialsAttributes
+
+  const mfem::Array<size_type>& getBoundariesAttributes(
+      const MeshDiscretization& m) noexcept {
+    if (m.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto& mesh = m.getMesh<true>();
+      return mesh.bdr_attributes;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto& mesh = m.getMesh<false>();
+    return mesh.bdr_attributes;
+  }  // end of getBoundariesAttributes
+
+  size_type getSpaceDimension(const MeshDiscretization& m) noexcept {
+    if (m.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      return m.getMesh<true>().SpaceDimension();
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    return m.getMesh<false>().SpaceDimension();
   }  // end of getSpaceDimension
 
   template <>
   bool getInformation<MeshDiscretization>(
-      Context&, std::ostream& os, const MeshDiscretization& fed) noexcept {
-    const auto& mnames = fed.getMaterialsNames();
+      Context&, std::ostream& os, const MeshDiscretization& m) noexcept {
+    const auto& mnames = m.getMaterialsNames();
     os << "# Mesh\n\n"
-       << "- space dimension: " << getSpaceDimension(fed);
+       << "- space dimension: " << getSpaceDimension(m);
     if (!mnames.empty()) {
       os << "\n\n## Materials\n";
       for (const auto& [id, n] : mnames) {
         os << "\n- '" << n << "' associated with identifier (" << id << ")";
       }
     }
-    const auto& bnames = fed.getBoundariesNames();
+    const auto& bnames = m.getBoundariesNames();
     if (!bnames.empty()) {
       os << "\n\n## Boundaries\n";
       for (const auto& [id, n] : bnames) {
