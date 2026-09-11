@@ -248,9 +248,7 @@ namespace mfem_mgis {
           const Hypothesis h,
           const Parameters& p)
       : NonLinearEvolutionProblemImplementationBase(ctx, fed, h, p),
-        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())),
-        unknowns0(&(fed->getFiniteElementSpace<true>()), this->u0),
-        unknowns1(&(fed->getFiniteElementSpace<true>()), this->u1) {
+        mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())) {
     if (this->fe_discretization->getMesh<true>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       raise(
@@ -471,22 +469,6 @@ namespace mfem_mgis {
     this->SetEssentialTrueDofs(tmp);
   }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
 
-  GridFunction<true>& NonLinearEvolutionProblemImplementation<
-      true>::getUnknownsAsGridFunction(const TimeStepStage ts) noexcept {
-    if (ts == bts) {
-      return this->unknowns0;
-    }
-    return this->unknowns1;
-  }  // end of getUnknownsAsGridFunction
-
-  const GridFunction<true>& NonLinearEvolutionProblemImplementation<
-      true>::getUnknownsAsGridFunction(const TimeStepStage ts) const noexcept {
-    if (ts == bts) {
-      return this->unknowns0;
-    }
-    return this->unknowns1;
-  }  // end of getUnknownsAsGridFunction
-
   NonLinearEvolutionProblemImplementation<
       true>::~NonLinearEvolutionProblemImplementation() = default;
 
@@ -499,9 +481,7 @@ namespace mfem_mgis {
           const Hypothesis h,
           const Parameters& p)
       : NonLinearEvolutionProblemImplementationBase(ctx, fed, h, p),
-        mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())),
-        unknowns0(&(fed->getFiniteElementSpace<false>()), this->u0),
-        unknowns1(&(fed->getFiniteElementSpace<false>()), this->u1) {
+        mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())) {
     this->solver = std::make_unique<NewtonSolver>(*this);
     if (this->fe_discretization->getMesh<false>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
@@ -702,22 +682,6 @@ namespace mfem_mgis {
     auto tmp = mfem::Array<size_type>(dofs.data(), dofs.size());
     this->SetEssentialTrueDofs(tmp);
   }  // end of markDegreesOfFreedomHandledByDirichletBoundaryConditions
-
-  GridFunction<false>& NonLinearEvolutionProblemImplementation<
-      false>::getUnknownsAsGridFunction(const TimeStepStage ts) noexcept {
-    if (ts == bts) {
-      return this->unknowns0;
-    }
-    return this->unknowns1;
-  }  // end of getUnknownsAsGridFunction
-
-  const GridFunction<false>& NonLinearEvolutionProblemImplementation<
-      false>::getUnknownsAsGridFunction(const TimeStepStage ts) const noexcept {
-    if (ts == bts) {
-      return this->unknowns0;
-    }
-    return this->unknowns1;
-  }  // end of getUnknownsAsGridFunction
 
   NonLinearEvolutionProblemImplementation<
       false>::~NonLinearEvolutionProblemImplementation() = default;

@@ -77,6 +77,79 @@ namespace mfem_mgis {
     //! \brief copy constructor
     MeshDiscretization(const MeshDiscretization&) noexcept;
     /*!
+     * \return if the given mesh is managed by this mesh discretization
+     * \param[in] m: parallel mesh
+     */
+    bool manages(const Mesh<true>&) const noexcept;
+    /*!
+     * \return if the given mesh is managed by this mesh discretization
+     * \param[in] m: sequential mesh
+     */
+    bool manages(const Mesh<false>&) const noexcept;
+    /*!
+     * \brief return the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    OptionalReference<SubMesh<parallel>> getSubMesh(Context&,
+                                                    const Parameter&) noexcept;
+    /*!
+     * \brief return the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    OptionalReference<SubMesh<parallel>> getMutableSubMeshReference(
+        Context&, const Parameter&) const noexcept;
+    /*!
+     * \brief return the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    OptionalReference<const SubMesh<parallel>> getSubMesh(
+        Context&, const Parameter&) const noexcept;
+    /*!
+     * \return the shared pointer associated with the given mesh, if managed by
+     * this mesh discretization
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    template <bool parallel>
+    std::shared_ptr<Mesh<parallel>> getMutableMeshPointer(
+        Context&, const Mesh<parallel>&) const noexcept;
+    /*!
+     * \return the shared pointer associated with the given mesh, if managed by
+     * this mesh discretization
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    template <bool parallel>
+    std::shared_ptr<Mesh<parallel>> getMeshPointer(
+        Context&, const Mesh<parallel>&) noexcept;
+    /*!
+     * \return the shared pointer associated with the given mesh, if managed by
+     * this mesh discretization
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    template <bool parallel>
+    std::shared_ptr<const Mesh<parallel>> getMeshPointer(
+        Context&, const Mesh<parallel>&) const noexcept;
+    /*!
      * \brief set material names
      * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
@@ -294,61 +367,51 @@ namespace mfem_mgis {
         getPointsSet(Context&, std::string_view) const noexcept;
 #endif /* MGIS_HAVE_TFEL */
 
-    /*!
-     * \brief return the sub mesh associated with the given ids
-     * \tparam parallel: whether to get the parallel sub mesh or not
-     * \param[in, out] ctx: execution context
-     * \param[in] p: parameter containing the list of ids
-     *
-     * \note the parameter may contain a integer, a string, a vector of
-     * parameters which are either string or integers.
-     */
-    template <bool parallel>
-    OptionalReference<SubMesh<parallel>> getSubMesh(Context&,
-                                                    const Parameter&) noexcept;
-    /*!
-     * \brief return the sub mesh associated with the given ids
-     * \tparam parallel: whether to get the parallel sub mesh or not
-     * \param[in, out] ctx: execution context
-     * \param[in] p: parameter containing the list of ids
-     *
-     * \note the parameter may contain a integer, a string, a vector of
-     * parameters which are either string or integers.
-     */
-    template <bool parallel>
-    OptionalReference<const SubMesh<parallel>> getSubMesh(
-        Context&, const Parameter&) const noexcept;
-
     //! \brief destructor
     ~MeshDiscretization();
 
    protected:
-    /*!
-     * \brief return a mutable pointer to the underlying parallel mesh
-     * \return a mutable pointer to the parallel mesh
-     */
+    //! \return a mutable pointer to the underlying parallel mesh
     [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer()
         const noexcept;
-    /*!
-     * \brief return a mutable pointer to the underlying sequential mesh
-     * \return a mutable pointer to the sequential mesh
-     */
+    //! \return a mutable pointer to the underlying sequential mesh
     [[nodiscard]] std::shared_ptr<Mesh<false>> getMutableSequentialMeshPointer()
         const noexcept;
-    /*!
-     * \brief return a pointer to the underlying parallel mesh
-     * \return a pointer to the parallel mesh
-     */
+    //! \return a pointer to the underlying parallel mesh
     [[nodiscard]] std::shared_ptr<const Mesh<true>> getParallelMeshPointer()
         const noexcept;
-    /*!
-     * \brief return a pointer to the underlying sequential mesh
-     * \return a pointer to the sequential mesh
-     */
+    //! \return a pointer to the underlying sequential mesh
     [[nodiscard]] std::shared_ptr<const Mesh<false>> getSequentialMeshPointer()
         const noexcept;
     /*!
-     * \brief return the parallel sub mesh associated with the given ids
+     * \return a mutable pointer to the underlying parallel mesh
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer(
+        Context&, const Mesh<true>&) const noexcept;
+    /*!
+     * \return a mutable pointer to the underlying sequential mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    [[nodiscard]] std::shared_ptr<Mesh<false>> getMutableSequentialMeshPointer(
+        Context&, const Mesh<false>&) const noexcept;
+    /*!
+     * \return a pointer to the underlying parallel mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    [[nodiscard]] std::shared_ptr<const Mesh<true>> getParallelMeshPointer(
+        Context&, const Mesh<true>&) const noexcept;
+    /*!
+     * \return a pointer to the underlying sequential mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    [[nodiscard]] std::shared_ptr<const Mesh<false>> getSequentialMeshPointer(
+        Context&, const Mesh<false>&) const noexcept;
+    /*!
+     * \return the parallel sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
      * \param[in] p: parameter containing the list of ids
      *
@@ -358,17 +421,17 @@ namespace mfem_mgis {
     OptionalReference<const SubMesh<true>> getParallelSubMesh(
         Context&, const Parameter&) const noexcept;
     /*!
-     * \brief return the parallel sub mesh associated with the given ids
+     * \return the parallel sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
      * \param[in] p: parameter containing the list of ids
      *
      * \note the parameter may contain a integer, a string, a vector of
      * parameters which are either string or integers.
      */
-    OptionalReference<SubMesh<true>> getParallelSubMesh(
-        Context&, const Parameter&) noexcept;
+    OptionalReference<SubMesh<true>> getParallelMutableSubMeshReference(
+        Context&, const Parameter&) const noexcept;
     /*!
-     * \brief return the sequential sub mesh associated with the given ids
+     * \return the sequential sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
      * \param[in] p: parameter containing the list of ids
      *
@@ -378,15 +441,15 @@ namespace mfem_mgis {
     OptionalReference<const SubMesh<false>> getSequentialSubMesh(
         Context&, const Parameter&) const noexcept;
     /*!
-     * \brief return the sequential sub mesh associated with the given ids
+     * \return the sequential sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
      * \param[in] p: parameter containing the list of ids
      *
      * \note the parameter may contain a integer, a string, a vector of
      * parameters which are either string or integers.
      */
-    OptionalReference<SubMesh<false>> getSequentialSubMesh(
-        Context&, const Parameter&) noexcept;
+    OptionalReference<SubMesh<false>> getSequentialMutableSubMeshReference(
+        Context&, const Parameter&) const noexcept;
 
 #ifdef MGIS_HAVE_TFEL
     /*!
@@ -476,19 +539,19 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT [[nodiscard]] bool operator!=(
       const MeshDiscretization&, const MeshDiscretization&) noexcept;
   /*!
-   * \brief return the space dimension
+   * \return the space dimension
    * \param[in] m: mesh discretization
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getSpaceDimension(
       const MeshDiscretization&) noexcept;
   /*!
-   * \brief return the list of materials attributes
+   * \return the list of materials attributes
    * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
   getMaterialsAttributes(const MeshDiscretization&) noexcept;
   /*!
-   * \brief return the list of boundaries attributes
+   * \return the list of boundaries attributes
    * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&

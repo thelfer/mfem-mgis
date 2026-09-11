@@ -101,12 +101,19 @@ namespace mfem_mgis {
   template <bool parallel>
   OptionalReference<SubMesh<parallel>> MeshDiscretization::getSubMesh(
       Context& ctx, const Parameter& p) noexcept {
-    if constexpr (parallel) {
-      return this->getParallelSubMesh(ctx, p);
-    } else {
-      return this->getSequentialSubMesh(ctx, p);
-    }
+    return this->template getMutableSubMeshReference<parallel>(ctx, p);
   }  // end of getSubMesh
+
+  template <bool parallel>
+  OptionalReference<SubMesh<parallel>>
+  MeshDiscretization::getMutableSubMeshReference(
+      Context& ctx, const Parameter& p) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelMutableSubMeshReference(ctx, p);
+    } else {
+      return this->getSequentialMutableSubMeshReference(ctx, p);
+    }
+  }  // end of getMutableSubMeshReference
 
   template <bool parallel>
   OptionalReference<const SubMesh<parallel>> MeshDiscretization::getSubMesh(
@@ -117,6 +124,32 @@ namespace mfem_mgis {
       return this->getSequentialSubMesh(ctx, p);
     }
   }  // end of getSubMesh
+
+  template <bool parallel>
+  std::shared_ptr<Mesh<parallel>> MeshDiscretization::getMutableMeshPointer(
+      Context& ctx, const Mesh<parallel>& m) const noexcept {
+    if constexpr (parallel) {
+      return this->getMutableParallelMeshPointer(ctx, m);
+    } else {
+      return this->getMutableSequentialMeshPointer(ctx, m);
+    }
+  }  // end of getMutableMeshPointer
+
+  template <bool parallel>
+  std::shared_ptr<Mesh<parallel>> MeshDiscretization::getMeshPointer(
+      Context& ctx, const Mesh<parallel>& m) noexcept {
+    return this->getMutableMeshPointer(ctx, m);
+  }  // end of getMeshPointer
+
+  template <bool parallel>
+  std::shared_ptr<const Mesh<parallel>> MeshDiscretization::getMeshPointer(
+      Context& ctx, const Mesh<parallel>& m) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelMeshPointer(ctx, m);
+    } else {
+      return this->getSequentialMeshPointer(ctx, m);
+    }
+  }  // end of getMeshPointer
 
 }  // end of namespace mfem_mgis
 

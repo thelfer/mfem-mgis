@@ -750,12 +750,64 @@ namespace mfem_mgis {
     }  // end of Implementation
 
     /*!
+     * \return if the given mesh is managed
+     * \param[in] m: parallel mesh
+     */
+    bool manages(const Mesh<true>& m) const noexcept {
+      if (!this->describesAParallelComputation()) {
+        return false;
+      }
+#ifdef MFEM_USE_MPI
+      if (this->parallel_mesh.get() == &m) {
+        return true;
+      }
+      const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
+      if (sm == nullptr) {
+        return false;
+      }
+      for (const auto& [l, ptr] : this->parallel_submeshes) {
+        static_cast<void>(l);
+        if (ptr.get() == sm) {
+          return true;
+        }
+      }
+      return false;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }  // end of manages
+
+    /*!
+     * \return if the given mesh is managed
+     * \param[in] m: sequential mesh
+     */
+    bool manages(const Mesh<false>& m) const noexcept {
+      if (this->describesAParallelComputation()) {
+        return false;
+      }
+      if (this->sequential_mesh.get() == &m) {
+        return true;
+      }
+      const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
+      if (sm == nullptr) {
+        return false;
+      }
+      for (const auto& [l, ptr] : this->sequential_submeshes) {
+        static_cast<void>(l);
+        if (ptr.get() == sm) {
+          return true;
+        }
+      }
+      return false;
+    }  // end of manages
+
+    /*!
      * \brief return a mutable pointer to the mesh
      * \tparam parallel: whether to get the parallel mesh or not
      * \return a mutable pointer to the mesh
      */
     template <bool parallel>
-    std::shared_ptr<Mesh<parallel>> getMutableMeshPointer() const {
+    std::shared_ptr<Mesh<parallel>> getMeshPointer() const {
       if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
         if (!this->parallel_mesh.get()) {
@@ -774,28 +826,64 @@ namespace mfem_mgis {
     }  // end of getMeshPointer
 
     /*!
-     * \brief return a pointer to the mesh
-     * \tparam parallel: whether to get the parallel mesh or not
-     * \return a pointer to the mesh
+     * \return a mutable pointer to the mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
      */
-    template <bool parallel>
-    std::shared_ptr<const Mesh<parallel>> getMeshPointer() const {
-      if constexpr (parallel) {
+    std::shared_ptr<Mesh<true>> getMeshPointer(Context& ctx,
+                                               const Mesh<true>& m) const {
+      if (!this->describesAParallelComputation()) {
+        return ctx.registerErrorMessage(
+            "can't get a parallel mesh pointer from a sequential mesh "
+            "discretization");
+      }
 #ifdef MFEM_USE_MPI
-        if (!this->parallel_mesh.get()) {
-          reportInvalidParallelMesh();
-        }
+      if (this->parallel_mesh.get() == &m) {
         return this->parallel_mesh;
-#else  /* MFEM_USE_MPI */
-        reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-      } else {
-        if (!this->sequential_mesh.get()) {
-          reportInvalidSequentialMesh();
+      }
+      const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
+      if (sm != nullptr) {
+        for (const auto& [l, ptr] : this->parallel_submeshes) {
+          static_cast<void>(l);
+          if (ptr.get() == sm) {
+            return ptr;
+          }
         }
+      }
+      return ctx.registerErrorMessage(
+          "the given mesh is not managed by this mesh discretization");
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }  // end of manages
+
+    /*!
+     * \return a mutable pointer to the mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    std::shared_ptr<Mesh<false>> getMeshPointer(Context& ctx,
+                                                const Mesh<false>& m) const {
+      if (this->describesAParallelComputation()) {
+        return ctx.registerErrorMessage(
+            "can't get a sequential mesh pointer from a parallel mesh "
+            "discretization");
+      }
+      if (this->sequential_mesh.get() == &m) {
         return this->sequential_mesh;
       }
-    }  // end of getMeshPointer
+      const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
+      if (sm != nullptr) {
+        for (const auto& [l, ptr] : this->sequential_submeshes) {
+          static_cast<void>(l);
+          if (ptr.get() == sm) {
+            return ptr;
+          }
+        }
+      }
+      return ctx.registerErrorMessage(
+          "the given mesh is not managed by this mesh discretization");
+    }  // end of manages
 
     template <bool parallel>
     OptionalReference<SubMesh<parallel>> getSubMesh(
@@ -818,8 +906,7 @@ namespace mfem_mgis {
           return {psm->second.get()};
         }
         auto ptr = make_shared<SubMesh<true>>(
-            ctx,
-            SubMesh<true>::CreateFromDomain(*(this->parallel_mesh), ids));
+            ctx, SubMesh<true>::CreateFromDomain(*(this->parallel_mesh), ids));
         this->parallel_submeshes.insert({k, ptr});
         return {ptr.get()};
 #else  /* MFEM_USE_MPI */
@@ -1325,8 +1412,7 @@ namespace mfem_mgis {
        * \brief constructor
        * \param[ids] ids: list of attributes
        */
-      AttributesList(const std::vector<size_type>& ids)
-          : attributes(ids) {
+      AttributesList(const std::vector<size_type>& ids) : attributes(ids) {
         std::sort(this->attributes.begin(), this->attributes.end());
       }  // end of AttributesList
       //! \brief comparison operator
@@ -1335,16 +1421,14 @@ namespace mfem_mgis {
       }  // end of operator<
 
      private:
-     
       //! \brief list of attributes
       std::vector<size_type> attributes;
     };
 #ifdef MFEM_USE_MPI
     //! \brief parallel mesh
-    std::shared_ptr<Mesh<true>>
-        parallel_mesh;
-      //! \brief parallel submeshes
-      std::map<AttributesList, std::shared_ptr<SubMesh<true>>> parallel_submeshes;
+    std::shared_ptr<Mesh<true>> parallel_mesh;
+    //! \brief parallel submeshes
+    std::map<AttributesList, std::shared_ptr<SubMesh<true>>> parallel_submeshes;
 #endif /* MFEM_USE_MPI */
     //! \brief sequential mesh
     std::shared_ptr<Mesh<false>> sequential_mesh;
@@ -1398,14 +1482,22 @@ namespace mfem_mgis {
   MeshDiscretization::MeshDiscretization(const MeshDiscretization&) noexcept =
       default;
 
+  bool MeshDiscretization::manages(const Mesh<true>& m) const noexcept {
+    return this->pimpl->manages(m);
+  }  // end of manages
+
+  bool MeshDiscretization::manages(const Mesh<false>& m) const noexcept {
+    return this->pimpl->manages(m);
+  }  // end of manages
+
   std::shared_ptr<Mesh<true>>
   MeshDiscretization::getMutableParallelMeshPointer() const noexcept {
-    return this->pimpl->getMutableMeshPointer<true>();
+    return this->pimpl->getMeshPointer<true>();
   }  // end of getMutableSequentialMeshPointer
 
   std::shared_ptr<Mesh<false>>
   MeshDiscretization::getMutableSequentialMeshPointer() const noexcept {
-    return this->pimpl->getMutableMeshPointer<false>();
+    return this->pimpl->getMeshPointer<false>();
   }  // end of getMutableSequentialMeshPointer
 
   std::shared_ptr<const Mesh<true>> MeshDiscretization::getParallelMeshPointer()
@@ -1418,20 +1510,44 @@ namespace mfem_mgis {
     return this->pimpl->getMeshPointer<false>();
   }  // end of getSequentialMeshPointer
 
-  OptionalReference<SubMesh<true>> MeshDiscretization::getParallelSubMesh(
-      Context& ctx, const Parameter& p) noexcept {
+  std::shared_ptr<Mesh<true>> MeshDiscretization::getMutableParallelMeshPointer(
+      Context& ctx, const Mesh<true>& m) const noexcept {
+    return this->pimpl->getMeshPointer(ctx, m);
+  }  // end of getMutableParallelMeshPointer
+
+  std::shared_ptr<Mesh<false>>
+  MeshDiscretization::getMutableSequentialMeshPointer(
+      Context& ctx, const Mesh<false>& m) const noexcept {
+    return this->pimpl->getMeshPointer(ctx, m);
+  }  // end of getMutableParallelMeshPointer
+
+  std::shared_ptr<const Mesh<true>> MeshDiscretization::getParallelMeshPointer(
+      Context& ctx, const Mesh<true>& m) const noexcept {
+    return this->pimpl->getMeshPointer(ctx, m);
+  }  // end of getMutableParallelMeshPointer
+
+  std::shared_ptr<const Mesh<false>>
+  MeshDiscretization::getSequentialMeshPointer(
+      Context& ctx, const Mesh<false>& m) const noexcept {
+    return this->pimpl->getMeshPointer(ctx, m);
+  }  // end of getMutableParallelMeshPointer
+
+  OptionalReference<SubMesh<true>>
+  MeshDiscretization::getParallelMutableSubMeshReference(
+      Context& ctx, const Parameter& p) const noexcept {
     return this->pimpl->getSubMesh<true>(ctx, p);
-  }  // end of getParallelSubMesh
+  }  // end of getParallelMutableSubMeshReference
 
   OptionalReference<const SubMesh<true>> MeshDiscretization::getParallelSubMesh(
       Context& ctx, const Parameter& p) const noexcept {
     return this->pimpl->getSubMesh<true>(ctx, p);
   }  // end of getParallelSubMesh
 
-  OptionalReference<SubMesh<false>> MeshDiscretization::getSequentialSubMesh(
-      Context& ctx, const Parameter& p) noexcept {
+  OptionalReference<SubMesh<false>>
+  MeshDiscretization::getSequentialMutableSubMeshReference(
+      Context& ctx, const Parameter& p) const noexcept {
     return this->pimpl->getSubMesh<false>(ctx, p);
-  }  // end of getSequentialSubMesh
+  }  // end of getSequentialMutableSubMeshReference
 
   OptionalReference<const SubMesh<false>>
   MeshDiscretization::getSequentialSubMesh(Context& ctx,

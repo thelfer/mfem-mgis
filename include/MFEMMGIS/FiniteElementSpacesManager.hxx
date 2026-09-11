@@ -76,6 +76,25 @@ namespace mfem_mgis {
     [[nodiscard]] std::shared_ptr<const FiniteElementCollection>
     getFiniteElementCollectionPointer() const noexcept;
     /*!
+     * \brief structure used to create a finite element space on a submesh
+     *
+     * \see `getFiniteElementSpace` for details
+     */
+    struct GetFiniteElementSpaceOnSubMeshArguments {
+      /*!
+       * \brief parameter used to identify the materials on which the SubMesh is
+       * defined
+       *
+       * \see `MeshDescription::getSubMesh` for details
+       */
+      Parameter materials_identifiers;
+      /*!
+       * \brief number of components (vectorial dimension) of the finite
+       * element space (must be greater or equal to 1);
+       */
+      size_type number_of_components;
+    };  // end of struct GetFiniteElementSpaceOnSubMeshArguments
+    /*!
      * \brief create a new finite element space or reuse an existing one
      * \param[in] ctx: execution context
      * \param[in] nc: vectorial dimension
@@ -86,23 +105,65 @@ namespace mfem_mgis {
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<parallel>>
     getFiniteElementSpace(Context&, const size_type) const noexcept;
     /*!
+     * \brief create a new finite element space or reuse an existing one
+     * \param[in] ctx: execution context
+     * \param[in] args: arguments defining the finite element space
+     *
+     * \note if a the list of materials identifiers contains the whole set of
+     * material identifiers, the finite element space will be created on the
+     * whole mesh and no submesh is created.
+     *
+     * \note if a sub mesh is created, it is stored internally by the underlying
+     * mesh description.
+     * \note if a finite element space is created, it is
+     * stored internally.
+     */
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<FiniteElementSpace<parallel>>
+    getFiniteElementSpace(
+        Context&,
+        const GetFiniteElementSpaceOnSubMeshArguments&) const noexcept;
+    /*!
      * \brief assign a suitable nodal finite element space to the underlying
-     * mesh \param[in] ctx: execution context
+     * mesh
+     * \param[in] ctx: execution context
      *
      * \note if a scalar finite element space has already been declared, it is
      * reused.
      */
     [[nodiscard]] bool setNodalFiniteElementSpace(Context&) const noexcept;
     /*!
-     * \return if the given element space is also managed by this finite element
-     * space manager
+     * \brief assign a suitable nodal finite element space to the given
+     * mesh
+     * \param[in,out] ctx: execution context
+     * \param[in] m: mesh
+     *
+     * \note if a scalar finite element space has already been declared, it is
+     * reused.
+     */
+    [[nodiscard]] bool setNodalFiniteElementSpace(
+        Context&, const Mesh<true>&) const noexcept;
+    /*!
+     * \brief assign a suitable nodal finite element space to the given
+     * mesh
+     * \param[in,out] ctx: execution context
+     * \param[in] m: mesh
+     *
+     * \note if a scalar finite element space has already been declared, it is
+     * reused.
+     */
+    [[nodiscard]] bool setNodalFiniteElementSpace(
+        Context&, const Mesh<false>&) const noexcept;
+    /*!
+     * \return if the given element space is also managed by this finite
+     * element space manager
      * \param[in] s: finite element space
      */
     [[nodiscard]] bool manages(
         const FiniteElementSpace<true>& s) const noexcept;
     /*!
-     * \return if the given element space is also managed by this finite element
-     * space manager
+     * \return if the given element space is also managed by this finite
+     * element space manager
      * \param[in] s: finite element space
      */
     [[nodiscard]] bool manages(
@@ -123,6 +184,44 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<false>>
     getSequentialFiniteElementSpace(Context&, const size_type) const noexcept;
+    /*!
+     * \brief create a new parallel finite element space or reuse an existing
+     * one
+     * \param[in] ctx: execution context
+     * \param[in] args: arguments defining the finite element space
+     *
+     * \note if a the list of materials identifiers contains the whole set of
+     * material identifiers, the finite element space will be created on the
+     * whole mesh and no submesh is created.
+     *
+     * \note if a sub mesh is created, it is stored internally by the underlying
+     * mesh description.
+     * \note if a finite element space is created, it is
+     * stored internally.
+     */
+    [[nodiscard]] std::shared_ptr<FiniteElementSpace<true>>
+    getParallelFiniteElementSpace(
+        Context&,
+        const GetFiniteElementSpaceOnSubMeshArguments&) const noexcept;
+    /*!
+     * \brief create a new sequential finite element space or reuse an existing
+     * one
+     * \param[in] ctx: execution context
+     * \param[in] args: arguments defining the finite element space
+     *
+     * \note if a the list of materials identifiers contains the whole set of
+     * material identifiers, the finite element space will be created on the
+     * whole mesh and no submesh is created.
+     *
+     * \note if a sub mesh is created, it is stored internally by the underlying
+     * mesh description.
+     * \note if a finite element space is created, it is
+     * stored internally.
+     */
+    [[nodiscard]] std::shared_ptr<FiniteElementSpace<false>>
+    getSequentialFiniteElementSpace(
+        Context&,
+        const GetFiniteElementSpaceOnSubMeshArguments&) const noexcept;
     //! \internal structure to implement the PIMPL idiom
     struct Implementation;
     //! \brief pointer to the implementation
