@@ -448,20 +448,33 @@ namespace mfem_mgis {
     return selectMeshObjectsIdentifiers(ctx, attributes, names, ids, t, m);
   }  // end of selectMeshObjectsIdentifiers
 
+  //! \brief Implementation class for MeshDiscretization using the PIMPL idiom
   struct MeshDiscretization::Implementation {
+    /*!
+     * \brief report an error when no parallel mesh is defined
+     * \note This function never returns and aborts the computation
+     */
     [[noreturn]] static void reportInvalidParallelMesh() noexcept {
       mfem::mfem_error(
           "MeshDiscretization::reportInvalidParallelMesh: "
           "no parallel mesh defined");
     }  // end of reportInvalidParallelMesh
 
+    /*!
+     * \brief report an error when no sequential mesh is defined
+     * \note This function never returns and aborts the computation
+     */
     [[noreturn]] static void reportInvalidSequentialMesh() noexcept {
       mfem::mfem_error(
           "MeshDiscretization::reportInvalidSequentialMesh: "
           "no sequential mesh defined");
     }  // end of reportInvalidSequentialMesh
 
-    //! \brief return the space dimension
+    /*!
+     * \brief return the space dimension of the mesh
+     * \param[in] m: mesh discretization implementation
+     * \return the space dimension
+     */
     [[nodiscard]] static size_type getSpaceDimension(
         const Implementation& m) noexcept {
       if (m.describesAParallelComputation()) {
@@ -474,6 +487,11 @@ namespace mfem_mgis {
       return m.getMeshPointer<false>()->SpaceDimension();
     }
 
+    /*!
+     * \brief return the materials attributes
+     * \param[in] m: mesh discretization implementation
+     * \return the materials attributes
+     */
     static const mfem::Array<size_type>& getMaterialsAttributes(
         const Implementation& m) noexcept {
       if (m.describesAParallelComputation()) {
@@ -488,6 +506,11 @@ namespace mfem_mgis {
       return mesh.attributes;
     }  // end of getMaterialsAttributes
 
+    /*!
+     * \brief return the boundaries attributes
+     * \param[in] m: mesh discretization implementation
+     * \return the boundaries attributes
+     */
     static const mfem::Array<size_type>& getBoundariesAttributes(
         const Implementation& m) noexcept {
       if (m.describesAParallelComputation()) {
@@ -503,6 +526,12 @@ namespace mfem_mgis {
     }  // end of getBoundariesAttributes
 
 #ifdef MGIS_HAVE_TFEL
+    /*!
+     * \brief add points from parameters
+     * \param[in] throwing: throwing attributes
+     * \param[in, out] m: mesh discretization implementation
+     * \param[in] parameters: parameters containing point definitions
+     */
     static void addPoints(attributes::Throwing,
                           MeshDiscretization::Implementation& m,
                           const Parameters& parameters) {
@@ -523,6 +552,12 @@ namespace mfem_mgis {
       }
     }  // end of addPoints
 
+    /*!
+     * \brief add points sets from parameters
+     * \param[in] throwing: throwing attributes
+     * \param[in, out] m: mesh discretization implementation
+     * \param[in] parameters: parameters containing points set definitions
+     */
     static void addPointsSets(attributes::Throwing,
                               MeshDiscretization::Implementation& m,
                               const Parameters& parameters) {
@@ -546,6 +581,27 @@ namespace mfem_mgis {
     }  // end of addPointsSet
 #endif /* MGIS_HAVE_TFEL */
 
+    /*!
+     * \brief constructor
+     * \param[in, out] ctx: execution context used for profiling
+     * \param[in] params: parameters
+     *
+     * The following parameters are expected:
+     *
+     * - `Parallel` (boolean): if true, a parallel computation is to be
+     * performed. This value is assumed to be false by default.
+     * - `MeshFileName` (string): mesh file.
+     * - `NumberOfUniformRefinements` (int): number of uniform refinements
+     *   applied to the mesh
+     * - `MeshReadMode` (string): how to read the mesh. Supported values are
+     *   "FromScratch" and "Restart".
+     * - `GeneralVerbosityLevel` (int): with large positive numbers, expect more
+     *   verbosity
+     * - `Materials` (map): mapping between material identifiers and names
+     * - `Boundaries` (map): mapping between boundary identifiers and names
+     * - `Points` (map): points to be added to the mesh
+     * - `PointsSets` (map): points sets to be added to the mesh
+     */
     Implementation(mgis::Context& ctx, const Parameters& params) {
       CatchTimeSection(ctx, "Mesh::Constructor");
       auto or_raise = ctx.getThrowingFailureHandler();
@@ -659,6 +715,10 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
+    /*!
+     * \brief constructor
+     * \param[in] m: parallel mesh
+     */
     Implementation(std::shared_ptr<Mesh<true>> m)
         : parallel_mesh(std::move(m)) {
       if (this->parallel_mesh.get() == nullptr) {
@@ -668,12 +728,20 @@ namespace mfem_mgis {
 
 #else /* MFEM_USE_MPI */
 
+    /*!
+     * \brief constructor (not supported in sequential mode)
+     * \param[in] m: parallel mesh (not used)
+     */
     Implementation(std::shared_ptr<Mesh<true>>) {
       reportUnsupportedParallelComputations();
     }  // end of Implementation
 
 #endif /* MFEM_USE_MPI */
 
+    /*!
+     * \brief constructor
+     * \param[in] m: sequential mesh
+     */
     Implementation(std::shared_ptr<Mesh<false>> m)
         : sequential_mesh(std::move(m)) {
       if (this->sequential_mesh.get() == nullptr) {
@@ -681,6 +749,11 @@ namespace mfem_mgis {
       }
     }  // end of Implementation
 
+    /*!
+     * \brief return a mutable pointer to the mesh
+     * \tparam parallel: whether to get the parallel mesh or not
+     * \return a mutable pointer to the mesh
+     */
     template <bool parallel>
     std::shared_ptr<Mesh<parallel>> getMutableMeshPointer() const {
       if constexpr (parallel) {
@@ -700,6 +773,11 @@ namespace mfem_mgis {
       }
     }  // end of getMeshPointer
 
+    /*!
+     * \brief return a pointer to the mesh
+     * \tparam parallel: whether to get the parallel mesh or not
+     * \return a pointer to the mesh
+     */
     template <bool parallel>
     std::shared_ptr<const Mesh<parallel>> getMeshPointer() const {
       if constexpr (parallel) {
@@ -729,6 +807,10 @@ namespace mfem_mgis {
     //     return this->pimpl->getSubMesh<false>(ctx, p);
     //   }  // end of getSequentialSubMesh
 
+    /*!
+     * \brief return if this object is built to run parallel computations
+     * \return true if parallel computations are described
+     */
     [[nodiscard]] bool describesAParallelComputation() const noexcept {
 #ifdef MFEM_USE_MPI
       return this->parallel_mesh.get() != nullptr;
@@ -737,6 +819,12 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     }  // end of describesAParallelComputation
 
+    /*!
+     * \brief set material names
+     * \param[in, out] ctx: execution context
+     * \param[in] ids: mapping between mesh identifiers and names
+     * \return true on success, false on failure
+     */
     [[nodiscard]] bool setMaterialsNames(
         Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
       return setMeshObjectNames(ctx, this->materials_names, ids,
@@ -744,6 +832,12 @@ namespace mfem_mgis {
                                 "setMaterialsNames", "material");
     }  // end of setMaterialsNames
 
+    /*!
+     * \brief set boundary names
+     * \param[in, out] ctx: execution context
+     * \param[in] ids: mapping between mesh identifiers and names
+     * \return true on success, false on failure
+     */
     [[nodiscard]] bool setBoundariesNames(
         Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
       return setMeshObjectNames(ctx, this->boundaries_names, ids,
@@ -751,6 +845,16 @@ namespace mfem_mgis {
                                 "setBoundariesNames", "boundary");
     }  // end of setBoundariesNames
 
+    /*!
+     * \brief return the material name associated with the given identifier
+     * \param[in, out] ctx: execution context
+     * \param[in] id: material identifier
+     * \return the material name associated with the given identifier, if it is
+     * defined. If the identifier exists but has no name, an empty string is
+     * returned.
+     * \note the method only fails if the material identifier is not defined in
+     * the mesh
+     */
     [[nodiscard]] std::optional<std::string> getMaterialName(
         Context& ctx, const size_type id) const noexcept {
       const auto& mids = getMaterialsAttributes(*this);
@@ -765,6 +869,16 @@ namespace mfem_mgis {
       return p->second;
     }  // end of getMaterialName
 
+    /*!
+     * \brief return the boundary name associated with the given identifier
+     * \param[in, out] ctx: execution context
+     * \param[in] id: boundary identifier
+     * \return the boundary name associated with the given identifier, if it is
+     * defined. If the identifier exists but has no name, an empty string is
+     * returned.
+     * \note the method only fails if the boundary identifier is not defined in
+     * the mesh
+     */
     std::optional<std::string> getBoundaryName(
         Context& ctx, const size_type id) const noexcept {
       const auto& bids = getBoundariesAttributes(*this);
@@ -779,6 +893,20 @@ namespace mfem_mgis {
       return p->second;
     }  // end of getBoundaryName
 
+    /*!
+     * \brief return the list of materials identifiers described by the given
+     * parameter.
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter
+     * \return the list of materials identifiers
+     * \note The parameter may hold:
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     * Integers are directly interpreted as materials identifiers.
+     * Strings are interpreted as regular expressions which allows the selection
+     * of materials by names.
+     */
     [[nodiscard]] std::optional<std::vector<size_type>> getMaterialsIdentifiers(
         Context& ctx, const Parameter& p) const noexcept {
       return selectMeshObjectsIdentifiers(ctx, getMaterialsAttributes(*this),
@@ -786,6 +914,20 @@ namespace mfem_mgis {
                                           "getMaterialsIdentifiers");
     }  // end of getMaterialsIdentifiers
 
+    /*!
+     * \brief return the list of boundaries identifiers described by the given
+     * parameter.
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter
+     * \return the list of boundaries identifiers
+     * \note The parameter may hold:
+     * - an integer
+     * - a string
+     * - a vector of parameters which must be either strings and integers.
+     * Integers are directly interpreted as boundaries identifiers.
+     * Strings are interpreted as regular expressions which allows the selection
+     * of boundaries by names.
+     */
     [[nodiscard]] std::optional<std::vector<size_type>>
     getBoundariesIdentifiers(Context& ctx, const Parameter& p) const noexcept {
       return selectMeshObjectsIdentifiers(ctx, getBoundariesAttributes(*this),
@@ -793,6 +935,13 @@ namespace mfem_mgis {
                                           "getBoundariesIdentifiers");
     }  // end of getBoundariesIdentifiers
 
+    /*!
+     * \brief return the material identifier by the given parameter.
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter
+     * \return the material identifier
+     * \note The parameter may hold an integer or a string.
+     */
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
         Context& ctx, const Parameter& p) const noexcept {
       if (is<size_type>(p)) {
@@ -820,6 +969,13 @@ namespace mfem_mgis {
           "getMaterialIdentifier: no material named '" + n + "'");
     }  // end of getMaterialIdentifier
 
+    /*!
+     * \brief return the boundary identifier by the given parameter.
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter
+     * \return the boundary identifier
+     * \note The parameter may hold an integer or a string.
+     */
     [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
         Context& ctx, const Parameter& p) const noexcept {
       if (is<size_type>(p)) {
@@ -844,14 +1000,24 @@ namespace mfem_mgis {
         }
       }
       return ctx.registerErrorMessage(
-          "getMaterialIdentifier: no boundary named '" + n + "'");
+          "getBoundaryIdentifier: no boundary named '" + n + "'");
     }  // end of getBoundaryIdentifier
 
+    /*!
+     * \brief return the names of the materials (and their mapping with their
+     * identifiers)
+     * \return the mapping between material identifiers and names
+     */
     [[nodiscard]] std::map<size_type, std::string> getMaterialsNames()
         const noexcept {
       return this->materials_names;
     }  // end of getMaterialsNames
 
+    /*!
+     * \brief return the names of the boundaries (and their mapping with their
+     * identifiers)
+     * \return the mapping between boundary identifiers and names
+     */
     [[nodiscard]] std::map<size_type, std::string> getBoundariesNames()
         const noexcept {
       return this->boundaries_names;
@@ -859,6 +1025,11 @@ namespace mfem_mgis {
 
 #ifdef MGIS_HAVE_TFEL
 
+    /*!
+     * \brief return the registered points in 2D
+     * \param[in, out] ctx: execution context
+     * \return the registered 2D points
+     */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, Point<2>, std::less<>>>
     getPoints2D(Context& ctx) const noexcept {
@@ -870,6 +1041,11 @@ namespace mfem_mgis {
       return {&(this->points2D)};
     }  // end of getPoints2D
 
+    /*!
+     * \brief return the registered points in 3D
+     * \param[in, out] ctx: execution context
+     * \return the registered 3D points
+     */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, Point<3>, std::less<>>>
     getPoints3D(Context& ctx) const noexcept {
@@ -881,6 +1057,11 @@ namespace mfem_mgis {
       return {&(this->points3D)};
     }  // end of getPoints3D
 
+    /*!
+     * \brief return the registered points sets in 2D
+     * \param[in, out] ctx: execution context
+     * \return the registered 2D points sets
+     */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, std::vector<Point<2>>, std::less<>>>
     getPointsSets2D(Context& ctx) const noexcept {
@@ -892,6 +1073,11 @@ namespace mfem_mgis {
       return {&(this->pointsSets2D)};
     }  // end of getPointsSets2D
 
+    /*!
+     * \brief return the registered points sets in 3D
+     * \param[in, out] ctx: execution context
+     * \return the registered 3D points sets
+     */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, std::vector<Point<3>>, std::less<>>>
     getPointsSets3D(Context& ctx) const noexcept {
@@ -903,6 +1089,13 @@ namespace mfem_mgis {
       return {&(this->pointsSets3D)};
     }  // end of getPointsSets3D
 
+    /*!
+     * \brief add a 2D point
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     * \param[in] pt: coordinates of the point
+     * \return true on success, false on failure
+     */
     [[nodiscard]] bool addPoint(Context& ctx,
                                 std::string_view n,
                                 const Point<2>& pt) noexcept {
@@ -922,6 +1115,13 @@ namespace mfem_mgis {
       return true;
     }  // end of addPoint
 
+    /*!
+     * \brief add a 3D point
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     * \param[in] pt: coordinates of the point
+     * \return true on success, false on failure
+     */
     [[nodiscard]] bool addPoint(Context& ctx,
                                 std::string_view n,
                                 const Point<3>& pt) noexcept {
@@ -941,6 +1141,12 @@ namespace mfem_mgis {
       return true;
     }  // end of addPoint
 
+    /*!
+     * \brief return the 2D point with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     * \return the point with the given name
+     */
     [[nodiscard]] std::optional<Point<2>> getPoint2D(
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
@@ -956,6 +1162,12 @@ namespace mfem_mgis {
       return p->second;
     }  // end of getPoint2D
 
+    /*!
+     * \brief return the 3D point with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point
+     * \return the point with the given name
+     */
     [[nodiscard]] std::optional<Point<3>> getPoint3D(
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
@@ -971,6 +1183,13 @@ namespace mfem_mgis {
       return p->second;
     }  // end of getPoint3D
 
+    /*!
+     * \brief add a 2D points set
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point set
+     * \param[in] pts: list of points
+     * \return true on success, false on failure
+     */
     [[nodiscard]] bool addPointsSet(Context& ctx,
                                     std::string_view n,
                                     const std::vector<Point<2>>& pts) noexcept {
@@ -991,6 +1210,13 @@ namespace mfem_mgis {
       return true;
     }  // end of addPointsSet
 
+    /*!
+     * \brief add a 3D points set
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the point set
+     * \param[in] pts: list of points
+     * \return true on success, false on failure
+     */
     [[nodiscard]] bool addPointsSet(Context& ctx,
                                     std::string_view n,
                                     const std::vector<Point<3>>& pts) noexcept {
@@ -1011,6 +1237,12 @@ namespace mfem_mgis {
       return true;
     }  // end of addPointsSet
 
+    /*!
+     * \brief return the 2D points set with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the points set
+     * \return the points set with the given name
+     */
     [[nodiscard]] OptionalReference<const std::vector<Point<2>>> getPointsSet2D(
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
@@ -1026,6 +1258,12 @@ namespace mfem_mgis {
       return {&(p->second)};
     }  // end of getPointsSet2D
 
+    /*!
+     * \brief return the 3D points set with the given name
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the points set
+     * \return the points set with the given name
+     */
     [[nodiscard]] OptionalReference<const std::vector<Point<3>>> getPointsSet3D(
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
@@ -1054,16 +1292,16 @@ namespace mfem_mgis {
     std::shared_ptr<Mesh<false>> sequential_mesh;
     //! \brief mapping between materials identifiers and names
     std::map<size_type, std::string> materials_names;
-    //! \brief mapping between materials boundaries and names
+    //! \brief mapping between boundaries identifiers and names
     std::map<size_type, std::string> boundaries_names;
 #ifdef MGIS_HAVE_TFEL
     //! \brief points declared by the user, only valid for a 2D mesh
     std::map<std::string, Point<2>, std::less<>> points2D;
     //! \brief points declared by the user, only valid for a 3D mesh
     std::map<std::string, Point<3>, std::less<>> points3D;
-    //! \brief points set declared by the user, only valid for a 2D mesh
+    //! \brief points sets declared by the user, only valid for a 2D mesh
     std::map<std::string, std::vector<Point<2>>, std::less<>> pointsSets2D;
-    //! \brief points set declared by the user, only valid for a 3D mesh
+    //! \brief points sets declared by the user, only valid for a 3D mesh
     std::map<std::string, std::vector<Point<3>>, std::less<>> pointsSets3D;
 #endif /* MGIS_HAVE_TFEL */
   };
