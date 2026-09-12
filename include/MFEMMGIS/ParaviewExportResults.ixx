@@ -185,7 +185,7 @@ namespace mfem_mgis {
     //    - exchange data between processes in order to retrieve information
     //      needed to perform the previous prolongation step
     if (submesh != nullptr) {
-      /** Transfer data from gloabl mesh to submesh */
+      /** Transfer data from global mesh to submesh */
       this->result.SetFromTrueVector();
       this->submesh.get()->Transfer(this->result, this->result_sm.get()[0]);
       this->exporter.Save();
