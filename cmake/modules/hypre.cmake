@@ -20,6 +20,15 @@ if(MFEM_USE_MPI)
   if(NOT DEFINED HYPRE_DIR)
          set(HYPRE_DIR $ENV{HYPRE_DIR})
   endif()
+  if(NOT HYPRE_DIR)
+    string(REGEX REPLACE "(^|;)-I" "\\1" MFEM_EXTRA_INC_PATHS "${MFEM_EXTRA_INC_DIRS}")
+    find_path(HYPRE_INCLUDE_DIR HYPRE.h
+              HINTS ${MFEM_EXTRA_INC_PATHS}
+              PATH_SUFFIXES hypre)
+    if(HYPRE_INCLUDE_DIR)
+      string(REGEX REPLACE "/include(/hypre)?$" "" HYPRE_DIR "${HYPRE_INCLUDE_DIR}")
+    endif()
+  endif()
   message(STATUS "Hypre directory: ${HYPRE_DIR}")
   set(HYPRE_INCLUDE_DIRS "${HYPRE_DIR}/include/hypre")
   try_run(HYPRE_VERSION_RUN_RESULT HYPRE_VERSION_COMPILE_RESULT

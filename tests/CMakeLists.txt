@@ -572,6 +572,7 @@ install(FILES ${UTILITY_FILE}
 
 set(EX2_DIR "share/mfem-mgis/examples/ex2")
 install(FILES PeriodicTest.cxx Elasticity.mfront cube_2mat_per.mesh
+              ${UTILITY_FILE}
         DESTINATION ${EX2_DIR})
 
 install(

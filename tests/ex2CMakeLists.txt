@@ -24,9 +24,9 @@ else(CMAKE_CONFIGURATION_TYPES)
 endif(CMAKE_CONFIGURATION_TYPES)
 
 # Require MFEM
-if (NOT TARGET mfem)
+if (NOT TARGET MFEM::mfem)
   find_package(MFEM REQUIRED)
-endif(NOT TARGET mfem)
+endif(NOT TARGET MFEM::mfem)
 
 # Require MGIS
 if (NOT TARGET mgis::MFrontGenericInterface)

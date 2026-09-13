@@ -27,12 +27,9 @@ A simple way to install dependencies is to rely on [`Spack` packaging
 system](https://spack.io/). `Spack` is an open source package manager
 that simplifies building, installing, customizing, and sharing HPC
 software. It will allow you to install recent versions of compilers
-(that handle `C++17`, for example gnu compiler suite version 8), and to
+(that handle `C++20`, for example gnu compiler suite version 11+), and to
 get `python`, `cmake` and other tools that are required for this project
 to be installed (see hereafter).
-
-Other ways to install MFEM and MGIS are available in the file
-`INSTALL_ALTERNATIVES.md`.
 
 
 # Installation Tutorial for `MFEM-MGIS-MFront` using Spack
@@ -119,6 +116,11 @@ make -j 4 check
 make install
 ```
 
+`MGIS` and `hypre` are located through the `CMAKE_PREFIX_PATH` exported by
+`spack load`. Their locations can be overridden on the `cmake` command line
+with `-DMFrontGenericInterface_DIR=<mgis prefix>/share/mgis/cmake` and
+`-DHYPRE_DIR=<hypre prefix>`.
+
 # Alternative Installation Method
 
 If you already have `mfem`, `tfel`, and `mgis` installed via Spack, follow these steps:
@@ -129,8 +131,8 @@ Install the required packages using Spack.
 
 ```sh
 spack install mfem+mpi+suite-sparse
-spack install tfel@master:~python~python_bindings
-spack install mgis@master:+c~fortran~python
+spack install tfel@master~python~python_bindings
+spack install mgis@master+c~fortran~python
 ```
 
 ## Step 2: Load the Installed Packages
@@ -161,6 +163,10 @@ mkdir build && cd build
 cmake ..
 make -j 4 check
 ```
+
+`MGIS` is located through the `CMAKE_PREFIX_PATH` exported by `spack load`.
+Its location can be overridden on the `cmake` command line with
+`-DMFrontGenericInterface_DIR=<mgis prefix>/share/mgis/cmake`.
 
 By following these detailed instructions, you should be able to install
 and configure `MFEM-MGIS-MFront` using Spack successfully.
