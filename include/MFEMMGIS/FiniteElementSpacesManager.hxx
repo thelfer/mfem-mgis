@@ -110,6 +110,17 @@ namespace mfem_mgis {
     /*!
      * \brief create a new finite element space or reuse an existing one
      * \param[in] ctx: execution context
+     * \param[in] m: mesh on which the finite element space is defined
+     * \param[in] nc: vectorial dimension
+     */
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<FiniteElementSpace<parallel>>
+    getFiniteElementSpace(Context&,
+                          const Mesh<parallel>&,
+                          const size_type) const noexcept;
+    /*!
+     * \brief create a new finite element space or reuse an existing one
+     * \param[in] ctx: execution context
      * \param[in] args: arguments defining the finite element space
      *
      * \note if a the list of materials identifiers contains the whole set of
@@ -187,6 +198,24 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<false>>
     getSequentialFiniteElementSpace(Context&, const size_type) const noexcept;
+    /*!
+     * \brief create a parallel finite element space
+     * \param[in] ctx: execution context
+     * \param[in] m: mesh
+     * \param[in] nc: vectorial dimension
+     */
+    std::shared_ptr<FiniteElementSpace<true>> getParallelFiniteElementSpace(
+        Context&, const Mesh<true>&, const size_type) const noexcept;
+    /*!
+     * \brief create a sequential finite element space
+     * \param[in] ctx: execution context
+     * \param[in] m: mesh
+     * \param[in] nc: vectorial dimension
+     */
+    [[nodiscard]] std::shared_ptr<FiniteElementSpace<false>>
+    getSequentialFiniteElementSpace(Context&,
+                                    const Mesh<false>&,
+                                    const size_type) const noexcept;
     /*!
      * \brief create a new parallel finite element space or reuse an existing
      * one

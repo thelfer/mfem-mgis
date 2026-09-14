@@ -154,8 +154,6 @@ namespace mfem_mgis {
    private:
     struct MaterialIntegrationPointResult
         : public MaterialIntegrationPointResultBase {
-      //! \brief finite element space
-      std::shared_ptr<FiniteElementSpace<parallel>> fespace;
       //! \brief grid function
       std::unique_ptr<GridFunction<parallel>> f;
     };
@@ -179,8 +177,6 @@ namespace mfem_mgis {
       std::string name;
       //! \brief list of exported function name
       std::vector<ImmutablePartialQuadratureFunctionView> functions;
-      //! \brief finite element space used to define the exported grid function
-      std::shared_ptr<FiniteElementSpace<parallel>> grid_function_fespace;
       //! \brief exported grid functions corresponding to the exported functions
       std::unique_ptr<GridFunction<parallel>> grid_function;
     };

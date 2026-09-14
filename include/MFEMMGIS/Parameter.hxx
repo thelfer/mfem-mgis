@@ -8,7 +8,9 @@
 #ifndef LIB_MFEM_MGIS_PARAMETER_HXX
 #define LIB_MFEM_MGIS_PARAMETER_HXX
 
+#include <set>
 #include <variant>
+#include <concepts>
 #include <functional>
 #include <type_traits>
 #include <string_view>
@@ -30,6 +32,14 @@ namespace mfem_mgis {
                                         Parameters,
                                         std::function<real(const real)>>;
 
+  template <typename T>
+  concept ParameterValueConcept =
+      ((std::same_as<T, bool>) || (std::same_as<T, size_type>) ||
+       (std::same_as<T, real>) || (std::same_as<T, std::string>) ||
+       (std::same_as<T, std::vector<Parameter>>) ||
+       (std::same_as<T, Parameters>) ||
+       (std::same_as<T, std::function<real(const real)>>));
+
   /* aliases to equivalent python' types */
 
   using list = std::vector<Parameter>;
@@ -46,6 +56,24 @@ namespace mfem_mgis {
      * \brief throw an exception if the parameter type is not the expected one.
      */
     [[noreturn]] static void raiseUnmatchedParameterType(attributes::Throwing);
+    /*!
+     * \return a parameter holding a `std::vector<Parameter>` containing a copy
+     * of the given vector
+     *
+     * \param[in] values: values to be inserted
+     */
+    template <ParameterValueConcept ParameterType>
+    [[nodiscard]] static Parameter from(
+        const std::vector<ParameterType>&) noexcept;
+    /*!
+     * \return a parameter holding a `std::vector<Parameter>` containing a copy
+     * of the given set
+     *
+     * \param[in] values: values to be inserted
+     */
+    template <ParameterValueConcept ParameterType>
+    [[nodiscard]] static Parameter from(
+        const std::set<ParameterType>&) noexcept;
     // inheriting constructors
     using ParameterVariant::ParameterVariant;
     // \brief default constructor

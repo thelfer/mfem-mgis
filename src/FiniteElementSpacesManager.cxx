@@ -205,7 +205,8 @@ namespace mfem_mgis {
      * \brief create a new parallel finite element space or reuse an existing
      * one
      * \param[in] ctx: execution context
-     * \param[in] args: arguments defining the finite element space
+     * \param[in] m: mesh
+     * \param[in] nc: number of components
      *
      * \note if a the list of materials identifiers contains the whole set of
      * material identifiers, the finite element space will be created on the
@@ -337,11 +338,30 @@ namespace mfem_mgis {
       }
 #ifdef MFEM_USE_MPI
       const auto nc = s.GetVDim();
-      const auto p = this->parallel_fespaces.find(nc);
-      if (p == this->parallel_fespaces.end()) {
+      const auto* const m = s.GetParMesh();
+      if (m == &(this->mesh.getMesh<true>())) {
+        const auto p = this->parallel_fespaces.find(nc);
+        if (p != this->parallel_fespaces.end()) {
+          return p->second.get() == &s;
+        }
         return false;
       }
-      return p->second.get() == &s;
+      if (!this->mesh.manages(*m)) {
+        return false;
+      }
+      const auto* const sm = dynamic_cast<const SubMesh<true>*>(m);
+      if (sm == nullptr) {
+        return false;
+      }
+      const auto pm = this->parallel_fespaces_on_submeshes.find(sm);
+      if (pm == this->parallel_fespaces_on_submeshes.end()) {
+        return false;
+      }
+      const auto pfes = pm->second.find(nc);
+      if (pfes == pm->second.end()) {
+        return false;
+      }
+      return pfes->second.get() == &s;
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
@@ -357,11 +377,30 @@ namespace mfem_mgis {
         return false;
       }
       const auto nc = s.GetVDim();
-      const auto p = this->sequential_fespaces.find(nc);
-      if (p == this->sequential_fespaces.end()) {
+      const auto* const m = s.GetMesh();
+      if (m == &(this->mesh.getMesh<false>())) {
+        const auto p = this->sequential_fespaces.find(nc);
+        if (p == this->sequential_fespaces.end()) {
+          return false;
+        }
+        return p->second.get() == &s;
+      }
+      if (!this->mesh.manages(*m)) {
         return false;
       }
-      return p->second.get() == &s;
+      const auto* const sm = dynamic_cast<const SubMesh<false>*>(m);
+      if (sm == nullptr) {
+        return false;
+      }
+      const auto pm = this->sequential_fespaces_on_submeshes.find(sm);
+      if (pm == this->sequential_fespaces_on_submeshes.end()) {
+        return false;
+      }
+      const auto pfes = pm->second.find(nc);
+      if (pfes == pm->second.end()) {
+        return false;
+      }
+      return pfes->second.get() == &s;
     }  // end of manages
 
    private:
@@ -496,10 +535,22 @@ namespace mfem_mgis {
     return this->pimpl->getFiniteElementSpace<true>(ctx, nc);
   }  // end of getParallelFiniteElementSpace
 
+  std::shared_ptr<FiniteElementSpace<true>>
+  FiniteElementSpacesManager::getParallelFiniteElementSpace(
+      Context& ctx, const Mesh<true>& m, const size_type nc) const noexcept {
+    return this->pimpl->getFiniteElementSpace<true>(ctx, m, nc);
+  }  // end of getParallelFiniteElementSpace
+
   std::shared_ptr<FiniteElementSpace<false>>
   FiniteElementSpacesManager::getSequentialFiniteElementSpace(
       Context& ctx, const size_type nc) const noexcept {
     return this->pimpl->getFiniteElementSpace<false>(ctx, nc);
+  }  // end of getSequentialFiniteElementSpace
+
+  std::shared_ptr<FiniteElementSpace<false>>
+  FiniteElementSpacesManager::getSequentialFiniteElementSpace(
+      Context& ctx, const Mesh<false>& m, const size_type nc) const noexcept {
+    return this->pimpl->getFiniteElementSpace<false>(ctx, m, nc);
   }  // end of getSequentialFiniteElementSpace
 
   const FiniteElementCollection&

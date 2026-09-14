@@ -814,9 +814,108 @@ namespace mfem_mgis {
     }  // end of manages
 
     /*!
-     * \brief return a mutable pointer to the mesh
-     * \tparam parallel: whether to get the parallel mesh or not
+     * \return if the given mesh is defined on (a subset of) the
+     * materials of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
+        Context& ctx, const Mesh<true>& m) const noexcept {
+      if (!this->manages(m)) {
+        return ctx.registerErrorMessage("given mesh is not managed");
+      }
+      const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
+      if (sm == nullptr) {
+        return ctx.registerErrorMessage("given mesh is not a submesh");
+      }
+      for (const auto& [l, ptr] : this->parallel_submeshes) {
+        static_cast<void>(l);
+        if (ptr.get() == sm) {
+          return true;
+        }
+      }
+      return false;
+    }
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * materials of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
+        Context& ctx, const Mesh<false>& m) const noexcept {
+      if (!this->manages(m)) {
+        return ctx.registerErrorMessage("given mesh is not managed");
+      }
+      const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
+      if (sm == nullptr) {
+        return ctx.registerErrorMessage("given mesh is not a submesh");
+      }
+      for (const auto& [l, ptr] : this->sequential_submeshes) {
+        static_cast<void>(l);
+        if (ptr.get() == sm) {
+          return true;
+        }
+      }
+      return false;
+    }
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * boundaries of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
+        Context& ctx, const Mesh<true>& m) const noexcept {
+      if (!this->manages(m)) {
+        return ctx.registerErrorMessage("given mesh is not managed");
+      }
+      const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
+      if (sm == nullptr) {
+        return ctx.registerErrorMessage("given mesh is not a submesh");
+      }
+      for (const auto& [l, ptr] : this->parallel_submeshes_on_boundaries) {
+        static_cast<void>(l);
+        if (ptr.get() == sm) {
+          return true;
+        }
+      }
+      return false;
+    }
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * boundaries of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
+        Context& ctx, const Mesh<false>& m) const noexcept {
+      if (!this->manages(m)) {
+        return ctx.registerErrorMessage("given mesh is not managed");
+      }
+      const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
+      if (sm == nullptr) {
+        return ctx.registerErrorMessage("given mesh is not a submesh");
+      }
+      for (const auto& [l, ptr] : this->sequential_submeshes_on_boundaries) {
+        static_cast<void>(l);
+        if (ptr.get() == sm) {
+          return true;
+        }
+      }
+      return false;
+    }
+    /*!
      * \return a mutable pointer to the mesh
+     * \tparam parallel: whether to get the parallel mesh or not
      */
     template <bool parallel>
     std::shared_ptr<Mesh<parallel>> getMeshPointer() const {
@@ -1574,6 +1673,26 @@ namespace mfem_mgis {
   bool MeshDiscretization::manages(const Mesh<false>& m) const noexcept {
     return this->pimpl->manages(m);
   }  // end of manages
+
+  std::optional<bool> MeshDiscretization::isDefinedOnMaterials(
+      Context& ctx, const Mesh<true>& m) const noexcept {
+    return this->pimpl->isDefinedOnMaterials(ctx, m);
+  }  // end of isDefinedOnMaterials
+
+  std::optional<bool> MeshDiscretization::isDefinedOnMaterials(
+      Context& ctx, const Mesh<false>& m) const noexcept {
+    return this->pimpl->isDefinedOnMaterials(ctx, m);
+  }  // end of isDefinedOnMaterials
+
+  std::optional<bool> MeshDiscretization::isDefinedOnBoundaries(
+      Context& ctx, const Mesh<true>& m) const noexcept {
+    return this->pimpl->isDefinedOnBoundaries(ctx, m);
+  }  // end of isDefinedOnBoundaries
+
+  std::optional<bool> MeshDiscretization::isDefinedOnBoundaries(
+      Context& ctx, const Mesh<false>& m) const noexcept {
+    return this->pimpl->isDefinedOnBoundaries(ctx, m);
+  }  // end of isDefinedOnBoundaries
 
   std::shared_ptr<Mesh<true>>
   MeshDiscretization::getMutableParallelMeshPointer() const noexcept {

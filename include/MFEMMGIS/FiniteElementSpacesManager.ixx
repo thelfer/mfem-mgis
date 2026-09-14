@@ -26,6 +26,19 @@ namespace mfem_mgis {
   std::shared_ptr<FiniteElementSpace<parallel>>
   FiniteElementSpacesManager::getFiniteElementSpace(
       Context& ctx,
+      const Mesh<parallel>& m,
+      const size_type nc) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelFiniteElementSpace(ctx, m, nc);
+    } else {
+      return this->getSequentialFiniteElementSpace(ctx, m, nc);
+    }
+  }  // end of getFiniteElementSpace
+
+  template <bool parallel>
+  std::shared_ptr<FiniteElementSpace<parallel>>
+  FiniteElementSpacesManager::getFiniteElementSpace(
+      Context& ctx,
       const GetFiniteElementSpaceOnSubMeshArguments& args) const noexcept {
     if constexpr (parallel) {
       return this->getParallelFiniteElementSpace(ctx, args);

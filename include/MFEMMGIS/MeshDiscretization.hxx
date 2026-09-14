@@ -89,6 +89,46 @@ namespace mfem_mgis {
      */
     bool manages(const Mesh<false>&) const noexcept;
     /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * materials of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
+        Context& ctx, const Mesh<true>&) const noexcept;
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * materials of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
+        Context& ctx, const Mesh<false>&) const noexcept;
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * boundaries of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
+        Context& ctx, const Mesh<true>&) const noexcept;
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * boundaries of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
+        Context& ctx, const Mesh<false>&) const noexcept;
+    /*!
      * \return a pointer to the sub mesh associated with the given ids
      * \tparam parallel: whether to get the parallel sub mesh or not
      * \param[in, out] ctx: execution context

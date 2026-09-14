@@ -529,23 +529,16 @@ namespace mfem_mgis {
    * updateGridFunction function.
    */
   template <bool parallel>
-  [[nodiscard]] std::optional<
-      std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
-                std::unique_ptr<GridFunction<parallel>>>>
-  makeGridFunction(Context&,
-                   const std::vector<ImmutablePartialQuadratureFunctionView>&);
+  [[nodiscard]] std::unique_ptr<GridFunction<parallel>> makeGridFunction(
+      Context&, const std::vector<ImmutablePartialQuadratureFunctionView>&);
 
   template <>
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<
-      std::pair<std::shared_ptr<FiniteElementSpace<true>>,
-                std::unique_ptr<GridFunction<true>>>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<GridFunction<true>>
   makeGridFunction<true>(
       Context&, const std::vector<ImmutablePartialQuadratureFunctionView>&);
 
   template <>
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<
-      std::pair<std::shared_ptr<FiniteElementSpace<false>>,
-                std::unique_ptr<GridFunction<false>>>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<GridFunction<false>>
   makeGridFunction<false>(
       Context&, const std::vector<ImmutablePartialQuadratureFunctionView>&);
 
@@ -558,29 +551,22 @@ namespace mfem_mgis {
    * updateGridFunction function.
    */
   template <bool parallel>
-  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
-                          std::unique_ptr<GridFunction<parallel>>>>
-  makeGridFunction(Context&,
-                   const std::vector<ImmutablePartialQuadratureFunctionView>&,
-                   const Mesh<parallel>&);
+  std::unique_ptr<GridFunction<parallel>> makeGridFunction(
+      Context&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const Mesh<parallel>&);
 
   template <>
-  MFEM_MGIS_EXPORT
-      std::optional<std::pair<std::shared_ptr<FiniteElementSpace<true>>,
-                              std::unique_ptr<GridFunction<true>>>>
-      makeGridFunction<true>(
-          Context&,
-          const std::vector<ImmutablePartialQuadratureFunctionView>&,
-          const Mesh<true>&);
+  MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
+      Context&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const Mesh<true>&);
 
   template <>
-  MFEM_MGIS_EXPORT
-      std::optional<std::pair<std::shared_ptr<FiniteElementSpace<false>>,
-                              std::unique_ptr<GridFunction<false>>>>
-      makeGridFunction<false>(
-          Context&,
-          const std::vector<ImmutablePartialQuadratureFunctionView>&,
-          const Mesh<false>&);
+  MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
+      Context&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const Mesh<false>&);
 
   /*!
    * \return a grid function able to store the result of the given functions
@@ -591,29 +577,22 @@ namespace mfem_mgis {
    * updateGridFunction function.
    */
   template <bool parallel>
-  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
-                          std::unique_ptr<GridFunction<parallel>>>>
-  makeGridFunction(Context&,
-                   const std::vector<ImmutablePartialQuadratureFunctionView>&,
-                   const SubMesh<parallel>&);
+  std::unique_ptr<GridFunction<parallel>> makeGridFunction(
+      Context&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const SubMesh<parallel>&);
 
   template <>
-  MFEM_MGIS_EXPORT
-      std::optional<std::pair<std::shared_ptr<FiniteElementSpace<true>>,
-                              std::unique_ptr<GridFunction<true>>>>
-      makeGridFunction<true>(
-          Context&,
-          const std::vector<ImmutablePartialQuadratureFunctionView>&,
-          const SubMesh<true>&);
+  MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
+      Context&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const SubMesh<true>&);
 
   template <>
-  MFEM_MGIS_EXPORT
-      std::optional<std::pair<std::shared_ptr<FiniteElementSpace<false>>,
-                              std::unique_ptr<GridFunction<false>>>>
-      makeGridFunction<false>(
-          Context&,
-          const std::vector<ImmutablePartialQuadratureFunctionView>&,
-          const SubMesh<false>&);
+  MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
+      Context&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&,
+      const SubMesh<false>&);
 
   /*!
    * \brief update a grid function using the values of the given functions

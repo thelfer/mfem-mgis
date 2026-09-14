@@ -54,8 +54,7 @@ namespace mfem_mgis {
         if (isInvalid(or2)) {
           raise(ctx.getErrorMessage());
         }
-        r.fespace = std::move(or2->first);
-        r.f = std::move(or2->second);
+        r.f = std::move(or2);
       } else {
         auto or2 = makeGridFunction<parallel>(
             ctx, this->getPartialQuadratureFunctionViews(p, r),
@@ -63,8 +62,7 @@ namespace mfem_mgis {
         if (isInvalid(or2)) {
           raise(ctx.getErrorMessage());
         }
-        r.fespace = std::move(or2->first);
-        r.f = std::move(or2->second);
+        r.f = std::move(or2);
       }
       // registring
       this->exporter.RegisterField(r.name, r.f.get());
@@ -118,16 +116,14 @@ namespace mfem_mgis {
         if (isInvalid(ores)) {
           raise(ctx.getErrorMessage());
         }
-        std::tie(fcts->grid_function_fespace, fcts->grid_function) =
-            std::move(*ores);
+        fcts->grid_function = std::move(ores);
       } else {
         auto ores =
             makeGridFunction<parallel>(ctx, fcts->functions, *(this->submesh));
         if (isInvalid(ores)) {
           raise(ctx.getErrorMessage());
         }
-        std::tie(fcts->grid_function_fespace, fcts->grid_function) =
-            std::move(*ores);
+        fcts->grid_function = std::move(ores);
       }
       // registring
       this->exporter.RegisterField(fcts->name, fcts->grid_function.get());
