@@ -126,9 +126,11 @@
 system. <code class="docutils literal notranslate"><span class="pre">Spack</span></code> is an open source package
 manager that simplifies building, installing, customizing, and sharing
 HPC software. It will allow you to install recent versions of compilers
-(that handle <code class="docutils literal notranslate"><span class="pre">C++20</span></code>, for example gnu compiler suite version 11+), and
+(that handle <code class="docutils literal notranslate"><span class="pre">C++17</span></code>, for example gnu compiler suite version 8), and
 to get <code class="docutils literal notranslate"><span class="pre">python</span></code>, <code class="docutils literal notranslate"><span class="pre">cmake</span></code> and other tools that are required for this
 project to be installed (see hereafter).</p>
+<p>Other ways to install MFEM and MGIS are available in the file
+<code class="docutils literal notranslate"><span class="pre">INSTALL_ALTERNATIVES.md</span></code>.</p>
 </section>
 <section id="installation-tutorial-for-mfem-mgis-mfront-using-spack">
 <h2>Installation Tutorial for <code class="docutils literal notranslate"><span class="pre">MFEM-MGIS-MFront</span></code> using Spack<a class="headerlink" href="#installation-tutorial-for-mfem-mgis-mfront-using-spack" title="Link to this heading"></a></h2>
@@ -211,10 +213,6 @@ make<span class="w"> </span>-j<span class="w"> </span><span class="m">4</span><s
 make<span class="w"> </span>install
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">MGIS</span></code> and <code class="docutils literal notranslate"><span class="pre">hypre</span></code> are located through the <code class="docutils literal notranslate"><span class="pre">CMAKE_PREFIX_PATH</span></code> exported
-by <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">load</span></code>. Their locations can be overridden on the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command
-line with <code class="docutils literal notranslate"><span class="pre">-DMFrontGenericInterface_DIR=&lt;mgis</span> <span class="pre">prefix&gt;/share/mgis/cmake</span></code> and
-<code class="docutils literal notranslate"><span class="pre">-DHYPRE_DIR=&lt;hypre</span> <span class="pre">prefix&gt;</span></code>.</p>
 </section>
 </section>
 <section id="alternative-installation-method">
@@ -225,8 +223,8 @@ Spack, follow these steps:</p>
 <h3>Step 1: Install Required Packages<a class="headerlink" href="#step-1-install-required-packages" title="Link to this heading"></a></h3>
 <p>Install the required packages using Spack.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>install<span class="w"> </span>mfem+mpi+suite-sparse
-spack<span class="w"> </span>install<span class="w"> </span>tfel@master~python~python_bindings
-spack<span class="w"> </span>install<span class="w"> </span>mgis@master+c~fortran~python
+spack<span class="w"> </span>install<span class="w"> </span>tfel@5.0.1:~python~python_bindings
+spack<span class="w"> </span>install<span class="w"> </span>mgis@3.0.1:+c~fortran~python
 </pre></div>
 </div>
 </section>
@@ -257,9 +255,6 @@ cmake<span class="w"> </span>..
 make<span class="w"> </span>-j<span class="w"> </span><span class="m">4</span><span class="w"> </span>check
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">MGIS</span></code> is located through the <code class="docutils literal notranslate"><span class="pre">CMAKE_PREFIX_PATH</span></code> exported by <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">load</span></code>.
-Its location can be overridden on the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command line with
-<code class="docutils literal notranslate"><span class="pre">-DMFrontGenericInterface_DIR=&lt;mgis</span> <span class="pre">prefix&gt;/share/mgis/cmake</span></code>.</p>
 <p>By following these detailed instructions, you should be able to install
 and configure <code class="docutils literal notranslate"><span class="pre">MFEM-MGIS-MFront</span></code> using Spack successfully.</p>
 </section>
