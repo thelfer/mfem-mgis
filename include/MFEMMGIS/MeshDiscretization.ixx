@@ -5,6 +5,9 @@
  * \date   06/03/2026
  */
 
+#include "mfem/mesh/submesh/submesh.hpp"
+#include "mfem/mesh/submesh/psubmesh.hpp"
+
 #ifndef LIB_MFEM_MGIS_MESHDISCRETIZATION_IXX
 #define LIB_MFEM_MGIS_MESHDISCRETIZATION_IXX
 
@@ -99,30 +102,59 @@ namespace mfem_mgis {
 #endif /* MGIS_HAVE_TFEL */
 
   template <bool parallel>
+  std::shared_ptr<SubMesh<parallel>>
+  MeshDiscretization::getMutableSubMeshPointer(
+      Context& ctx, const Parameter& p, const Location l) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelMutableSubMeshPointer(ctx, p, l);
+    } else {
+      return this->getSequentialMutableSubMeshPointer(ctx, p, l);
+    }
+  }  // end of getMutableSubMesh
+
+  template <bool parallel>
+  std::shared_ptr<SubMesh<parallel>> MeshDiscretization::getSubMeshPointer(
+      Context& ctx, const Parameter& p, const Location l) noexcept {
+    return this->template getMutableSubMeshPointer<parallel>(ctx, p, l);
+  }  // end of getSubMesh
+
+  template <bool parallel>
+  std::shared_ptr<const SubMesh<parallel>>
+  MeshDiscretization::getSubMeshPointer(Context& ctx,
+                                        const Parameter& p,
+                                        const Location l) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelSubMeshPointer(ctx, p, l);
+    } else {
+      return this->getSequentialSubMeshPointer(ctx, p, l);
+    }
+  }  // end of getSubMesh
+
+  template <bool parallel>
   OptionalReference<SubMesh<parallel>> MeshDiscretization::getSubMesh(
-      Context& ctx, const Parameter& p) noexcept {
-    return this->template getMutableSubMeshReference<parallel>(ctx, p);
+      Context& ctx, const Parameter& p, const Location l) noexcept {
+    return this->template getMutableSubMeshReference<parallel>(ctx, p, l);
   }  // end of getSubMesh
 
   template <bool parallel>
   OptionalReference<SubMesh<parallel>>
   MeshDiscretization::getMutableSubMeshReference(
-      Context& ctx, const Parameter& p) const noexcept {
-    if constexpr (parallel) {
-      return this->getParallelMutableSubMeshReference(ctx, p);
-    } else {
-      return this->getSequentialMutableSubMeshReference(ctx, p);
+      Context& ctx, const Parameter& p, const Location l) const noexcept {
+    auto ptr = this->template getMutableSubMeshPointer<parallel>(ctx, p, l);
+    if (isInvalid(ptr)) {
+      return {};
     }
+    return {ptr.get()};
   }  // end of getMutableSubMeshReference
 
   template <bool parallel>
   OptionalReference<const SubMesh<parallel>> MeshDiscretization::getSubMesh(
-      Context& ctx, const Parameter& p) const noexcept {
-    if constexpr (parallel) {
-      return this->getParallelSubMesh(ctx, p);
-    } else {
-      return this->getSequentialSubMesh(ctx, p);
+      Context& ctx, const Parameter& p, const Location l) const noexcept {
+    auto ptr = this->template getSubMeshPointer<parallel>(ctx, p, l);
+    if (isInvalid(ptr)) {
+      return {};
     }
+    return {ptr.get()};
   }  // end of getSubMesh
 
   template <bool parallel>
@@ -138,7 +170,7 @@ namespace mfem_mgis {
   template <bool parallel>
   std::shared_ptr<Mesh<parallel>> MeshDiscretization::getMeshPointer(
       Context& ctx, const Mesh<parallel>& m) noexcept {
-    return this->getMutableMeshPointer(ctx, m);
+    return this->template getMutableMeshPointer<parallel>(ctx, m);
   }  // end of getMeshPointer
 
   template <bool parallel>

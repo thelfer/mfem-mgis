@@ -81,13 +81,15 @@ namespace mfem_mgis {
      * \see `getFiniteElementSpace` for details
      */
     struct GetFiniteElementSpaceOnSubMeshArguments {
+      //! \brief location
+      MeshDiscretization::Location location;
       /*!
        * \brief parameter used to identify the materials on which the SubMesh is
        * defined
        *
        * \see `MeshDescription::getSubMesh` for details
        */
-      Parameter materials_identifiers;
+      Parameter identifiers;
       /*!
        * \brief number of components (vectorial dimension) of the finite
        * element space (must be greater or equal to 1);
@@ -95,7 +97,8 @@ namespace mfem_mgis {
       size_type number_of_components;
     };  // end of struct GetFiniteElementSpaceOnSubMeshArguments
     /*!
-     * \brief create a new finite element space or reuse an existing one
+     * \brief create a new finite element space on the whole mesh or reuse an
+     * existing one
      * \param[in] ctx: execution context
      * \param[in] nc: vectorial dimension
      *

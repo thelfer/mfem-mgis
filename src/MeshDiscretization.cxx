@@ -771,6 +771,12 @@ namespace mfem_mgis {
           return true;
         }
       }
+      for (const auto& [l, ptr] : this->parallel_submeshes_on_boundaries) {
+        static_cast<void>(l);
+        if (ptr.get() == sm) {
+          return true;
+        }
+      }
       return false;
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
@@ -793,6 +799,12 @@ namespace mfem_mgis {
         return false;
       }
       for (const auto& [l, ptr] : this->sequential_submeshes) {
+        static_cast<void>(l);
+        if (ptr.get() == sm) {
+          return true;
+        }
+      }
+      for (const auto& [l, ptr] : this->sequential_submeshes_on_boundaries) {
         static_cast<void>(l);
         if (ptr.get() == sm) {
           return true;
@@ -849,6 +861,12 @@ namespace mfem_mgis {
             return ptr;
           }
         }
+        for (const auto& [l, ptr] : this->parallel_submeshes_on_boundaries) {
+          static_cast<void>(l);
+          if (ptr.get() == sm) {
+            return ptr;
+          }
+        }
       }
       return ctx.registerErrorMessage(
           "the given mesh is not managed by this mesh discretization");
@@ -880,50 +898,111 @@ namespace mfem_mgis {
             return ptr;
           }
         }
+        for (const auto& [l, ptr] : this->sequential_submeshes_on_boundaries) {
+          static_cast<void>(l);
+          if (ptr.get() == sm) {
+            return ptr;
+          }
+        }
       }
       return ctx.registerErrorMessage(
           "the given mesh is not managed by this mesh discretization");
     }  // end of manages
 
     template <bool parallel>
-    OptionalReference<SubMesh<parallel>> getSubMesh(
-        Context& ctx, const Parameter& p) noexcept {
-      auto oids = this->getMaterialsIdentifiers(ctx, p);
+    std::shared_ptr<SubMesh<parallel>> getSubMeshPointer(
+        Context& ctx,
+        const Parameter& p,
+        const MeshDiscretization::Location l) noexcept {
+      auto oids = [this, &ctx, &p, &l] {
+        if (l == MeshDiscretization::Location::ON_BOUNDARIES) {
+          return this->getBoundariesIdentifiers(ctx, p);
+        }
+        return this->getMaterialsIdentifiers(ctx, p);
+      }();
       if (isInvalid(oids)) {
         return {};
       }
       if (oids->empty()) {
-        return ctx.registerErrorMessage("empty list of material attributes");
+        return ctx.registerErrorMessage("empty list of identifiers");
       }
       AttributesList k(*oids);
-      mfem::Array<size_type> ids(oids->data(), oids->size());
       if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
-        return ctx.registerErrorMessage(
-            "can't create a parallel sub mesh from a sequential mesh");
-        const auto psm = this->parallel_submeshes.find(k);
-        if (psm != this->parallel_submeshes.end()) {
-          return {psm->second.get()};
+        if (!this->describesAParallelComputation()) {
+          return ctx.registerErrorMessage(
+              "can't create a parallel sub mesh from a sequential mesh");
         }
-        auto ptr = make_shared<SubMesh<true>>(
-            ctx, SubMesh<true>::CreateFromDomain(*(this->parallel_mesh), ids));
-        this->parallel_submeshes.insert({k, ptr});
-        return {ptr.get()};
+        if (l == MeshDiscretization::Location::ON_BOUNDARIES) {
+          const auto psm = this->parallel_submeshes_on_boundaries.find(k);
+          if (psm != this->parallel_submeshes_on_boundaries.end()) {
+            return psm->second;
+          }
+        } else {
+          const auto psm = this->parallel_submeshes.find(k);
+          if (psm != this->parallel_submeshes.end()) {
+            return psm->second;
+          }
+        }
+        mfem::Array<size_type> ids(oids->data(), oids->size());
+        if (l == MeshDiscretization::Location::ON_BOUNDARIES) {
+          auto ptr = make_shared<SubMesh<true>>(
+              ctx,
+              SubMesh<true>::CreateFromBoundary(*(this->parallel_mesh), ids));
+          if (isInvalid(ptr)) {
+            return {};
+          }
+          this->parallel_submeshes_on_boundaries.insert({k, ptr});
+          return ptr;
+        } else {
+          auto ptr = make_shared<SubMesh<true>>(
+              ctx,
+              SubMesh<true>::CreateFromDomain(*(this->parallel_mesh), ids));
+          if (isInvalid(ptr)) {
+            return {};
+          }
+          this->parallel_submeshes.insert({k, ptr});
+          return ptr;
+        }
 #else  /* MFEM_USE_MPI */
         reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
       } else {
-        return ctx.registerErrorMessage(
-            "can't create a sequential sub mesh from a paralel mesh");
-        const auto psm = this->sequential_submeshes.find(k);
-        if (psm != this->sequential_submeshes.end()) {
-          return {psm->second.get()};
+        if (this->describesAParallelComputation()) {
+          return ctx.registerErrorMessage(
+              "can't create a sequential sub mesh from a paralel mesh");
         }
-        auto ptr = make_shared<SubMesh<false>>(
-            ctx,
-            SubMesh<false>::CreateFromDomain(*(this->sequential_mesh), ids));
-        this->sequential_submeshes.insert({k, ptr});
-        return {ptr.get()};
+        if (l == MeshDiscretization::Location::ON_BOUNDARIES) {
+          const auto psm = this->sequential_submeshes_on_boundaries.find(k);
+          if (psm != this->sequential_submeshes_on_boundaries.end()) {
+            return psm->second;
+          }
+        } else {
+          const auto psm = this->sequential_submeshes.find(k);
+          if (psm != this->sequential_submeshes.end()) {
+            return psm->second;
+          }
+        }
+        mfem::Array<size_type> ids(oids->data(), oids->size());
+        if (l == MeshDiscretization::Location::ON_BOUNDARIES) {
+          auto ptr = make_shared<SubMesh<false>>(
+              ctx, SubMesh<false>::CreateFromBoundary(*(this->sequential_mesh),
+                                                      ids));
+          if (isInvalid(ptr)) {
+            return {};
+          }
+          this->sequential_submeshes_on_boundaries.insert({k, ptr});
+          return ptr;
+        } else {
+          auto ptr = make_shared<SubMesh<false>>(
+              ctx,
+              SubMesh<false>::CreateFromDomain(*(this->sequential_mesh), ids));
+          if (isInvalid(ptr)) {
+            return {};
+          }
+          this->sequential_submeshes.insert({k, ptr});
+          return ptr;
+        }
       }
     }  // end of getSubMesh
 
@@ -1427,14 +1506,20 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     //! \brief parallel mesh
     std::shared_ptr<Mesh<true>> parallel_mesh;
-    //! \brief parallel submeshes
+    //! \brief parallel submeshes on materials
     std::map<AttributesList, std::shared_ptr<SubMesh<true>>> parallel_submeshes;
+    //! \brief parallel submeshes on boundaries
+    std::map<AttributesList, std::shared_ptr<SubMesh<true>>>
+        parallel_submeshes_on_boundaries;
 #endif /* MFEM_USE_MPI */
     //! \brief sequential mesh
     std::shared_ptr<Mesh<false>> sequential_mesh;
-    //! \brief parallel submeshes
+    //! \brief parallel submeshes on materials
     std::map<AttributesList, std::shared_ptr<SubMesh<false>>>
         sequential_submeshes;
+    //! \brief parallel submeshes on boundaries
+    std::map<AttributesList, std::shared_ptr<SubMesh<false>>>
+        sequential_submeshes_on_boundaries;
     //! \brief mapping between materials identifiers and names
     std::map<size_type, std::string> materials_names;
     //! \brief mapping between boundaries identifiers and names
@@ -1532,27 +1617,28 @@ namespace mfem_mgis {
     return this->pimpl->getMeshPointer(ctx, m);
   }  // end of getMutableParallelMeshPointer
 
-  OptionalReference<SubMesh<true>>
-  MeshDiscretization::getParallelMutableSubMeshReference(
-      Context& ctx, const Parameter& p) const noexcept {
-    return this->pimpl->getSubMesh<true>(ctx, p);
+  std::shared_ptr<SubMesh<true>>
+  MeshDiscretization::getParallelMutableSubMeshPointer(
+      Context& ctx, const Parameter& p, const Location l) const noexcept {
+    return this->pimpl->getSubMeshPointer<true>(ctx, p, l);
   }  // end of getParallelMutableSubMeshReference
 
-  OptionalReference<const SubMesh<true>> MeshDiscretization::getParallelSubMesh(
-      Context& ctx, const Parameter& p) const noexcept {
-    return this->pimpl->getSubMesh<true>(ctx, p);
+  std::shared_ptr<const SubMesh<true>>
+  MeshDiscretization::getParallelSubMeshPointer(
+      Context& ctx, const Parameter& p, const Location l) const noexcept {
+    return this->pimpl->getSubMeshPointer<true>(ctx, p, l);
   }  // end of getParallelSubMesh
 
-  OptionalReference<SubMesh<false>>
-  MeshDiscretization::getSequentialMutableSubMeshReference(
-      Context& ctx, const Parameter& p) const noexcept {
-    return this->pimpl->getSubMesh<false>(ctx, p);
+  std::shared_ptr<SubMesh<false>>
+  MeshDiscretization::getSequentialMutableSubMeshPointer(
+      Context& ctx, const Parameter& p, const Location l) const noexcept {
+    return this->pimpl->getSubMeshPointer<false>(ctx, p, l);
   }  // end of getSequentialMutableSubMeshReference
 
-  OptionalReference<const SubMesh<false>>
-  MeshDiscretization::getSequentialSubMesh(Context& ctx,
-                                           const Parameter& p) const noexcept {
-    return this->pimpl->getSubMesh<false>(ctx, p);
+  std::shared_ptr<const SubMesh<false>>
+  MeshDiscretization::getSequentialSubMeshPointer(
+      Context& ctx, const Parameter& p, const Location l) const noexcept {
+    return this->pimpl->getSubMeshPointer<false>(ctx, p, l);
   }  // end of getSequentialSubMesh
 
   bool MeshDiscretization::describesAParallelComputation() const noexcept {

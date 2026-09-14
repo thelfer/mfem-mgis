@@ -180,20 +180,22 @@ namespace mfem_mgis {
         const FiniteElementSpacesManager::
             GetFiniteElementSpaceOnSubMeshArguments& args) noexcept {
       const auto nc = args.number_of_components;
-      const auto oids =
-          this->mesh.getMaterialsIdentifiers(ctx, args.materials_identifiers);
-      if (isInvalid(oids)) {
-        return {};
-      }
-      if (oids->empty()) {
-        return {};
-      }
-      const auto n = static_cast<size_type>(oids->size());
-      if (n == getMaterialsAttributes(this->mesh).Size()) {
-        return this->template getFiniteElementSpace<parallel>(ctx, nc);
+      if (args.location == MeshDiscretization::Location::ON_MATERIALS) {
+        const auto oids =
+            this->mesh.getMaterialsIdentifiers(ctx, args.identifiers);
+        if (isInvalid(oids)) {
+          return {};
+        }
+        if (oids->empty()) {
+          return ctx.registerErrorMessage("empy list of material identifiers");
+        }
+        const auto n = static_cast<size_type>(oids->size());
+        if (n == getMaterialsAttributes(this->mesh).Size()) {
+          return this->template getFiniteElementSpace<parallel>(ctx, nc);
+        }
       }
       auto os = this->mesh.template getMutableSubMeshReference<parallel>(
-          ctx, args.materials_identifiers);
+          ctx, args.identifiers, args.location);
       if (isInvalid(os)) {
         return {};
       }
@@ -375,7 +377,8 @@ namespace mfem_mgis {
         std::map<size_type, std::shared_ptr<FiniteElementSpace<parallel>>>>
     getFiniteElementSpacesManager(Context& ctx, const Mesh<parallel>& m) {
       if (!this->mesh.manages(m)) {
-        return {};
+        return ctx.registerErrorMessage(
+            "mesh is not managed by the underlying mesh description");
       }
       if constexpr (parallel) {
         if (!this->mesh.describesAParallelComputation()) {
