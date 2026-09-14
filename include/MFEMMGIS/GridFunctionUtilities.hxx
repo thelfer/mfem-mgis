@@ -55,10 +55,8 @@ namespace mfem_mgis {
    *
    */
   template <bool parallel>
-  [[nodiscard]] std::unique_ptr<GridFunction<parallel>>
-  makeGridFunction(Context&,
-                   const FiniteElementDiscretization&,
-                   const size_type) noexcept;
+  [[nodiscard]] std::unique_ptr<GridFunction<parallel>> makeGridFunction(
+      Context&, const FiniteElementDiscretization&, const size_type) noexcept;
 
   // partial specialisations
   template <>
