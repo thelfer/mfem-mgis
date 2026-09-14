@@ -4,6 +4,8 @@ CONFIG_MK = $(MFEM_DIR)/share/mfem/config.mk
 MFEM_LIB_FILE = mfem_install_dir_not_specified
 -include $(CONFIG_MK)
 
+CXX = $(MFEM_CXX)
+
 CPPFLAGS= $(MFEM_CPPFLAGS) -Wall -W -pedantic
 MFRONT_FLAGS=
 
@@ -25,7 +27,8 @@ CXXFLAGS =  -O2 -std=c++20 # $(MFEM_CXXFLAGS)
 
 LDFLAGS= -L$(MFEMMGIS_DIR)/../../../lib  \
 	 -L$(MFrontGenericInterface_DIR)/../../../lib  \
-	 -lMFEMMGIS -lMFrontGenericInterface $(MFEM_LIBS) 
+	 -lMFEMMGIS -lMFrontGenericInterface $(MFEM_LIBS) \
+	 $(shell tfel-config --libs --material)
 
 all: UniaxialTensileTest src/libBehaviour.so 
 
