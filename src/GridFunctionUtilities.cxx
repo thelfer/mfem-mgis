@@ -27,29 +27,29 @@ namespace mfem_mgis {
   }  // end of getNumberOfComponents
 
   template <>
-  std::optional<MakeGridFunctionResult<true>> makeGridFunction<true>(
+  std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context& ctx,
       const FiniteElementDiscretization& fed,
       const size_type nc) noexcept {
 #ifdef MFEM_USE_MPI
+    if (!fed.describesAParallelComputation()) {
+      return ctx.registerErrorMessage(
+          "can't create a parallel grid function on a finite element "
+          "discretization describing a sequential computation");
+    }
     auto m = fed.getFiniteElementSpacesManager();
     auto fes = m.getFiniteElementSpace<true>(ctx, nc);
     if (isInvalid(fes)) {
       return {};
     }
-    auto f = make_unique<GridFunction<true>>(ctx, fes.get());
-    if (isInvalid(f)) {
-      return {};
-    }
-    return MakeGridFunctionResult<true>{.fe_space = std::move(fes),
-                                        .f = std::move(f)};
+    return make_unique<GridFunction<true>>(ctx, fes.get());
 #else  /* MFEM_USE_MPI */
     reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }    // end of makeGridFunction<true>
 
   template <>
-  std::optional<MakeGridFunctionResult<false>> makeGridFunction<false>(
+  std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context& ctx,
       const FiniteElementDiscretization& fed,
       const size_type nc) noexcept {
@@ -63,12 +63,7 @@ namespace mfem_mgis {
     if (isInvalid(fes)) {
       return {};
     }
-    auto f = make_unique<GridFunction<false>>(ctx, fes.get());
-    if (isInvalid(f)) {
-      return {};
-    }
-    return MakeGridFunctionResult<false>{.fe_space = std::move(fes),
-                                         .f = std::move(f)};
+    return make_unique<GridFunction<false>>(ctx, fes.get());
   }  // end of makeGridFunction<false>
 
 }  // end of namespace mfem_mgis
