@@ -1032,6 +1032,13 @@ namespace mfem_mgis {
           return ctx.registerErrorMessage(
               "can't create a parallel sub mesh from a sequential mesh");
         }
+        if (l == MeshDiscretization::Location::ON_MATERIALS) {
+          if (static_cast<size_type>(oids->size()) ==
+              this->parallel_mesh->attributes.Size()) {
+            return ctx.registerErrorMessage(
+                "can't create a parallel sub mesh on all materials");
+          }
+        }
         if (l == MeshDiscretization::Location::ON_BOUNDARIES) {
           const auto psm = this->parallel_submeshes_on_boundaries.find(k);
           if (psm != this->parallel_submeshes_on_boundaries.end()) {
@@ -1070,6 +1077,13 @@ namespace mfem_mgis {
         if (this->describesAParallelComputation()) {
           return ctx.registerErrorMessage(
               "can't create a sequential sub mesh from a paralel mesh");
+        }
+        if (l == MeshDiscretization::Location::ON_MATERIALS) {
+          if (static_cast<size_type>(oids->size()) ==
+              this->sequential_mesh->attributes.Size()) {
+            return ctx.registerErrorMessage(
+                "can't create a sequential sub mesh on all materials");
+          }
         }
         if (l == MeshDiscretization::Location::ON_BOUNDARIES) {
           const auto psm = this->sequential_submeshes_on_boundaries.find(k);

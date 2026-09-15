@@ -183,9 +183,6 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_imposed_pressure_test2(Elasticity)
 
-  # PartialQuadratureFunctionTest executable
-  add_tfel_test_executable(PartialQuadratureFunctionTest)
-
   # PartialQuadratureSpaceTest executable
   add_test_executable(PartialQuadratureSpaceTest)
 
@@ -215,6 +212,41 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_partial_quadrature_space_test(OrthotropicElasticity EquivalentStrain)
 
+  # MeshDiscretizationTest executable
+  add_tfel_test_executable(MeshDiscretizationTest)
+
+  # Helper function for MeshDiscretizationTest cases
+  function(add_mesh_discretization_test)
+    set(test "MeshDiscretizationTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh")
+    add_test(NAME ${test} COMMAND ./MeshDiscretizationTest ${params} "--parallel" "0")
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./MeshDiscretizationTest ${params} "--parallel" "1")
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_mesh_discretization_test()
+
+  # FiniteElementDiscretizationTest executable
+  add_tfel_test_executable(FiniteElementDiscretizationTest)
+
+  # Helper function for FiniteElementDiscretizationTest cases
+  function(add_finite_element_discretization_test)
+    set(test "FiniteElementDiscretizationTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh")
+    add_test(NAME ${test} COMMAND ./FiniteElementDiscretizationTest ${params} "--parallel" "0")
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./FiniteElementDiscretizationTest ${params} "--parallel" "1")
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_finite_element_discretization_test()
+
+  # PartialQuadratureFunctionTest executable
+  add_tfel_test_executable(PartialQuadratureFunctionTest)
+
   # Helper function for PartialQuadratureFunctionTest cases
   function(add_partial_quadrature_function_test behaviour
            internal_state_variable)
@@ -242,7 +274,6 @@ if(MFEM_MGIS_HAVE_TFEL)
   endfunction()
 
   add_partial_quadrature_function_test(OrthotropicElasticity EquivalentStrain)
-
 
   # StationaryNonLinearHeatTransferTest executable
   add_test_executable(StationaryNonLinearHeatTransferTest)

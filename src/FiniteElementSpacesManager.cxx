@@ -180,6 +180,10 @@ namespace mfem_mgis {
         const FiniteElementSpacesManager::
             GetFiniteElementSpaceOnSubMeshArguments& args) noexcept {
       const auto nc = args.number_of_components;
+      if (nc < 1) {
+        return ctx.registerErrorMessage("invalid number of components ('" +
+                                        std::to_string(nc) + "')");
+      }
       if (args.location == MeshDiscretization::Location::ON_MATERIALS) {
         const auto oids =
             this->mesh.getMaterialsIdentifiers(ctx, args.identifiers);
@@ -187,7 +191,7 @@ namespace mfem_mgis {
           return {};
         }
         if (oids->empty()) {
-          return ctx.registerErrorMessage("empy list of material identifiers");
+          return ctx.registerErrorMessage("empty list of material identifiers");
         }
         const auto n = static_cast<size_type>(oids->size());
         if (n == getMaterialsAttributes(this->mesh).Size()) {
