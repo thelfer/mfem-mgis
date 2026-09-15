@@ -78,12 +78,12 @@ namespace mfem_mgis {
     std::copy(this->macroscopic_gradients.begin(),
               this->macroscopic_gradients.end(), F0.begin());
     {  // computation of the mean value of the deformation gradient
+      auto F0v = std::span<real>(F0);
       const auto &ir = mfem::IntRules.Get(e.GetGeomType(), 0);
       const auto &ip = ir.IntPoint(0);
       tr.SetIntPoint(&ip);
       e.CalcPhysDShape(tr, dshape0);
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        auto F0v = std::span<real>(F0);
         this->updateGradients(F0v, u, dshape0, ni);
       }
     }

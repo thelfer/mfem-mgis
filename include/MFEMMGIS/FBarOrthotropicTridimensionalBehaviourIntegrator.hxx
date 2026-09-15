@@ -1,12 +1,12 @@
-#ifndef LIB_MFEM_MGIS_ISOTROPICPLANESTRESSSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATOR_HXX
-#define LIB_MFEM_MGIS_ISOTROPICPLANESTRESSSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATOR_HXX
+#ifndef LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
+#define LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
 
 #include <array>
 #include <mfem/linalg/densemat.hpp>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/BehaviourIntegratorTraits.hxx"
-#include "MFEMMGIS/StandardBehaviourIntegratorCRTPBase.hxx"
-#include "MFEMMGIS/PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase.hxx"
+#include "MFEMMGIS/FBarBehaviourIntegratorCRTPBase.hxx"
+#include "MFEMMGIS/TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase.hxx"
 
 namespace mfem_mgis {
 
@@ -14,17 +14,17 @@ namespace mfem_mgis {
   struct FiniteElementDiscretization;
 
   // forward declaration
-  struct IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator;
+  struct FBarOrthotropicTridimensionalBehaviourIntegrator;
 
   /*!
    * \brief partial specialisation of the `BehaviourIntegratorTraits`  * class
    * for the
-   * `IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator`
+   * `FBarOrthotropicTridimensionalBehaviourIntegrator`
    * behaviour integrator */
   template <>
   struct BehaviourIntegratorTraits<
-      IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator> {
-    static constexpr size_type unknownsSize = 2;
+      FBarOrthotropicTridimensionalBehaviourIntegrator> {
+    static constexpr size_type unknownsSize = 3;
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
     static constexpr bool
         gradientsComputationRequiresShapeFunctionsDerivatives = true;
@@ -34,25 +34,25 @@ namespace mfem_mgis {
 
   /*!
    */
-  struct MFEM_MGIS_EXPORT
-      IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator
-      : StandardBehaviourIntegratorCRTPBase<
-            IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>,
-        PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase {
+  struct MFEM_MGIS_EXPORT FBarOrthotropicTridimensionalBehaviourIntegrator
+      : FBarBehaviourIntegratorCRTPBase<
+            FBarOrthotropicTridimensionalBehaviourIntegrator,
+            Hypothesis::TRIDIMENSIONAL>,
+        TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase {
     /*!
      * \brief a constant value used for the computation of
      * symmetric tensors
      */
     static constexpr const auto icste = real{0.70710678118654752440};
-    //! \brief a dummy structure
-    struct RotationMatrix {};
+    //! \brief a simple alias
+    using RotationMatrix = std::array<real, 9u>;
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      * \param[in] b_ptr: behaviour
      */
-    IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator(
+    FBarOrthotropicTridimensionalBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
         std::unique_ptr<const Behaviour>);
@@ -65,51 +65,50 @@ namespace mfem_mgis {
 
     inline void rotateGradients(std::span<real>, const RotationMatrix &);
 
-    inline std::span<const real> rotateThermodynamicForces(
+    inline std::array<real, 9> rotateThermodynamicForces(
         std::span<const real>, const RotationMatrix &);
 
     inline void rotateTangentOperatorBlocks(std::span<real>,
                                             const RotationMatrix &);
-
+    //
     const mfem::IntegrationRule &getIntegrationRule(
         const mfem::FiniteElement &,
         const mfem::ElementTransformation &) const override;
-
     real getIntegrationPointWeight(
         mfem::ElementTransformation &,
         const mfem::IntegrationPoint &) const noexcept override;
-
     bool integrate(const mfem::FiniteElement &,
                    mfem::ElementTransformation &,
                    const mfem::Vector &,
                    const IntegrationType) override;
-
     void updateResidual(mfem::Vector &,
                         const mfem::FiniteElement &,
                         mfem::ElementTransformation &,
                         const mfem::Vector &) override;
-
     void updateJacobian(mfem::DenseMatrix &,
                         const mfem::FiniteElement &,
                         mfem::ElementTransformation &,
                         const mfem::Vector &) override;
-
     void computeInnerForces(mfem::Vector &,
                             const mfem::FiniteElement &,
                             mfem::ElementTransformation &) override;
+    [[nodiscard]] bool requiresCurrentSolutionForJacobianAssembly()
+        const noexcept override;
 
     //! \brief destructor
-    ~IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator()
-        override;
+    ~FBarOrthotropicTridimensionalBehaviourIntegrator() override;
 
    protected:
     //! \brief allow the CRTP base class the protected members
-    friend struct StandardBehaviourIntegratorCRTPBase<
-        IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>;
+    friend struct FBarBehaviourIntegratorCRTPBase<
+        FBarOrthotropicTridimensionalBehaviourIntegrator,
+        Hypothesis::TRIDIMENSIONAL>;
     /*!
-     * \return the integration rule for the given element and  * element
-     * transformation. \param[in] e: element \param[in] tr: element
-     * transformation
+     * \return the integration rule for the given element and element
+     * transformation.
+     *
+     * \param[in] e: element
+     * \param[in] tr: element transformation
      */
     static const mfem::IntegrationRule &selectIntegrationRule(
         const mfem::FiniteElement &, const mfem::ElementTransformation &);
@@ -120,10 +119,9 @@ namespace mfem_mgis {
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &, const size_type);
-
   };  // end of struct
-      // IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator
+      // FBarOrthotropicTridimensionalBehaviourIntegrator
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_ISOTROPICPLANESTRESSSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATOR_HXX*/
+#endif /* LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX*/

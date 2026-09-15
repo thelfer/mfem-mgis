@@ -175,7 +175,6 @@ namespace mfem_mgis {
     const auto& mesh = fed.getMesh<parallel>();
     auto r = L2ProjectionResult<parallel>{};
     if (*onAll) {
-      std::cerr << "HERE: " << &mesh << "\n";
       auto oresult = makeGridFunction<parallel>(ctx, fcts, mesh);
       if (isInvalid(oresult)) {
         return {};
@@ -194,7 +193,6 @@ namespace mfem_mgis {
             std::to_string(id) + "'");
       }
     }
-    std::cerr << "HERE2\n";
     r.submesh = fed.template getMutableSubMeshPointer<parallel>(
         ctx, Parameter::from(ids), MeshDiscretization::Location::ON_MATERIALS);
     if (isInvalid(r.submesh)) {
