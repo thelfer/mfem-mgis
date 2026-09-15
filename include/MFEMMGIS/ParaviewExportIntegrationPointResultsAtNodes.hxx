@@ -159,9 +159,11 @@ namespace mfem_mgis {
     };
     /*!
      * \brief create the sub mesh once the material identifiers are known
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      */
-    void createSubMesh(NonLinearEvolutionProblemImplementation<parallel> &);
+    void createSubMesh(Context &,
+                       NonLinearEvolutionProblemImplementation<parallel> &);
     //! \brief submesh defined when exporting data
     std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;
     //! \brief list of results defined through parameters

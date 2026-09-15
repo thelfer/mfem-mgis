@@ -33,7 +33,7 @@ namespace mfem_mgis {
     if (this->materials_identifiers.size() == all_mids.size()) {
       this->exporter.SetMesh(&(p.getMesh()));
     } else {
-      this->createSubMesh(p);
+      this->createSubMesh(ctx, p);
       this->exporter.SetMesh(this->submesh.get());
     }
     //
@@ -103,7 +103,7 @@ namespace mfem_mgis {
     if (this->materials_identifiers.size() == all_mids.size()) {
       this->exporter.SetMesh(&(p.getMesh()));
     } else {
-      this->createSubMesh(p);
+      this->createSubMesh(ctx, p);
       this->exporter.SetMesh(this->submesh.get());
     }
     for (const auto& d : ds) {
@@ -133,14 +133,14 @@ namespace mfem_mgis {
 
   template <bool parallel>
   void ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
-      createSubMesh(NonLinearEvolutionProblemImplementation<parallel>& p) {
-    /** Create Submesh using the material identifiers */
-    mfem::Array<int> mat_attributes;
-    for (const auto& mid : this->materials_identifiers) {
-      mat_attributes.Append(mid);
-    }
-    this->submesh = std::make_shared<SubMesh<parallel>>(
-        SubMesh<parallel>::CreateFromDomain(p.getMesh(), mat_attributes));
+      createSubMesh(Context& ctx,
+                    NonLinearEvolutionProblemImplementation<parallel>& p) {
+    auto or_raise = ctx.getThrowingFailureHandler();
+    auto fed = p.getFiniteElementDiscretization();
+    this->submesh = fed.template getMutableSubMeshPointer<parallel>(
+                        ctx, Parameter::from(this->materials_identifiers),
+                        MeshDiscretization::Location::ON_MATERIALS) |
+                    or_raise;
   }  // end of createSubMesh
 
   template <bool parallel>
