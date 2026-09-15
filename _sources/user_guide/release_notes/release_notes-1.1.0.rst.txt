@@ -283,18 +283,7 @@ Example of usage:
 
 .. code:: c++
 
-    CatchTimeSection(ctx, "Class::FunctionName");
-
-Refactoring of submesh and finite element space creation
---------------------------------------------------------
-
-The creation of submeshes and associated finite element spaces has been refactored to be handled through the :cxx:`MeshDiscretization` and :cxx:`FiniteElementSpacesManager` classes. This refactoring introduces the following new classes:
-
-- :cxx:`MeshDiscretization`: A fundamental class that handles the lifetime of meshes and provides utilities for managing mesh-related operations, including submesh creation based on material or boundary identifiers.
-- :cxx:`FiniteElementDiscretization`: Extends :cxx:`MeshDiscretization` to handle the lifetime of finite element collections and spaces, providing a high-level interface for creating and managing finite element spaces.
-- :cxx:`FiniteElementSpacesManager`: Manages similar finite element spaces (siblings) that share the same mesh and finite element collection but may have different vectorial dimensions, with automatic reuse of existing spaces.
-
-This refactoring improves code organization, reduces duplication, and provides a more consistent and flexible API for working with submeshes and finite element spaces.
+   CatchTimeSection(ctx, "Class::FunctionName");
 
 Issues fixed
 ============

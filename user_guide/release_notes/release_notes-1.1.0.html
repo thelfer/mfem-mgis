@@ -143,10 +143,9 @@
 <li><p><a class="reference internal" href="#physical-system-coupling-schemes-and-models" id="id18">Physical system, coupling schemes and models</a></p></li>
 <li><p><a class="reference internal" href="#line-search-like-handling-of-behaviour-integration-failures" id="id19">Line-search-like handling of behaviour integration failures</a></p></li>
 <li><p><a class="reference internal" href="#profiling-toolkit" id="id20">Profiling Toolkit</a></p></li>
-<li><p><a class="reference internal" href="#refactoring-of-submesh-and-finite-element-space-creation" id="id21">Refactoring of submesh and finite element space creation</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id22">Issues fixed</a></p></li>
+<li><p><a class="reference internal" href="#issues-fixed" id="id21">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="highlights">
@@ -283,7 +282,7 @@ to the gradients,</p></li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">IntegrationOperator</span><span class="o">::</span><span class="n">CONSISTENT_TANGENT</span></code>: the consistent
 tangent operator, defined by the derivative of the thermodynamic force
 with respect to the gradients at the end of the time step. See
-<span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../index.html#id5" title="J. C. Simo and R. L. Taylor. Consistent tangent operators for rate-independent elastoplasticity. Computer Methods in Applied Mechanics and Engineering, 48(1):101–118, 1985. URL: http://www.sciencedirect.com/science/article/pii/0045782585900702 (visited on 2014-04-02), doi:10.1016/0045-7825(85)90070-2.">ST85</a>]</span> for details.</p></li>
+<span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../index.html#id6" title="J. C. Simo and R. L. Taylor. Consistent tangent operators for rate-independent elastoplasticity. Computer Methods in Applied Mechanics and Engineering, 48(1):101–118, 1985. URL: http://www.sciencedirect.com/science/article/pii/0045782585900702 (visited on 2014-04-02), doi:10.1016/0045-7825(85)90070-2.">ST85</a>]</span> for details.</p></li>
 </ul>
 </section>
 </section>
@@ -291,7 +290,7 @@ with respect to the gradients at the end of the time step. See
 <section id="faltus-2026-regularization">
 <h3>Faltus 2026 regularization<a class="headerlink" href="#faltus-2026-regularization" title="Link to this heading"></a></h3>
 <p>The regularization proposed by Faltus et al. in the context of contact
-mechanics using a third medium is implemented here <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../index.html#id4" title="Ondřej Faltus, Marco Amato, and Martin Horák. Deformation gradient averaging regularization for third medium contact. URL: https://arxiv.org/abs/2603.13063v1 (visited on 2026-03-20).">FAH</a>]</span>. This
+mechanics using a third medium is implemented here <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../index.html#id5" title="Ondřej Faltus, Marco Amato, and Martin Horák. Deformation gradient averaging regularization for third medium contact. URL: https://arxiv.org/abs/2603.13063v1 (visited on 2026-03-20).">FAH</a>]</span>. This
 regularization only applies to finite strain behaviours. Currently, this
 regularization is only available for isotropic behaviours.</p>
 <p>This regularization adds a contribution to the standard variational
@@ -393,16 +392,6 @@ an output stream using the <code class="code highlight c++ docutils literal high
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CatchTimeSection</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"Class::FunctionName"</span><span class="p">);</span>
 </pre></div>
 </div>
-</section>
-<section id="refactoring-of-submesh-and-finite-element-space-creation">
-<h3>Refactoring of submesh and finite element space creation<a class="headerlink" href="#refactoring-of-submesh-and-finite-element-space-creation" title="Link to this heading"></a></h3>
-<p>The creation of submeshes and associated finite element spaces has been refactored to be handled through the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MeshDiscretization</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">FiniteElementSpacesManager</span></code> classes. This refactoring introduces the following new classes:</p>
-<ul class="simple">
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">MeshDiscretization</span></code>: A fundamental class that handles the lifetime of meshes and provides utilities for managing mesh-related operations, including submesh creation based on material or boundary identifiers.</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">FiniteElementDiscretization</span></code>: Extends <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MeshDiscretization</span></code> to handle the lifetime of finite element collections and spaces, providing a high-level interface for creating and managing finite element spaces.</p></li>
-<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">FiniteElementSpacesManager</span></code>: Manages similar finite element spaces (siblings) that share the same mesh and finite element collection but may have different vectorial dimensions, with automatic reuse of existing spaces.</p></li>
-</ul>
-<p>This refactoring improves code organization, reduces duplication, and provides a more consistent and flexible API for working with submeshes and finite element spaces.</p>
 </section>
 </section>
 <section id="issues-fixed">
