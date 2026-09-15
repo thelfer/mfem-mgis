@@ -639,8 +639,14 @@ namespace mfem_mgis {
       }
     }
     const auto& fespace = fed.getFiniteElementSpace<parallel>();
-    if (&(fespace) != src.FESpace()) {
-      return ctx.registerErrorMessage("unmatched finite element space");
+    if constexpr (parallel) {
+      if (!fed.template isSlibing<parallel>(*(src.ParFESpace()))) {
+        return ctx.registerErrorMessage("unmatched finite element space");
+      }
+    } else {
+      if (!fed.template isSlibing<parallel>(*(src.FESpace()))) {
+        return ctx.registerErrorMessage("unmatched finite element space");
+      }
     }
     if (dest.getNumberOfComponents() != src.VectorDim()) {
       return ctx.registerErrorMessage(
@@ -699,9 +705,7 @@ namespace mfem_mgis {
   }  // end of update
 
   template <bool parallel>
-  static std::optional<std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
-                                 std::unique_ptr<GridFunction<parallel>>>>
-  makeGridFunction_impl(
+  static std::unique_ptr<GridFunction<parallel>> makeGridFunction_impl(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
     if (fcts.empty()) {
@@ -715,14 +719,11 @@ namespace mfem_mgis {
     if (isInvalid(fespace)) {
       return {};
     }
-    auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
-    return std::make_pair(std::move(fespace), std::move(f));
+    return std::make_unique<GridFunction<parallel>>(fespace.get());
   }
 
   template <>
-  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<true>>,
-                          std::unique_ptr<GridFunction<true>>>>
-  makeGridFunction<true>(
+  std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
 #ifdef MFEM_USE_MPI
@@ -733,18 +734,14 @@ namespace mfem_mgis {
   }
 
   template <>
-  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<false>>,
-                          std::unique_ptr<GridFunction<false>>>>
-  makeGridFunction<false>(
+  std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
     return makeGridFunction_impl<false>(ctx, fcts);
   }
 
   template <bool parallel>
-  static std::optional<std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
-                                 std::unique_ptr<GridFunction<parallel>>>>
-  makeGridFunction_impl(
+  static std::unique_ptr<GridFunction<parallel>> makeGridFunction_impl(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<parallel>& mesh) {
@@ -754,23 +751,16 @@ namespace mfem_mgis {
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
-    const auto& m = fed.getMesh<parallel>();
-    auto& fes = fed.getFiniteElementSpace<parallel>();
-    if (&m == &mesh) {
-      return makeGridFunction_impl<parallel>(ctx, fcts);
-    } else {
-      auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
-          const_cast<Mesh<parallel>*>(&mesh), fes.FEColl(), n,
-          fes.GetOrdering());
-      auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
-      return std::make_pair(std::move(fespace), std::move(f));
+    auto fespace = fed.getFiniteElementSpacesManager()
+                       .template getFiniteElementSpace<parallel>(ctx, mesh, n);
+    if (isInvalid(fespace)) {
+      return {};
     }
+    return std::make_unique<GridFunction<parallel>>(fespace.get());
   }
 
   template <>
-  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<true>>,
-                          std::unique_ptr<GridFunction<true>>>>
-  makeGridFunction<true>(
+  std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<true>& mesh) {
@@ -782,9 +772,7 @@ namespace mfem_mgis {
   }
 
   template <>
-  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<false>>,
-                          std::unique_ptr<GridFunction<false>>>>
-  makeGridFunction<false>(
+  std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<false>& mesh) {
@@ -792,9 +780,7 @@ namespace mfem_mgis {
   }
 
   template <bool parallel>
-  static std::optional<std::pair<std::shared_ptr<FiniteElementSpace<parallel>>,
-                                 std::unique_ptr<GridFunction<parallel>>>>
-  makeGridFunction_impl(
+  static std::unique_ptr<GridFunction<parallel>> makeGridFunction_impl(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<parallel>& mesh) {
@@ -804,18 +790,16 @@ namespace mfem_mgis {
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
-    auto& fes = fed.getFiniteElementSpace<parallel>();
-    auto fespace = std::make_unique<FiniteElementSpace<parallel>>(
-        const_cast<SubMesh<parallel>*>(&mesh), fes.FEColl(), n,
-        fes.GetOrdering());
-    auto f = std::make_unique<GridFunction<parallel>>(fespace.get());
-    return std::make_pair(std::move(fespace), std::move(f));
+    auto fespace = fed.getFiniteElementSpacesManager()
+                       .template getFiniteElementSpace<parallel>(ctx, mesh, n);
+    if (isInvalid(fespace)) {
+      return {};
+    }
+    return std::make_unique<GridFunction<parallel>>(fespace.get());
   }
 
   template <>
-  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<true>>,
-                          std::unique_ptr<GridFunction<true>>>>
-  makeGridFunction<true>(
+  std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<true>& mesh) {
@@ -827,9 +811,7 @@ namespace mfem_mgis {
   }
 
   template <>
-  std::optional<std::pair<std::shared_ptr<FiniteElementSpace<false>>,
-                          std::unique_ptr<GridFunction<false>>>>
-  makeGridFunction<false>(
+  std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<false>& mesh) {

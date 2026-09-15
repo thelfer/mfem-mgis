@@ -181,7 +181,7 @@ namespace mfem_mgis {
           const std::string_view bid,
           std::function<real(const real)> prvalues)
       : finiteElementDiscretization(fed),
-        bids(fed->getBoundariesIdentifiers(bid)),
+        bids(getBoundariesIdentifiers(throwing, *fed, bid)),
         prfct(prvalues),
         nfi(new UniformImposedPressureNonlinearFormIntegrator) {}
 

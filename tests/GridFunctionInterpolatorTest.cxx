@@ -69,7 +69,7 @@ struct GridFunctionInterpolatorTest final : public tfel::tests::TestCase {
     //
     auto ox = makeGridFunction<parallel>(ctx, *ofed, 2);
     TFEL_TESTS_ASSERT(isValid(ox));
-    m.SetNodalGridFunction(ox->f.get());
+    m.SetNodalGridFunction(ox.get());
     //
     mfem::FindPointsGSLIB finder;
     finder.Setup(m);
@@ -91,7 +91,7 @@ struct GridFunctionInterpolatorTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(codes[2] == 2);
     //
     auto x_values = mfem::Vector(4);
-    finder.Interpolate(*(ox->f), x_values);
+    finder.Interpolate(*ox, x_values);
     if (fespace.GetOrdering() == mfem::Ordering::byNODES) {
       for (size_type i = 0; i != 2; ++i) {
         TFEL_TESTS_CHECK(std::abs(x_values[i] - pts[2 * i]) < 1e-14);
@@ -129,18 +129,12 @@ struct GridFunctionInterpolatorTest final : public tfel::tests::TestCase {
     //
     auto ocoords = makeGridFunction<parallel>(ctx, *ofed, 2);
     TFEL_TESTS_ASSERT(isValid(ocoords));
-    m.SetNodalGridFunction(ocoords->f.get());
+    m.SetNodalGridFunction(ocoords.get());
     //
     const auto pts = std::vector<Point<2>>{{0.583, 0.2}, {0.583, 0.1}};
     auto ointerpolator = construct<GridFunctionInterpolator>(ctx, *ofed, pts);
     TFEL_TESTS_ASSERT(isValid(ointerpolator));
-    const auto ovalues = ointerpolator->interpolate(ctx, *(ocoords->f));
-    if constexpr (parallel) {
-      std::cerr << "fespace2: " << ocoords->f->ParFESpace() << '\n';
-    } else {
-      std::cerr << "fespace2: " << ocoords->f->FESpace() << '\n';
-    }
-    std::cerr << "error: " << ctx.getErrorMessage() << '\n';
+    const auto ovalues = ointerpolator->interpolate(ctx, *ocoords);
     TFEL_TESTS_ASSERT(isValid(ovalues));
     TFEL_TESTS_CHECK_EQUAL(ovalues->getNumberOfRows(), 2);
     TFEL_TESTS_CHECK_EQUAL(ovalues->getNumberOfColumns(), 2);

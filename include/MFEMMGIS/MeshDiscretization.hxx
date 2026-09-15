@@ -20,12 +20,36 @@
 
 namespace mfem_mgis {
 
-  // forward declaration
+  // forward declarations
   struct Parameter;
   struct Parameters;
 
   //! \brief a simple class used to handle the life time of the mesh
   struct MFEM_MGIS_EXPORT [[nodiscard]] MeshDiscretization {
+    //! \brief structure holding a list of attributes to be used as a key.
+    struct AttributesList {
+      /*!
+       * \brief constructor
+       * \param[ids] ids: list of attributes
+       */
+      AttributesList(const std::vector<size_type>& ids) : attributes(ids) {
+        std::sort(this->attributes.begin(), this->attributes.end());
+      }  // end of AttributesList
+      //! \brief comparison operator
+      [[nodiscard]] bool operator<(const AttributesList& rhs) const noexcept {
+        return this->attributes < rhs.attributes;
+      }  // end of operator<
+      [[nodiscard]] const std::vector<size_type>& getAttributes()
+          const noexcept {
+        return this->attributes;
+      }
+
+     private:
+      //! \brief list of attributes
+      std::vector<size_type> attributes;
+    };
+    //! \brief location on which submeshes can be defined
+    enum struct Location { ON_MATERIALS, ON_BOUNDARIES };
     //! \brief string associated to the `Parallel` parameter
     static const char* const Parallel;
     //! \brief string associated to the `MeshFileName` parameter
@@ -44,10 +68,6 @@ namespace mfem_mgis {
     static const char* const NumberOfUniformRefinements;
     //! \brief string associated to the `VerbosityLevel` parameter
     static const char* const GeneralVerbosityLevel;
-    //!
-    [[noreturn]] static void reportInvalidParallelMesh();
-    //!
-    [[noreturn]] static void reportInvalidSequentialMesh();
     //!
     [[nodiscard]] static std::vector<std::string> getParametersList() noexcept;
     /*!
@@ -81,6 +101,168 @@ namespace mfem_mgis {
     //! \brief copy constructor
     MeshDiscretization(const MeshDiscretization&) noexcept;
     /*!
+     * \return if the given mesh is managed by this mesh discretization
+     * \param[in] m: parallel mesh
+     */
+    bool manages(const Mesh<true>&) const noexcept;
+    /*!
+     * \return if the given mesh is managed by this mesh discretization
+     * \param[in] m: sequential mesh
+     */
+    bool manages(const Mesh<false>&) const noexcept;
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * materials of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
+        Context& ctx, const Mesh<true>&) const noexcept;
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * materials of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
+        Context& ctx, const Mesh<false>&) const noexcept;
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * boundaries of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
+        Context& ctx, const Mesh<true>&) const noexcept;
+    /*!
+     * \return if the given mesh is defined on (a subset of) the
+     * boundaries of the main mesh.
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     *
+     * \note this methods fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
+        Context& ctx, const Mesh<false>&) const noexcept;
+    /*!
+     * \return a pointer to the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    std::shared_ptr<SubMesh<parallel>> getMutableSubMeshPointer(
+        Context&, const Parameter&, const Location) const noexcept;
+    /*!
+     * \return a pointer to the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    std::shared_ptr<SubMesh<parallel>> getSubMeshPointer(
+        Context&, const Parameter&, const Location) noexcept;
+    /*!
+     * \return a pointer to the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    std::shared_ptr<const SubMesh<parallel>> getSubMeshPointer(
+        Context&, const Parameter&, const Location) const noexcept;
+    /*!
+     * \return the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    OptionalReference<SubMesh<parallel>> getMutableSubMeshReference(
+        Context&, const Parameter&, const Location) const noexcept;
+    /*!
+     * \return the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    OptionalReference<SubMesh<parallel>> getSubMesh(Context&,
+                                                    const Parameter&,
+                                                    const Location) noexcept;
+    /*!
+     * \return the sub mesh associated with the given ids
+     * \tparam parallel: whether to get the parallel sub mesh or not
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    template <bool parallel>
+    OptionalReference<const SubMesh<parallel>> getSubMesh(
+        Context&, const Parameter&, const Location) const noexcept;
+    /*!
+     * \return the shared pointer associated with the given mesh, if managed by
+     * this mesh discretization
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    template <bool parallel>
+    std::shared_ptr<Mesh<parallel>> getMutableMeshPointer(
+        Context&, const Mesh<parallel>&) const noexcept;
+    /*!
+     * \return the shared pointer associated with the given mesh, if managed by
+     * this mesh discretization
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    template <bool parallel>
+    std::shared_ptr<Mesh<parallel>> getMeshPointer(
+        Context&, const Mesh<parallel>&) noexcept;
+    /*!
+     * \return the shared pointer associated with the given mesh, if managed by
+     * this mesh discretization
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     */
+    template <bool parallel>
+    std::shared_ptr<const Mesh<parallel>> getMeshPointer(
+        Context&, const Mesh<parallel>&) const noexcept;
+    /*!
      * \brief set material names
      * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
@@ -96,11 +278,10 @@ namespace mfem_mgis {
         Context&, const std::map<size_type, std::string>&) noexcept;
     /*!
      * \return the material name associated with the given identifier, if it is
-     * defined. If not defined, an empty string is returned
-     *
+     * defined. If the identifier exists but has no name, an empty string is
+     * returned.
      * \param[in, out] ctx: execution context
      * \param[in] id: material identifier
-     *
      * \note the method only fails if the material identifier is not defined in
      * the mesh
      */
@@ -108,13 +289,12 @@ namespace mfem_mgis {
         Context&, const size_type) const noexcept;
     /*!
      * \return the boundary name associated with the given identifier, if it is
-     * defined. If not defined, an empty string is returned
-     *
+     * defined. If the identifier exists but has no name, an empty string is
+     * returned.
      * \param[in, out] ctx: execution context
      * \param[in] id: boundary identifier
-     *
-     * \note the method only fails is the boundary identifier is defined in the
-     * mesh
+     * \note the method only fails if the boundary identifier is not defined in
+     * the mesh
      */
     [[nodiscard]] std::optional<std::string> getBoundaryName(
         Context&, const size_type) const noexcept;
@@ -125,7 +305,7 @@ namespace mfem_mgis {
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
         Context&, const Parameter&) const noexcept;
     /*!
-     * \return the material identifier by the given parameter.
+     * \return the boundary identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */
     [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
@@ -164,31 +344,48 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::optional<std::vector<size_type>>
     getBoundariesIdentifiers(Context&, const Parameter&) const noexcept;
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] Mesh<parallel>& getMesh();
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] const Mesh<parallel>& getMesh() const;
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMeshPointer();
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] std::shared_ptr<const Mesh<parallel>> getMeshPointer() const;
-    //! \return the mesh
-    template <bool parallel>
-    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMutableMeshPointer() const;
-    //! \return if this object is built to run parallel computations
-    [[nodiscard]] bool describesAParallelComputation() const;
     /*!
-     * \brief return the names of the materials (and their mapping with their
+     * \return the mesh
+     * \tparam parallel: whether to get the parallel mesh or not
+     */
+    template <bool parallel>
+    [[nodiscard]] Mesh<parallel>& getMesh() noexcept;
+    /*!
+     * \return the mesh
+     * \tparam parallel: whether to get the parallel mesh or not
+     */
+    template <bool parallel>
+    [[nodiscard]] const Mesh<parallel>& getMesh() const noexcept;
+    /*!
+     * \return a pointer to the mesh
+     * \tparam parallel: whether to get the parallel mesh or not
+     */
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMeshPointer() noexcept;
+    /*!
+     * \return a pointer to the mesh
+     * \tparam parallel: whether to get the parallel mesh or not
+     */
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<const Mesh<parallel>> getMeshPointer()
+        const noexcept;
+    /*!
+     * \return a mutable pointer to the mesh
+     * \tparam parallel: whether to get the parallel mesh or not
+     */
+    template <bool parallel>
+    [[nodiscard]] std::shared_ptr<Mesh<parallel>> getMutableMeshPointer()
+        const noexcept;
+    //! \return if this object is built to run parallel computations
+    [[nodiscard]] bool describesAParallelComputation() const noexcept;
+    /*!
+     * \return the names of the materials (and their mapping with their
      * identifiers
      */
     [[nodiscard]] std::map<size_type, std::string> getMaterialsNames()
         const noexcept;
     /*!
-     * \brief return the names of the boundaries (and their mapping with their
+     * \return the names of the boundaries (and their mapping with their
      * identifiers
      */
     [[nodiscard]] std::map<size_type, std::string> getBoundariesNames()
@@ -232,6 +429,7 @@ namespace mfem_mgis {
                                     const std::vector<Point<3>>&) noexcept;
     /*!
      * \return the point with the given name
+     * \tparam N: space dimension (2 or 3)
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the point
      */
@@ -240,7 +438,8 @@ namespace mfem_mgis {
         [[nodiscard]] std::optional<Point<N>> getPoint(
             Context&, std::string_view) const noexcept;
     /*!
-     * \return the registred points
+     * \return the registered points
+     * \tparam N: space dimension (2 or 3)
      * \param[in, out] ctx: execution context
      */
     template <size_type N>
@@ -249,7 +448,8 @@ namespace mfem_mgis {
             const std::map<std::string, Point<N>, std::less<>>>  //
         getPoints(Context&) const noexcept;
     /*!
-     * \return the registred points sets
+     * \return the registered points sets
+     * \tparam N: space dimension (2 or 3)
      * \param[in, out] ctx: execution context
      */
     template <size_type N>
@@ -258,8 +458,10 @@ namespace mfem_mgis {
             const std::map<std::string, std::vector<Point<N>>, std::less<>>>  //
         getPointsSets(Context&) const noexcept;
     /*!
-     * \return the registred set of points
+     * \return the points set with the given name
+     * \tparam N: space dimension (2 or 3)
      * \param[in, out] ctx: execution context
+     * \param[in] n: name of the points set
      */
     template <size_type N>
     requires((N == 2) || (N == 3))                                    //
@@ -271,79 +473,98 @@ namespace mfem_mgis {
     ~MeshDiscretization();
 
    protected:
-    /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    [[deprecated]] void setMaterialsNames(
-        const std::map<size_type, std::string>&);
-    /*!
-     * \brief set material names
-     * \param[in] ids: mapping between mesh identifiers and names
-     */
-    [[deprecated]] void setBoundariesNames(
-        const std::map<size_type, std::string>&);
     //
+    friend bool getInformation<MeshDiscretization>(
+        Context&, std::ostream&, const MeshDiscretization&) noexcept;
+
+    //! \return a mutable pointer to the underlying parallel mesh
+    [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer()
+        const noexcept;
+    //! \return a mutable pointer to the underlying sequential mesh
+    [[nodiscard]] std::shared_ptr<Mesh<false>> getMutableSequentialMeshPointer()
+        const noexcept;
+    //! \return a pointer to the underlying parallel mesh
+    [[nodiscard]] std::shared_ptr<const Mesh<true>> getParallelMeshPointer()
+        const noexcept;
+    //! \return a pointer to the underlying sequential mesh
+    [[nodiscard]] std::shared_ptr<const Mesh<false>> getSequentialMeshPointer()
+        const noexcept;
     /*!
-     * \return the material identifier by the given parameter.
-     * \note The parameter may hold an integer or a string.
+     * \return a mutable pointer to the underlying parallel mesh
+     * \param[in, out] ctx: execution context
      */
-    [[deprecated, nodiscard]] size_type getMaterialIdentifier(
-        const Parameter&) const;
+    [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer(
+        Context&, const Mesh<true>&) const noexcept;
     /*!
-     * \return the material identifier by the given parameter.
-     * \note The parameter may hold an integer or a string.
+     * \return a mutable pointer to the underlying sequential mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
      */
-    [[deprecated, nodiscard]] size_type getBoundaryIdentifier(
-        const Parameter&) const;
+    [[nodiscard]] std::shared_ptr<Mesh<false>> getMutableSequentialMeshPointer(
+        Context&, const Mesh<false>&) const noexcept;
     /*!
-     * \return the list of materials identifiers described by the given
-     * parameter.
-     *
-     * \note The parameter may hold:
-     *
-     * - an integer
-     * - a string
-     * - a vector of parameters which must be either strings and integers.
-     *
-     * Integers are directly intepreted as materials identifiers.
-     *
-     * Strings are intepreted as regular expressions which allows the selection
-     * of materials by names.
+     * \return a pointer to the underlying parallel mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
      */
-    [[deprecated, nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter&) const;
+    [[nodiscard]] std::shared_ptr<const Mesh<true>> getParallelMeshPointer(
+        Context&, const Mesh<true>&) const noexcept;
     /*!
-     * \return the list of boundaries identifiers described by the given
-     * parameter.
-     *
-     * \note The parameter may hold:
-     *
-     * - an integer
-     * - a string
-     * - a vector of parameters which must be either strings and integers.
-     *
-     * Integers are directly intepreted as boundaries identifiers.
-     *
-     * Strings are intepreted as regular expressions which allows the selection
-     * of boundaries by names.
+     * \return a pointer to the underlying sequential mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
      */
-    [[deprecated, nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter&) const;
+    [[nodiscard]] std::shared_ptr<const Mesh<false>> getSequentialMeshPointer(
+        Context&, const Mesh<false>&) const noexcept;
     /*!
-     * \brief set names of materials
-     * \param[in] 1: dummy parameter indicated that this function may throw
-     * \param[in] ids: mapping between mesh identifiers and names
+     * \return the parallel sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
      */
-    void setMaterialsNames(attributes::Throwing,
-                           const std::map<size_type, std::string>&);
+    std::shared_ptr<const SubMesh<true>> getParallelSubMeshPointer(
+        Context&, const Parameter&, const Location) const noexcept;
     /*!
-     * \brief set names of boundaries
-     * \param[in] 1: dummy parameter indicated that this function may throw
-     * \param[in] ids: mapping between mesh identifiers and names
+     * \return the parallel sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
      */
-    void setBoundariesNames(attributes::Throwing,
-                            const std::map<size_type, std::string>&);
+    std::shared_ptr<SubMesh<true>> getParallelMutableSubMeshPointer(
+        Context&, const Parameter&, const Location) const noexcept;
+    /*!
+     * \return the sequential sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    std::shared_ptr<const SubMesh<false>> getSequentialSubMeshPointer(
+        Context&, const Parameter&, const Location) const noexcept;
+    /*!
+     * \return the sequential sub mesh associated with the given ids
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter containing the list of ids
+     * \param[in] l: location on which the submesh is built (materials or
+     * boundaries)
+     *
+     * \note the parameter may contain a integer, a string, a vector of
+     * parameters which are either string or integers.
+     */
+    std::shared_ptr<SubMesh<false>> getSequentialMutableSubMeshPointer(
+        Context&, const Parameter&, const Location) const noexcept;
+
 #ifdef MGIS_HAVE_TFEL
     /*!
      * \return the registred points in 2D
@@ -402,28 +623,11 @@ namespace mfem_mgis {
     [[nodiscard]] OptionalReference<const std::vector<Point<3>>> getPointsSet3D(
         Context&, std::string_view) const noexcept;
 #endif /* MGIS_HAVE_TFEL */
-
-#ifdef MFEM_USE_MPI
-    //! \brief parallel mesh
-    std::shared_ptr<Mesh<true>> parallel_mesh;
-#endif /* MFEM_USE_MPI */
-    //! \brief sequential mesh
-    std::shared_ptr<Mesh<false>> sequential_mesh;
-    //! \brief mapping between materials identifiers and names
-    std::map<size_type, std::string> materials_names;
-    //! \brief mapping between materials boundaries and names
-    std::map<size_type, std::string> boundaries_names;
-#ifdef MGIS_HAVE_TFEL
-    //! \brief points declared by the user, only valid for a 2D mesh
-    std::map<std::string, Point<2>, std::less<>> points2D;
-    //! \brief points declared by the user, only valid for a 3D mesh
-    std::map<std::string, Point<3>, std::less<>> points3D;
-    //! \brief points set declared by the user, only valid for a 2D mesh
-    std::map<std::string, std::vector<Point<2>>, std::less<>> pointsSets2D;
-    //! \brief points set declared by the user, only valid for a 3D mesh
-    std::map<std::string, std::vector<Point<3>>, std::less<>> pointsSets3D;
-#endif /* MGIS_HAVE_TFEL */
-  };   // end of MeshDiscretization
+    //! \brief internal structure to implement the pimpl idiom
+    struct Implementation;
+    //! \brief pointer to the internal implementation
+    std::shared_ptr<Implementation> pimpl;
+  };  // end of MeshDiscretization
 
   /*!
    * \brief compare two mesh discretisations to see if they point to the same
@@ -449,23 +653,66 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT [[nodiscard]] bool operator!=(
       const MeshDiscretization&, const MeshDiscretization&) noexcept;
   /*!
-   * \brief return the space dimension
+   * \return the space dimension
    * \param[in] m: mesh discretization
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getSpaceDimension(
-      const MeshDiscretization&);
+      const MeshDiscretization&) noexcept;
   /*!
-   * \brief return the list of materials attributes
+   * \return the list of materials attributes
    * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
-  getMaterialsAttributes(const MeshDiscretization&);
+  getMaterialsAttributes(const MeshDiscretization&) noexcept;
   /*!
-   * \brief return the list of boundaries attributes
+   * \return the list of boundaries attributes
    * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
-  getBoundariesAttributes(const MeshDiscretization&);
+  getBoundariesAttributes(const MeshDiscretization&) noexcept;
+
+  /*!
+   * \return the list of materials identifiers described by the given
+   * parameter.
+   * \param[in] throwing: throwing attributes
+   * \param[in] m: mesh discretization
+   * \param[in] p: parameter
+   *
+   * \note The parameter may hold:
+   *
+   * - an integer
+   * - a string
+   * - a vector of parameters which must be either strings and integers.
+   *
+   * Integers are directly intepreted as materials identifiers.
+   *
+   * Strings are intepreted as regular expressions which allows the selection
+   * of materials by names.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
+      attributes::Throwing, const MeshDiscretization&, const Parameter&);
+  /*!
+   * \return the list of boundaries identifiers described by the given
+   * parameter.
+   * \param[in] throwing: throwing attributes
+   * \param[in] m: mesh discretization
+   * \param[in] p: parameter
+   *
+   * \note The parameter may hold:
+   *
+   * - an integer
+   * - a string
+   * - a vector of parameters which must be either strings and integers.
+   *
+   * Integers are directly intepreted as boundaries identifiers.
+   *
+   * Strings are intepreted as regular expressions which allows the selection
+   * of boundaries by names.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<size_type>
+  getBoundariesIdentifiers(attributes::Throwing,
+                           const MeshDiscretization&,
+                           const Parameter&);
 
   /*!
    * \brief display information about a mesh discretization

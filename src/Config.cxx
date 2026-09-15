@@ -10,6 +10,7 @@
 #ifdef MFEM_USE_MPI
 #include "mpi.h"
 #endif /* MFEM_USE_MPI */
+#include "mfem/general/error.hpp"
 #include "mfem/general/optparser.hpp"
 #include "mfem/general/communication.hpp"
 #ifdef MFEM_USE_PETSC
@@ -138,7 +139,7 @@ namespace mfem_mgis {
   Finalizer::~Finalizer() { this->finalize(); }
 
   [[noreturn]] void reportUnsupportedParallelComputations() {
-    raise(
+    mfem::mfem_error(
         "reportUnsupportedParallelComputations: "
         "unsupported parallel computations");
   }  // end of reportUnsupportedParallelComputations

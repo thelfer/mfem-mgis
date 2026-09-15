@@ -77,12 +77,11 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
     const auto v1 = qf.getIntegrationPointValue(i);
     const auto v2 = qf2->getIntegrationPointValue(i);
     if (std::abs(v1 - v2) > 2e-2) {
-      ctx.registerErrorMessage("invalid value at integration point '" +
-                               std::to_string(i) + "' (computed " +
-                               std::to_string(v1) + ", expected " +
-                               std::to_string(v2) + ", error " +
-                               std::to_string(std::abs(v1 - v2)) + ")");
-      return false;
+      return ctx.registerErrorMessage("invalid value at integration point '" +
+                                      std::to_string(i) + "' (computed " +
+                                      std::to_string(v1) + ", expected " +
+                                      std::to_string(v2) + ", error " +
+                                      std::to_string(std::abs(v1 - v2)) + ")");
     }
   }
   // back on nodes
@@ -162,14 +161,13 @@ bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
     const auto v2 = qf2->getIntegrationPointValue(i);
     const auto v3 = qf3->getIntegrationPointValue(i);
     if (std::max(std::abs(v1[0] - v2), std::abs(v1[1] - v3)) > 2e-2) {
-      ctx.registerErrorMessage(
+      return ctx.registerErrorMessage(
           "invalid value at integration point '" + std::to_string(i) +
           "' (computed (" + std::to_string(v1[0]) + ", " +
           std::to_string(v1[1]) + "), expected (" + std::to_string(v2) + +", " +
           std::to_string(v3) + "), error " +
           std::to_string(std::max(std::abs(v1[0] - v2), std::abs(v1[1] - v3))) +
           ")");
-      return false;
     }
   }
   // back on nodes
