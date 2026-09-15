@@ -33,7 +33,7 @@ namespace mfem_mgis {
     if (this->materials_identifiers.size() == all_mids.size()) {
       this->exporter.SetMesh(&(p.getMesh()));
     } else {
-      this->createSubMesh(p);
+      this->createSubMesh(ctx, p);
       this->exporter.SetMesh(this->submesh.get());
     }
     //
@@ -54,8 +54,7 @@ namespace mfem_mgis {
         if (isInvalid(or2)) {
           raise(ctx.getErrorMessage());
         }
-        r.fespace = std::move(or2->first);
-        r.f = std::move(or2->second);
+        r.f = std::move(or2);
       } else {
         auto or2 = makeGridFunction<parallel>(
             ctx, this->getPartialQuadratureFunctionViews(p, r),
@@ -63,8 +62,7 @@ namespace mfem_mgis {
         if (isInvalid(or2)) {
           raise(ctx.getErrorMessage());
         }
-        r.fespace = std::move(or2->first);
-        r.f = std::move(or2->second);
+        r.f = std::move(or2);
       }
       // registring
       this->exporter.RegisterField(r.name, r.f.get());
@@ -105,7 +103,7 @@ namespace mfem_mgis {
     if (this->materials_identifiers.size() == all_mids.size()) {
       this->exporter.SetMesh(&(p.getMesh()));
     } else {
-      this->createSubMesh(p);
+      this->createSubMesh(ctx, p);
       this->exporter.SetMesh(this->submesh.get());
     }
     for (const auto& d : ds) {
@@ -118,16 +116,14 @@ namespace mfem_mgis {
         if (isInvalid(ores)) {
           raise(ctx.getErrorMessage());
         }
-        std::tie(fcts->grid_function_fespace, fcts->grid_function) =
-            std::move(*ores);
+        fcts->grid_function = std::move(ores);
       } else {
         auto ores =
             makeGridFunction<parallel>(ctx, fcts->functions, *(this->submesh));
         if (isInvalid(ores)) {
           raise(ctx.getErrorMessage());
         }
-        std::tie(fcts->grid_function_fespace, fcts->grid_function) =
-            std::move(*ores);
+        fcts->grid_function = std::move(ores);
       }
       // registring
       this->exporter.RegisterField(fcts->name, fcts->grid_function.get());
@@ -137,14 +133,14 @@ namespace mfem_mgis {
 
   template <bool parallel>
   void ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
-      createSubMesh(NonLinearEvolutionProblemImplementation<parallel>& p) {
-    /** Create Submesh using the material identifiers */
-    mfem::Array<int> mat_attributes;
-    for (const auto& mid : this->materials_identifiers) {
-      mat_attributes.Append(mid);
-    }
-    this->submesh = std::make_shared<SubMesh<parallel>>(
-        SubMesh<parallel>::CreateFromDomain(p.getMesh(), mat_attributes));
+      createSubMesh(Context& ctx,
+                    NonLinearEvolutionProblemImplementation<parallel>& p) {
+    auto or_raise = ctx.getThrowingFailureHandler();
+    auto fed = p.getFiniteElementDiscretization();
+    this->submesh = fed.template getMutableSubMeshPointer<parallel>(
+                        ctx, Parameter::from(this->materials_identifiers),
+                        MeshDiscretization::Location::ON_MATERIALS) |
+                    or_raise;
   }  // end of createSubMesh
 
   template <bool parallel>

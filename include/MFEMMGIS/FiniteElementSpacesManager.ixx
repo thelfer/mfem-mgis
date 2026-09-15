@@ -22,6 +22,31 @@ namespace mfem_mgis {
     }
   }  // end of getFiniteElementSpace
 
+  template <bool parallel>
+  std::shared_ptr<FiniteElementSpace<parallel>>
+  FiniteElementSpacesManager::getFiniteElementSpace(
+      Context& ctx,
+      const Mesh<parallel>& m,
+      const size_type nc) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelFiniteElementSpace(ctx, m, nc);
+    } else {
+      return this->getSequentialFiniteElementSpace(ctx, m, nc);
+    }
+  }  // end of getFiniteElementSpace
+
+  template <bool parallel>
+  std::shared_ptr<FiniteElementSpace<parallel>>
+  FiniteElementSpacesManager::getFiniteElementSpace(
+      Context& ctx,
+      const GetFiniteElementSpaceOnSubMeshArguments& args) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelFiniteElementSpace(ctx, args);
+    } else {
+      return this->getSequentialFiniteElementSpace(ctx, args);
+    }
+  }  // end of getFiniteElementSpace
+
 }  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_FINITEELEMENTSPACESMANAGER_IXX */

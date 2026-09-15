@@ -176,7 +176,15 @@ namespace mfem_mgis {
    * \brief return the total number of unknowns
    * \param[in] fed: finite element discretization
    */
-  MFEM_MGIS_EXPORT size_type getTrueVSize(const FiniteElementDiscretization&);
+  MFEM_MGIS_EXPORT size_type
+  getVSize(const FiniteElementDiscretization&) noexcept;
+
+  /*!
+   * \brief return the total number of unknowns
+   * \param[in] fed: finite element discretization
+   */
+  MFEM_MGIS_EXPORT size_type
+  getTrueVSize(const FiniteElementDiscretization&) noexcept;
 
   /*!
    * \brief display information about a finite element discretization

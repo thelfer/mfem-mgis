@@ -154,16 +154,16 @@ namespace mfem_mgis {
    private:
     struct MaterialIntegrationPointResult
         : public MaterialIntegrationPointResultBase {
-      //! \brief finite element space
-      std::shared_ptr<FiniteElementSpace<parallel>> fespace;
       //! \brief grid function
       std::unique_ptr<GridFunction<parallel>> f;
     };
     /*!
      * \brief create the sub mesh once the material identifiers are known
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      */
-    void createSubMesh(NonLinearEvolutionProblemImplementation<parallel> &);
+    void createSubMesh(Context &,
+                       NonLinearEvolutionProblemImplementation<parallel> &);
     //! \brief submesh defined when exporting data
     std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;
     //! \brief list of results defined through parameters
@@ -179,8 +179,6 @@ namespace mfem_mgis {
       std::string name;
       //! \brief list of exported function name
       std::vector<ImmutablePartialQuadratureFunctionView> functions;
-      //! \brief finite element space used to define the exported grid function
-      std::shared_ptr<FiniteElementSpace<parallel>> grid_function_fespace;
       //! \brief exported grid functions corresponding to the exported functions
       std::unique_ptr<GridFunction<parallel>> grid_function;
     };

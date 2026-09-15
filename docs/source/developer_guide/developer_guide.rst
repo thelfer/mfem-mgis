@@ -14,3 +14,4 @@ The `doxygen` documentation is available on `this page <https://thelfer.github.i
    benchmark.rst
    contributing_guide.rst
    contributors.rst
+   main_classes/main_classes.rst

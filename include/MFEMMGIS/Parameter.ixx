@@ -10,6 +10,26 @@
 
 namespace mfem_mgis {
 
+  template <ParameterValueConcept ParameterType>
+  Parameter Parameter::from(const std::vector<ParameterType>& values) noexcept {
+    auto r = std::vector<Parameter>{};
+    r.reserve(values.size());
+    for (const auto& v : values) {
+      r.push_back(v);
+    }
+    return {r};
+  }  // end of from
+
+  template <ParameterValueConcept ParameterType>
+  Parameter Parameter::from(const std::set<ParameterType>& values) noexcept {
+    auto r = std::vector<Parameter>{};
+    r.reserve(values.size());
+    for (const auto& v : values) {
+      r.push_back(v);
+    }
+    return {r};
+  }  // end of from
+
   inline ParameterVariant& Parameter::as_std_variant() noexcept {
     return *this;
   }  // end of as_std_variant

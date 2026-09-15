@@ -165,7 +165,7 @@ namespace mfem_mgis {
       const std::string_view mid,
       std::function<real(const real)> prvalues)
       : finiteElementDiscretization(fed),
-        mids(fed->getMaterialsIdentifiers(mid)),
+        mids(getMaterialsIdentifiers(throwing, *fed, mid)),
         qfct(prvalues),
         nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
 

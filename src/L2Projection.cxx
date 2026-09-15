@@ -175,30 +175,37 @@ namespace mfem_mgis {
     const auto& mesh = fed.getMesh<parallel>();
     auto r = L2ProjectionResult<parallel>{};
     if (*onAll) {
+      std::cerr << "HERE: " << &mesh << "\n";
       auto oresult = makeGridFunction<parallel>(ctx, fcts, mesh);
       if (isInvalid(oresult)) {
         return {};
       }
-      r.fe_space.swap(oresult->first);
-      r.result.swap(oresult->second);
+      r.result.swap(oresult);
       return r;
     }
     // create sub mesh
-    auto ids = mfem::Array<int>{};
+    auto ids = std::set<size_type>{};
     for (const auto& f : fcts) {
       const auto& qspace = f.getPartialQuadratureSpace();
       const auto id = qspace.getId();
-      ids.Append(id);
+      if (!ids.insert(id).second) {
+        return ctx.registerErrorMessage(
+            "multiple quadrature functions defined on material '" +
+            std::to_string(id) + "'");
+      }
     }
-    r.submesh = std::make_unique<SubMesh<parallel>>(
-        SubMesh<parallel>::CreateFromDomain(mesh, ids));
+    std::cerr << "HERE2\n";
+    r.submesh = fed.template getMutableSubMeshPointer<parallel>(
+        ctx, Parameter::from(ids), MeshDiscretization::Location::ON_MATERIALS);
+    if (isInvalid(r.submesh)) {
+      return {};
+    }
     //
     auto oresult = makeGridFunction<parallel>(ctx, fcts, *(r.submesh));
     if (isInvalid(oresult)) {
       return {};
     }
-    r.fe_space.swap(oresult->first);
-    r.result.swap(oresult->second);
+    r.result.swap(oresult);
     return r;
   }  // end of createL2ProjectionResult_impl
 
@@ -404,14 +411,11 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>&
           fcts) noexcept {
     // checks
-    if ((r.fe_space == nullptr) || (r.result == nullptr)) {
-      return ctx.registerErrorMessage("uninitialized result");
-    }
-    if (r.result->FESpace() != r.fe_space.get()) {
-      return ctx.registerErrorMessage("inconsistent finite element space");
-    }
     if (l.linear_solver == nullptr) {
       return ctx.registerErrorMessage("uninitialized linear solver");
+    }
+    if (r.result.get() == nullptr) {
+      return ctx.registerErrorMessage("uninitialized result");
     }
     // check consistency
     if (fcts.empty()) {
@@ -421,12 +425,30 @@ namespace mfem_mgis {
     if (!checkConsistency<parallel>(ctx, fcts)) {
       return {};
     }
-    if (r.fe_space->GetVDim() != getNumberOfComponents(fcts.front())) {
+    const auto& rfespace = *(
+        static_cast<const FiniteElementSpace<parallel>*>(r.result->FESpace()));
+    const auto& fed =
+        fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    const auto fespaces_manager = fed.getFiniteElementSpacesManager();
+    if (!fespaces_manager.manages(rfespace)) {
+      if constexpr (parallel) {
+        std::cerr << "rfespace: " << &rfespace << " " << rfespace.GetParMesh()
+                  << '\n';
+      }
+      return ctx.registerErrorMessage("inconsistent finite element spaces");
+    }
+    if (rfespace.GetVDim() != getNumberOfComponents(fcts.front())) {
       return ctx.registerErrorMessage("inconsistent number of components");
     }
     //
-    const auto& mesh = *(r.fe_space->GetMesh());
-    const auto& elts_attributes = mesh.attributes;
+    const auto* const mesh = [&rfespace] {
+      if constexpr (parallel) {
+        return rfespace.GetParMesh();
+      } else {
+        return rfespace.GetMesh();
+      }
+    }();
+    const auto& elts_attributes = mesh->attributes;
     for (int i = 0; i != elts_attributes.Size(); ++i) {
       const auto id = elts_attributes[i];
       const auto found = [&id, &fcts] {
@@ -461,54 +483,57 @@ namespace mfem_mgis {
     //
     *(r.result) = real{};
     //
-    // Here begin the tricky part. In order to reduce the computational cost,
-    // we will make the projection component by component. But of course, if the
-    // functions are scalar, we do want to avoid creating a temporary finite
-    // element space or a copy of the projection in *(r.result).
-    //
     // Thus we introduce:
     // -  local_fespace and local_gridfunction which are only allocated
     // -  fespace and x which points with the finite element space and grid
     //    function used for the resolution
     //
-    auto local_fespace = std::unique_ptr<FiniteElementSpace<parallel>>{};
-    auto* const fespace = [&r, &local_fespace] {
-      if (r.fe_space->GetVDim() == 1) {
-        return r.fe_space.get();
-      }
+    const auto fed =
+        fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    const auto& rfespace = *(
+        static_cast<const FiniteElementSpace<parallel>*>(r.result->FESpace()));
+    const auto* const mesh = [&rfespace] {
       if constexpr (parallel) {
-        local_fespace = std::make_unique<FiniteElementSpace<parallel>>(
-            r.fe_space->GetParMesh(), r.fe_space->FEColl(), 1,
-            r.fe_space->GetOrdering());
+        return rfespace.GetParMesh();
       } else {
-        local_fespace = std::make_unique<FiniteElementSpace<parallel>>(
-            r.fe_space->GetMesh(), r.fe_space->FEColl(), 1,
-            r.fe_space->GetOrdering());
+        return rfespace.GetMesh();
       }
-      return local_fespace.get();
     }();
+    auto fespaces_manager = fed.getFiniteElementSpacesManager();
+    auto olocal_fespace =
+        fespaces_manager.template getFiniteElementSpace<parallel>(ctx, *mesh,
+                                                                  1);
+    if (isInvalid(olocal_fespace)) {
+      return {};
+    }
+    // Here begin the tricky part. In order to reduce the
+    // computational cost, we will make the projection component by
+    // component. But of course, if the functions are scalar, we do
+    // want to avoid creating a temporary grid function and copying it
+    // in *(r.result).
     //
     auto local_gridfunction = std::unique_ptr<GridFunction<parallel>>{};
-    auto* const x = [&r, &local_gridfunction, &fespace] {
-      if (r.fe_space->GetVDim() == 1) {
+    auto* const x = [&r, &rfespace, &local_gridfunction, &olocal_fespace] {
+      if (rfespace.GetVDim() == 1) {
         return r.result.get();
       }
-      local_gridfunction = std::make_unique<GridFunction<parallel>>(fespace);
+      local_gridfunction =
+          std::make_unique<GridFunction<parallel>>(&(*olocal_fespace));
       return local_gridfunction.get();
     }();
     // Regularization operator
-    BilinearForm<parallel> a(fespace);
+    BilinearForm<parallel> a(&(*olocal_fespace));
     add_regularization_operator(a);
     a.Assemble();
     // resolution(s)
-    for (size_type c = 0; c != r.fe_space->GetVDim(); ++c) {
+    for (size_type c = 0; c != rfespace.GetVDim(); ++c) {
       // initialize the solution, if needed
-      if (r.fe_space->GetVDim() != 1) {
+      if (rfespace.GetVDim() != 1) {
         *x = real{};
       }
       // right-hand side
-      LinearForm<parallel> b(fespace);
-      if (r.fe_space->GetVDim() == 1) {
+      LinearForm<parallel> b(&(*olocal_fespace));
+      if (rfespace.GetVDim() == 1) {
         if (r.submesh != nullptr) {
           b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegratorII(
               r.submesh->GetParentElementIDMap(), fcts));
@@ -541,11 +566,11 @@ namespace mfem_mgis {
       }
       a.RecoverFEMSolution(X, b, *x);
       // copy solution to r.result, if needed
-      if (r.fe_space->GetVDim() != 1) {
+      if (rfespace.GetVDim() != 1) {
         auto& dest = *(r.result);
         const auto& src = *(x);
         const auto bynodes =
-            (r.fe_space->GetOrdering() == mfem::Ordering::byNODES);
+            (rfespace.GetOrdering() == mfem::Ordering::byNODES);
         if (bynodes) {
           const auto n = x->Size();
           const auto offset = x->Size() * c;
@@ -553,7 +578,7 @@ namespace mfem_mgis {
             dest[offset + idx] = src[idx];
           }
         } else {
-          const auto n = r.fe_space->GetVDim();
+          const auto n = rfespace.GetVDim();
           for (size_type idx = 0; idx != x->Size(); ++idx) {
             dest[idx * n + c] = src[idx];
           }

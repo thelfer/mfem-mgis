@@ -37,7 +37,7 @@ namespace mfem_mgis {
       const std::string_view bid,
       const size_type c)
       : DirichletBoundaryConditionBase(
-            *fed, fed->getBoundariesIdentifiers(bid), c),
+            *fed, getBoundariesIdentifiers(throwing, *fed, bid), c),
         ufct([](const real) noexcept { return real(0); }) {
   }  // end of UniformDirichletBoundaryCondition
 
@@ -55,7 +55,7 @@ namespace mfem_mgis {
       const size_type c,
       std::function<real(const real)> uvalues)
       : DirichletBoundaryConditionBase(
-            *fed, fed->getBoundariesIdentifiers(bid), c),
+            *fed, getBoundariesIdentifiers(throwing, *fed, bid), c),
         ufct(uvalues) {}  // end of UniformDirichletBoundaryCondition
 
   void UniformDirichletBoundaryCondition::updateImposedValues(

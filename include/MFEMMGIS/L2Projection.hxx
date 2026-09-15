@@ -9,6 +9,7 @@
 #define LIB_MFEMMGIS_L2PROJECTION_HXX
 
 #include <vector>
+#include <memory>
 #include <optional>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
@@ -25,9 +26,7 @@ namespace mfem_mgis {
      * \brief submesh created for the resolution. May be empty if the projection
      * is done on the whole mesh.
      */
-    std::unique_ptr<SubMesh<parallel>> submesh;
-    //! \brief finite element space.
-    std::shared_ptr<FiniteElementSpace<parallel>> fe_space;
+    std::shared_ptr<SubMesh<parallel>> submesh;
     //! \brief grid function resulting from the projection
     std::unique_ptr<GridFunction<parallel>> result;
   };
