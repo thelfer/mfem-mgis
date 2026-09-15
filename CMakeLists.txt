@@ -55,7 +55,7 @@ if(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
 endif(MFEM_USE_OPENMP OR MFEM_USE_LEGACY_OPENMP)
 
 # MFontGenericInterface
-find_package (MFrontGenericInterface REQUIRED)
+find_package (MFrontGenericInterface REQUIRED PATH_SUFFIXES share/mgis/cmake)
 set(MFEM_MGIS_ENABLE_TFEL_TESTS OFF)
 if(MGIS_HAVE_TFEL)
   if(TARGET tfel::TFELTests)
