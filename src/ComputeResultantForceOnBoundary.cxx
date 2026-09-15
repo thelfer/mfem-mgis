@@ -19,7 +19,7 @@ namespace mfem_mgis {
                                    const size_type nc) {
     out << "# first column: time\n";
     for (size_type i = 0; i != nc; ++i) {
-      out << "# " << i + 1 << "th column: " << i + 1
+      out << "# " << i + 2 << "th column: " << i + 1
           << " component of the resultant of the inner forces on boundary '"
           << bid << "'\n";
     }

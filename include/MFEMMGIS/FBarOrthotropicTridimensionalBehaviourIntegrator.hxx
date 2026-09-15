@@ -1,5 +1,5 @@
-#ifndef LIB_MFEM_MGIS_ISOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
-#define LIB_MFEM_MGIS_ISOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
+#ifndef LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
+#define LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
 
 #include <array>
 #include <mfem/linalg/densemat.hpp>
@@ -14,16 +14,16 @@ namespace mfem_mgis {
   struct FiniteElementDiscretization;
 
   // forward declaration
-  struct FBarIsotropicTridimensionalBehaviourIntegrator;
+  struct FBarOrthotropicTridimensionalBehaviourIntegrator;
 
   /*!
    * \brief partial specialisation of the `BehaviourIntegratorTraits`  * class
    * for the
-   * `FBarIsotropicTridimensionalBehaviourIntegrator`
+   * `FBarOrthotropicTridimensionalBehaviourIntegrator`
    * behaviour integrator */
   template <>
   struct BehaviourIntegratorTraits<
-      FBarIsotropicTridimensionalBehaviourIntegrator> {
+      FBarOrthotropicTridimensionalBehaviourIntegrator> {
     static constexpr size_type unknownsSize = 3;
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
     static constexpr bool
@@ -34,9 +34,9 @@ namespace mfem_mgis {
 
   /*!
    */
-  struct MFEM_MGIS_EXPORT FBarIsotropicTridimensionalBehaviourIntegrator
+  struct MFEM_MGIS_EXPORT FBarOrthotropicTridimensionalBehaviourIntegrator
       : FBarBehaviourIntegratorCRTPBase<
-            FBarIsotropicTridimensionalBehaviourIntegrator,
+            FBarOrthotropicTridimensionalBehaviourIntegrator,
             Hypothesis::TRIDIMENSIONAL>,
         TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase {
     /*!
@@ -44,15 +44,15 @@ namespace mfem_mgis {
      * symmetric tensors
      */
     static constexpr const auto icste = real{0.70710678118654752440};
-    //! \brief a dummy structure
-    struct RotationMatrix {};
+    //! \brief a simple alias
+    using RotationMatrix = std::array<real, 9u>;
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      * \param[in] b_ptr: behaviour
      */
-    FBarIsotropicTridimensionalBehaviourIntegrator(
+    FBarOrthotropicTridimensionalBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
         std::unique_ptr<const Behaviour>);
@@ -65,7 +65,7 @@ namespace mfem_mgis {
 
     inline void rotateGradients(std::span<real>, const RotationMatrix &);
 
-    inline std::span<const real> rotateThermodynamicForces(
+    inline std::array<real, 9> rotateThermodynamicForces(
         std::span<const real>, const RotationMatrix &);
 
     inline void rotateTangentOperatorBlocks(std::span<real>,
@@ -96,12 +96,12 @@ namespace mfem_mgis {
         const noexcept override;
 
     //! \brief destructor
-    ~FBarIsotropicTridimensionalBehaviourIntegrator() override;
+    ~FBarOrthotropicTridimensionalBehaviourIntegrator() override;
 
    protected:
     //! \brief allow the CRTP base class the protected members
     friend struct FBarBehaviourIntegratorCRTPBase<
-        FBarIsotropicTridimensionalBehaviourIntegrator,
+        FBarOrthotropicTridimensionalBehaviourIntegrator,
         Hypothesis::TRIDIMENSIONAL>;
     /*!
      * \return the integration rule for the given element and element
@@ -120,8 +120,8 @@ namespace mfem_mgis {
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &, const size_type);
   };  // end of struct
-      // FBarIsotropicTridimensionalBehaviourIntegrator
+      // FBarOrthotropicTridimensionalBehaviourIntegrator
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_ISOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX*/
+#endif /* LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX*/

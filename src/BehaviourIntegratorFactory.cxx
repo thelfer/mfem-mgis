@@ -72,7 +72,7 @@ namespace mfem_mgis {
             "invalid regularisation '" + ofa->first +
             "'. The only valid regularisations are 'FBar' and 'Faltus2026'");
       }
-      if (ofa->first != "Faltus2026") {
+      if (ofa->first == "Faltus2026") {
         return generateTridimensionalFaltus2026RegularizedMechanicalBehaviourIntegrators(
             ctx, fed, m, std::move(b), ofa->second);
       }
@@ -181,7 +181,7 @@ namespace mfem_mgis {
             "invalid regularisation '" + ofa->first +
             "'. The only valid regularisations are 'FBar' and 'Faltus2026'");
       }
-      if (ofa->first != "Faltus2026") {
+      if (ofa->first == "Faltus2026") {
         return generatePlaneStrainFaltus2026RegularizedMechanicalBehaviourIntegrators(
             ctx, fed, m, std::move(b), ofa->second);
       }

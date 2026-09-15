@@ -56,13 +56,13 @@ namespace mfem_mgis {
     static constexpr const auto icste = real{0.70710678118654752440};
 
     //! \brief a simple alias
-    using RotationMatrix =
-        std::array<real, 9u>; /*!
-                               * \brief constructor
-                               * \param[in] fed: finite element discretization.
-                               * \param[in] m: material attribute.
-                               * \param[in] b_ptr: behaviour
-                               */
+    using RotationMatrix = std::array<real, 9u>;
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization.
+     * \param[in] m: material attribute.
+     * \param[in] b_ptr: behaviour
+     */
     OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator(
         const FiniteElementDiscretization &,
         const size_type,
