@@ -580,7 +580,6 @@ namespace mfem_mgis {
       }
     }  // end of addPointsSet
 #endif /* MGIS_HAVE_TFEL */
-
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context used for profiling
@@ -1593,29 +1592,39 @@ namespace mfem_mgis {
 
 #endif /* MGIS_HAVE_TFEL */
 
+    template <bool parallel>
+    const std::map<AttributesList, std::shared_ptr<SubMesh<parallel>>>&
+    getSubMeshesOnMaterials() const noexcept {
+      if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+        return this->parallel_submeshes;
+#else /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+
+#endif /* MFEM_USE_MPI */
+      } else {
+        return this->sequential_submeshes;
+      }
+    }  // end of getSubMeshesOnMaterials
+
+    template <bool parallel>
+    const std::map<AttributesList, std::shared_ptr<SubMesh<parallel>>>&
+    getSubMeshesOnBoundaries() const noexcept {
+      if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+        return this->parallel_submeshes_on_boundaries;
+#else /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+
+#endif /* MFEM_USE_MPI */
+      } else {
+        return this->sequential_submeshes_on_boundaries;
+      }
+    }  // end of getSubMeshesOnBoundaries
+
     ~Implementation() = default;
 
    private:
-    /*!
-     * \brief structure to be used as a key.
-     */
-    struct AttributesList {
-      /*!
-       * \brief constructor
-       * \param[ids] ids: list of attributes
-       */
-      AttributesList(const std::vector<size_type>& ids) : attributes(ids) {
-        std::sort(this->attributes.begin(), this->attributes.end());
-      }  // end of AttributesList
-      //! \brief comparison operator
-      [[nodiscard]] bool operator<(const AttributesList& rhs) const noexcept {
-        return this->attributes < rhs.attributes;
-      }  // end of operator<
-
-     private:
-      //! \brief list of attributes
-      std::vector<size_type> attributes;
-    };
 #ifdef MFEM_USE_MPI
     //! \brief parallel mesh
     std::shared_ptr<Mesh<true>> parallel_mesh;
@@ -1945,12 +1954,45 @@ namespace mfem_mgis {
     return m.getMesh<false>().SpaceDimension();
   }  // end of getSpaceDimension
 
+  template <bool parallel>
+  void print_submeshes(
+      std::ostream& os,
+      const std::map<MeshDiscretization::AttributesList,
+                     std::shared_ptr<SubMesh<parallel>>>& submeshes,
+      const bool on_materials) {
+    if (submeshes.empty()) {
+      return;
+    }
+    if (on_materials) {
+      os << "\n\n## Submeshes defined on materials\n";
+    } else {
+      os << "\n\n## Submeshes defined on boundaries\n";
+    }
+    for (const auto& [ids, s] : submeshes) {
+      if (ids.getAttributes().empty()) {
+        // this can't appen
+        continue;
+      }
+      os << "\n- submesh associated with ";
+      if (on_materials) {
+        os << "materials identifiers:";
+      } else {
+        os << "boundaries identifiers:";
+      }
+      for (const auto& id : ids.getAttributes()) {
+        os << " " << id;
+      }
+    }
+  }  // end of print_submeshes
+
   template <>
   bool getInformation<MeshDiscretization>(
       Context&, std::ostream& os, const MeshDiscretization& m) noexcept {
     const auto& mnames = m.getMaterialsNames();
     os << "# Mesh\n\n"
-       << "- space dimension: " << getSpaceDimension(m);
+       << "- parallel: "
+       << (m.describesAParallelComputation() ? "true" : "false") << "\n\n";
+    os << "- space dimension: " << getSpaceDimension(m);
     if (!mnames.empty()) {
       os << "\n\n## Materials\n";
       for (const auto& [id, n] : mnames) {
@@ -1964,8 +2006,18 @@ namespace mfem_mgis {
         os << "\n- '" << n << "' associated with identifier (" << id << ")";
       }
     }
+    if (m.describesAParallelComputation()) {
+      print_submeshes<true>(os, m.pimpl->getSubMeshesOnMaterials<true>(), true);
+      print_submeshes<true>(os, m.pimpl->getSubMeshesOnBoundaries<true>(),
+                            false);
+    } else {
+      print_submeshes<false>(os, m.pimpl->getSubMeshesOnMaterials<false>(),
+                             true);
+      print_submeshes<false>(os, m.pimpl->getSubMeshesOnBoundaries<false>(),
+                             false);
+    }
     return true;
-  }  // end of info
+  }  // end of getInformation
 
   bool operator==(const MeshDiscretization& lhs,
                   const MeshDiscretization& rhs) noexcept {

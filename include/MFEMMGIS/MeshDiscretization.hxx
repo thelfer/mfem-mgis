@@ -20,12 +20,34 @@
 
 namespace mfem_mgis {
 
-  // forward declaration
+  // forward declarations
   struct Parameter;
   struct Parameters;
 
   //! \brief a simple class used to handle the life time of the mesh
   struct MFEM_MGIS_EXPORT [[nodiscard]] MeshDiscretization {
+    //! \brief structure holding a list of attributes to be used as a key.
+    struct AttributesList {
+      /*!
+       * \brief constructor
+       * \param[ids] ids: list of attributes
+       */
+      AttributesList(const std::vector<size_type>& ids) : attributes(ids) {
+        std::sort(this->attributes.begin(), this->attributes.end());
+      }  // end of AttributesList
+      //! \brief comparison operator
+      [[nodiscard]] bool operator<(const AttributesList& rhs) const noexcept {
+        return this->attributes < rhs.attributes;
+      }  // end of operator<
+      [[nodiscard]] const std::vector<size_type>& getAttributes()
+          const noexcept {
+        return this->attributes;
+      }
+
+     private:
+      //! \brief list of attributes
+      std::vector<size_type> attributes;
+    };
     //! \brief location on which submeshes can be defined
     enum struct Location { ON_MATERIALS, ON_BOUNDARIES };
     //! \brief string associated to the `Parallel` parameter
@@ -451,6 +473,10 @@ namespace mfem_mgis {
     ~MeshDiscretization();
 
    protected:
+    //
+    friend bool getInformation<MeshDiscretization>(
+        Context&, std::ostream&, const MeshDiscretization&) noexcept;
+
     //! \return a mutable pointer to the underlying parallel mesh
     [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer()
         const noexcept;
@@ -646,17 +672,6 @@ namespace mfem_mgis {
   getBoundariesAttributes(const MeshDiscretization&) noexcept;
 
   /*!
-   * \brief display information about a mesh discretization
-   *
-   * \param[in, out] ctx: execution context
-   * \param[out] os: output stream
-   * \param[in] m: mesh discretization
-   */
-  template <>
-  MFEM_MGIS_EXPORT bool getInformation<MeshDiscretization>(
-      Context&, std::ostream&, const MeshDiscretization&) noexcept;
-
-  /*!
    * \return the list of materials identifiers described by the given
    * parameter.
    * \param[in] throwing: throwing attributes
@@ -698,6 +713,17 @@ namespace mfem_mgis {
   getBoundariesIdentifiers(attributes::Throwing,
                            const MeshDiscretization&,
                            const Parameter&);
+
+  /*!
+   * \brief display information about a mesh discretization
+   *
+   * \param[in, out] ctx: execution context
+   * \param[out] os: output stream
+   * \param[in] m: mesh discretization
+   */
+  template <>
+  MFEM_MGIS_EXPORT bool getInformation<MeshDiscretization>(
+      Context&, std::ostream&, const MeshDiscretization&) noexcept;
 
 #ifdef MFEM_USE_MPI
 
