@@ -24,7 +24,8 @@
 
 namespace mfem_mgis {
 
-  // forward declaration
+  // forward declarations
+  struct MeshDiscretization;
   struct FiniteElementDiscretization;
 
   /*!
@@ -54,6 +55,11 @@ namespace mfem_mgis {
     PartialQuadratureSpace(const PartialQuadratureSpace &) = delete;
     PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
     PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
+    //! \return the material name
+    [[nodiscard]] std::string getMaterialName() const noexcept;
+    //! \return the mesh discretization
+    [[nodiscard]] const MeshDiscretization &getMeshDiscretization()
+        const noexcept;
     //! \return the finite element discretization
     [[nodiscard]] const FiniteElementDiscretization &
     getFiniteElementDiscretization() const noexcept;
@@ -132,14 +138,9 @@ namespace mfem_mgis {
 
 namespace mfem_mgis {
 
-  /*!
-   * \brief return the number of integration points
-   *
-   * \note this method is equivalent to `getNumberOfIntegrationPoints`
-   * \note this is as requirement of mgis::function::SpaceConcept
-   */
-  constexpr bool areEquivalent(const PartialQuadratureSpace &,
-                               const PartialQuadratureSpace &) noexcept;
+  //! \return if two quadrature spaces are equivalent
+  MFEM_MGIS_EXPORT [[nodiscard]] bool areEquivalent(
+      const PartialQuadratureSpace &, const PartialQuadratureSpace &) noexcept;
 
   /*!
    * \brief return the number of integration points

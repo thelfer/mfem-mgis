@@ -83,6 +83,21 @@ namespace mfem_mgis {
     return this->integration_rule_selector(e, tr);
   }
 
+  std::string PartialQuadratureSpace::getMaterialName() const noexcept {
+    auto ctx = Context{};
+    const auto oname =
+        this->fe_discretization.getMaterialName(ctx, this->getId());
+    if (isValid(oname)) {
+      return *oname;
+    }
+    return std::to_string(this->getId());
+  }  // end of getMaterialName
+
+  const MeshDiscretization& PartialQuadratureSpace::getMeshDiscretization()
+      const noexcept {
+    return static_cast<const MeshDiscretization&>(this->fe_discretization);
+  }  // end of getMeshDiscretization
+
   const FiniteElementDiscretization&
   PartialQuadratureSpace::getFiniteElementDiscretization() const noexcept {
     return this->fe_discretization;
@@ -351,5 +366,53 @@ namespace mfem_mgis {
     return info;
 #endif /* MFEM_USE_MPI */
   }    // end of synchronize
+
+  bool areEquivalent(const PartialQuadratureSpace& s1,
+                     const PartialQuadratureSpace& s2) noexcept {
+    if (&s1 == &s2) {
+      return true;
+    }
+    const auto& fed1 = s1.getFiniteElementDiscretization();
+    const auto& fed2 = s1.getFiniteElementDiscretization();
+    if (fed1.describesAParallelComputation() !=
+        fed2.describesAParallelComputation()) {
+      return false;
+    }
+    if (fed1.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      if (fed1.getMeshPointer<true>() != fed2.getMeshPointer<true>()) {
+        return false;
+      }
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    } else {
+      if (fed1.getMeshPointer<false>() != fed2.getMeshPointer<false>()) {
+        return false;
+      }
+    }
+    if (s1.getId() != s2.getId()) {
+      return false;
+    }
+    const auto success = [&s1, &s2] {
+      if (getSpaceSize(s1) != getSpaceSize(s2)) {
+        return false;
+      }
+      const auto& offsets1 = s1.getOffsets();
+      const auto& offsets2 = s2.getOffsets();
+      if (offsets1.size() != offsets2.size()) {
+        return false;
+      }
+      auto p1 = offsets1.begin();
+      auto p2 = offsets2.begin();
+      for (; p1 != offsets1.end(); ++p1, ++p2) {
+        if ((p1->first != p2->first) || (p1->second != p2->second)) {
+          return false;
+        }
+      }
+      return true;
+    }();
+    return isTrueOnAllProcesses(fed1, success);
+  }  // end of areEquivalent
 
 }  // end of namespace mfem_mgis
