@@ -14,10 +14,12 @@ namespace mfem_mgis {
     if (isInvalid(output)) {
       return {};
     }
+    auto solver = Parameters{};
+    solver.replaceOrInsert("InitialResidualNorm", output.initial_residual_norm);
+    solver.replaceOrInsert("FinalResidualNorm", output.final_residual_norm);
+    solver.replaceOrInsert("NumberOfIterations", output.iterations);
     auto p = ComputeNextStateOutput{};
-    p.replaceOrInsert("initial_residual_norm", output.initial_residual_norm);
-    p.replaceOrInsert("final_residual_norm", output.final_residual_norm);
-    p.replaceOrInsert("iterations", output.iterations);
+    p.replaceOrInsert("Solver", solver);
     return p;
   }  // end of convertToComputeNextStateOutput
 
