@@ -337,9 +337,18 @@ This refactoring improves code organization, reduces duplication, and provides a
 Issues fixed
 ============
 
+- Issue 270: FirstIterationConvergenceCriterion never triggers coupling
+  iterations + wrong post-processing time
+- Issue 268: Parallel execution bug in behaviour integration
+- Issue 264: Installation from the doc fails on a fresh setup
+- Issue 262: Refactor creation of submeshes and associated finite
+  element spaces to handle it through MeshDiscretization and
+  FiniteElementSpacesManager enhancement ￼
+- Issue 260: Refactor commented examples documentation
 - Issue 257: Allow NewtonSolver to discard linear solver failures
 - Issue 254: Missing parameter option for GMRESSolver
-- Issue 253: Incomplete linear solver convergence checks in NonLinearEvolutionProblemImplementation.cxx and NewtonSolver.cxx
+- Issue 253: Incomplete linear solver convergence checks in
+  NonLinearEvolutionProblemImplementation.cxx and NewtonSolver.cxx
 - Issue 248: Improve `PartialQuadratureFunction` interface
 - Issue 245: Check the size of the unknown when defining bricks
 - Issue 240: Small bug in `LinearSolverFactory.cxx`
