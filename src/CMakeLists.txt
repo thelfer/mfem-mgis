@@ -110,7 +110,12 @@ list(APPEND MFEMMGIS_SOURCES
 
 if(MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES
-       Geometry.cxx)
+       Geometry.cxx
+       FBarBehaviourIntegrators.cxx
+       FBarIsotropicPlaneStrainBehaviourIntegrator.cxx
+       FBarIsotropicTridimensionalBehaviourIntegrator.cxx
+       FBarOrthotropicPlaneStrainBehaviourIntegrator.cxx
+       FBarOrthotropicTridimensionalBehaviourIntegrator.cxx)
 endif(MGIS_HAVE_TFEL)
 
 if(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)

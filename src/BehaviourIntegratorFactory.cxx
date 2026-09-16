@@ -31,6 +31,9 @@
 #include "MFEMMGIS/TridimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 #include "MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx"
 #include "MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.hxx"
+#ifdef MGIS_HAVE_TFEL
+#include "MFEMMGIS/FBarBehaviourIntegrators.hxx"
+#endif /* MGIS_HAVE_TFEL */
 
 namespace mfem_mgis {
 
@@ -66,13 +69,23 @@ namespace mfem_mgis {
       if (isInvalid(ofa)) {
         return {};
       }
-      if (ofa->first != "Faltus2026") {
+      if ((ofa->first != "Faltus2026") && (ofa->first != "FBar")) {
         return ctx.registerErrorMessage(
             "invalid regularisation '" + ofa->first +
-            "'. The only valid regularisation is 'Faltus2026'");
+            "'. The only valid regularisations are 'FBar' and 'Faltus2026'");
       }
-      return generateTridimensionalFaltus2026RegularizedMechanicalBehaviourIntegrators(
+      if (ofa->first == "Faltus2026") {
+        return generateTridimensionalFaltus2026RegularizedMechanicalBehaviourIntegrators(
+            ctx, fed, m, std::move(b), ofa->second);
+      }
+#ifdef MGIS_HAVE_TFEL
+      return generateTridimensionalFBarBehaviourIntegrators(
           ctx, fed, m, std::move(b), ofa->second);
+#else
+      return ctx.registerErrorMessage(
+          "the 'FBar' regularisation is not available as TFEL support is not "
+          "enabled in MGIS");
+#endif
     }
     if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
       if (b->symmetry == Behaviour::ISOTROPIC) {
@@ -171,13 +184,23 @@ namespace mfem_mgis {
       if (isInvalid(ofa)) {
         return {};
       }
-      if (ofa->first != "Faltus2026") {
+      if ((ofa->first != "Faltus2026") && (ofa->first != "FBar")) {
         return ctx.registerErrorMessage(
             "invalid regularisation '" + ofa->first +
-            "'. The only valid regularisation is 'Faltus2026'");
+            "'. The only valid regularisations are 'FBar' and 'Faltus2026'");
       }
-      return generatePlaneStrainFaltus2026RegularizedMechanicalBehaviourIntegrators(
+      if (ofa->first == "Faltus2026") {
+        return generatePlaneStrainFaltus2026RegularizedMechanicalBehaviourIntegrators(
+            ctx, fed, m, std::move(b), ofa->second);
+      }
+#ifdef MGIS_HAVE_TFEL
+      return generatePlaneStrainFBarBehaviourIntegrators(
           ctx, fed, m, std::move(b), ofa->second);
+#else
+      return ctx.registerErrorMessage(
+          "the 'FBar' regularisation is not available as TFEL support is not "
+          "enabled in MGIS");
+#endif
     }
     if (b->btype == Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
       if (b->symmetry == Behaviour::ISOTROPIC) {
