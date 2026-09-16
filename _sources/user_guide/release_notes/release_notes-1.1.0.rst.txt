@@ -22,6 +22,8 @@ Highlights
 - `NonLinearEvolutionProblem` are now able to make a prediction of the
   solution, removing major convergence issues when imposed displacements
   are imposed.
+- The :math:`\bar{F}` method, or FBar formulation, has been implemented
+  for finite strain behaviours to handle nearly incompressible materials.
 - The regularization proposed by Faltus et al. in the context of the
   third medium contact has been implemented for plane strain, plane
   stress and tridmensional hypotheses.
@@ -164,40 +166,76 @@ The following operators are available:
   with respect to the gradients at the end of the time step. See
   :cite:`simo_consistent_1985` for details.
 
+FBar formulation
+----------------
+
+ The :math:`\bar{F}` method, or FBar formulation, is implemented following
+ :cite:`de_souza_neto_design_1996`. This formulation is designed to handle
+ nearly incompressible materials in large strain analysis by using a modified
+ deformation gradient :math:`\bar{\underline{F}}` that separates volumetric and
+ deviatoric responses.
+
+ The method replaces the standard deformation gradient :math:`\underline{F}`
+ with an assumed modified counterpart :math:`\bar{\underline{F}}` in the
+ computation of stresses. This modification is based on a multiplicative split
+ into volumetric and deviatoric parts:
+
+ .. math::
+
+    \underline{F} = J^{1/3}\, \bar{\underline{F}}
+
+ where :math:`J = \det{\underline{F}}` is the Jacobian of the deformation
+ gradient. This formulation effectively avoids locking issues in nearly
+ incompressible materials while maintaining accuracy.
+
+ The :math:`\bar{F}` formulation is particularly suited for low-order finite
+ elements and is applicable to arbitrary material models. It ensures quadratic
+ rates of convergence in Newton-Raphson schemes.
+
+ This formulation is enabled by passing an additional parameter to the
+ :cxx:`Mechanics` behaviour integrator, as follows:
+
+ .. code:: c++
+
+   const auto fbar_parameters = mfem_mgis::dict{
+       {"Regularization", mfem_mgis::dict{{{"FBar", mfem_mgis::list{}}}}};
+   mechanics.addBehaviourIntegrator(ctx, "Mechanics", library,
+                                    behaviour, fbar_parameters) | or_die;
+
 Faltus 2026 regularization
---------------------------
+---------------------------
 
-The regularization proposed by Faltus et al. in the context of contact
-mechanics using a third medium is implemented here :cite:`faltus_deformation_2026`. This
-regularization only applies to finite strain behaviours. Currently, this
-regularization is only available for isotropic behaviours.
+ The regularization proposed by Faltus et al. in the context of contact
+ mechanics using a third medium is implemented here :cite:`faltus_deformation_2026`. This
+ regularization only applies to finite strain behaviours. Currently, this
+ regularization is only available for isotropic behaviours.
 
-This regularization adds a contribution to the standard variational
-operator in finite strain and can be derived from an energy :math:`W`
-which penalizes the difference between the deformation gradient
-:math:`\underline{F}` at a given quadrature point and its value
-:math:`\bar{\underline{F}}` at the centroid of the element:
+ This regularization adds a contribution to the standard variational
+ operator in finite strain and can be derived from an energy :math:`W`
+ which penalizes the difference between the deformation gradient
+ :math:`\underline{F}` at a given quadrature point and its value
+ :math:`\bar{\underline{F}}` at the centroid of the element:
 
-.. math::
+ .. math::
 
-    W\left(\underline{F}, \bar{\underline{F}}\right) =
-    \alpha\,\left(\underline{F}-\bar{\underline{F}}\right)\,\colon\,
-    \left(\underline{F}-\bar{\underline{F}}\right)
+     W\left(\underline{F}, \bar{\underline{F}}\right) =
+     \alpha\,\left(\underline{F}-\bar{\underline{F}}\right)\,\colon\,
+     \left(\underline{F}-\bar{\underline{F}}\right)
 
-where :math:`\alpha` is a penalization coefficient.
+ where :math:`\alpha` is a penalization coefficient.
 
-This regularization is enabled by passing an additional parameter to the
-:cxx:`Mechanics` behaviour integrator, as follows:
+ This regularization is enabled by passing an additional parameter to the
+ :cxx:`Mechanics` behaviour integrator, as follows:
 
-.. code:: c++
+ .. code:: c++
 
-  const auto faltus_parameters = mfem_mgis::Parameters{
-      {"Regularization",
-       mfem_mgis::Parameters{
-           {"Faltus2026",
-            mfem_mgis::Parameters{{"PenalizationCoefficient", 1e11}}}}}};
-  mechanics.addBehaviourIntegrator(ctx, "Mechanics", "ThirdMedium", library,
-                                   behaviour2, faltus_parameters) | or_die;
+   const auto faltus_parameters = mfem_mgis::Parameters{
+       {"Regularization",
+        mfem_mgis::Parameters{
+            {"Faltus2026",
+             mfem_mgis::Parameters{{{"PenalizationCoefficient", 1e11}}}}}};
+   mechanics.addBehaviourIntegrator(ctx, "Mechanics", "ThirdMedium", library,
+                                    behaviour2, faltus_parameters) | or_die;
 
 The :cxx:`info` function
 ------------------------

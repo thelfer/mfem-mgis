@@ -116,37 +116,38 @@
 <nav class="contents local" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#highlights" id="id4">Highlights</a></p></li>
-<li><p><a class="reference internal" href="#known-incompatibilites" id="id5">Known incompatibilites</a></p></li>
-<li><p><a class="reference internal" href="#new-features" id="id6">New features</a></p>
+<li><p><a class="reference internal" href="#highlights" id="id5">Highlights</a></p></li>
+<li><p><a class="reference internal" href="#known-incompatibilites" id="id6">Known incompatibilites</a></p></li>
+<li><p><a class="reference internal" href="#new-features" id="id7">New features</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prediction-of-the-solution" id="id7">Prediction of the solution</a></p>
+<li><p><a class="reference internal" href="#prediction-of-the-solution" id="id8">Prediction of the solution</a></p>
 <ul>
-<li><p><a class="reference internal" href="#available-strategies" id="id8">Available strategies</a></p></li>
+<li><p><a class="reference internal" href="#available-strategies" id="id9">Available strategies</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#faltus-2026-regularization" id="id9">Faltus 2026 regularization</a></p></li>
-<li><p><a class="reference internal" href="#the-info-function" id="id10">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function</a></p>
+<li><p><a class="reference internal" href="#fbar-formulation" id="id10">FBar formulation</a></p></li>
+<li><p><a class="reference internal" href="#faltus-2026-regularization" id="id11">Faltus 2026 regularization</a></p></li>
+<li><p><a class="reference internal" href="#the-info-function" id="id12">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function</a></p>
 <ul>
-<li><p><a class="reference internal" href="#retrieving-information-on-a-finite-element-discretization" id="id11">Retrieving information on a finite element discretization</a></p></li>
-<li><p><a class="reference internal" href="#retrieving-information-on-a-partial-quadrature-space" id="id12">Retrieving information on a partial quadrature space</a></p></li>
+<li><p><a class="reference internal" href="#retrieving-information-on-a-finite-element-discretization" id="id13">Retrieving information on a finite element discretization</a></p></li>
+<li><p><a class="reference internal" href="#retrieving-information-on-a-partial-quadrature-space" id="id14">Retrieving information on a partial quadrature space</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#evaluators-of-quantities-at-integration-points" id="id13">Evaluators of quantities at integration points</a></p>
+<li><p><a class="reference internal" href="#evaluators-of-quantities-at-integration-points" id="id15">Evaluators of quantities at integration points</a></p>
 <ul>
-<li><p><a class="reference internal" href="#overview" id="id14">Overview</a></p></li>
-<li><p><a class="reference internal" href="#the-setmaterialproperty-and-setexternalstatevariable-methods-of-behaviour-integrators" id="id15">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setMaterialProperty</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setExternalStateVariable</span></code> methods of behaviour integrators</a></p></li>
+<li><p><a class="reference internal" href="#overview" id="id16">Overview</a></p></li>
+<li><p><a class="reference internal" href="#the-setmaterialproperty-and-setexternalstatevariable-methods-of-behaviour-integrators" id="id17">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setMaterialProperty</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setExternalStateVariable</span></code> methods of behaviour integrators</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#resolution-of-dependencies-of-a-nonlinear-evolution-problemn-using-another" id="id16">Resolution of dependencies of a nonlinear evolution problemn using another</a></p></li>
-<li><p><a class="reference internal" href="#the-simulation-class" id="id17">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Simulation</span></code> class</a></p></li>
-<li><p><a class="reference internal" href="#physical-system-coupling-schemes-and-models" id="id18">Physical system, coupling schemes and models</a></p></li>
-<li><p><a class="reference internal" href="#line-search-like-handling-of-behaviour-integration-failures" id="id19">Line-search-like handling of behaviour integration failures</a></p></li>
-<li><p><a class="reference internal" href="#profiling-toolkit" id="id20">Profiling Toolkit</a></p></li>
-<li><p><a class="reference internal" href="#refactoring-of-submesh-and-finite-element-space-creation" id="id21">Refactoring of submesh and finite element space creation</a></p></li>
+<li><p><a class="reference internal" href="#resolution-of-dependencies-of-a-nonlinear-evolution-problemn-using-another" id="id18">Resolution of dependencies of a nonlinear evolution problemn using another</a></p></li>
+<li><p><a class="reference internal" href="#the-simulation-class" id="id19">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Simulation</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#physical-system-coupling-schemes-and-models" id="id20">Physical system, coupling schemes and models</a></p></li>
+<li><p><a class="reference internal" href="#line-search-like-handling-of-behaviour-integration-failures" id="id21">Line-search-like handling of behaviour integration failures</a></p></li>
+<li><p><a class="reference internal" href="#profiling-toolkit" id="id22">Profiling Toolkit</a></p></li>
+<li><p><a class="reference internal" href="#refactoring-of-submesh-and-finite-element-space-creation" id="id23">Refactoring of submesh and finite element space creation</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id22">Issues fixed</a></p></li>
+<li><p><a class="reference internal" href="#issues-fixed" id="id24">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="highlights">
@@ -155,6 +156,8 @@
 <li><p><cite>NonLinearEvolutionProblem</cite> are now able to make a prediction of the
 solution, removing major convergence issues when imposed displacements
 are imposed.</p></li>
+<li><p>The <span class="math notranslate nohighlight">\(\bar{F}\)</span> method, or FBar formulation, has been implemented
+for finite strain behaviours to handle nearly incompressible materials.</p></li>
 <li><p>The regularization proposed by Faltus et al. in the context of the
 third medium contact has been implemented for plane strain, plane
 stress and tridmensional hypotheses.</p></li>
@@ -288,10 +291,41 @@ with respect to the gradients at the end of the time step. See
 </section>
 </section>
 </section>
+<section id="fbar-formulation">
+<h3>FBar formulation<a class="headerlink" href="#fbar-formulation" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>The <span class="math notranslate nohighlight">\(\bar{F}\)</span> method, or FBar formulation, is implemented following
+<span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../index.html#id4" title="E. A. de Souza Neto, D. Perić, M. Dutko, and D. R. J. Owen. Design of simple low order finite elements for large strain analysis of nearly incompressible solids. International Journal of Solids and Structures, 33(20):3277–3296, 1996. URL: https://www.sciencedirect.com/science/article/pii/0020768395002596 (visited on 2026-03-20), doi:10.1016/0020-7683(95)00259-6.">dSNPDO96</a>]</span>. This formulation is designed to handle
+nearly incompressible materials in large strain analysis by using a modified
+deformation gradient <span class="math notranslate nohighlight">\(\bar{\underline{F}}\)</span> that separates volumetric and
+deviatoric responses.</p>
+<p>The method replaces the standard deformation gradient <span class="math notranslate nohighlight">\(\underline{F}\)</span>
+with an assumed modified counterpart <span class="math notranslate nohighlight">\(\bar{\underline{F}}\)</span> in the
+computation of stresses. This modification is based on a multiplicative split
+into volumetric and deviatoric parts:</p>
+<div class="math notranslate nohighlight">
+\[\underline{F} = J^{1/3}\, \bar{\underline{F}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(J = \det{\underline{F}}\)</span> is the Jacobian of the deformation
+gradient. This formulation effectively avoids locking issues in nearly
+incompressible materials while maintaining accuracy.</p>
+<p>The <span class="math notranslate nohighlight">\(\bar{F}\)</span> formulation is particularly suited for low-order finite
+elements and is applicable to arbitrary material models. It ensures quadratic
+rates of convergence in Newton-Raphson schemes.</p>
+<p>This formulation is enabled by passing an additional parameter to the
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">Mechanics</span></code> behaviour integrator, as follows:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">fbar_parameters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">dict</span><span class="p">{</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Regularization"</span><span class="p">,</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">dict</span><span class="p">{{{</span><span class="s">"FBar"</span><span class="p">,</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">list</span><span class="p">{}}}}};</span>
+<span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"Mechanics"</span><span class="p">,</span><span class="w"> </span><span class="n">library</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">behaviour</span><span class="p">,</span><span class="w"> </span><span class="n">fbar_parameters</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">or_die</span><span class="p">;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
 <section id="faltus-2026-regularization">
 <h3>Faltus 2026 regularization<a class="headerlink" href="#faltus-2026-regularization" title="Link to this heading"></a></h3>
-<p>The regularization proposed by Faltus et al. in the context of contact
-mechanics using a third medium is implemented here <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../index.html#id5" title="Ondřej Faltus, Marco Amato, and Martin Horák. Deformation gradient averaging regularization for third medium contact. URL: https://arxiv.org/abs/2603.13063v1 (visited on 2026-03-20).">FAH</a>]</span>. This
+<blockquote>
+<div><p>The regularization proposed by Faltus et al. in the context of contact
+mechanics using a third medium is implemented here <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../../index.html#id5" title="Ondřej Faltus, Marco Amato, and Martin Horák. Deformation gradient averaging regularization for third medium contact. URL: https://arxiv.org/abs/2603.13063v1 (visited on 2026-03-20).">FAH</a>]</span>. This
 regularization only applies to finite strain behaviours. Currently, this
 regularization is only available for isotropic behaviours.</p>
 <p>This regularization adds a contribution to the standard variational
@@ -310,11 +344,12 @@ which penalizes the difference between the deformation gradient
 <span class="w">    </span><span class="p">{</span><span class="s">"Regularization"</span><span class="p">,</span>
 <span class="w">     </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
 <span class="w">         </span><span class="p">{</span><span class="s">"Faltus2026"</span><span class="p">,</span>
-<span class="w">          </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"PenalizationCoefficient"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e11</span><span class="p">}}}}}};</span>
+<span class="w">          </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{{</span><span class="s">"PenalizationCoefficient"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e11</span><span class="p">}}}}}};</span>
 <span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"Mechanics"</span><span class="p">,</span><span class="w"> </span><span class="s">"ThirdMedium"</span><span class="p">,</span><span class="w"> </span><span class="n">library</span><span class="p">,</span>
 <span class="w">                                 </span><span class="n">behaviour2</span><span class="p">,</span><span class="w"> </span><span class="n">faltus_parameters</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">or_die</span><span class="p">;</span>
 </pre></div>
 </div>
+</div></blockquote>
 </section>
 <section id="the-info-function">
 <h3>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function<a class="headerlink" href="#the-info-function" title="Link to this heading"></a></h3>
@@ -350,8 +385,8 @@ processes.</p></li>
 </ul>
 <p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpaceInformation</span></code> structure can be printed to
 an output stream using the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">info</span></code> function.</p>
-<section id="id3">
-<h5>Example of usage<a class="headerlink" href="#id3" title="Link to this heading"></a></h5>
+<section id="id4">
+<h5>Example of usage<a class="headerlink" href="#id4" title="Link to this heading"></a></h5>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">qspace</span><span class="w"> </span><span class="o">=</span>
 <span class="w">   </span><span class="n">problem</span><span class="p">.</span><span class="n">getBehaviourIntegrator</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">getPartialQuadratureSpace</span><span class="p">();</span>
 <span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">info</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">,</span><span class="w"> </span><span class="n">qspace</span><span class="p">);</span>
