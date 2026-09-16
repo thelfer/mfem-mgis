@@ -15,10 +15,29 @@
 #include "TFEL/Math/t2tot2.hxx"
 #include "TFEL/Math/Array/View.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/BehaviourIntegratorTraits.hxx"
 
 namespace mfem_mgis {
+
+  template <typename Child, Hypothesis H>
+  FBarBehaviourIntegratorCRTPBase<Child, H>::FBarBehaviourIntegratorCRTPBase(
+      std::shared_ptr<const PartialQuadratureSpace> s,
+      std::unique_ptr<const Behaviour> b_ptr)
+      : BehaviourIntegratorBase(s, std::move(b_ptr)) {
+    using Traits = BehaviourIntegratorTraits<Child>;
+    constexpr auto usize = static_cast<size_type>(Traits::unknownsSize);
+    const auto &fed = s->getFiniteElementDiscretization();
+    const auto nc = getNumberOfComponents(fed);
+    if (nc != usize) {
+      raise("the number of components of the finite element space (" +
+            std::to_string(nc) +
+            ") does not match "
+            "the number of components expected by the behaviour integrator (" +
+            std::to_string(usize) + ")");
+    }
+  }  // end of FBarBehaviourIntegratorCRTPBase
 
   template <typename Child, Hypothesis H>
   bool FBarBehaviourIntegratorCRTPBase<Child, H>::implementIntegrate(
@@ -319,7 +338,8 @@ namespace mfem_mgis {
       const auto Jbar = tfel::math::det(Fbar);
       const auto J = J0 / Jbar;
       const auto alpha = tfel::math::power<1, ie>(J0 / J);
-      auto F = eval(Fbar / alpha); // deformation gradient, without Fbar correction
+      auto F =
+          eval(Fbar / alpha);  // deformation gradient, without Fbar correction
       if constexpr (ie == 2u) {
         F[2] = 1;
       }

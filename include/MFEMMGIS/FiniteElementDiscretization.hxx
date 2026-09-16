@@ -173,7 +173,17 @@ namespace mfem_mgis {
   };  // end of FiniteElementDiscretization
 
   /*!
-   * \brief return the total number of unknowns
+   * \return the number of components (vectorial dimension) of the underyling
+   * finite element space.
+   * \param[in] fed: finite element discretization
+   */
+  MFEM_MGIS_EXPORT size_type
+  getNumberOfComponents(const FiniteElementDiscretization&) noexcept;
+
+  /*!
+   * \return the total number of unknowns of the underyling
+   * finite element space, including those required to handle ghost values or
+   * hanging nodes.
    * \param[in] fed: finite element discretization
    */
   MFEM_MGIS_EXPORT size_type

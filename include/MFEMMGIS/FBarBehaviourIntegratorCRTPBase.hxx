@@ -36,8 +36,14 @@ namespace mfem_mgis {
     static_assert(((H == Hypothesis::PLANESTRAIN) ||
                    (H == Hypothesis::TRIDIMENSIONAL)),
                   "invalid modelling hypothesis");
-    // inheriting `BehaviourIntegratorBase`' constructor
-    using BehaviourIntegratorBase::BehaviourIntegratorBase;
+    /*!
+     * \brief constructor
+     * \param[in] s: quadrature space
+     * \param[in] b_ptr: behaviour
+     */
+    FBarBehaviourIntegratorCRTPBase(
+        std::shared_ptr<const PartialQuadratureSpace>,
+        std::unique_ptr<const Behaviour>);
     /*!
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent

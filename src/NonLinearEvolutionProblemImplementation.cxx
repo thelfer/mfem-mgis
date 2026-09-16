@@ -136,9 +136,9 @@ namespace mfem_mgis {
     //
     auto u0_local = mfem_mgis::GridFunction<parallel>(&fespace);
     if constexpr (parallel) {
-        u0_local.Distribute(u0);
+      u0_local.Distribute(u0);
     } else {
-        u0_local = u0; 
+      u0_local = u0;
     }
     auto operators = p.getLinearizedOperators(ctx, u0_local);
     if (isInvalid(operators)) {

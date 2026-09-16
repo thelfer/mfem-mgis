@@ -10,12 +10,31 @@
 
 #include "mfem/fem/fe.hpp"
 #include "mfem/fem/eltrans.hpp"
-#include "MGIS/Raise.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/BehaviourIntegratorTraits.hxx"
 
 namespace mfem_mgis {
+
+  template <typename Child>
+  StandardBehaviourIntegratorCRTPBase<Child>::
+      StandardBehaviourIntegratorCRTPBase(
+          std::shared_ptr<const PartialQuadratureSpace> s,
+          std::unique_ptr<const Behaviour> b_ptr)
+      : BehaviourIntegratorBase(s, std::move(b_ptr)) {
+    using Traits = BehaviourIntegratorTraits<Child>;
+    constexpr auto usize = static_cast<size_type>(Traits::unknownsSize);
+    const auto &fed = s->getFiniteElementDiscretization();
+    const auto nc = getNumberOfComponents(fed);
+    if (nc != usize) {
+      raise("the number of components of the finite element space (" +
+            std::to_string(nc) +
+            ") does not match "
+            "the number of components expected by the behaviour integrator (" +
+            std::to_string(usize) + ")");
+    }
+  }  // end of StandardBehaviourIntegratorCRTPBase
 
   template <typename Child>
   bool StandardBehaviourIntegratorCRTPBase<Child>::implementIntegrate(
