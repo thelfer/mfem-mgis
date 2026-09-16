@@ -136,10 +136,9 @@ namespace mfem_mgis {
       auto g = this->s1.gradients.subspan(o * gsize, gsize);
       if constexpr (H == Hypothesis::PLANESTRAIN) {
         for (size_type c = 0; c != gsize; ++c) {
-          if (c != 2) {
-            g[c] = alpha * F[c];
-          }
+          g[c] = alpha * F[c];
         }
+        g[2] = 1;
       } else {
         for (size_type c = 0; c != gsize; ++c) {
           g[c] = alpha * F[c];
@@ -317,18 +316,32 @@ namespace mfem_mgis {
       auto g = this->s1.gradients.subspan(o * gsize, gsize);
       const auto Fbar =
           tfel::math::map<tfel::math::tensor<dimension, real>>(g.data());
-#pragma message("to be fixed in plane strain")
       const auto Jbar = tfel::math::det(Fbar);
       const auto J = J0 / Jbar;
       const auto alpha = tfel::math::power<1, ie>(J0 / J);
-      const auto F = eval(Fbar / alpha);
-      const auto dJ_dF = tfel::math::computeDeterminantDerivative(F);
-      const auto dJ_dF0 = tfel::math::computeDeterminantDerivative(F0);
+      auto F = eval(Fbar / alpha); // deformation gradient, without Fbar correction
+      if constexpr (ie == 2u) {
+        F[2] = 1;
+      }
+      auto dJ_dF = tfel::math::computeDeterminantDerivative(F);
+      auto dJ_dF0 = tfel::math::computeDeterminantDerivative(F0);
       const auto dalpha_dF0 = (alpha / (ie * J0)) * dJ_dF0;
       const auto dalpha_dF = (-alpha / (ie * J)) * dJ_dF;
-      const auto dFbar_dF0 = tfel::math::eval(F ^ dalpha_dF0);
-      const auto dFbar_dF = tfel::math::eval(
+      auto dFbar_dF0 = tfel::math::eval(F ^ dalpha_dF0);
+      auto dFbar_dF = tfel::math::eval(
           alpha * tfel::math::t2tot2<dimension, real>::Id() + (F ^ dalpha_dF));
+      if constexpr (ie == 2u) {
+        // those are brutal corrections that seems working
+        // we shall verify this someday
+        for (size_type idx = 0; idx != gsize; ++idx) {
+          dFbar_dF0(2, idx) = 0;
+          dFbar_dF0(idx, 2) = 0;
+          dFbar_dF(2, idx) = 0;
+          dFbar_dF(idx, 2) = 0;
+        }
+        dFbar_dF0(2, 2) = 1;
+        dFbar_dF(2, 2) = 1;
+      }
       // tangent operator
       const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
       const auto Kb =
