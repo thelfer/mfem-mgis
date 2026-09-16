@@ -1,15 +1,15 @@
 /*!
- * \file   MFEMMGIS/PartialQuadratureFunctionEvaluatorBase.hxx
+ * \file   MFEMMGIS/QPEvaluatorBase.hxx
  * \brief
  * \author Thomas Helfer
  * \date   12/03/2026
  */
 
-#ifndef LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATORBASE_HXX
-#define LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATORBASE_HXX
+#ifndef LIB_MFEM_MGIS_QPEVALUATORBASE_HXX
+#define LIB_MFEM_MGIS_QPEVALUATORBASE_HXX
 
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/AbstractPartialQuadratureFunctionEvaluator.hxx"
+#include "MFEMMGIS/AbstractQPEvaluator.hxx"
 
 namespace mfem_mgis {
 
@@ -20,14 +20,12 @@ namespace mfem_mgis {
    * default implementation of `isUniform` return false and `getUniformValue`
    * returns an error.
    */
-  struct MFEM_MGIS_EXPORT PartialQuadratureFunctionEvaluatorBase
-      : AbstractPartialQuadratureFunctionEvaluator {
+  struct MFEM_MGIS_EXPORT QPEvaluatorBase : AbstractQPEvaluator {
     /*!
      * \brief constructor
      * \param[in] s: partial quadrature space
      */
-    PartialQuadratureFunctionEvaluatorBase(
-        std::shared_ptr<const PartialQuadratureSpace>);
+    QPEvaluatorBase(std::shared_ptr<const PartialQuadratureSpace>);
     //
     [[nodiscard]] const PartialQuadratureSpace& getQuadratureSpace()
         const noexcept override;
@@ -39,18 +37,16 @@ namespace mfem_mgis {
                     const real,
                     const real) const noexcept override;
     //! \brief destructor
-    ~PartialQuadratureFunctionEvaluatorBase() noexcept override;
+    ~QPEvaluatorBase() noexcept override;
 
    protected:
     //! \brief partial quadrature space
     std::shared_ptr<const PartialQuadratureSpace> qspace;
-  };  // end of struct PartialQuadratureFunctionEvaluatorBase
+  };  // end of struct QPEvaluatorBase
 
   //! \brief base class for evaluators returning uniform scalar values
-  struct MFEM_MGIS_EXPORT UniformScalarPartialQuadratureFunctionEvaluatorBase
-      : PartialQuadratureFunctionEvaluatorBase {
-    using PartialQuadratureFunctionEvaluatorBase::
-        PartialQuadratureFunctionEvaluatorBase;
+  struct MFEM_MGIS_EXPORT UniformScalarQPEvaluatorBase : QPEvaluatorBase {
+    using QPEvaluatorBase::QPEvaluatorBase;
     //
     [[nodiscard]] size_type getNumberOfComponents()
         const noexcept override final;
@@ -59,10 +55,10 @@ namespace mfem_mgis {
     getUniformValue(Context& ctx,
                     const real,
                     const real) const noexcept override final;
-    [[nodiscard]] std::optional<PartialQuadratureFunctionEvaluatorResult>
-    evaluate(Context&, const real, const real) const noexcept override final;
+    [[nodiscard]] std::optional<QPEvaluatorResult> evaluate(
+        Context&, const real, const real) const noexcept override final;
     //! \brief destructor
-    ~UniformScalarPartialQuadratureFunctionEvaluatorBase() noexcept override;
+    ~UniformScalarQPEvaluatorBase() noexcept override;
 
    protected:
     /*!
@@ -74,8 +70,8 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual std::optional<real> getValue(
         Context&, const real, const real) const noexcept = 0;
-  };  // end of UniformScalarPartialQuadratureFunctionEvaluatorBase
+  };  // end of UniformScalarQPEvaluatorBase
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATORBASE_HXX */
+#endif /* LIB_MFEM_MGIS_QPEVALUATORBASE_HXX */

@@ -10,8 +10,7 @@
 
 namespace mfem_mgis {
 
-  template <size_type N,
-            PartialQuadratureFunctionEvaluatorConcept EvaluatorType>
+  template <size_type N, QPEvaluatorConcept EvaluatorType>
   bool assign(Context& ctx,
               PartialQuadratureFunction& f,
               EvaluatorType e) requires(N > 0) {
@@ -41,7 +40,7 @@ namespace mfem_mgis {
     return true;
   }  // end of assign
 
-  template <PartialQuadratureFunctionEvaluatorConcept EvaluatorType>
+  template <QPEvaluatorConcept EvaluatorType>
   bool assign(Context& ctx, PartialQuadratureFunction& f, EvaluatorType e) {
     raise_if(&f.getPartialQuadratureSpace() != &e.getPartialQuadratureSpace(),
              "assign: unmatched number of components for the left hand size "

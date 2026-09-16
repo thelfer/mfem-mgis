@@ -13,9 +13,9 @@ list(APPEND MFEMMGIS_SOURCES
   PartialQuadratureSpace.cxx
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx
-  AbstractPartialQuadratureFunctionEvaluator.cxx
-  PartialQuadratureFunctionEvaluatorBase.cxx
-  PartialQuadratureFunctionEvaluators.cxx
+  AbstractQPEvaluator.cxx
+  QPEvaluatorBase.cxx
+  QPEvaluators.cxx
   Behaviour.cxx
   Material.cxx
   AbstractBehaviourIntegrator.cxx
@@ -125,7 +125,7 @@ endif(MFEM_USE_GSLIB AND MGIS_HAVE_TFEL)
 
 if(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)
   list(APPEND MFEMMGIS_SOURCES
-       PartialQuadratureFunctionEvaluator.cxx
+       QPEvaluator.cxx
        MechanicalPostProcessings.cxx
        PartialQuadratureFunctionsSet.cxx)
 endif(MGIS_FUNCTION_SUPPORT AND MGIS_HAVE_TFEL)

@@ -1,24 +1,22 @@
 /*!
- * \file   src/PartialQuadratureFunctionEvaluator.cxx
+ * \file   src/QPEvaluator.cxx
  * \brief
  * \author Thomas Helfer
  * \date   29/04/2025
  */
 
-#include "MFEMMGIS/PartialQuadratureFunctionEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator.hxx"
 
 namespace mfem_mgis {
 
-  RotationMatrixPartialQuadratureFunctionEvalutor::
-      RotationMatrixPartialQuadratureFunctionEvalutor(const Material& m)
+  RotationMatrixQPEvaluator::RotationMatrixQPEvaluator(const Material& m)
       : material(m) {
     raise_if(
         this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC,
         "material is not orthotropic");
   }
 
-  bool RotationMatrixPartialQuadratureFunctionEvalutor::check(
-      AbstractErrorHandler& eh) const {
+  bool RotationMatrixQPEvaluator::check(AbstractErrorHandler& eh) const {
     if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
       return eh.registerErrorMessage("material is not orthotropic");
     }
@@ -26,8 +24,7 @@ namespace mfem_mgis {
   }  // end of check
 
   const PartialQuadratureSpace&
-  RotationMatrixPartialQuadratureFunctionEvalutor::getPartialQuadratureSpace()
-      const {
+  RotationMatrixQPEvaluator::getPartialQuadratureSpace() const {
     return this->material.getPartialQuadratureSpace();
   }
 

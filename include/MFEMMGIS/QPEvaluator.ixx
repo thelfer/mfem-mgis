@@ -1,12 +1,12 @@
 /*!
- * \file   MFEMMGIS/PartialQuadratureFunctionEvaluator.ixx
+ * \file   MFEMMGIS/QPEvaluator.ixx
  * \brief
  * \author Thomas Helfer
  * \date   29/04/2025
  */
 
-#ifndef LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_IXX
-#define LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_IXX
+#ifndef LIB_MFEM_MGIS_QPEVALUATOR_IXX
+#define LIB_MFEM_MGIS_QPEVALUATOR_IXX
 
 #include <iterator>
 #include <algorithm>
@@ -56,30 +56,28 @@ namespace mfem_mgis::algorithm {
 
 namespace mfem_mgis {
 
-  inline auto RotationMatrixPartialQuadratureFunctionEvalutor::operator()(
-      const size_type i) const {
+  inline auto RotationMatrixQPEvaluator::operator()(const size_type i) const {
     return this->material.getRotationMatrixAtIntegrationPoint(i);
   }
 
   inline const PartialQuadratureSpace& getSpace(
-      const RotationMatrixPartialQuadratureFunctionEvalutor& e) {
+      const RotationMatrixQPEvaluator& e) {
     return e.getPartialQuadratureSpace();
   }  // end of getSpace
 
   inline bool check(AbstractErrorHandler& eh,
-                    const RotationMatrixPartialQuadratureFunctionEvalutor& e) {
+                    const RotationMatrixQPEvaluator& e) {
     return e.check(eh);
   }  // end of check
 
   constexpr mgis::size_type getNumberOfComponents(
-      const RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept {
+      const RotationMatrixQPEvaluator&) noexcept {
     return 9u;
   }  // end of getNumberOfComponents
 
   template <size_type ThermodynamicForcesSize>
-  RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-      ThermodynamicForcesSize>::
-      RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor(
+  RotatedThermodynamicForcesMatrixQPEvaluator<ThermodynamicForcesSize>::
+      RotatedThermodynamicForcesMatrixQPEvaluator(
           const Material& m, const Material::StateSelection s) noexcept
       : material(m),
         thforces(getStateManager(m, s).thermodynamic_forces),
@@ -89,11 +87,12 @@ namespace mfem_mgis {
       const auto thsize = sm.thermodynamic_forces_stride;
       this->buffer.resize(thsize);
     }
-  }  // end of RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor
+  }  // end of RotatedThermodynamicForcesMatrixQPEvaluator
 
   template <size_type ThermodynamicForcesSize>
-  bool RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-      ThermodynamicForcesSize>::check(AbstractErrorHandler& ctx) const {
+  bool
+  RotatedThermodynamicForcesMatrixQPEvaluator<ThermodynamicForcesSize>::check(
+      AbstractErrorHandler& ctx) const {
     if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
       return ctx.registerErrorMessage("material is not orthotropic");
     }
@@ -109,14 +108,13 @@ namespace mfem_mgis {
   }
 
   template <size_type ThermodynamicForcesSize>
-  const PartialQuadratureSpace&
-  RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+  const PartialQuadratureSpace& RotatedThermodynamicForcesMatrixQPEvaluator<
       ThermodynamicForcesSize>::getPartialQuadratureSpace() const {
     return this->material.getPartialQuadratureSpace();
   }
 
   template <size_type ThermodynamicForcesSize>
-  size_type RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+  size_type RotatedThermodynamicForcesMatrixQPEvaluator<
       ThermodynamicForcesSize>::getNumberOfComponents() const noexcept {
     if constexpr (ThermodynamicForcesSize == dynamic_extent) {
       const auto& sm = getStateManager(this->material, this->stage);
@@ -127,7 +125,7 @@ namespace mfem_mgis {
   }
 
   template <size_type ThermodynamicForcesSize>
-  auto RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+  auto RotatedThermodynamicForcesMatrixQPEvaluator<
       ThermodynamicForcesSize>::operator()(const size_type i) const {
     const auto* const mf = [this, i] {
       if constexpr (ThermodynamicForcesSize == dynamic_extent) {
@@ -144,30 +142,29 @@ namespace mfem_mgis {
 
   template <size_type ThermodynamicForcesSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
-      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      const RotatedThermodynamicForcesMatrixQPEvaluator<
           ThermodynamicForcesSize>& e) {
     return e.getPartialQuadratureSpace();
   }  // end of getSpace
 
   template <size_type ThermodynamicForcesSize>
-  bool check(
-      AbstractErrorHandler& eh,
-      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-          ThermodynamicForcesSize>& e) {
+  bool check(AbstractErrorHandler& eh,
+             const RotatedThermodynamicForcesMatrixQPEvaluator<
+                 ThermodynamicForcesSize>& e) {
     return e.check(eh);
   }  // end of check
 
   template <size_type ThermodynamicForcesSize>
   inline mgis::size_type getNumberOfComponents(
-      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      const RotatedThermodynamicForcesMatrixQPEvaluator<
           ThermodynamicForcesSize>& e) noexcept {
     return e.getNumberOfComponents();
   }
 
   template <size_type GradientsSize>
-  RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>::
-      RotatedGradientsMatrixPartialQuadratureFunctionEvalutor(
-          const Material& m, const Material::StateSelection s)
+  RotatedGradientsMatrixQPEvaluator<GradientsSize>::
+      RotatedGradientsMatrixQPEvaluator(const Material& m,
+                                        const Material::StateSelection s)
       : material(m), gradients(getStateManager(m, s).gradients), stage(s) {
     if constexpr (GradientsSize == dynamic_extent) {
       const auto& sm = getStateManager(this->material, this->stage);
@@ -177,8 +174,7 @@ namespace mfem_mgis {
   }
 
   template <size_type GradientsSize>
-  bool
-  RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>::check(
+  bool RotatedGradientsMatrixQPEvaluator<GradientsSize>::check(
       AbstractErrorHandler& ctx) const {
     if (this->material.b.symmetry != mgis::behaviour::Behaviour::ORTHOTROPIC) {
       return ctx.registerErrorMessage("material is not orthotropic");
@@ -195,14 +191,13 @@ namespace mfem_mgis {
   }  // end of check
 
   template <size_type GradientsSize>
-  const PartialQuadratureSpace&
-  RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+  const PartialQuadratureSpace& RotatedGradientsMatrixQPEvaluator<
       GradientsSize>::getPartialQuadratureSpace() const {
     return this->material.getPartialQuadratureSpace();
   }
 
   template <size_type GradientsSize>
-  size_type RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
+  size_type RotatedGradientsMatrixQPEvaluator<
       GradientsSize>::getNumberOfComponents() const noexcept {
     if constexpr (GradientsSize == dynamic_extent) {
       const auto& sm = getStateManager(this->material, this->stage);
@@ -213,8 +208,8 @@ namespace mfem_mgis {
   }
 
   template <size_type GradientsSize>
-  auto RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-      GradientsSize>::operator()(const size_type i) const {
+  auto RotatedGradientsMatrixQPEvaluator<GradientsSize>::operator()(
+      const size_type i) const {
     const auto* const mg = [this, i] {
       if constexpr (GradientsSize == dynamic_extent) {
         return this->gradients.data() + i * (this->buffer.size());
@@ -233,34 +228,30 @@ namespace mfem_mgis {
 
   template <size_type GradientsSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
-      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-          GradientsSize>& e) {
+      const RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) {
     return e.getPartialQuadratureSpace();
   }  // end of getSpace
 
   template <size_type GradientsSize>
   bool check(AbstractErrorHandler& eh,
-             const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-                 GradientsSize>& e) {
+             const RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) {
     return e.check(eh);
   }  // end of check
 
   template <size_type GradientsSize>
   inline void allocateWorkspace(
-      RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<GradientsSize>&
-          e) {
+      RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) {
     e.allocateWorkspace();
   }
 
   template <size_type GradientsSize>
   inline mgis::size_type getNumberOfComponents(
-      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-          GradientsSize>& e) noexcept {
+      const RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) noexcept {
     return e.getNumberOfComponents();
   }
 
-  template <PartialQuadratureFunctionEvaluatorConcept EvaluatorType1,
-            PartialQuadratureFunctionEvaluatorConcept EvaluatorType2>
+  template <QPEvaluatorConcept EvaluatorType1,
+            QPEvaluatorConcept EvaluatorType2>
   void checkMatchingQuadratureSpaces(const EvaluatorType1& e1,
                                      const EvaluatorType2& e2) {
     const auto& qspace1 = getSpace(e1);
@@ -270,4 +261,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_IXX */
+#endif /* LIB_MFEM_MGIS_QPEVALUATOR_IXX */

@@ -6,7 +6,7 @@
  */
 
 #include "MFEMMGIS/Algorithms.hxx"
-#include "MFEMMGIS/PartialQuadratureFunctionEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator.hxx"
 #include "MFEMMGIS/PartialQuadratureFunctionUtilities.hxx"
 
 namespace mfem_mgis {
@@ -16,9 +16,7 @@ namespace mfem_mgis {
       PartialQuadratureFunction &f,
       const Material &m,
       const Material::StateSelection s) noexcept {
-    RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-        dynamic_extent>
-        e(m, s);
+    RotatedThermodynamicForcesMatrixQPEvaluator<dynamic_extent> e(m, s);
     return assign(ctx, f, e);
   }  // end of rotateThermodynamicsForces
 

@@ -1,47 +1,40 @@
 /*!
- * \file   src/AbstractPartialQuadratureFunctionEvaluator.cxx
+ * \file   src/AbstractQPEvaluator.cxx
  * \brief
  * \author Thomas Helfer
  * \date   07/03/2026
  */
 
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
-#include "MFEMMGIS/AbstractPartialQuadratureFunctionEvaluator.hxx"
+#include "MFEMMGIS/AbstractQPEvaluator.hxx"
 
 namespace mfem_mgis {
 
-  PartialQuadratureFunctionEvaluatorResult::
-      PartialQuadratureFunctionEvaluatorResult(
-          const ImmutablePartialQuadratureFunctionView& v) noexcept
+  QPEvaluatorResult::QPEvaluatorResult(
+      const ImmutablePartialQuadratureFunctionView& v) noexcept
       : ImmutablePartialQuadratureFunctionView(v) {}
 
-  PartialQuadratureFunctionEvaluatorResult::
-      PartialQuadratureFunctionEvaluatorResult(
-          PartialQuadratureFunction&& v) noexcept
+  QPEvaluatorResult::QPEvaluatorResult(PartialQuadratureFunction&& v) noexcept
       : f(std::move(v)) {
     this->qspace = this->f->getPartialQuadratureSpacePointer();
     this->data_begin = this->f->getDataOffset();
     this->data_size = this->f->getNumberOfComponents();
     this->data_stride = this->f->getDataStride();
     this->immutable_values = this->f->getValues();
-  }  // end of PartialQuadratureFunctionEvaluatorResult
+  }  // end of QPEvaluatorResult
 
-  PartialQuadratureFunctionEvaluatorResult::
-      PartialQuadratureFunctionEvaluatorResult(
-          PartialQuadratureFunctionEvaluatorResult&&) noexcept = default;
+  QPEvaluatorResult::QPEvaluatorResult(QPEvaluatorResult&&) noexcept = default;
 
-  PartialQuadratureFunctionEvaluatorResult::
-      ~PartialQuadratureFunctionEvaluatorResult() noexcept = default;
+  QPEvaluatorResult::~QPEvaluatorResult() noexcept = default;
 
-  AbstractPartialQuadratureFunctionEvaluator::
-      ~AbstractPartialQuadratureFunctionEvaluator() noexcept = default;
+  AbstractQPEvaluator::~AbstractQPEvaluator() noexcept = default;
 
-  std::optional<PartialQuadratureFunctionEvaluatorResult> evaluate(
+  std::optional<QPEvaluatorResult> evaluate(
       Context& ctx,
-      const AbstractPartialQuadratureFunctionEvaluator& e,
+      const AbstractQPEvaluator& e,
       const real t,
       const real dt,
-      const PartialQuadratureFunctionEvaluationOptions& opts) noexcept {
+      const QPEvaluationOptions& opts) noexcept {
     auto oresult = e.evaluate(ctx, t, dt);
     if (isInvalid(oresult)) {
       return {};

@@ -1,12 +1,12 @@
 /*!
- * \file   MFEMMGIS/PartialQuadratureFunctionEvaluator.hxx
+ * \file   MFEMMGIS/QPEvaluator.hxx
  * \brief
 b * \author Thomas Helfer
  * \date   29/04/2025
  */
 
-#ifndef LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_HXX
-#define LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_HXX
+#ifndef LIB_MFEM_MGIS_QPEVALUATOR_HXX
+#define LIB_MFEM_MGIS_QPEVALUATOR_HXX
 
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Material.hxx"
@@ -18,12 +18,12 @@ b * \author Thomas Helfer
 namespace mfem_mgis {
 
   //! \brief an evaluator returning the rotation matrix
-  struct RotationMatrixPartialQuadratureFunctionEvalutor {
+  struct RotationMatrixQPEvaluator {
     /*!
      * \brief constructor
      * \param[in] m: material
      */
-    RotationMatrixPartialQuadratureFunctionEvalutor(const Material&);
+    RotationMatrixQPEvaluator(const Material&);
     //! \brief perform consistency checks
     [[nodiscard]] bool check(AbstractErrorHandler&) const;
     //! \brief return the underlying partial quadrature space
@@ -35,28 +35,27 @@ namespace mfem_mgis {
    private:
     //! \brief underlying material
     const Material& material;
-  };  // end of RotationMatrixPartialQuadratureFunctionEvalutor
+  };  // end of RotationMatrixQPEvaluator
 
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
-      const RotationMatrixPartialQuadratureFunctionEvalutor&);
+      const RotationMatrixQPEvaluator&);
 
-  [[nodiscard]] bool check(
-      AbstractErrorHandler&,
-      const RotationMatrixPartialQuadratureFunctionEvalutor&);
+  [[nodiscard]] bool check(AbstractErrorHandler&,
+                           const RotationMatrixQPEvaluator&);
 
   [[nodiscard]] constexpr mgis::size_type getNumberOfComponents(
-      const RotationMatrixPartialQuadratureFunctionEvalutor&) noexcept;
+      const RotationMatrixQPEvaluator&) noexcept;
 
   /*!
    * \brief an evaluator returning the rotated thermodynamic forces
    */
   template <size_type ThermodynamicForcesSize = dynamic_extent>
-  struct RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor {
+  struct RotatedThermodynamicForcesMatrixQPEvaluator {
     /*!
      * \brief constructor
      * \param[in] m: material
      */
-    RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor(
+    RotatedThermodynamicForcesMatrixQPEvaluator(
         const Material&,
         const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
     //! \brief return the underlying partial quadrature space
@@ -79,35 +78,34 @@ namespace mfem_mgis {
     //! \brief buffer
     mutable Buffer<ThermodynamicForcesSize> buffer;
   };  // end of
-      // RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor
+      // RotatedThermodynamicForcesMatrixQPEvaluator
 
   //! \bref return the quadrature space
   template <size_type ThermodynamicForcesSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
-      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      const RotatedThermodynamicForcesMatrixQPEvaluator<
           ThermodynamicForcesSize>&);
   //! \brief perform consistency checks
   template <size_type ThermodynamicForcesSize>
-  [[nodiscard]] bool check(
-      AbstractErrorHandler&,
-      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
-          ThermodynamicForcesSize>&);
+  [[nodiscard]] bool check(AbstractErrorHandler&,
+                           const RotatedThermodynamicForcesMatrixQPEvaluator<
+                               ThermodynamicForcesSize>&);
   //! \brief return the number of components
   template <size_type ThermodynamicForcesSize>
   mgis::size_type getNumberOfComponents(
-      const RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<
+      const RotatedThermodynamicForcesMatrixQPEvaluator<
           ThermodynamicForcesSize>&) noexcept;
 
   /*!
    * \brief an evaluator returning the gradients rotated in the material frame
    */
   template <size_type GradientsSize = dynamic_extent>
-  struct RotatedGradientsMatrixPartialQuadratureFunctionEvalutor {
+  struct RotatedGradientsMatrixQPEvaluator {
     /*!
      * \brief constructor
      * \param[in] m: material
      */
-    RotatedGradientsMatrixPartialQuadratureFunctionEvalutor(
+    RotatedGradientsMatrixQPEvaluator(
         const Material&,
         const Material::StateSelection = Material::END_OF_TIME_STEP);
     //! \brief perform consistency checks
@@ -129,56 +127,49 @@ namespace mfem_mgis {
     const Material::StateSelection stage;
     //! \brief buffer
     mutable Buffer<GradientsSize> buffer;
-  };  // end of RotatedGradientsMatrixPartialQuadratureFunctionEvalutor
+  };  // end of RotatedGradientsMatrixQPEvaluator
 
   //! \bref return the quadrature space
   template <size_type GradientsSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
-      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-          GradientsSize>&);
+      const RotatedGradientsMatrixQPEvaluator<GradientsSize>&);
   //! \brief perform consistency checks
   template <size_type GradientsSize>
   [[nodiscard]] bool check(
       AbstractErrorHandler&,
-      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-          GradientsSize>&);
+      const RotatedGradientsMatrixQPEvaluator<GradientsSize>&);
   //! \brief return the number of components
   template <size_type GradientsSize>
   mgis::size_type getNumberOfComponents(
-      const RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<
-          GradientsSize>&) noexcept;
+      const RotatedGradientsMatrixQPEvaluator<GradientsSize>&) noexcept;
 
   /*!
    * \brief check if the given evaluators have the same partial quadrature space
    * \param[in] e1: first evaluator
    * \param[in] e2: second evaluator
    */
-  template <PartialQuadratureFunctionEvaluatorConcept EvaluatorType1,
-            PartialQuadratureFunctionEvaluatorConcept EvaluatorType2>
+  template <QPEvaluatorConcept EvaluatorType1,
+            QPEvaluatorConcept EvaluatorType2>
   void checkMatchingQuadratureSpaces(const EvaluatorType1&,
                                      const EvaluatorType2&);
 
 }  // end of namespace mfem_mgis
 
-#include "MFEMMGIS/PartialQuadratureFunctionEvaluator.ixx"
+#include "MFEMMGIS/QPEvaluator.ixx"
 
 namespace mfem_mgis {
 
+  static_assert(mgis::function::EvaluatorConcept<RotationMatrixQPEvaluator>);
+  static_assert(!mgis::function::FunctionConcept<RotationMatrixQPEvaluator>);
   static_assert(mgis::function::EvaluatorConcept<
-                RotationMatrixPartialQuadratureFunctionEvalutor>);
+                RotatedThermodynamicForcesMatrixQPEvaluator<>>);
   static_assert(!mgis::function::FunctionConcept<
-                RotationMatrixPartialQuadratureFunctionEvalutor>);
+                RotatedThermodynamicForcesMatrixQPEvaluator<>>);
   static_assert(
-      mgis::function::EvaluatorConcept<
-          RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<>>);
+      mgis::function::EvaluatorConcept<RotatedGradientsMatrixQPEvaluator<>>);
   static_assert(
-      !mgis::function::FunctionConcept<
-          RotatedThermodynamicForcesMatrixPartialQuadratureFunctionEvalutor<>>);
-  static_assert(mgis::function::EvaluatorConcept<
-                RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<>>);
-  static_assert(!mgis::function::FunctionConcept<
-                RotatedGradientsMatrixPartialQuadratureFunctionEvalutor<>>);
+      !mgis::function::FunctionConcept<RotatedGradientsMatrixQPEvaluator<>>);
 
 }  // namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_PARTIALQUADRATUREFUNCTIONEVALUATOR_HXX */
+#endif /* LIB_MFEM_MGIS_QPEVALUATOR_HXX */

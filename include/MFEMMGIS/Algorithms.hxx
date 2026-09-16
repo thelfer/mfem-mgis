@@ -10,7 +10,7 @@
 
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
-#include "MFEMMGIS/PartialQuadratureFunctionEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator.hxx"
 
 namespace mfem_mgis {
 
@@ -19,22 +19,17 @@ namespace mfem_mgis {
    * \param[in] lhs: left hand side
    * \param[in] e: right hand side
    */
-  template <size_type N,
-            PartialQuadratureFunctionEvaluatorConcept
-                PartialQuadratureFunctionEvaluatorType>
+  template <size_type N, QPEvaluatorConcept QPEvaluatorType>
   bool assign(Context&,
               PartialQuadratureFunction&,
-              PartialQuadratureFunctionEvaluatorType) requires(N > 0);
+              QPEvaluatorType) requires(N > 0);
   /*!
    * \brief assign the evaluator to a partial quadrature function
    * \param[in] lhs: left hand side
    * \param[in] e: right hand side
    */
-  template <PartialQuadratureFunctionEvaluatorConcept
-                PartialQuadratureFunctionEvaluatorType>
-  bool assign(Context&,
-              PartialQuadratureFunction&,
-              PartialQuadratureFunctionEvaluatorType);
+  template <QPEvaluatorConcept QPEvaluatorType>
+  bool assign(Context&, PartialQuadratureFunction&, QPEvaluatorType);
 
   /*!
   template <typename ValueType, typename BinaryOperator>
