@@ -33,8 +33,14 @@ namespace mfem_mgis {
   template <typename Child>
   struct StandardBehaviourIntegratorCRTPBase : BehaviourIntegratorBase {
    protected:
-    // inheriting `BehaviourIntegratorBase`' constructor
-    using BehaviourIntegratorBase::BehaviourIntegratorBase;
+    /*!
+     * \brief constructor
+     * \param[in] s: quadrature space
+     * \param[in] b_ptr: behaviour
+     */
+    StandardBehaviourIntegratorCRTPBase(
+        std::shared_ptr<const PartialQuadratureSpace>,
+        std::unique_ptr<const Behaviour>);
     /*!
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent

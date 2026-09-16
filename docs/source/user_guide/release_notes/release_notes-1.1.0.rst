@@ -341,6 +341,7 @@ Issues fixed
 - Issue 254: Missing parameter option for GMRESSolver
 - Issue 253: Incomplete linear solver convergence checks in NonLinearEvolutionProblemImplementation.cxx and NewtonSolver.cxx
 - Issue 248: Improve `PartialQuadratureFunction` interface
+- Issue 245: Check the size of the unknown when defining bricks
 - Issue 240: Small bug in `LinearSolverFactory.cxx`
 - Issue 237: [cmake] Add a build-tests target
 - Issue 218: [performance] synchronize success of the setup methods at a

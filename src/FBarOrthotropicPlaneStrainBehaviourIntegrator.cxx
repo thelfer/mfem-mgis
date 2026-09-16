@@ -68,7 +68,7 @@ namespace mfem_mgis {
 
   std::array<real, 5>
   FBarOrthotropicPlaneStrainBehaviourIntegrator::rotateThermodynamicForces(
-      std::span<const real> s, const RotationMatrix & r) {
+      std::span<const real> s, const RotationMatrix &r) {
     std::array<real, 5> rs;
     std::copy(s.begin(), s.end(), rs.begin());
     this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), r.data());
