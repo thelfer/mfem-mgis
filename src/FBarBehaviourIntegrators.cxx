@@ -24,7 +24,8 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("no parameter expected");
     }
     if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-      return ctx.registerErrorMessage("invalid behaviour type");
+      return ctx.registerErrorMessage(
+          "invalid behaviour type: a finite strain behaviour is expected");
     }
     if (b->symmetry == Behaviour::ISOTROPIC) {
       auto bi = make_unique<FBarIsotropicPlaneStrainBehaviourIntegrator>(
@@ -57,7 +58,8 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("no parameter expected");
     }
     if (b->btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
-      return ctx.registerErrorMessage("invalid behaviour type");
+      return ctx.registerErrorMessage(
+          "invalid behaviour type: a finite strain behaviour is expected");
     }
     if (b->symmetry == Behaviour::ISOTROPIC) {
       auto bi = make_unique<FBarIsotropicTridimensionalBehaviourIntegrator>(
