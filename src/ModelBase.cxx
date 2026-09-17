@@ -131,6 +131,20 @@ namespace mfem_mgis {
     //     "; d += "the dependencies resolution process."; return d;
   }  // end of getDependenciesDescription
 
+  bool ModelBase::analyseDependency(Context &,
+                                    DependenciesManager &,
+                                    const QPDependency &,
+                                    const TimeStepStage) const noexcept {
+    return true;
+  }  // end of analyseDependency
+
+  bool ModelBase::resolveDependency(Context &ctx,
+                                    QPEvaluatorsFactory &,
+                                    const QPDependency &d,
+                                    const TimeStepStage) const noexcept {
+    return Provider::reportInvalidResolveDependencyCall(ctx, d);
+  }  // end of resolveDependency
+
   VerbosityLevel ModelBase::getVerbosityLevel() const noexcept {
     if (this->verbosityLevel.has_value()) {
       return *(this->verbosityLevel);

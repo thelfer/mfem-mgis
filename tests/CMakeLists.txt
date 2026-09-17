@@ -212,6 +212,40 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_partial_quadrature_space_test(OrthotropicElasticity EquivalentStrain)
 
+  # PartialQuadratureSpaceTest2 executable
+  add_tfel_test_executable(PartialQuadratureSpaceTest2)
+
+  # Helper function for PartialQuadratureSpaceTest2 cases
+  function(add_partial_quadrature_space_test2)
+    set(test "PartialQuadratureSpaceTest2")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh")
+    add_test(NAME ${test}
+             COMMAND ./PartialQuadratureSpaceTest2 ${params} "--parallel" 0)
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./PartialQuadratureSpaceTest2 ${params} "--parallel" 1)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_partial_quadrature_space_test2()
+
+  # StateManagerTest executable
+  add_tfel_test_executable(StateManagerTest)
+
+  # Helper function for StateManager cases
+  function(add_state_manager_test)
+    set(test "StateManagerTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh")
+    add_test(NAME ${test}
+             COMMAND ./StateManagerTest ${params} "--parallel" 0)
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./StateManagerTest ${params} "--parallel" 1)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_state_manager_test()
+
   # MeshDiscretizationTest executable
   add_tfel_test_executable(MeshDiscretizationTest)
 

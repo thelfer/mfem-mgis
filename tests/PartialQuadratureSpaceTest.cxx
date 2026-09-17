@@ -1,5 +1,5 @@
 /*!
- * \file   tests/UniaxialTensileTest.cxx
+ * \file   tests/PartialQuadratureSpaceTest.cxx
  * \brief
  * \author Thomas Helfer
  * \date   14/12/2020

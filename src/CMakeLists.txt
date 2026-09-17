@@ -11,6 +11,7 @@ list(APPEND MFEMMGIS_SOURCES
   FiniteElementSpacesManager.cxx
   GridFunctionUtilities.cxx
   PartialQuadratureSpace.cxx
+  PartialQuadratureSpaceIdentifiersManager.cxx
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx
   AbstractQPEvaluator.cxx
@@ -80,6 +81,9 @@ list(APPEND MFEMMGIS_SOURCES
   AbstractSimulationMonitor.cxx
   ComputeNextStateOutput.cxx
   Provider.cxx
+  Dependency.cxx
+  DependenciesManager.cxx
+  StateManager.cxx
   AbstractCouplingItem.cxx
   AbstractCouplingScheme.cxx
   AbstractCouplingSchemeConvergenceCriterion.cxx

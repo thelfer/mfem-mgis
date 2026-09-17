@@ -61,36 +61,16 @@ namespace mfem_mgis {
                                          const Parameters &) noexcept override;
     //     [[nodiscard]] bool declareDependencies(
     //         Context &, DependenciesManager &) const noexcept override;
-    //     [[nodiscard]] bool analyseDependency(Context &,
-    //                                  DependenciesManager &,k
-    //                                  const ValueDependency &,
-    //                                  const TimeStepStage) const noexcept
-    //                                  override;
-    //     [[nodiscard]] bool resolveDependency(Context &,
-    //                                  ValueEvaluatorsFactory &,
-    //                                  const ValueDependency &,
-    //                                  const TimeStepStage) const noexcept
-    //                                  override;
-    //     [[nodiscard]] bool analyseDependency(Context &,
-    //                                  DependenciesManager &,
-    //                                  const NodalDependency &,
-    //                                  const TimeStepStage) const noexcept
-    //                                  override;
-    //     [[nodiscard]] bool resolveDependency(Context &,
-    //                                  NodalEvaluatorsFactory &,
-    //                                  const NodalDependency &,
-    //                                  const TimeStepStage) const noexcept
-    //                                  override;
-    //     [[nodiscard]] bool analyseDependency(Context &,
-    //                                  DependenciesManager &,
-    //                                  const IPDependency &,
-    //                                  const TimeStepStage) const noexcept
-    //                                  override;
-    //     [[nodiscard]] bool resolveDependency(Context &,
-    //                                  IPEvaluatorsFactory &,
-    //                                  const IPDependency &,
-    //                                  const TimeStepStage) const noexcept
-    //                                  override;
+    [[nodiscard]] bool analyseDependency(
+        Context &,
+        DependenciesManager &,
+        const QPDependency &,
+        const TimeStepStage) const noexcept override;
+    [[nodiscard]] bool resolveDependency(
+        Context &,
+        QPEvaluatorsFactory &,
+        const QPDependency &,
+        const TimeStepStage) const noexcept override;
     //     [[nodiscard]] bool initializeBeforeResourcesAllocation(
     //         Context &,
     //         ValueEvaluatorsFactory &,
