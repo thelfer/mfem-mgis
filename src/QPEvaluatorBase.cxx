@@ -1,11 +1,11 @@
-
 /*!
  * \file   QPEvaluatorBase.cxx
- * \brief  This file implements the `QPEvaluatorBase`
- * class \author Thomas Helfer \date   12/03/2026
+ * \brief  This file implements the `QPEvaluatorBase` class
+ * \author Thomas Helfer
+ * \date   12/03/2026
  */
 
-#include "MFEMMGIS/QPEvaluatorBase.hxx"
+#include "MFEMMGIS/QPEvaluator/QPEvaluatorBase.hxx"
 
 namespace mfem_mgis {
 

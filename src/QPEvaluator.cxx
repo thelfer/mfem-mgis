@@ -5,7 +5,7 @@
  * \date   29/04/2025
  */
 
-#include "MFEMMGIS/QPEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator/QPEvaluator.hxx"
 
 namespace mfem_mgis {
 

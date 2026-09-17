@@ -13,7 +13,7 @@
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
-#include "MFEMMGIS/AbstractQPEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator/AbstractQPEvaluator.hxx"
 #include "MFEMMGIS/Material.hxx"
 
 namespace mfem_mgis {

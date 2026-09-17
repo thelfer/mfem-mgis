@@ -12,7 +12,7 @@
 #include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
-#include "MFEMMGIS/AbstractQPEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator/AbstractQPEvaluator.hxx"
 #include "MFEMMGIS/BehaviourIntegratorBase.hxx"
 
 namespace mfem_mgis {

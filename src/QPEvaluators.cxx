@@ -8,7 +8,7 @@
 
 #include <algorithm>
 #include "MFEMMGIS/Material.hxx"
-#include "MFEMMGIS/QPEvaluators.hxx"
+#include "MFEMMGIS/QPEvaluator/QPEvaluators.hxx"
 
 namespace mfem_mgis {
 

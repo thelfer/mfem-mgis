@@ -1,12 +1,12 @@
 /*!
  * \file   MFEMMGIS/QPEvaluator.hxx
  * \brief
-b * \author Thomas Helfer
+ * \author Thomas Helfer
  * \date   29/04/2025
  */
 
-#ifndef LIB_MFEM_MGIS_QPEVALUATOR_HXX
-#define LIB_MFEM_MGIS_QPEVALUATOR_HXX
+#ifndef LIB_MFEMMGIS_QPEVALUATOR_QPEVALUATOR_HXX
+#define LIB_MFEMMGIS_QPEVALUATOR_QPEVALUATOR_HXX
 
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Material.hxx"
@@ -155,7 +155,7 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#include "MFEMMGIS/QPEvaluator.ixx"
+#include "MFEMMGIS/QPEvaluator/QPEvaluator.ixx"
 
 namespace mfem_mgis {
 
@@ -172,4 +172,4 @@ namespace mfem_mgis {
 
 }  // namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_QPEVALUATOR_HXX */
+#endif /* LIB_MFEMMGIS_QPEVALUATOR_QPEVALUATOR_HXX */

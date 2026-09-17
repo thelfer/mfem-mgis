@@ -1,19 +1,19 @@
 /*!
- * \file   MFEMMGIS/QPEvaluators.hxx
+ * \file   MFEMMGIS/QPEvaluator/QPEvaluators.hxx
  * \brief  This file declares a list of standard evaluators
  * \author Thomas HElfer
  * \date   12/03/2026
  */
 
-#ifndef LIB_MFEMMGIS_QPEVALUATORS_HXX
-#define LIB_MFEMMGIS_QPEVALUATORS_HXX
+#ifndef LIB_MFEMMGIS_QPEVALUATOR_QPEVALUATORS_HXX
+#define LIB_MFEMMGIS_QPEVALUATOR_QPEVALUATORS_HXX
 
 #include <memory>
 #include <optional>
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/TimeStepStage.hxx"
-#include "MFEMMGIS/QPEvaluatorBase.hxx"
+#include "MFEMMGIS/QPEvaluator/QPEvaluatorBase.hxx"
 
 namespace mfem_mgis {
 
@@ -162,4 +162,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEMMGIS_QPEVALUATORS_HXX */
+#endif /* LIB_MFEMMGIS_QPEVALUATOR_QPEVALUATORS_HXX */

@@ -1,12 +1,12 @@
 /*!
- * \file   PartialQuadratureFunctionUtilities.cxx
+ * \file   src/PartialQuadratureFunctionUtilities.cxx
  * \brief
  * \author Thomas Helfer
  * \date   30/04/2025
  */
 
 #include "MFEMMGIS/Algorithms.hxx"
-#include "MFEMMGIS/QPEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator/QPEvaluator.hxx"
 #include "MFEMMGIS/PartialQuadratureFunctionUtilities.hxx"
 
 namespace mfem_mgis {

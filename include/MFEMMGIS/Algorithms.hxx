@@ -10,7 +10,7 @@
 
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
-#include "MFEMMGIS/QPEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator/QPEvaluator.hxx"
 
 namespace mfem_mgis {
 

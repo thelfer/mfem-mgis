@@ -6,7 +6,7 @@
  */
 
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
-#include "MFEMMGIS/AbstractQPEvaluator.hxx"
+#include "MFEMMGIS/QPEvaluator/AbstractQPEvaluator.hxx"
 
 namespace mfem_mgis {
 
