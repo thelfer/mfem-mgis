@@ -83,14 +83,15 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(!areEquivalent(*qspace1, *qspace3));
     TFEL_TESTS_CHECK(!areEquivalent(*qspace2, *qspace3));
     //
-    auto ids = PartialQuadratureSpaceIdentifiersManager{*om};
-    const auto oi1 = ids.getIdentifier(ctx, qspace1);
+    auto oids = construct<PartialQuadratureSpaceIdentifiersManager>(ctx, *om);
+    TFEL_TESTS_ASSERT(isValid(oids));
+    const auto oi1 = oids->getIdentifier(ctx, qspace1);
     TFEL_TESTS_ASSERT(isValid(oi1));
-    const auto oi1b = ids.getIdentifier(ctx, qspace1);
+    const auto oi1b = oids->getIdentifier(ctx, qspace1);
     TFEL_TESTS_ASSERT(isValid(oi1b));
-    const auto oi2 = ids.getIdentifier(ctx, qspace2);
+    const auto oi2 = oids->getIdentifier(ctx, qspace2);
     TFEL_TESTS_ASSERT(isValid(oi2));
-    const auto oi3 = ids.getIdentifier(ctx, qspace3);
+    const auto oi3 = oids->getIdentifier(ctx, qspace3);
     TFEL_TESTS_ASSERT(isValid(oi3));
     TFEL_TESTS_CHECK(*oi1 == 0);
     TFEL_TESTS_CHECK(*oi1 == *oi1b);
