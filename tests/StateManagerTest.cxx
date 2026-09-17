@@ -71,18 +71,15 @@ struct StateManagerTest final : public tfel::tests::TestCase {
     // creating a second finite element discretization and a second quadrature
     // space, which is equivalent to the first one
     auto ofed2 = construct<FiniteElementDiscretization>(
-                     ctx, *omesh,
-                     dict{{{"FiniteElementFamily", "H1"},
-                           {"FiniteElementOrder", parameters.order},
-                           {"UnknownsSize", 2}}});
+        ctx, ofed1->getFiniteElementSpacesManager(),
+        dict{{{"UnknownsSize", 2}}});
     TFEL_TESTS_ASSERT(isValid(ofed2));
-    auto qspace2 =
-        make_shared<PartialQuadratureSpace>(
-            ctx, *ofed2, 1,
-            [](const mfem::FiniteElement& e, const mfem::ElementTransformation&)
-                -> const mfem::IntegrationRule& {
-              return mfem::IntRules.Get(e.GetGeomType(), 2);
-            });
+    auto qspace2 = make_shared<PartialQuadratureSpace>(
+        ctx, *ofed2, 1,
+        [](const mfem::FiniteElement& e,
+           const mfem::ElementTransformation&) -> const mfem::IntegrationRule& {
+          return mfem::IntRules.Get(e.GetGeomType(), 2);
+        });
     TFEL_TESTS_ASSERT(isValid(qspace2));
     TFEL_TESTS_CHECK(areEquivalent(*qspace1, *qspace2));
     // retrieving a view on the function

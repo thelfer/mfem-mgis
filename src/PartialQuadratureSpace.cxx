@@ -373,21 +373,23 @@ namespace mfem_mgis {
       return true;
     }
     const auto& fed1 = s1.getFiniteElementDiscretization();
-    const auto& fed2 = s1.getFiniteElementDiscretization();
+    const auto& fed2 = s2.getFiniteElementDiscretization();
     if (fed1.describesAParallelComputation() !=
         fed2.describesAParallelComputation()) {
       return false;
     }
     if (fed1.describesAParallelComputation()) {
+      auto fes_manager = fed1.getFiniteElementSpacesManager();
 #ifdef MFEM_USE_MPI
-      if (fed1.getMeshPointer<true>() != fed2.getMeshPointer<true>()) {
+      if (!fes_manager.manages(fed2.getFiniteElementSpace<true>())) {
         return false;
       }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      if (fed1.getMeshPointer<false>() != fed2.getMeshPointer<false>()) {
+      auto fes_manager = fed1.getFiniteElementSpacesManager();
+      if (!fes_manager.manages(fed2.getFiniteElementSpace<false>())) {
         return false;
       }
     }

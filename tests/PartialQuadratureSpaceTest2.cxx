@@ -55,10 +55,8 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
               {"UnknownsSize", 3}}});
     TFEL_TESTS_ASSERT(isValid(ofed1));
     auto ofed2 = construct<FiniteElementDiscretization>(
-        ctx, *om,
-        dict{{{"FiniteElementFamily", "H1"},
-              {"FiniteElementOrder", parameters.order},
-              {"UnknownsSize", 2}}});
+        ctx, ofed1->getFiniteElementSpacesManager(),
+        dict{{{"UnknownsSize", 2}}});
     TFEL_TESTS_ASSERT(isValid(ofed2));
     auto qspace1 = make_shared<PartialQuadratureSpace>(
         ctx, *ofed1, 1,

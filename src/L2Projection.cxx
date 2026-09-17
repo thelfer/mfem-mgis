@@ -429,10 +429,6 @@ namespace mfem_mgis {
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
     const auto fespaces_manager = fed.getFiniteElementSpacesManager();
     if (!fespaces_manager.manages(rfespace)) {
-      if constexpr (parallel) {
-        std::cerr << "rfespace: " << &rfespace << " " << rfespace.GetParMesh()
-                  << '\n';
-      }
       return ctx.registerErrorMessage("inconsistent finite element spaces");
     }
     if (rfespace.GetVDim() != getNumberOfComponents(fcts.front())) {
