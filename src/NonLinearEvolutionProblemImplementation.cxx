@@ -155,7 +155,7 @@ namespace mfem_mgis {
     }
     //
     for (const auto& bc : p.getBoundaryConditions()) {
-      if (!bc->addLinearFormIntegrators(ctx, a, b, u0, t, dt)) {
+      if (!bc->addLinearFormIntegrators(ctx, a, b, u0_local, t, dt)) {
         return {};
       }
     }
