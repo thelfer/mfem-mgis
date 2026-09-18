@@ -430,10 +430,30 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction::~PartialQuadratureFunction() = default;
 
+  /*!
+   * \brief base class of the coefficients used to build a grid function from
+   * partial quadrature functions.
+   *
+   * The values of a partial quadrature function are only known at the
+   * integration points of its quadrature space. In each element, those values
+   * are projected (in the L2 sense) on the shape functions of the element. The
+   * coefficients return the value of this local projection, which can be
+   * evaluated anywhere in the element and in particular at its nodes.
+   *
+   * \note The `index` member of the integration point passed to `Eval` is
+   * deliberately not used. Its meaning depends on the caller: it is the index
+   * of a node when a grid function is projected, the index of a quadrature
+   * point in an integrator.
+   */
   struct PartialQuadratureFunctionsCoefficientBase {
-    //
+    /*!
+     * \param[in] s: finite element space of the grid function
+     * \param[in] fcts: functions
+     */
     PartialQuadratureFunctionsCoefficientBase(
-        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+        const mfem::FiniteElementSpace& s,
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
+        : fespace(&s) {
       if (fcts.empty()) {
         raise("no functions defined");
       }
@@ -475,8 +495,94 @@ namespace mfem_mgis {
       }
     }  // end of checkScalarFunction
 
+    /*!
+     * \brief evaluate the local projection of a function
+     * \param[out] values: values of the projection at the given point
+     * \param[in] f: function
+     * \param[in] tr: transformation of the element of the grid function
+     * \param[in] ip: point at which the projection is evaluated
+     * \param[in] n: number of the element in the mesh of the quadrature space
+     */
+    void evaluate(mfem::Vector& values,
+                  const ImmutablePartialQuadratureFunctionView& f,
+                  mfem::ElementTransformation& tr,
+                  const mfem::IntegrationPoint& ip,
+                  const size_type n) {
+      const auto& fe = *(this->fespace->GetFE(tr.ElementNo));
+      if (this->element != tr.ElementNo) {
+        this->computeNodalValues(f, fe, tr, n);
+        this->element = tr.ElementNo;
+        tr.SetIntPoint(&ip);
+      }
+      fe.CalcShape(ip, this->shape);
+      this->nodal_values.MultTranspose(this->shape, values);
+    }  // end of evaluate
+
     std::unordered_map<size_type, ImmutablePartialQuadratureFunctionView>
         functions;
+
+   private:
+    /*!
+     * \brief compute the values at the nodes of an element of the local
+     * projection of a function
+     * \param[in] f: function
+     * \param[in] fe: finite element of the grid function
+     * \param[in] tr: transformation of the element of the grid function
+     * \param[in] n: number of the element in the mesh of the quadrature space
+     */
+    void computeNodalValues(const ImmutablePartialQuadratureFunctionView& f,
+                            const mfem::FiniteElement& fe,
+                            mfem::ElementTransformation& tr,
+                            const size_type n) {
+      const auto nnodes = fe.GetDof();
+      const auto nc = f.getNumberOfComponents();
+      this->shape.SetSize(nnodes);
+      // mass matrix, integrated exactly
+      this->mass_matrix.SetSize(nnodes, nnodes);
+      this->mass_matrix = 0.;
+      const auto& mir = mfem::IntRules.Get(fe.GetGeomType(),
+                                           2 * fe.GetOrder() + tr.OrderW());
+      for (int i = 0; i != mir.GetNPoints(); ++i) {
+        const auto& ip = mir.IntPoint(i);
+        tr.SetIntPoint(&ip);
+        fe.CalcShape(ip, this->shape);
+        mfem::AddMult_a_VVt(ip.weight * tr.Weight(), this->shape,
+                            this->mass_matrix);
+      }
+      // right hand side, integrated with the rule of the quadrature space
+      this->rhs.SetSize(nnodes, nc);
+      this->rhs = 0.;
+      const auto& ir = f.getPartialQuadratureSpace().getIntegrationRule(fe, tr);
+      for (int i = 0; i != ir.GetNPoints(); ++i) {
+        const auto& ip = ir.IntPoint(i);
+        tr.SetIntPoint(&ip);
+        fe.CalcShape(ip, this->shape);
+        const auto w = ip.weight * tr.Weight();
+        const auto fvalues = f.getIntegrationPointValues(n, i);
+        for (int k = 0; k != nnodes; ++k) {
+          for (size_type c = 0; c != nc; ++c) {
+            this->rhs(k, c) += w * this->shape[k] * fvalues[c];
+          }
+        }
+      }
+      //
+      this->mass_matrix.Invert();
+      this->nodal_values.SetSize(nnodes, nc);
+      mfem::Mult(this->mass_matrix, this->rhs, this->nodal_values);
+    }  // end of computeNodalValues
+
+    //! \brief finite element space of the grid function
+    const mfem::FiniteElementSpace* fespace;
+    //! \brief element for which the nodal values have been computed
+    int element = -1;
+    //! \brief values of the local projection at the nodes of the element
+    mfem::DenseMatrix nodal_values;
+    //! \brief mass matrix of the element
+    mfem::DenseMatrix mass_matrix;
+    //! \brief right hand side of the local projection
+    mfem::DenseMatrix rhs;
+    //! \brief values of the shape functions
+    mfem::Vector shape;
   };  // end of PartialQuadratureFunctionsCoefficientBase
 
   struct PartialQuadratureFunctionsScalarCoefficient final
@@ -484,8 +590,9 @@ namespace mfem_mgis {
         public mfem::Coefficient {
     //
     PartialQuadratureFunctionsScalarCoefficient(
+        const mfem::FiniteElementSpace& s,
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : PartialQuadratureFunctionsCoefficientBase(fcts) {
+        : PartialQuadratureFunctionsCoefficientBase(s, fcts), value(1) {
       doScalarFunctionsChecks(throwing, this->functions);
     }
     //
@@ -505,8 +612,13 @@ namespace mfem_mgis {
       if (p == this->functions.end()) {
         return 0.;
       }
-      return p->second.getIntegrationPointValue(tr.ElementNo, i.index);
+      this->evaluate(this->value, p->second, tr, i, tr.ElementNo);
+      return this->value[0];
     }  // end of Eval
+
+   private:
+    //! \brief value of the local projection
+    mfem::Vector value;
   };
 
   struct PartialQuadratureFunctionsScalarCoefficientII final
@@ -514,9 +626,12 @@ namespace mfem_mgis {
         public mfem::Coefficient {
     //
     PartialQuadratureFunctionsScalarCoefficientII(
+        const mfem::FiniteElementSpace& s,
         const mfem::Array<int>& m,
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : PartialQuadratureFunctionsCoefficientBase(fcts), elts_mapping(m) {
+        : PartialQuadratureFunctionsCoefficientBase(s, fcts),
+          elts_mapping(m),
+          value(1) {
       doScalarFunctionsChecks(throwing, this->functions);
     }
     //
@@ -537,10 +652,13 @@ namespace mfem_mgis {
         return 0.;
       }
       const auto n = this->elts_mapping[tr.ElementNo];
-      return p->second.getIntegrationPointValue(n, i.index);
+      this->evaluate(this->value, p->second, tr, i, n);
+      return this->value[0];
     }  // end of Eval
    private:
     const mfem::Array<int>& elts_mapping;
+    //! \brief value of the local projection
+    mfem::Vector value;
   };
 
   struct PartialQuadratureFunctionsVectorCoefficient final
@@ -548,8 +666,9 @@ namespace mfem_mgis {
         public mfem::VectorCoefficient {
     //
     PartialQuadratureFunctionsVectorCoefficient(
+        const mfem::FiniteElementSpace& s,
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : PartialQuadratureFunctionsCoefficientBase(fcts),
+        : PartialQuadratureFunctionsCoefficientBase(s, fcts),
           mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()) {}
     //
     PartialQuadratureFunctionsVectorCoefficient(
@@ -569,11 +688,8 @@ namespace mfem_mgis {
       if (p == this->functions.end()) {
         values = 0.;
       } else {
-        const auto rvalues =
-            p->second.getIntegrationPointValues(tr.ElementNo, ip.index);
-        for (size_type i = 0; i != this->GetVDim(); ++i) {
-          values[i] = rvalues[i];
-        }
+        values.SetSize(this->GetVDim());
+        this->evaluate(values, p->second, tr, ip, tr.ElementNo);
       }
     }  // end of Eval
   };
@@ -583,9 +699,10 @@ namespace mfem_mgis {
         public mfem::VectorCoefficient {
     //
     PartialQuadratureFunctionsVectorCoefficientII(
+        const mfem::FiniteElementSpace& s,
         const mfem::Array<int>& m,
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : PartialQuadratureFunctionsCoefficientBase(fcts),
+        : PartialQuadratureFunctionsCoefficientBase(s, fcts),
           mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()),
           elts_mapping(m) {}
     //
@@ -607,10 +724,8 @@ namespace mfem_mgis {
         values = 0.;
       } else {
         const auto n = this->elts_mapping[tr.ElementNo];
-        const auto rvalues = p->second.getIntegrationPointValues(n, ip.index);
-        for (size_type i = 0; i != this->GetVDim(); ++i) {
-          values[i] = rvalues[i];
-        }
+        values.SetSize(this->GetVDim());
+        this->evaluate(values, p->second, tr, ip, n);
       }
     }  // end of Eval
 
@@ -835,10 +950,10 @@ namespace mfem_mgis {
       raise("inconsistent grid function");
     }
     if (n == 1u) {
-      auto c = PartialQuadratureFunctionsScalarCoefficient(fcts);
+      auto c = PartialQuadratureFunctionsScalarCoefficient(*fespace, fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     } else {
-      auto c = PartialQuadratureFunctionsVectorCoefficient(fcts);
+      auto c = PartialQuadratureFunctionsVectorCoefficient(*fespace, fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     }
   }
@@ -878,10 +993,10 @@ namespace mfem_mgis {
       raise("inconsistent grid function");
     }
     if (n == 1u) {
-      auto c = PartialQuadratureFunctionsScalarCoefficient(fcts);
+      auto c = PartialQuadratureFunctionsScalarCoefficient(*fespace, fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     } else {
-      auto c = PartialQuadratureFunctionsVectorCoefficient(fcts);
+      auto c = PartialQuadratureFunctionsVectorCoefficient(*fespace, fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     }
   }
@@ -924,11 +1039,11 @@ namespace mfem_mgis {
     }
     if (n == 1u) {
       auto c = PartialQuadratureFunctionsScalarCoefficientII(
-          mesh.GetParentElementIDMap(), fcts);
+          *fespace, mesh.GetParentElementIDMap(), fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     } else {
       auto c = PartialQuadratureFunctionsVectorCoefficientII(
-          mesh.GetParentElementIDMap(), fcts);
+          *fespace, mesh.GetParentElementIDMap(), fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
     }
   }

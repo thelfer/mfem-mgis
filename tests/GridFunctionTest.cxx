@@ -198,6 +198,58 @@ bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
   return true;
 }
 
+// projection of a partial quadrature function at the nodes
+template <bool parallel>
+bool test3(mfem_mgis::Context& ctx,
+           const TestParameters& params,
+           const mfem_mgis::size_type nc) {
+  using namespace mfem_mgis;
+  auto fed = FiniteElementDiscretization{
+      ctx,
+      {{"MeshFileName", params.mesh_file},
+       {"FiniteElementFamily", "H1"},
+       {"FiniteElementOrder", params.order},
+       {"UnknownsSize", nc},
+       {"NumberOfUniformRefinements", parallel ? 1 : 0},
+       {"Parallel", parallel}}};
+  // a linear field is exactly represented on the finite element space
+  auto f = GridFunction<parallel>{&(fed.getFiniteElementSpace<parallel>())};
+  auto c = mfem::VectorFunctionCoefficient(
+      nc, [nc](const mfem::Vector& x, mfem::Vector& v) {
+        v.SetSize(nc);
+        for (size_type i = 0; i != nc; ++i) {
+          v[i] = (2 + i) * x[0] - 3 * x[1] + 1;
+        }
+      });
+  f.ProjectCoefficient(c);
+  //
+  auto qspace = std::make_shared<PartialQuadratureSpace>(
+      fed, 5,
+      [](const mfem::FiniteElement& e,
+         const mfem::ElementTransformation& tr) noexcept
+      -> const mfem::IntegrationRule& {
+        const auto order = 2 * tr.OrderGrad(&e);
+        return mfem::IntRules.Get(e.GetGeomType(), order);
+      });
+  auto qf = PartialQuadratureFunction(qspace, nc);
+  if (!update(ctx, qf, f)) {
+    return false;
+  }
+  // back on nodes
+  auto og = makeGridFunction<parallel>(ctx, {qf});
+  if (isInvalid(og)) {
+    return false;
+  }
+  updateGridFunction<parallel>(*og, {qf});
+  *og -= f;
+  const auto e = og->Normlinf();
+  if (e > 1e-10) {
+    return ctx.registerErrorMessage("invalid values at nodes (maximum error " +
+                                    std::to_string(e) + ")");
+  }
+  return true;
+}
+
 int main(int argc, char** argv) {
   using namespace mfem_mgis;
   auto ctx = Context{};
@@ -225,7 +277,22 @@ int main(int argc, char** argv) {
     }
     return test2<false>(ctx, params);
   }();
-  if (!(success && success2)) {
+  const auto success3 = [&ctx, &params] {
+    auto r = true;
+    for (const auto nc : {1, 2}) {
+      if (params.parallel) {
+#ifdef MFEM_USE_MPI
+        r = test3<true>(ctx, params, nc) && r;
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      } else {
+        r = test3<false>(ctx, params, nc) && r;
+      }
+    }
+    return r;
+  }();
+  if (!(success && success2 && success3)) {
     std::cerr << ctx.getErrorMessage() << std::endl;
     return EXIT_FAILURE;
   }
