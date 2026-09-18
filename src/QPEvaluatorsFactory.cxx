@@ -8,7 +8,7 @@
 #include "MFEMMGIS/QPEvaluator/AbstractQPEvaluator.hxx"
 #include "MFEMMGIS/QPEvaluator/AbstractQPEvaluatorGenerator.hxx"
 #include "MFEMMGIS/QPEvaluator/QPEvaluatorDescription.hxx"
-// #include "MFEMMGIS/QPEvaluator/QPEvaluatorsFactory.hxx"
+#include "MFEMMGIS/QPEvaluator/QPEvaluatorsFactory.hxx"
 
 namespace mfem_mgis::internal {
 
@@ -330,15 +330,7 @@ namespace mfem_mgis {
   //   QPEvaluatorsFactory::QPEvaluatorsFactory(ResourcesManager &m) noexcept
   //       : resourcesManager_(m) {}  // end of QPEvaluatorsFactory
   //
-  //   ResourcesManager &QPEvaluatorsFactory::getResourcesManager() noexcept {
-  //     return this->resourcesManager_;
-  //   }  // end of getResourcesManager
-  //
-  //   const ResourcesManager &QPEvaluatorsFactory::getResourcesManager()
-  //       const noexcept {
-  //     return this->resourcesManager_;
-  //   }  // end of getResourcesManager
-  //
+
   //   QPEvaluatorsFactory::GeneratorsContainer &
   //   QPEvaluatorsFactory::getGeneratorsContainer_(const TimeStepStage s)
   //   noexcept {
@@ -448,12 +440,11 @@ namespace mfem_mgis {
   //     return this->registerGenerator(ctx, f.getMeshSet(), qid, s, n, g);
   //   }
   //
-  //   Bool QPEvaluatorsFactory::containsGenerator(
-  //       const MeshSet &m,
-  //       const QuadId qid,
+  //   bool QPEvaluatorsFactory::containsGenerator(
+  //       const qid,
   //       const TimeStepStage s,
   //       const std::string &n) const noexcept {
-  //     const auto &generators = this->getGeneratorsContainer_(s);
+  //     const auto &generators = this->getGeneratorsContainer(s);
   //     if (!generators.contains(&m)) {
   //       return false;
   //     }

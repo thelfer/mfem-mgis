@@ -50,6 +50,53 @@ namespace mfem_mgis {
     };
     //! \brief location on which submeshes can be defined
     enum struct Location { ON_MATERIALS, ON_BOUNDARIES };
+    /*!
+     * \brief an helper structure used to distinguish the identifiers of a
+     * single material (associated with a unique attribute) and indentifiers of
+     * a single boundary (associated with a unique boundary attribute)
+     */
+    template <MeshDiscretization::Location>
+    struct RawLocationIdentifier {
+      //! \brief attribute associated with the material or the boundary
+      size_type id;
+      //! \brief comparisons operator
+      constexpr auto operator<=>(const RawLocationIdentifier&) const noexcept =
+          default;
+    };
+    /*!
+     * \brief a simple alias for the identifier of a single
+     * material (associated with a unique attribute)
+     */
+    using MaterialIdentifier =
+        RawLocationIdentifier<MeshDiscretization::Location::ON_MATERIALS>;
+    /*!
+     * \brief a simple alias for the identifier of a single
+     * boundary (associated with a unique attribute)
+     */
+    using BoundaryIdentifier =
+        RawLocationIdentifier<MeshDiscretization::Location::ON_BOUNDARIES>;
+    /*!
+     * \brief a simple structure to store either a material identifier or a
+     * boundary identifier.
+     *
+     * \note This identifier must refer to the main mesh. See
+     * the getLocationIdentifier in `MeshDiscretization` for details.
+     *
+     * \note This structure is sortable, and can be used as key in standard
+     * associative containers.
+     *
+     * \note this structure may be invalid and works with MGIS's error handling
+     * scheme.
+     */
+    struct LocationIdentifier {
+      //! \brief identifier associated with a material
+      std::optional<MaterialIdentifier> material_identifier;
+      //! \brief identifier associated with a boundary
+      std::optional<BoundaryIdentifier> boundary_identifier;
+      //! \brief comparisons operator
+      constexpr auto operator<=>(const LocationIdentifier&) const noexcept =
+          default;
+    };  // end of LocationIdentifier
     //! \brief string associated to the `Parallel` parameter
     static const char* const Parallel;
     //! \brief string associated to the `MeshFileName` parameter
@@ -263,6 +310,23 @@ namespace mfem_mgis {
     std::shared_ptr<const Mesh<parallel>> getMeshPointer(
         Context&, const Mesh<parallel>&) const noexcept;
     /*!
+     * \return the location identifier in the main mesh
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     * \param[in] id: attribute in the mesh
+     *
+     * \note This rationale behind this method is that submesh may be created on
+     * boundaries. In this case, the boundary attributes used to create
+     * the boundaries becomes standard attributes of the submesh. This may lead
+     * to ambiguity when its comes to determine where a partial quadrature space
+     * is defined for instance. The returned location identifier does not have
+     * such ambiguity.
+     */
+    template <bool parallel>
+    [[nodiscard]] std::optional<LocationIdentifier> getLocationIdentifier(
+        Context&, const Mesh<parallel>&, const size_type) const noexcept;
+    /*!
      * \brief set material names
      * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
@@ -276,6 +340,17 @@ namespace mfem_mgis {
      */
     [[nodiscard]] bool setBoundariesNames(
         Context&, const std::map<size_type, std::string>&) noexcept;
+    /*!
+     * \return the name associated with the given identifier, if it is
+     * defined. If the identifier exists but has no name, an empty string is
+     * returned.
+     * \param[in, out] ctx: execution context
+     * \param[in] id: location identifier
+     * \note the method only fails if the identifier is invalid or not defined
+     * in the mesh
+     */
+    [[nodiscard]] std::optional<std::string> getLocationName(
+        Context&, const LocationIdentifier&) const noexcept;
     /*!
      * \return the material name associated with the given identifier, if it is
      * defined. If the identifier exists but has no name, an empty string is
@@ -473,10 +548,11 @@ namespace mfem_mgis {
     ~MeshDiscretization();
 
    protected:
-    //
+    // friend functions and operators
     friend bool getInformation<MeshDiscretization>(
         Context&, std::ostream&, const MeshDiscretization&) noexcept;
-
+    friend bool operator==(const MeshDiscretization&,
+                           const MeshDiscretization&) noexcept;
     //! \return a mutable pointer to the underlying parallel mesh
     [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer()
         const noexcept;
@@ -489,6 +565,32 @@ namespace mfem_mgis {
     //! \return a pointer to the underlying sequential mesh
     [[nodiscard]] std::shared_ptr<const Mesh<false>> getSequentialMeshPointer()
         const noexcept;
+    /*!
+     * \return the location identifier in the main mesh
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     * \param[in] id: attribute in the mesh
+     *
+     * \see `MeshDiscretization::getLocationIdentifier` for details
+     */
+    [[nodiscard]] std::optional<LocationIdentifier>
+    getParallelLocationIdentifier(Context&,
+                                  const Mesh<true>&,
+                                  const size_type) const noexcept;
+    /*!
+     * \return the location identifier in the main mesh
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     * \param[in] id: attribute in the mesh
+     *
+     * \see `MeshDiscretization::getLocationIdentifier` for details
+     */
+    [[nodiscard]] std::optional<LocationIdentifier>
+    getSequentialLocationIdentifier(Context&,
+                                    const Mesh<false>&,
+                                    const size_type) const noexcept;
     /*!
      * \return a mutable pointer to the underlying parallel mesh
      * \param[in, out] ctx: execution context
@@ -629,15 +731,34 @@ namespace mfem_mgis {
     std::shared_ptr<Implementation> pimpl;
   };  // end of MeshDiscretization
 
+  using MaterialIdentifier = MeshDiscretization::MaterialIdentifier;
   /*!
-   * \brief compare two mesh discretisations to see if they point to the same
-   * underlying meshes
+   * \brief a simple alias for the identifier of a single
+   * boundary (associated with a unique attribute)
+   */
+  using BoundaryIdentifier = MeshDiscretization::BoundaryIdentifier;
+  /*!
+   * \brief a simple alias for the identifier of a single material or a
+   * single boundary (associated with a unique attribute)
+   */
+  using LocationIdentifier = MeshDiscretization::LocationIdentifier;
+  /*!
+   * \return if the given location identifier is invalid
+   * \param[in] l: location identifier
+   */
+  [[nodiscard]] constexpr bool isInvalid(const LocationIdentifier& l) noexcept {
+    const auto mok = isValid(l.material_identifier);
+    const auto bok = isValid(l.material_identifier);
+    const auto b1 = (!mok) && (!bok);  // none is valid
+    const auto b2 = mok && bok;        // both are valid
+    return b1 || b2;
+  }  // end of is Invalid
+  /*!
+   * \brief compare two mesh discretisations to see if they points to the same
+   * underlying implementation
    *
    * \param[in] lhs: left hand side
    * \param[in] rhs: right hand side
-   *
-   * \note material names and boundary names may different in both
-   * discretisations.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool operator==(
       const MeshDiscretization&, const MeshDiscretization&) noexcept;
@@ -745,6 +866,24 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
+  /*!
+   * \return if the given location identifier is consistent with the mesh
+   * discretization
+   *
+   * \param[in,out] ctx: execution context
+   * \param[in] m: mesh discretization
+   * \param[in] l: location identifier
+   *
+   * This check fails if:
+   *
+   * - the identifier is invalid
+   * - if the material identifier (if valid) is not mesh attribute
+   * - if the boundary identifier (if valid) is not boundary mesh attribute
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool check(Context&,
+                                            const MeshDiscretization&,
+                                            const LocationIdentifier&) noexcept;
+
 #ifdef MGIS_HAVE_TFEL
 
   template <size_type N>
@@ -793,6 +932,23 @@ namespace mfem_mgis {
 #endif /* MGIS_HAVE_TFEL */
 
 }  // end of namespace mfem_mgis
+
+namespace mgis::internal {
+  /*!
+   * \brief partial specialization to integrate the LocationIdentifier class
+   * in MGIS's error handling scheme
+   */
+  template <>
+  struct InvalidValueTraits<::mfem_mgis::LocationIdentifier> {
+    //! \brief tag indicating that this class is properly specialized
+    static constexpr bool isSpecialized = true;
+    //! \brief return an invalid location identifier
+    static constexpr auto getValue() noexcept {
+      return ::mfem_mgis::LocationIdentifier{};
+    }
+  };
+
+}  // end of namespace mgis::internal
 
 #include "MFEMMGIS/MeshDiscretization.ixx"
 

@@ -1131,6 +1131,46 @@ namespace mfem_mgis {
     }  // end of describesAParallelComputation
 
     /*!
+     * \return the location identifier in the main mesh
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     * \param[in] id: attribute in the mesh
+     */
+    template <bool parallel>
+    [[nodiscard]] std::optional<LocationIdentifier> getLocationIdentifier(
+        Context& ctx,
+        const Mesh<parallel>& m,
+        const size_type id) const noexcept {
+      if (!this->manages(m)) {
+        return ctx.registerErrorMessage<std::optional<LocationIdentifier>>(
+            "the given mesh is not managed by this discretization");
+      }
+      const auto ook = this->isDefinedOnMaterials(ctx, m);
+      if (isInvalid(ook)) {
+        return {};
+      }
+      if (*ook) {
+        const auto& mids = getMaterialsAttributes(*this);
+        if (mids.Find(id) == -1) {
+          return ctx.registerErrorMessage<std::optional<LocationIdentifier>>(
+              "the given attribute does not exist");
+        }
+        return LocationIdentifier{
+            .material_identifier = MaterialIdentifier{.id = id},
+            .boundary_identifier = {}};
+      }
+      const auto& bids = getBoundariesAttributes(*this);
+      if (bids.Find(id) == -1) {
+        return ctx.registerErrorMessage<std::optional<LocationIdentifier>>(
+            "the given attribute does not exist");
+      }
+      return LocationIdentifier{
+          .material_identifier = {},
+          .boundary_identifier = BoundaryIdentifier{.id = id}};
+    }  // end of getLocationIdentifier
+
+    /*!
      * \brief set material names
      * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
@@ -1787,6 +1827,18 @@ namespace mfem_mgis {
     return this->pimpl->describesAParallelComputation();
   }  // end of describesAParallelComputation
 
+  std::optional<LocationIdentifier>
+  MeshDiscretization::getParallelLocationIdentifier(
+      Context& ctx, const Mesh<true>& m, const size_type id) const noexcept {
+    return this->pimpl->getLocationIdentifier<true>(ctx, m, id);
+  } // end of getParallelLocationIdentifier
+
+  std::optional<LocationIdentifier>
+  MeshDiscretization::getSequentialLocationIdentifier(
+      Context& ctx, const Mesh<false>& m, const size_type id) const noexcept {
+    return this->pimpl->getLocationIdentifier<false>(ctx, m, id);
+  } // end of getSequentialLocationIdentifier
+
   bool MeshDiscretization::setMaterialsNames(
       Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
     return this->pimpl->setMaterialsNames(ctx, ids);
@@ -2021,24 +2073,30 @@ namespace mfem_mgis {
 
   bool operator==(const MeshDiscretization& lhs,
                   const MeshDiscretization& rhs) noexcept {
-    const auto parallel = lhs.describesAParallelComputation();
-    if (parallel != rhs.describesAParallelComputation()) {
-      return false;
-    }
-    if (parallel) {
-#ifdef MFEM_USE_MPI
-      return (&(lhs.getMesh<true>())) == (&(rhs.getMesh<true>()));
-#else
-      reportUnsupportedParallelComputations();
-#endif
-    }
-    return (&(lhs.getMesh<false>())) == (&(rhs.getMesh<false>()));
+    return lhs.pimpl.get() == rhs.pimpl.get();
   }  // end of operator==
 
   bool operator!=(const MeshDiscretization& lhs,
                   const MeshDiscretization& rhs) noexcept {
     return !(lhs == rhs);
   }  // end of operator !=
+
+  bool check(Context& ctx,
+             const MeshDiscretization& m,
+             const LocationIdentifier& l) noexcept {
+    if (isInvalid(l)) {
+      return ctx.registerErrorMessage("given location identifier is invalid");
+    }
+    if (isValid(l.material_identifier)) {
+      const auto& mids = getMaterialsAttributes(m);
+      return mids.Find(l.material_identifier->id) != -1;
+    }
+    ctx.assertOrTerminate(
+        isValid(l.boundary_identifier),
+        "internal error: isInvalid shall not have returned true");
+    const auto& bids = getBoundariesAttributes(m);
+    return bids.Find(l.boundary_identifier->id) != -1;
+  }  // end of check
 
   std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,
                                                  const MeshDiscretization& m,
