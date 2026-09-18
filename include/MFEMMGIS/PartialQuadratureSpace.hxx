@@ -51,18 +51,66 @@ namespace mfem_mgis {
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
                                const mfem::ElementTransformation &)> &);
+    //     /*!
+    //      * \brief constructor
+    //      * \param[in] fed: finite element discretization.
+    //      * \param[in] id: location identifier
+    //      * \param[in] irs: function returning the order of quadrature for the
+    //      * considered finite element.
+    //      *
+    //      * If the identifier is on the boundary a new submesh may be created.
+    //      */
+    //     PartialQuadratureSpace(const FiniteElementDiscretization &,
+    //                            const LocationIdentifier,
+    //                            const std::function<const
+    //                            mfem::IntegrationRule &(
+    //                                const mfem::FiniteElement &,
+    //                                const mfem::ElementTransformation &)> &);
+    //     /*!
+    //      * \brief constructor
+    //      * \param[in] fed: finite element discretization.
+    //      * \param[in] m: mesh
+    //      * \param[in] id: location identifier
+    //      * \param[in] irs: function returning the order of quadrature for the
+    //      * considered finite element.
+    //      *
+    //      * If the identifier is on the boundary a new submesh may be created.
+    //      *
+    //      * \note the mesh must be managed by the finite element
+    //      discretization.
+    //      */
+    //     template <bool parallel>
+    //     PartialQuadratureSpace(const FiniteElementDiscretization &,
+    //                            const Mesh<parallel> &,
+    //                            const LocationIdentifier,
+    //                            const std::function<const
+    //                            mfem::IntegrationRule &(
+    //                                const mfem::FiniteElement &,
+    //                                const mfem::ElementTransformation &)> &);
+    //
     PartialQuadratureSpace(PartialQuadratureSpace &&) noexcept = default;
     PartialQuadratureSpace(const PartialQuadratureSpace &) = delete;
     PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
     PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
-    //! \return the material name
-    [[nodiscard]] std::string getMaterialName() const noexcept;
+    //! \return the material name or boundary name
+    [[nodiscard]] std::string getLocationName() const noexcept;
+    //! \return if the partial quadrature space is defined on a material
+    [[nodiscard]] bool isDefinedOnAMaterial() const;
+    //! \return if the partial quadrature space is defined on a boundary
+    [[nodiscard]] bool isDefinedOnABoundary() const;
     //! \return the mesh discretization
     [[nodiscard]] const MeshDiscretization &getMeshDiscretization()
         const noexcept;
     //! \return the finite element discretization
     [[nodiscard]] const FiniteElementDiscretization &
     getFiniteElementDiscretization() const noexcept;
+    /*!
+     * \return the underlying mesh on which the partial quadratue space is built
+     * \param[in, out] ctx: execution context
+     */
+    template <bool parallel>
+    [[nodiscard]] OptionalReference<const Mesh<parallel>> getMesh(
+        Context &) const noexcept;
     /*!
      * \return the integration ruel associated with the given finite element and
      * element transformation
@@ -109,8 +157,25 @@ namespace mfem_mgis {
     ~PartialQuadratureSpace();
 
    private:
+    /*!
+     * \return the underlying mesh
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] OptionalReference<const Mesh<true>> getParallelMesh(
+        Context &) const noexcept;
+    /*!
+     * \return the underlying mesh
+     * \param[in, out] ctx: execution context
+     */
+    [[nodiscard]] OptionalReference<const Mesh<false>> getSequentialMesh(
+        Context &) const noexcept;
     //! \brief underlying finite element discretization
     const FiniteElementDiscretization &fe_discretization;
+#ifdef MFEM_USE_MPI
+    //! \brief underlying parallel mesh
+    const Mesh<true> *const parallel_mesh = nullptr;
+#endif MFEM_USE_MPI
+    const Mesh<false> *const sequential_mesh = nullptr;
     /*!
      * \brief function returning the order of quadrature for the
      * considered finite element.

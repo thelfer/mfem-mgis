@@ -57,7 +57,19 @@ namespace mfem_mgis {
       const size_type m,
       const std::function<const mfem::IntegrationRule&(
           const mfem::FiniteElement&, const mfem::ElementTransformation&)>& irs)
-      : fe_discretization(fed), integration_rule_selector(irs), id(m) {
+      : fe_discretization(fed),
+#ifdef MFEM_USE_MPI
+        parallel_mesh(fed.describesAParallelComputation()
+                          ? &(fed.getMesh<true>())
+                          : nullptr),
+        sequential_mesh(!fed.describesAParallelComputation()
+                            ? &(fed.getMesh<false>())
+                            : nullptr),
+#else  /* MFEM_USE_MPI */
+        sequential_mesh(fed.getMesh<false>()),
+#endif /* MFEM_USE_MPI */
+        integration_rule_selector(irs),
+        id(m) {
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       const auto& fespace =
@@ -83,15 +95,39 @@ namespace mfem_mgis {
     return this->integration_rule_selector(e, tr);
   }
 
-  std::string PartialQuadratureSpace::getMaterialName() const noexcept {
+  std::string PartialQuadratureSpace::getLocationName() const noexcept {
     auto ctx = Context{};
-    const auto oname =
-        this->fe_discretization.getMaterialName(ctx, this->getId());
+    const auto ol = [&ctx, this] {
+#ifdef MFEM_USE_MPI
+      if (this->parallel_mesh != nullptr) {
+        return this->fe_discretization.getLocationIdentifier(
+            ctx, *(this->parallel_mesh), this->getId());
+      }
+      ctx.assertOrTerminate(this->sequential_mesh != nullptr, "internal error");
+      return this->fe_discretization.getLocationIdentifier(
+          ctx, *(this->sequential_mesh), this->getId());
+#else /* MFEM_USE_MPI */
+      return this->fe_discretization.getLocationIdentifier(
+          ctx, *(this->sequential_mesh), this->getId());
+#endif /* MFEM_USE_MPI */
+    }();
+    ctx.assertOrTerminate(isValid(ol), "internal error");
+    if (isValid(ol->material_identifier)) {
+      const auto oname = this->fe_discretization.getMaterialName(
+          ctx, ol->material_identifier->id);
+      if (isValid(oname)) {
+        return *oname;
+      }
+      return "material (" + std::to_string(this->getId()) + ")";
+    }
+    ctx.assertOrTerminate(isValid(ol->boundary_identifier), "internal error");
+    const auto oname = this->fe_discretization.getBoundaryName(
+        ctx, ol->boundary_identifier->id);
     if (isValid(oname)) {
       return *oname;
     }
-    return std::to_string(this->getId());
-  }  // end of getMaterialName
+    return "boundary (" + std::to_string(this->getId()) + ")";
+  }  // end of getLocationName
 
   const MeshDiscretization& PartialQuadratureSpace::getMeshDiscretization()
       const noexcept {
@@ -102,6 +138,60 @@ namespace mfem_mgis {
   PartialQuadratureSpace::getFiniteElementDiscretization() const noexcept {
     return this->fe_discretization;
   }  // end of getFiniteElementDiscretization
+
+  OptionalReference<const Mesh<true>> PartialQuadratureSpace::getParallelMesh(
+      Context& ctx) const noexcept {
+#ifdef MFEM_USE_MPI
+    if (this->parallel_mesh == nullptr) {
+      return ctx.registerErrorMessage(
+          "the partial quadrature space is not built on a parallel mesh");
+    }
+    return {this->parallel_mesh};
+#else /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+  }    // end of getParallelMesh
+
+  OptionalReference<const Mesh<false>>
+  PartialQuadratureSpace::getSequentialMesh(Context& ctx) const noexcept {
+    if (this->sequential_mesh == nullptr) {
+      return ctx.registerErrorMessage(
+          "the partial quadrature space is not built on a sequential mesh");
+    }
+    return {this->sequential_mesh};
+  }  // end of getSequentialMesh
+
+  bool PartialQuadratureSpace::isDefinedOnAMaterial() const {
+    auto ctx = Context{};
+#ifdef MFEM_USE_MPI
+    if (this->parallel_mesh == nullptr) {
+      const auto ook = this->fe_discretization.isDefinedOnMaterials(
+          ctx, *(this->parallel_mesh));
+      ctx.assertOrTerminate(isValid(ook), "internal error");
+      return *ook;
+    }
+#endif /* MFEM_USE_MPI */
+    const auto ook = this->fe_discretization.isDefinedOnMaterials(
+        ctx, *(this->sequential_mesh));
+    ctx.assertOrTerminate(isValid(ook), "internal error");
+    return *ook;
+  } // end of isDefinedOnAMaterial
+
+  bool PartialQuadratureSpace::isDefinedOnABoundary() const {
+    auto ctx = Context{};
+#ifdef MFEM_USE_MPI
+    if (this->parallel_mesh == nullptr) {
+      const auto ook = this->fe_discretization.isDefinedOnBoundaries(
+          ctx, *(this->parallel_mesh));
+      ctx.assertOrTerminate(isValid(ook), "internal error");
+      return *ook;
+    }
+#endif /* MFEM_USE_MPI */
+    const auto ook = this->fe_discretization.isDefinedOnBoundaries(
+        ctx, *(this->sequential_mesh));
+    ctx.assertOrTerminate(isValid(ook), "internal error");
+    return *ook;
+  } // end of isDefinedOnABoundary
 
   std::optional<size_type> PartialQuadratureSpace::getNumberOfQuadraturePoints(
       Context& ctx, const size_type e) const noexcept {
