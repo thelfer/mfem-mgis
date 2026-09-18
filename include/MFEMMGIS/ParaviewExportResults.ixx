@@ -44,6 +44,25 @@ namespace mfem_mgis {
     //
     CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
     //
+    checkParameters(
+        throwing, params,
+        std::map<std::string, std::string>{
+            {"OutputFileName", "name of the output file"},
+            {"OutputFieldName",
+             "name of the exported field (optional, 'u' by default)"},
+            {"Material",
+             "material on which the results are exported (optional)"},
+            {"Materials",
+             "materials on which the results are exported (optional)"},
+            {"Boundary",
+             "boundary on which the results are exported (optional)"},
+            {"Boundaries",
+             "boundaries on which the results are exported (optional)"},
+            {"Verbosity",
+             "verbosity level (optional). If greater than or equal to 1, "
+             "information about the submesh used for the export is "
+             "printed"}});
+    //
     auto or_raise = ctx.getThrowingFailureHandler();
     //
     auto& u1 = pb.getUnknowns(ets);
