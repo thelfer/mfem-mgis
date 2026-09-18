@@ -37,20 +37,16 @@ namespace mfem_mgis {
       : NonLinearSolverBase(p) {}  // end of NewtonSolver
 
   
-  void NewtonSolver::addAdditionalConvergenceCheck(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> cv_check) {
-    // TODO
+  void NewtonSolver::addAdditionalConvergenceCriterion(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> cv_check) {
     auto profiler = this->ctx_ptr != nullptr 
-        ? this->ctx_ptr->startNewProfiling("NS::addAdditionalConvergenceCheck", this->ctx_ptr->isProfilingEnabled())
+        ? this->ctx_ptr->startNewProfiling("NS::addAdditionalConvergenceCriterion", this->ctx_ptr->isProfilingEnabled())
         : mgis::ProfilingSection{};
     this->acc_actions.push_back(std::move(cv_check));
+  } // end of addAdditionalConvergenceCriterion
 
-  } // end of addAdditionalConvergenceCheck
-
-  /* // Unused ? Because of the change from std::function to a struct */
-  std::optional<bool> NewtonSolver::processAdditionalConvergenceCheck(Context& ctx, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
-    //TODO
+  std::optional<bool> NewtonSolver::processAdditionalConvergenceCriterionCheck(Context& ctx, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
     auto profiler = this->ctx_ptr != nullptr 
-        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCheck", this->ctx_ptr->isProfilingEnabled())
+        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionCheck", this->ctx_ptr->isProfilingEnabled())
         : mgis::ProfilingSection{};
     bool cv = s.converged;
     // a->check must be called (for each element of the list, in case it manipulates some values as a side effect)
@@ -62,27 +58,25 @@ namespace mfem_mgis {
           cv = cv && *result; 
       }
     return cv;
-  }  // end of processAdditionalConvergenceCheck
+  }  // end of processAdditionalConvergenceCriterionCheck
 
-  void NewtonSolver::processAdditionalConvergenceReset()  {
-    //TODO
-    auto profiler = this->ctx_ptr != nullptr 
-        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceReset", this->ctx_ptr->isProfilingEnabled())
-        : mgis::ProfilingSection{};
+  void NewtonSolver::processAdditionalConvergenceCriterionReset()  {
+    // auto profiler = this->ctx_ptr != nullptr 
+    //     ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionReset", this->ctx_ptr->isProfilingEnabled())
+    //     : mgis::ProfilingSection{};
     for (auto& a : this->acc_actions) {
       a->reset();
     }
-  }  // end of processAdditionalConvergenceReset
+  }  // end of processAdditionalConvergenceCriterionReset
   
-  void NewtonSolver::processAdditionalConvergenceHelper()  {
-    //TODO
-    auto profiler = this->ctx_ptr != nullptr 
-        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceHelper", this->ctx_ptr->isProfilingEnabled())
-        : mgis::ProfilingSection{};
+  void NewtonSolver::processAdditionalConvergenceCriterionHelper()  {
+    // auto profiler = this->ctx_ptr != nullptr 
+    //     ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionHelper", this->ctx_ptr->isProfilingEnabled())
+    //     : mgis::ProfilingSection{};
     for (auto& a : this->acc_actions) {
       a->helper();
     }
-  }  // end of processAdditionalConvergenceReset
+  }  // end of processAdditionalConvergenceCriterionHelper
 
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     auto profiler_mult =
@@ -176,7 +170,7 @@ namespace mfem_mgis {
       }
       this->Monitor(it, norm, r, x);
       //
-      auto result = this->processAdditionalConvergenceCheck(*this->ctx_ptr, {
+      auto result = this->processAdditionalConvergenceCriterionCheck(*this->ctx_ptr, {
           .residual_norm = norm,
           .reference_residual_norm = this->reference_residual_norm.value(),
           .iter = it ,
@@ -239,8 +233,7 @@ namespace mfem_mgis {
       previous_norms[0] = previous_norms[1];
       previous_norms[1] = norm;
       norm = this->Norm(r);
-
-     ++it;
+      ++it;
     }
     this->final_iter = it;
     this->final_norm = norm;
