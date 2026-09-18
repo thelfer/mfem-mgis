@@ -252,7 +252,9 @@ namespace mfem_mgis {
       const auto oname = this->fe_discretization.getMaterialName(
           ctx, ol->material_identifier->id);
       if (isValid(oname)) {
-        return *oname;
+        if (!oname->empty()) {
+          return *oname;
+        }
       }
       return "material (" + std::to_string(this->getId()) + ")";
     }
@@ -260,7 +262,9 @@ namespace mfem_mgis {
     const auto oname = this->fe_discretization.getBoundaryName(
         ctx, ol->boundary_identifier->id);
     if (isValid(oname)) {
-      return *oname;
+      if (!oname->empty()) {
+        return *oname;
+      }
     }
     return "boundary (" + std::to_string(this->getId()) + ")";
   }  // end of getLocationName
@@ -373,8 +377,9 @@ namespace mfem_mgis {
   [[nodiscard]] static std::map<mfem::Geometry::Type, size_type>
   getNumberOfElementsByGeometricElementType(
       const PartialQuadratureSpace& s) noexcept {
-    const auto& fed = s.getFiniteElementDiscretization();
-    const auto& mesh = fed.getMesh<parallel>();
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    const auto& mesh = s.getMesh<parallel>(ctx) | or_die;
     auto emapping = std::map<mfem::Geometry::Type, size_type>{};
     for (const auto [e, o] : s.getOffsets()) {
       const auto gtype = mesh.GetElementGeometry(e);
@@ -387,11 +392,13 @@ namespace mfem_mgis {
   [[nodiscard]] static std::optional<std::map<mfem::Geometry::Type, size_type>>
   getNumberOfQuadraturePointsByGeometricElementType(
       Context& ctx, const PartialQuadratureSpace& s) noexcept {
-    const auto& fed = s.getFiniteElementDiscretization();
-    const auto& mesh = fed.getMesh<parallel>();
+    const auto& omesh = s.getMesh<parallel>(ctx);
+    if (isInvalid(omesh)) {
+      return {};
+    }
     auto qmapping = std::map<mfem::Geometry::Type, size_type>{};
     for (const auto [e, o] : s.getOffsets()) {
-      const auto gtype = mesh.GetElementGeometry(e);
+      const auto gtype = omesh->GetElementGeometry(e);
       if (qmapping.contains(gtype)) {
         continue;
       }
@@ -409,11 +416,7 @@ namespace mfem_mgis {
     const auto& fed = s.getFiniteElementDiscretization();
     auto info = PartialQuadratureSpaceInformation{};
     info.identifier = s.getId();
-    const auto oname = fed.getMaterialName(ctx, s.getId());
-    if (isInvalid(oname)) {
-      return {};
-    }
-    info.name = *oname;
+    info.name = s.getLocationName();
     info.number_of_cells = getNumberOfCells(s);
     info.number_of_quadrature_points = getNumberOfElements(s);
     if (fed.describesAParallelComputation()) {

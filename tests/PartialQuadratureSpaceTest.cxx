@@ -124,6 +124,45 @@ struct PartialQuadratureSpaceTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(isValid(oqspace));
     TFEL_TESTS_CHECK(oqspace->isDefinedOnABoundary());
     TFEL_TESTS_CHECK(!oqspace->isDefinedOnAMaterial());
+    const auto oqinfo = getInformation(ctx, *oqspace);
+    TFEL_TESTS_ASSERT(isValid(oqinfo));
+    TFEL_TESTS_CHECK_EQUAL(oqinfo->identifier, 2);
+    TFEL_TESTS_CHECK_EQUAL(oqinfo->name, "boundary (2)");
+    if (parameters.parallel) {
+      TFEL_TESTS_CHECK(oqinfo->number_of_cells == 4);
+      TFEL_TESTS_CHECK(oqinfo->number_of_quadrature_points == 4 * 9);
+      TFEL_TESTS_CHECK(oqinfo->number_of_cells_by_geometric_type.size() == 1);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_cells_by_geometric_type.begin()->first ==
+          mfem::Geometry::SQUARE);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_cells_by_geometric_type.begin()->second == 4);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_quadrature_points_by_geometric_type.size() == 1);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_quadrature_points_by_geometric_type.begin()
+              ->first == mfem::Geometry::SQUARE);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_quadrature_points_by_geometric_type.begin()
+              ->second == 9);
+    } else {
+      TFEL_TESTS_CHECK(oqinfo->number_of_cells == 1);
+      TFEL_TESTS_CHECK(oqinfo->number_of_quadrature_points == 9);
+      TFEL_TESTS_CHECK(oqinfo->number_of_cells_by_geometric_type.size() == 1);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_cells_by_geometric_type.begin()->first ==
+          mfem::Geometry::SQUARE);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_cells_by_geometric_type.begin()->second == 1);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_quadrature_points_by_geometric_type.size() == 1);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_quadrature_points_by_geometric_type.begin()
+              ->first == mfem::Geometry::SQUARE);
+      TFEL_TESTS_CHECK(
+          oqinfo->number_of_quadrature_points_by_geometric_type.begin()
+              ->second == 9);
+    }
   }  // end of test2
 };
 
