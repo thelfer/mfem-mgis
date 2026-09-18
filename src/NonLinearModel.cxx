@@ -84,7 +84,7 @@ namespace mfem_mgis {
     if (r.first.shallStop()) {
       return {r.first, {}};
     }
-    const auto r2 = this->problem->solve(ts.begin, ts.dt);
+    const auto r2 = this->problem->solve(ctx, ts.begin, ts.dt);
     if (isInvalid(r2)) {
       return {ExitStatus::recoverableError, {}};
     }
