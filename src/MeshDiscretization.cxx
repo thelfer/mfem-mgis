@@ -886,6 +886,9 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage("given mesh is not managed");
       }
 #ifdef MFEM_USE_MPI
+      if (this->parallel_mesh.get() == &m) {
+        return false;
+      }
       const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
       if (sm == nullptr) {
         return ctx.registerErrorMessage("given mesh is not a submesh");
@@ -913,6 +916,9 @@ namespace mfem_mgis {
         Context& ctx, const Mesh<false>& m) const noexcept {
       if (!this->manages(m)) {
         return ctx.registerErrorMessage("given mesh is not managed");
+      }
+      if (this->sequential_mesh.get() == &m) {
+        return false;
       }
       const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
       if (sm == nullptr) {
@@ -2149,7 +2155,7 @@ namespace mfem_mgis {
     static_cast<void>(m);
     return true;
 #endif /* MFEM_USE_MPI */
-  }  // isMainProcess
+  }    // isMainProcess
 
 #ifdef MGIS_HAVE_TFEL
 

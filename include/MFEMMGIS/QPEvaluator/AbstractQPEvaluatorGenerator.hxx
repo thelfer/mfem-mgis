@@ -50,7 +50,7 @@ namespace mfem_mgis {
     [[nodiscard]] virtual std::shared_ptr<AbstractQPEvaluator> operator()(
         Context &,
         const QPEvaluatorsFactory &,
-        const PartialQuadratureSpace&,
+        const PartialQuadratureSpace &,
         const TimeStepStage) const = 0;
     //! \brief destructor
     virtual ~AbstractQPEvaluatorGenerator();

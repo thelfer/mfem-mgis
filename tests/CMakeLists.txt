@@ -184,7 +184,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_imposed_pressure_test2(Elasticity)
 
   # PartialQuadratureSpaceTest executable
-  add_test_executable(PartialQuadratureSpaceTest)
+  add_tfel_test_executable(PartialQuadratureSpaceTest)
 
   # Helper function for PartialQuadratureSpaceTest cases
   function(add_partial_quadrature_space_test behaviour internal_state_variable)

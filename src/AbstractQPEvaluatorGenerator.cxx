@@ -11,4 +11,4 @@ namespace mfem_mgis {
 
   AbstractQPEvaluatorGenerator::~AbstractQPEvaluatorGenerator() = default;
 
-} // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis
