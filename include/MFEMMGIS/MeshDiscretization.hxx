@@ -857,14 +857,15 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]] MPI_Comm getMPICommunicator(
       const MeshDiscretization&) noexcept;
+
+#endif /* MFEM_USE_MPI */
+
   /*!
    * \return if the current process is the main one (the process of rank 0)
    * \param[in] m: mesh discretization
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool isMainProcess(
       const MeshDiscretization&) noexcept;
-
-#endif /* MFEM_USE_MPI */
 
   /*!
    * \return if the given location identifier is consistent with the mesh

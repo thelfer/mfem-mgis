@@ -825,6 +825,7 @@ namespace mfem_mgis {
       if (!this->manages(m)) {
         return ctx.registerErrorMessage("given mesh is not managed");
       }
+#ifdef MFEM_USE_MPI
       const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
       if (sm == nullptr) {
         return ctx.registerErrorMessage("given mesh is not a submesh");
@@ -836,6 +837,9 @@ namespace mfem_mgis {
         }
       }
       return false;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
     }
     /*!
      * \return if the given mesh is defined on (a subset of) the
@@ -875,6 +879,7 @@ namespace mfem_mgis {
       if (!this->manages(m)) {
         return ctx.registerErrorMessage("given mesh is not managed");
       }
+#ifdef MFEM_USE_MPI
       const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
       if (sm == nullptr) {
         return ctx.registerErrorMessage("given mesh is not a submesh");
@@ -886,6 +891,9 @@ namespace mfem_mgis {
         }
       }
       return false;
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
     }
     /*!
      * \return if the given mesh is defined on (a subset of) the
@@ -2124,13 +2132,18 @@ namespace mfem_mgis {
     return MPI_COMM_WORLD;
   }  // end of getMPICommunicator
 
+#endif /* MFEM_USE_MPI */
+
   bool isMainProcess(const MeshDiscretization& m) noexcept {
+#ifdef MFEM_USE_MPI
     int rank = 0;
     MPI_Comm_rank(getMPICommunicator(m), &rank);
     return rank == 0;
+#else  /* MFEM_USE_MPI */
+    static_cast<void>(m);
+    return true;
+#endif /* MFEM_USE_MPI */
   }  // isMainProcess
-
-#endif MFEM_USE_MPI
 
 #ifdef MGIS_HAVE_TFEL
 
