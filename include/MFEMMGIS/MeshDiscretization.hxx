@@ -748,7 +748,7 @@ namespace mfem_mgis {
    */
   [[nodiscard]] constexpr bool isInvalid(const LocationIdentifier& l) noexcept {
     const auto mok = isValid(l.material_identifier);
-    const auto bok = isValid(l.material_identifier);
+    const auto bok = isValid(l.boundary_identifier);
     const auto b1 = (!mok) && (!bok);  // none is valid
     const auto b2 = mok && bok;        // both are valid
     return b1 || b2;
