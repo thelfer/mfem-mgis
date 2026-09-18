@@ -827,7 +827,8 @@ namespace mfem_mgis {
       }
       const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
       if (sm == nullptr) {
-        return ctx.registerErrorMessage("given mesh is not a submesh");
+        // the main mesh is defined on materials
+        return true;
       }
       for (const auto& [l, ptr] : this->parallel_submeshes) {
         static_cast<void>(l);
@@ -852,7 +853,8 @@ namespace mfem_mgis {
       }
       const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
       if (sm == nullptr) {
-        return ctx.registerErrorMessage("given mesh is not a submesh");
+        // the main mesh is defined on materials
+        return true;
       }
       for (const auto& [l, ptr] : this->sequential_submeshes) {
         static_cast<void>(l);
@@ -877,7 +879,8 @@ namespace mfem_mgis {
       }
       const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
       if (sm == nullptr) {
-        return ctx.registerErrorMessage("given mesh is not a submesh");
+        // the main mesh is defined on materials
+        return false;
       }
       for (const auto& [l, ptr] : this->parallel_submeshes_on_boundaries) {
         static_cast<void>(l);
@@ -902,7 +905,8 @@ namespace mfem_mgis {
       }
       const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
       if (sm == nullptr) {
-        return ctx.registerErrorMessage("given mesh is not a submesh");
+        // the main mesh is defined on materials
+        return false;
       }
       for (const auto& [l, ptr] : this->sequential_submeshes_on_boundaries) {
         static_cast<void>(l);

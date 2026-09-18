@@ -418,6 +418,23 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_grid_function_test()
 
+  # GridFunctionOnSubMeshTest executable
+  add_test_executable(GridFunctionOnSubMeshTest)
+
+  # Helper function for GridFunctionOnSubMeshTest
+  function(add_grid_function_on_submesh_test)
+    set(test "GridFunctionOnSubMeshTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh")
+    add_test(NAME ${test} COMMAND ./GridFunctionOnSubMeshTest ${params}
+                                  "--parallel" "0")
+    if(MFEM_USE_MPI)
+      add_test(NAME ${test}P COMMAND mpirun -n 2 ./GridFunctionOnSubMeshTest
+                                     ${params} "--parallel" "1")
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_grid_function_on_submesh_test()
+
   # ImplicitGradientRegularizationTest executable
   add_test_executable(ImplicitGradientRegularizationTest)
 
