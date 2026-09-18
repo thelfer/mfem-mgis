@@ -523,7 +523,11 @@ namespace mfem_mgis {
   FiniteElementSpacesManager::getParallelFiniteElementSpace(
       Context& ctx,
       const GetFiniteElementSpaceOnSubMeshArguments& args) const noexcept {
+#ifdef MFEM_USE_MPI
     return this->pimpl->getFiniteElementSpace<true>(ctx, args);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }  // end of getParallelFiniteElementSpace
 
   std::shared_ptr<FiniteElementSpace<false>>
@@ -536,13 +540,21 @@ namespace mfem_mgis {
   std::shared_ptr<FiniteElementSpace<true>>
   FiniteElementSpacesManager::getParallelFiniteElementSpace(
       Context& ctx, const size_type nc) const noexcept {
+#ifdef MFEM_USE_MPI
     return this->pimpl->getFiniteElementSpace<true>(ctx, nc);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }  // end of getParallelFiniteElementSpace
 
   std::shared_ptr<FiniteElementSpace<true>>
   FiniteElementSpacesManager::getParallelFiniteElementSpace(
       Context& ctx, const Mesh<true>& m, const size_type nc) const noexcept {
+#ifdef MFEM_USE_MPI
     return this->pimpl->getFiniteElementSpace<true>(ctx, m, nc);
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
   }  // end of getParallelFiniteElementSpace
 
   std::shared_ptr<FiniteElementSpace<false>>
