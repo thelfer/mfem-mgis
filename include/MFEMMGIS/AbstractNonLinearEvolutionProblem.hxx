@@ -252,7 +252,9 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool setSolverParameters(
         Context &, const Parameters &) noexcept = 0;
-    // TODO description
+    /*!
+     * \brief get the non-linear solver
+     */
     [[nodiscard]] virtual NewtonSolver& getSolver() noexcept = 0;
     /*!
      * \brief set the linear solver

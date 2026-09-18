@@ -50,24 +50,25 @@ namespace mfem_mgis {
      */
     virtual void addNewUnknownsEstimateActions(
         std::function<bool(const mfem::Vector &)>);
-    
     /*!
      * \brief add an additional function to be called after the non-linear solver converges. 
      * \param[in] a: action
      */
-    //   outdated ? TODO
-    virtual void addAdditionalConvergenceCheck(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> ); 
-    
+    virtual void addAdditionalConvergenceCriterion(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> ); 
     /*!
      * \brief method called when the non-linear solver has converged 
-     * \param[in] s:struct containing the arguments TODO
+     * \param[in] ctx: execution context
+     * \param[in] s: parameters passed to the `nonlinear_solver::AbstractAdditionalConvergenceCriterion::check` function
      */
-    //Outdated ?
-    virtual std::optional<bool> processAdditionalConvergenceCheck(Context&, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments&) const ; 
-    
-    virtual void processAdditionalConvergenceReset();
-    virtual void processAdditionalConvergenceHelper();
-  
+    virtual std::optional<bool> processAdditionalConvergenceCriterionCheck(Context&, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments&) const ; 
+    /*!
+     * \brief method called after the non-linear solver has computed a prediction, see `NonLinearEvolutionProblemImplementationBase::solve` 
+     */
+    virtual void processAdditionalConvergenceCriterionReset();
+    /*!
+     * \brief method called when the non-linear solver is setting up, see `NonLinearEvolutionProblemImplementationBase::setup`
+     */
+    virtual void processAdditionalConvergenceCriterionHelper();
     /*!
      * \brief compute the correction associated with the given residual
      * \param[in] c: Newton' correction
@@ -124,9 +125,8 @@ namespace mfem_mgis {
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
     /*!
-     * \brief actions performed when the non-linear solver converges via a structure
+     * \brief additional actions performed when checking the non-linear solver convergence, as well as the setup.
      */
-    // outdated ? TODO
     std::vector<std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> > acc_actions;
 
     /*!
