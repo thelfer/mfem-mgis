@@ -59,7 +59,7 @@ namespace mfem_mgis {
         // computation of the external forces
         e.CalcShape(ip, shape);
         for (int ni = 0; ni != nnodes; ++ni) {
-          R[ni] = ip.weight * tr.Weight() * (this->heat_source) * shape[ni];
+          R[ni] += ip.weight * tr.Weight() * (this->heat_source) * shape[ni];
         }
       }
     }  // end of computeResidual
