@@ -309,6 +309,7 @@ namespace mfem_mgis {
     template <bool parallel>
     std::shared_ptr<const Mesh<parallel>> getMeshPointer(
         Context&, const Mesh<parallel>&) const noexcept;
+#ifdef MFEM_USE_MPI
     /*!
      * \return the location identifier in the main mesh
      *
@@ -323,9 +324,25 @@ namespace mfem_mgis {
      * is defined for instance. The returned location identifier does not have
      * such ambiguity.
      */
-    template <bool parallel>
     [[nodiscard]] std::optional<LocationIdentifier> getLocationIdentifier(
-        Context&, const Mesh<parallel>&, const size_type) const noexcept;
+        Context&, const Mesh<true>&, const size_type) const noexcept;
+#endif /* MFEM_USE_MPI */
+    /*!
+     * \return the location identifier in the main mesh
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
+     * \param[in] id: attribute in the mesh
+     *
+     * \note This rationale behind this method is that submesh may be created on
+     * boundaries. In this case, the boundary attributes used to create
+     * the boundaries becomes standard attributes of the submesh. This may lead
+     * to ambiguity when its comes to determine where a partial quadrature space
+     * is defined for instance. The returned location identifier does not have
+     * such ambiguity.
+     */
+    [[nodiscard]] std::optional<LocationIdentifier> getLocationIdentifier(
+        Context&, const Mesh<false>&, const size_type) const noexcept;
     /*!
      * \brief set material names
      * \param[in, out] ctx: execution context
@@ -748,7 +765,7 @@ namespace mfem_mgis {
    */
   [[nodiscard]] constexpr bool isInvalid(const LocationIdentifier& l) noexcept {
     const auto mok = isValid(l.material_identifier);
-    const auto bok = isValid(l.material_identifier);
+    const auto bok = isValid(l.boundary_identifier);
     const auto b1 = (!mok) && (!bok);  // none is valid
     const auto b2 = mok && bok;        // both are valid
     return b1 || b2;

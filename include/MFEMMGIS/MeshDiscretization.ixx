@@ -40,18 +40,6 @@ namespace mfem_mgis {
   }
 
   template <bool parallel>
-  std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
-      Context& ctx,
-      const Mesh<parallel>& m,
-      const size_type id) const noexcept {
-    if constexpr (parallel) {
-      return this->getParallelLocationIdentifier(ctx, m, id);
-    } else {
-      return this->getSequentialLocationIdentifier(ctx, m, id);
-    }
-  }  // end of getLocationIdentifier
-
-  template <bool parallel>
   std::shared_ptr<const Mesh<parallel>> MeshDiscretization::getMeshPointer()
       const noexcept {
     if constexpr (parallel) {

@@ -826,10 +826,13 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage("given mesh is not managed");
       }
 #ifdef MFEM_USE_MPI
-      const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
-      if (sm == nullptr) {
-        return ctx.registerErrorMessage("given mesh is not a submesh");
+      if (this->parallel_mesh.get() == &m) {
+        return true;
       }
+      const auto* const sm = dynamic_cast<const SubMesh<true>*>(&m);
+      ctx.assertOrTerminate(sm != nullptr,
+                            "given mesh is managed, not the main mesh "
+                            "and is not a submesh");
       for (const auto& [l, ptr] : this->parallel_submeshes) {
         static_cast<void>(l);
         if (ptr.get() == sm) {
@@ -854,10 +857,13 @@ namespace mfem_mgis {
       if (!this->manages(m)) {
         return ctx.registerErrorMessage("given mesh is not managed");
       }
-      const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
-      if (sm == nullptr) {
-        return ctx.registerErrorMessage("given mesh is not a submesh");
+      if (this->sequential_mesh.get() == &m) {
+        return true;
       }
+      const auto* const sm = dynamic_cast<const SubMesh<false>*>(&m);
+      ctx.assertOrTerminate(sm != nullptr,
+                            "given mesh is managed, not the main mesh "
+                            "and is not a submesh");
       for (const auto& [l, ptr] : this->sequential_submeshes) {
         static_cast<void>(l);
         if (ptr.get() == sm) {
@@ -1835,17 +1841,17 @@ namespace mfem_mgis {
     return this->pimpl->describesAParallelComputation();
   }  // end of describesAParallelComputation
 
-  std::optional<LocationIdentifier>
-  MeshDiscretization::getParallelLocationIdentifier(
+#ifdef MFEM_USE_MPI
+  std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
       Context& ctx, const Mesh<true>& m, const size_type id) const noexcept {
     return this->pimpl->getLocationIdentifier<true>(ctx, m, id);
-  } // end of getParallelLocationIdentifier
+  }    // end of getParallelLocationIdentifier
+#endif /* MFEM_USE_MPI */
 
-  std::optional<LocationIdentifier>
-  MeshDiscretization::getSequentialLocationIdentifier(
+  std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
       Context& ctx, const Mesh<false>& m, const size_type id) const noexcept {
     return this->pimpl->getLocationIdentifier<false>(ctx, m, id);
-  } // end of getSequentialLocationIdentifier
+  }  // end of getSequentialLocationIdentifier
 
   bool MeshDiscretization::setMaterialsNames(
       Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
