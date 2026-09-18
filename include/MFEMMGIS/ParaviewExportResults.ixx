@@ -44,6 +44,10 @@ namespace mfem_mgis {
     //
     CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
     //
+    checkParameters(throwing, params,
+                    {"OutputFileName", "OutputFieldName", "Material",
+                     "Materials", "Boundary", "Boundaries", "Verbosity"});
+    //
     auto or_raise = ctx.getThrowingFailureHandler();
     //
     auto& u1 = pb.getUnknowns(ets);
