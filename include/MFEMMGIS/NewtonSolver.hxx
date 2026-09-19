@@ -14,8 +14,11 @@
 #include "mfem/linalg/solvers.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
+#include "MFEMMGIS/AbstractAdditionalConvergenceCriterion.hxx"
 
 namespace mfem_mgis {
+
+
 
   //! \brief custom implementation of the Newton Solver
   struct NewtonSolver : public mfem::IterativeSolver {
@@ -47,6 +50,25 @@ namespace mfem_mgis {
      */
     virtual void addNewUnknownsEstimateActions(
         std::function<bool(const mfem::Vector &)>);
+    /*!
+     * \brief add an additional function to be called after the non-linear solver converges. 
+     * \param[in] a: action
+     */
+    virtual void addAdditionalConvergenceCriterion(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> ); 
+    /*!
+     * \brief method called when the non-linear solver has converged 
+     * \param[in] ctx: execution context
+     * \param[in] s: parameters passed to the `nonlinear_solver::AbstractAdditionalConvergenceCriterion::check` function
+     */
+    virtual std::optional<bool> processAdditionalConvergenceCriterionCheck(Context&, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments&) const ; 
+    /*!
+     * \brief method called after the non-linear solver has computed a prediction, see `NonLinearEvolutionProblemImplementationBase::solve` 
+     */
+    virtual void processAdditionalConvergenceCriterionReset();
+    /*!
+     * \brief method called when the non-linear solver is setting up, see `NonLinearEvolutionProblemImplementationBase::setup`
+     */
+    virtual void processAdditionalConvergenceCriterionHelper();
     /*!
      * \brief compute the correction associated with the given residual
      * \param[in] c: Newton' correction
@@ -102,6 +124,11 @@ namespace mfem_mgis {
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
+    /*!
+     * \brief additional actions performed when checking the non-linear solver convergence, as well as the setup.
+     */
+    std::vector<std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> > acc_actions;
+
     /*!
      * \brief data containing the reference value for the norm of the residual.
      *

@@ -17,6 +17,8 @@
 #include "MFEMMGIS/TimeStepStage.hxx"
 #include "MFEMMGIS/LinearSolverHandler.hxx"
 #include "MFEMMGIS/NonLinearResolutionOutput.hxx"
+//#include "MFEMMGIS/NewtonSolver.hxx"
+
 
 namespace mfem_mgis {
 
@@ -29,7 +31,7 @@ namespace mfem_mgis {
   struct Material;
   struct AbstractBoundaryCondition;
   enum struct IntegrationType;
-
+  struct NewtonSolver;
   /*!
    * \brief strategy used to make a prediction of the solution at the end of the
    * time step
@@ -250,6 +252,10 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool setSolverParameters(
         Context &, const Parameters &) noexcept = 0;
+    /*!
+     * \brief get the non-linear solver
+     */
+    [[nodiscard]] virtual NewtonSolver& getSolver() noexcept = 0;
     /*!
      * \brief set the linear solver
      * \param[in, out] ctx: execution context

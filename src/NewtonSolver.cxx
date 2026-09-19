@@ -120,6 +120,48 @@ namespace mfem_mgis {
 
   void NewtonSolver::unsetContext() noexcept { this->ctx_ptr = nullptr; }
 
+  
+  void NewtonSolver::addAdditionalConvergenceCriterion(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> cv_check) {
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::addAdditionalConvergenceCriterion", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
+    this->acc_actions.push_back(std::move(cv_check));
+  } // end of addAdditionalConvergenceCriterion
+
+  std::optional<bool> NewtonSolver::processAdditionalConvergenceCriterionCheck(Context& ctx, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionCheck", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
+    bool cv = s.converged;
+    // a->check must be called (for each element of the list, in case it manipulates some values as a side effect)
+      for (auto& a : this->acc_actions) {
+          std::optional<bool> result = a->check(ctx,s);
+          if (isInvalid(result)){
+              return {};
+          }
+          cv = cv && *result; 
+      }
+    return cv;
+  }  // end of processAdditionalConvergenceCriterionCheck
+
+  void NewtonSolver::processAdditionalConvergenceCriterionReset()  {
+    // auto profiler = this->ctx_ptr != nullptr 
+    //     ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionReset", this->ctx_ptr->isProfilingEnabled())
+    //     : mgis::ProfilingSection{};
+    for (auto& a : this->acc_actions) {
+      a->reset();
+    }
+  }  // end of processAdditionalConvergenceCriterionReset
+  
+  void NewtonSolver::processAdditionalConvergenceCriterionHelper()  {
+    // auto profiler = this->ctx_ptr != nullptr 
+    //     ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionHelper", this->ctx_ptr->isProfilingEnabled())
+    //     : mgis::ProfilingSection{};
+    for (auto& a : this->acc_actions) {
+      a->helper();
+    }
+  }  // end of processAdditionalConvergenceCriterionHelper
+
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     auto profiler_mult =
         this->ctx_ptr != nullptr
@@ -207,9 +249,22 @@ namespace mfem_mgis {
       }
       this->Monitor(it, norm, r, x);
       //
-      if (norm <= norm_goal) {
-        this->converged = 1;
+      auto result = this->processAdditionalConvergenceCriterionCheck(*this->ctx_ptr, {
+          .residual_norm = norm,
+          .reference_residual_norm = this->reference_residual_norm.value(),
+          .iter = it ,
+          .max_iter = this->max_iter,
+          .converged = norm <= norm_goal,
+          .u = x
+          }
+          );     
+      if (isInvalid(result)){
+        this->converged=false;
         break;
+      }
+      this->converged = *result;
+      if (this->converged){
+          break;
       }
       //
       if (it >= this->max_iter) {
@@ -252,7 +307,7 @@ namespace mfem_mgis {
           break;
         }
       }
-
+     
       updateResidual();
       previous_norms[0] = previous_norms[1];
       previous_norms[1] = norm;

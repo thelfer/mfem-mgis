@@ -182,6 +182,10 @@ namespace mfem_mgis {
     this->pimpl->setSolverParameters(params);
   }  // end of setSolverParameters
 
+  NewtonSolver& NonLinearEvolutionProblem::getSolver() noexcept{
+    return this->pimpl->getSolver();
+  }
+
   bool NonLinearEvolutionProblem::setLinearSolver(
       Context& ctx, LinearSolverHandler s) noexcept {
     return this->pimpl->setLinearSolver(ctx, std::move(s));
