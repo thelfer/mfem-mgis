@@ -337,6 +337,17 @@ This refactoring improves code organization, reduces duplication, and provides a
 Issues fixed
 ============
 
+- Issue 290: Add support for partial quadratures spaces on boundaries
+- Issue 288: ￼master doesnt build without MPI
+- Issue 281:￼ Nodal export of integration point results uses the node
+  index as an integration point index
+- Issue 279: ParaviewExportResults silently ignores unknown parameters
+- Issue 277: NonLinearModel calls the deprecated solve and loses the
+  caller's context
+- Issue 275: UniformHeatSourceBoundaryCondition: only the last
+  integration point contributes to the residual ￼
+- Issue 273: Fix forgotten change while parallel execution bug in
+  behaviour integration ￼
 - Issue 270: FirstIterationConvergenceCriterion never triggers coupling
   iterations + wrong post-processing time
 - Issue 268: Parallel execution bug in behaviour integration
