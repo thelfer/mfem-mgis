@@ -1,8 +1,7 @@
 /*!
  * \file   MFEMMGIS/QPEvaluatorDescription.cxx
- * \brief  This file implements the methods of the `QPEvaluatorDescription` class
- * \author Thomas Helfer
- * \date   04/11/2022
+ * \brief  This file implements the methods of the `QPEvaluatorDescription`
+ * class \author Thomas Helfer \date   04/11/2022
  */
 
 #include "MFEMMGIS/QPEvaluator/QPEvaluatorDescription.hxx"

@@ -540,8 +540,8 @@ namespace mfem_mgis {
       // mass matrix, integrated exactly
       this->mass_matrix.SetSize(nnodes, nnodes);
       this->mass_matrix = 0.;
-      const auto& mir = mfem::IntRules.Get(fe.GetGeomType(),
-                                           2 * fe.GetOrder() + tr.OrderW());
+      const auto& mir =
+          mfem::IntRules.Get(fe.GetGeomType(), 2 * fe.GetOrder() + tr.OrderW());
       for (int i = 0; i != mir.GetNPoints(); ++i) {
         const auto& ip = mir.IntPoint(i);
         tr.SetIntPoint(&ip);

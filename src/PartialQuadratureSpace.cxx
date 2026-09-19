@@ -57,25 +57,175 @@ namespace mfem_mgis {
       const size_type m,
       const std::function<const mfem::IntegrationRule&(
           const mfem::FiniteElement&, const mfem::ElementTransformation&)>& irs)
-      : fe_discretization(fed), integration_rule_selector(irs), id(m) {
-    if (fed.describesAParallelComputation()) {
+      : fe_discretization(fed),
 #ifdef MFEM_USE_MPI
-      const auto& fespace =
-          this->fe_discretization.getFiniteElementSpace<true>();
-      this->ng = buildPartialQuadratureSpaceOffsets<true>(
-          this->offsets, this->number_of_quadrature_points, fespace, this->id,
-          this->integration_rule_selector);
+        parallel_fespace(fed.describesAParallelComputation()
+                             ? &(fed.getFiniteElementSpace<true>())
+                             : nullptr),
+        sequential_fespace(!fed.describesAParallelComputation()
+                               ? &(fed.getFiniteElementSpace<false>())
+                               : nullptr),
 #else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
+        sequential_fespace(fed.getFiniteElementSpace<false>()),
 #endif /* MFEM_USE_MPI */
-    } else {
-      const auto& fespace =
-          this->fe_discretization.getFiniteElementSpace<false>();
-      this->ng = buildPartialQuadratureSpaceOffsets<false>(
-          this->offsets, this->number_of_quadrature_points, fespace, this->id,
-          this->integration_rule_selector);
-    }
+        integration_rule_selector(irs),
+        id(m) {
+    this->initialize(throwing);
   }  // end of PartialQuadratureSpace
+
+#ifdef MFEM_USE_MPI
+  [[nodiscard]] static const FiniteElementSpace<true>*
+  initializeParallelFiniteElementSpace(attributes::Throwing,
+                                       const FiniteElementDiscretization& fed,
+                                       const LocationIdentifier l) {
+    if (isInvalid(l)) {
+      raise("invalid location identifier");
+    }
+    if (!fed.describesAParallelComputation()) {
+      return nullptr;
+    }
+    if (isValid(l.material_identifier)) {
+      return &(fed.getFiniteElementSpace<true>());
+    }
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    auto fes_manager = fed.getFiniteElementSpacesManager();
+    auto ofes =
+        fes_manager.getFiniteElementSpace<true>(
+            ctx,
+            FiniteElementSpacesManager::GetFiniteElementSpaceOnSubMeshArguments{
+                .location = MeshDiscretization::Location::ON_BOUNDARIES,
+                .identifiers = Parameter{l.boundary_identifier->id},
+                .number_of_components =
+                    fed.getFiniteElementSpace<true>().GetVDim()}) |
+        or_raise;
+    return ofes.get();
+  }    // end of initializeParallelFiniteElementSpace
+#endif /* MFEM_USE_MPI */
+
+  [[nodiscard]] static const FiniteElementSpace<false>*
+  initializeSequentialFiniteElementSpace(attributes::Throwing,
+                                         const FiniteElementDiscretization& fed,
+                                         const LocationIdentifier l) {
+    if (isInvalid(l)) {
+      raise("invalid location identifier");
+    }
+    if (fed.describesAParallelComputation()) {
+      return nullptr;
+    }
+    if (isValid(l.material_identifier)) {
+      return &(fed.getFiniteElementSpace<false>());
+    }
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    auto fes_manager = fed.getFiniteElementSpacesManager();
+    auto ofes =
+        fes_manager.getFiniteElementSpace<false>(
+            ctx,
+            FiniteElementSpacesManager::GetFiniteElementSpaceOnSubMeshArguments{
+                .location = MeshDiscretization::Location::ON_BOUNDARIES,
+                .identifiers = l.boundary_identifier->id,
+                .number_of_components =
+                    fed.getFiniteElementSpace<false>().GetVDim()}) |
+        or_raise;
+    return ofes.get();
+  }  // end of initializeSequentialFiniteElementSpace
+
+  [[nodiscard]] static size_type getIdentifier(attributes::Throwing,
+                                               const LocationIdentifier& l) {
+    if (isInvalid(l)) {
+      raise("invalid location identifier");
+    }
+    if (isValid(l.material_identifier)) {
+      return l.material_identifier.value().id;
+    }
+    return l.boundary_identifier.value().id;
+  }  // end of getIdentifier
+
+  PartialQuadratureSpace::PartialQuadratureSpace(
+      const FiniteElementDiscretization& fed,
+      const LocationIdentifier& l,
+      const std::function<const mfem::IntegrationRule&(
+          const mfem::FiniteElement&, const mfem::ElementTransformation&)>& irs)
+      : fe_discretization(fed),
+#ifdef MFEM_USE_MPI
+        parallel_fespace(
+            initializeParallelFiniteElementSpace(throwing, fed, l)),
+        sequential_fespace(
+            initializeSequentialFiniteElementSpace(throwing, fed, l)),
+#else  /* MFEM_USE_MPI */
+        sequential_fespace(
+            initializeSequentialFiniteElementSpace(throwing, fed, l)),
+#endif /* MFEM_USE_MPI */
+        integration_rule_selector(irs),
+        id(getIdentifier(throwing, l)) {
+    this->initialize(throwing);
+  }  // end of PartialQuadratureSpace
+
+#ifdef MFEM_USE_MPI
+  PartialQuadratureSpace::PartialQuadratureSpace(
+      const FiniteElementDiscretization& fed,
+      const FiniteElementSpace<true>& fespace,
+      const size_type l,
+      const std::function<const mfem::IntegrationRule&(
+          const mfem::FiniteElement&, const mfem::ElementTransformation&)>& irs)
+      : fe_discretization(fed),
+        parallel_fespace(&fespace),
+        integration_rule_selector(irs),
+        id(l) {
+    this->initialize(throwing);
+  }    // end of PartialQuadratureSpace
+#endif /* MFEM_USE_MPI */
+
+  PartialQuadratureSpace::PartialQuadratureSpace(
+      const FiniteElementDiscretization& fed,
+      const FiniteElementSpace<false>& fespace,
+      const size_type l,
+      const std::function<const mfem::IntegrationRule&(
+          const mfem::FiniteElement&, const mfem::ElementTransformation&)>& irs)
+      : fe_discretization(fed),
+        sequential_fespace(&fespace),
+        integration_rule_selector(irs),
+        id(l) {
+    this->initialize(throwing);
+  }  // end of PartialQuadratureSpace
+
+  void PartialQuadratureSpace::initialize(attributes::Throwing) {
+    if (!(this->integration_rule_selector)) {
+      raise("invalid quadrature rule selector");
+    }
+    auto fespaces_manager =
+        this->fe_discretization.getFiniteElementSpacesManager();
+#ifdef MFEM_USE_MPI
+    if (this->parallel_fespace != nullptr) {
+      if (!fespaces_manager.manages(*(this->parallel_fespace))) {
+        raise(
+            "the given finite element space is not managed "
+            "by the given finite element discretization");
+      }
+      const auto& attributes = this->parallel_fespace->GetParMesh()->attributes;
+      if (attributes.Find(this->id) == -1) {
+        raise("invalid location identifier (" + std::to_string(this->id) + ")");
+      }
+      this->ng = buildPartialQuadratureSpaceOffsets<true>(
+          this->offsets, this->number_of_quadrature_points,
+          *(this->parallel_fespace), this->id, this->integration_rule_selector);
+      return;
+    }
+#endif /* MFEM_USE_MPI */
+    if (!fespaces_manager.manages(*(this->sequential_fespace))) {
+      raise(
+          "the given finite element space is not managed by "
+          "the given finite element discretization");
+    }
+    const auto& attributes = this->sequential_fespace->GetMesh()->attributes;
+    if (attributes.Find(this->id) == -1) {
+      raise("invalid location identifier (" + std::to_string(this->id) + ")");
+    }
+    this->ng = buildPartialQuadratureSpaceOffsets<false>(
+        this->offsets, this->number_of_quadrature_points,
+        *(this->sequential_fespace), this->id, this->integration_rule_selector);
+  }  // end of initialize
 
   const mfem::IntegrationRule& PartialQuadratureSpace::getIntegrationRule(
       const mfem::FiniteElement& e,
@@ -83,15 +233,41 @@ namespace mfem_mgis {
     return this->integration_rule_selector(e, tr);
   }
 
-  std::string PartialQuadratureSpace::getMaterialName() const noexcept {
+  std::string PartialQuadratureSpace::getLocationName() const noexcept {
     auto ctx = Context{};
-    const auto oname =
-        this->fe_discretization.getMaterialName(ctx, this->getId());
-    if (isValid(oname)) {
-      return *oname;
+    const auto ol = [&ctx, this] {
+#ifdef MFEM_USE_MPI
+      if (this->parallel_fespace != nullptr) {
+        return this->fe_discretization.getLocationIdentifier(
+            ctx, *(this->parallel_fespace->GetParMesh()), this->getId());
+      }
+#endif /* MFEM_USE_MPI */
+      ctx.assertOrTerminate(this->sequential_fespace != nullptr,
+                            "internal error");
+      return this->fe_discretization.getLocationIdentifier(
+          ctx, *(this->sequential_fespace->GetMesh()), this->getId());
+    }();
+    ctx.assertOrTerminate(isValid(ol), "internal error");
+    if (isValid(ol->material_identifier)) {
+      const auto oname = this->fe_discretization.getMaterialName(
+          ctx, ol->material_identifier->id);
+      if (isValid(oname)) {
+        if (!oname->empty()) {
+          return *oname;
+        }
+      }
+      return "material (" + std::to_string(this->getId()) + ")";
     }
-    return std::to_string(this->getId());
-  }  // end of getMaterialName
+    ctx.assertOrTerminate(isValid(ol->boundary_identifier), "internal error");
+    const auto oname = this->fe_discretization.getBoundaryName(
+        ctx, ol->boundary_identifier->id);
+    if (isValid(oname)) {
+      if (!oname->empty()) {
+        return *oname;
+      }
+    }
+    return "boundary (" + std::to_string(this->getId()) + ")";
+  }  // end of getLocationName
 
   const MeshDiscretization& PartialQuadratureSpace::getMeshDiscretization()
       const noexcept {
@@ -102,6 +278,88 @@ namespace mfem_mgis {
   PartialQuadratureSpace::getFiniteElementDiscretization() const noexcept {
     return this->fe_discretization;
   }  // end of getFiniteElementDiscretization
+
+  OptionalReference<const Mesh<true>> PartialQuadratureSpace::getParallelMesh(
+      Context& ctx) const noexcept {
+#ifdef MFEM_USE_MPI
+    auto ofes = this->getParallelFiniteElementSpace(ctx);
+    if (isInvalid(ofes)) {
+      return {};
+    }
+    return {ofes->GetParMesh()};
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+  }    // end of getParallelMesh
+
+  OptionalReference<const Mesh<false>>
+  PartialQuadratureSpace::getSequentialMesh(Context& ctx) const noexcept {
+    auto ofes = this->getSequentialFiniteElementSpace(ctx);
+    if (isInvalid(ofes)) {
+      return {};
+    }
+    return {ofes->GetMesh()};
+  }  // end of getSequentialMesh
+
+  OptionalReference<const FiniteElementSpace<true>>
+  PartialQuadratureSpace::getParallelFiniteElementSpace(
+      Context& ctx) const noexcept {
+#ifdef MFEM_USE_MPI
+    if (this->parallel_fespace == nullptr) {
+      return ctx.registerErrorMessage(
+          "the partial quadrature space is not built on a parallel mesh");
+    }
+    return {this->parallel_fespace};
+#else  /* MFEM_USE_MPI */
+    reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+  }    // end of getParallelFiniteElementSpace
+
+  OptionalReference<const FiniteElementSpace<false>>
+  PartialQuadratureSpace::getSequentialFiniteElementSpace(
+      Context& ctx) const noexcept {
+    if (this->sequential_fespace == nullptr) {
+      return ctx.registerErrorMessage(
+          "the partial quadrature space is not built on a sequential mesh");
+    }
+    return {this->sequential_fespace};
+  }  // end of getSequentialFiniteElementSpace
+
+  bool PartialQuadratureSpace::isDefinedOnAMaterial() const {
+    auto ctx = Context{};
+#ifdef MFEM_USE_MPI
+    if (this->parallel_fespace != nullptr) {
+      const auto ook = this->fe_discretization.isDefinedOnMaterials(
+          ctx, *(this->parallel_fespace->GetParMesh()));
+      ctx.assertOrTerminate(isValid(ook), "internal error");
+      return *ook;
+    }
+#endif /* MFEM_USE_MPI */
+    ctx.assertOrTerminate(this->sequential_fespace != nullptr,
+                          "internal error");
+    const auto ook = this->fe_discretization.isDefinedOnMaterials(
+        ctx, *(this->sequential_fespace->GetMesh()));
+    ctx.assertOrTerminate(isValid(ook), "internal error");
+    return *ook;
+  }  // end of isDefinedOnAMaterial
+
+  bool PartialQuadratureSpace::isDefinedOnABoundary() const {
+    auto ctx = Context{};
+#ifdef MFEM_USE_MPI
+    if (this->parallel_fespace != nullptr) {
+      const auto ook = this->fe_discretization.isDefinedOnBoundaries(
+          ctx, *(this->parallel_fespace->GetParMesh()));
+      ctx.assertOrTerminate(isValid(ook), "internal error");
+      return *ook;
+    }
+#endif /* MFEM_USE_MPI */
+    ctx.assertOrTerminate(this->sequential_fespace != nullptr,
+                          "internal error");
+    const auto ook = this->fe_discretization.isDefinedOnBoundaries(
+        ctx, *(this->sequential_fespace->GetMesh()));
+    ctx.assertOrTerminate(isValid(ook), "internal error");
+    return *ook;
+  }  // end of isDefinedOnABoundary
 
   std::optional<size_type> PartialQuadratureSpace::getNumberOfQuadraturePoints(
       Context& ctx, const size_type e) const noexcept {
@@ -119,8 +377,9 @@ namespace mfem_mgis {
   [[nodiscard]] static std::map<mfem::Geometry::Type, size_type>
   getNumberOfElementsByGeometricElementType(
       const PartialQuadratureSpace& s) noexcept {
-    const auto& fed = s.getFiniteElementDiscretization();
-    const auto& mesh = fed.getMesh<parallel>();
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    const auto& mesh = s.getMesh<parallel>(ctx) | or_die;
     auto emapping = std::map<mfem::Geometry::Type, size_type>{};
     for (const auto [e, o] : s.getOffsets()) {
       const auto gtype = mesh.GetElementGeometry(e);
@@ -133,11 +392,13 @@ namespace mfem_mgis {
   [[nodiscard]] static std::optional<std::map<mfem::Geometry::Type, size_type>>
   getNumberOfQuadraturePointsByGeometricElementType(
       Context& ctx, const PartialQuadratureSpace& s) noexcept {
-    const auto& fed = s.getFiniteElementDiscretization();
-    const auto& mesh = fed.getMesh<parallel>();
+    const auto& omesh = s.getMesh<parallel>(ctx);
+    if (isInvalid(omesh)) {
+      return {};
+    }
     auto qmapping = std::map<mfem::Geometry::Type, size_type>{};
     for (const auto [e, o] : s.getOffsets()) {
-      const auto gtype = mesh.GetElementGeometry(e);
+      const auto gtype = omesh->GetElementGeometry(e);
       if (qmapping.contains(gtype)) {
         continue;
       }
@@ -155,11 +416,7 @@ namespace mfem_mgis {
     const auto& fed = s.getFiniteElementDiscretization();
     auto info = PartialQuadratureSpaceInformation{};
     info.identifier = s.getId();
-    const auto oname = fed.getMaterialName(ctx, s.getId());
-    if (isInvalid(oname)) {
-      return {};
-    }
-    info.name = *oname;
+    info.name = s.getLocationName();
     info.number_of_cells = getNumberOfCells(s);
     info.number_of_quadrature_points = getNumberOfElements(s);
     if (fed.describesAParallelComputation()) {

@@ -24,6 +24,26 @@ namespace mfem_mgis {
     return this->id;
   }  // end of getId
 
+  template <bool parallel>
+  OptionalReference<const Mesh<parallel>> PartialQuadratureSpace::getMesh(
+      Context& ctx) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelMesh(ctx);
+    } else {
+      return this->getSequentialMesh(ctx);
+    }
+  }  // end of getMesh
+
+  template <bool parallel>
+  OptionalReference<const FiniteElementSpace<parallel>>
+  PartialQuadratureSpace::getFiniteElementSpace(Context& ctx) const noexcept {
+    if constexpr (parallel) {
+      return this->getParallelFiniteElementSpace(ctx);
+    } else {
+      return this->getSequentialFiniteElementSpace(ctx);
+    }
+  }  // end of getFiniteElementSpace
+
   inline const std::unordered_map<size_type, size_type>&
   PartialQuadratureSpace::getOffsets() const noexcept {
     return this->offsets;

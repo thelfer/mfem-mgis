@@ -25,7 +25,7 @@ namespace mfem_mgis {
     const auto qspace = d.getPartialQuadratureSpace();
     auto r = std::string{};
     if (isValid(qspace)) {
-      r += "material '" + qspace->getMaterialName() + "' ";
+      r += qspace->getLocationName() + " ";
       r += "for given quadrature ";
     } else {
       const auto mid = d.getMaterialIdentifier();

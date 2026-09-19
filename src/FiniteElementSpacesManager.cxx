@@ -528,7 +528,7 @@ namespace mfem_mgis {
 #else  /* MFEM_USE_MPI */
     reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
-  }  // end of getParallelFiniteElementSpace
+  }    // end of getParallelFiniteElementSpace
 
   std::shared_ptr<FiniteElementSpace<false>>
   FiniteElementSpacesManager::getSequentialFiniteElementSpace(
@@ -545,7 +545,7 @@ namespace mfem_mgis {
 #else  /* MFEM_USE_MPI */
     reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
-  }  // end of getParallelFiniteElementSpace
+  }    // end of getParallelFiniteElementSpace
 
   std::shared_ptr<FiniteElementSpace<true>>
   FiniteElementSpacesManager::getParallelFiniteElementSpace(
@@ -555,7 +555,7 @@ namespace mfem_mgis {
 #else  /* MFEM_USE_MPI */
     reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
-  }  // end of getParallelFiniteElementSpace
+  }    // end of getParallelFiniteElementSpace
 
   std::shared_ptr<FiniteElementSpace<false>>
   FiniteElementSpacesManager::getSequentialFiniteElementSpace(
