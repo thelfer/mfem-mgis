@@ -21,24 +21,17 @@
 
 namespace mfem_mgis {
 
-  // forward declaration
+  // forward declarations
   struct Parameters;
-  // forward declaration
   struct DirichletBoundaryCondition;
-  // forward declaration
   struct FiniteElementDiscretization;
-  // forward declaration
   struct Material;
-  // forward declaration
   struct AbstractBehaviourIntegrator;
-  // forward declaration
   struct MultiMaterialNonLinearIntegrator;
-  // forward declaration
   struct NewtonSolver;
-  // forward declaration
   enum struct IntegrationType;
-  // forward declaration
   struct LinearSolverHandler;
+  struct AbstractNonLinearSolver;
 
   /*!
    * \brief class for solving non linear evolution problems.
@@ -244,8 +237,8 @@ namespace mfem_mgis {
     mfem::Vector u0;
     //! \brief unknowns at the end of the time step
     mfem::Vector u1;
-    //! \brief newton solver
-    std::unique_ptr<NewtonSolver> solver;
+    //! \brief nonlinear solver
+    std::unique_ptr<AbstractNonLinearSolver> solver;
 #ifdef MFEM_USE_PETSC
     //! \brief newton solver
     std::unique_ptr<mfem::PetscNonlinearSolver> petsc_solver;
