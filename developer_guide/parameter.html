@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parameter Handling &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Main classes" href="main_classes/main_classes.html" />
+    <link rel="prev" title="Contributors" href="contributors.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commented_examples/index.html">Commented Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer_guide.html">Developer guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="benchmark.html">Benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing_guide.html">Contributing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributors.html">Contributors</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameter Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rationale">Rationale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#declaring-parameters">Declaring Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#accessing-parameters">Accessing Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validating-parameters">Validating Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#predefined-validators">Predefined Validators</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling-rules">Error Handling Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main_classes/main_classes.html">Main classes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="developer_guide.html">Developer guide</a></li>
+      <li class="breadcrumb-item active">Parameter Handling</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developer_guide/parameter.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parameter-handling">
+<span id="mfem-mgis-developer-guide-parameter"></span><h1>Parameter Handling<a class="headerlink" href="#parameter-handling" title="Link to this heading"></a></h1>
+<section id="rationale">
+<h2>Rationale<a class="headerlink" href="#rationale" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Parameter</span></code>, <code class="docutils literal notranslate"><span class="pre">Parameters</span></code>, and <code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code> classes provide a
+type-safe and structured way to handle configuration parameters in <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Parameter</span></code> is a variant type that can hold various scalar and complex types
+(booleans, integers, reals, strings, vectors of parameters, dictionaries, and functions).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Parameters</span></code> is a map associating names to <code class="docutils literal notranslate"><span class="pre">Parameter</span></code> values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code> is a helper class to declare and validate parameters in a
+structured manner, ensuring type safety and consistency.</p></li>
+</ul>
+<p>The use of <code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code> is the <strong>recommended</strong> way to validate parameters,
+though its adoption is still limited in the codebase. The older <code class="docutils literal notranslate"><span class="pre">checkParameters</span></code>
+functions are deprecated in favor of <code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code>.</p>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
+<section id="declaring-parameters">
+<h3>Declaring Parameters<a class="headerlink" href="#declaring-parameters" title="Link to this heading"></a></h3>
+<p>Parameters are typically passed as dictionaries (<code class="docutils literal notranslate"><span class="pre">Parameters</span></code>):</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Parameters</span><span class="p">{</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"IterativeMethod"</span><span class="p">,</span><span class="w"> </span><span class="s">"Newton"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"Theta"</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="s">"MaxIterations"</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">Parameter</span></code> can hold various types:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Parameter</span><span class="w"> </span><span class="n">p1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span><span class="w">                  </span><span class="c1">// integer</span>
+<span class="n">Parameter</span><span class="w"> </span><span class="n">p2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14</span><span class="p">;</span><span class="w">                </span><span class="c1">// real</span>
+<span class="n">Parameter</span><span class="w"> </span><span class="n">p3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"value"</span><span class="p">;</span><span class="w">             </span><span class="c1">// string</span>
+<span class="n">Parameter</span><span class="w"> </span><span class="n">p4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w">                </span><span class="c1">// boolean</span>
+<span class="n">Parameter</span><span class="w"> </span><span class="n">p5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Parameters</span><span class="p">{};</span><span class="w">        </span><span class="c1">// nested dictionary</span>
+<span class="n">Parameter</span><span class="w"> </span><span class="n">p6</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Parameter</span><span class="o">&gt;</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span><span class="w">  </span><span class="c1">// list</span>
+</pre></div>
+</div>
+</section>
+<section id="accessing-parameters">
+<h3>Accessing Parameters<a class="headerlink" href="#accessing-parameters" title="Link to this heading"></a></h3>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">get</span></code> functions to access parameter values. Two modes are available:</p>
+<ul class="simple">
+<li><p><strong>Non-throwing mode</strong>: Uses a <code class="docutils literal notranslate"><span class="pre">Context</span></code> to report errors.</p></li>
+<li><p><strong>Throwing mode</strong>: Uses the <code class="docutils literal notranslate"><span class="pre">throwing</span></code> attribute for constructors or functions
+where no context is available.</p></li>
+</ul>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Non-throwing mode (recommended)</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Context</span><span class="p">{};</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="s">"MaxIterations"</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isInvalid</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Handle error</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"invalid parameter"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Throwing mode (for constructors or functions with attributes::Throwing)</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">throwing</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="s">"MaxIterations"</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">contains</span></code> function checks if a parameter exists:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">contains</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="s">"Theta"</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Parameter exists</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="validating-parameters">
+<h3>Validating Parameters<a class="headerlink" href="#validating-parameters" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code> class provides a fluent interface to declare and validate
+parameters:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParametersValidator</span><span class="p">{}</span>
+<span class="w">    </span><span class="p">.</span><span class="n">add</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"Material"</span><span class="p">,</span><span class="w"> </span><span class="s">"Name of the material"</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">add</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"MaxIterations"</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">add</span><span class="o">&lt;</span><span class="n">real</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"Theta"</span><span class="p">,</span><span class="w"> </span><span class="s">"Time integration parameter"</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">addIncompatibleParametersList</span><span class="p">({</span><span class="s">"OptionA"</span><span class="p">,</span><span class="w"> </span><span class="s">"OptionB"</span><span class="p">});</span>
+
+<span class="c1">// Validate parameters</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Context</span><span class="p">{};</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">validator</span><span class="p">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Handle validation error</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"invalid parameters"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">add</span></code> method can:</p>
+<ul class="simple">
+<li><p>Declare allowed keys with optional descriptions.</p></li>
+<li><p>Specify if a parameter is required.</p></li>
+<li><p>Restrict the parameter to specific types using template arguments.</p></li>
+<li><p>Add custom validators.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">addIncompatibleParametersList</span></code> method declares mutually exclusive parameters.</p>
+</section>
+<section id="predefined-validators">
+<h3>Predefined Validators<a class="headerlink" href="#predefined-validators" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code> class provides predefined validators:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">addStrictlyPositiveIntegerCheck</span></code>: Ensures a parameter is a strictly positive integer.</p></li>
+</ul>
+<p>Custom validators can be added using the <code class="docutils literal notranslate"><span class="pre">add</span></code> method with a validator function:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParametersValidator</span><span class="p">{}</span>
+<span class="w">    </span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="s">"CustomParameter"</span><span class="p">,</span><span class="w"> </span><span class="p">[](</span><span class="n">Context</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Parameter</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">p</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"parameter must be an integer"</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">throwing</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"parameter must be between 0 and 100"</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">});</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="error-handling-rules">
+<h2>Error Handling Rules<a class="headerlink" href="#error-handling-rules" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p><strong>Non-throwing mode</strong>: Functions that accept a <code class="docutils literal notranslate"><span class="pre">Context</span></code> must <strong>never</strong> throw.
+Errors are reported by returning <code class="docutils literal notranslate"><span class="pre">false</span></code> or an invalid result (e.g., <code class="docutils literal notranslate"><span class="pre">std::nullopt</span></code>,
+<code class="docutils literal notranslate"><span class="pre">InvalidResult</span></code>). The <code class="docutils literal notranslate"><span class="pre">Context</span></code> accumulates error messages.</p></li>
+<li><p><strong>Throwing mode</strong>: Functions marked with <code class="docutils literal notranslate"><span class="pre">attributes::Throwing</span></code> may throw exceptions.
+This mode is reserved for constructors or functions where no <code class="docutils literal notranslate"><span class="pre">Context</span></code> is available.</p></li>
+<li><p><strong>Error propagation</strong>: Use the <code class="docutils literal notranslate"><span class="pre">|</span></code> operator to propagate errors from a <code class="docutils literal notranslate"><span class="pre">Context</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">or_raise</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">getThrowingFailureHandler</span><span class="p">();</span>
+<span class="n">validator</span><span class="p">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">or_raise</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Error messages</strong>: Provide clear and descriptive error messages. Include the parameter
+name and the expected type or constraints.</p></li>
+</ol>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Use ``ParametersValidator``</strong>: Prefer <code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code> over the deprecated
+<code class="docutils literal notranslate"><span class="pre">checkParameters</span></code> functions for new code.</p></li>
+<li><p><strong>Validate early</strong>: Validate parameters as early as possible, ideally at the beginning
+of functions or constructors.</p></li>
+<li><p><strong>Document parameters</strong>: Provide descriptions for parameters to improve error messages
+and documentation.</p></li>
+<li><p><strong>Type safety</strong>: Use template arguments to restrict parameter types when possible.</p></li>
+<li><p><strong>Required parameters</strong>: Mark required parameters explicitly using the <code class="docutils literal notranslate"><span class="pre">required</span></code>
+option in <code class="docutils literal notranslate"><span class="pre">AddArguments</span></code>.</p></li>
+<li><p><strong>Incompatible parameters</strong>: Use <code class="docutils literal notranslate"><span class="pre">addIncompatibleParametersList</span></code> to enforce mutual
+exclusivity between parameters.</p></li>
+</ol>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<p>Validating a set of solver parameters:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParametersValidator</span><span class="p">{}</span>
+<span class="w">    </span><span class="p">.</span><span class="n">add</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"Solver"</span><span class="p">,</span><span class="w"> </span><span class="s">"Name of the solver"</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">add</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"MaxIterations"</span><span class="p">,</span><span class="w"> </span><span class="s">"Maximum number of iterations"</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">add</span><span class="o">&lt;</span><span class="n">real</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"Tolerance"</span><span class="p">,</span><span class="w"> </span><span class="s">"Convergence tolerance"</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">addIncompatibleParametersList</span><span class="p">({</span><span class="s">"Verbose"</span><span class="p">,</span><span class="w"> </span><span class="s">"Silent"</span><span class="p">});</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Context</span><span class="p">{};</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">validator</span><span class="p">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"invalid solver parameters"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Validating a strictly positive integer:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParametersValidator</span><span class="p">{}</span>
+<span class="w">    </span><span class="p">.</span><span class="n">addStrictlyPositiveIntegerCheck</span><span class="p">(</span><span class="s">"NumberOfSteps"</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">});</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Context</span><span class="p">{};</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">validator</span><span class="p">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Using custom validators:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParametersValidator</span><span class="p">{}</span>
+<span class="w">    </span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="s">"CustomValue"</span><span class="p">,</span><span class="w"> </span><span class="p">[](</span><span class="n">Context</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Parameter</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">is</span><span class="o">&lt;</span><span class="n">real</span><span class="o">&gt;</span><span class="p">(</span><span class="n">p</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ParametersValidator</span><span class="o">::</span><span class="n">reportUnmatchedTypeError</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"CustomValue"</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="n">real</span><span class="o">&gt;</span><span class="p">(</span><span class="n">throwing</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"CustomValue must be in (0, 1]"</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="s">"A custom value between 0 and 1"</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="contributors.html" class="btn btn-neutral float-left" title="Contributors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="main_classes/main_classes.html" class="btn btn-neutral float-right" title="Main classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
