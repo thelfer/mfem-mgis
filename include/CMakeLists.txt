@@ -116,6 +116,8 @@ mfem_mgis_header(MFEMMGIS PhysicalSystem.hxx)
 mfem_mgis_header(MFEMMGIS Simulation.hxx)
 mfem_mgis_header(MFEMMGIS/Utilities DataFileUtilities.hxx)
 mfem_mgis_header(MFEMMGIS/Utilities Buffer.hxx)
+mfem_mgis_header(MFEMMGIS/Utilities ParametersValidator.hxx)
+mfem_mgis_header(MFEMMGIS/Utilities ParametersValidator.ixx)
 #
 mfem_mgis_header(MFEMMGIS/PostProcessing AbstractPostProcessing.hxx)
 mfem_mgis_header(MFEMMGIS/PostProcessing PostProcessingBase.hxx)

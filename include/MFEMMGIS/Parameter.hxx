@@ -321,5 +321,6 @@ namespace mfem_mgis {
 }  // end of namespace mfem_mgis
 
 #include "MFEMMGIS/Parameter.ixx"
+#include "MFEMMGIS/Utilities/ParametersValidator.hxx"
 
 #endif /* LIB_MFEM_MGIS_PARAMETER_HXX */

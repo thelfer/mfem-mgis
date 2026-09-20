@@ -168,6 +168,8 @@ namespace mfem_mgis {
    * \param[in, out] ctx: execution context
    * \param[in] parameters: parameters
    * \param[in] names: list of valid parameters names
+   *
+   * \note prefer using `ParametersValidator`
    */
   MFEM_MGIS_EXPORT bool checkParameters(
       Context&, const Parameters&, const std::vector<std::string>&) noexcept;
@@ -175,6 +177,8 @@ namespace mfem_mgis {
    * \param[in, out] ctx: execution context
    * \param[in] parameters: parameters
    * \param[in] descriptions: descriptions of the allowed parameters
+   *
+   * \note prefer using `ParametersValidator`
    */
   MFEM_MGIS_EXPORT bool checkParameters(
       Context&,
@@ -185,6 +189,8 @@ namespace mfem_mgis {
    * \param[in] parameters: parameters
    * \param[in] names: list of valid parameters names
    * \throws if an invalid parameter is present
+   *
+   * \note prefer using `ParametersValidator`
    */
   MFEM_MGIS_EXPORT void checkParameters(attributes::Throwing,
                                         const Parameters&,
@@ -193,6 +199,8 @@ namespace mfem_mgis {
    * \param[in] parameters: parameters
    * \param[in] descriptions: descriptions of the allowed parameters
    * \throws if an invalid parameter is present
+   *
+   * \note prefer using `ParametersValidator`
    */
   MFEM_MGIS_EXPORT void checkParameters(
       attributes::Throwing,
