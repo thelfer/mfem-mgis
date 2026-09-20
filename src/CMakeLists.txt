@@ -6,6 +6,7 @@ list(APPEND MFEMMGIS_SOURCES
   Profiler.cxx
   Parameter.cxx
   Parameters.cxx
+  ParametersValidator.cxx
   MeshDiscretization.cxx
   FiniteElementDiscretization.cxx
   FiniteElementSpacesManager.cxx

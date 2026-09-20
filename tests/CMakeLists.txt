@@ -22,6 +22,14 @@ function(add_simple_test name)
   add_test(NAME ${name} COMMAND ${name})
 endfunction()
 
+# Helper function to add a simple test case based on TFEL::tests (serial only)
+function(add_simple_tfel_test name)
+  if(MFEM_MGIS_ENABLE_TFEL_TESTS)
+    add_tfel_test_executable(${name})
+    add_test(NAME ${name} COMMAND ${name})
+  endif(MFEM_MGIS_ENABLE_TFEL_TESTS)
+endfunction()
+
 # Helper function to add a test case with MPI support Usage: add_mpi_test(name
 # parameters [NO_PARALLEL])
 function(add_mpi_test name parameters)
@@ -35,6 +43,7 @@ endfunction()
 
 # Simple test case (no TFEL dependency)
 add_simple_test(UnitTestParameters)
+add_simple_tfel_test(ParametersValidatorTest)
 
 if(MFEM_MGIS_HAVE_TFEL)
   # Compile MFront behaviours library
