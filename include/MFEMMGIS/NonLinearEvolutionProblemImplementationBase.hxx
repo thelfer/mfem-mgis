@@ -43,6 +43,8 @@ namespace mfem_mgis {
       : AbstractNonLinearEvolutionProblem {
     //! \brief a simple alias
     using Hypothesis = mgis::behaviour::Hypothesis;
+    //! \brief name of the parameter used to select a nonlinear solver
+    static const char* const NonLinearSolver;
     /*!
      * \brief name of the parameter used to activate/desactivate
      * this use of the `MultiMaterialNonLinearIntegrator` class

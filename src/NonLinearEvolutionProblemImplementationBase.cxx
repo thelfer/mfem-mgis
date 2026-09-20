@@ -26,11 +26,15 @@ namespace mfem_mgis {
   const char* const NonLinearEvolutionProblemImplementationBase::
       UseMultiMaterialNonLinearIntegrator =
           "UseMultiMaterialNonLinearIntegrator";
+  const char* const
+      NonLinearEvolutionProblemImplementationBase::NonLinearSolver =
+          "NonLinearSolver";
 
   std::vector<std::string>
   NonLinearEvolutionProblemImplementationBase::getParametersList() {
     return {NonLinearEvolutionProblemImplementationBase::
-                UseMultiMaterialNonLinearIntegrator};
+                UseMultiMaterialNonLinearIntegrator,
+            NonLinearEvolutionProblemImplementationBase::NonLinearSolver};
   }  // end of getParametersList
 
   [[nodiscard]] static MultiMaterialNonLinearIntegrator*

@@ -35,24 +35,44 @@ namespace mfem_mgis {
                                                        const Parameters& p) {
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
+    //
+    auto or_raise = ctx.getThrowingFailureHandler();
+    //
+    auto validator =
+        ParametersValidator{}
+            .add(NonLinearEvolutionProblem::getParametersList())
+            .add<std::string>(NonLinearEvolutionProblem::HypothesisParameter,
+                              {.required = true});
+    //
     const auto h = mgis::behaviour::fromString(get<std::string>(
         throwing, p, NonLinearEvolutionProblem::HypothesisParameter));
-    const auto fed = std::make_shared<FiniteElementDiscretization>(
-        ctx,
-        extract(throwing, p, FiniteElementDiscretization::getParametersList()));
-
+    const auto fed =
+        make_shared<FiniteElementDiscretization>(
+            ctx, extract(throwing, p,
+                         FiniteElementDiscretization::getParametersList())) |
+        or_raise;
+    //
     if (fed->describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
           NonLinearEvolutionProblemImplementation<true>;
-      this->pimpl = std::make_unique<ParallelImplementation>(ctx, fed, h, p);
+      this->pimpl = make_unique<ParallelImplementation>(
+                        ctx, fed, h,
+                        extract(throwing, p,
+                                ParallelImplementation::getParametersList())) |
+                    or_raise;
 #else
       raise(
           "NonLinearEvolutionProblem::NonLinearEvolutionProblem: "
           "unsupported parallel computations");
 #endif
     } else {
-      this->pimpl = std::make_unique<SequentialImplementation>(ctx, fed, h, p);
+      this->pimpl =
+          make_unique<SequentialImplementation>(
+              ctx, fed, h,
+              extract(throwing, p,
+                      SequentialImplementation::getParametersList())) |
+          or_raise;
     }
   }  // end of NonLinearEvolutionProblem
 
