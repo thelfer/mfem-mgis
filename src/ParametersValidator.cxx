@@ -117,16 +117,34 @@ namespace mfem_mgis {
     return *this;
   }  // end of add
 
-  ParametersValidator& ParametersValidator::addKeysIncompatibilityCheck(
-      const std::vector<std::string>& keys) noexcept {
+  ParametersValidator& ParametersValidator::addIncompatibleParametersList(
+      const std::vector<std::string>& keys, const AddArguments& opts) noexcept {
     for (const auto& k : keys) {
       this->addKey(k, {});
     }
     if (keys.size() > 1) {
       this->incompatibilities.push_back(keys);
     }
+    if (opts.required) {
+      if (keys.size() > 1) {
+        this->required_keys_in_set.push_back(keys);
+      } else if (keys.size() == 1) {
+        this->required_keys.insert(keys.at(0));
+      }
+    }
     return *this;
-  }  // end of addKeysIncompatibilityCheck
+  }  // end of addIncompatibleParametersList
+
+  ParametersValidator& ParametersValidator::addIncompatibleParametersList(
+      const std::map<std::string, std::string>& m,
+      const AddArguments& opts) noexcept {
+    auto keys = std::vector<std::string>{};
+    for (const auto& [k, d] : m) {
+      keys.push_back(k);
+      this->add(k, d, {.required = false});
+    }
+    return this->addIncompatibleParametersList(keys, opts);
+  }  // end of addIncompatibleParametersList
 
   void ParametersValidator::addKey(const std::string& k,
                                    const AddArguments& opts) noexcept {
@@ -162,6 +180,30 @@ namespace mfem_mgis {
       if (!m.contains(k)) {
         return ctx.registerErrorMessage("required parameter '" + k +
                                         "' is missing");
+      }
+    }
+    for (const auto& keys : this->required_keys_in_set) {
+      const auto found = [&keys, &m] {
+        for (const auto& k : keys) {
+          if (m.contains(k)) {
+            return true;
+          }
+        }
+        return false;
+      }();
+      if (!found) {
+        auto msg =
+            std::string{"one of the following parameter must be defined:"};
+        auto first = true;
+        for (const auto& k : keys) {
+          if (first) {
+            msg += " '" + k + '\'';
+          } else {
+            msg += ", '" + k + '\'';
+          }
+          first = false;
+        }
+        return ctx.registerErrorMessage(msg);
       }
     }
     for (const auto& [k, v] : m) {
@@ -220,6 +262,21 @@ namespace mfem_mgis {
     }
     return true;
   }
+
+  const std::map<std::string, std::string, std::less<>>&
+  ParametersValidator::getAllowedParameters() const noexcept {
+    return this->allowed_keys;
+  }  // end of getAllowedParameters
+
+  std::optional<std::string> ParametersValidator::getDescription(
+      Context& ctx, std::string_view k) const noexcept {
+    const auto p = this->allowed_keys.find(k);
+    if (p != this->allowed_keys.end()) {
+      return p->second;
+    }
+    return ctx.registerErrorMessage("parameter '" + std::string{k} +
+                                    "' is not declared");
+  }  // end of getDescription
 
   ParametersValidator::~ParametersValidator() = default;
 

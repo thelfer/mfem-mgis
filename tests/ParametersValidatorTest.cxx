@@ -22,6 +22,9 @@ struct ParametersValidatorTest final : public tfel::tests::TestCase {
     this->test1();
     this->test2();
     this->test3();
+    this->test4();
+    this->test5();
+    this->test6();
     return this->result;
   }  // end of execute
 
@@ -50,8 +53,8 @@ struct ParametersValidatorTest final : public tfel::tests::TestCase {
   void test2() {
     using namespace mfem_mgis;
     auto ctx = Context{};
-    auto validator =
-        ParametersValidator{}.addKeysIncompatibilityCheck({"a", "b"});
+    auto validator = ParametersValidator{}.addIncompatibleParametersList(
+        std::vector<std::string>{"a", "b"});
     //
     // a and b are not required, so this is ok
     auto d1 = Parameters{};
@@ -77,6 +80,9 @@ struct ParametersValidatorTest final : public tfel::tests::TestCase {
     auto ctx = Context{};
     auto validator = ParametersValidator{}.addStrictlyPositiveIntegerCheck(
         "a", {.required = true});
+    auto oad = validator.getDescription(ctx, "a");
+    TFEL_TESTS_ASSERT(isValid(oad));
+    TFEL_TESTS_CHECK_EQUAL(oad.value(), "");
     // a is required
     auto d1 = Parameters{};
     TFEL_TESTS_CHECK(!validator.validate(ctx, d1));
@@ -100,6 +106,102 @@ struct ParametersValidatorTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(!validator.validate(ctx, d5));
     TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
                            "parameter 'a' is not strictly postive");
+  }
+  void test4() {
+    using namespace mfem_mgis;
+    auto ctx = Context{};
+    auto validator =
+        ParametersValidator{}.addIncompatibleParametersList<std::string>(
+            std::vector<std::string>{"a", "b"}, {.required = true});
+    auto oad = validator.getDescription(ctx, "a");
+    TFEL_TESTS_ASSERT(isValid(oad));
+    TFEL_TESTS_CHECK_EQUAL(oad.value(), "");
+    auto obd = validator.getDescription(ctx, "b");
+    TFEL_TESTS_ASSERT(isValid(oad));
+    TFEL_TESTS_CHECK_EQUAL(obd.value(), "");
+    //
+    auto d1 = Parameters{};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d1));
+    const auto e = ctx.getRawErrorMessage();
+    TFEL_TESTS_CHECK(
+        (e == "one of the following parameter must be defined: 'a', 'b'") ||
+        (e == "one of the following parameter must be defined: 'b', 'a'"));
+    //
+    auto d2 = Parameters{{"a", "test"}};
+    TFEL_TESTS_CHECK(validator.validate(ctx, d2));
+    //
+    auto d3 = Parameters{{"b", "test"}};
+    TFEL_TESTS_CHECK(validator.validate(ctx, d3));
+    //
+    auto d4 = Parameters{{"a", 12}};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d4));
+    TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
+                           "parameter 'a' does not hold the expected type");
+    //
+    auto d5 = Parameters{{"b", 12}};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d5));
+    TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
+                           "parameter 'b' does not hold the expected type");
+    //
+    auto d6 = Parameters{{"b", "test"}, {"a", "test"}};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d6));
+  }
+  void test5() {
+    using namespace mfem_mgis;
+    auto ctx = Context{};
+    auto validator =
+        ParametersValidator{}.addIncompatibleParametersList<std::string>(
+            std::map<std::string, std::string>{{"a", "a parameter"},
+                                               {"b", "b parameter"}},
+            {.required = true});
+    //
+    auto oad = validator.getDescription(ctx, "a");
+    TFEL_TESTS_ASSERT(isValid(oad));
+    TFEL_TESTS_CHECK_EQUAL(oad.value(), "a parameter");
+    auto obd = validator.getDescription(ctx, "b");
+    TFEL_TESTS_ASSERT(isValid(oad));
+    TFEL_TESTS_CHECK_EQUAL(obd.value(), "b parameter");
+    //
+    auto d1 = Parameters{};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d1));
+    const auto e = ctx.getRawErrorMessage();
+    TFEL_TESTS_CHECK(
+        (e == "one of the following parameter must be defined: 'a', 'b'") ||
+        (e == "one of the following parameter must be defined: 'b', 'a'"));
+    //
+    auto d2 = Parameters{{"a", "test"}};
+    TFEL_TESTS_CHECK(validator.validate(ctx, d2));
+    //
+    auto d3 = Parameters{{"b", "test"}};
+    TFEL_TESTS_CHECK(validator.validate(ctx, d3));
+    //
+    auto d4 = Parameters{{"a", 12}};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d4));
+    TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
+                           "parameter 'a' does not hold the expected type");
+    //
+    auto d5 = Parameters{{"b", 12}};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d5));
+    TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
+                           "parameter 'b' does not hold the expected type");
+    //
+    auto d6 = Parameters{{"b", "test"}, {"a", "test"}};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d6));
+  }
+  void test6() {
+    using namespace mfem_mgis;
+    auto ctx = Context{};
+    // a is declared twice
+    auto validator = ParametersValidator{}
+                         .add("a", "a parameter")
+                         .add("a", {.required = true});
+    auto oad = validator.getDescription(ctx, "a");
+    TFEL_TESTS_ASSERT(isValid(oad));
+    TFEL_TESTS_CHECK_EQUAL(oad.value(), "a parameter");
+    auto d1 = Parameters{};
+    TFEL_TESTS_CHECK(!validator.validate(ctx, d1));
+    TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
+                           "required parameter 'a' is missing");
   }
 };
 

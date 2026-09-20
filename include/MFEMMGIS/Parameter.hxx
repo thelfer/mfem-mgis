@@ -22,7 +22,7 @@ namespace mfem_mgis {
   // forward declaration
   struct Parameter;
 
-  //! \brief Variant type for parameter values
+  //! \brief variant type for parameter values
   using ParameterVariant = std::variant<std::monostate,
                                         bool,
                                         size_type,
@@ -46,8 +46,8 @@ namespace mfem_mgis {
   using dict = Parameters;
 
   /*!
-   * \brief Variant class used to initialize objects.
-   * \note This class wraps a `ParameterVariant` to provide a convenient way to
+   * \brief variant class used to initialize objects.
+   * \note this class wraps a `ParameterVariant` to provide a convenient way to
    * handle different types of parameters.
    */
   struct MFEM_MGIS_EXPORT [[nodiscard]] Parameter : private ParameterVariant {
@@ -61,18 +61,16 @@ namespace mfem_mgis {
      */
     [[noreturn]] static void raiseUnmatchedParameterType(attributes::Throwing);
     /*!
-     * \return a parameter holding a `std::vector<Parameter>` containing a copy
-     * of the given vector
-     *
+     * \brief create a parameter holding a `std::vector<Parameter>` containing a
+     * copy of the given vector.
      * \param[in] values: values to be inserted
      */
     template <ParameterValueConcept ParameterType>
     [[nodiscard]] static Parameter from(
         const std::vector<ParameterType>&) noexcept;
     /*!
-     * \return a parameter holding a `std::vector<Parameter>` containing a copy
-     * of the given set
-     *
+     * \brief create a parameter holding a `std::vector<Parameter>` containing a
+     * copy of the given set.
      * \param[in] values: values to be inserted
      */
     template <ParameterValueConcept ParameterType>
@@ -80,35 +78,35 @@ namespace mfem_mgis {
         const std::set<ParameterType>&) noexcept;
     // inheriting constructors
     using ParameterVariant::ParameterVariant;
-    //! \brief Default constructor
+    //! \brief default constructor
     Parameter();
-    //! \brief Move constructor
+    //! \brief move constructor
     Parameter(Parameter&&);
-    //! \brief Copy constructor
+    //! \brief copy constructor
     Parameter(const Parameter&);
     /*!
-     * \brief Constructor from C-string
+     * \brief constructor from a C-string
      * \param[in] src: source
      */
     Parameter(const char* const);
     /*!
-     * \brief Constructor from a string_view
+     * \brief constructor from a `std::string_view`
      * \param[in] src: source
      */
     Parameter(std::string_view);
-    //! \brief Move assignment
+    //! \brief move assignment
     Parameter& operator=(Parameter&&);
-    //! \brief Copy assignment
+    //! \brief copy assignment
     Parameter& operator=(const Parameter&);
-    //! \brief Inheriting assignment operators
+    //! \brief inheriting assignment operators
     using ParameterVariant::operator=;
     /*!
-     * \brief Assignment from C-string
+     * \brief assignment from a C-string
      * \param[in] src: source
      */
     Parameter& operator=(const char* const);
     /*!
-     * \brief Assignment from a string_view
+     * \brief assignment from a `std::string_view`
      * \param[in] src: source
      */
     Parameter& operator=(std::string_view);
@@ -131,37 +129,47 @@ namespace mfem_mgis {
                          OptionalReference<const ResultType>>;
 
   /*!
-   * \return True if the given parameter has the given type
+   * \brief check if the given parameter has the given type
    * \param[in] p: parameter
+   * \return true if the given parameter has the given type
    */
   template <typename ResultType>
   [[nodiscard]] bool is(const Parameter&) noexcept;
 
-  //! \brief Partial specialisation of the `is` function for double
+  /*!
+   * \brief partial specialisation of the `is` function for double
+   * \param[in] p: parameter
+   * \return true if the given parameter is a double
+   */
   template <>
   [[nodiscard]] bool is<double>(const Parameter&) noexcept;
   /*!
-   * \return Value of the parameter if it has the expected type
+   * \brief get the value of the parameter if it has the expected type
    * \tparam ResultType: expected type of the parameter
-   *
    * \param[in, out] ctx: execution context
    * \param[in] p: parameter
+   * \return the value of the parameter if it has the expected type
    */
   template <typename ResultType>
   [[nodiscard]] OptionalGetResultType<ResultType> get(
       Context&, const Parameter&) noexcept;
 
-  //! \brief Partial specialisation of the `get` function for double
+  /*!
+   * \brief partial specialisation of the `get` function for double
+   * \param[in, out] ctx: execution context
+   * \param[in] p: parameter
+   * \return the value of the parameter if it is a double
+   */
   template <>
   [[nodiscard]] OptionalGetResultType<double> get<double>(
       Context&, const Parameter&) noexcept;
   /*!
-   * \return Value of the parameter
+   * \brief get the value of the parameter
    * \tparam ResultType: expected type of the parameter
-   *
    * \param[in] throwing: dummy attribute to indicate that this function may
    * raise an exception
    * \param[in] p: parameter
+   * \return the value of the parameter
    * \throws if the parameter does not have the expected type.
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
@@ -170,27 +178,37 @@ namespace mfem_mgis {
   [[nodiscard]] GetResultType<ResultType> get(attributes::Throwing,
                                               const Parameter&);
 
-  //! \brief Partial specialisation of the `get` function for double
+  /*!
+   * \brief partial specialisation of the `get` function for double
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * raise an exception
+   * \param[in] p: parameter
+   * \return the value of the parameter
+   * \throws if the parameter is not a double.
+   * \note this function shall only be used in constructors or functions with
+   * the `attributes::Throwing` attribute when no context is available.
+   */
   template <>
   [[nodiscard]] GetResultType<double> get<double>(attributes::Throwing,
                                                   const Parameter&);
 
   /*!
-   * \return True if the given parameter exists
-   *
+   * \brief check if the given parameter exists
    * \param[in] p: parameters
    * \param[in] n: name
+   * \return true if the given parameter exists
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool contains(const Parameters&,
                                                std::string_view) noexcept;
 
   /*!
-   * \return True if the given parameter has the given type
-   *
+   * \brief check if the given parameter has the given type
+   * \tparam ResultType: expected type of the parameter
    * \param[in] throwing: dummy attribute to indicate that this function may
    * raise an exception
    * \param[in] p: parameters
    * \param[in] n: name
+   * \return true if the given parameter has the given type
    * \throws if the parameter does not exist
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
@@ -200,43 +218,44 @@ namespace mfem_mgis {
                         const Parameters&,
                         std::string_view);
   /*!
-   * \return Value of the parameter if it exists and has the expected type
+   * \brief get the value of the parameter if it exists and has the expected
+   * type
    * \tparam ResultType: expected type of the parameter
-   *
    * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \param[in] n: name
+   * \return the value of the parameter if it exists and has the expected type
    */
   template <typename ResultType>
   [[nodiscard]] OptionalGetResultType<ResultType> get(
       Context&, const Parameters&, std::string_view) noexcept;
   /*!
-   * \return Value of the parameter if it exists
-   *
+   * \brief get the value of the parameter if it exists
    * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \param[in] n: name
+   * \return the value of the parameter if it exists
    */
   MFEM_MGIS_EXPORT [[nodiscard]] OptionalReference<const Parameter> get(
       Context&, const Parameters&, std::string_view) noexcept;
   /*!
-   * \return Value of the parameter if it exists and is a number
-   *
+   * \brief get the value of the parameter if it exists and is a number
    * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \param[in] n: name
+   * \return the value of the parameter if it exists and is a number
    */
   template <>
   [[nodiscard]] OptionalGetResultType<double> get<double>(
       Context&, const Parameters&, std::string_view) noexcept;
   /*!
-   * \return Value of the parameter if present, a default value otherwise
+   * \brief get the value of the parameter if present, a default value otherwise
    * \tparam ResultType: expected type of the parameter
-   *
    * \param[in, out] ctx: execution context
    * \param[in] p: parameters
    * \param[in] n: name
    * \param[in] v: default value
+   * \return value of the parameter if present, a default value otherwise
    */
   template <typename ResultType>
   [[nodiscard]] std::optional<ResultType> get_if(Context&,
@@ -244,13 +263,13 @@ namespace mfem_mgis {
                                                  std::string_view,
                                                  const ResultType&) noexcept;
   /*!
-   * \return Value of the parameter
+   * \brief get the value of the parameter
    * \tparam ResultType: expected type of the parameter
-   *
    * \param[in] throwing: dummy attribute to indicate that this function may
    * raise an exception
    * \param[in] p: parameters
    * \param[in] n: name
+   * \return the value of the parameter
    * \throws if the parameter does not exist or does not have the expected type.
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
@@ -260,12 +279,12 @@ namespace mfem_mgis {
                                               const Parameters&,
                                               std::string_view);
   /*!
-   * \return Value of the parameter
-   *
+   * \brief get the value of the parameter
    * \param[in] throwing: dummy attribute to indicate that this function may
    * raise an exception
    * \param[in] p: parameters
    * \param[in] n: name
+   * \return the value of the parameter
    * \throws if the parameter does not exist
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
@@ -275,12 +294,12 @@ namespace mfem_mgis {
                                                std::string_view);
 
   /*!
-   * \return Value of the parameter
-   *
+   * \brief get the value of the parameter
    * \param[in] throwing: dummy attribute to indicate that this function may
    * raise an exception
    * \param[in] p: parameters
    * \param[in] n: name
+   * \return the value of the parameter
    * \throws if the parameter does not exist or is not a number
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
@@ -291,14 +310,14 @@ namespace mfem_mgis {
                                                   std::string_view);
 
   /*!
-   * \return Value of the parameter if present, a default value otherwise
+   * \brief get the value of the parameter if present, a default value otherwise
    * \tparam ResultType: expected type of the parameter
-   *
    * \param[in] throwing: dummy attribute to indicate that this function may
    * raise an exception
    * \param[in] p: parameters
    * \param[in] n: name
    * \param[in] v: default value
+   * \return the value of the parameter if present, a default value otherwise
    * \throws if the parameter exists but does not have the expected type.
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
@@ -309,7 +328,7 @@ namespace mfem_mgis {
                                   std::string_view,
                                   const ResultType&);
   /*!
-   * \return Value of the parameter if present, a default value otherwise
+   * \return the value of the parameter if present, a default value otherwise
    *
    * \param[in] p: parameters
    * \param[in] n: name
@@ -319,11 +338,11 @@ namespace mfem_mgis {
                                                   std::string_view,
                                                   const Parameter&) noexcept;
   /*!
-   * \return The parameter converted to the given type
+   * \brief convert the parameter to the given type
    * \tparam ValueType: target type
-   *
    * \param[in, out] ctx: execution context
    * \param[in] p: parameter
+   * \return he parameter converted to the given type
    */
   template <typename ValueType>
   [[nodiscard]] auto convert(Context&, const Parameter&) noexcept;
