@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guidelines &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Parameter Handling" href="parameter.html" />
+    <link rel="prev" title="Contributors" href="contributors.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commented_examples/index.html">Commented Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer_guide.html">Developer guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="benchmark.html">Benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing_guide.html">Contributing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributors.html">Contributors</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-rules">General Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#non-throwing-mode">Non-throwing Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#throwing-mode">Throwing Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#error-propagation">Error Propagation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-handling">Parameter Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-management">Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#class-design">Class Design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance">Performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modern-c-features">Modern C++ Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="parameter.html">Parameter Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main_classes/main_classes.html">Main classes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="developer_guide.html">Developer guide</a></li>
+      <li class="breadcrumb-item active">Guidelines</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developer_guide/guidelines.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="guidelines">
+<span id="mfem-mgis-developer-guide-guidelines"></span><h1>Guidelines<a class="headerlink" href="#guidelines" title="Link to this heading"></a></h1>
+<p>This document outlines the coding guidelines for developing in <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>.
+These rules ensure consistency, maintainability, and robustness of the codebase.</p>
+<section id="general-rules">
+<h2>General Rules<a class="headerlink" href="#general-rules" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p><strong>C++ Standard</strong>: The project uses <strong>C++20</strong>. All code must conform to this standard.</p></li>
+<li><p><strong>Code Style</strong>: Follow the project’s <code class="docutils literal notranslate"><span class="pre">clang-format</span></code> configuration (see <code class="docutils literal notranslate"><span class="pre">.clang-format</span></code>).
+Run <code class="docutils literal notranslate"><span class="pre">clang-format</span> <span class="pre">-i</span> <span class="pre">$(find</span> <span class="pre">.</span> <span class="pre">-name</span> <span class="pre">&quot;*xx&quot;)</span></code> to format your code.</p></li>
+<li><p><strong>Header Guards</strong>: All header files must use the standard header guard pattern:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef LIB_MFEMMGIS_&lt;PATH&gt;_HXX</span>
+<span class="cp">#define LIB_MFEMMGIS_&lt;PATH&gt;_HXX</span>
+
+<span class="c1">// code</span>
+
+<span class="cp">#endif </span><span class="cm">/* LIB_MFEMMGIS_&lt;PATH&gt;_HXX */</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Includes</strong>: Use forward declarations where possible to reduce compile-time dependencies.
+Include headers in the following order:</p>
+<ul class="simple">
+<li><p>Standard library headers</p></li>
+<li><p>Third-party library headers (e.g., MFEM, MGIS)</p></li>
+<li><p>Project headers</p></li>
+</ul>
+</li>
+<li><p><strong>Namespaces</strong>: All code must be in the <code class="docutils literal notranslate"><span class="pre">mfem_mgis</span></code> namespace or a nested namespace.</p></li>
+<li><p><strong>Doxygen Comments</strong>: All public classes, methods, and functions must have Doxygen comments.
+Avoid redundant <code class="docutils literal notranslate"><span class="pre">\brief</span></code> sections if they duplicate the description.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cm">/*!</span>
+<span class="cm"> * \brief Brief description.</span>
+<span class="cm"> *</span>
+<span class="cm"> * Detailed description if necessary.</span>
+<span class="cm"> *</span>
+<span class="cm"> * \param[in] arg: Description of the argument.</span>
+<span class="cm"> * \return Description of the return value.</span>
+<span class="cm"> */</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Error Messages</strong>: Error messages must be clear, descriptive, and include relevant context
+(e.g., parameter names, expected types, or constraints).</p></li>
+</ol>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h2>
+<p>The project uses a <strong>dual error handling model</strong> (see <a class="reference external" href="https://thelfer.github.io/mgis/web/error_handling.html">MGIS error handling documentation</a>):</p>
+<ol class="arabic simple">
+<li><p><strong>Non-throwing mode</strong>: For functions that accept a <code class="docutils literal notranslate"><span class="pre">Context</span></code>.</p></li>
+<li><p><strong>Throwing mode</strong>: For constructors or functions marked with <code class="docutils literal notranslate"><span class="pre">attributes::Throwing</span></code>.</p></li>
+</ol>
+<section id="non-throwing-mode">
+<h3>Non-throwing Mode<a class="headerlink" href="#non-throwing-mode" title="Link to this heading"></a></h3>
+<ul>
+<li><p><strong>Never throw exceptions</strong> in functions that accept a <code class="docutils literal notranslate"><span class="pre">Context</span></code>.</p></li>
+<li><p>Report errors using the <code class="docutils literal notranslate"><span class="pre">Context</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="nf">myFunction</span><span class="p">(</span><span class="n">Context</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error_condition</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"descriptive error message"</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">isInvalid</span></code> to check for errors in returned values:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">someFunction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isInvalid</span><span class="p">(</span><span class="n">result</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Handle error</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"failed to do something"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Return types for non-throwing functions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bool</span></code>: For functions that return a success/failure status.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::optional&lt;T&gt;</span></code>: For functions that may return a value or nothing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OptionalReference&lt;T&gt;</span></code>: For functions that may return a reference or nothing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InvalidResult</span></code>: A special type representing an invalid result.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="throwing-mode">
+<h3>Throwing Mode<a class="headerlink" href="#throwing-mode" title="Link to this heading"></a></h3>
+<ul>
+<li><p>Reserved for <strong>constructors</strong> or functions marked with <code class="docutils literal notranslate"><span class="pre">attributes::Throwing</span></code>.</p></li>
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">raise</span></code> function to throw exceptions:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">MyClass</span><span class="o">::</span><span class="n">MyClass</span><span class="p">(...)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">member</span><span class="p">(</span><span class="n">throwing</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error_condition</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">raise</span><span class="p">(</span><span class="s">"descriptive error message"</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">throwing</span></code> attribute to call functions that may throw:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">throwing</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="s">"ParameterName"</span><span class="p">);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="error-propagation">
+<h3>Error Propagation<a class="headerlink" href="#error-propagation" title="Link to this heading"></a></h3>
+<ul>
+<li><p>To generate an exception for a function using <code class="docutils literal notranslate"><span class="pre">Context</span></code> to report
+errors, use a throwing handler, as follows:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">or_raise</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">getThrowingFailureHandler</span><span class="p">();</span>
+<span class="n">someFunction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">or_raise</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="parameter-handling">
+<h2>Parameter Handling<a class="headerlink" href="#parameter-handling" title="Link to this heading"></a></h2>
+<p>For a detailed guide on using <code class="docutils literal notranslate"><span class="pre">Parameter</span></code>, <code class="docutils literal notranslate"><span class="pre">Parameters</span></code>, and <code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code>,
+see the <a class="reference internal" href="parameter.html#mfem-mgis-developer-guide-parameter"><span class="std std-ref">parameter handling page</span></a>.</p>
+<ol class="arabic">
+<li><p><strong>Use ``ParametersValidator``</strong>: Prefer <code class="docutils literal notranslate"><span class="pre">ParametersValidator</span></code> over the deprecated
+<code class="docutils literal notranslate"><span class="pre">checkParameters</span></code> functions for new code.</p></li>
+<li><p><strong>Validate Early</strong>: Validate parameters at the beginning of functions or constructors.</p></li>
+<li><p><strong>Type Safety</strong>: Use template arguments to restrict parameter types when possible.</p></li>
+<li><p><strong>Required Parameters</strong>: Mark required parameters explicitly using the <code class="docutils literal notranslate"><span class="pre">required</span></code> option.</p></li>
+<li><p><strong>Incompatible Parameters</strong>: Use <code class="docutils literal notranslate"><span class="pre">addIncompatibleParametersList</span></code> to enforce mutual
+exclusivity between parameters.</p></li>
+<li><p><strong>Accessing Parameters</strong>:</p>
+<ul>
+<li><p>Non-throwing mode (recommended):</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Context</span><span class="p">{};</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="s">"ParameterName"</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isInvalid</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">registerErrorMessage</span><span class="p">(</span><span class="s">"invalid parameter"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Throwing mode (for constructors or functions with <code class="docutils literal notranslate"><span class="pre">attributes::Throwing</span></code>):</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">throwing</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="s">"ParameterName"</span><span class="p">);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><strong>Checking Parameter Existence</strong>: Use the <code class="docutils literal notranslate"><span class="pre">contains</span></code> function:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">contains</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="s">"ParameterName"</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Parameter exists</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="memory-management">
+<h2>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Smart Pointers</strong>: Prefer <code class="docutils literal notranslate"><span class="pre">std::unique_ptr</span></code> and <code class="docutils literal notranslate"><span class="pre">std::shared_ptr</span></code> over raw pointers.
+Use <code class="docutils literal notranslate"><span class="pre">make_unique</span></code> and <code class="docutils literal notranslate"><span class="pre">make_shared</span></code> helper functions.</p></li>
+<li><p><strong>Ownership</strong>: Be explicit about ownership. Use raw pointers or references for non-owning
+relationships.</p></li>
+<li><p><strong>Move Semantics</strong>: Use move semantics for efficient transfers of resources.
+Mark move constructors and move assignment operators as <code class="docutils literal notranslate"><span class="pre">noexcept</span></code>.</p></li>
+<li><p><strong>Copy Semantics</strong>: If copying is expensive or not meaningful, delete the copy constructor
+and copy assignment operator.</p></li>
+</ol>
+</section>
+<section id="class-design">
+<h2>Class Design<a class="headerlink" href="#class-design" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p><strong>Use struct Over class</strong>: Prefer <code class="docutils literal notranslate"><span class="pre">struct</span></code> for types where public members
+are declared first. This aligns with the project’s convention of declaring public members
+before private or protected ones.</p></li>
+<li><p><strong>Virtual Destructors</strong>: All base classes must have a virtual destructor.
+Mark it as <code class="docutils literal notranslate"><span class="pre">noexcept</span></code> and <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">default</span></code> if possible.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">MyBaseClass</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<ol class="arabic simple" start="2">
+<li><p><strong>Override Specifier</strong>: Always use the <code class="docutils literal notranslate"><span class="pre">override</span></code> specifier for virtual functions
+that override a base class method.</p></li>
+<li><p><strong>Final Specifier</strong>: Use the <code class="docutils literal notranslate"><span class="pre">final</span></code> specifier for classes or methods that should not
+be further derived or overridden.</p></li>
+<li><p><strong>Default Member Functions</strong>: Use <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">default</span></code> for default constructors, destructors,
+copy constructors, and assignment operators when appropriate.</p></li>
+<li><p><strong>Deleted Member Functions</strong>: Use <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">delete</span></code> to explicitly delete member functions
+that should not be used.</p></li>
+<li><p><strong>Rule of Five</strong>: If you define any of the copy constructor, copy assignment operator,
+move constructor, move assignment operator, or destructor, you should define all of them.</p></li>
+</ol>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Test Framework</strong>: Use the TFEL test framework for unit tests (see <a class="reference external" href="https://thelfer.github.io/tfel/web/TFELTests.html">TFELTests documentation</a>).</p></li>
+<li><p><strong>Test Naming</strong>: Test files should be named <code class="docutils literal notranslate"><span class="pre">&lt;ClassOrFeature&gt;Test.cxx</span></code>.</p></li>
+<li><p><strong>Test Structure</strong>: Each test case should be a class inheriting from <code class="docutils literal notranslate"><span class="pre">tfel::tests::TestCase</span></code>.</p></li>
+<li><p><strong>Test Assertions</strong>: Use the <code class="docutils literal notranslate"><span class="pre">TFEL_TESTS_CHECK</span></code>, <code class="docutils literal notranslate"><span class="pre">TFEL_TESTS_CHECK_EQUAL</span></code>,
+<code class="docutils literal notranslate"><span class="pre">TFEL_TESTS_ASSERT</span></code>, and similar macros for assertions.</p></li>
+<li><p><strong>Error Handling in Tests</strong>: Tests should verify both success and failure cases,
+including error messages.</p></li>
+</ol>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Doxygen</strong>: All public APIs must be documented using Doxygen comments.</p></li>
+<li><p><strong>Examples</strong>: Provide usage examples in the documentation where helpful.</p></li>
+<li><p><strong>Cross-References</strong>: Use <code class="docutils literal notranslate"><span class="pre">\see</span></code>, <code class="docutils literal notranslate"><span class="pre">\ref</span></code>, and <code class="docutils literal notranslate"><span class="pre">\sa</span></code> to link to related documentation.</p></li>
+<li><p><strong>Code Comments</strong>: Use inline comments sparingly. Prefer self-documenting code.
+When necessary, use <code class="docutils literal notranslate"><span class="pre">//</span></code> for short comments and <code class="docutils literal notranslate"><span class="pre">/*!</span> <span class="pre">...</span> <span class="pre">*/</span></code> for Doxygen comments.</p></li>
+</ol>
+</section>
+<section id="performance">
+<h2>Performance<a class="headerlink" href="#performance" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Avoid Copies</strong>: Use references, pointers, or move semantics to avoid unnecessary copies.</p></li>
+<li><p><strong>Reserve Capacity</strong>: Reserve capacity for containers (e.g., <code class="docutils literal notranslate"><span class="pre">std::vector</span></code>) when the size
+is known in advance.</p></li>
+<li><p><strong>Algorithms</strong>: Prefer standard library algorithms (e.g., <code class="docutils literal notranslate"><span class="pre">std::sort</span></code>, <code class="docutils literal notranslate"><span class="pre">std::find</span></code>) over
+hand-written loops when appropriate.</p></li>
+<li><p><strong>Profiling</strong>: Use the <code class="docutils literal notranslate"><span class="pre">MGIS/Profiling.hxx</span></code> utilities for profiling critical sections.</p></li>
+</ol>
+</section>
+<section id="modern-c-features">
+<h2>Modern C++ Features<a class="headerlink" href="#modern-c-features" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Use Modern Features</strong>: Leverage C++20 features such as:</p>
+<ul class="simple">
+<li><p>Concepts</p></li>
+<li><p>Ranges</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::span</span></code></p></li>
+<li><p>Designated initializers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[[nodiscard]]</span></code> attribute</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::optional</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::variant</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>Avoid Legacy Features</strong>: Avoid C-style casts, raw arrays, and manual memory management.</p></li>
+<li><p><strong>Type Safety</strong>: Use <code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span></code> instead of plain <code class="docutils literal notranslate"><span class="pre">enum</span></code> for type safety.</p></li>
+<li><p><strong>Constants</strong>: Use <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> for compile-time constants.</p></li>
+</ol>
+</section>
+<section id="miscellaneous">
+<h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p><strong>Boolean Naming</strong>: Use <code class="docutils literal notranslate"><span class="pre">is</span></code>, <code class="docutils literal notranslate"><span class="pre">has</span></code>, or <code class="docutils literal notranslate"><span class="pre">can</span></code> prefixes for boolean functions:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="nf">isValid</span><span class="p">(...)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">hasFeature</span><span class="p">(...)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">canDoSomething</span><span class="p">(...)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Getter/Setter Naming</strong>: Use the noun form for getters and <code class="docutils literal notranslate"><span class="pre">set</span></code> prefix for setters:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">getValue</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">setValue</span><span class="p">(...)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Avoid Abbreviations</strong>: Use descriptive names. Avoid abbreviations unless they are
+widely understood (e.g., <code class="docutils literal notranslate"><span class="pre">ctx</span></code> for context, <code class="docutils literal notranslate"><span class="pre">params</span></code> for parameters).</p></li>
+<li><p><strong>Consistency</strong>: Follow the existing naming and coding conventions in the codebase.</p></li>
+<li><p><strong>Line Length</strong>: Keep lines under 80 characters where possible.</p></li>
+<li><p><strong>Trailing Commas</strong>: Use trailing commas in lists, parameter lists, and similar constructs
+for easier diffs and version control.</p></li>
+<li><p><strong>Initialization</strong>: Prefer uniform initialization (braces <code class="docutils literal notranslate"><span class="pre">{}</span></code>) over parentheses <code class="docutils literal notranslate"><span class="pre">()</span></code>.</p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="contributors.html" class="btn btn-neutral float-left" title="Contributors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parameter.html" class="btn btn-neutral float-right" title="Parameter Handling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
