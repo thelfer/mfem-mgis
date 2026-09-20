@@ -1,12 +1,12 @@
 /*!
- * \file   include/MFEMMGIS/NewtonSolver.hxx
+ * \file   MFEMMGIS/NonLinearSolvers/NewtonSolver.hxx
  * \brief
  * \author Thomas Helfer
  * \date   29/03/2021
  */
 
-#ifndef LIB_MFEM_MGIS_NEWTONSOLVER_HXX
-#define LIB_MFEM_MGIS_NEWTONSOLVER_HXX
+#ifndef LIB_MFEM_MGIS_NONLINEARSOLVERS_NEWTONSOLVER_HXX
+#define LIB_MFEM_MGIS_NONLINEARSOLVERS_NEWTONSOLVER_HXX
 
 #include <vector>
 #include <optional>
@@ -18,7 +18,7 @@
 namespace mfem_mgis {
 
   //! \brief custom implementation of the Newton Solver
-  struct NewtonSolver : public mfem::IterativeSolver {
+  struct MFEM_MGIS_EXPORT NewtonSolver : public mfem::IterativeSolver {
 #ifdef MFEM_USE_MPI
     //! \brief default constructor
     NewtonSolver(NonLinearEvolutionProblemImplementation<true> &);
@@ -121,4 +121,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_NEWTONSOLVER_HXX */
+#endif /* LIB_MFEM_MGIS_NONLINEARSOLVERS_NEWTONSOLVER_HXX */

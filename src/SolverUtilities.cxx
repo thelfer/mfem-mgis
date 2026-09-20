@@ -14,7 +14,7 @@
 #endif /* MFEM_USE_PETSC */
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
-#include "MFEMMGIS/SolverUtilities.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
 
 namespace mfem_mgis {
 

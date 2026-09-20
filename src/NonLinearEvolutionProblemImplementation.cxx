@@ -23,9 +23,8 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
-#include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/NonLinearSolvers/NewtonSolver.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/PostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
@@ -33,6 +32,7 @@
 #include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {

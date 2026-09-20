@@ -12,8 +12,8 @@
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
-#include "MFEMMGIS/SolverUtilities.hxx"
-#include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
+#include "MFEMMGIS/NonLinearSolvers/NewtonSolver.hxx"
 
 namespace mfem_mgis {
 

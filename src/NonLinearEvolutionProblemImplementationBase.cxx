@@ -11,14 +11,14 @@
 #include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
-#include "MFEMMGIS/SolverUtilities.hxx"
+#include "MFEMMGIS/NonLinearSolvers/NewtonSolver.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
 
 namespace mfem_mgis {
