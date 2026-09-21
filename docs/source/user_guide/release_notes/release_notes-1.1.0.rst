@@ -339,6 +339,8 @@ Issues fixed
 
 - Issue 290: Add support for partial quadratures spaces on boundaries
 - Issue 288: ￼master doesnt build without MPI
+- Issue 286: updateGridFunction dilutes interface values when the
+  functions do not cover all the materials of the mesh
 - Issue 284: NonLinearModel does not export the initial state
 - Issue 281:￼ Nodal export of integration point results uses the node
   index as an integration point index
