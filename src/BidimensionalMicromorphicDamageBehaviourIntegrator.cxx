@@ -233,7 +233,8 @@ namespace mfem_mgis {
         // - a_chi, the dual force conjugated with d_chi (scalar)
         // - b_chi, the dual force conjugated with the gradient of d_chi
         // (vector)
-        Fe[ni] += w * (s[1] * dshape(ni, 0) +  //
+        Fe[ni] += w * (s[0] * shape[ni] +      //
+                       s[1] * dshape(ni, 0) +  //
                        s[2] * dshape(ni, 1));
       }
     }
