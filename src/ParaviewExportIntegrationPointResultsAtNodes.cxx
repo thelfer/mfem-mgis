@@ -35,6 +35,9 @@ namespace mfem_mgis {
             if (f.getNumberOfComponents() != nc) {
               raise("inconsistent number of components");
             }
+            if (f.getPartialQuadratureSpace().isDefinedOnABoundary()) {
+              raise("functions defined on boundaries are not supported");
+            }
             const auto mid = f.getPartialQuadratureSpace().getId();
             if (std::find(mids.begin(), mids.end(), mid) != mids.end()) {
               raise("multiple function defined on material '" +
