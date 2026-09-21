@@ -79,21 +79,46 @@ namespace mfem_mgis {
       const auto m = tr.Attribute;
       checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
                                             "AssembleElementVector", m);
-      for (auto& bi : this->behaviour_integrators.at(m)) {
-        if (bi->requiresCurrentSolutionForResidualAssembly()) {
+      auto update = [this, &e, &tr](mfem::Vector& Fe,
+                                    AbstractBehaviourIntegrator& bi) {
+        if (bi.requiresCurrentSolutionForJacobianAssembly()) {
           auto vdofs = mfem::Array<int>{};
 #ifdef MFEM_USE_MPI
-          if (pfespace != nullptr) {
-            pfespace->GetElementVDofs(tr.ElementNo, vdofs);
+          if (this->pfespace != nullptr) {
+            this->pfespace->GetElementVDofs(tr.ElementNo, vdofs);
           } else {
-            fespace->GetElementVDofs(tr.ElementNo, vdofs);
+            this->fespace->GetElementVDofs(tr.ElementNo, vdofs);
           }
 #else  /* MFEM_USE_MPI */
-          fespace->GetElementVDofs(tr.ElementNo, vdofs);
+          this->fespace->GetElementVDofs(tr.ElementNo, vdofs);
 #endif /* MFEM_USE_MPI */
           this->unknowns.GetSubVector(vdofs, this->Ue);
         }
-        bi->updateResidual(F, e, tr, this->Ue);
+        bi.updateResidual(Fe, e, tr, this->Ue);
+      };
+      //
+      const auto& integrators = this->behaviour_integrators.at(m);
+      if (integrators.size() == 1) {
+        update(F, *(integrators.front()));
+        return;
+      }
+      const auto ndofs = [this, &e] {
+#ifdef MFEM_USE_MPI
+        if (this->pfespace != nullptr) {
+          return e.GetDof() * (this->pfespace->GetVDim());
+        }
+#endif /* MFEM_USE_MPI */
+        return e.GetDof() * (this->fespace->GetVDim());
+      }();
+      auto F_tmp = mfem::Vector{};
+      F.SetSize(ndofs);
+      // although not required as F_tmp will be resized and initialized by all
+      // behaviour integrators, this line avoids repeated allocations
+      F_tmp.SetSize(ndofs);
+      F = 0.;
+      for (auto& bi : integrators) {
+        update(F_tmp, *bi);
+        F += F_tmp;
       }
     }  // end of AssembleRHSElementVect
 
@@ -147,21 +172,46 @@ namespace mfem_mgis {
       const auto m = tr.Attribute;
       checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
                                             "AssembleElementGrad", m);
-      for (auto& bi : this->behaviour_integrators.at(m)) {
-        if (bi->requiresCurrentSolutionForJacobianAssembly()) {
+      auto update = [this, &e, &tr](mfem::DenseMatrix& Ke,
+                                    AbstractBehaviourIntegrator& bi) {
+        if (bi.requiresCurrentSolutionForJacobianAssembly()) {
           auto vdofs = mfem::Array<int>{};
 #ifdef MFEM_USE_MPI
-          if (pfespace != nullptr) {
-            pfespace->GetElementVDofs(tr.ElementNo, vdofs);
+          if (this->pfespace != nullptr) {
+            this->pfespace->GetElementVDofs(tr.ElementNo, vdofs);
           } else {
-            fespace->GetElementVDofs(tr.ElementNo, vdofs);
+            this->fespace->GetElementVDofs(tr.ElementNo, vdofs);
           }
 #else  /* MFEM_USE_MPI */
-          fespace->GetElementVDofs(tr.ElementNo, vdofs);
+          this->fespace->GetElementVDofs(tr.ElementNo, vdofs);
 #endif /* MFEM_USE_MPI */
           this->unknowns.GetSubVector(vdofs, this->Ue);
         }
-        bi->updateJacobian(K, e, tr, this->Ue);
+        bi.updateJacobian(Ke, e, tr, this->Ue);
+      };
+      //
+      const auto& integrators = this->behaviour_integrators.at(m);
+      if (integrators.size() == 1) {
+        update(K, *(integrators.front()));
+        return;
+      }
+      const auto ndofs = [this, &e] {
+#ifdef MFEM_USE_MPI
+        if (this->pfespace != nullptr) {
+          return e.GetDof() * (this->pfespace->GetVDim());
+        }
+#endif /* MFEM_USE_MPI */
+        return e.GetDof() * (this->fespace->GetVDim());
+      }();
+      auto K_tmp = mfem::DenseMatrix{};
+      K.SetSize(ndofs, ndofs);
+      // although not required as K_tmp will be resized and initialized by all
+      // behaviour integrators, this line avoids repeated allocations
+      K_tmp.SetSize(ndofs, ndofs);
+      K = 0.;
+      for (auto& bi : integrators) {
+        update(K_tmp, *bi);
+        K += K_tmp;
       }
     }  // end of AssembleElementMatrix
 
@@ -228,7 +278,20 @@ namespace mfem_mgis {
     const auto m = tr.Attribute;
     checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
                                           "AssembleElementVector", m);
-    for (const auto& bi : this->behaviour_integrators.at(m)) {
+    const auto& integrators = this->behaviour_integrators.at(m);
+    if (integrators.size() == 1) {
+      integrators.front()->updateResidual(F, e, tr, U);
+      return;
+    }
+    const auto ndofs =
+        e.GetDof() * getNumberOfComponents(*(this->fe_discretization));
+    auto F_tmp = mfem::Vector{};
+    F.SetSize(ndofs);
+    // although not required as F_tmp will be resized and initialized by all
+    // behaviour integrators, this line avoids repeated allocations
+    F_tmp.SetSize(ndofs);
+    F = 0.;
+    for (const auto& bi : integrators) {
       if (usePETSc()) {
         MFEM_VERIFY(
             bi->integrate(
@@ -236,7 +299,8 @@ namespace mfem_mgis {
                 IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),
             "ERROR Behaviour");
       }
-      bi->updateResidual(F, e, tr, U);
+      bi->updateResidual(F_tmp, e, tr, U);
+      F += F;
     }
   }  // end of AssembleElementVector
 
@@ -248,8 +312,22 @@ namespace mfem_mgis {
     const auto m = tr.Attribute;
     checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
                                           "AssembleElementGrad", m);
-    for (const auto& bi : this->behaviour_integrators.at(m)) {
-      bi->updateJacobian(K, e, tr, U);
+    const auto& integrators = this->behaviour_integrators.at(m);
+    if (integrators.size() == 1) {
+      integrators.front()->updateJacobian(K, e, tr, U);
+      return;
+    }
+    const auto ndofs =
+        e.GetDof() * getNumberOfComponents(*(this->fe_discretization));
+    auto K_tmp = mfem::DenseMatrix{};
+    K.SetSize(ndofs, ndofs);
+    // although not required as K_tmp will be resized and initialized by all
+    // behaviour integrators, this line avoids repeated allocations
+    K_tmp.SetSize(ndofs, ndofs);
+    K = 0.;
+    for (const auto& bi : integrators) {
+      bi->updateJacobian(K_tmp, e, tr, U);
+      K += K_tmp;
     }
   }  // end of AssembleElementGrad
 
