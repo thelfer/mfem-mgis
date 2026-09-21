@@ -383,7 +383,7 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "computeStressInGlobalFrame: material is not orthotropic");
     }
-    if (m.b.btype != mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
+    if (m.b.btype == mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
       if ((m.b.hypothesis == Hypothesis::PLANESTRAIN) ||
           (m.b.hypothesis == Hypothesis::PLANESTRESS)) {
         return computeSmallStrainStressInGlobalFrame_impl<2>(ctx, rstress, m,
@@ -395,7 +395,7 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage(
             "computeStressInGlobalFrame: unsupported modelling hypothesis");
       }
-    } else if (m.b.btype !=
+    } else if (m.b.btype ==
                mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
       if ((m.b.hypothesis == Hypothesis::PLANESTRAIN) ||
           (m.b.hypothesis == Hypothesis::PLANESTRESS)) {
@@ -416,7 +416,7 @@ namespace mfem_mgis {
   std::optional<PartialQuadratureFunction> computeStressInGlobalFrame(
       Context& ctx, const Material& m, const Material::StateSelection s) {
     auto stress_size = size_type{};
-    if (m.b.btype != mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
+    if (m.b.btype == mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) {
       if ((m.b.hypothesis == Hypothesis::PLANESTRAIN) ||
           (m.b.hypothesis == Hypothesis::PLANESTRESS)) {
         stress_size = 4;
@@ -426,7 +426,7 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage(
             "computeStressInGlobalFrame: unsupported modelling hypothesis");
       }
-    } else if (m.b.btype !=
+    } else if (m.b.btype ==
                mgis::behaviour::Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
       if ((m.b.hypothesis == Hypothesis::PLANESTRAIN) ||
           (m.b.hypothesis == Hypothesis::PLANESTRESS)) {

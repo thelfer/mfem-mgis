@@ -71,7 +71,7 @@ namespace mfem_mgis {
       const mfem::Vector &T,
       const mfem::Vector &N,
       const size_type ni) noexcept {
-    g[0] += T[ni] * N[0];
+    g[0] += T[ni] * N[ni];
   }  // end of updateGradients
 
   inline void TransientHeatTransferBehaviourIntegrator::updateInnerForces(

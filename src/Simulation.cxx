@@ -5,6 +5,7 @@
  */
 
 #include <cmath>
+#include <limits>
 #include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/TimeStep.hxx"
 #include "MFEMMGIS/PhysicalSystem.hxx"
@@ -99,7 +100,7 @@ namespace mfem_mgis {
               "within each temporal sequence"});
     d.insert(
         {"TimeStepValidator", "strategy used to determine the next time step"});
-    d.insert({"timeIncrementComputer",
+    d.insert({"TimeIncrementComputer",
               "strategy used to determine the next time step"});
     d.insert(
         {"LimitTimeIncrementIncrease",
@@ -366,7 +367,7 @@ namespace mfem_mgis {
       }
       if (contains(tbparams, "MaximalRelativeRemainder")) {
         this->maximalRelativeRemainder =
-            get<real>(throwing, tbparams, "MaxmalRelativeRemainder");
+            get<real>(throwing, tbparams, "MaximalRelativeRemainder");
       }
       auto checkBounds = [](const real r, const auto *const rn) {
         if (r >= 0.99999) {
@@ -649,13 +650,14 @@ namespace mfem_mgis {
     if (isInvalid(odt1)) {
       return {};
     }
-    auto dt = std::min(*odt1, se - t);
+    const auto dt_max = se - t;
+    auto dt = std::min(*odt1, dt_max);
     if (isValid(this->physicalSystem)) {
       const auto odt2 = this->physicalSystem->getNextTimeIncrement(ctx, t, se);
       if (isInvalid(odt2)) {
         return {};
       }
-      dt = std::min(std::min(*odt1, *odt2), se - t);
+      dt = std::min(std::min(*odt1, *odt2), dt_max);
     }
     //
     if (isValid(pdt)) {
@@ -670,8 +672,9 @@ namespace mfem_mgis {
       }
       if (this->limitTimeIncrementDecrease) {
         if (dt < *pdt) {
-          dt = std::max(dt,
-                        (this->maximalTimeIncrementRelativeDecrease) * (*pdt));
+          const auto bound =
+              (this->maximalTimeIncrementRelativeDecrease) * (*pdt);
+          dt = std::min(std::max(dt, bound), dt_max);
         }
       }
     }
@@ -692,20 +695,33 @@ namespace mfem_mgis {
     }
     // balance time increment
     if (this->balanceTimeIncrements) {
-      const auto rdt = se - t;
-      const auto q = std::floor(rdt / (dt));
-      const auto r = rdt / (dt)-q;
-      if (r < this->minimalRelativeRemainder) {
-        // the remainder is very small, so we replace
-        // the proposed time increment by rdt / q
-        dt = rdt / q;
-      } else if (r < this->maximalRelativeRemainder) {
-        // we choose to balance the time increment
-        dt = rdt / (q + 1);
-      } else {
-        // the remainder is large enought so that
-        // the last time step would be ok
+      const auto q = std::floor(dt_max / (dt));
+      if (std::isfinite(q)) {
+        const auto r = dt_max / (dt)-q;
+        if (r < this->minimalRelativeRemainder) {
+          // the remainder is very small, so we replace
+          // the proposed time increment by dt_max / q
+          if (q > std::numeric_limits<real>::min()) {
+            dt = dt_max / q;
+          }
+        } else if (r < this->maximalRelativeRemainder) {
+          // we choose to balance the time increment
+          dt = dt_max / (q + 1);
+        } else {
+          // the remainder is large enought so that
+          // the last time step would be ok
+        }
       }
+    }
+    if (std::fpclassify((t + dt) - t) == FP_ZERO) {
+      return ctx.registerErrorMessage("proposed time increment is so small (" +
+                                      std::to_string(dt) +
+                                      ") that one can not distinguish "
+                                      "the time at the end of the time step (" +
+                                      std::to_string(t + dt) +
+                                      ") and the time at the beginning of "
+                                      "the time step (" +
+                                      std::to_string(t) + ")");
     }
     //
     return t + dt;
@@ -1102,8 +1118,8 @@ namespace mfem_mgis {
         return s;
       }
       ots->push_back(timeStepOutput);
-      output.replaceOrInsert("numberOfTimeSteps", *onumberOfTimeSteps + 1);
-      output.replaceOrInsert("timeStepOutputs", *ots);
+      output.replaceOrInsert("NumberOfTimeSteps", *onumberOfTimeSteps + 1);
+      output.replaceOrInsert("TimeStepOutputs", *ots);
     }
     return s;
   }  // end of simulateOverATimeStep

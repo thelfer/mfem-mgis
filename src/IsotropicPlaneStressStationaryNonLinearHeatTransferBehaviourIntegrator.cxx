@@ -87,7 +87,7 @@ namespace mfem_mgis {
             "external state variable 'Temperature' shall not be uniform");
       }
     }
-    return false;
+    return true;
   }  // end of setup
 
   void IsotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator::

@@ -378,11 +378,9 @@ namespace mfem_mgis {
     if (f_data_continuous) {
       ctx.assertOrTerminate(f.getDataOffset() == 0,
                             "inconsistent function view, offset shall be null");
-      ctx.assertOrTerminate(v.getDataOffset() == 0,
-                            "inconsistent function view, offset shall be null");
       if (vs == v.getNumberOfComponents()) {
         // data are also continous in v
-        std::copy(v_values, v_values + n, f_values);
+        std::copy(v_values, v_values + n * nc, f_values);
       } else {
         if (nc == 1) {
           // special case for scalars
