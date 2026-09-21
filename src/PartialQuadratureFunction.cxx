@@ -5,6 +5,7 @@
  * \date   8/06/2020
  */
 
+#include <set>
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
@@ -30,8 +31,9 @@ namespace mfem_mgis {
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::function<real(const mfem::FiniteElement&,
                          mfem::ElementTransformation&)> f) {
-    const auto& fed = s->getFiniteElementDiscretization();
-    const auto& fespace = fed.getFiniteElementSpace<parallel>();
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    const auto& fespace = s->getFiniteElementSpace<parallel>(ctx) | or_raise;
     const auto m = s->getId();
     auto values = std::make_shared<PartialQuadratureFunction>(s, 1);
     for (size_type i = 0; i != fespace.GetNE(); ++i) {
@@ -753,7 +755,11 @@ namespace mfem_mgis {
             "element space");
       }
     }
-    const auto& fespace = fed.getFiniteElementSpace<parallel>();
+    const auto ofespace = qspace.template getFiniteElementSpace<parallel>(ctx);
+    if (isInvalid(ofespace)) {
+      return false;
+    }
+    const auto& fespace = *ofespace;
     if constexpr (parallel) {
       if (!fed.template isSlibing<parallel>(*(src.ParFESpace()))) {
         return ctx.registerErrorMessage("unmatched finite element space");
@@ -762,6 +768,11 @@ namespace mfem_mgis {
       if (!fed.template isSlibing<parallel>(*(src.FESpace()))) {
         return ctx.registerErrorMessage("unmatched finite element space");
       }
+    }
+    if (src.FESpace()->GetMesh() != fespace.GetMesh()) {
+      return ctx.registerErrorMessage(
+          "the grid function is not defined on the mesh of the partial "
+          "quadrature space");
     }
     if (dest.getNumberOfComponents() != src.VectorDim()) {
       return ctx.registerErrorMessage(
@@ -819,6 +830,76 @@ namespace mfem_mgis {
     return update_impl<false>(ctx, dest, src);
   }  // end of update
 
+  /*!
+   * \brief check that the given functions are defined on all the materials or
+   * on all the boundaries of the mesh of a grid function, and on those only
+   * \param[in, out] ctx: execution context
+   * \param[in] fcts: functions
+   * \param[in] mesh: mesh of the grid function
+   *
+   * \note the elements on which no function is defined would contribute to
+   * the nodal averages with null values.
+   * \note location identifiers are compared, rather than attributes, as the
+   * attributes of a submesh defined on boundaries are boundary identifiers.
+   * \note a partial quadrature space defined on a boundary is built on the
+   * submesh of this boundary, which must be the mesh of the grid function.
+   */
+  template <bool parallel>
+  [[nodiscard]] static bool checkGridFunctionMesh(
+      Context& ctx,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const Mesh<parallel>& mesh) noexcept {
+    // locations on which the functions are defined
+    auto locations = std::set<LocationIdentifier>{};
+    for (const auto& f : fcts) {
+      const auto& qspace = f.getPartialQuadratureSpace();
+      const auto& fed = qspace.getFiniteElementDiscretization();
+      const auto omesh = qspace.template getMesh<parallel>(ctx);
+      if (isInvalid(omesh)) {
+        return false;
+      }
+      const auto ol = fed.getLocationIdentifier(ctx, *omesh, qspace.getId());
+      if (isInvalid(ol)) {
+        return false;
+      }
+      if (isValid(ol->boundary_identifier) && (&(*omesh) != &mesh)) {
+        return ctx.registerErrorMessage(
+            "the function defined on '" + qspace.getLocationName() +
+            "' can only be projected on the submesh of this boundary");
+      }
+      if (!locations.empty()) {
+        const auto& l = *(locations.begin());
+        if (isValid(l.material_identifier) !=
+            isValid(ol->material_identifier)) {
+          return ctx.registerErrorMessage(
+              "functions defined on materials and on boundaries can not be "
+              "mixed");
+        }
+      }
+      if (!locations.insert(*ol).second) {
+        return ctx.registerErrorMessage("multiple functions defined on '" +
+                                        qspace.getLocationName() + "'");
+      }
+    }
+    // locations associated with the mesh of the grid function
+    const auto& fed =
+        fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    auto mesh_locations = std::set<LocationIdentifier>{};
+    for (const auto a : mesh.attributes) {
+      const auto ol = fed.getLocationIdentifier(ctx, mesh, a);
+      if (isInvalid(ol)) {
+        return false;
+      }
+      mesh_locations.insert(*ol);
+    }
+    if (locations != mesh_locations) {
+      return ctx.registerErrorMessage(
+          "the materials or boundaries on which the functions are defined do "
+          "not match those of the mesh of the grid function");
+    }
+    return true;
+  }  // end of checkGridFunctionMesh
+
   template <bool parallel>
   static std::unique_ptr<GridFunction<parallel>> makeGridFunction_impl(
       Context& ctx,
@@ -829,6 +910,9 @@ namespace mfem_mgis {
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    if (!checkGridFunctionMesh<parallel>(ctx, fcts, fed.getMesh<parallel>())) {
+      return {};
+    }
     auto m = fed.getFiniteElementSpacesManager();
     auto fespace = m.getFiniteElementSpace<parallel>(ctx, n);
     if (isInvalid(fespace)) {
@@ -866,6 +950,9 @@ namespace mfem_mgis {
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
+      return {};
+    }
     auto fespace = fed.getFiniteElementSpacesManager()
                        .template getFiniteElementSpace<parallel>(ctx, mesh, n);
     if (isInvalid(fespace)) {
@@ -905,6 +992,9 @@ namespace mfem_mgis {
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
+      return {};
+    }
     auto fespace = fed.getFiniteElementSpacesManager()
                        .template getFiniteElementSpace<parallel>(ctx, mesh, n);
     if (isInvalid(fespace)) {
@@ -949,6 +1039,10 @@ namespace mfem_mgis {
         (fes.GetOrdering() != fespace->GetOrdering())) {
       raise("inconsistent grid function");
     }
+    auto ctx = Context{};
+    if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
+      raise(ctx.getErrorMessage());
+    }
     if (n == 1u) {
       auto c = PartialQuadratureFunctionsScalarCoefficient(*fespace, fcts);
       f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
@@ -991,6 +1085,10 @@ namespace mfem_mgis {
         (fes.FEColl() != fespace->FEColl()) ||
         (fes.GetOrdering() != fespace->GetOrdering())) {
       raise("inconsistent grid function");
+    }
+    auto ctx = Context{};
+    if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
+      raise(ctx.getErrorMessage());
     }
     if (n == 1u) {
       auto c = PartialQuadratureFunctionsScalarCoefficient(*fespace, fcts);
@@ -1036,6 +1134,25 @@ namespace mfem_mgis {
         (fes.FEColl() != fespace->FEColl()) ||
         (fes.GetOrdering() != fespace->GetOrdering())) {
       raise("inconsistent grid function");
+    }
+    auto ctx = Context{};
+    if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
+      raise(ctx.getErrorMessage());
+    }
+    const auto on_boundaries = fed.isDefinedOnBoundaries(ctx, mesh);
+    if (isInvalid(on_boundaries)) {
+      raise(ctx.getErrorMessage());
+    }
+    if (*on_boundaries) {
+      // the partial quadrature spaces are built on the submesh
+      if (n == 1u) {
+        auto c = PartialQuadratureFunctionsScalarCoefficient(*fespace, fcts);
+        f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
+      } else {
+        auto c = PartialQuadratureFunctionsVectorCoefficient(*fespace, fcts);
+        f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
+      }
+      return;
     }
     if (n == 1u) {
       auto c = PartialQuadratureFunctionsScalarCoefficientII(
