@@ -152,6 +152,53 @@ bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
   return true;
 }  // end of test2
 
+// single component test on a boundary
+template <bool parallel>
+bool test3(mfem_mgis::Context& ctx, const TestParameters& params) {
+  using namespace mfem_mgis;
+  auto fed = FiniteElementDiscretization{
+      ctx,
+      {{"MeshFileName", params.mesh_file},
+       {"FiniteElementFamily", "H1"},
+       {"FiniteElementOrder", params.order},
+       {"UnknownsSize", 1},
+       {"NumberOfUniformRefinements", parallel ? 1 : 0},
+       {"Parallel", parallel}}};
+  auto space = std::make_shared<PartialQuadratureSpace>(
+      fed,
+      LocationIdentifier{.material_identifier = {},
+                         .boundary_identifier = BoundaryIdentifier{.id = 6}},
+      [](const mfem::FiniteElement& e,
+         const mfem::ElementTransformation& tr) noexcept
+      -> const mfem::IntegrationRule& {
+        const auto order = 2 * tr.OrderGrad(&e);
+        return mfem::IntRules.Get(e.GetGeomType(), order);
+      });
+  auto fct = PartialQuadratureFunction::evaluate(
+      space, [](const real x, const real y) noexcept { return cos(x) * y; });
+  auto s = mfem_mgis::unit_tests::getLinearSolver<parallel>(
+      ctx, fed.getFiniteElementSpace<parallel>(), params);
+  if (isInvalid(s)) {
+    return false;
+  }
+  const auto oresult = computeL2Projection<parallel>(ctx, s, {*fct});
+  if (isInvalid(oresult)) {
+    return false;
+  }
+  // the projection is done on the submesh of the boundary
+  if (oresult->submesh.get() == nullptr) {
+    return ctx.registerErrorMessage("no submesh created");
+  }
+  mfem::ParaViewDataCollection exporter("Result-test3");
+  exporter.SetMesh(oresult->submesh.get());
+  exporter.SetDataFormat(mfem::VTKFormat::BINARY);
+  exporter.RegisterField("Result", oresult->result.get());
+  exporter.SetCycle(1);
+  exporter.SetTime(1);
+  exporter.Save();
+  return true;
+}  // end of test3
+
 int main(int argc, char** argv) {
   using namespace mfem_mgis;
   auto ctx = Context{};
@@ -179,7 +226,17 @@ int main(int argc, char** argv) {
     }
     return test2<false>(ctx, params);
   }();
-  if (!(success && success2)) {
+  const auto success3 = [&ctx, &params] {
+    if (params.parallel) {
+#ifdef MFEM_USE_MPI
+      return test3<true>(ctx, params);
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    return test3<false>(ctx, params);
+  }();
+  if (!(success && success2 && success3)) {
     std::cerr << ctx.getErrorMessage() << std::endl;
     return EXIT_FAILURE;
   }

@@ -87,6 +87,8 @@ namespace mfem_mgis {
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
     const auto& mesh = fed0.getMesh<parallel>();
     const auto& elts_attributes = mesh.attributes;
+    const auto on_boundaries =
+        fcts.at(0).getPartialQuadratureSpace().isDefinedOnABoundary();
     auto ids = std::vector<size_type>();
     ids.reserve(fcts.size());
     for (const auto& f : fcts) {
@@ -95,15 +97,20 @@ namespace mfem_mgis {
       if (!checkConsistency(ctx, fed0, fed)) {
         return false;
       }
+      if (qspace.isDefinedOnABoundary() != on_boundaries) {
+        return ctx.registerErrorMessage(
+            "quadrature functions defined on materials and on boundaries can "
+            "not be mixed");
+      }
       const auto id = qspace.getId();
-      if (elts_attributes.Find(id) == -1) {
+      if ((!on_boundaries) && (elts_attributes.Find(id) == -1)) {
         return ctx.registerErrorMessage("material id '" + std::to_string(id) +
                                         "' is not a element attribute");
       }
       if (std::find(ids.begin(), ids.end(), id) != ids.end()) {
         return ctx.registerErrorMessage(
-            "several quadrature functions associated with material id '" +
-            std::to_string(id) + "' given");
+            "several quadrature functions defined on '" +
+            qspace.getLocationName() + "' given");
       }
       ids.push_back(id);
     }
@@ -122,6 +129,10 @@ namespace mfem_mgis {
     //
     if (!checkConsistency<parallel>(ctx, fcts)) {
       return {};
+    }
+    // functions defined on boundaries are never defined on the whole mesh
+    if (fcts.at(0).getPartialQuadratureSpace().isDefinedOnABoundary()) {
+      return false;
     }
     // thanks to checkConsistency we know that the element attributes contains
     // all the material ids, so we just need to check that the number of
@@ -189,12 +200,18 @@ namespace mfem_mgis {
       const auto id = qspace.getId();
       if (!ids.insert(id).second) {
         return ctx.registerErrorMessage(
-            "multiple quadrature functions defined on material '" +
-            std::to_string(id) + "'");
+            "multiple quadrature functions defined on '" +
+            qspace.getLocationName() + "'");
       }
     }
+    // partial quadrature spaces defined on boundaries are built on the submesh
+    // of the boundary
+    const auto location =
+        fcts.at(0).getPartialQuadratureSpace().isDefinedOnABoundary()
+            ? MeshDiscretization::Location::ON_BOUNDARIES
+            : MeshDiscretization::Location::ON_MATERIALS;
     r.submesh = fed.template getMutableSubMeshPointer<parallel>(
-        ctx, Parameter::from(ids), MeshDiscretization::Location::ON_MATERIALS);
+        ctx, Parameter::from(ids), location);
     if (isInvalid(r.submesh)) {
       return {};
     }
@@ -500,6 +517,13 @@ namespace mfem_mgis {
     if (isInvalid(olocal_fespace)) {
       return {};
     }
+    // partial quadrature spaces defined on boundaries are built on the submesh
+    const auto on_boundaries = fed.isDefinedOnBoundaries(ctx, *mesh);
+    if (isInvalid(on_boundaries)) {
+      return {};
+    }
+    const auto use_parent_elements =
+        (r.submesh != nullptr) && (!*on_boundaries);
     // Here begin the tricky part. In order to reduce the
     // computational cost, we will make the projection component by
     // component. But of course, if the functions are scalar, we do
@@ -528,14 +552,14 @@ namespace mfem_mgis {
       // right-hand side
       LinearForm<parallel> b(&(*olocal_fespace));
       if (rfespace.GetVDim() == 1) {
-        if (r.submesh != nullptr) {
+        if (use_parent_elements) {
           b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegratorII(
               r.submesh->GetParentElementIDMap(), fcts));
         } else {
           b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegrator(fcts));
         }
       } else {
-        if (r.submesh != nullptr) {
+        if (use_parent_elements) {
           b.AddDomainIntegrator(new ComponentL2ProjectionRHSFormIntegratorII(
               r.submesh->GetParentElementIDMap(), fcts, c));
         } else {
