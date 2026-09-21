@@ -177,8 +177,8 @@ namespace mfem_mgis {
       iterationsOutputs.push_back(iterationOutputs);
       // preparing the output of the coupling scheme
       auto output = ComputeNextStateOutput{};
-      output.replaceOrInsert("NumberOfIterations", i);
-      output.replaceOrInsert("IterationOutputs", iterationsOutputs);
+      output.replaceOrInsert("NumberOfIterations", i + 1);
+      output.replaceOrInsert("IterationsOutputs", iterationsOutputs);
       output.replaceOrInsert("ItemsOutputs", iterationOutputs);
       //
       auto converged = true;
