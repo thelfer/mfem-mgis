@@ -166,6 +166,8 @@ namespace mfem_mgis {
     [[nodiscard]] bool addPostProcessing(Context &,
                                          std::string_view,
                                          const Parameters &) noexcept override;
+    [[nodiscard]] bool executeInitialPostProcessings(
+        Context &, const real) noexcept override;
     void executePostProcessings(Context &ctx, const real, const real) override;
     std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
         Context &,

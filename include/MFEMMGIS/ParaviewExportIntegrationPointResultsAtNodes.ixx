@@ -144,6 +144,15 @@ namespace mfem_mgis {
   }  // end of createSubMesh
 
   template <bool parallel>
+  bool ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
+      executeInitialPostProcessing(
+          Context&,
+          NonLinearEvolutionProblemImplementation<parallel>&,
+          const real) noexcept {
+    return true;
+  }  // end of executeInitialPostProcessing
+
+  template <bool parallel>
   void
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::execute(
       Context&,
@@ -205,6 +214,15 @@ namespace mfem_mgis {
                  std::string{d}) {
   }  // end of
      // ParaviewExportIntegrationPointPostProcessingsResultsAtNodes
+
+  template <bool parallel>
+  bool ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<parallel>::
+      executeInitialPostProcessing(
+          Context&,
+          NonLinearEvolutionProblemImplementation<parallel>&,
+          const real) noexcept {
+    return true;
+  }  // end of executeInitialPostProcessing
 
   template <bool parallel>
   void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<

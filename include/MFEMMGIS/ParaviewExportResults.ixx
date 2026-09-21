@@ -173,6 +173,14 @@ namespace mfem_mgis {
   }  // end of ParaviewExportResults
 
   template <bool parallel>
+  bool ParaviewExportResults<parallel>::executeInitialPostProcessing(
+      mgis::Context&,
+      NonLinearEvolutionProblemImplementation<parallel>&,
+      const real) noexcept {
+    return true;
+  }  // end of executeInitialPostProcessing
+
+  template <bool parallel>
   void ParaviewExportResults<parallel>::execute(
       mgis::Context& ctx,
       NonLinearEvolutionProblemImplementation<parallel>&,

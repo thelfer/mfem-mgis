@@ -22,7 +22,7 @@ namespace mfem_mgis {
   struct NonLinearEvolutionProblemImplementation;
   // forward declaration
   template <bool parallel>
-  struct PostProcessing;
+  struct AbstractNonLinearEvolutionProblemPostProcessing;
 
   /*!
    * \brief an abstract factory for behaviour integrators
@@ -38,8 +38,9 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT PostProcessingFactory<true> {
     //! a simple alias
-    using Generator = std::function<std::unique_ptr<PostProcessing<true>>(
-        NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>;
+    using Generator = std::function<
+        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>(
+            NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>;
     //! \return the unique instance of the class
     static PostProcessingFactory& getFactory();
     /*!
@@ -55,21 +56,23 @@ namespace mfem_mgis {
      * \param[in] p: non linear evolution postprocessing
      * \param[in] params: parameters passed to the post-processing
      */
-    [[nodiscard]] std::unique_ptr<PostProcessing<true>> generate(
-        Context&,
-        std::string_view,
-        NonLinearEvolutionProblemImplementation<true>&,
-        const Parameters&) const noexcept;
+    [[nodiscard]] std::unique_ptr<
+        AbstractNonLinearEvolutionProblemPostProcessing<true>>
+    generate(Context&,
+             std::string_view,
+             NonLinearEvolutionProblemImplementation<true>&,
+             const Parameters&) const noexcept;
     /*!
      * \return the requested post-processing
      * \param[in] n: name of the post-processing
      * \param[in] p: non linear evolution postprocessing
      * \param[in] params: parameters passed to the post-processing
      */
-    [[deprecated, nodiscard]] std::unique_ptr<PostProcessing<true>> generate(
-        std::string_view,
-        NonLinearEvolutionProblemImplementation<true>&,
-        const Parameters&) const;
+    [[deprecated, nodiscard]] std::unique_ptr<
+        AbstractNonLinearEvolutionProblemPostProcessing<true>>
+    generate(std::string_view,
+             NonLinearEvolutionProblemImplementation<true>&,
+             const Parameters&) const;
 
    private:
     //! \brief default destructor
@@ -86,7 +89,8 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT PostProcessingFactory<false> {
     //! a simple alias
-    using Generator = std::function<std::unique_ptr<PostProcessing<false>>(
+    using Generator = std::function<std::unique_ptr<
+        AbstractNonLinearEvolutionProblemPostProcessing<false>>(
         NonLinearEvolutionProblemImplementation<false>&, const Parameters&)>;
     //! \return the unique instance of the class
     static PostProcessingFactory& getFactory();
@@ -103,21 +107,23 @@ namespace mfem_mgis {
      * \param[in] p: non linear evolution postprocessing
      * \param[in] params: parameters passed to the post-processing
      */
-    [[nodiscard]] std::unique_ptr<PostProcessing<false>> generate(
-        Context&,
-        std::string_view,
-        NonLinearEvolutionProblemImplementation<false>&,
-        const Parameters&) const noexcept;
+    [[nodiscard]] std::unique_ptr<
+        AbstractNonLinearEvolutionProblemPostProcessing<false>>
+    generate(Context&,
+             std::string_view,
+             NonLinearEvolutionProblemImplementation<false>&,
+             const Parameters&) const noexcept;
     /*!
      * \return the requested post-processing
      * \param[in] n: name of the post-processing
      * \param[in] p: non linear evolution postprocessing
      * \param[in] params: parameters passed to the post-processing
      */
-    [[deprecated, nodiscard]] std::unique_ptr<PostProcessing<false>> generate(
-        std::string_view,
-        NonLinearEvolutionProblemImplementation<false>&,
-        const Parameters&) const;
+    [[deprecated, nodiscard]] std::unique_ptr<
+        AbstractNonLinearEvolutionProblemPostProcessing<false>>
+    generate(std::string_view,
+             NonLinearEvolutionProblemImplementation<false>&,
+             const Parameters&) const;
 
    private:
     //! \brief default destructor

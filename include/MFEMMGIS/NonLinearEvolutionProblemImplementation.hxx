@@ -22,7 +22,7 @@ namespace mfem_mgis {
 
   // forward declaration
   template <bool parallel>
-  struct PostProcessing;
+  struct AbstractNonLinearEvolutionProblemPostProcessing;
 
   /*!
    * \brief class for solving non linear evolution problems
@@ -72,7 +72,9 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     virtual bool addPostProcessing(
-        Context&, std::unique_ptr<PostProcessing<true>>) noexcept;
+        Context&,
+        std::unique_ptr<
+            AbstractNonLinearEvolutionProblemPostProcessing<true>>) noexcept;
     //
     [[nodiscard]] bool integrate(const mfem::Vector&,
                                  const IntegrationType,
@@ -87,6 +89,8 @@ namespace mfem_mgis {
     [[nodiscard]] bool addPostProcessing(Context&,
                                          std::string_view,
                                          const Parameters&) noexcept override;
+    [[nodiscard]] bool executeInitialPostProcessings(
+        Context&, const real) noexcept override;
     void executePostProcessings(Context&, const real, const real) override;
     [[deprecated]] void setLinearSolver(std::string_view,
                                         const Parameters&) override;
@@ -102,7 +106,7 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     [[deprecated]] virtual void addPostProcessing(
-        std::unique_ptr<PostProcessing<true>>);
+        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>);
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -113,7 +117,9 @@ namespace mfem_mgis {
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
     //! \brief registred post-processings
-    std::vector<std::unique_ptr<PostProcessing<true>>> postprocessings;
+    std::vector<
+        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>>
+        postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
 
 #endif /* MFEM_USE_MPI */
@@ -156,7 +162,9 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     [[nodiscard]] virtual bool addPostProcessing(
-        Context&, std::unique_ptr<PostProcessing<false>>) noexcept;
+        Context&,
+        std::unique_ptr<
+            AbstractNonLinearEvolutionProblemPostProcessing<false>>) noexcept;
     //
     [[nodiscard]] bool setLinearSolver(Context&,
                                        LinearSolverHandler) noexcept override;
@@ -171,6 +179,8 @@ namespace mfem_mgis {
     [[nodiscard]] bool addPostProcessing(Context&,
                                          std::string_view,
                                          const Parameters&) noexcept override;
+    [[nodiscard]] bool executeInitialPostProcessings(
+        Context&, const real) noexcept override;
     void executePostProcessings(Context&, const real, const real) override;
     //
     [[deprecated]] void setLinearSolver(std::string_view,
@@ -186,7 +196,8 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      */
     [[deprecated]] virtual void addPostProcessing(
-        std::unique_ptr<PostProcessing<false>>);
+        std::unique_ptr<
+            AbstractNonLinearEvolutionProblemPostProcessing<false>>);
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -197,7 +208,9 @@ namespace mfem_mgis {
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type>) override;
     //! \brief registred post-processings
-    std::vector<std::unique_ptr<PostProcessing<false>>> postprocessings;
+    std::vector<
+        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>>
+        postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
 
   /*!

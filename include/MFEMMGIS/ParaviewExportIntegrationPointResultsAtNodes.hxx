@@ -16,7 +16,7 @@
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/PostProcessing.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
@@ -107,7 +107,7 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   struct ParaviewExportIntegrationPointResultsAtNodesImplementation final
-      : public PostProcessing<parallel>,
+      : public AbstractNonLinearEvolutionProblemPostProcessing<parallel>,
         public ParaviewExportIntegrationPointResultsAtNodesBase {
     /*!
      * \brief constructor
@@ -144,6 +144,10 @@ namespace mfem_mgis {
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);
     //
+    [[nodiscard]] bool executeInitialPostProcessing(
+        Context &,
+        NonLinearEvolutionProblemImplementation<parallel> &,
+        const real) noexcept override;
     void execute(Context &,
                  NonLinearEvolutionProblemImplementation<parallel> &,
                  const real,
@@ -280,7 +284,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   struct ParaviewExportIntegrationPointPostProcessingsResultsAtNodes
-      : public PostProcessing<parallel> {
+      : public AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
     /*!
      * \brief constructor
      * \param[in] ctx: execution context
@@ -300,6 +304,10 @@ namespace mfem_mgis {
         std::function<bool(Context &, PartialQuadratureFunction &)>,
         std::string_view);
     //
+    [[nodiscard]] bool executeInitialPostProcessing(
+        Context &,
+        NonLinearEvolutionProblemImplementation<parallel> &,
+        const real) noexcept override;
     void execute(Context &ctx,
                  NonLinearEvolutionProblemImplementation<parallel> &p,
                  const real t,

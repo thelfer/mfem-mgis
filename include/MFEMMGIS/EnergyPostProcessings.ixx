@@ -40,6 +40,14 @@ namespace mfem_mgis {
   }  // end of EnergyPostProcessingBase
 
   template <bool parallel>
+  bool EnergyPostProcessingBase<parallel>::executeInitialPostProcessing(
+      Context &,
+      NonLinearEvolutionProblemImplementation<parallel> &,
+      const real) noexcept {
+    return true;
+  }  // end of executeInitialPostProcessing
+
+  template <bool parallel>
   void EnergyPostProcessingBase<parallel>::execute(
       Context &,
       NonLinearEvolutionProblemImplementation<parallel> &p,

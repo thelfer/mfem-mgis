@@ -59,7 +59,9 @@ namespace mfem_mgis {
     if (!ModelBase::executeInitialPostProcessingTasks(ctx, t)) {
       return false;
     }
-    this->problem->executePostProcessings(ctx, t, real{});
+    if (!this->problem->executeInitialPostProcessings(ctx, t)) {
+      return false;
+    }
     return true;
   }  // end of executeInitialPostProcessingTasks
 

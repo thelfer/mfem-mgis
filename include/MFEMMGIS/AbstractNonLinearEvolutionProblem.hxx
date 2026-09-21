@@ -499,6 +499,14 @@ namespace mfem_mgis {
     [[nodiscard]] virtual bool addPostProcessing(
         Context &, std::string_view, const Parameters &) noexcept = 0;
     /*!
+     * \brief execute the registred postprocessings at the initial time of the
+     * simulation
+     * \param[in, out] ctx: execution context
+     * \param[in] t: initial time
+     */
+    [[nodiscard]] virtual bool executeInitialPostProcessings(
+        Context &, const real) noexcept = 0;
+    /*!
      * \brief execute the registred postprocessings
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
