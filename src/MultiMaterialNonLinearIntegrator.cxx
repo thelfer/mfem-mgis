@@ -300,7 +300,7 @@ namespace mfem_mgis {
             "ERROR Behaviour");
       }
       bi->updateResidual(F_tmp, e, tr, U);
-      F += F;
+      F += F_tmp;
     }
   }  // end of AssembleElementVector
 
