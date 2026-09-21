@@ -52,8 +52,8 @@ namespace mfem_mgis {
 
   FBarOrthotropicPlaneStrainBehaviourIntegrator::RotationMatrix
   FBarOrthotropicPlaneStrainBehaviourIntegrator::getRotationMatrix(
-      const size_type) const {
-    return RotationMatrix{};
+      const size_type i) const {
+    return this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
   }  // end of getRotationMatrix
 
   bool FBarOrthotropicPlaneStrainBehaviourIntegrator::
