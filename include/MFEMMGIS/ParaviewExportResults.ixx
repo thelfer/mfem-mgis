@@ -174,9 +174,16 @@ namespace mfem_mgis {
 
   template <bool parallel>
   bool ParaviewExportResults<parallel>::executeInitialPostProcessing(
-      mgis::Context&,
-      NonLinearEvolutionProblemImplementation<parallel>&,
-      const real) noexcept {
+      mgis::Context& ctx,
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const real t) noexcept {
+    // the exported grid function refers to the unknowns at the end of the time
+    // step. It is temporarily associated with the unknowns at the beginning of
+    // the time step.
+    auto& fespace = p.getFiniteElementSpace();
+    this->result.MakeTRef(&fespace, p.getUnknowns(bts), 0);
+    this->execute(ctx, p, t, real{});
+    this->result.MakeTRef(&fespace, p.getUnknowns(ets), 0);
     return true;
   }  // end of executeInitialPostProcessing
 

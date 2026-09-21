@@ -147,8 +147,9 @@ namespace mfem_mgis {
   bool ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
       executeInitialPostProcessing(
           Context&,
-          NonLinearEvolutionProblemImplementation<parallel>&,
-          const real) noexcept {
+          NonLinearEvolutionProblemImplementation<parallel>& p,
+          const real t) noexcept {
+    this->exportResults(p, t, bts);
     return true;
   }  // end of executeInitialPostProcessing
 
@@ -159,18 +160,26 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const real t,
       const real dt) {
+    this->exportResults(p, t + dt, ets);
+  }  // end of execute
+
+  template <bool parallel>
+  void ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
+      exportResults(NonLinearEvolutionProblemImplementation<parallel>& p,
+                    const real t,
+                    const TimeStepStage s) {
     this->exporter.SetCycle(this->cycle);
-    this->exporter.SetTime(t + dt);
+    this->exporter.SetTime(t);
     // updating grid functions
     if (!this->results.empty()) {
       for (auto& r : this->results) {
         if (this->submesh.get() == nullptr) {
           updateGridFunction<parallel>(
-              *(r.f), this->getPartialQuadratureFunctionViews(p, r),
+              *(r.f), this->getPartialQuadratureFunctionViews(p, r, s),
               p.getMesh());
         } else {
           updateGridFunction<parallel>(
-              *(r.f), this->getPartialQuadratureFunctionViews(p, r),
+              *(r.f), this->getPartialQuadratureFunctionViews(p, r, s),
               *(this->submesh));
         }
       }
@@ -187,7 +196,7 @@ namespace mfem_mgis {
     }
     this->exporter.Save();
     ++(this->cycle);
-  }  // end of execute
+  }  // end of exportResults
 
   template <bool parallel>
   ParaviewExportIntegrationPointResultsAtNodesImplementation<

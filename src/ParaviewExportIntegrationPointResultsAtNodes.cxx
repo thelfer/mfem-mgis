@@ -119,17 +119,18 @@ namespace mfem_mgis {
   ParaviewExportIntegrationPointResultsAtNodesBase::
       getPartialQuadratureFunctionViews(
           const NonLinearEvolutionProblemImplementationBase& p,
-          const MaterialIntegrationPointResultBase& r) {
+          const MaterialIntegrationPointResultBase& r,
+          const TimeStepStage s) {
     auto fcts = std::vector<ImmutablePartialQuadratureFunctionView>{};
     for (const auto& mid : this->materials_identifiers) {
       const auto& m = p.getMaterial(mid);
       if (r.category == MaterialIntegrationPointResultBase::GRADIENTS) {
-        fcts.push_back(getGradient(m, r.name));
+        fcts.push_back(getGradient(m, r.name, s));
       } else if (r.category ==
                  MaterialIntegrationPointResultBase::THERMODYNAMIC_FORCES) {
-        fcts.push_back(getThermodynamicForce(m, r.name));
+        fcts.push_back(getThermodynamicForce(m, r.name, s));
       } else {
-        fcts.push_back(getInternalStateVariable(m, r.name));
+        fcts.push_back(getInternalStateVariable(m, r.name, s));
       }
     }
     return fcts;
@@ -230,6 +231,31 @@ namespace mfem_mgis {
           .execute(ctx, i, t, dt);
     }
   }
+
+  bool
+  ParaviewExportIntegrationPointResultsAtNodes::executeInitialPostProcessing(
+      Context& ctx, NonLinearEvolutionProblem& p, const real t) noexcept {
+    CatchTimeSection(ctx,
+                     "ParaviewExportIntegrationPointResultsAtNodes::"
+                     "ExecuteInitialPostProcessing");
+    const auto& fed = p.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      using Implementation =
+          ParaviewExportIntegrationPointResultsAtNodesImplementation<true>;
+      auto& i = p.getImplementation<true>();
+      return std::get<Implementation>(this->implementations)
+          .executeInitialPostProcessing(ctx, i, t);
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    using Implementation =
+        ParaviewExportIntegrationPointResultsAtNodesImplementation<false>;
+    auto& i = p.getImplementation<false>();
+    return std::get<Implementation>(this->implementations)
+        .executeInitialPostProcessing(ctx, i, t);
+  }  // end of executeInitialPostProcessing
 
   ParaviewExportIntegrationPointResultsAtNodes::
       ~ParaviewExportIntegrationPointResultsAtNodes() = default;
