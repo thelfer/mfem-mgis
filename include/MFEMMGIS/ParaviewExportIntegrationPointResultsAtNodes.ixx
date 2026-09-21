@@ -153,10 +153,9 @@ namespace mfem_mgis {
           Context&,
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const real t) noexcept {
-    if (!this->shallExecuteInitialPostProcessing) {
-      return true;
+    if (this->shallExecuteInitialPostProcessing) {
+        this->exportResults(p, t, bts);
     }
-    this->exportResults(p, t, bts);
     return true;
   }  // end of executeInitialPostProcessing
 
