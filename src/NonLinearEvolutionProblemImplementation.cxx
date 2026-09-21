@@ -25,7 +25,7 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
-#include "MFEMMGIS/PostProcessing.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
@@ -223,7 +223,8 @@ namespace mfem_mgis {
    * parallel.
    */
   template <bool parallel>
-  struct StdFunctionPostProcessing final : PostProcessing<parallel> {
+  struct StdFunctionPostProcessing final
+      : AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
     /*!
      * \brief constructor
      * \param[in] fct: function executing the postprocessing
@@ -232,6 +233,12 @@ namespace mfem_mgis {
         const std::function<void(const real, const real)>& fct)
         : f(fct) {}  // end of StdFunctionPostProcessing
     //
+    [[nodiscard]] bool executeInitialPostProcessing(
+        Context&,
+        NonLinearEvolutionProblemImplementation<parallel>&,
+        const real) noexcept override {
+      return true;
+    }  // end of executeInitialPostProcessing
     void execute(Context&,
                  NonLinearEvolutionProblemImplementation<parallel>&,
                  const real t,
@@ -376,7 +383,9 @@ namespace mfem_mgis {
   }  // end of addBoundaryCondition
 
   bool NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
-      Context& ctx, std::unique_ptr<PostProcessing<true>> p) noexcept {
+      Context& ctx,
+      std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>
+          p) noexcept {
     if (p.get() == nullptr) {
       return ctx.registerErrorMessage("invalid post-processing");
     }
@@ -385,7 +394,8 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
-      std::unique_ptr<PostProcessing<true>> p) {
+      std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>
+          p) {
     if (p.get() == nullptr) {
       raise("invalid post-processing");
     }
@@ -438,6 +448,17 @@ namespace mfem_mgis {
     this->addPostProcessing(
         std::make_unique<StdFunctionPostProcessing<true>>(p));
   }  // end of addPostProcessing
+
+  bool
+  NonLinearEvolutionProblemImplementation<true>::executeInitialPostProcessings(
+      Context& ctx, const real t) noexcept {
+    for (auto& p : this->postprocessings) {
+      if (!p->executeInitialPostProcessing(ctx, *this, t)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of executeInitialPostProcessings
 
   void NonLinearEvolutionProblemImplementation<true>::executePostProcessings(
       Context& ctx, const real t, const real dt) {
@@ -615,7 +636,9 @@ namespace mfem_mgis {
   }  // end of addBoundaryCondition
 
   bool NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
-      Context& ctx, std::unique_ptr<PostProcessing<false>> p) noexcept {
+      Context& ctx,
+      std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>
+          p) noexcept {
     if (p.get() == nullptr) {
       return ctx.registerErrorMessage("invalid post-processing");
     }
@@ -624,7 +647,8 @@ namespace mfem_mgis {
   }  // end of addPostProcessing
 
   void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
-      std::unique_ptr<PostProcessing<false>> p) {
+      std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>
+          p) {
     if (p.get() == nullptr) {
       raise("invalid post-processing");
     }
@@ -648,6 +672,17 @@ namespace mfem_mgis {
     const auto& f = PostProcessingFactory<false>::getFactory();
     this->addPostProcessing(f.generate(n, *this, p));
   }  // end of addPostProcessing
+
+  bool
+  NonLinearEvolutionProblemImplementation<false>::executeInitialPostProcessings(
+      Context& ctx, const real t) noexcept {
+    for (auto& p : this->postprocessings) {
+      if (!p->executeInitialPostProcessing(ctx, *this, t)) {
+        return false;
+      }
+    }
+    return true;
+  }  // end of executeInitialPostProcessings
 
   void NonLinearEvolutionProblemImplementation<false>::executePostProcessings(
       Context& ctx, const real t, const real dt) {

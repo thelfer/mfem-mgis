@@ -24,6 +24,8 @@ namespace mfem_mgis {
     [[nodiscard]] const NonLinearEvolutionProblem &getProblem() const noexcept;
     //
     [[nodiscard]] std::string getName() const noexcept override;
+    [[nodiscard]] bool executeInitialPostProcessingTasks(
+        Context &, const real) noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
         Context &, const TimeStep &) noexcept override;
     [[nodiscard]] bool executePostProcessingTasks(Context &,

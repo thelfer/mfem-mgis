@@ -34,7 +34,7 @@ list(APPEND MFEMMGIS_SOURCES
   UniformHeatSourceBoundaryCondition.cxx
   UniformImposedPressureBoundaryCondition.cxx
   ImposedDirichletBoundaryConditionAtClosestNode.cxx
-  PostProcessing.cxx
+  AbstractNonLinearEvolutionProblemPostProcessing.cxx
   PostProcessingFactory.cxx
   ParaviewExportIntegrationPointResultsAtNodes.cxx
   ComputeResultantForceOnBoundary.cxx

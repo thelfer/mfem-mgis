@@ -238,6 +238,23 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_partial_quadrature_space_test2()
 
+  # NonLinearEvolutionProblemPostProcessingsTest executable
+  add_tfel_test_executable(NonLinearEvolutionProblemPostProcessingsTest)
+
+  # Helper function for NonLinearEvolutionProblemPostProcessingsTest cases
+  function(add_nonlinear_evolution_problem_post_processings_test)
+    set(test "NonLinearEvolutionProblemPostProcessingsTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh")
+    add_test(NAME ${test}
+             COMMAND ./NonLinearEvolutionProblemPostProcessingsTest ${params} "--parallel" 0)
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./NonLinearEvolutionProblemPostProcessingsTest ${params} "--parallel" 1)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_nonlinear_evolution_problem_post_processings_test()
+
   # StateManagerTest executable
   add_tfel_test_executable(StateManagerTest)
 

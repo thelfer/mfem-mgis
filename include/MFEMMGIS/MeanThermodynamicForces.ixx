@@ -35,6 +35,14 @@ namespace mfem_mgis {
   }  // end of MeanThermodynamicForces
 
   template <bool parallel>
+  bool MeanThermodynamicForces<parallel>::executeInitialPostProcessing(
+      Context &,
+      NonLinearEvolutionProblemImplementation<parallel> &,
+      const real) noexcept {
+    return true;
+  }  // end of executeInitialPostProcessing
+
+  template <bool parallel>
   void MeanThermodynamicForces<parallel>::execute(
       Context &,
       NonLinearEvolutionProblemImplementation<parallel> &p,

@@ -65,6 +65,13 @@ namespace mfem_mgis {
     }
   }  // end of ComputeResultantForceOnBoundary
 
+  bool ComputeResultantForceOnBoundary<true>::executeInitialPostProcessing(
+      Context&,
+      NonLinearEvolutionProblemImplementation<true>&,
+      const real) noexcept {
+    return true;
+  }  // end of executeInitialPostProcessing
+
   void ComputeResultantForceOnBoundary<true>::execute(
       Context&,
       NonLinearEvolutionProblemImplementation<true>& p,
@@ -105,6 +112,13 @@ namespace mfem_mgis {
     auto& fes = fed.template getFiniteElementSpace<false>();
     writeOuputFileHeader(this->out, this->bid, fes.GetVDim());
   }  // end of ComputeResultantForceOnBoundary
+
+  bool ComputeResultantForceOnBoundary<false>::executeInitialPostProcessing(
+      Context&,
+      NonLinearEvolutionProblemImplementation<false>&,
+      const real) noexcept {
+    return true;
+  }  // end of executeInitialPostProcessing
 
   void ComputeResultantForceOnBoundary<false>::execute(
       Context&,

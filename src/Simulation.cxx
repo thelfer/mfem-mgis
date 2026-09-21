@@ -574,6 +574,12 @@ namespace mfem_mgis {
         return {s, {}};
       }
     }
+    if (isValid(this->nonlinearEvolutionProblem)) {
+      if (!this->nonlinearEvolutionProblem->executeInitialPostProcessings(
+              ctx, *p_bts)) {
+        return {ExitStatus::unrecoverableError, {}};
+      }
+    }
     if (isValid(this->physicalSystem)) {
       if (!this->physicalSystem->executeInitialPostProcessingTasks(ctx,
                                                                    *p_bts)) {

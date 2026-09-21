@@ -24,9 +24,12 @@ namespace mfem_mgis {
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const Parameters& params)
       : ParaviewExportIntegrationPointResultsAtNodesBase(
-            get<std::string>(throwing, params, "OutputFileName")) {
+            get<std::string>(throwing, params, "OutputFileName")),
+        shallExecuteInitialPostProcessing(get_if<bool>(
+            throwing, params, "ExecuteInitialPostProcessing", true)) {
     checkParameters(throwing, params,
-                    {"OutputFileName", "Materials", "Results"});
+                    {"OutputFileName", "Materials", "Results",
+                     "ExecuteInitialPostProcessing"});
     // if Materials exists, use it, otherwise, take all materials
     this->materials_identifiers = getMaterialsIdentifiers(throwing, p, params);
     const auto all_mids = p.getAssignedMaterialsIdentifiers();
@@ -97,7 +100,8 @@ namespace mfem_mgis {
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const std::vector<ExportedFunctionsDescription>& ds,
           const std::string& n)
-      : ParaviewExportIntegrationPointResultsAtNodesBase(n) {
+      : ParaviewExportIntegrationPointResultsAtNodesBase(n),
+        shallExecuteInitialPostProcessing(true) {
     this->extractMaterialIdentifiers(ds);
     const auto all_mids = p.getAssignedMaterialsIdentifiers();
     if (this->materials_identifiers.size() == all_mids.size()) {
@@ -144,24 +148,44 @@ namespace mfem_mgis {
   }  // end of createSubMesh
 
   template <bool parallel>
+  bool ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
+      executeInitialPostProcessing(
+          Context&,
+          NonLinearEvolutionProblemImplementation<parallel>& p,
+          const real t) noexcept {
+    if (this->shallExecuteInitialPostProcessing) {
+        this->exportResults(p, t, bts);
+    }
+    return true;
+  }  // end of executeInitialPostProcessing
+
+  template <bool parallel>
   void
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::execute(
       Context&,
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const real t,
       const real dt) {
+    this->exportResults(p, t + dt, ets);
+  }  // end of execute
+
+  template <bool parallel>
+  void ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
+      exportResults(NonLinearEvolutionProblemImplementation<parallel>& p,
+                    const real t,
+                    const TimeStepStage s) {
     this->exporter.SetCycle(this->cycle);
-    this->exporter.SetTime(t + dt);
+    this->exporter.SetTime(t);
     // updating grid functions
     if (!this->results.empty()) {
       for (auto& r : this->results) {
         if (this->submesh.get() == nullptr) {
           updateGridFunction<parallel>(
-              *(r.f), this->getPartialQuadratureFunctionViews(p, r),
+              *(r.f), this->getPartialQuadratureFunctionViews(p, r, s),
               p.getMesh());
         } else {
           updateGridFunction<parallel>(
-              *(r.f), this->getPartialQuadratureFunctionViews(p, r),
+              *(r.f), this->getPartialQuadratureFunctionViews(p, r, s),
               *(this->submesh));
         }
       }
@@ -178,7 +202,7 @@ namespace mfem_mgis {
     }
     this->exporter.Save();
     ++(this->cycle);
-  }  // end of execute
+  }  // end of exportResults
 
   template <bool parallel>
   ParaviewExportIntegrationPointResultsAtNodesImplementation<
@@ -205,6 +229,15 @@ namespace mfem_mgis {
                  std::string{d}) {
   }  // end of
      // ParaviewExportIntegrationPointPostProcessingsResultsAtNodes
+
+  template <bool parallel>
+  bool ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<parallel>::
+      executeInitialPostProcessing(
+          Context&,
+          NonLinearEvolutionProblemImplementation<parallel>&,
+          const real) noexcept {
+    return true;
+  }  // end of executeInitialPostProcessing
 
   template <bool parallel>
   void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<

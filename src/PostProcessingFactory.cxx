@@ -7,7 +7,7 @@
 
 #include <utility>
 #include "MGIS/Raise.hxx"
-#include "MFEMMGIS/PostProcessing.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 #include "MFEMMGIS/ParaviewExportResults.hxx"
 #include "MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx"
 #include "MFEMMGIS/MeanThermodynamicForces.hxx"
@@ -36,7 +36,8 @@ namespace mfem_mgis {
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
 
-  std::unique_ptr<PostProcessing<true>> PostProcessingFactory<true>::generate(
+  std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>
+  PostProcessingFactory<true>::generate(
       Context& ctx,
       std::string_view n,
       NonLinearEvolutionProblemImplementation<true>& p,
@@ -55,7 +56,8 @@ namespace mfem_mgis {
     return {};
   }  // end of generate
 
-  std::unique_ptr<PostProcessing<true>> PostProcessingFactory<true>::generate(
+  std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>
+  PostProcessingFactory<true>::generate(
       std::string_view n,
       NonLinearEvolutionProblemImplementation<true>& p,
       const Parameters& params) const {
@@ -134,7 +136,8 @@ namespace mfem_mgis {
     this->generators.insert({std::string(n), std::move(g)});
   }  // end of add
 
-  std::unique_ptr<PostProcessing<false>> PostProcessingFactory<false>::generate(
+  std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>
+  PostProcessingFactory<false>::generate(
       Context& ctx,
       std::string_view n,
       NonLinearEvolutionProblemImplementation<false>& p,
@@ -154,7 +157,8 @@ namespace mfem_mgis {
     return {};
   }  // end of generate
 
-  std::unique_ptr<PostProcessing<false>> PostProcessingFactory<false>::generate(
+  std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>
+  PostProcessingFactory<false>::generate(
       std::string_view n,
       NonLinearEvolutionProblemImplementation<false>& p,
       const Parameters& params) const {
