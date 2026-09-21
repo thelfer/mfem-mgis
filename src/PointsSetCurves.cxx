@@ -165,8 +165,8 @@ namespace mfem_mgis {
       r.resize(2);
       auto &x = r[0];
       auto &y = r[1];
-      x.reserve(pts.size());
-      y.reserve(pts.size());
+      x.resize(pts.size());
+      y.resize(pts.size());
       for (std::size_t i = 0; i != pts.size(); ++i) {
         x[i] = pts[i][0];
         y[i] = pts[i][1];
@@ -177,9 +177,9 @@ namespace mfem_mgis {
       auto &x = r[0];
       auto &y = r[1];
       auto &z = r[2];
-      x.reserve(pts.size());
-      y.reserve(pts.size());
-      z.reserve(pts.size());
+      x.resize(pts.size());
+      y.resize(pts.size());
+      z.resize(pts.size());
       for (std::size_t i = 0; i != pts.size(); ++i) {
         x[i] = pts[i][0];
         y[i] = pts[i][1];
