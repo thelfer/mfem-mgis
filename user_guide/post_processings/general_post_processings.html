@@ -196,6 +196,9 @@ evolution problem for visualization in <code class="code docutils literal notran
 <tr class="row-even"><td><p>Verbosity</p></td>
 <td><p>If this value is <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code>, submesh information will be displayed when using attributes</p></td>
 </tr>
+<tr class="row-odd"><td><p>ExecuteInitialPostProcessing</p></td>
+<td><p>Export the results at the initial time of the simulation (default: <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -214,6 +217,9 @@ evolution problem for visualization in <code class="code docutils literal notran
 <span class="w">     </span><span class="p">{</span><span class="s">"Results"</span><span class="p">,</span><span class="w"> </span><span class="n">results</span><span class="p">}});</span>
 </pre></div>
 </div>
+<p>The optional <code class="docutils literal notranslate"><span class="pre">ExecuteInitialPostProcessing</span></code> boolean parameter (<code class="docutils literal notranslate"><span class="pre">true</span></code> by
+default) states if the results are exported at the initial time of the
+simulation.</p>
 <p><strong>Results</strong></p>
 <figure class="align-default">
 <img alt="../../_images/SatohTestStress.png" src="../../_images/SatohTestStress.png" />
