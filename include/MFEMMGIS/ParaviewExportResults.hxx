@@ -49,6 +49,11 @@ namespace mfem_mgis {
     mfem_mgis::GridFunction<parallel> result;
     //! \brief number of records
     size_type cycle;
+    /*!
+     * \brief boolean stating if the results shall be exported at the initial
+     * time of the simulation
+     */
+    const bool shallExecuteInitialPostProcessing;
     //! \brief submesh defined when exporting data for domain or boundary
     //! attributes
     std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;

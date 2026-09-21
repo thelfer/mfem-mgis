@@ -24,9 +24,12 @@ namespace mfem_mgis {
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const Parameters& params)
       : ParaviewExportIntegrationPointResultsAtNodesBase(
-            get<std::string>(throwing, params, "OutputFileName")) {
+            get<std::string>(throwing, params, "OutputFileName")),
+        shallExecuteInitialPostProcessing(get_if<bool>(
+            throwing, params, "ExecuteInitialPostProcessing", true)) {
     checkParameters(throwing, params,
-                    {"OutputFileName", "Materials", "Results"});
+                    {"OutputFileName", "Materials", "Results",
+                     "ExecuteInitialPostProcessing"});
     // if Materials exists, use it, otherwise, take all materials
     this->materials_identifiers = getMaterialsIdentifiers(throwing, p, params);
     const auto all_mids = p.getAssignedMaterialsIdentifiers();
@@ -97,7 +100,8 @@ namespace mfem_mgis {
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const std::vector<ExportedFunctionsDescription>& ds,
           const std::string& n)
-      : ParaviewExportIntegrationPointResultsAtNodesBase(n) {
+      : ParaviewExportIntegrationPointResultsAtNodesBase(n),
+        shallExecuteInitialPostProcessing(true) {
     this->extractMaterialIdentifiers(ds);
     const auto all_mids = p.getAssignedMaterialsIdentifiers();
     if (this->materials_identifiers.size() == all_mids.size()) {
@@ -149,6 +153,9 @@ namespace mfem_mgis {
           Context&,
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const real t) noexcept {
+    if (!this->shallExecuteInitialPostProcessing) {
+      return true;
+    }
     this->exportResults(p, t, bts);
     return true;
   }  // end of executeInitialPostProcessing

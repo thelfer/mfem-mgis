@@ -198,6 +198,11 @@ namespace mfem_mgis {
       std::unique_ptr<GridFunction<parallel>> grid_function;
     };
     std::vector<std::unique_ptr<ExportedFunctions>> exported_functions;
+    /*!
+     * \brief boolean stating if the results shall be exported at the initial
+     * time of the simulation
+     */
+    const bool shallExecuteInitialPostProcessing;
   };  // end of struct
       // ParaviewExportIntegrationPointResultsAtNodesImplementation
 

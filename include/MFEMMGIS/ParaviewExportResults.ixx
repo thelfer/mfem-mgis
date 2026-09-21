@@ -40,7 +40,9 @@ namespace mfem_mgis {
       const Parameters& params)
       : exporter(get<std::string>(throwing, params, "OutputFileName")),
         result(&pb.getFiniteElementSpace()),
-        cycle(0) {
+        cycle(0),
+        shallExecuteInitialPostProcessing(get_if<bool>(
+            throwing, params, "ExecuteInitialPostProcessing", true)) {
     //
     CatchTimeSection(ctx, "ParaviewExportResults::Constructor");
     //
@@ -61,7 +63,10 @@ namespace mfem_mgis {
             {"Verbosity",
              "verbosity level (optional). If greater than or equal to 1, "
              "information about the submesh used for the export is "
-             "printed"}});
+             "printed"},
+            {"ExecuteInitialPostProcessing",
+             "boolean stating if the results shall be exported at the "
+             "initial time of the simulation (optional, true by default)"}});
     //
     auto or_raise = ctx.getThrowingFailureHandler();
     //
@@ -177,12 +182,16 @@ namespace mfem_mgis {
       mgis::Context& ctx,
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const real t) noexcept {
-    // the exported grid function refers to the unknowns at the end of the time
-    // step. It is temporarily associated with the unknowns at the beginning of
-    // the time step.
+    if (!this->shallExecuteInitialPostProcessing) {
+      return true;
+    }
+    // the exported grid function is associated with the unknowns at the end of
+    // the time step (see the constructor). It is temporarily associated with
+    // the unknowns at the beginning of the time step for this export.
     auto& fespace = p.getFiniteElementSpace();
     this->result.MakeTRef(&fespace, p.getUnknowns(bts), 0);
     this->execute(ctx, p, t, real{});
+    // restore the association with the unknowns at the end of the time step
     this->result.MakeTRef(&fespace, p.getUnknowns(ets), 0);
     return true;
   }  // end of executeInitialPostProcessing
