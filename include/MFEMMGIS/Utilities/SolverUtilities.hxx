@@ -1,12 +1,12 @@
 /*!
- * \file   MFEMMGIS/SolverUtilities.hxx
+ * \file   MFEMMGIS/Utilities/SolverUtilities.hxx
  * \brief
  * \author Thomas Helfer
  * \date   30/03/2021
  */
 
-#ifndef LIB_MFEM_MGIS_SOLVERUTILITIES_HXX
-#define LIB_MFEM_MGIS_SOLVERUTILITIES_HXX
+#ifndef LIB_MFEM_MGIS_UTILITIES_SOLVERUTILITIES_HXX
+#define LIB_MFEM_MGIS_UTILITIES_SOLVERUTILITIES_HXX
 
 #include "MFEMMGIS/Config.hxx"
 
@@ -82,4 +82,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_SOLVERUTILITIES_HXX */
+#endif /* LIB_MFEM_MGIS_UTILITIES_SOLVERUTILITIES_HXX */

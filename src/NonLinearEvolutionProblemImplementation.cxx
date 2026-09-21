@@ -23,9 +23,7 @@
 #include "MGIS/Raise.hxx"
 #include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
-#include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
@@ -33,6 +31,9 @@
 #include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
+#include "MFEMMGIS/NonLinearSolvers/NewtonSolver.hxx"
+#include "MFEMMGIS/NonLinearSolvers/NonLinearSolverFactory.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
@@ -260,8 +261,21 @@ namespace mfem_mgis {
           std::shared_ptr<FiniteElementDiscretization> fed,
           const Hypothesis h,
           const Parameters& p)
-      : NonLinearEvolutionProblemImplementationBase(ctx, fed, h, p),
+      : NonLinearEvolutionProblemImplementationBase(
+            ctx,
+            fed,
+            h,
+            extract(throwing,
+                    p,
+                    NonLinearEvolutionProblemImplementationBase::
+                        getParametersList())),
         mfem::ParNonlinearForm(&(fed->getFiniteElementSpace<true>())) {
+    //
+    auto or_raise = ctx.getThrowingFailureHandler();
+    auto validator = ParametersValidator{}.add(
+        NonLinearEvolutionProblemImplementationBase::getParametersList());
+    validator.validate(ctx, p) | or_raise;
+    //
     if (this->fe_discretization->getMesh<true>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       raise(
@@ -270,16 +284,31 @@ namespace mfem_mgis {
           "modelling hypothesis is not consistent with the spatial dimension "
           "of the mesh");
     }
+    auto set_solver = [&ctx, this, &p, &or_raise] {
+      if (contains(
+              p,
+              NonLinearEvolutionProblemImplementationBase::NonLinearSolver)) {
+        const auto [n, params] = extractFactoryArgument(
+            throwing,
+            get<Parameters>(
+                throwing, p,
+                NonLinearEvolutionProblemImplementationBase::NonLinearSolver));
+        auto& f = NonLinearSolverFactory::get();
+        this->solver = f.generate(ctx, n, *this, params) | or_raise;
+      } else {
+        this->solver = std::make_unique<NewtonSolver>(*this);
+      }
+    };
 #ifdef MFEM_USE_PETSC
     if (usePETSc()) {
       this->petsc_solver = std::make_unique<mfem::PetscNonlinearSolver>(
           this->getFiniteElementSpace().GetComm(), *this);
       this->petsc_solver->iterative_mode = true;
     } else {
-      this->solver = std::make_unique<NewtonSolver>(*this);
+      set_solver();
     }
 #else  /* MFEM_USE_PETSC */
-    this->solver = std::make_unique<NewtonSolver>(*this);
+    set_solver();
 #endif /* MFEM_USE_PETSC */
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
@@ -507,9 +536,21 @@ namespace mfem_mgis {
           std::shared_ptr<FiniteElementDiscretization> fed,
           const Hypothesis h,
           const Parameters& p)
-      : NonLinearEvolutionProblemImplementationBase(ctx, fed, h, p),
+      : NonLinearEvolutionProblemImplementationBase(
+            ctx,
+            fed,
+            h,
+            extract(throwing,
+                    p,
+                    NonLinearEvolutionProblemImplementationBase::
+                        getParametersList())),
         mfem::NonlinearForm(&(fed->getFiniteElementSpace<false>())) {
-    this->solver = std::make_unique<NewtonSolver>(*this);
+    //
+    auto or_raise = ctx.getThrowingFailureHandler();
+    auto validator = ParametersValidator{}.add(
+        NonLinearEvolutionProblemImplementationBase::getParametersList());
+    validator.validate(ctx, p) | or_raise;
+    //
     if (this->fe_discretization->getMesh<false>().Dimension() !=
         mgis::behaviour::getSpaceDimension(h)) {
       raise(
@@ -520,6 +561,19 @@ namespace mfem_mgis {
     }
     if (this->mgis_integrator != nullptr) {
       this->AddDomainIntegrator(this->mgis_integrator);
+    }
+    //
+    if (contains(
+            p, NonLinearEvolutionProblemImplementationBase::NonLinearSolver)) {
+      const auto [n, params] = extractFactoryArgument(
+          throwing,
+          get<Parameters>(
+              throwing, p,
+              NonLinearEvolutionProblemImplementationBase::NonLinearSolver));
+      auto& f = NonLinearSolverFactory::get();
+      this->solver = f.generate(ctx, n, *this, params) | or_raise;
+    } else {
+      this->solver = std::make_unique<NewtonSolver>(*this);
     }
   }  // end of NonLinearEvolutionProblemImplementation
 

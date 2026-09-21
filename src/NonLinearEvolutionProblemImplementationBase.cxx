@@ -11,14 +11,14 @@
 #include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/NewtonSolver.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
-#include "MFEMMGIS/SolverUtilities.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
+#include "MFEMMGIS/NonLinearSolvers/AbstractNonLinearSolver.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx"
 
 namespace mfem_mgis {
@@ -26,11 +26,15 @@ namespace mfem_mgis {
   const char* const NonLinearEvolutionProblemImplementationBase::
       UseMultiMaterialNonLinearIntegrator =
           "UseMultiMaterialNonLinearIntegrator";
+  const char* const
+      NonLinearEvolutionProblemImplementationBase::NonLinearSolver =
+          "NonLinearSolver";
 
   std::vector<std::string>
   NonLinearEvolutionProblemImplementationBase::getParametersList() {
     return {NonLinearEvolutionProblemImplementationBase::
-                UseMultiMaterialNonLinearIntegrator};
+                UseMultiMaterialNonLinearIntegrator,
+            NonLinearEvolutionProblemImplementationBase::NonLinearSolver};
   }  // end of getParametersList
 
   [[nodiscard]] static MultiMaterialNonLinearIntegrator*

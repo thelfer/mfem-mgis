@@ -47,6 +47,9 @@ list(APPEND MFEMMGIS_SOURCES
   SolverUtilities.cxx
   LinearSolverHandler.cxx
   LinearSolverFactory.cxx
+  AbstractNonLinearSolver.cxx
+  NonLinearSolverBase.cxx
+  NonLinearSolverFactory.cxx
   NewtonSolver.cxx
   AnalyticalTests.cxx
   IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.cxx

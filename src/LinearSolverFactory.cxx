@@ -19,7 +19,7 @@
 #include "MGIS/Raise.hxx"
 #include "MGIS/Contract.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/SolverUtilities.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 

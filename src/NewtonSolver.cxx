@@ -12,8 +12,8 @@
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
-#include "MFEMMGIS/SolverUtilities.hxx"
-#include "MFEMMGIS/NewtonSolver.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
+#include "MFEMMGIS/NonLinearSolvers/NewtonSolver.hxx"
 
 namespace mfem_mgis {
 
@@ -29,96 +29,12 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
 
   NewtonSolver::NewtonSolver(NonLinearEvolutionProblemImplementation<true> &p)
-      : IterativeSolver(p.getFiniteElementSpace().GetComm()) {
-    checkSolverOperator(p);
-    this->oper = &p;
-    this->height = p.Height();
-    this->width = p.Width();
-    this->iterative_mode = true;
-    this->addNewUnknownsEstimateActions([&p](const mfem::Vector &u) {
-      return p.integrate(
-          u, IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR, {});
-    });
-  }  // end of NewtonSolver
+      : NonLinearSolverBase(p) {}  // end of NewtonSolver
 
 #endif /* MFEM_USE_MPI */
 
-  NewtonSolver::NewtonSolver(
-      NonLinearEvolutionProblemImplementation<false> &p) {
-    this->oper = &p;
-    this->height = p.Height();
-    this->width = p.Width();
-    this->iterative_mode = true;
-    this->addNewUnknownsEstimateActions([&p](const mfem::Vector &u) {
-      return p.integrate(
-          u, IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR, {});
-    });
-  }  // end of NewtonSolver
-
-  bool NewtonSolver::setSolverParameters(Context &ctx,
-                                         const Parameters &params) noexcept {
-    auto allowed_parameters = getIterativeSolverParametersList();
-    allowed_parameters.push_back("DiscardLinearSolverFailure");
-    if (!checkParameters(ctx, params, allowed_parameters)) {
-      return false;
-    }
-    const auto osubparams =
-        extract(ctx, params, getIterativeSolverParametersList());
-    if (isInvalid(osubparams)) {
-      return false;
-    }
-    if (!mfem_mgis::setSolverParameters(ctx, *this, *osubparams)) {
-      return false;
-    }
-    if (contains(params, "DiscardLinearSolverFailure")) {
-      const auto ob = get<bool>(ctx, params, "DiscardLinearSolverFailure");
-      if (isInvalid(ob)) {
-        return false;
-      }
-      this->discardLinearSolverFailure = *ob;
-    }
-    return true;
-  }  // end of setSolverParameters
-
-  void NewtonSolver::SetOperator(const mfem::Operator &) {
-    raise("NewtonSolver::SetOperator: invalid call");
-  }  // end of SetOperator
-
-  void NewtonSolver::SetPreconditioner(Solver &) {
-    raise("NewtonSolver::SetOperator: invalid call");
-  }  // end of SetPreconditioner
-
-  void NewtonSolver::setLinearSolver(LinearSolver &s) {
-    this->prec = &s;
-    this->prec->iterative_mode = false;
-  }  // end of setLinearSolver
-
-  real NewtonSolver::GetInitialNorm() const {
-    if (this->reference_residual_norm.has_value()) {
-      return *(this->reference_residual_norm);
-    }
-    return real{};
-  }  // end of GetInitialNorm
-
-  bool NewtonSolver::setReferenceResidualNorm(Context &ctx,
-                                              const real v) noexcept {
-    if (v <= 0) {
-      return ctx.registerErrorMessage(
-          "negative value given for the reference norm of the residual");
-    }
-    this->reference_residual_norm = v;
-    return true;
-  }  // end of setReferenceResidualNorm
-
-  void NewtonSolver::unsetReferenceResidualNorm() noexcept {
-    this->reference_residual_norm.reset();
-  }  // end of unsetReferenceResidualNorm
-
-  void NewtonSolver::setContext(Context &ctx) noexcept {
-    this->ctx_ptr = &ctx;
-  }  // end of setContext
-
-  void NewtonSolver::unsetContext() noexcept { this->ctx_ptr = nullptr; }
+  NewtonSolver::NewtonSolver(NonLinearEvolutionProblemImplementation<false> &p)
+      : NonLinearSolverBase(p) {}  // end of NewtonSolver
 
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     auto profiler_mult =
@@ -166,7 +82,12 @@ namespace mfem_mgis {
     c.SetSize(this->oper->Width());
 
     auto updateResidual = [this, &r, &x] {
-      this->computeResidual(*this->ctx_ptr, r, x);
+      if (this->ctx_ptr != nullptr) {
+        CatchTimeSection(*(this->ctx_ptr), "NS::computeResidual");
+        this->computeResidual(r, x);
+      } else {
+        this->computeResidual(r, x);
+      }
       return this->Norm(r);
     };
 
@@ -281,22 +202,10 @@ namespace mfem_mgis {
     }
   }  // end of Mult
 
-  void NewtonSolver::computeResidual(Context &ctx,
-                                     mfem::Vector &r,
-                                     const mfem::Vector &u) const {
-    CatchTimeSection(ctx, "NS::computeResidual");
-    MFEM_ASSERT(this->oper != nullptr,
-                "the Operator is not set (use SetOperator).");
-    this->oper->Mult(u, r);
-  }  // end of NewtonSolver::computeResidual
-
-  bool NewtonSolver::isLinearSolverFailureDiscarded() const noexcept {
-    return this->discardLinearSolverFailure;
-  }  // end of isLinearSolverFailureDiscarded
-
-  bool NewtonSolver::computeNewtonCorrection(mfem::Vector &c,
-                                             const mfem::Vector &r,
-                                             const mfem::Vector &u) const {
+  bool NewtonSolver::computeNewtonCorrection(
+      mfem::Vector &c,
+      const mfem::Vector &r,
+      const mfem::Vector &u) const noexcept {
     auto profiler = this->ctx_ptr != nullptr
                         ? this->ctx_ptr->startNewProfiling(
                               "NS::computeNewtonCorrection",
@@ -320,41 +229,6 @@ namespace mfem_mgis {
     }
     return hasConverged(*(this->prec));
   }  // end of computeNewtonCorrection
-
-  mfem::Operator &NewtonSolver::getJacobian(const mfem::Vector &u) const {
-    auto profiler =
-        this->ctx_ptr != nullptr
-            ? this->ctx_ptr->startNewProfiling(
-                  "NS::getJacobian", this->ctx_ptr->isProfilingEnabled())
-            : mgis::ProfilingSection{};
-    MFEM_ASSERT(this->oper != nullptr,
-                "the Operator is not set (use SetOperator).");
-    return this->oper->GetGradient(u);
-  }  // end of getJacobian
-
-  void NewtonSolver::addNewUnknownsEstimateActions(
-      std::function<bool(const mfem::Vector &)> a) {
-    auto profiler = this->ctx_ptr != nullptr
-                        ? this->ctx_ptr->startNewProfiling(
-                              "NS::addNewUnknownsEstimateActions",
-                              this->ctx_ptr->isProfilingEnabled())
-                        : mgis::ProfilingSection{};
-    this->nue_actions.push_back(std::move(a));
-  }  // end of addNewUnknownsEstimateActions
-
-  bool NewtonSolver::processNewUnknownsEstimate(const mfem::Vector &u) const {
-    auto profiler = this->ctx_ptr != nullptr
-                        ? this->ctx_ptr->startNewProfiling(
-                              "NS::processNewUnknownsEstimate",
-                              this->ctx_ptr->isProfilingEnabled())
-                        : mgis::ProfilingSection{};
-    for (const auto &a : this->nue_actions) {
-      if (!a(u)) {
-        return false;
-      }
-    }
-    return true;
-  }  // end of processNewUnknownsEstimate
 
   NewtonSolver::~NewtonSolver() = default;
 
