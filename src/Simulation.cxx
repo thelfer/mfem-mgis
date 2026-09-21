@@ -366,7 +366,7 @@ namespace mfem_mgis {
       }
       if (contains(tbparams, "MaximalRelativeRemainder")) {
         this->maximalRelativeRemainder =
-            get<real>(throwing, tbparams, "MaxmalRelativeRemainder");
+            get<real>(throwing, tbparams, "MaximalRelativeRemainder");
       }
       auto checkBounds = [](const real r, const auto *const rn) {
         if (r >= 0.99999) {
