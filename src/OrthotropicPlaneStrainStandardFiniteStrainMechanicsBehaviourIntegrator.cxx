@@ -51,6 +51,7 @@ namespace mfem_mgis {
     return OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
         selectIntegrationRule(e, t);
   }
+
   OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
       RotationMatrix
       OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator::
