@@ -364,6 +364,11 @@ namespace mfem_mgis {
     this->pimpl->addPostProcessing(n, p);
   }  // end of addPostProcessing
 
+  bool NonLinearEvolutionProblem::executeInitialPostProcessings(
+      Context& ctx, const real t) noexcept {
+    return this->pimpl->executeInitialPostProcessings(ctx, t);
+  }  // end of executeInitialPostProcessings
+
   void NonLinearEvolutionProblem::executePostProcessings(Context& ctx,
                                                          const real t,
                                                          const real dt) {

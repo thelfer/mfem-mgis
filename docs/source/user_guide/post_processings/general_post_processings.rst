@@ -76,19 +76,21 @@ It is also possible to extract only portions of the mesh by defining either the 
 .. figure:: img/ExportDataAtNodes.png
 
 
-+---------------------+--------------------------------------------------------------------------------------------+
-| **Key**             | **Description**                                                                            |
-+=====================+============================================================================================+
-| OutputFileName      | Name of the output directory                                                               |
-+---------------------+--------------------------------------------------------------------------------------------+
-| OutputFieldName     | Name of the field that will appear in ParaView (default: ``"u"``)                          |
-+---------------------+--------------------------------------------------------------------------------------------+
-| Material/Materials  | List of materials; a submesh will be used instead of exporting the entire mesh             |
-+---------------------+--------------------------------------------------------------------------------------------+
-| Boundary/Boundaries | List of boundaries; a submesh will be used instead of exporting the entire mesh            |
-+---------------------+--------------------------------------------------------------------------------------------+
-| Verbosity           | If this value is ``>= 1``, submesh information will be displayed when using attributes     |
-+---------------------+--------------------------------------------------------------------------------------------+
++------------------------------+--------------------------------------------------------------------------------------------+
+| **Key**                      | **Description**                                                                            |
++==============================+============================================================================================+
+| OutputFileName               | Name of the output directory                                                               |
++------------------------------+--------------------------------------------------------------------------------------------+
+| OutputFieldName              | Name of the field that will appear in ParaView (default: ``"u"``)                          |
++------------------------------+--------------------------------------------------------------------------------------------+
+| Material/Materials           | List of materials; a submesh will be used instead of exporting the entire mesh             |
++------------------------------+--------------------------------------------------------------------------------------------+
+| Boundary/Boundaries          | List of boundaries; a submesh will be used instead of exporting the entire mesh            |
++------------------------------+--------------------------------------------------------------------------------------------+
+| Verbosity                    | If this value is ``>= 1``, submesh information will be displayed when using attributes     |
++------------------------------+--------------------------------------------------------------------------------------------+
+| ExecuteInitialPostProcessing | Export the results at the initial time of the simulation (default: ``true``)               |
++------------------------------+--------------------------------------------------------------------------------------------+
 
 Export Integration Point Results At Nodes
 ==========================================
@@ -106,6 +108,10 @@ Export Integration Point Results At Nodes
       {{"OutputFileName", "SatohTestIntegrationPointOutput"},
        {"Materials", {"plate"}},
        {"Results", results}});
+
+The optional ``ExecuteInitialPostProcessing`` boolean parameter (``true`` by
+default) states if the results are exported at the initial time of the
+simulation.
 
 **Results**
 

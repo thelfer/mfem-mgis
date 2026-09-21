@@ -54,6 +54,17 @@ namespace mfem_mgis {
     return this->name.value_or("NonLinearModel");
   }  // end of getName
 
+  bool NonLinearModel::executeInitialPostProcessingTasks(
+      Context &ctx, const real t) noexcept {
+    if (!ModelBase::executeInitialPostProcessingTasks(ctx, t)) {
+      return false;
+    }
+    if (!this->problem->executeInitialPostProcessings(ctx, t)) {
+      return false;
+    }
+    return true;
+  }  // end of executeInitialPostProcessingTasks
+
   bool NonLinearModel::performInitializationTaksAtTheBeginningOfTheTimeStep(
       Context &ctx, const TimeStep &ts) noexcept {
     if (!ModelBase::performInitializationTaksAtTheBeginningOfTheTimeStep(ctx,

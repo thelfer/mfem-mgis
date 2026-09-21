@@ -12,7 +12,7 @@
 #include <vector>
 #include <fstream>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/PostProcessing.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 
 namespace mfem_mgis {
 
@@ -21,7 +21,8 @@ namespace mfem_mgis {
    * of the thermodynamic forces and print them in a file.
    */
   template <bool parallel>
-  struct MeanThermodynamicForces final : public PostProcessing<parallel> {
+  struct MeanThermodynamicForces final
+      : public AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
     /*!
      * \brief constructor
      * \param[in] p: non linear problem
@@ -30,6 +31,10 @@ namespace mfem_mgis {
     MeanThermodynamicForces(NonLinearEvolutionProblemImplementation<parallel>&,
                             const Parameters&);
     //
+    [[nodiscard]] bool executeInitialPostProcessing(
+        Context&,
+        NonLinearEvolutionProblemImplementation<parallel>&,
+        const real) noexcept override;
     void execute(Context&,
                  NonLinearEvolutionProblemImplementation<parallel>&,
                  const real,

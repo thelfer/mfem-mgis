@@ -8,7 +8,7 @@
 #ifndef LIB_COMPUTERESULTANTFORCEONBOUNDARY_HXX
 #define LIB_COMPUTERESULTANTFORCEONBOUNDARY_HXX
 
-#include "MFEMMGIS/PostProcessing.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 
 namespace mfem_mgis {
 
@@ -59,7 +59,7 @@ namespace mfem_mgis {
    */
   template <>
   struct MFEM_MGIS_EXPORT ComputeResultantForceOnBoundary<true> final
-      : public PostProcessing<true>,
+      : public AbstractNonLinearEvolutionProblemPostProcessing<true>,
         protected ComputeResultantForceOnBoundaryCommon {
     /*!
      * \brief constructor
@@ -69,6 +69,10 @@ namespace mfem_mgis {
     ComputeResultantForceOnBoundary(
         NonLinearEvolutionProblemImplementation<true>&, const Parameters&);
     //
+    [[nodiscard]] bool executeInitialPostProcessing(
+        Context&,
+        NonLinearEvolutionProblemImplementation<true>&,
+        const real) noexcept override;
     void execute(Context&,
                  NonLinearEvolutionProblemImplementation<true>&,
                  const real,
@@ -85,7 +89,7 @@ namespace mfem_mgis {
    */
   template <>
   struct MFEM_MGIS_EXPORT ComputeResultantForceOnBoundary<false> final
-      : public PostProcessing<false>,
+      : public AbstractNonLinearEvolutionProblemPostProcessing<false>,
         protected ComputeResultantForceOnBoundaryCommon {
     /*!
      * \brief constructor
@@ -95,6 +99,10 @@ namespace mfem_mgis {
     ComputeResultantForceOnBoundary(
         NonLinearEvolutionProblemImplementation<false>&, const Parameters&);
     //
+    [[nodiscard]] bool executeInitialPostProcessing(
+        Context&,
+        NonLinearEvolutionProblemImplementation<false>&,
+        const real) noexcept override;
     void execute(Context&,
                  NonLinearEvolutionProblemImplementation<false>&,
                  const real,

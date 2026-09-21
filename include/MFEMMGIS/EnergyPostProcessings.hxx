@@ -12,7 +12,7 @@
 #include <vector>
 #include <fstream>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/PostProcessing.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 
 namespace mfem_mgis {
 
@@ -21,7 +21,8 @@ namespace mfem_mgis {
    * a set of materials in a file.
    */
   template <bool parallel>
-  struct EnergyPostProcessingBase : public PostProcessing<parallel> {
+  struct EnergyPostProcessingBase
+      : public AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
     /*!
      * \brief constructor
      * \param[in] p: non linear problem
@@ -33,6 +34,10 @@ namespace mfem_mgis {
         const Parameters &,
         const std::string_view);
     //
+    [[nodiscard]] bool executeInitialPostProcessing(
+        Context &,
+        NonLinearEvolutionProblemImplementation<parallel> &,
+        const real) noexcept override;
     void execute(Context &,
                  NonLinearEvolutionProblemImplementation<parallel> &,
                  const real,
