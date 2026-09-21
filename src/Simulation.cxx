@@ -1102,8 +1102,8 @@ namespace mfem_mgis {
         return s;
       }
       ots->push_back(timeStepOutput);
-      output.replaceOrInsert("numberOfTimeSteps", *onumberOfTimeSteps + 1);
-      output.replaceOrInsert("timeStepOutputs", *ots);
+      output.replaceOrInsert("NumberOfTimeSteps", *onumberOfTimeSteps + 1);
+      output.replaceOrInsert("TimeStepOutputs", *ots);
     }
     return s;
   }  // end of simulateOverATimeStep
