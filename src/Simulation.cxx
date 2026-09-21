@@ -100,7 +100,7 @@ namespace mfem_mgis {
               "within each temporal sequence"});
     d.insert(
         {"TimeStepValidator", "strategy used to determine the next time step"});
-    d.insert({"timeIncrementComputer",
+    d.insert({"TimeIncrementComputer",
               "strategy used to determine the next time step"});
     d.insert(
         {"LimitTimeIncrementIncrease",
