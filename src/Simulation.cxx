@@ -99,7 +99,7 @@ namespace mfem_mgis {
               "within each temporal sequence"});
     d.insert(
         {"TimeStepValidator", "strategy used to determine the next time step"});
-    d.insert({"timeIncrementComputer",
+    d.insert({"TimeIncrementComputer",
               "strategy used to determine the next time step"});
     d.insert(
         {"LimitTimeIncrementIncrease",
@@ -605,9 +605,6 @@ namespace mfem_mgis {
       if (!s.shallContinue()) {
         return {s, {}};
       }
-      p_bts = this->timesDescription.erase(p_bts);
-      p_ets = std::next(p_bts);
-      pe = this->timesDescription.end();
       if (state.maximumNumberOfTimeStepsReached) {
         if (s.shallStop()) {
           return {s, {}};
@@ -615,6 +612,9 @@ namespace mfem_mgis {
           return {s, output};
         }
       }
+      p_bts = this->timesDescription.erase(p_bts);
+      p_ets = std::next(p_bts);
+      pe = this->timesDescription.end();
     }
     // dt is arbitrary, it just have to be a non-zero value
     //    updateAndSynchronize(this->physicalSystem.updateClock(ctx, *p_bts,
@@ -999,7 +999,7 @@ namespace mfem_mgis {
     ++(state.numberOfTimeSteps);
     if (isValid(this->maximumNumberOfTimeSteps)) {
       state.maximumNumberOfTimeStepsReached =
-          (state.numberOfTimeSteps == *(this->maximumNumberOfTimeSteps));
+          (state.numberOfTimeSteps >= *(this->maximumNumberOfTimeSteps));
     }
     //
     auto s = ExitStatus{};
