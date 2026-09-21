@@ -104,7 +104,8 @@ namespace mfem_mgis {
                         FiniteElementDiscretization::getParametersList())),
             mgis::behaviour::fromString(get<std::string>(
                 throwing, p, NonLinearEvolutionProblem::HypothesisParameter)),
-            remove(p, {NonLinearEvolutionProblem::HypothesisParameter})) {
+            remove(remove(p, {NonLinearEvolutionProblem::HypothesisParameter}),
+                   FiniteElementDiscretization::getParametersList())) {
   }  // end of NonLinearEvolutionProblem
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
