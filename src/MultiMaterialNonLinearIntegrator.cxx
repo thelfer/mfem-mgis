@@ -32,16 +32,16 @@ namespace mfem_mgis {
           std::vector<std::unique_ptr<AbstractBehaviourIntegrator>>>& bis,
       const char* const n,
       const size_type m) {
-    if (m > bis.size()) {
-      raise("MultiMaterialNonLinearIntegrator::" + std::string(n) +
-            ": no behaviour integrator associated with material '" +
-            std::to_string(m) + "'");
+    if ((bis.empty()) || (m >= static_cast<size_type>(bis.size()))) {
+      abort("MultiMaterialNonLinearIntegrator::" + std::string(n) +
+                ": no behaviour integrator associated with material '" +
+                std::to_string(m) + "'");
     }
     // ok this is paranoïac, but does not hurt
     if (bis.at(m).front().get() == nullptr) {
-      raise("MultiMaterialNonLinearIntegrator::" + std::string(n) +
-            ": invalid behaviour integrator associated with material '" +
-            std::to_string(m) + "'");
+      abort("MultiMaterialNonLinearIntegrator::" + std::string(n) +
+                ": invalid behaviour integrator associated with material '" +
+                std::to_string(m) + "'");
     }
   }  // end if checkIfBehaviourIntegratorsAreDefined
 
