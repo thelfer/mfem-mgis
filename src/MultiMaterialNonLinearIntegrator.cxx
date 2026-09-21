@@ -37,11 +37,18 @@ namespace mfem_mgis {
                 ": no behaviour integrator associated with material '" +
                 std::to_string(m) + "'");
     }
-    // ok this is paranoïac, but does not hurt
-    if (bis.at(m).front().get() == nullptr) {
+    if (bis.at(m).empty()) {
       abort("MultiMaterialNonLinearIntegrator::" + std::string(n) +
-                ": invalid behaviour integrator associated with material '" +
+                ": no behaviour integrator associated with material '" +
                 std::to_string(m) + "'");
+    }
+    // ok this is paranoïac, but does not hurt
+    for (const auto& bi : bis.at(m)) {
+      if (bi.get() == nullptr) {
+        abort("MultiMaterialNonLinearIntegrator::" + std::string(n) +
+              ": invalid behaviour integrator associated with material '" +
+              std::to_string(m) + "'");
+      }
     }
   }  // end if checkIfBehaviourIntegratorsAreDefined
 
