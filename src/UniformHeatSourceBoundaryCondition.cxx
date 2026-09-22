@@ -146,7 +146,7 @@ namespace mfem_mgis {
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
       AbstractNonLinearEvolutionProblem &p, const Parameters &params)
       : finiteElementDiscretization(p.getFiniteElementDiscretizationPointer()),
-        mids(getBoundariesIdentifiers(throwing, p, params, false)),
+        mids(getMaterialsIdentifiers(throwing, p, params, false)),
         qfct(get<std::function<real(const real)>>(
             throwing, params, "LoadingEvolution")),
         nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
@@ -215,8 +215,8 @@ namespace mfem_mgis {
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
     this->materials_markers = 0;
-    for (const auto &bid : mids) {
-      this->materials_markers[bid - 1] = 1;
+    for (const auto &mid : mids) {
+      this->materials_markers[mid - 1] = 1;
     }
     auto *form = new UniformHeatSourceLinearFormIntegrator();
     form->setHeatSource(this->qfct(t + dt));
@@ -236,8 +236,8 @@ namespace mfem_mgis {
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
     this->materials_markers = 0;
-    for (const auto &bid : mids) {
-      this->materials_markers[bid - 1] = 1;
+    for (const auto &mid : mids) {
+      this->materials_markers[mid - 1] = 1;
     }
     auto *form = new UniformHeatSourceLinearFormIntegrator();
     form->setHeatSource(this->qfct(t + dt));
