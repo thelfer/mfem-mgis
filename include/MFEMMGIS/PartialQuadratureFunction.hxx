@@ -232,7 +232,7 @@ namespace mfem_mgis {
     std::span<const real> immutable_values;
   };  // end of ImmutablePartialQuadratureFunctionView
 
-  struct PartialQuadratureFunctionView
+  struct MFEM_MGIS_EXPORT PartialQuadratureFunctionView
       : ImmutablePartialQuadratureFunctionView {
     /*!
      * \brief constructor
