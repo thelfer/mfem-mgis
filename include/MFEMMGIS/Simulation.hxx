@@ -318,7 +318,10 @@ namespace mfem_mgis {
      * \param[in,out] s: current status of the simulation.
      * \param[in,out] output: output of the simulation.
      * \param[in,out] state: simulation state.
-     * \param[in] pdt: previous time increment.
+     * \param[out] t: time at the end of the last successful increment or time
+     * at the beginning of the time step if the no successful time step as been
+     * made.
+     * \param[in, out] pdt: previous time increment.
      * \param[in] sb: beginning of the time sequence.
      * \param[in] se: end of the time sequence.
      * \param[in] lastTemporalSequence: boolean stating if it is the last
@@ -328,6 +331,7 @@ namespace mfem_mgis {
                                        ExitStatus &,
                                        SimulationOutput &,
                                        SimulationRunState &,
+                                       real &,
                                        std::optional<real> &,
                                        const real,
                                        const real,

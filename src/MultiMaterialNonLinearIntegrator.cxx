@@ -34,13 +34,13 @@ namespace mfem_mgis {
       const size_type m) {
     if ((bis.empty()) || (m >= static_cast<size_type>(bis.size()))) {
       abort("MultiMaterialNonLinearIntegrator::" + std::string(n) +
-                ": no behaviour integrator associated with material '" +
-                std::to_string(m) + "'");
+            ": no behaviour integrator associated with material '" +
+            std::to_string(m) + "'");
     }
     if (bis.at(m).empty()) {
       abort("MultiMaterialNonLinearIntegrator::" + std::string(n) +
-                ": no behaviour integrator associated with material '" +
-                std::to_string(m) + "'");
+            ": no behaviour integrator associated with material '" +
+            std::to_string(m) + "'");
     }
     // ok this is paranoïac, but does not hurt
     for (const auto& bi : bis.at(m)) {
