@@ -631,6 +631,10 @@ namespace mfem_mgis {
         p_ets = std::next(p_bts);
         pe = this->timesDescription.end();
       } else {
+        // this case shall only happen if we reached the maximum number of time
+        // steps
+        ctx.assertOrTerminate(state.maximumNumberOfTimeStepsReached,
+                              "internal error");
         *p_bts = t;
       }
       if (state.maximumNumberOfTimeStepsReached) {
