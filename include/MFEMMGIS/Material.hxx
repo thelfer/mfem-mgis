@@ -347,7 +347,7 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage(
             "considered material is not orthotropic");
       }
-      return false;
+      return true;
     }
     inline const PartialQuadratureSpace &getSpace() const {
       return this->material.getPartialQuadratureSpace();
