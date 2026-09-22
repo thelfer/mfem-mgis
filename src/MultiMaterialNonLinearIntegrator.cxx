@@ -88,7 +88,7 @@ namespace mfem_mgis {
                                             "AssembleElementVector", m);
       auto update = [this, &e, &tr](mfem::Vector& Fe,
                                     AbstractBehaviourIntegrator& bi) {
-        if (bi.requiresCurrentSolutionForJacobianAssembly()) {
+        if (bi.requiresCurrentSolutionForResidualAssembly()) {
           auto vdofs = mfem::Array<int>{};
 #ifdef MFEM_USE_MPI
           if (this->pfespace != nullptr) {
