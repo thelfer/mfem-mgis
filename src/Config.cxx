@@ -146,21 +146,20 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  [[noreturn]] static void exit_on_failure() {
-    try {
-      throw;
-    } catch (std::exception& e) {
-      mfem_mgis::getErrorStream() << e.what() << '\n';
-    } catch (...) {
-      mfem_mgis::getErrorStream() << "unknown exception thrown";
-    }
-    abort();
-  }  // end of exit_on_failure
+  //   [[noreturn]] static void exit_on_failure() {
+  //     try {
+  //       throw;
+  //     } catch (std::exception& e) {
+  //       mfem_mgis::getErrorStream() << e.what() << '\n';
+  //     } catch (...) {
+  //       mfem_mgis::getErrorStream() << "unknown exception thrown";
+  //     }
+  //     abort();
+  //   }  // end of exit_on_failure
 
   void initialize(int& argc, MainFunctionArguments& argv) {
     static bool first = true;
     if (first) {
-      mgis::setExceptionHandler(exit_on_failure);
       mgis::setDefaultLogStream(mfem_mgis::getOutputStream());
       MPI_Init(&argc, &argv);
       if (getMPIrank() != 0) {

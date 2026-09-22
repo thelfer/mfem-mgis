@@ -5,6 +5,10 @@
  * \date   14/09/2026
  */
 
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+
 #include <memory>
 #include <cstdlib>
 #include <iostream>
