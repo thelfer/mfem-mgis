@@ -808,7 +808,8 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage("internal error");
       }
       if (!this->allowSubstepping) {
-        return false;
+        s = ExitStatus::recoverableError;
+        return ctx.registerErrorMessage("sub-stepping is not allowed");
       }
       if ((dte < 0) || (std::fpclassify(dte) == FP_ZERO)) {
         s = ExitStatus::recoverableError;
