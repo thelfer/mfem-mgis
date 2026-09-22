@@ -182,7 +182,8 @@ namespace mfem_mgis {
                                     ni);
         this->updateStiffnessMatrix(Je, Km, this->dshape, this->dshape0, -w,
                                     ni);
-        this->updateStiffnessMatrix(Je, Km, this->dshape0, this->dshape, -w, ni);
+        this->updateStiffnessMatrix(Je, Km, this->dshape0, this->dshape, -w,
+                                    ni);
 #endif
       }
     }

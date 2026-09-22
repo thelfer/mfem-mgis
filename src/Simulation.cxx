@@ -596,30 +596,49 @@ namespace mfem_mgis {
       output.replaceOrInsert("NumberOfSubSteps", 0);
       output.replaceOrInsert("TimeStepOutputs", std::vector<Parameter>{});
     }
+    // time at the end of the run
+    //    const auto te = this->timesDescription.back();
     while (p_ets != pe) {
       if (this->independentTemporalSequences) {
         pdt = std::optional<real>{};
       }
-      this->simulateOverATemporalSequence(ctx, s, output, state, pdt, *p_bts,
+      // if the simulation failed, t shall be equal to the the time at the
+      // beginning of the failed time step
+      auto t = real{*p_bts};
+      this->simulateOverATemporalSequence(ctx, s, output, state, t, pdt, *p_bts,
                                           *p_ets, std::next(p_ets) == pe);
       updateAndSynchronize(s);
       if (!s.shallContinue()) {
+        // something went wrong, meaning that the last time step failed, we
+        // update p_bts so that if the simulation is restarted, it does not
+        // restart the whole temporal sequence
+        *p_bts = t;
         return {s, {}};
       }
-      if (state.maximumNumberOfTimeStepsReached) {
-        if (s.shallStop()) {
-          return {s, {}};
-        } else {
-          return {s, output};
-        }
+      // now we known that the last time step is successful,
+      // but we don't known if we reached the end of the temporal sequence or if
+      // we stopped because we reach the maximum number of time steps and we
+      // must treat the corner case where the maximum of number of time steps
+      // has been reached exactly when the temporal sequence was completed.
+      //
+      // on success, pdt shall have a value, so the next test is paranoïac
+      ctx.assertOrTerminate(isValid(pdt),
+                            "the last time increment has not been updated");
+      const auto completed = std::abs(*p_ets - t) <
+                             10 * (*pdt) * std::numeric_limits<real>::epsilon();
+      if (completed) {
+        p_bts = this->timesDescription.erase(p_bts);
+        p_ets = std::next(p_bts);
+        pe = this->timesDescription.end();
+      } else {
+        *p_bts = t;
       }
-      p_bts = this->timesDescription.erase(p_bts);
-      p_ets = std::next(p_bts);
-      pe = this->timesDescription.end();
+      if (state.maximumNumberOfTimeStepsReached) {
+        break;
+      }
     }
     // dt is arbitrary, it just have to be a non-zero value
-    //    updateAndSynchronize(this->physicalSystem.updateClock(ctx, *p_bts,
-    //    dt));
+    //    updateAndSynchronize(this->physicalSystem.updateClock(ctx, te, 0));
     if (s.shallStop()) {
       return {s, {}};
     }
@@ -663,11 +682,9 @@ namespace mfem_mgis {
     if (isValid(pdt)) {
       if (this->limitTimeIncrementIncrease) {
         if (dt > *pdt) {
-          const auto max_dt =
+          const auto bound =
               (this->maximalTimeIncrementRelativeIncrease) * (*pdt);
-          if (dt > max_dt) {
-            dt = max_dt;
-          }
+          dt = std::min(dt, bound);
         }
       }
       if (this->limitTimeIncrementDecrease) {
@@ -732,6 +749,7 @@ namespace mfem_mgis {
       ExitStatus &s,
       SimulationOutput &output,
       SimulationRunState &state,
+      real &t,
       std::optional<real> &pdt,
       const real sb,
       const real se,
@@ -760,7 +778,7 @@ namespace mfem_mgis {
     // duration of the temporal sequence
     const auto sdt = se - sb;
     // beginning of the current time step
-    auto t = sb;
+    t = sb;
     // end of the current time step
     auto ote = this->getEndOfNextTimeStep(ctx, sb, se, t, pdt);
     if (isInvalid(ote)) {

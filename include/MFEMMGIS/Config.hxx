@@ -49,7 +49,6 @@
 namespace mfem_mgis {
 
   using mgis::abort;
-  using mgis::terminate;
   using mgis::AbstractErrorHandler;
   using mgis::areInvalid;
   using mgis::areValid;
@@ -66,6 +65,7 @@ namespace mfem_mgis {
   using mgis::make_unique_as;
   using mgis::OptionalReference;
   using mgis::registerExceptionInErrorBacktrace;
+  using mgis::terminate;
   using mgis::verboseDebug;
   using mgis::verboseFull;
   using mgis::verboseLevel0;
