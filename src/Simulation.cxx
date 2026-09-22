@@ -638,6 +638,7 @@ namespace mfem_mgis {
         *p_bts = t;
       }
       if (state.maximumNumberOfTimeStepsReached) {
+	//        te = t;
         break;
       }
     }
@@ -1012,14 +1013,14 @@ namespace mfem_mgis {
       if (!s.shallContinue()) {
         return;
       }
-      if (state.maximumNumberOfTimeStepsReached) {
-        return;
-      }
       // updating the previous status
       previousStatus = s;
       // updating the current time and compute the next time step, if required
       pdt = *ote - t;
       t = *ote;
+      if (state.maximumNumberOfTimeStepsReached) {
+        return;
+      }
       if (!stop) {
         ote = this->getEndOfNextTimeStep(ctx, sb, se, t, pdt);
         if (isInvalid(ote)) {
