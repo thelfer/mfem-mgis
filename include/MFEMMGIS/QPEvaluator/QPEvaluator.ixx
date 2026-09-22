@@ -82,7 +82,7 @@ namespace mfem_mgis {
       : material(m),
         thforces(getStateManager(m, s).thermodynamic_forces),
         stage(s) {
-    if constexpr (ThermodynamicForcesSize != dynamic_extent) {
+    if constexpr (ThermodynamicForcesSize == dynamic_extent) {
       const auto& sm = getStateManager(this->material, this->stage);
       const auto thsize = sm.thermodynamic_forces_stride;
       this->buffer.resize(thsize);
