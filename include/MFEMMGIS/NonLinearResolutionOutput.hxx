@@ -11,6 +11,7 @@
 #include <limits>
 #include <optional>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/ComputeNextStateOutput.hxx"
 
 namespace mfem_mgis {
@@ -35,6 +36,8 @@ namespace mfem_mgis {
     real final_residual_norm = std::numeric_limits<real>::quiet_NaN();
     //! \brief number of iterations
     size_type iterations = size_type{};
+    //! \brief informations collected during the iterations
+    std::vector<Parameter> iterations_information;
     //! \brief convertion operator to a boolean
     inline operator bool() const { return this->status; }
   };  // end of struct NonLinearResolutionOutput

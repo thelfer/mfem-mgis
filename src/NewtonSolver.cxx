@@ -46,6 +46,8 @@ namespace mfem_mgis {
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
                 "the Solver is not set (use setLinearSolver).");
+    //
+    this->iterations_information.clear();
     // log stream
     auto &log = [this]() -> std::ostream & {
       if (this->ctx_ptr == nullptr) {
@@ -178,6 +180,11 @@ namespace mfem_mgis {
       previous_norms[0] = previous_norms[1];
       previous_norms[1] = norm;
       norm = this->Norm(r);
+      //
+      auto iteration = Parameters{};
+      iteration.replaceOrInsert("Norm", norm);
+      this->iterations_information.push_back(iteration);
+      //
       ++it;
     }
     this->final_iter = it;

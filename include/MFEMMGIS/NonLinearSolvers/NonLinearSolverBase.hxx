@@ -36,6 +36,7 @@ namespace mfem_mgis {
     [[nodiscard]] real GetInitialNorm() const noexcept override;
     void setContext(Context &) noexcept override;
     void unsetContext() noexcept override;
+    std::vector<Parameter> getIterationsInformation() const noexcept;
     //! \brief destructor
     ~NonLinearSolverBase() noexcept;
 
@@ -60,6 +61,11 @@ namespace mfem_mgis {
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
+    /*!
+     * \return the information collected during the iterations
+     * This vector is meant to be cleared at the beginning of the Mult method
+     */
+    mutable std::vector<Parameter> iterations_information;
     /*!
      * \brief data containing the reference value for the norm of the residual.
      *

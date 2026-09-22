@@ -123,6 +123,11 @@ namespace mfem_mgis {
 
   void NonLinearSolverBase::unsetContext() noexcept { this->ctx_ptr = nullptr; }
 
+  std::vector<Parameter> NonLinearSolverBase::getIterationsInformation()
+      const noexcept {
+    return this->iterations_information;
+  }  // end of getIterationsInformation
+
   bool NonLinearSolverBase::isLinearSolverFailureDiscarded() const noexcept {
     return this->discardLinearSolverFailure;
   }  // end of isLinearSolverFailureDiscarded
