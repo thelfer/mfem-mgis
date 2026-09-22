@@ -173,16 +173,16 @@ namespace mfem_mgis {
       for (size_type ni = 0; ni != nnodes; ++ni) {
 #ifdef MFEM_THREAD_SAFE
         this->updateStiffnessMatrix(Je, Km, dshape, dshape, w, ni);
-        this->updateStiffnessMatrix(Je, Km, dshape0, dshape0, -w, ni);
+        this->updateStiffnessMatrix(Je, Km, dshape0, dshape0, w, ni);
         this->updateStiffnessMatrix(Je, Km, dshape, dshape0, -w, ni);
-        this->updateStiffnessMatrix(Je, Km, dshape0, dshape, w, ni);
+        this->updateStiffnessMatrix(Je, Km, dshape0, dshape, -w, ni);
 #else
         this->updateStiffnessMatrix(Je, Km, this->dshape, this->dshape, w, ni);
-        this->updateStiffnessMatrix(Je, Km, this->dshape0, this->dshape0, -w,
+        this->updateStiffnessMatrix(Je, Km, this->dshape0, this->dshape0, w,
                                     ni);
         this->updateStiffnessMatrix(Je, Km, this->dshape, this->dshape0, -w,
                                     ni);
-        this->updateStiffnessMatrix(Je, Km, this->dshape0, this->dshape, w, ni);
+        this->updateStiffnessMatrix(Je, Km, this->dshape0, this->dshape, -w, ni);
 #endif
       }
     }

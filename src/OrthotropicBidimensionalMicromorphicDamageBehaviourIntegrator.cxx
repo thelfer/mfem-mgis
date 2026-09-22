@@ -100,7 +100,7 @@ namespace mfem_mgis {
         g[1] += d_chi[ni] * dshape(ni, 0);
         g[2] += d_chi[ni] * dshape(ni, 1);
       }
-      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
+      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
       this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());
       if (!this->performsLocalBehaviourIntegration(o, it)) {
         return false;
@@ -142,7 +142,7 @@ namespace mfem_mgis {
       // offset of the integration point
       const auto o = eoffset + i;
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
-      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
+      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
       std::array<real, 3> rs;
       std::copy(s.begin(), s.end(), rs.begin());
       this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), r.data());
@@ -188,7 +188,7 @@ namespace mfem_mgis {
       // offset of the integration point
       const auto o = eoffset + i;
       const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
-      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
+      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
       this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
                                                  r.data());
       // assembly of the stiffness matrix
@@ -245,8 +245,8 @@ namespace mfem_mgis {
       // offset of the integration point
       const auto o = eoffset + i;
       const auto s = this->s1.thermodynamic_forces.subspan(o * thsize, thsize);
-      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, i);
-      std::array<real, 2> rs;
+      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
+      std::array<real, 3> rs;
       std::copy(s.begin(), s.end(), rs.begin());
       this->b.rotate_thermodynamic_forces_ptr(rs.data(), rs.data(), r.data());
       for (size_type ni = 0; ni != nnodes; ++ni) {
@@ -254,8 +254,9 @@ namespace mfem_mgis {
         // - a_chi, the dual force conjugated with d_chi (scalar)
         // - b_chi, the dual force conjugated with the gradient of d_chi
         // (vector)
-        Fe[ni] += w * (rs[0] * dshape(ni, 0) +  //
-                       rs[1] * dshape(ni, 1));
+        Fe[ni] += w * (rs[0] * shape[ni] +      //
+                       rs[1] * dshape(ni, 0) +  //
+                       rs[2] * dshape(ni, 1));
       }
     }
   }  // end of computeInnerForces

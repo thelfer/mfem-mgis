@@ -48,6 +48,8 @@
 
 namespace mfem_mgis {
 
+  using mgis::abort;
+  using mgis::terminate;
   using mgis::AbstractErrorHandler;
   using mgis::areInvalid;
   using mgis::areValid;

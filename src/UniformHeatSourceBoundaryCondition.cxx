@@ -220,7 +220,7 @@ namespace mfem_mgis {
     }
     auto *form = new UniformHeatSourceLinearFormIntegrator();
     form->setHeatSource(this->qfct(t + dt));
-    b.AddBoundaryIntegrator(form, this->materials_markers);
+    b.AddDomainIntegrator(form, this->materials_markers);
     return true;
   }    // end of addLinearFormIntegrators
 #endif /* MFEM_USE_MPI */
@@ -241,7 +241,7 @@ namespace mfem_mgis {
     }
     auto *form = new UniformHeatSourceLinearFormIntegrator();
     form->setHeatSource(this->qfct(t + dt));
-    b.AddBoundaryIntegrator(form, this->materials_markers);
+    b.AddDomainIntegrator(form, this->materials_markers);
     return true;
   }  // end of addLinearFormIntegrators
 

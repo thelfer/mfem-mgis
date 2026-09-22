@@ -413,10 +413,15 @@ namespace mfem_mgis {
         } else if (std::holds_alternative<std::span<const real>>(p->second)) {
           const auto& variable_values =
               std::get<std::span<const real>>(p->second);
+          //  here we test if the variable_values is uniform: its size is then
+          //  the size of targeted external state variable
           if (variable_values.size() == v.size()) {
             std::copy(variable_values.begin(), variable_values.end(),
                       v.begin() + i);
           } else {
+            //  here we test if the variable_values is not uniform: its size is
+            //  then the size of targeted external state variable multiplied by
+            //  the number of integration point.
             if (variable_values.size() != vsize * (this->n)) {
               return ctx.registerErrorMessage(
                   "invalid number of variable values given for variable '" +
