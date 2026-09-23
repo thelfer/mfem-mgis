@@ -1059,7 +1059,14 @@ namespace mfem_mgis {
                 << ts.end << std::endl;
     }
     if (isValid(this->nonlinearEvolutionProblem)) {
-      this->nonlinearEvolutionProblem->setup(ts.begin, ts.dt);
+      updateAndSynchronize(
+          this->nonlinearEvolutionProblem->setup(ctx, ts.begin, ts.dt));
+      if (!s.shallContinue()) {
+        std::ignore = ctx.registerErrorMessage(
+            "setting up the nonlinear evolution problem at the beginning of "
+            "the time step failed");
+        return s;
+      }
     }
     if (!s.shallContinue()) {
       std::ignore = ctx.registerErrorMessage("updating the clock failed");
