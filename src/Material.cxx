@@ -28,9 +28,28 @@ namespace mfem_mgis {
         "unset rotation matrix");
   }  // end of raiseInvalidGetRotationMatrixCall
 
+  [[nodiscard]] static const Behaviour &Material_deferenceBehaviour(
+      std::unique_ptr<const Behaviour>& b_ptr) {
+    if (isInvalid(b_ptr)) {
+      raise("invalid behaviour");
+    }
+    return *b_ptr;
+  }
+
+  [[nodiscard]] static const PartialQuadratureSpace &
+  Material_deferenceQuadratureSpace(
+      std::shared_ptr<const PartialQuadratureSpace> s) {
+    if (isInvalid(s)) {
+      raise("invalid partial quadrature space");
+    }
+    return *s;
+  }
+
   Material::Material(std::shared_ptr<const PartialQuadratureSpace> s,
                      std::unique_ptr<const Behaviour> b_ptr)
-      : MaterialDataManager(*b_ptr, s->getNumberOfIntegrationPoints()),
+      : MaterialDataManager(Material_deferenceBehaviour(b_ptr),
+                            Material_deferenceQuadratureSpace(s)
+                                .getNumberOfIntegrationPoints()),
         quadrature_space(s),
         macroscopic_gradients(this->s1.gradients_stride, real(0)),
         get_rotation_fct_ptr(this->b.symmetry ==

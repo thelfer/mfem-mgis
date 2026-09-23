@@ -17,6 +17,13 @@
 
 namespace mfem_mgis {
 
+  [[nodiscard]] static std::string prependBehaviourDescriptionToErrorMessage(
+      const Behaviour& b, const std::string& e){
+    return "error while treating behaviour '" + b.behaviour +
+           "' implemented by '" + b.function + "' in library '" + b.library +
+           "': " + e;
+  }  // end of prependBehaviourDescriptionToErrorMessage
+
   BehaviourIntegratorBase::BehaviourIntegratorBase(
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::unique_ptr<const Behaviour> b_ptr)
@@ -27,6 +34,118 @@ namespace mfem_mgis {
     this->wks.esvs0.resize(getArraySize(this->b.esvs, this->b.hypothesis));
     this->wks.esvs1.resize(getArraySize(this->b.esvs, this->b.hypothesis));
   }  // end of BehaviourIntegratorBase
+
+  void BehaviourIntegratorBase::checkHypothesis(attributes::Throwing,
+                                                const Hypothesis h) const {
+    using namespace mgis::behaviour;
+    if (this->b.hypothesis != h) {
+      const auto h1 = std::string(toString(this->b.hypothesis));
+      const auto h2 = std::string(toString(h));
+      raise(prependBehaviourDescriptionToErrorMessage(
+          this->b, "the behaviour hypothesis (" + h1 + ") does not match the " +
+                       "integrator hypothesis (" + h2 + ")"));
+    }
+  }  // end of BehaviourIntegratorBase::checkHypothesis
+
+  void BehaviourIntegratorBase::checkIfAFiniteStrainBehaviourIsDeclared(
+      attributes::Throwing) const {
+    auto isDeformationGradient = [](const mgis::behaviour::Variable& g) {
+      if (g.name != "DeformationGradient") {
+        return false;
+      }
+      if (g.type != mgis::behaviour::Variable::TENSOR) {
+        return false;
+      }
+      return true;
+    };
+    auto isPK1 = [](const mgis::behaviour::Variable& g) {
+      if (g.name != "FirstPiolaKirchhoffStress") {
+        return false;
+      }
+      if (g.type != mgis::behaviour::Variable::TENSOR) {
+        return false;
+      }
+      return true;
+    };
+    if ((this->b.btype != Behaviour::STANDARDFINITESTRAINBEHAVIOUR) &&
+        (this->b.btype != Behaviour::GENERALBEHAVIOUR)) {
+      this->throwInvalidBehaviourType(
+          throwing,
+          "expected a finite strain behaviour or a general behaviour");
+    }
+    if (this->b.btype == Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
+      if (this->b.kinematic != Behaviour::FINITESTRAINKINEMATIC_F_CAUCHY) {
+        this->throwInvalidBehaviourType(
+            throwing, "expected a standard finite behaviour kinematic");
+      }
+    }
+    if ((this->b.gradients.size() != 1) &&
+        (!isDeformationGradient(this->b.gradients.at(0)))) {
+      this->throwInvalidBehaviourType(
+          throwing,
+          "expected a finite strain behaviour or a general behaviour whose "
+          "only gradient is the deformation gradient, a non symmetric "
+          "tensor");
+    }
+    if ((this->b.thermodynamic_forces.size() != 1) &&
+        (!isPK1(this->b.thermodynamic_forces.at(0)))) {
+      this->throwInvalidBehaviourType(
+          throwing,
+          "expected a finite strain behaviour or a general behaviour whose "
+          "only thermodynamic force is the first Piola-Kirchhoff stress, a non "
+          "symmetric tensor");
+    }
+    if ((this->b.to_blocks.size() != 1) &&
+        ((!isPK1(this->b.to_blocks.at(0).first)) &&
+         (!isDeformationGradient(this->b.to_blocks.at(0).first)))) {
+      this->throwInvalidBehaviourType(
+          throwing,
+          "expected a finite strain behaviour or a general behaviour whose "
+          "only tangent operator block is the derivative of the first "
+          "Piola-Kirchhoff stress with respect to the deformation gradient, "
+          "both being non symmetric tensors");
+    }
+  }  // end of checkIfAFiniteStrainBehaviourIsDeclared
+
+  void BehaviourIntegratorBase::checkBehaviourSymmetry(
+      attributes::Throwing, const Behaviour::Symmetry s) const {
+    if (this->b.symmetry != s) {
+      if (s == Behaviour::ORTHOTROPIC) {
+        this->throwInvalidBehaviourSymmetry(
+            throwing, "expected an orthotropic behaviour");
+      } else {
+        this->throwInvalidBehaviourSymmetry(  //
+            throwing, "expected an isotropic behaviour");
+      }
+    }
+  }  // end of checkBehaviourSymmetry
+
+  void BehaviourIntegratorBase::throwInvalidBehaviourType(
+      attributes::Throwing, const std::string& e) const {
+    auto msg = std::string{"invalid behaviour type"};
+    if (e.empty()){
+      msg += ", " + e;
+    }
+    raise(prependBehaviourDescriptionToErrorMessage(this->b, msg));
+  }  // end of throwInvalidBehaviourType
+
+  void BehaviourIntegratorBase::throwInvalidBehaviourSymmetry(
+      attributes::Throwing, const std::string& e) const {
+    auto msg = std::string{"invalid behaviour type"};
+    if (e.empty()){
+      msg += ", " + e;
+    }
+    raise(prependBehaviourDescriptionToErrorMessage(this->b, msg));
+  }  // end of throwInvalidBehaviourSymmetry
+
+  void BehaviourIntegratorBase::throwInvalidBehaviourKinematic(
+      attributes::Throwing, const std::string& e) const {
+    auto msg = std::string{"invalid behaviour kinematic"};
+    if (e.empty()){
+      msg += ", " + e;
+    }
+    raise(prependBehaviourDescriptionToErrorMessage(this->b, msg));
+  }  // end of throwInvalidBehaviourType
 
   static bool checkQuadratureFunctionEvaluator(
       Context& ctx,
@@ -147,24 +266,6 @@ namespace mfem_mgis {
     }
     return true;
   }  // end of setExternalStateVariable
-
-  void BehaviourIntegratorBase::throwInvalidBehaviourType(
-      const char* const mn, const char* const m) const {
-    auto msg = std::string(mn) + ": invalid behaviour type";
-    if (m != nullptr) {
-      msg += "(" + std::string(m) + ')';
-    }
-    raise(msg);
-  }  // end of throwInvalidBehaviourType
-
-  void BehaviourIntegratorBase::throwInvalidBehaviourKinematic(
-      const char* const mn, const char* const m) const {
-    auto msg = std::string(mn) + ": invalid behaviour type";
-    if (m != nullptr) {
-      msg += "(" + std::string(m) + ')';
-    }
-    raise(msg);
-  }  // end of throwInvalidBehaviourType
 
   const PartialQuadratureSpace&
   BehaviourIntegratorBase::getPartialQuadratureSpace() const noexcept {
@@ -510,18 +611,6 @@ namespace mfem_mgis {
     return true;
   }  // end of setup
 
-  void BehaviourIntegratorBase::checkHypotheses(const Hypothesis h) const {
-    using namespace mgis::behaviour;
-    if (this->b.hypothesis != h) {
-      const auto h1 = std::string(toString(this->b.hypothesis));
-      const auto h2 = std::string(toString(h));
-      raise(
-          "BehaviourIntegratorBase::checkHypotheses: "
-          "the behaviour hypothesis (" +
-          h1 + ") does not match the integrator hypothesis (" + h2 + ")");
-    }
-  }  // end of BehaviourIntegratorBase::checkHypotheses
-
   bool BehaviourIntegratorBase::performsLocalBehaviourIntegration(
       const size_type ip, const IntegrationType it) {
     char error_msg[512];
@@ -654,4 +743,4 @@ namespace mfem_mgis {
 
   BehaviourIntegratorBase::~BehaviourIntegratorBase() = default;
 
-}  // end of namespace mfem_mgis
+  }  // end of namespace mfem_mgis

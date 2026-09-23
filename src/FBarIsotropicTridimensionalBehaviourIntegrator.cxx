@@ -31,9 +31,9 @@ namespace mfem_mgis {
             FBarIsotropicTridimensionalBehaviourIntegrator,
             Hypothesis::TRIDIMENSIONAL>(buildQuadratureSpace(fed, m),
                                         std::move(b_ptr)) {
-    if (this->b.symmetry != Behaviour::ISOTROPIC) {
-      raise("invalid behaviour symmetry");
-    }
+    this->checkIfAFiniteStrainBehaviourIsDeclared(throwing);
+    this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
+    this->checkHypothesis(throwing, Hypothesis::TRIDIMENSIONAL);
   }  // end of
      // FBarIsotropicTridimensionalBehaviourIntegrator
 
