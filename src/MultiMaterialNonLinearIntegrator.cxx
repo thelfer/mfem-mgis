@@ -287,6 +287,13 @@ namespace mfem_mgis {
                                           "AssembleElementVector", m);
     const auto& integrators = this->behaviour_integrators.at(m);
     if (integrators.size() == 1) {
+      if (usePETSc()) {
+        MFEM_VERIFY(
+            integrators.front()->integrate(
+                e, tr, U,
+                IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),
+            "ERROR Behaviour");
+      }
       integrators.front()->updateResidual(F, e, tr, U);
       return;
     }
