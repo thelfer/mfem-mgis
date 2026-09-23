@@ -474,7 +474,7 @@ namespace mfem_mgis {
       }
       return true;
     }();
-    NewtonSolver& s = this->getSolver();
+    AbstractNonLinearSolver& s = this->getSolver();
     s.processAdditionalConvergenceCriterionHelper();
     
     return isTrueOnAllProcesses(*(this->fe_discretization), success);
@@ -553,7 +553,7 @@ namespace mfem_mgis {
     return this->prediction_policy;
   }  // end of getPredictionPolicy
 
-  NewtonSolver& NonLinearEvolutionProblemImplementationBase::getSolver() noexcept {
+  AbstractNonLinearSolver& NonLinearEvolutionProblemImplementationBase::getSolver() noexcept {
     return *this->solver; 
   }  // end of getSolver
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
@@ -588,7 +588,7 @@ namespace mfem_mgis {
         }
       }
     }
-    NewtonSolver& newton = this->getSolver();
+    AbstractNonLinearSolver& newton = this->getSolver();
     newton.processAdditionalConvergenceCriterionReset();
     
     auto fill_output = [&output](auto& s) {

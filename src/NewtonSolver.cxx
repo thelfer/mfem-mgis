@@ -37,46 +37,6 @@ namespace mfem_mgis {
       : NonLinearSolverBase(p) {}  // end of NewtonSolver
 
   
-  void NewtonSolver::addAdditionalConvergenceCriterion(std::shared_ptr<nonlinear_solver::AbstractAdditionalConvergenceCriterion> cv_check) {
-    auto profiler = this->ctx_ptr != nullptr 
-        ? this->ctx_ptr->startNewProfiling("NS::addAdditionalConvergenceCriterion", this->ctx_ptr->isProfilingEnabled())
-        : mgis::ProfilingSection{};
-    this->acc_actions.push_back(std::move(cv_check));
-  } // end of addAdditionalConvergenceCriterion
-
-  std::optional<bool> NewtonSolver::processAdditionalConvergenceCriterionCheck(Context& ctx, const nonlinear_solver::AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
-    auto profiler = this->ctx_ptr != nullptr 
-        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionCheck", this->ctx_ptr->isProfilingEnabled())
-        : mgis::ProfilingSection{};
-    bool cv = s.converged;
-    // a->check must be called (for each element of the list, in case it manipulates some values as a side effect)
-      for (auto& a : this->acc_actions) {
-          std::optional<bool> result = a->check(ctx,s);
-          if (isInvalid(result)){
-              return {};
-          }
-          cv = cv && *result; 
-      }
-    return cv;
-  }  // end of processAdditionalConvergenceCriterionCheck
-
-  void NewtonSolver::processAdditionalConvergenceCriterionReset()  {
-    // auto profiler = this->ctx_ptr != nullptr 
-    //     ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionReset", this->ctx_ptr->isProfilingEnabled())
-    //     : mgis::ProfilingSection{};
-    for (auto& a : this->acc_actions) {
-      a->reset();
-    }
-  }  // end of processAdditionalConvergenceCriterionReset
-  
-  void NewtonSolver::processAdditionalConvergenceCriterionHelper()  {
-    // auto profiler = this->ctx_ptr != nullptr 
-    //     ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionHelper", this->ctx_ptr->isProfilingEnabled())
-    //     : mgis::ProfilingSection{};
-    for (auto& a : this->acc_actions) {
-      a->helper();
-    }
-  }  // end of processAdditionalConvergenceCriterionHelper
 
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     auto profiler_mult =

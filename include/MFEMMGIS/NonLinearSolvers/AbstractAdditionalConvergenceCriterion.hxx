@@ -9,8 +9,8 @@
 #define LIB_MFEM_MGIS_ABSTRACTADDITIONALCONVERGENCECRITERION_HXX
 
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
-namespace mfem_mgis::nonlinear_solver {
+
+namespace mfem_mgis {
     /*!
     * \brief an abstract class for additional convergence criteria 
     *
@@ -53,6 +53,6 @@ namespace mfem_mgis::nonlinear_solver {
         virtual ~AbstractAdditionalConvergenceCriterion() = default;
     };  // end of struct AbstractAdditionalConvergenceCriterion
 
-}  // end of namespace mfem_mgis::nonlinear_solver
+}  // end of namespace mfem_mgis
 
 #endif /* LIB_MFEM_MGIS_ABSTRACTADDITIONALCONVERGENCECRITERION_HXX */
