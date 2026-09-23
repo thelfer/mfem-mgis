@@ -50,17 +50,18 @@ namespace mfem_mgis {
     auto add_result = [this, &p, &ctx](const std::string& rn) {
       auto r = MaterialIntegrationPointResult{};
       r.name = rn;
-      this->getResultDescription(r, p);
+      this->getResultDescription(throwing, r, p);
       if (this->submesh.get() == nullptr) {
         auto or2 = makeGridFunction<parallel>(
-            ctx, this->getPartialQuadratureFunctionViews(p, r), p.getMesh());
+            ctx, this->getPartialQuadratureFunctionViews(throwing, r),
+            p.getMesh());
         if (isInvalid(or2)) {
           raise(ctx.getErrorMessage());
         }
         r.f = std::move(or2);
       } else {
         auto or2 = makeGridFunction<parallel>(
-            ctx, this->getPartialQuadratureFunctionViews(p, r),
+            ctx, this->getPartialQuadratureFunctionViews(throwing, r),
             *(this->submesh));
         if (isInvalid(or2)) {
           raise(ctx.getErrorMessage());
@@ -181,11 +182,11 @@ namespace mfem_mgis {
       for (auto& r : this->results) {
         if (this->submesh.get() == nullptr) {
           updateGridFunction<parallel>(
-              *(r.f), this->getPartialQuadratureFunctionViews(p, r, s),
+              *(r.f), this->getPartialQuadratureFunctionViews(throwing, r, s),
               p.getMesh());
         } else {
           updateGridFunction<parallel>(
-              *(r.f), this->getPartialQuadratureFunctionViews(p, r, s),
+              *(r.f), this->getPartialQuadratureFunctionViews(throwing, r, s),
               *(this->submesh));
         }
       }
