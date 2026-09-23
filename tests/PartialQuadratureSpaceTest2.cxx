@@ -92,12 +92,17 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
     const auto oi2 = oids->getIdentifier(ctx, qspace2);
     TFEL_TESTS_ASSERT(isValid(oi2));
     const auto oi3 = oids->getIdentifier(ctx, qspace3);
+    // retrive qspace3 again, see
+    // https://github.com/thelfer/mfem-mgis/issues/339
+    const auto oi4 = oids->getIdentifier(ctx, qspace3);
     TFEL_TESTS_ASSERT(isValid(oi3));
+    TFEL_TESTS_ASSERT(isValid(oi4));
     TFEL_TESTS_CHECK(*oi1 == 0);
     TFEL_TESTS_CHECK(*oi1 == *oi1b);
     TFEL_TESTS_CHECK(*oi1 == *oi2);
     TFEL_TESTS_CHECK(*oi1 != *oi3);
     TFEL_TESTS_CHECK(*oi3 == 1);
+    TFEL_TESTS_CHECK(*oi4 == 1);
   }
 };
 

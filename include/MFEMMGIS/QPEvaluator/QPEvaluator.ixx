@@ -25,7 +25,7 @@ namespace mfem_mgis::algorithm {
   template <size_type N, typename InputIterator, typename OutputIterator>
   void copy(const InputIterator p,
             const InputIterator pe,
-            OutputIterator po) requires(N > 0) {
+            const OutputIterator po) requires(N > 0) {
     if constexpr ((std::random_access_iterator<InputIterator>)&&  //
                   (std::random_access_iterator<OutputIterator>)) {
       if constexpr (N > 9) {
@@ -45,7 +45,8 @@ namespace mfem_mgis::algorithm {
         po[2] = p[2];
         po[3] = p[3];
       } else {
-        copy<N - 1>(++p, pe, ++po);
+        *po = *p;
+        copy<N - 1>(std::next(p), pe, std::next(po));
       }
     } else {
       std::copy(p, pe, po);
@@ -82,7 +83,7 @@ namespace mfem_mgis {
       : material(m),
         thforces(getStateManager(m, s).thermodynamic_forces),
         stage(s) {
-    if constexpr (ThermodynamicForcesSize != dynamic_extent) {
+    if constexpr (ThermodynamicForcesSize == dynamic_extent) {
       const auto& sm = getStateManager(this->material, this->stage);
       const auto thsize = sm.thermodynamic_forces_stride;
       this->buffer.resize(thsize);
