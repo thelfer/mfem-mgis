@@ -39,10 +39,12 @@ namespace mfem_mgis {
         raise("invalid function");
       }
       const auto& qspace = fptr->getPartialQuadratureSpace();
-      if (std::find(mids.begin(), mids.end(), qspace.getId()) != mids.end()) {
+      const auto id = qspace.getId();
+      if (std::find(mids.begin(), mids.end(), id) != mids.end()) {
         raise("multiple functions defined on material '" +
               std::to_string(qspace.getId()) + "'");
       }
+      mids.push_back(id);
     }
   }  // end of PartialQuadratureFunctionsSet
 
