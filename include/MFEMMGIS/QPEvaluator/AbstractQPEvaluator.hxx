@@ -26,7 +26,8 @@ namespace mfem_mgis {
    * By essence, a partial quadrature function evaluator may want to return a
    * view to an existing partial quadrature function or create a new one.
    */
-  struct QPEvaluatorResult : ImmutablePartialQuadratureFunctionView {
+  struct MFEM_MGIS_EXPORT QPEvaluatorResult
+      : ImmutablePartialQuadratureFunctionView {
     //! \brief constructor to an existing partial quadrature function
     explicit QPEvaluatorResult(
         const ImmutablePartialQuadratureFunctionView&) noexcept;
