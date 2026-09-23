@@ -596,8 +596,6 @@ namespace mfem_mgis {
       output.replaceOrInsert("NumberOfSubSteps", 0);
       output.replaceOrInsert("TimeStepOutputs", std::vector<Parameter>{});
     }
-    // time at the end of the run
-    //    const auto te = this->timesDescription.back();
     while (p_ets != pe) {
       if (this->independentTemporalSequences) {
         pdt = std::optional<real>{};
@@ -638,12 +636,9 @@ namespace mfem_mgis {
         *p_bts = t;
       }
       if (state.maximumNumberOfTimeStepsReached) {
-        //        te = t;
         break;
       }
     }
-    // dt is arbitrary, it just have to be a non-zero value
-    //    updateAndSynchronize(this->physicalSystem.updateClock(ctx, te, 0));
     if (s.shallStop()) {
       return {s, {}};
     }
@@ -1067,10 +1062,6 @@ namespace mfem_mgis {
             "the time step failed");
         return s;
       }
-    }
-    if (!s.shallContinue()) {
-      std::ignore = ctx.registerErrorMessage("updating the clock failed");
-      return s;
     }
     if (isValid(this->physicalSystem)) {
       updateAndSynchronize(
