@@ -334,23 +334,9 @@ The creation of submeshes and associated finite element spaces has been refactor
 
 This refactoring improves code organization, reduces duplication, and provides a more consistent and flexible API for working with submeshes and finite element spaces.
 
-Search of the behaviour integrator providing a quantity
--------------------------------------------------------
-
-The functions :cxx:`hasGradientProvider`,
-:cxx:`hasThermodynamicForceProvider` and
-:cxx:`hasInternalStateVariableProvider` search, among the behaviour
-integrators defined on a given location, the one providing a given
-quantity. The ``ParaviewExportIntegrationPointResultsAtNodes``
-post-processing relies on them, so that a result can be exported on a
-material carrying several behaviour integrators.
-
 Issues fixed
 ============
 
-- Issue 292: Remove deprecated usage of `getMaterial` in
-  `ParaviewExportIntegrationPointResultsAtNodesBase::getPartialQuadratureFunctionViews`
-  and `ParaviewExportIntegrationPointResultsAtNodesBase::getResultDescription`
 - Issue 290: Add support for partial quadratures spaces on boundaries
 - Issue 288: ￼master doesnt build without MPI
 - Issue 286: updateGridFunction dilutes interface values when the

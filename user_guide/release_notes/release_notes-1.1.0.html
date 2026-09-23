@@ -145,10 +145,9 @@
 <li><p><a class="reference internal" href="#line-search-like-handling-of-behaviour-integration-failures" id="id21">Line-search-like handling of behaviour integration failures</a></p></li>
 <li><p><a class="reference internal" href="#profiling-toolkit" id="id22">Profiling Toolkit</a></p></li>
 <li><p><a class="reference internal" href="#refactoring-of-submesh-and-finite-element-space-creation" id="id23">Refactoring of submesh and finite element space creation</a></p></li>
-<li><p><a class="reference internal" href="#search-of-the-behaviour-integrator-providing-a-quantity" id="id24">Search of the behaviour integrator providing a quantity</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id25">Issues fixed</a></p></li>
+<li><p><a class="reference internal" href="#issues-fixed" id="id24">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="highlights">
@@ -440,23 +439,10 @@ an output stream using the <code class="code highlight c++ docutils literal high
 </ul>
 <p>This refactoring improves code organization, reduces duplication, and provides a more consistent and flexible API for working with submeshes and finite element spaces.</p>
 </section>
-<section id="search-of-the-behaviour-integrator-providing-a-quantity">
-<h3>Search of the behaviour integrator providing a quantity<a class="headerlink" href="#search-of-the-behaviour-integrator-providing-a-quantity" title="Link to this heading"></a></h3>
-<p>The functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">hasGradientProvider</span></code>,
-<code class="code highlight c++ docutils literal highlight-c++"><span class="n">hasThermodynamicForceProvider</span></code> and
-<code class="code highlight c++ docutils literal highlight-c++"><span class="n">hasInternalStateVariableProvider</span></code> search, among the behaviour
-integrators defined on a given location, the one providing a given
-quantity. The <code class="docutils literal notranslate"><span class="pre">ParaviewExportIntegrationPointResultsAtNodes</span></code>
-post-processing relies on them, so that a result can be exported on a
-material carrying several behaviour integrators.</p>
-</section>
 </section>
 <section id="issues-fixed">
 <h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Issue 292: Remove deprecated usage of <cite>getMaterial</cite> in
-<cite>ParaviewExportIntegrationPointResultsAtNodesBase::getPartialQuadratureFunctionViews</cite>
-and <cite>ParaviewExportIntegrationPointResultsAtNodesBase::getResultDescription</cite></p></li>
 <li><p>Issue 290: Add support for partial quadratures spaces on boundaries</p></li>
 <li><p>Issue 288: ￼master doesnt build without MPI</p></li>
 <li><p>Issue 286: updateGridFunction dilutes interface values when the
