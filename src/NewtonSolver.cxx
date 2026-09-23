@@ -140,6 +140,12 @@ namespace mfem_mgis {
       }
       //
       if (!this->computeNewtonCorrection(c, r, x)) {
+        auto iteration = Parameters{};
+        auto linear_solver_iterations = getNumIterations(*(this->prec));
+        if (linear_solver_iterations.has_value()){
+          iteration.replaceOrInsert("LinearSolverIterations", linear_solver_iterations.value());
+          iteration.replaceOrInsert("LinearSolverConverged", false); // Reaching this line means it didn't converge
+        }
         break;
       }
       //
@@ -183,6 +189,12 @@ namespace mfem_mgis {
       //
       auto iteration = Parameters{};
       iteration.replaceOrInsert("Norm", norm);
+      // Called after computeNewtonCorrection which uses prec->Mult
+      auto linear_solver_iterations = getNumIterations(*(this->prec));
+      if (linear_solver_iterations.has_value()){
+        iteration.replaceOrInsert("LinearSolverIterations", linear_solver_iterations.value());
+        iteration.replaceOrInsert("LinearSolverConverged", true); // Reaching this line means it converged
+      }
       this->iterations_information.push_back(iteration);
       //
       ++it;

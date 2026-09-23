@@ -77,7 +77,7 @@ namespace mfem_mgis {
     //! \brief unset the execution context
     virtual void unsetContext() noexcept = 0;
     //! \return the information collected during the iterations
-    std::vector<Parameter> getIterationsInformation() const noexcept;
+    virtual std::vector<Parameter> getIterationsInformation() const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearSolver() noexcept;
   };  // end of AbstractNonLinearSolver

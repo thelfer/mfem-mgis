@@ -8,6 +8,7 @@
 #ifndef LIB_MFEM_MGIS_UTILITIES_SOLVERUTILITIES_HXX
 #define LIB_MFEM_MGIS_UTILITIES_SOLVERUTILITIES_HXX
 
+#include <optional>
 #include "MFEMMGIS/Config.hxx"
 
 namespace mfem_mgis {
@@ -79,6 +80,14 @@ namespace mfem_mgis {
 
   MFEM_MGIS_EXPORT [[nodiscard]] bool hasConverged(
       const LinearSolver&) noexcept;  // end of hasConverged
+  /*!
+   * \brief get the number of iterations of an iterative linear solver
+   * 
+   * Unified for both LinearSolver and Hypre solvers.
+   * Optional return type in case the LinearSolver is not iterative.
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<int> getNumIterations(
+      const LinearSolver&) noexcept;
 
 }  // end of namespace mfem_mgis
 

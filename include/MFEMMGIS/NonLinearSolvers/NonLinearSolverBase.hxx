@@ -36,7 +36,7 @@ namespace mfem_mgis {
     [[nodiscard]] real GetInitialNorm() const noexcept override;
     void setContext(Context &) noexcept override;
     void unsetContext() noexcept override;
-    std::vector<Parameter> getIterationsInformation() const noexcept;
+    std::vector<Parameter> getIterationsInformation() const noexcept override;
     //! \brief destructor
     ~NonLinearSolverBase() noexcept;
 
