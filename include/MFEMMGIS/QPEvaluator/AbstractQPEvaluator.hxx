@@ -28,9 +28,10 @@ namespace mfem_mgis {
    */
   struct QPEvaluatorResult : ImmutablePartialQuadratureFunctionView {
     //! \brief constructor to an existing partial quadrature function
-    QPEvaluatorResult(const ImmutablePartialQuadratureFunctionView&) noexcept;
+    explicit QPEvaluatorResult(
+        const ImmutablePartialQuadratureFunctionView&) noexcept;
     //! \brief constructor from a r-value to a partial quadrature function
-    QPEvaluatorResult(PartialQuadratureFunction&&) noexcept;
+    explicit QPEvaluatorResult(PartialQuadratureFunction&&) noexcept;
     //! \brief move constructor
     QPEvaluatorResult(QPEvaluatorResult&&) noexcept;
     //

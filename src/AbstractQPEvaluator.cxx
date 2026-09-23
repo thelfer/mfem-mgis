@@ -54,7 +54,7 @@ namespace mfem_mgis {
     if (isInvalid(of)) {
       return {};
     }
-    return {std::move(*of)};
+    return QPEvaluatorResult{std::move(*of)};
   }  // end of evaluate
 
 }  // end of namespace mfem_mgis
