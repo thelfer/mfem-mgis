@@ -145,10 +145,10 @@ namespace mfem_mgis {
               std::to_string(ovalue->getNumberOfComponents()) + ", expected " +
               std::to_string(this->n) + ")");
         }
-        return *ovalue;
+        return QPEvaluatorResult::fromView(*ovalue);
       }
       const auto f = std::get<SecondFunctionType>(this->fct);
-      const auto ovalue = f(ctx, t, dt);
+      auto ovalue = f(ctx, t, dt);
       if (isInvalid(ovalue)) {
         return {};
       }
@@ -158,7 +158,10 @@ namespace mfem_mgis {
             std::to_string(ovalue->getNumberOfComponents()) + ", expected " +
             std::to_string(this->n) + ")");
       }
-      return *ovalue;
+      // turn *ovalue into an rvalue reference, otherwise
+      // *ovalue is automatically interpreted as a view and
+      // this results to a dangling reference
+      return QPEvaluatorResult::fromFunction(std::move(*ovalue));
     } catch (...) {
       std::ignore = registerExceptionInErrorBacktrace(ctx);
     }

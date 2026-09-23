@@ -59,7 +59,7 @@ struct MaximumNumberOfTimeStepsTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(std::abs(*(s->getTimes().cbegin()) - 0.2) < 1e-14);
     TFEL_TESTS_CHECK(s->setMaximumNumberOfTimeSteps(ctx, 4));
     TFEL_TESTS_CHECK(s->run(ctx).first.shallContinue());
-    TFEL_TESTS_ASSERT(s->getTimes().size()== 5);
+    TFEL_TESTS_ASSERT(s->getTimes().size() == 5);
     TFEL_TESTS_CHECK(std::abs(*(s->getTimes().cbegin()) - 0.6) < 1e-14);
     s->unsetMaximumNumberOfTimeSteps();
     TFEL_TESTS_CHECK(s->run(ctx).first.shallContinue());

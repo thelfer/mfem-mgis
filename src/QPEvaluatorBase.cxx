@@ -66,7 +66,7 @@ namespace mfem_mgis {
     auto values = r.getValues();
 
     std::fill(values.begin(), values.end(), *ov);
-    return {std::move(r)};
+    return QPEvaluatorResult::fromFunction(std::move(r));
   }
 
   UniformScalarQPEvaluatorBase::~UniformScalarQPEvaluatorBase() noexcept =

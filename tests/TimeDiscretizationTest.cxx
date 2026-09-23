@@ -68,22 +68,23 @@ struct TimeDiscretizationTest final : public tfel::tests::TestCase {
   void test3() {
     using namespace mfem_mgis;
     auto ctx = Context{};
-    auto td1 = construct<Simulation::TimesDescription>(ctx, std::vector<real>{0});
+    auto td1 =
+        construct<Simulation::TimesDescription>(ctx, std::vector<real>{0});
     TFEL_TESTS_CHECK(isInvalid(td1));
     TFEL_TESTS_CHECK(
         ctx.getErrorMessage().starts_with("invalid number of times"));
-    auto td2 =
-        construct<Simulation::TimesDescription>(ctx, std::vector<real>{0, -1, 2});
+    auto td2 = construct<Simulation::TimesDescription>(
+        ctx, std::vector<real>{0, -1, 2});
     TFEL_TESTS_CHECK(isInvalid(td2));
     TFEL_TESTS_CHECK(
         ctx.getErrorMessage().starts_with("negative time increment"));
-    auto td3 =
-        construct<Simulation::TimesDescription>(ctx, std::vector<real>{0, 1, 1});
+    auto td3 = construct<Simulation::TimesDescription>(
+        ctx, std::vector<real>{0, 1, 1});
     TFEL_TESTS_CHECK(isInvalid(td3));
     TFEL_TESTS_CHECK(
         ctx.getErrorMessage().starts_with("invalid time increment"));
-    auto td4 =
-        construct<Simulation::TimesDescription>(ctx, std::vector<real>{0, 1, 2, 5});
+    auto td4 = construct<Simulation::TimesDescription>(
+        ctx, std::vector<real>{0, 1, 2, 5});
     TFEL_TESTS_ASSERT(isValid(td4));
     const auto times = std::vector<real>(td4->cbegin(), td4->cend());
     TFEL_TESTS_ASSERT(times.size() == 4);

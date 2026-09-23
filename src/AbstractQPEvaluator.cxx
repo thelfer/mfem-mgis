@@ -10,6 +10,16 @@
 
 namespace mfem_mgis {
 
+  QPEvaluatorResult QPEvaluatorResult::fromView(
+      const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    return QPEvaluatorResult{v};
+  }  // end of QPEvaluatorResult
+
+  QPEvaluatorResult QPEvaluatorResult::fromFunction(
+      PartialQuadratureFunction&& v) noexcept {
+    return QPEvaluatorResult{std::move(v)};
+  }
+
   QPEvaluatorResult::QPEvaluatorResult(
       const ImmutablePartialQuadratureFunctionView& v) noexcept
       : ImmutablePartialQuadratureFunctionView(v) {}
@@ -54,7 +64,7 @@ namespace mfem_mgis {
     if (isInvalid(of)) {
       return {};
     }
-    return {std::move(*of)};
+    return QPEvaluatorResult::fromFunction(std::move(*of));
   }  // end of evaluate
 
 }  // end of namespace mfem_mgis

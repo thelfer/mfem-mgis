@@ -22,6 +22,7 @@ namespace mfem_mgis {
           return id;
         }
       }
+      ++id;
     }
     // add the quadrature space
     for (size_type id = 0; auto& spaces : identifiers) {
@@ -30,6 +31,7 @@ namespace mfem_mgis {
         spaces.push_back(s);
         return id;
       }
+      ++id;
     }
     // the quadrature space is not equivalent to any of the previously registred
     // space

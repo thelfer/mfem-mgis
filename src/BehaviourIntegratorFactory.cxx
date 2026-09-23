@@ -109,6 +109,9 @@ namespace mfem_mgis {
           OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
           ctx, fed, m, std::move(b));
     }();
+    if (isInvalid(bi)) {
+      return {};
+    }
     const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
     bi->getMaterial().setMacroscopicGradients(F);
     return bi;
@@ -224,6 +227,9 @@ namespace mfem_mgis {
           OrthotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator>(
           ctx, fed, m, std::move(b));
     }();
+    if (isInvalid(bi)) {
+      return {};
+    }
     const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
     bi->getMaterial().setMacroscopicGradients(F);
     return bi;
@@ -326,6 +332,9 @@ namespace mfem_mgis {
           OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>(
           ctx, fed, m, std::move(b));
     }();
+    if (isInvalid(bi)) {
+      return {};
+    }
     const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
     bi->getMaterial().setMacroscopicGradients(F);
     return bi;

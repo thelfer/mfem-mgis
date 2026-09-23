@@ -25,12 +25,21 @@ namespace mfem_mgis {
    *
    * By essence, a partial quadrature function evaluator may want to return a
    * view to an existing partial quadrature function or create a new one.
+   *
+   * The functions `fromFunction` and `fromView` were added after
+   * Issue 360 that showed that the direct usage of the constructors class can
+   * be easily misused due to the implicit conversion of a function into an
+   * immutable view, see https://github.com/thelfer/mfem-mgis/pull/361 for
+   * details
    */
-  struct QPEvaluatorResult : ImmutablePartialQuadratureFunctionView {
-    //! \brief constructor to an existing partial quadrature function
-    QPEvaluatorResult(const ImmutablePartialQuadratureFunctionView&) noexcept;
-    //! \brief constructor from a r-value to a partial quadrature function
-    QPEvaluatorResult(PartialQuadratureFunction&&) noexcept;
+  struct MFEM_MGIS_EXPORT QPEvaluatorResult
+      : ImmutablePartialQuadratureFunctionView {
+    //! \brief build from a function
+    [[nodiscard]] static QPEvaluatorResult fromFunction(
+        PartialQuadratureFunction&&) noexcept;
+    //! \brief build from a view
+    [[nodiscard]] static QPEvaluatorResult fromView(
+        const ImmutablePartialQuadratureFunctionView&) noexcept;
     //! \brief move constructor
     QPEvaluatorResult(QPEvaluatorResult&&) noexcept;
     //
@@ -40,6 +49,11 @@ namespace mfem_mgis {
     ~QPEvaluatorResult() noexcept;
 
    private:
+    //! \brief constructor to an existing partial quadrature function
+    explicit QPEvaluatorResult(
+        const ImmutablePartialQuadratureFunctionView&) noexcept;
+    //! \brief constructor from a r-value to a partial quadrature function
+    explicit QPEvaluatorResult(PartialQuadratureFunction&&) noexcept;
     //! \brief internal pointer for memory management, if required
     std::optional<PartialQuadratureFunction> f;
   };
