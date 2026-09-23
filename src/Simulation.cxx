@@ -894,9 +894,14 @@ namespace mfem_mgis {
         auto odt =
             this->convergenceFailureHandler->getNewTimeIncrement(ctx, *ote - t);
         if (isInvalid(odt)) {
+          s = ctx.registerErrorMessage(
+              "computation of the new time increment by the convergence "
+              "failure handler failed");
           return;
         }
         if (!prepareSubStepping(*odt)) {
+          s = ctx.registerErrorMessage(
+              "operations performed to prepare a sub stepping failed");
           return;
         }
         // flushing the error message
