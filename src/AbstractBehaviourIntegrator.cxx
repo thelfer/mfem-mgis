@@ -12,6 +12,7 @@
 #ifdef MFEM_USE_MPI
 #include "mfem/fem/pfespace.hpp"
 #endif /* MFEM_USE_MPI */
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
@@ -59,7 +60,8 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       const auto lv = BehaviourIntegrator_computeMeasure<true>(bi);
       auto r = real{};
-      MPI_Reduce(&lv, &r, 1, MPI_DOUBLE, MPI_SUM, 0, getMPICommunicator(fed));
+      MPI_Allreduce(&lv, &r, 1, mpi_type<real>, MPI_SUM,
+                    getMPICommunicator(fed));
       return r;
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
@@ -116,7 +118,8 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       const auto lv = BehaviourIntegrator_computeScalarIntegral<true>(bi, f);
       auto r = real{};
-      MPI_Reduce(&lv, &r, 1, MPI_DOUBLE, MPI_SUM, 0, getMPICommunicator(fed));
+      MPI_Allreduce(&lv, &r, 1, mpi_type<real>, MPI_SUM,
+                    getMPICommunicator(fed));
       return r;
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
