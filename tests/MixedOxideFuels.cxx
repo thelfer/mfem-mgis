@@ -218,14 +218,16 @@ static void setLinearSolver(mgis::Context& ctx,
 }
 
 template <typename Problem>
-void run_solve(mgis::Context& ctx, Problem& p, double start, double dt) {
+bool run_solve(mgis::Context& ctx, Problem& p, double start, double dt) {
   CatchTimeSection(ctx, "Solve");
   // solving the problem
   auto statistics = p.solve(start, dt);
   // check status
   if (!statistics.status) {
     mfem_mgis::Profiler::Utils::Message("INFO: FAILED");
+    return false;
   }
+  return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -282,7 +284,9 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < nStep; i++) {
     mfem_mgis::Profiler::Utils::Message("Solving: from ", i * dt, " to ",
                                         (i + 1) * dt);
-    run_solve(ctx, problem, i * dt, dt);
+    if (!run_solve(ctx, problem, i * dt, dt)) {
+      mfem_mgis::abort(EXIT_FAILURE);
+    }
     if (use_post_processing) execute_post_processings(ctx, problem, i * dt, dt);
     problem.update();
   }

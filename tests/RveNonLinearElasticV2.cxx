@@ -125,6 +125,10 @@ void setup_properties(mgis::Context& ctx,
   e[1] = 1.0;
   e[2] = 1.0;
   problem.setMacroscopicGradientsEvolution([e](const double) { return e; });
+  problem.setSolverParameters({{"VerbosityLevel", 0},
+                               {"RelativeTolerance", 1e-6},
+                               {"AbsoluteTolerance", 0.},
+                               {"MaximumNumberOfIterations", 10}});
 }
 
 template <typename Problem>
@@ -169,15 +173,17 @@ static void setLinearSolver(mgis::Context& ctx,
 }
 
 template <typename Problem>
-void run_solve(mgis::Context& ctx, Problem& p, double start, double end) {
+bool run_solve(mgis::Context& ctx, Problem& p, double start, double end) {
   CatchTimeSection(ctx, "Solve");
   // solving the problem
   auto statistics = p.solve(start, end);
 
   // check status
-  if (statistics.status) {
+  if (!statistics.status) {
     mfem_mgis::Profiler::Utils::Message("INFO: FAILED");
+    return false;
   }
+  return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -219,7 +225,9 @@ int main(int argc, char* argv[]) {
     add_post_processings(problem, "OutputFile-rve-non-linear-elastic");
 
   // main function here
-  run_solve(ctx, problem, 0, 1);
+  if (!run_solve(ctx, problem, 0, 1)) {
+    mfem_mgis::abort(EXIT_FAILURE);
+  }
 
   if (use_post_processing) execute_post_processings(ctx, problem, 0, 1);
 
