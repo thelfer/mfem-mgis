@@ -261,6 +261,23 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_nonlinear_evolution_problem_post_processings_test()
 
+  # UseMultiMaterialNonLinearIntegratorTest executable
+  add_tfel_test_executable(UseMultiMaterialNonLinearIntegratorTest)
+
+  # Helper function for UseMultiMaterialNonLinearIntegratorTest cases
+  function(add_use_multi_material_non_linear_integrator_test)
+    set(test "UseMultiMaterialNonLinearIntegratorTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh")
+    add_test(NAME ${test}
+             COMMAND ./UseMultiMaterialNonLinearIntegratorTest ${params} "--parallel" 0)
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./UseMultiMaterialNonLinearIntegratorTest ${params} "--parallel" 1)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_use_multi_material_non_linear_integrator_test()
+
   # MaterialQuantityProviderSearchTest executable
   add_tfel_test_executable(MaterialQuantityProviderSearchTest)
 
