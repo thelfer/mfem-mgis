@@ -844,6 +844,7 @@ namespace mfem_mgis {
         updateAndSynchronize(this->physicalSystem->revert(ctx));
         return s.shallContinue() ? true : false;
       }
+      return true;
     };
     //
     auto reportMaximumFailureReached = [&ctx, &s, &t,

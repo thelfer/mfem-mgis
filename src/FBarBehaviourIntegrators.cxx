@@ -34,7 +34,8 @@ namespace mfem_mgis {
         return {};
       }
       const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
-      bi->getMaterial().setMacroscopicGradients(F);
+      // getMaterial can't fail here
+      bi->getMaterial(ctx)->setMacroscopicGradients(F);
       return bi;
     }
     auto bi = make_unique<FBarOrthotropicPlaneStrainBehaviourIntegrator>(
@@ -43,7 +44,8 @@ namespace mfem_mgis {
       return {};
     }
     const auto F = std::array<real, 5u>{1, 1, 1, 0, 0};
-    bi->getMaterial().setMacroscopicGradients(F);
+    // getMaterial can't fail here
+    bi->getMaterial(ctx)->setMacroscopicGradients(F);
     return bi;
   }  // end of generatePlaneStrainFBarBehaviourIntegrators
 
@@ -68,7 +70,8 @@ namespace mfem_mgis {
         return {};
       }
       const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
-      bi->getMaterial().setMacroscopicGradients(F);
+      // getMaterial can't fail here
+      bi->getMaterial(ctx)->setMacroscopicGradients(F);
       return bi;
     }
     auto bi = make_unique<FBarOrthotropicTridimensionalBehaviourIntegrator>(
@@ -77,7 +80,8 @@ namespace mfem_mgis {
       return {};
     }
     const auto F = std::array<real, 9u>{1, 1, 1, 0, 0, 0, 0, 0, 0};
-    bi->getMaterial().setMacroscopicGradients(F);
+    // getMaterial can't fail here
+    bi->getMaterial(ctx)->setMacroscopicGradients(F);
     return bi;
   }  // end of generateTridimensionalFBarBehaviourIntegrators
 

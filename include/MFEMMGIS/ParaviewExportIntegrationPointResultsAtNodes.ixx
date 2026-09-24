@@ -182,7 +182,7 @@ namespace mfem_mgis {
 
     // updating grid functions
     if (!this->results.empty()) {
-      for (auto& r : this->results) {
+      for (const auto& r : this->results) {
         const auto ofcts = this->getPartialQuadratureFunctionViews(ctx, r, s);
         if (isInvalid(ofcts)) {
           return false;

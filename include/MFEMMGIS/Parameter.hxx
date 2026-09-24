@@ -81,7 +81,7 @@ namespace mfem_mgis {
     //! \brief default constructor
     Parameter();
     //! \brief move constructor
-    Parameter(Parameter&&);
+    Parameter(Parameter&&) noexcept;
     //! \brief copy constructor
     Parameter(const Parameter&);
     /*!
@@ -95,7 +95,7 @@ namespace mfem_mgis {
      */
     Parameter(std::string_view);
     //! \brief move assignment
-    Parameter& operator=(Parameter&&);
+    Parameter& operator=(Parameter&&) noexcept;
     //! \brief copy assignment
     Parameter& operator=(const Parameter&);
     //! \brief inheriting assignment operators

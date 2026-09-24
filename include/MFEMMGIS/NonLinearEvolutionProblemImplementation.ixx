@@ -94,7 +94,7 @@ namespace mfem_mgis {
         v += w;
       }
     }
-    return {stress_integrals, volumes};
+    return {std::move(stress_integrals), std::move(volumes)};
   }  // end of computeMeanThermodynamicForcesValues
 
 }  // end of namespace mfem_mgis
