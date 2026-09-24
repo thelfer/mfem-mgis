@@ -152,5 +152,5 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     // reached if the solver is not an iterative solver
     return  {};
-  }  // end of getNumIterations
+  }  // end of getNumberOfIterationsAtConvergence
 }  // end of namespace mfem_mgis

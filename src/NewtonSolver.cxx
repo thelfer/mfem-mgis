@@ -8,6 +8,7 @@
 #include <array>
 #include <iomanip>
 #include <utility>
+#include "MFEMMGIS/Parameters.hxx"
 #include "MGIS/Raise.hxx"
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
@@ -48,6 +49,16 @@ namespace mfem_mgis {
                 "the Solver is not set (use setLinearSolver).");
     //
     this->iterations_information.clear();
+    auto add_to_iterations_information = [this](Parameters iteration, bool ls_cv){
+        auto linear_solver_iterations = getNumberOfIterationsAtConvergence(*(this->prec));
+        if (linear_solver_iterations.has_value()){
+          auto ls = Parameters{};
+          ls.replaceOrInsert("NumberOfIterations", linear_solver_iterations.value());
+          ls.replaceOrInsert("HasConverged", ls_cv); 
+          iteration.replaceOrInsert("LinearSolver", ls);
+        }
+        this->iterations_information.push_back(iteration);
+    };
     // log stream
     auto &log = [this]() -> std::ostream & {
       if (this->ctx_ptr == nullptr) {
@@ -141,11 +152,7 @@ namespace mfem_mgis {
       //
       if (!this->computeNewtonCorrection(c, r, x)) {
         auto iteration = Parameters{};
-        auto linear_solver_iterations = getNumIterations(*(this->prec));
-        if (linear_solver_iterations.has_value()){
-          iteration.replaceOrInsert("LinearSolverIterations", linear_solver_iterations.value());
-          iteration.replaceOrInsert("LinearSolverConverged", false); // Reaching this line means it didn't converge
-        }
+        add_to_iterations_information(iteration,false); // Reaching this line means the linear solver didn't converge
         break;
       }
       //
@@ -190,12 +197,7 @@ namespace mfem_mgis {
       auto iteration = Parameters{};
       iteration.replaceOrInsert("Norm", norm);
       // Called after computeNewtonCorrection which uses prec->Mult
-      auto linear_solver_iterations = getNumIterations(*(this->prec));
-      if (linear_solver_iterations.has_value()){
-        iteration.replaceOrInsert("LinearSolverIterations", linear_solver_iterations.value());
-        iteration.replaceOrInsert("LinearSolverConverged", true); // Reaching this line means it converged
-      }
-      this->iterations_information.push_back(iteration);
+      add_to_iterations_information(iteration, true); // here the linear solver did converge
       //
       ++it;
     }

@@ -86,7 +86,7 @@ namespace mfem_mgis {
    * Unified for both LinearSolver and Hypre solvers.
    * Optional return type in case the LinearSolver is not iterative.
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<int> getNumIterations(
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<int> getNumberOfIterationsAtConvergence(
       const LinearSolver&) noexcept;
 
 }  // end of namespace mfem_mgis
