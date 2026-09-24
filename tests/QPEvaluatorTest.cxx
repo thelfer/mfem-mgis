@@ -1,6 +1,6 @@
 /*!
  * \file   QPEvaluatorTest.cxx
- * \brief    
+ * \brief
  * \author th202608
  * \date   22/09/2026
  */
@@ -34,9 +34,9 @@ struct QPEvaluatorTest final : public tfel::tests::TestCase {
 
  private:
   template <mfem_mgis::size_type N>
-  void test1(){
+  void test1() {
     using namespace mfem_mgis;
-    auto in = std::array<size_type, N> {};
+    auto in = std::array<size_type, N>{};
     auto out = std::array<size_type, N>{};
     std::iota(in.begin(), in.end(), N);
     algorithm::copy<N>(in.begin(), in.end(), out.begin());
@@ -53,4 +53,3 @@ int main(int argc, char** argv) {
   m.addXMLTestOutput("QPEvaluatorTest.xml");
   return m.execute().success() ? EXIT_SUCCESS : EXIT_FAILURE;
 }  // end of main
-

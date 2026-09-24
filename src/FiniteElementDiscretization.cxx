@@ -95,6 +95,8 @@ namespace mfem_mgis {
             extract(throwing,
                     params,
                     getFiniteElementDiscretizationParametersList())) {
+    checkParameters(throwing, params,
+                    FiniteElementDiscretization::getParametersList());
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
@@ -111,6 +113,12 @@ namespace mfem_mgis {
             remove(params,
                    FiniteElementSpacesManager::
                        getFiniteElementCollectionParametersList())) {
+    auto valid_parameters = FiniteElementDiscretization::getParametersList();
+    const auto parameters =
+        FiniteElementSpacesManager::getFiniteElementCollectionParametersList();
+    valid_parameters.insert(valid_parameters.end(), parameters.begin(),
+                            parameters.end());
+    checkParameters(throwing, params, valid_parameters);
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
@@ -121,6 +129,8 @@ namespace mfem_mgis {
             extract(throwing,
                     params,
                     getFiniteElementDiscretizationParametersList())) {
+    checkParameters(throwing, params,
+                    getFiniteElementDiscretizationParametersList());
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(
@@ -131,6 +141,8 @@ namespace mfem_mgis {
             extract(throwing,
                     params,
                     getFiniteElementDiscretizationParametersList())) {
+    checkParameters(throwing, params,
+                    getFiniteElementDiscretizationParametersList());
   }  // end of FiniteElementDiscretization
 
   FiniteElementDiscretization::FiniteElementDiscretization(

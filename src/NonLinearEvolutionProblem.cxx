@@ -43,6 +43,7 @@ namespace mfem_mgis {
             .add(NonLinearEvolutionProblem::getParametersList())
             .add<std::string>(NonLinearEvolutionProblem::HypothesisParameter,
                               {.required = true});
+    validator.validate(ctx, p) | or_raise;
     //
     const auto h = mgis::behaviour::fromString(get<std::string>(
         throwing, p, NonLinearEvolutionProblem::HypothesisParameter));

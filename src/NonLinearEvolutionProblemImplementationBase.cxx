@@ -149,7 +149,9 @@ namespace mfem_mgis {
   }  // end of checkMultiMaterialSupportEnabled
 
   static void checkMultiMaterialSupportEnabled(
-      const char* const n, const MultiMaterialNonLinearIntegrator* const p) {
+      attributes::Throwing,
+      const char* const n,
+      const MultiMaterialNonLinearIntegrator* const p) {
     auto ctx = Context{};
     auto or_raise = ctx.getThrowingFailureHandler();
     checkMultiMaterialSupportEnabled(ctx, n, p) | or_raise;
@@ -264,8 +266,10 @@ namespace mfem_mgis {
       const std::string& l,
       const std::string& b,
       const Parameters& params) noexcept {
-    checkMultiMaterialSupportEnabled("addBehaviourIntegrator",
-                                     this->mgis_integrator);
+    if (!checkMultiMaterialSupportEnabled(ctx, "addBehaviourIntegrator",
+                                          this->mgis_integrator)) {
+      return {};
+    }
     auto bids = std::map<size_type, size_type>{};
     for (const auto& mid : this->getMaterialsIdentifiers(m)) {
       const auto obid = this->mgis_integrator->addBehaviourIntegrator(
@@ -361,20 +365,22 @@ namespace mfem_mgis {
 
   const Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
       const Parameter& m) const {
-    checkMultiMaterialSupportEnabled("getMaterial", this->mgis_integrator);
+    checkMultiMaterialSupportEnabled(throwing, "getMaterial",
+                                     this->mgis_integrator);
     return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
   }  // end of getMaterial
 
   Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
       const Parameter& m) {
-    checkMultiMaterialSupportEnabled("getMaterial", this->mgis_integrator);
+    checkMultiMaterialSupportEnabled(throwing, "getMaterial",
+                                     this->mgis_integrator);
     return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
   }  // end of getMaterial
 
   const AbstractBehaviourIntegrator&
   NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
       const size_type m) const {
-    checkMultiMaterialSupportEnabled("getBehaviourIntegrator",
+    checkMultiMaterialSupportEnabled(throwing, "getBehaviourIntegrator",
                                      this->mgis_integrator);
     return this->mgis_integrator->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
@@ -382,7 +388,7 @@ namespace mfem_mgis {
   AbstractBehaviourIntegrator&
   NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
       const size_type m) {
-    checkMultiMaterialSupportEnabled("getBehaviourIntegrator",
+    checkMultiMaterialSupportEnabled(throwing, "getBehaviourIntegrator",
                                      this->mgis_integrator);
     return this->mgis_integrator->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
@@ -396,7 +402,7 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementationBase::setMacroscopicGradients(
       const std::vector<real>& g) {
-    checkMultiMaterialSupportEnabled("setMacroscopicGradients",
+    checkMultiMaterialSupportEnabled(throwing, "setMacroscopicGradients",
                                      this->mgis_integrator);
     this->mgis_integrator->setMacroscopicGradients(g);
   }  // end of setMacroscopicGradients
