@@ -23,26 +23,9 @@ jobs:
         color: true       # Force color output (SPACK_COLOR=always)
         path: ${{github.workspace}}/spack       # Where to clone Spack
 
-    - name: Generate a code coverage report part1
-      uses: threeal/gcovr-action@v1.1.0
-      with:
-        root: ${{github.workspace}}
-
-    - name: Setup LCOV
-      uses: hrishikesh-kadam/setup-lcov@v1
-
-    - name: Install mpich
-      run: sudo apt-get install mpich
-    - name: Install libfabric
-      run: sudo apt-get install libfabric-dev 
-    - name: Get Spack repo [required by mgis]
-      run: |
-        git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-        spack repo add spack-repo-mfem-mgis
     - name: Install Packages
       run: |
         spack compiler find
-        spack external find openmpi mpich libfabric
         spack install mfem+mpi+suite-sparse+mumps@4.8.0%gcc@12.4.0
         spack install tfel@master:~python~python_bindings%gcc@12.4.0
         spack install mgis@master:+c~fortran~python%gcc@12.4.0
