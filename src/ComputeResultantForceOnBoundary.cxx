@@ -51,6 +51,8 @@ namespace mfem_mgis {
             getElementsDegreesOfFreedomOnBoundary<true>(
                 p, getBoundaryIdentifier(throwing, p, params)),
             getBoundaryIdentifier(throwing, p, params)) {
+    checkParameters(throwing, params,
+                    std::vector<std::string>{"Boundary", "OutputFileName"});
     int rank;
     MPI_Comm_rank(getMPICommunicator(p), &rank);
     if (rank == 0) {
@@ -103,6 +105,8 @@ namespace mfem_mgis {
             getElementsDegreesOfFreedomOnBoundary<false>(
                 p, getBoundaryIdentifier(throwing, p, params)),
             getBoundaryIdentifier(throwing, p, params)) {
+    checkParameters(throwing, params,
+                    std::vector<std::string>{"Boundary", "OutputFileName"});
     const auto& f = get<std::string>(throwing, params, "OutputFileName");
     this->out.open(f);
     if (!this->out) {
