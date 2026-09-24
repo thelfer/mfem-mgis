@@ -838,12 +838,11 @@ namespace mfem_mgis {
       //
       if (isValid(this->nonlinearEvolutionProblem)) {
         updateAndSynchronize(this->nonlinearEvolutionProblem->revert(ctx));
-        return s.shallContinue() ? true : false;
       }
       if (isValid(this->physicalSystem)) {
         updateAndSynchronize(this->physicalSystem->revert(ctx));
-        return s.shallContinue() ? true : false;
       }
+      return s.shallContinue() ? true : false;
     };
     //
     auto reportMaximumFailureReached = [&ctx, &s, &t,

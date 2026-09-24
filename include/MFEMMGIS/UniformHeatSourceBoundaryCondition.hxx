@@ -75,6 +75,7 @@ namespace mfem_mgis {
                                                 const mfem::Vector&,
                                                 const real,
                                                 const real) noexcept override;
+    using AbstractBoundaryCondition::setup;
     [[nodiscard]] bool setup(Context&,
                              const real,
                              const real) noexcept override;

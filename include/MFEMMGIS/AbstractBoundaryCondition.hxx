@@ -88,7 +88,14 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool setup(Context&,
                                      const real,
-                                     const real) noexcept = 0;
+                                     const real) noexcept;
+    /*!
+     * \brief method call at the beginning of each resolution
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \deprecated override the version taking an execution context
+     */
+    virtual void setup(const real, const real);
     //! \brief destructor
     virtual ~AbstractBoundaryCondition();
   };

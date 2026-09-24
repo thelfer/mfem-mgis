@@ -71,4 +71,16 @@ namespace mfem_mgis {
     return error < *ocriterion;
   }  // end of compareToAnalyticalSolution
 
+  bool compareToAnalyticalSolution(
+      NonLinearEvolutionProblem &p,
+      std::function<void(mfem::Vector &, const mfem::Vector &)> f,
+      const Parameters &params) {
+    auto ctx = Context{};
+    const auto osuccess = compareToAnalyticalSolution(ctx, p, f, params);
+    if (isInvalid(osuccess)) {
+      raise(ctx.getErrorMessage());
+    }
+    return *osuccess;
+  }  // end of compareToAnalyticalSolution
+
 }  // end of namespace mfem_mgis
