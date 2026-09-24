@@ -325,7 +325,8 @@ namespace mfem_mgis {
 
   template <>
   [[noreturn]] const NonLinearEvolutionProblemImplementation<true>
-      &NonLinearEvolutionProblem::getImplementation() const; noexcept
+      &NonLinearEvolutionProblem::getImplementation() const;
+  noexcept
 
 #endif /* MFEM_USE_MPI */
 

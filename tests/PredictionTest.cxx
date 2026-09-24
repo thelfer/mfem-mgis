@@ -18,7 +18,7 @@
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
-struct LocalNonLinearEvolutionProblem : mfem_mgis::NonLinearEvolutionProblem{
+struct LocalNonLinearEvolutionProblem : mfem_mgis::NonLinearEvolutionProblem {
   using mfem_mgis::NonLinearEvolutionProblem::NonLinearEvolutionProblem;
   using mfem_mgis::NonLinearEvolutionProblem::setup;
 };
