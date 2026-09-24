@@ -51,7 +51,7 @@ namespace mfem_mgis {
     this->iterations_information.clear();
     auto add_to_iterations_information = [this](Parameters iteration, bool ls_cv){
         auto linear_solver_iterations = getNumberOfIterationsAtConvergence(*(this->prec));
-        if (linear_solver_iterations.has_value()){
+        if (isValid(linear_solver_iterations)){
           auto ls = Parameters{};
           ls.replaceOrInsert("NumberOfIterations", linear_solver_iterations.value());
           ls.replaceOrInsert("HasConverged", ls_cv); 
