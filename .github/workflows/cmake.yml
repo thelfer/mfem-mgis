@@ -23,6 +23,9 @@ jobs:
         color: true       # Force color output (SPACK_COLOR=always)
         path: ${{github.workspace}}/spack       # Where to clone Spack
 
+    - name: Setup LCOV
+      uses: hrishikesh-kadam/setup-lcov@v1
+
     - name: Install Packages
       run: |
         spack compiler find
