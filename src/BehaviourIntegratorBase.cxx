@@ -18,7 +18,7 @@
 namespace mfem_mgis {
 
   [[nodiscard]] static std::string prependBehaviourDescriptionToErrorMessage(
-      const Behaviour& b, const std::string& e){
+      const Behaviour& b, const std::string& e) {
     return "error while treating behaviour '" + b.behaviour +
            "' implemented by '" + b.function + "' in library '" + b.library +
            "': " + e;
@@ -75,11 +75,11 @@ namespace mfem_mgis {
     }
     if (this->b.btype == Behaviour::STANDARDFINITESTRAINBEHAVIOUR) {
       if (this->b.kinematic != Behaviour::FINITESTRAINKINEMATIC_F_CAUCHY) {
-        this->throwInvalidBehaviourType(
-            throwing, "expected a standard finite behaviour kinematic");
+        this->throwInvalidBehaviourKinematic(
+            throwing, "expected a standard finite strain behaviour kinematic");
       }
     }
-    if ((this->b.gradients.size() != 1) &&
+    if ((this->b.gradients.size() != 1) ||
         (!isDeformationGradient(this->b.gradients.at(0)))) {
       this->throwInvalidBehaviourType(
           throwing,
@@ -87,7 +87,7 @@ namespace mfem_mgis {
           "only gradient is the deformation gradient, a non symmetric "
           "tensor");
     }
-    if ((this->b.thermodynamic_forces.size() != 1) &&
+    if ((this->b.thermodynamic_forces.size() != 1) ||
         (!isPK1(this->b.thermodynamic_forces.at(0)))) {
       this->throwInvalidBehaviourType(
           throwing,
@@ -95,9 +95,9 @@ namespace mfem_mgis {
           "only thermodynamic force is the first Piola-Kirchhoff stress, a non "
           "symmetric tensor");
     }
-    if ((this->b.to_blocks.size() != 1) &&
-        ((!isPK1(this->b.to_blocks.at(0).first)) &&
-         (!isDeformationGradient(this->b.to_blocks.at(0).first)))) {
+    if ((this->b.to_blocks.size() != 1) ||
+        (!isPK1(this->b.to_blocks.at(0).first)) ||
+        (!isDeformationGradient(this->b.to_blocks.at(0).second))) {
       this->throwInvalidBehaviourType(
           throwing,
           "expected a finite strain behaviour or a general behaviour whose "
@@ -123,7 +123,7 @@ namespace mfem_mgis {
   void BehaviourIntegratorBase::throwInvalidBehaviourType(
       attributes::Throwing, const std::string& e) const {
     auto msg = std::string{"invalid behaviour type"};
-    if (e.empty()){
+    if (!e.empty()) {
       msg += ", " + e;
     }
     raise(prependBehaviourDescriptionToErrorMessage(this->b, msg));
@@ -131,8 +131,8 @@ namespace mfem_mgis {
 
   void BehaviourIntegratorBase::throwInvalidBehaviourSymmetry(
       attributes::Throwing, const std::string& e) const {
-    auto msg = std::string{"invalid behaviour type"};
-    if (e.empty()){
+    auto msg = std::string{"invalid behaviour symmetry"};
+    if (!e.empty()) {
       msg += ", " + e;
     }
     raise(prependBehaviourDescriptionToErrorMessage(this->b, msg));
@@ -141,11 +141,11 @@ namespace mfem_mgis {
   void BehaviourIntegratorBase::throwInvalidBehaviourKinematic(
       attributes::Throwing, const std::string& e) const {
     auto msg = std::string{"invalid behaviour kinematic"};
-    if (e.empty()){
+    if (!e.empty()) {
       msg += ", " + e;
     }
     raise(prependBehaviourDescriptionToErrorMessage(this->b, msg));
-  }  // end of throwInvalidBehaviourType
+  }  // end of throwInvalidBehaviourKinematic
 
   static bool checkQuadratureFunctionEvaluator(
       Context& ctx,
@@ -743,4 +743,4 @@ namespace mfem_mgis {
 
   BehaviourIntegratorBase::~BehaviourIntegratorBase() = default;
 
-  }  // end of namespace mfem_mgis
+}  // end of namespace mfem_mgis

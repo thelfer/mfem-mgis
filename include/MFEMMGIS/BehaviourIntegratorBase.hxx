@@ -67,50 +67,46 @@ namespace mfem_mgis {
     BehaviourIntegratorBase(std::shared_ptr<const PartialQuadratureSpace>,
                             std::unique_ptr<const Behaviour>);
     /*!
-     * \brief check if the behaviour is a standard finite strain behaviour
-     * behaviour hypothesis.
-     * \param[in] throwing: attribute 
+     * \brief check that the behaviour is a standard finite strain behaviour
+     * or a general behaviour whose only gradient is the deformation
+     * gradient, whose only thermodynamic force is the first Piola-Kirchhoff
+     * stress and whose only tangent operator block is the derivative of the
+     * latter with respect to the former.
      */
-    virtual void checkIfAFiniteStrainBehaviourIsDeclared(
-        attributes::Throwing) const final;
+    void checkIfAFiniteStrainBehaviourIsDeclared(attributes::Throwing) const;
     /*!
      * \brief check if the behaviour has the expected symmetry.
-     * \param[in] throwing: attribute 
      * \param[in] s: expected symmetry
      */
-    virtual void checkBehaviourSymmetry(attributes::Throwing,
-                                        const Behaviour::Symmetry) const final;
+    void checkBehaviourSymmetry(attributes::Throwing,
+                                const Behaviour::Symmetry) const;
     /*!
      * \brief check that the integrator hypothesis is the same than the
      * behaviour hypothesis.
-     * \param[in] throwing: attribute 
      * \param[in] h: integrator' hypothesis
      */
-    virtual void checkHypothesis(attributes::Throwing, const Hypothesis) const final;
+    void checkHypothesis(attributes::Throwing, const Hypothesis) const;
     /*!
      * \brief throw an exception stating that the behaviour type is not the
      * expected one.
-     * \param[in] throwing: attribute 
      * \param[in] e: error message
      */
-    virtual void throwInvalidBehaviourType(attributes::Throwing,
-                                           const std::string&) const final;
-    /*!
-     * \brief throw an exception stating that the behaviour kinematic is not the
-     * expected one.
-     * \param[in] throwing: attribute 
-     * \param[in] m: error message
-     */
-    virtual void throwInvalidBehaviourKinematic(attributes::Throwing,
+    [[noreturn]] void throwInvalidBehaviourType(attributes::Throwing,
                                                 const std::string&) const;
     /*!
      * \brief throw an exception stating that the behaviour kinematic is not the
      * expected one.
-     * \param[in] throwing: attribute 
-     * \param[in] m: error message
+     * \param[in] e: error message
      */
-    virtual void throwInvalidBehaviourSymmetry(attributes::Throwing,
-                                               const std::string&) const;
+    [[noreturn]] void throwInvalidBehaviourKinematic(attributes::Throwing,
+                                                     const std::string&) const;
+    /*!
+     * \brief throw an exception stating that the behaviour symmetry is not the
+     * expected one.
+     * \param[in] e: error message
+     */
+    [[noreturn]] void throwInvalidBehaviourSymmetry(attributes::Throwing,
+                                                    const std::string&) const;
     /*!
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent
