@@ -44,11 +44,11 @@ namespace mfem_mgis {
      * \brief begin of the data (offset with respect to the
      * beginning of data values)
      */
-    size_type data_begin = size_type{};
+    size_type data_begin;
     //! \brief data size
-    size_type data_size = size_type{};
+    size_type data_size;
     //! \brief data stride
-    size_type data_stride = size_type{};
+    size_type data_stride;
   };
 
   /*!
