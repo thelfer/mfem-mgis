@@ -5,6 +5,7 @@
  * \date   30/03/2021
  */
 
+#include <optional>
 #include "mfem/linalg/solvers.hpp"
 #ifdef MFEM_USE_MPI
 #include "mfem/linalg/hypre.hpp"
@@ -124,4 +125,33 @@ namespace mfem_mgis {
     return true;
   }  // end of hasConverged
 
+  std::optional<int> getNumberOfIterationsAtConvergence(
+      const LinearSolver& ls) noexcept {
+    if (const auto* isolver = dynamic_cast<const IterativeSolver*>(&ls);
+        isolver != nullptr) {
+      return isolver->GetNumIterations();
+    }
+#ifdef MFEM_USE_MPI
+    auto get_hypre_solver_iterations =
+        []<typename SolverType>(const SolverType* ptr) {
+          int niter;
+          ptr->GetNumIterations(niter);
+          return niter;
+        };
+    if (const auto* hptr = dynamic_cast<const mfem::HyprePCG*>(&ls);
+        hptr != nullptr) {
+      return get_hypre_solver_iterations(hptr);
+    }
+    if (const auto* hptr = dynamic_cast<const mfem::HypreGMRES*>(&ls);
+        hptr != nullptr) {
+      return get_hypre_solver_iterations(hptr);
+    }
+    if (const auto* hptr = dynamic_cast<const mfem::HypreFGMRES*>(&ls);
+        hptr != nullptr) {
+      return get_hypre_solver_iterations(hptr);
+    }
+#endif /* MFEM_USE_MPI */
+    // reached if the solver is not an iterative solver
+    return {};
+  }  // end of getNumberOfIterationsAtConvergence
 }  // end of namespace mfem_mgis

@@ -184,7 +184,7 @@ int main(int argc, char* argv[]) {
   }
 
   /** time increment */
-  auto statistics = problem.solve(time, dt);
+  auto statistics = problem.solve(ctx, time, dt);
   /** Check convergence */
   if (!statistics.status) {
     mfem_mgis::Profiler::Utils::Message("INFO: FAILED");

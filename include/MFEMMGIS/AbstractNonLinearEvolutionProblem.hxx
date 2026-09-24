@@ -308,16 +308,6 @@ namespace mfem_mgis {
         std::unique_ptr<AbstractBoundaryCondition>>
         &getBoundaryConditions() const noexcept = 0;
     /*!
-     * \brief method called before each resolution
-     *
-     * \param[in, out] ctx: execution context
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     */
-    [[nodiscard]] virtual bool setup(Context &,
-                                     const real,
-                                     const real) noexcept = 0;
-    /*!
      * \brief solve the non linear problem over the given time step
      * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
@@ -639,19 +629,6 @@ namespace mfem_mgis {
      * \param[in] params: parameters
      */
     [[deprecated]] virtual void setSolverParameters(const Parameters &) = 0;
-    /*!
-     * \brief method called before each resolution
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     */
-    [[deprecated]] virtual void setup(const real, const real) = 0;
-    /*!
-     * \brief solve the non linear problem over the given time step
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     */
-    [[deprecated]] virtual NonLinearResolutionOutput solve(const real,
-                                                           const real) = 0;
     /*!
      * \brief set the linear solver
      * \param[in] n: name of the linear solver

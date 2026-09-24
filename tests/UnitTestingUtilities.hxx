@@ -293,11 +293,9 @@ namespace mfem_mgis::unit_tests {
     const auto dt = (t1 - t0) / nsteps;
     auto r = mfem_mgis::unit_tests::UniaxialTestResults{};
     extractInitialResults(r, m1, parameters);
-
-    auto ctx = mgis::Context{};
-
     // loop over time step
     auto t = t0;
+    auto ctx = Context{};
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
       // resolution
 
@@ -307,7 +305,7 @@ namespace mfem_mgis::unit_tests {
       // CatchTimeSection(step_name);
       {
         // CatchNestedTimeSection("solve");
-        if (!problem.solve(t, dt)) {
+        if (!problem.solve(ctx, t, dt)) {
           mfem_mgis::abort("non convergence");
         }
       }

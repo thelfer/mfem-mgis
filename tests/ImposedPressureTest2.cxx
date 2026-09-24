@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
       {{"OutputFileName",
         "ImposedPressureTest2Output-" + std::string(parameters.behaviour)}});
   // solving the problem in 1 time step
-  auto r = problem.solve(0, 1);
+  auto r = problem.solve(ctx, 0, 1);
   if (!r) {
     return EXIT_FAILURE;
   }

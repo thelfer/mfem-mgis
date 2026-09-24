@@ -21,6 +21,9 @@
 int main(int argc, char *argv[]) {
   //
   mfem_mgis::initialize(argc, argv);
+  //
+  auto ctx = mfem_mgis::Context{};
+  auto or_die = ctx.getFatalFailureHandler();
   // parse command-line options.
   const char *mesh_file = nullptr;
   const char *library = nullptr;
@@ -52,7 +55,6 @@ int main(int argc, char *argv[]) {
   }
   args.PrintOptions(mfem_mgis::getOutputStream());
   //
-  auto ctx = mfem_mgis::Context{};
   mfem_mgis::NonLinearEvolutionProblem problem(
       ctx, {{"MeshFileName", mesh_file},
             {"FiniteElementFamily", "H1"},
@@ -95,7 +97,7 @@ int main(int argc, char *argv[]) {
                                {"AbsoluteTolerance", 0.},
                                {"MaximumNumberOfIterations", 10}});
   //
-  auto r = problem.solve(0, 1);
+  auto r = problem.solve(ctx, 0, 1) | or_die;
   if (!r) {
     std::cout << "Non convergence of the nonlinear algorithm\n";
     return EXIT_FAILURE;

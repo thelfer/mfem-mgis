@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
   const auto dt = (t1 - t0) / nsteps;
   auto t = mfem_mgis::real{0};
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
-    if (!problem.solve(t, dt)) {
+    if (!problem.solve(ctx, t, dt)) {
       mfem_mgis::raise("non convergence");
     }
     problem.executePostProcessings(ctx, t, dt);

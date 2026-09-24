@@ -148,7 +148,6 @@ namespace mfem_mgis {
     [[nodiscard]] bool setup(Context&,
                              const real,
                              const real) noexcept override;
-    [[deprecated]] void setup(const real, const real) override;
     //! \brief a function describing the evolution of the macroscopic gradients
     std::function<std::vector<real>(const real)>
         macroscopic_gradients_evolution;
