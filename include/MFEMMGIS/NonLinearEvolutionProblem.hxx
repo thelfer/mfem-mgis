@@ -115,14 +115,24 @@ namespace mfem_mgis {
                               std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis,
                               const Parameters & = Parameters());
-    //! \return the implementation
+    /*!
+     * \return the internal implementation
+     * \warning this method shall be used with care: calling it if the
+     * implementation does not match the parallel template argument abort the
+     * code
+     */
     template <bool parallel>
     [[nodiscard]] NonLinearEvolutionProblemImplementation<parallel>
-        &getImplementation();
-    //! \return the implementation
+        &getImplementation() noexcept;
+    /*!
+     * \return the internal implementation
+     * \warning this method shall be used with care: calling it if the
+     * implementation does not match the parallel template argument abort the
+     * code
+     */
     template <bool parallel>
     [[nodiscard]] const NonLinearEvolutionProblemImplementation<parallel>
-        &getImplementation() const;
+        &getImplementation() const noexcept;
     //
     [[nodiscard]] FiniteElementDiscretization &
     getFiniteElementDiscretization() noexcept override;
@@ -216,9 +226,6 @@ namespace mfem_mgis {
     [[nodiscard]] virtual const std::vector<
         std::unique_ptr<AbstractBoundaryCondition>>
         &getBoundaryConditions() const noexcept override;
-    [[nodiscard]] bool setup(Context &,
-                             const real,
-                             const real) noexcept override;
     [[nodiscard]] NonLinearResolutionOutput solve(Context &,
                                                   const real,
                                                   const real) noexcept override;
@@ -261,9 +268,6 @@ namespace mfem_mgis {
     [[deprecated]] void addPostProcessing(std::string_view,
                                           const Parameters &) override;
     [[deprecated]] void setSolverParameters(const Parameters &) override;
-    [[deprecated]] void setup(const real, const real) override;
-    [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
-        const real, const real) override;
     [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
         const std::string &,
         const Parameter &,
@@ -273,6 +277,17 @@ namespace mfem_mgis {
     ~NonLinearEvolutionProblem() override;
 
    protected:
+    /*!
+     * \brief method called before each resolution
+     * This method is automatically called by `solve`
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    [[nodiscard]] virtual bool setup(Context &,
+                                     const real,
+                                     const real) noexcept;
     //! \brief implementation of the non linear problem
     std::unique_ptr<AbstractNonLinearEvolutionProblem> pimpl;
   };  // end of struct NonLinearEvolutionProblem
@@ -296,31 +311,32 @@ namespace mfem_mgis {
 
   template <>
   NonLinearEvolutionProblemImplementation<true>
-      &NonLinearEvolutionProblem::getImplementation();
+      &NonLinearEvolutionProblem::getImplementation() noexcept;
 
   template <>
   const NonLinearEvolutionProblemImplementation<true>
-      &NonLinearEvolutionProblem::getImplementation() const;
+      &NonLinearEvolutionProblem::getImplementation() const noexcept;
 
 #else /* MFEM_USE_MPI */
 
   template <>
   [[noreturn]] NonLinearEvolutionProblemImplementation<true>
-      &NonLinearEvolutionProblem::getImplementation();
+      &NonLinearEvolutionProblem::getImplementation() noexcept;
 
   template <>
   [[noreturn]] const NonLinearEvolutionProblemImplementation<true>
       &NonLinearEvolutionProblem::getImplementation() const;
+  noexcept
 
 #endif /* MFEM_USE_MPI */
 
   template <>
   NonLinearEvolutionProblemImplementation<false>
-      &NonLinearEvolutionProblem::getImplementation();
+      &NonLinearEvolutionProblem::getImplementation() noexcept;
 
   template <>
   const NonLinearEvolutionProblemImplementation<false>
-      &NonLinearEvolutionProblem::getImplementation() const;
+      &NonLinearEvolutionProblem::getImplementation() const noexcept;
 
   /*!
    * \return a description of the boundary by a vector of pair

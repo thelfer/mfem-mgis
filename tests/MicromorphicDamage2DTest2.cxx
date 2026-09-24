@@ -217,7 +217,7 @@ int main(int argc, char** argv) {
               micromorphic_problem_initial_residual * 1e-6}});
       }
       // solving the mechanical problem
-      auto mechanical_output = mechanical_problem->solve(t, dt);
+      auto mechanical_output = mechanical_problem->solve(ctx, t, dt);
       if (!mechanical_output.status) {
         mfem_mgis::raise("non convergence of the mechanical problem");
       }
@@ -230,7 +230,7 @@ int main(int argc, char** argv) {
               "EnergyReleaseRate")) |
           or_die;
       // solving the micromorphic problem
-      auto micromorphic_output = micromorphic_problem->solve(t, dt);
+      auto micromorphic_output = micromorphic_problem->solve(ctx, t, dt);
       if (!micromorphic_output.status) {
         mfem_mgis::raise("non convergence of the micromorphic problem");
       }

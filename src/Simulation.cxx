@@ -1058,16 +1058,6 @@ namespace mfem_mgis {
       ctx.log() << "Computing next state from time " << ts.begin << " to "
                 << ts.end << std::endl;
     }
-    if (isValid(this->nonlinearEvolutionProblem)) {
-      updateAndSynchronize(
-          this->nonlinearEvolutionProblem->setup(ctx, ts.begin, ts.dt));
-      if (!s.shallContinue()) {
-        std::ignore = ctx.registerErrorMessage(
-            "setting up the nonlinear evolution problem at the beginning of "
-            "the time step failed");
-        return s;
-      }
-    }
     if (isValid(this->physicalSystem)) {
       updateAndSynchronize(
           this->physicalSystem->updateLoadingsAtTheBeginningOfTheTimeStep(ctx,

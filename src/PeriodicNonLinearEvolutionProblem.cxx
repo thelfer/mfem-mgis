@@ -363,13 +363,6 @@ namespace mfem_mgis {
     return true;
   }  // end of setup
 
-  void PeriodicNonLinearEvolutionProblem::setup(const real t, const real dt) {
-    NonLinearEvolutionProblem::setup(t, dt);
-    auto& impl = dynamic_cast<NonLinearEvolutionProblemImplementationBase&>(
-        *(this->pimpl));
-    impl.setMacroscopicGradients(this->getMacroscopicGradients(t, dt));
-  }  // end of setup
-
   PeriodicNonLinearEvolutionProblem::~PeriodicNonLinearEvolutionProblem() =
       default;
 
