@@ -564,7 +564,6 @@ namespace mfem_mgis {
       output.status = s.GetConverged();
       output.iterations = s.GetNumIterations();
       output.final_residual_norm = s.GetFinalNorm();
-      output.iterations_information = s.getIterationsInformation();
     };
     if (usePETSc()) {
 #ifdef MFEM_USE_PETSC
@@ -582,6 +581,7 @@ namespace mfem_mgis {
       this->solver->unsetContext();
       fill_output(*(this->solver));
       output.initial_residual_norm = this->solver->GetInitialNorm();
+      output.iterations_information = this->solver->getIterationsInformation();
       this->solver->unsetReferenceResidualNorm();
     }
     return output;

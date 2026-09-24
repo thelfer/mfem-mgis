@@ -49,7 +49,7 @@ namespace mfem_mgis {
                 "the Solver is not set (use setLinearSolver).");
     //
     this->iterations_information.clear();
-    auto add_to_iterations_information = [this](const Parameters &iteration,
+    auto add_to_iterations_information = [this](Parameters &iteration,
                                                 const bool ls_cv) {
       auto linear_solver_iterations =
           getNumberOfIterationsAtConvergence(*(this->prec));
