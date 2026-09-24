@@ -173,6 +173,46 @@ namespace mfem_mgis {
     return true;
   }  // end of processNewUnknownsEstimate
 
+  void NonLinearSolverBase::addAdditionalConvergenceCriterion(std::shared_ptr<AbstractAdditionalConvergenceCriterion> cv_check) {
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::addAdditionalConvergenceCriterion", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
+    this->acc_actions.push_back(std::move(cv_check));
+  } // end of addAdditionalConvergenceCriterion
+
+  std::optional<bool> NonLinearSolverBase::processAdditionalConvergenceCriterionCheck(Context& ctx, const AbstractAdditionalConvergenceCriterion::CheckArguments& s) const  {
+    auto profiler = this->ctx_ptr != nullptr 
+        ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionCheck", this->ctx_ptr->isProfilingEnabled())
+        : mgis::ProfilingSection{};
+    bool cv = s.converged;
+    // a->check must be called (for each element of the list, in case it manipulates some values as a side effect)
+      for (auto& a : this->acc_actions) {
+          std::optional<bool> result = a->check(ctx,s);
+          if (isInvalid(result)){
+              return {};
+          }
+          cv = cv && *result; 
+      }
+    return cv;
+  }  // end of processAdditionalConvergenceCriterionCheck
+
+  void NonLinearSolverBase::processAdditionalConvergenceCriterionReset()  {
+    // auto profiler = this->ctx_ptr != nullptr 
+    //     ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionReset", this->ctx_ptr->isProfilingEnabled())
+    //     : mgis::ProfilingSection{};
+    for (auto& a : this->acc_actions) {
+      a->reset();
+    }
+  }  // end of processAdditionalConvergenceCriterionReset
+  
+  void NonLinearSolverBase::processAdditionalConvergenceCriterionHelper()  {
+    // auto profiler = this->ctx_ptr != nullptr 
+    //     ? this->ctx_ptr->startNewProfiling("NS::processAdditionalConvergenceCriterionHelper", this->ctx_ptr->isProfilingEnabled())
+    //     : mgis::ProfilingSection{};
+    for (auto& a : this->acc_actions) {
+      a->helper();
+    }
+  }  // end of processAdditionalConvergenceCriterionHelper
   NonLinearSolverBase::~NonLinearSolverBase() = default;
 
 }  // end of namespace mfem_mgis

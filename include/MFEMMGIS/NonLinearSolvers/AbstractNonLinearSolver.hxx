@@ -10,6 +10,7 @@
 
 #include "mfem/linalg/solvers.hpp"
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/NonLinearSolvers/AbstractAdditionalConvergenceCriterion.hxx"
 
 namespace mfem_mgis {
 
@@ -54,6 +55,29 @@ namespace mfem_mgis {
      */
     virtual void addNewUnknownsEstimateActions(
         std::function<bool(const mfem::Vector &)>) noexcept = 0;
+    /*!
+     * \brief add an additional function to be called after the non-linear solver converges. 
+     * \param[in] a: action
+     */
+    virtual void addAdditionalConvergenceCriterion(std::shared_ptr<AbstractAdditionalConvergenceCriterion> ) = 0; 
+    /*!
+     * \brief method called when the non-linear solver has converged 
+     * \param[in] ctx: execution context
+     * \param[in] s: parameters passed to the `nonlinear_solver::AbstractAdditionalConvergenceCriterion::check` function
+     */
+    virtual std::optional<bool> processAdditionalConvergenceCriterionCheck(Context&, const AbstractAdditionalConvergenceCriterion::CheckArguments&) const = 0; 
+    /*!
+     * \brief method called after the non-linear solver has computed a prediction, see `NonLinearEvolutionProblemImplementationBase::solve` 
+     */
+    virtual void processAdditionalConvergenceCriterionReset() = 0;
+    /*!
+     * \brief method called when the non-linear solver is setting up, see `NonLinearEvolutionProblemImplementationBase::setup`
+     */
+    virtual void processAdditionalConvergenceCriterionHelper() = 0;
+    /*!
+     * \brief additional actions performed when checking the non-linear solver convergence, as well as the setup.
+     */
+    std::vector<std::shared_ptr<AbstractAdditionalConvergenceCriterion> > acc_actions;
     /*!
      * \brief set the reference value for the norm of the residual.
      * \param[in, out] ctx: execution context

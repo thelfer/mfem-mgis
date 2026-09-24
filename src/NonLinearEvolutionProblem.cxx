@@ -6,6 +6,7 @@
  */
 
 #include <utility>
+#include "MFEMMGIS/NonLinearSolvers/AbstractNonLinearSolver.hxx"
 #include "MGIS/Raise.hxx"
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
@@ -202,6 +203,10 @@ namespace mfem_mgis {
       const Parameters& params) {
     this->pimpl->setSolverParameters(params);
   }  // end of setSolverParameters
+
+  AbstractNonLinearSolver& NonLinearEvolutionProblem::getSolver() noexcept{
+    return this->pimpl->getSolver();
+  }
 
   bool NonLinearEvolutionProblem::setLinearSolver(
       Context& ctx, LinearSolverHandler s) noexcept {

@@ -36,6 +36,8 @@ namespace mfem_mgis {
   NewtonSolver::NewtonSolver(NonLinearEvolutionProblemImplementation<false> &p)
       : NonLinearSolverBase(p) {}  // end of NewtonSolver
 
+  
+
   void NewtonSolver::Mult(const mfem::Vector &, mfem::Vector &x) const {
     auto profiler_mult =
         this->ctx_ptr != nullptr
@@ -128,9 +130,22 @@ namespace mfem_mgis {
       }
       this->Monitor(it, norm, r, x);
       //
-      if (norm <= norm_goal) {
-        this->converged = 1;
+      auto result = this->processAdditionalConvergenceCriterionCheck(*this->ctx_ptr, {
+          .residual_norm = norm,
+          .reference_residual_norm = this->reference_residual_norm.value(),
+          .iter = it ,
+          .max_iter = this->max_iter,
+          .converged = norm <= norm_goal,
+          .u = x
+          }
+          );     
+      if (isInvalid(result)){
+        this->converged=false;
         break;
+      }
+      this->converged = *result;
+      if (this->converged){
+          break;
       }
       //
       if (it >= this->max_iter) {
@@ -173,7 +188,7 @@ namespace mfem_mgis {
           break;
         }
       }
-
+     
       updateResidual();
       previous_norms[0] = previous_norms[1];
       previous_norms[1] = norm;

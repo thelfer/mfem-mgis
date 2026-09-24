@@ -26,6 +26,9 @@ namespace mfem_mgis {
     void addNewUnknownsEstimateActions(
         std::function<bool(const mfem::Vector &)>) noexcept override final;
     //
+    void addAdditionalConvergenceCriterion(
+        std::shared_ptr<AbstractAdditionalConvergenceCriterion> ) override final;
+    //
     [[nodiscard]] bool setSolverParameters(
         Context &, const Parameters &) noexcept override;
     [[nodiscard]] bool isLinearSolverFailureDiscarded() const noexcept override;
@@ -60,6 +63,15 @@ namespace mfem_mgis {
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
+
+    std::optional<bool> processAdditionalConvergenceCriterionCheck(
+        Context&, const AbstractAdditionalConvergenceCriterion::CheckArguments&) const override final; 
+
+    void processAdditionalConvergenceCriterionReset() override final;
+
+    void processAdditionalConvergenceCriterionHelper() override final;
+
+    std::vector<std::shared_ptr<AbstractAdditionalConvergenceCriterion> > acc_actions;
     /*!
      * \brief data containing the reference value for the norm of the residual.
      *
