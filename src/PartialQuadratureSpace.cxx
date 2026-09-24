@@ -66,7 +66,7 @@ namespace mfem_mgis {
                                ? &(fed.getFiniteElementSpace<false>())
                                : nullptr),
 #else  /* MFEM_USE_MPI */
-        sequential_fespace(fed.getFiniteElementSpace<false>()),
+        sequential_fespace(&(fed.getFiniteElementSpace<false>())),
 #endif /* MFEM_USE_MPI */
         integration_rule_selector(irs),
         id(m) {
