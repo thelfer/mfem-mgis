@@ -19,10 +19,11 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 int main(int argc, char *argv[]) {
-  auto ctx = mfem_mgis::Context{};
-  auto or_die = ctx.getFatalFailureHandler();
   //
   mfem_mgis::initialize(argc, argv);
+  //
+  auto ctx = mfem_mgis::Context{};
+  auto or_die = ctx.getFatalFailureHandler();
   // parse command-line options.
   const char *mesh_file = nullptr;
   const char *library = nullptr;

@@ -495,7 +495,7 @@ namespace mfem_mgis {
     auto* const pi =
         dynamic_cast<NonLinearEvolutionProblemImplementation<parallel>*>(p);
     if (pi == nullptr) {
-      raise(
+      abort(
           "NonLinearEvolutionProblem::getImplementation: "
           "invalid call");
     }
