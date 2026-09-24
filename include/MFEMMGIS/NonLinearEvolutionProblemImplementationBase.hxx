@@ -87,6 +87,18 @@ namespace mfem_mgis {
      * \param[in] s: linear solver handler
      */
     virtual void updateLinearSolver(Context& ctx, LinearSolverHandler s);
+    /*!
+     * \brief method called before each resolution
+     *
+     * This method must be called before `solve`: this is not done automatically
+     * as this is the case for `NonLinearEvolutionProblem::solve`. This is
+     * mostly motivated by unit testing, see `PeriodicTest` for an example.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     */
+    [[nodiscard]] virtual bool setup(Context&, const real, const real) noexcept;
     //
     [[nodiscard]] FiniteElementDiscretization&
     getFiniteElementDiscretization() noexcept override;
@@ -152,9 +164,6 @@ namespace mfem_mgis {
     getDirichletBoundaryConditions() const noexcept override;
     [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
     getBoundaryConditions() const noexcept override;
-    [[nodiscard]] bool setup(Context&,
-                             const real,
-                             const real) noexcept override;
     void setPredictionPolicy(const PredictionPolicy&) noexcept override;
     [[nodiscard]] bool setSolverParameters(Context&,
                                            const Parameters&) noexcept override;
@@ -186,9 +195,6 @@ namespace mfem_mgis {
     [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
     getBehaviourIntegrator(const size_type) override;
     [[deprecated]] void setSolverParameters(const Parameters&) override;
-    [[deprecated]] void setup(const real, const real) override;
-    [[deprecated, nodiscard]] NonLinearResolutionOutput solve(
-        const real, const real) override;
     [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
         const std::string&,
         const Parameter&,

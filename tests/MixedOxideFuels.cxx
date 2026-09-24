@@ -221,7 +221,7 @@ template <typename Problem>
 void run_solve(mgis::Context& ctx, Problem& p, double start, double dt) {
   CatchTimeSection(ctx, "Solve");
   // solving the problem
-  auto statistics = p.solve(start, dt);
+  auto statistics = p.solve(ctx, start, dt);
   // check status
   if (!statistics.status) {
     mfem_mgis::Profiler::Utils::Message("INFO: FAILED");

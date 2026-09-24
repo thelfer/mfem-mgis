@@ -276,7 +276,7 @@ void executeMFEMMGISTest(mgis::Context& ctx, const TestParameters& p) {
     //          {"Materials", {materials_out}},
     //          {"Results", "Stress"}});
     // solving the problem
-    if (!problem.solve(0, 1)) {
+    if (!problem.solve(ctx, 0, 1)) {
       mfem_mgis::abort(EXIT_FAILURE);
     }
     problem.executePostProcessings(ctx, 0, 1);

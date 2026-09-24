@@ -253,12 +253,6 @@ namespace mfem_mgis {
     return this->pimpl->solve(ctx, t, dt);
   }  // end of solve
 
-  NonLinearResolutionOutput NonLinearEvolutionProblem::solve(const real t,
-                                                             const real dt) {
-    this->setup(t, dt);
-    return this->pimpl->solve(t, dt);
-  }  // end of solve
-
   bool NonLinearEvolutionProblem::integrate(const mfem::Vector& U,
                                             const IntegrationType it,
                                             const std::optional<real> odt) {
@@ -484,11 +478,15 @@ namespace mfem_mgis {
   bool NonLinearEvolutionProblem::setup(Context& ctx,
                                         const real t,
                                         const real dt) noexcept {
-    return this->pimpl->setup(ctx, t, dt);
-  }  // end of setup
-
-  void NonLinearEvolutionProblem::setup(const real t, const real dt) {
-    this->pimpl->setup(t, dt);
+    const auto& fed = this->getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      return this->getImplementation<true>().setup(ctx, t, dt);
+#else
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    return this->getImplementation<false>().setup(ctx, t, dt);
   }  // end of setup
 
   template <bool parallel>
@@ -506,12 +504,13 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static const NonLinearEvolutionProblemImplementation<parallel>&
-  getImplementationInternal(const AbstractNonLinearEvolutionProblem* const p) {
+  getImplementationInternal(
+      const AbstractNonLinearEvolutionProblem* const p) noexcept {
     const auto* const pi =
         dynamic_cast<const NonLinearEvolutionProblemImplementation<parallel>*>(
             p);
     if (pi == nullptr) {
-      raise(
+      abort(
           "NonLinearEvolutionProblem::getImplementation: "
           "invalid call");
     }
@@ -520,37 +519,33 @@ namespace mfem_mgis {
 
   template <>
   const NonLinearEvolutionProblemImplementation<true>&
-  NonLinearEvolutionProblem::getImplementation() const {
+  NonLinearEvolutionProblem::getImplementation() const noexcept {
 #ifdef MFEM_USE_MPI
     return getImplementationInternal<true>(this->pimpl.get());
 #else  /* MFEM_USE_MPI */
-    raise(
-        "NonLinearEvolutionProblem::getImplementation: "
-        "invalid call");
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }    // end of getImplementation
 
   template <>
   NonLinearEvolutionProblemImplementation<true>&
-  NonLinearEvolutionProblem::getImplementation() {
+  NonLinearEvolutionProblem::getImplementation() noexcept {
 #ifdef MFEM_USE_MPI
     return getImplementationInternal<true>(this->pimpl.get());
 #else  /* MFEM_USE_MPI */
-    raise(
-        "NonLinearEvolutionProblem::getImplementation: "
-        "invalid call");
+    reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }    // end of getImplementation
 
   template <>
   const NonLinearEvolutionProblemImplementation<false>&
-  NonLinearEvolutionProblem::getImplementation() const {
+  NonLinearEvolutionProblem::getImplementation() const noexcept {
     return getImplementationInternal<false>(this->pimpl.get());
   }
 
   template <>
   NonLinearEvolutionProblemImplementation<false>&
-  NonLinearEvolutionProblem::getImplementation() {
+  NonLinearEvolutionProblem::getImplementation() noexcept {
     return getImplementationInternal<false>(this->pimpl.get());
   }
 

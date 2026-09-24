@@ -19,6 +19,8 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
 int main(int argc, char *argv[]) {
+  auto ctx = mfem_mgis::Context{};
+  auto or_die = ctx.getFatalFailureHandler();
   //
   mfem_mgis::initialize(argc, argv);
   // parse command-line options.
@@ -52,15 +54,14 @@ int main(int argc, char *argv[]) {
   }
   args.PrintOptions(mfem_mgis::getOutputStream());
   //
-  auto ctx = mfem_mgis::Context{};
   mfem_mgis::NonLinearEvolutionProblem problem(
       ctx, {{"MeshFileName", mesh_file},
-            {"FiniteElementFamily", "H1"},
-            {"FiniteElementOrder", order},
-            {"UnknownsSize", 3},
-            {"NumberOfUniformRefinements", 2},
-            {"Hypothesis", "Tridimensional"},
-            {"Parallel", bool(parallel)}});
+	    {"FiniteElementFamily", "H1"},
+	    {"FiniteElementOrder", order},
+	    {"UnknownsSize", 3},
+	    {"NumberOfUniformRefinements", 2},
+	    {"Hypothesis", "Tridimensional"},
+	    {"Parallel", bool(parallel)}});
   //
   problem.addBehaviourIntegrator("Mechanics", 1, library, "Elasticity");
   auto &m1 = problem.getMaterial(1);
@@ -95,7 +96,7 @@ int main(int argc, char *argv[]) {
                                {"AbsoluteTolerance", 0.},
                                {"MaximumNumberOfIterations", 10}});
   //
-  auto r = problem.solve(0, 1);
+  auto r = problem.solve(ctx, 0, 1)|or_die;
   if (!r) {
     std::cout << "Non convergence of the nonlinear algorithm\n";
     return EXIT_FAILURE;

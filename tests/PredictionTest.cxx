@@ -18,6 +18,11 @@
 #include "MFEMMGIS/UniformDirichletBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 
+struct LocalNonLinearEvolutionProblem : mfem_mgis::NonLinearEvolutionProblem{
+  using mfem_mgis::NonLinearEvolutionProblem::NonLinearEvolutionProblem;
+  using mfem_mgis::NonLinearEvolutionProblem::setup;
+};
+
 template <bool parallel>
 void export_prediction(mfem_mgis::NonLinearEvolutionProblem &p,
                        mfem_mgis::GridFunction<parallel> &mdu) {
@@ -34,7 +39,7 @@ void export_prediction(mfem_mgis::NonLinearEvolutionProblem &p,
 
 template <bool parallel>
 [[nodiscard]] mfem_mgis::GridFunction<parallel> computePrediction(
-    mfem_mgis::Context &ctx, mfem_mgis::NonLinearEvolutionProblem &p) {
+    mfem_mgis::Context &ctx, LocalNonLinearEvolutionProblem &p) {
   auto &fed = p.getFiniteElementDiscretization();
   auto &fespace = fed.getFiniteElementSpace<parallel>();
   const auto &u0 = p.getUnknowns(mfem_mgis::bts);
@@ -162,7 +167,7 @@ int main(int argc, char *argv[]) {
   args.PrintOptions(mfem_mgis::getOutputStream());
   //
   auto ctx = mfem_mgis::Context{};
-  mfem_mgis::NonLinearEvolutionProblem problem(
+  LocalNonLinearEvolutionProblem problem(
       ctx, {{"MeshFileName", mesh_file},
             {"FiniteElementFamily", "H1"},
             {"FiniteElementOrder", order},

@@ -172,7 +172,7 @@ template <typename Problem>
 void run_solve(mgis::Context& ctx, Problem& p, double start, double end) {
   CatchTimeSection(ctx, "Solve");
   // solving the problem
-  auto statistics = p.solve(start, end);
+  auto statistics = p.solve(ctx, start, end);
 
   // check status
   if (statistics.status) {

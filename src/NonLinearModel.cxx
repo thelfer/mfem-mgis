@@ -71,9 +71,6 @@ namespace mfem_mgis {
                                                                          ts)) {
       return false;
     }
-    if (!this->problem->setup(ctx, ts.begin, ts.dt)) {
-      return false;
-    }
     return true;
   }  // end of performInitializationTaksAtTheBeginningOfTheTimeStep
 

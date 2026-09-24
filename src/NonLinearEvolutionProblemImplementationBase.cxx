@@ -453,6 +453,7 @@ namespace mfem_mgis {
   bool NonLinearEvolutionProblemImplementationBase::setup(
       Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection(ctx, "NLEPIB::setup");
+    this->setTimeIncrement(dt);
     const auto success = [this, &ctx, t, dt] {
       if (this->initialization_phase) {
         if (!this->dirichlet_boundary_conditions.empty()) {
@@ -475,14 +476,6 @@ namespace mfem_mgis {
       return true;
     }();
     return isTrueOnAllProcesses(*(this->fe_discretization), success);
-  }  // end of setup
-
-  void NonLinearEvolutionProblemImplementationBase::setup(const real t,
-                                                          const real dt) {
-    auto ctx = Context{};
-    if (!this->setup(ctx, t, dt)) {
-      raise(ctx.getErrorMessage());
-    }
   }  // end of setup
 
   void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
@@ -551,20 +544,8 @@ namespace mfem_mgis {
   }  // end of getPredictionPolicy
 
   NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
-      const real t, const real dt) {
-    auto ctx = Context{};
-    const auto r = this->solve(ctx, t, dt);
-    if (isInvalid(r)) {
-      ctx.log() << ctx.getErrorMessage() << '\n';
-    }
-    return r;
-  }  // end of solve
-
-  NonLinearResolutionOutput NonLinearEvolutionProblemImplementationBase::solve(
       Context& ctx, const real t, const real dt) noexcept {
     CatchTimeSection(ctx, "NLEPIB::solve");
-    this->setTimeIncrement(dt);
-    this->setup(t, dt);
     NonLinearResolutionOutput output;
     if (this->prediction_policy.strategy !=
         PredictionStrategy::DEFAULT_PREDICTION) {
