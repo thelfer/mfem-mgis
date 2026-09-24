@@ -19,6 +19,9 @@ namespace mfem_mgis {
             p.getFiniteElementDiscretization(),
             getBoundariesIdentifiers(throwing, p, params, false),
             get<size_type>(throwing, params, "Component")) {
+    checkParameters(throwing, params,
+                    std::vector<std::string>{"Boundary", "Boundaries",
+                                             "Component", "LoadingEvolution"});
     this->ufct = get_if<std::function<real(const real)>>(
         throwing, params, "LoadingEvolution",
         [](const real) noexcept { return real(0); });
