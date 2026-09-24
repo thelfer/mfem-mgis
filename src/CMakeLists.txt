@@ -23,6 +23,7 @@ list(APPEND MFEMMGIS_SOURCES
   QPEvaluatorsFactory.cxx
   Behaviour.cxx
   Material.cxx
+  MaterialQuantityProviderSearch.cxx
   AbstractBehaviourIntegrator.cxx
   BehaviourIntegratorBase.cxx
   BehaviourIntegratorFactory.cxx

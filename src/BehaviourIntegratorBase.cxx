@@ -415,7 +415,7 @@ namespace mfem_mgis {
               std::get<std::span<const real>>(p->second);
           //  here we test if the variable_values is uniform: its size is then
           //  the size of targeted external state variable
-          if (variable_values.size() == v.size()) {
+          if (variable_values.size() == vsize) {
             std::copy(variable_values.begin(), variable_values.end(),
                       v.begin() + i);
           } else {
@@ -451,7 +451,7 @@ namespace mfem_mgis {
           } else if (std::holds_alternative<std::span<real>>(field_value)) {
             const auto& variable_values =
                 std::get<std::span<real>>(field_value);
-            if (variable_values.size() == v.size()) {
+            if (variable_values.size() == vsize) {
               std::copy(variable_values.begin(), variable_values.end(),
                         v.begin() + i);
             } else {
@@ -466,7 +466,7 @@ namespace mfem_mgis {
           } else {
             const auto& variable_values =
                 std::get<std::vector<real>>(field_value);
-            if (variable_values.size() == v.size()) {
+            if (variable_values.size() == vsize) {
               std::copy(variable_values.begin(), variable_values.end(),
                         v.begin() + i);
             } else {
