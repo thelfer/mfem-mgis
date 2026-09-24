@@ -56,7 +56,7 @@ The binary file is then located at:
 
 .. note::
 
-  If you installed mfem-mgis using the spack installation procedure, the installation has already been performed with the miniapps.
+  To make sure the mfem used by mfem-mgis provides the miniapps, install mfem-mgis with ``spack install mfem-mgis ^mfem+miniapps``.
 
 
 CMake version:
