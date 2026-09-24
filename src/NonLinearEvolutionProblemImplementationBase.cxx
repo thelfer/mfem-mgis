@@ -269,8 +269,12 @@ namespace mfem_mgis {
                                           this->mgis_integrator)) {
       return {};
     }
+    const auto omids = this->getMaterialsIdentifiers(ctx, m);
+    if (isInvalid(omids)) {
+      return {};
+    }
     auto bids = std::map<size_type, size_type>{};
-    for (const auto& mid : this->getMaterialsIdentifiers(m)) {
+    for (const auto& mid : *omids) {
       const auto obid = this->mgis_integrator->addBehaviourIntegrator(
           ctx, n, mid, l, b, params);
       if (isInvalid(obid)) {
