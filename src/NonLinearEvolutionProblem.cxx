@@ -916,7 +916,7 @@ namespace mfem_mgis {
         if (isInvalid(obi)) {
           return false;
         }
-        for (auto n2 = size_type{}; n2 != *onbis; ++n2) {
+        for (auto n2 = size_type{}; n2 != *onbis2; ++n2) {
           const auto obi2 = provider.getBehaviourIntegrator(ctx, m, n2);
           if (isInvalid(obi2)) {
             return false;
