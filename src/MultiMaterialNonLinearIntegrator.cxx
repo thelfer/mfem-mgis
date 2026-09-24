@@ -420,7 +420,7 @@ namespace mfem_mgis {
                                       std::to_string(m) + "'");
     }
     const auto& bis = this->behaviour_integrators.at(m);
-    if (b > bis.size()) {
+    if (b >= bis.size()) {
       return ctx.registerErrorMessage("invalid behaviour index '" +
                                       std::to_string(b) + "'");
     }
@@ -435,7 +435,7 @@ namespace mfem_mgis {
                                       std::to_string(m) + "'");
     }
     auto& bis = this->behaviour_integrators.at(m);
-    if (b > bis.size()) {
+    if (b >= bis.size()) {
       return ctx.registerErrorMessage("invalid behaviour index '" +
                                       std::to_string(b) + "'");
     }
