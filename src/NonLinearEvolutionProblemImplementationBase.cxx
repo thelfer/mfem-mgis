@@ -521,7 +521,7 @@ namespace mfem_mgis {
       if (isolver != nullptr) {
         isolver->SetPreconditioner(*p);
       }
-      if (!this->updateLinearSolver(ctx, std::move(s))) {
+      if (isInvalid(this->updateLinearSolver(ctx, std::move(s)))) {
         return false;
       }
       this->linear_solver_preconditioner = std::move(p);

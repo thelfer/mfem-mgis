@@ -475,20 +475,6 @@ namespace mfem_mgis {
     return this->pimpl->revert(ctx);
   }  // end of revert
 
-  void NonLinearEvolutionProblem::update() {
-    auto ctx = Context{};
-    if (!this->update(ctx)) {
-      raise(ctx.getErrorMessage());
-    }
-  }  // end of update
-
-  void NonLinearEvolutionProblem::revert() {
-    auto ctx = Context{};
-    if (!this->revert(ctx)) {
-      raise(ctx.getErrorMessage());
-    }
-  }  // end of revert
-
   bool NonLinearEvolutionProblem::setup(Context& ctx,
                                         const real t,
                                         const real dt) noexcept {

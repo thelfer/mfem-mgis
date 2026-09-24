@@ -233,8 +233,6 @@ namespace mfem_mgis {
                                                   const real) noexcept override;
     [[nodiscard]] bool revert(Context &) noexcept override;
     [[nodiscard]] bool update(Context &) noexcept override;
-    [[deprecated]] void revert();
-    [[deprecated]] void update();
     //
     [[deprecated]] void setMaterialsNames(
         const std::map<size_type, std::string> &) override;
