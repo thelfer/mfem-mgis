@@ -94,10 +94,8 @@ namespace mfem_mgis {
 
   inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
       std::shared_ptr<const PartialQuadratureSpace> s,
-      const size_type ds,
-      const size_type db,
-      const size_type dsize)
-      : ImmutablePartialQuadratureFunctionView(s, ds, db, dsize) {
+      const ViewSpecifications& specs)
+      : ImmutablePartialQuadratureFunctionView(s, specs) {
   }  // end of PartialQuadratureFunctionView
 
   inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
@@ -117,9 +115,8 @@ namespace mfem_mgis {
   inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::span<real> v,
-      const size_type db,
-      const size_type ds)
-      : ImmutablePartialQuadratureFunctionView(s, v, db, ds),
+      const ViewSpecifications& specs)
+      : ImmutablePartialQuadratureFunctionView(s, v, specs),
         mutable_values(v) {}  // end of PartialQuadratureFunctionView
 
   inline real* PartialQuadratureFunctionView::data(const size_type o) {

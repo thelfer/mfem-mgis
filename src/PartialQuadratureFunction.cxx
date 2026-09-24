@@ -101,89 +101,50 @@ namespace mfem_mgis {
         });
   }  // end of evaluate
 
-  static void checkPartialQuadratureFunctionConstructorArguments(
-      std::shared_ptr<const PartialQuadratureSpace> s,
-      std::span<const real> v,
-      const size_type db,
-      const size_type ds) {
-    if (s->getNumberOfIntegrationPoints() == 0) {
-      // this may happen due to partionning in parallel
-      return;
-    }
-    if (db < 0) {
-      raise("invalid start of the data");
-    }
-    if (ds < 0) {
-      raise("invalid data size");
-    }
-    const auto d = std::div(static_cast<size_type>(v.size()),
-                            s->getNumberOfIntegrationPoints());
-    if ((d.rem != 0) || (d.quot <= 0)) {
-      raise("invalid values size");
-    }
-    if (db >= d.quot) {
-      raise("invalid start of the data");
-    }
-    if (db + ds > d.quot) {
-      raise("data range is outside the stride size");
-    }
-  }  // end of checkPartialQuadratureFunctionConstructorArguments
-
   ImmutablePartialQuadratureFunctionView::
       ImmutablePartialQuadratureFunctionView() = default;
+
+  static void checkViewSpecifications(attributes::Throwing,
+                                      const ViewSpecifications& specs) {
+    if (specs.data_begin < 0) {
+      raise("invalid start of the data");
+    }
+    if (specs.data_size <= 0) {
+      raise("invalid data size");
+    }
+    if (specs.data_begin + specs.data_size > specs.data_stride) {
+      raise("data range is outside the stride: data offset is (" +
+            std::to_string(specs.data_begin) + "), data size is (" +
+            std::to_string(specs.data_size) + "), and data stride is (" +
+            std::to_string(specs.data_stride) + ")");
+    }
+  }  // end of checkViewSpecifications
 
   ImmutablePartialQuadratureFunctionView::
       ImmutablePartialQuadratureFunctionView(
           std::shared_ptr<const PartialQuadratureSpace> s,
-          const size_type nv,
-          const size_type db,
-          const size_type ds)
+          const ViewSpecifications& specs)
       : qspace(s) {
     if (s.get() == nullptr) {
       raise("invalid partial quadrature space pointer");
     }
-    this->data_stride = ds;
-    this->data_begin = db;
-    this->data_size = nv;
-    if (this->qspace->getNumberOfIntegrationPoints() == 0) {
-      // this may happen due to partionning in parallel
-      this->data_stride = 0;
-      return;
-    }
-    if (this->data_begin < 0) {
-      raise("invalid start of the data");
-    }
-    if (this->data_size <= 0) {
-      raise("invalid data size");
-    }
-    if (this->data_begin + this->data_size > this->data_stride) {
-      raise("invalid data range is outside the stride size");
-    }
+    checkViewSpecifications(throwing, specs);
+    //
+    this->data_begin = specs.data_begin;
+    this->data_size = specs.data_size;
+    this->data_stride = specs.data_stride;
   }  // end of ImmutablePartialQuadratureFunctionView
 
   ImmutablePartialQuadratureFunctionView::
       ImmutablePartialQuadratureFunctionView(
           std::shared_ptr<const PartialQuadratureSpace> s,
           std::span<const real> v,
-          const size_type db,
-          const size_type ds)
-      : qspace(s) {
-    if (s.get() == nullptr) {
-      raise("invalid partial quadrature space pointer");
+          const ViewSpecifications& specs)
+      : ImmutablePartialQuadratureFunctionView(s, specs) {
+    if (v.size() !=
+        this->qspace->getNumberOfIntegrationPoints() * specs.data_stride) {
+      raise("invalid value size");
     }
-    this->data_begin = db;
-    this->data_stride = ds;
-    this->data_size = ds;
-    if (this->qspace->getNumberOfIntegrationPoints() == 0) {
-      // this may happen due to partionning in parallel
-      this->data_stride = 0;
-      return;
-    }
-    checkPartialQuadratureFunctionConstructorArguments(s, v, db, ds);
-#pragma message("HERE")
-    const auto d = std::div(static_cast<size_type>(v.size()),
-                            this->qspace->getNumberOfIntegrationPoints());
-    this->data_stride = d.quot;
     this->immutable_values = v;
   }  // end of ImmutablePartialQuadratureFunctionView
 
@@ -259,7 +220,8 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       std::shared_ptr<const PartialQuadratureSpace> s, const size_type nv)
-      : PartialQuadratureFunctionView(s, nv, 0, nv) {
+      : PartialQuadratureFunctionView(
+            s, {.data_begin = 0, .data_size = nv, .data_stride = nv}) {
     if (s.get() == nullptr) {
       raise("invalid partial quadrature space pointer");
     }
@@ -273,11 +235,10 @@ namespace mfem_mgis {
       Context& ctx,
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::span<real> v,
-      const size_type db,
-      const size_type ds) noexcept {
+      const ViewSpecifications& specs) noexcept {
     try {
-      return {PartialQuadratureFunction(s, StorageMode::EXTERNAL_STORAGE, v, db,
-                                        ds)};
+      return {PartialQuadratureFunction(s, StorageMode::EXTERNAL_STORAGE, v,
+                                        specs)};
     } catch (...) {
       std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
@@ -288,24 +249,22 @@ namespace mfem_mgis {
       std::shared_ptr<const PartialQuadratureSpace> s,
       const StorageMode sm,
       std::span<real> v,
-      const size_type db,
-      const size_type ds) {
+      const ViewSpecifications& specs) {
     if (s.get() == nullptr) {
       raise("invalid partial quadrature space pointer");
     }
+    if (v.size() != specs.data_stride * getSpaceSize(*s)) {
+      raise("invalid values size");
+    }
+    checkViewSpecifications(throwing, specs);
     this->qspace = s;
-    //
-    this->data_begin = db;
-    this->data_size = ds;
+    this->data_begin = specs.data_begin;
+    this->data_size = specs.data_size;
+    this->data_stride = specs.data_stride;
     if (this->qspace->getNumberOfIntegrationPoints() == 0) {
       // this may happen due to partionning in parallel
-      this->data_stride = 0;
       return;
     }
-    checkPartialQuadratureFunctionConstructorArguments(s, v, db, ds);
-    const auto d = std::div(static_cast<size_type>(v.size()),
-                            this->qspace->getNumberOfIntegrationPoints());
-    this->data_stride = d.quot;
     //
     if (sm == StorageMode::EXTERNAL_STORAGE) {
       this->mutable_values = v;

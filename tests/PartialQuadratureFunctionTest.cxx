@@ -5,7 +5,10 @@
  * \date   14/12/2020
  */
 
+#include <cmath>
 #include <memory>
+#include <vector>
+#include <utility>
 #include <cstdlib>
 #include <iostream>
 #ifdef DO_USE_MPI
@@ -33,6 +36,7 @@ struct PartialQuadratureFunctionTest final : public tfel::tests::TestCase {
     this->setup();
     this->test1<true>();
     this->test1<false>();
+    this->test2();
     return this->result;
   }
 
@@ -87,14 +91,10 @@ struct PartialQuadratureFunctionTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(strain.getNumberOfComponents() == 6);
     TFEL_TESTS_ASSERT(stress.getNumberOfComponents() == 6);
     TFEL_TESTS_ASSERT(p.getNumberOfComponents() == 1);
-    if (getSpaceSize(qspace) == 0) {
-      TFEL_TESTS_ASSERT(strain.getDataStride() == 0);
-      TFEL_TESTS_ASSERT(stress.getDataStride() == 0);
-      TFEL_TESTS_ASSERT(p.getDataStride() == 0);
-    } else {
-      TFEL_TESTS_ASSERT(strain.getDataStride() == 6);
-      TFEL_TESTS_ASSERT(stress.getDataStride() == 6);
-      TFEL_TESTS_ASSERT(p.getDataStride() == 1);
+    TFEL_TESTS_ASSERT(strain.getDataStride() == 6);
+    TFEL_TESTS_ASSERT(stress.getDataStride() == 6);
+    TFEL_TESTS_ASSERT(p.getDataStride() == 1);
+    if (getSpaceSize(qspace) != 0) {
       if constexpr (!mutable_version) {
         TFEL_TESTS_ASSERT(strain.getValues().data() == m1.s1.gradients.data());
         TFEL_TESTS_ASSERT(stress.getValues().data() ==
@@ -107,6 +107,46 @@ struct PartialQuadratureFunctionTest final : public tfel::tests::TestCase {
     auto oeel = getInternalStateVariable(ctx, m1, "ElasticStrain");
     TFEL_TESTS_ASSERT(isInvalid(oeel));
   }  // end of test1
+  //! \brief views on external data described by `ViewSpecifications`
+  void test2() {
+    using namespace mfem_mgis;
+    if (isInvalid(problem)) {
+      return;
+    }
+    auto or_raise = ctx.getThrowingFailureHandler();
+    auto& b = this->problem->getBehaviourIntegrator(ctx, 1, 0) | or_raise;
+    const auto om = std::as_const(b).getMaterial(ctx);
+    TFEL_TESTS_ASSERT(isValid(om));
+    const auto qspace = om->getPartialQuadratureSpacePointer();
+    const auto n = getSpaceSize(*qspace);
+    auto values = std::vector<real>(3 * n, real{0});
+    for (size_type i = 0; i != n; ++i) {
+      values[3 * i + 1] = static_cast<real>(i);
+    }
+    // the second component of an array of stride 3
+    auto of = PartialQuadratureFunction::borrow(
+        ctx, qspace, values,
+        {.data_begin = 1, .data_size = 1, .data_stride = 3});
+    TFEL_TESTS_ASSERT(isValid(of));
+    TFEL_TESTS_CHECK(of->getDataStride() == 3);
+    TFEL_TESTS_CHECK(of->getNumberOfComponents() == 1);
+    for (size_type i = 0; i != n; ++i) {
+      TFEL_TESTS_CHECK(std::abs(of->getIntegrationPointValue(i) -
+                                static_cast<real>(i)) < 1e-14);
+    }
+    // the data range is outside the stride
+    auto ctx2 = Context{};
+    TFEL_TESTS_CHECK(isInvalid(PartialQuadratureFunction::borrow(
+        ctx2, qspace, values,
+        {.data_begin = 2, .data_size = 2, .data_stride = 3})));
+    // the size of the values does not match the stride
+    if (n != 0) {
+      auto ctx3 = Context{};
+      TFEL_TESTS_CHECK(isInvalid(PartialQuadratureFunction::borrow(
+          ctx3, qspace, values,
+          {.data_begin = 0, .data_size = 1, .data_stride = 2})));
+    }
+  }  // end of test2
   //
   std::unique_ptr<mfem_mgis::NonLinearEvolutionProblem> problem;
 };

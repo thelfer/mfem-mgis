@@ -30,10 +30,32 @@ namespace mfem_mgis {
   using mgis::StorageMode;
 
   /*!
+   * \brief data structure used to specify a view from external data
+   *
+   * To be valid, the following conditions must hold:
+   *
+   * - data_begin must be positive
+   * - data_size and data_stride must be strictly positive
+   * - data_begin + data_size <= data_stride
+   *
+   */
+  struct ViewSpecifications {
+    /*!
+     * \brief begin of the data (offset with respect to the
+     * beginning of data values)
+     */
+    size_type data_begin;
+    //! \brief data size
+    size_type data_size;
+    //! \brief data stride
+    size_type data_stride;
+  };
+
+  /*!
    * \brief a simple data structure describing how the data of a partial
    * quadrature function is mapped in memory
    */
-  struct PartialQuadratureFunctionDataLayout {
+  struct PartialQuadratureFunctionDataLayout : ViewSpecifications {
     // \brief default constructor
     PartialQuadratureFunctionDataLayout() = default;
     // \brief move constructor
@@ -69,15 +91,6 @@ namespace mfem_mgis {
      * \param[in] o: offset associated with the integration point
      */
     size_type getDataOffset(const size_type) const noexcept;
-    //! \brief data stride
-    size_type data_stride = size_type{};
-    /*!
-     * \brief begin of the data (offset of the function with respect to the
-     * beginning of data values)
-     */
-    size_type data_begin = size_type{};
-    //! \brief data size
-    size_type data_size = size_type{};
   };  // end of struct PartialQuadratureFunctionDataLayout
 
   /*!
@@ -117,14 +130,12 @@ namespace mfem_mgis {
      *
      * \param[in] s: quadrature space.
      * \param[in] v: values
-     * \param[in] db: offset of data
-     * \param[in] ds: size of the data per integration points
+     * \param[in] specs: specifications
      */
     ImmutablePartialQuadratureFunctionView(
         std::shared_ptr<const PartialQuadratureSpace>,
         std::span<const real>,
-        const size_type,
-        const size_type);
+        const ViewSpecifications&);
     //! \brief move constructor
     ImmutablePartialQuadratureFunctionView(
         ImmutablePartialQuadratureFunctionView&&) noexcept;
@@ -217,15 +228,11 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
-     * \param[in] ds: data size
-     * \param[in] db: start of the view inside the given data
-     * \param[in] ds: size of the view (stride)
+     * \param[in] specs: specifications
      */
     ImmutablePartialQuadratureFunctionView(
         std::shared_ptr<const PartialQuadratureSpace>,
-        const size_type,
-        const size_type,
-        const size_type);
+        const ViewSpecifications&);
     //! \brief underlying finite element space
     std::shared_ptr<const PartialQuadratureSpace> qspace;
     //! \brief underlying values
@@ -238,13 +245,11 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] s: quadrature space.
      * \param[in] v: values
-     * \param[in] db: offset of data
-     * \param[in] ds: size of the data per integration points
+     * \param[in] specs: specifications
      */
     PartialQuadratureFunctionView(std::shared_ptr<const PartialQuadratureSpace>,
                                   std::span<real>,
-                                  const size_type,
-                                  const size_type);
+                                  const ViewSpecifications&);
     //! \brief move constructor
     PartialQuadratureFunctionView(PartialQuadratureFunctionView&&) noexcept;
     //! \brief copy constructor
@@ -325,14 +330,10 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
-     * \param[in] ds: data size
-     * \param[in] db: start of the view inside the given data
-     * \param[in] ds: size of the view (stride)
+     * \param[in] specs: specifications
      */
     PartialQuadratureFunctionView(std::shared_ptr<const PartialQuadratureSpace>,
-                                  const size_type,
-                                  const size_type,
-                                  const size_type);
+                                  const ViewSpecifications&);
     //! \brief underlying values
     std::span<real> mutable_values;
   };  // end of PartialQuadratureFunctionView
@@ -400,21 +401,15 @@ namespace mfem_mgis {
      * \param[in] ctx: execution context
      * \param[in] s: quadrature space.
      * \param[in] v: values
-     * \param[in] db: start of the view inside the given data (i.e. the data
-     * offset)
-     * \param[in] ds: size of the view
+     * \param[in] specs: specifications
      *
-     * \note the data stride is taken as the quotient of the value size by
-     * the size of the partial quadrature space
-     * \note if unspecified, the data size is calculed as the difference of the
-     * data_stride and the data offset
+     * \pre v.size() must be equal to stride * getSpaceSize(*s)
      */
     [[nodiscard]] static std::optional<PartialQuadratureFunction> borrow(
         Context&,
         std::shared_ptr<const PartialQuadratureSpace>,
         std::span<real>,
-        const size_type = 0,
-        const size_type = std::numeric_limits<size_type>::max()) noexcept;
+        const ViewSpecifications&) noexcept;
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
@@ -450,15 +445,12 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space.
      * \param[in] sm: storage mode
      * \param[in] v: values
-     * \param[in] db: start of the view inside the given data
-     * \param[in] ds: size of the view
+     * \param[in] specs: specifications
      */
-    PartialQuadratureFunction(
-        std::shared_ptr<const PartialQuadratureSpace>,
-        const StorageMode,
-        std::span<real>,
-        const size_type = 0,
-        const size_type = std::numeric_limits<size_type>::max());
+    PartialQuadratureFunction(std::shared_ptr<const PartialQuadratureSpace>,
+                              const StorageMode,
+                              std::span<real>,
+                              const ViewSpecifications&);
     /*!
      * \brief turns this function into a view to the given function
      * \param[in] f: function

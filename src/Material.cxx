@@ -209,16 +209,21 @@ namespace mfem_mgis {
       const std::string_view n,
       const Hypothesis h) noexcept {
     using namespace mgis::behaviour;
+    const auto ostride = getArraySize(ctx, variables, h);
     const auto ov = getVariable(ctx, variables, n);
     const auto oo = getVariableOffset(ctx, variables, n, h);
-    if (isInvalid(oo) || isInvalid(ov)) {
+    if (isInvalid(ostride) || isInvalid(oo) || isInvalid(ov)) {
       return {};
     }
     const auto os = getVariableSize(ctx, *ov, h);
     if (isInvalid(os)) {
       return {};
     }
-    return PartialQuadratureFunction::borrow(ctx, qs, values, *oo, *os);
+    return PartialQuadratureFunction::borrow(
+        ctx, qs, values,
+        {.data_begin = static_cast<size_type>(*oo),
+         .data_size = static_cast<size_type>(*os),
+         .data_stride = static_cast<size_type>(*ostride)});
   }  // end of buildPartialQuadratureFunction
 
   //   static PartialQuadratureFunction buildPartialQuadratureFunction(
@@ -244,29 +249,21 @@ namespace mfem_mgis {
       const std::string_view n,
       const Hypothesis h) {
     using namespace mgis::behaviour;
+    const auto ostride = getArraySize(ctx, variables, h);
     const auto ov = getVariable(ctx, variables, n);
     const auto oo = getVariableOffset(ctx, variables, n, h);
-    if (isInvalid(oo) || isInvalid(ov)) {
+    if (isInvalid(ostride) || isInvalid(oo) || isInvalid(ov)) {
       return {};
     }
     const auto os = getVariableSize(ctx, *ov, h);
     if (isInvalid(os)) {
       return {};
     }
-    return ImmutablePartialQuadratureFunctionView(qs, values, *oo, *os);
-  }  // end of buildImmutablePartialQuadratureFunctionView
-
-  static ImmutablePartialQuadratureFunctionView
-  buildImmutablePartialQuadratureFunctionView(
-      std::shared_ptr<const PartialQuadratureSpace> qs,
-      std::span<const mgis::real> values,
-      const std::vector<mgis::behaviour::Variable> &variables,
-      const std::string_view n,
-      const Hypothesis h) {
-    const auto o = getVariableOffset(variables, n, h);
-    const auto s =
-        getVariableSize(mgis::behaviour::getVariable(variables, n), h);
-    return ImmutablePartialQuadratureFunctionView(qs, values, o, s);
+    return ImmutablePartialQuadratureFunctionView(
+        qs, values,
+        {.data_begin = static_cast<size_type>(*oo),
+         .data_size = static_cast<size_type>(*os),
+         .data_stride = static_cast<size_type>(*ostride)});
   }  // end of buildImmutablePartialQuadratureFunctionView
 
   std::optional<PartialQuadratureFunction> getGradient(
@@ -415,7 +412,8 @@ namespace mfem_mgis {
     auto ctx = Context{};
     auto or_die = ctx.getFatalFailureHandler();
     return PartialQuadratureFunction::borrow(
-               ctx, m.getPartialQuadratureSpacePointer(), sm.stored_energies) |
+               ctx, m.getPartialQuadratureSpacePointer(), sm.stored_energies,
+               {.data_begin = 0, .data_size = 1, .data_stride = 1}) |
            or_die;
   }  // end of getStoredEnergy
 
@@ -426,7 +424,8 @@ namespace mfem_mgis {
       return {};
     }
     return ImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), sm.stored_energies, 0, 1);
+        m.getPartialQuadratureSpacePointer(), sm.stored_energies,
+        {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getStoredEnergy
 
   std::optional<PartialQuadratureFunction> getDissipatedEnergy(
@@ -439,7 +438,8 @@ namespace mfem_mgis {
     auto or_die = ctx.getFatalFailureHandler();
     return PartialQuadratureFunction::borrow(
                ctx, m.getPartialQuadratureSpacePointer(),
-               sm.dissipated_energies) |
+               sm.dissipated_energies,
+               {.data_begin = 0, .data_size = 1, .data_stride = 1}) |
            or_die;
   }  // end of getDissipatedEnergy
 
@@ -450,7 +450,8 @@ namespace mfem_mgis {
       return {};
     }
     return ImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), sm.dissipated_energies, 0, 1);
+        m.getPartialQuadratureSpacePointer(), sm.dissipated_energies,
+        {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getDissipatedEnergy
 
   real computeStoredEnergy(const AbstractBehaviourIntegrator &bi,
