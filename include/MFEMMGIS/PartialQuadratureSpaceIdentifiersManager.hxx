@@ -37,7 +37,7 @@ namespace mfem_mgis {
     PartialQuadratureSpaceIdentifiersManager(
         PartialQuadratureSpaceIdentifiersManager&&) = delete;
     PartialQuadratureSpaceIdentifiersManager(
-        const PartialQuadratureSpaceIdentifiersManager&&) = delete;
+        const PartialQuadratureSpaceIdentifiersManager&) = delete;
     PartialQuadratureSpaceIdentifiersManager& operator=(
         PartialQuadratureSpaceIdentifiersManager&&) = delete;
     PartialQuadratureSpaceIdentifiersManager& operator=(
