@@ -5,12 +5,17 @@
  * \date   27/05/2025
  */
 
+#include <array>
 #include <utility>
+#include <optional>
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #ifdef MGIS_FUNCTION_SUPPORT
 #include "MFEMMGIS/PartialQuadratureFunctionsSet.hxx"
 #endif /* MGIS_FUNCTION_SUPPORT */
+#include "MFEMMGIS/Material.hxx"
+#include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
+#include "MFEMMGIS/MaterialQuantityProviderSearch.hxx"
 #include "MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx"
 
 namespace mfem_mgis {
@@ -66,37 +71,74 @@ namespace mfem_mgis {
   }
 
   void ParaviewExportIntegrationPointResultsAtNodesBase::getResultDescription(
+      attributes::Throwing,
       MaterialIntegrationPointResultBase& r,
       const NonLinearEvolutionProblemImplementationBase& p) {
     using namespace mgis::behaviour;
-    auto c = MaterialIntegrationPointResultBase::Category{};
-    auto s = size_type{};
-    auto first = true;
+    using Status = MaterialQuantityProviderSearchResult::Status;
+    using Category = MaterialIntegrationPointResultBase::Category;
     if (this->materials_identifiers.empty()) {
       raise("getResultDescription: empty list of material identifiers");
     }
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    auto c = Category{};
+    auto s = size_type{};
+    auto bis = std::vector<const AbstractBehaviourIntegrator*>{};
+    bis.reserve(this->materials_identifiers.size());
     for (const auto& mid : this->materials_identifiers) {
-      const auto [c2, s2] =
-          [&p, &mid,
-           &r]() -> std::tuple<MaterialIntegrationPointResultBase::Category,
-                               size_type> {
-        const auto& m = p.getMaterial(mid);
-        const auto& h = m.b.hypothesis;
-        if (contains(m.b.gradients, r.name)) {
-          return {MaterialIntegrationPointResultBase::GRADIENTS,
-                  getVariableSize(getVariable(m.b.gradients, r.name), h)};
-        } else if (contains(m.b.thermodynamic_forces, r.name)) {
-          return {MaterialIntegrationPointResultBase::THERMODYNAMIC_FORCES,
-                  getVariableSize(getVariable(m.b.thermodynamic_forces, r.name),
-                                  h)};
-        } else if (!contains(m.b.isvs, r.name)) {
-          raise("getResultDescription: no result '" + std::string(r.name) +
-                "' found for material '" + std::to_string(mid) + "'");
+      const auto l = LocationIdentifier{
+          .material_identifier = MaterialIdentifier{.id = mid},
+          .boundary_identifier = {}};
+      const auto results =
+          std::array<std::pair<Category, MaterialQuantityProviderSearchResult>,
+                     3u>{
+              std::pair{Category::GRADIENTS,
+                        hasGradientProvider(ctx, p, l, r.name) | or_raise},
+              std::pair{
+                  Category::THERMODYNAMIC_FORCES,
+                  hasThermodynamicForceProvider(ctx, p, l, r.name) | or_raise},
+              std::pair{Category::INTERNAL_STATE_VARIABLES,
+                        hasInternalStateVariableProvider(ctx, p, l, r.name) |
+                            or_raise}};
+      auto provider = std::optional<
+          std::pair<Category, const AbstractBehaviourIntegrator*>>{};
+      for (const auto& [c2, result] : results) {
+        if (result.status == Status::NO_PROVIDER) {
+          continue;
         }
-        return {MaterialIntegrationPointResultBase::INTERNAL_STATE_VARIABLES,
-                getVariableSize(getVariable(m.b.isvs, r.name), h)};
+        if ((result.status == Status::MULTIPLE_PROVIDERS) ||
+            (provider.has_value())) {
+          raise(
+              "getResultDescription: multiple behaviour integrators "
+              "provide the result '" +
+              r.name + "' on material '" + std::to_string(mid) + "'");
+        }
+        provider = std::pair{c2, &(*(result.behaviour_integrator))};
+      }
+      if (!provider.has_value()) {
+        raise(
+            "getResultDescription: no behaviour integrator provides the "
+            "result '" +
+            r.name + "' on material '" + std::to_string(mid) + "'");
+      }
+      const auto [c2, bi] = *provider;
+      const auto om = bi->getMaterial(ctx);
+      if (isInvalid(om)) {
+        raise(ctx.getErrorMessage());
+      }
+      const auto& m = *om;
+      const auto& h = m.b.hypothesis;
+      const auto& variables = [&m, c2]() -> const std::vector<Variable>& {
+        if (c2 == Category::GRADIENTS) {
+          return m.b.gradients;
+        } else if (c2 == Category::THERMODYNAMIC_FORCES) {
+          return m.b.thermodynamic_forces;
+        }
+        return m.b.isvs;
       }();
-      if (first) {
+      const auto s2 = getVariableSize(getVariable(variables, r.name), h);
+      if (bis.empty()) {
         s = s2;
         c = c2;
       } else {
@@ -113,27 +155,36 @@ namespace mfem_mgis {
               std::string(r.name) + "'");
         }
       }
+      bis.push_back(bi);
     }
     r.category = c;
     r.number_of_components = s;
+    r.behaviour_integrators = std::move(bis);
   }  // end of getResultDescription
 
   std::vector<ImmutablePartialQuadratureFunctionView>
   ParaviewExportIntegrationPointResultsAtNodesBase::
       getPartialQuadratureFunctionViews(
-          const NonLinearEvolutionProblemImplementationBase& p,
+          attributes::Throwing,
           const MaterialIntegrationPointResultBase& r,
           const TimeStepStage s) {
+    using Category = MaterialIntegrationPointResultBase::Category;
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
     auto fcts = std::vector<ImmutablePartialQuadratureFunctionView>{};
-    for (const auto& mid : this->materials_identifiers) {
-      const auto& m = p.getMaterial(mid);
-      if (r.category == MaterialIntegrationPointResultBase::GRADIENTS) {
-        fcts.push_back(getGradient(m, r.name, s));
-      } else if (r.category ==
-                 MaterialIntegrationPointResultBase::THERMODYNAMIC_FORCES) {
-        fcts.push_back(getThermodynamicForce(m, r.name, s));
+    fcts.reserve(r.behaviour_integrators.size());
+    for (const auto& bi : r.behaviour_integrators) {
+      const auto om = bi->getMaterial(ctx);
+      if (isInvalid(om)) {
+        raise(ctx.getErrorMessage());
+      }
+      const auto& m = *om;
+      if (r.category == Category::GRADIENTS) {
+        fcts.push_back(getGradient(ctx, m, r.name, s) | or_raise);
+      } else if (r.category == Category::THERMODYNAMIC_FORCES) {
+        fcts.push_back(getThermodynamicForce(ctx, m, r.name, s) | or_raise);
       } else {
-        fcts.push_back(getInternalStateVariable(m, r.name, s));
+        fcts.push_back(getInternalStateVariable(ctx, m, r.name, s) | or_raise);
       }
     }
     return fcts;

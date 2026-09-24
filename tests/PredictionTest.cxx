@@ -74,10 +74,13 @@ template <bool parallel>
     }
     mdu.Distribute(mdu_values);
   } else {
+    auto mdu_values = mfem::Vector(fespace.GetTrueVSize());
+    mdu_values = 0.0;
     for (const auto &bc : p.getDirichletBoundaryConditions()) {
       // we impose the opposite of the displacement increment
-      bc->setImposedValuesIncrements(mdu, 0, 1, -1);
+      bc->setImposedValuesIncrements(mdu_values, 0, 1, -1);
     }
+    mdu.SetFromTrueDofs(mdu_values);
   }
   //
   auto a = mfem_mgis::BilinearForm<parallel>(&fespace);

@@ -261,6 +261,43 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_nonlinear_evolution_problem_post_processings_test()
 
+  # UseMultiMaterialNonLinearIntegratorTest executable
+  add_tfel_test_executable(UseMultiMaterialNonLinearIntegratorTest)
+
+  # Helper function for UseMultiMaterialNonLinearIntegratorTest cases
+  function(add_use_multi_material_non_linear_integrator_test)
+    set(test "UseMultiMaterialNonLinearIntegratorTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh")
+    add_test(NAME ${test}
+             COMMAND ./UseMultiMaterialNonLinearIntegratorTest ${params} "--parallel" 0)
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./UseMultiMaterialNonLinearIntegratorTest ${params} "--parallel" 1)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_use_multi_material_non_linear_integrator_test()
+
+  # MaterialQuantityProviderSearchTest executable
+  add_tfel_test_executable(MaterialQuantityProviderSearchTest)
+
+  # Helper function for MaterialQuantityProviderSearchTest cases
+  function(add_material_quantity_provider_search_test)
+    set(test "MaterialQuantityProviderSearchTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+               "--library" "$<TARGET_FILE:BehaviourTest>")
+    add_test(NAME ${test}
+             COMMAND ./MaterialQuantityProviderSearchTest ${params} "--parallel" 0)
+    set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./MaterialQuantityProviderSearchTest ${params} "--parallel" 1)
+      set_property(TEST Parallel${test} PROPERTY DEPENDS BehaviourTest)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_material_quantity_provider_search_test()
+
   # StateManagerTest executable
   add_tfel_test_executable(StateManagerTest)
 

@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <vector>
 #include <variant>
 #include <string_view>
 #include "mfem/fem/datacollection.hpp"
@@ -26,6 +27,8 @@
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct AbstractBehaviourIntegrator;
 #ifdef MGIS_FUNCTION_SUPPORT
   // forward declaration
   struct PartialQuadratureFunctionsSet;
@@ -63,6 +66,11 @@ namespace mfem_mgis {
       size_type number_of_components;
       //! \brief kind of results treated
       Category category;
+      /*!
+       * \brief behaviour integrators providing the result, in the same order
+       * than the material identifiers
+       */
+      std::vector<const AbstractBehaviourIntegrator *> behaviour_integrators;
     };
     /*!
      * \brief extract the material identifiers from the description of
@@ -72,21 +80,29 @@ namespace mfem_mgis {
     void extractMaterialIdentifiers(
         const std::vector<ExportedFunctionsDescription> &);
     /*!
-     * \brief get information about the given result (number of components and
-     * category)
+     * \brief get information about the given result (number of components,
+     * category and behaviour integrators providing the result)
+     *
+     * On each material, exactly one behaviour integrator must provide the
+     * result, either as a gradient, a thermodynamic force or an internal
+     * state variable.
+     *
+     * \param[in, out] r: result considered. The name of the result must be
+     * set.
+     * \param[in] p: non linear evolution problem
      */
     void getResultDescription(
+        attributes::Throwing,
         MaterialIntegrationPointResultBase &,
         const NonLinearEvolutionProblemImplementationBase &);
     /*!
      * \return the functions associated with the given result
-     * \param[in] p: non linear evolution problem
      * \param[in] r: results considered
      * \param[in] s: time step stage
      */
     std::vector<ImmutablePartialQuadratureFunctionView>
     getPartialQuadratureFunctionViews(
-        const NonLinearEvolutionProblemImplementationBase &,
+        attributes::Throwing,
         const MaterialIntegrationPointResultBase &,
         const TimeStepStage = ets);
     //! \brief paraview exporter

@@ -180,9 +180,9 @@ namespace mfem_mgis {
     auto essential_dofs = p.getEssentialDegreesOfFreedom();
     auto edofs_list = mfem::Array<mfem_mgis::size_type>(essential_dofs.data(),
                                                         essential_dofs.size());
+    auto mdu_values = mfem::Vector(fespace.GetTrueVSize());
+    mdu_values = 0.0;
     if constexpr (parallel) {
-      auto mdu_values = mfem::Vector(fespace.GetTrueVSize());
-      mdu_values = 0.0;
       //
       for (const auto& bc : p.getDirichletBoundaryConditions()) {
         // we impose the opposite of the displacement increment
@@ -192,8 +192,9 @@ namespace mfem_mgis {
     } else {
       for (const auto& bc : p.getDirichletBoundaryConditions()) {
         // we impose the opposite of the displacement increment
-        bc->setImposedValuesIncrements(*mdu, t, t + dt, -1);
+        bc->setImposedValuesIncrements(mdu_values, t, t + dt, -1);
       }
+      mdu->SetFromTrueDofs(mdu_values);
     }
     //
     a.FormLinearSystem(edofs_list, *mdu, b, A, X, B);
