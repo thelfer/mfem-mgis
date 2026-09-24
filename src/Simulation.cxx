@@ -99,14 +99,14 @@ namespace mfem_mgis {
               "maximum number of failures or time step rejections allowed "
               "within each temporal sequence"});
     d.insert(
-        {"TimeStepValidator", "strategy used to determine the next time step"});
+        {"TimeStepValidator", "strategy used to validate the time step"});
     d.insert({"TimeIncrementComputer",
               "strategy used to determine the next time step"});
     d.insert(
         {"LimitTimeIncrementIncrease",
          "boolean stating if the current estimate of the next time step can "
          "be greater than the previous time increment "
-         "multiplied by the 'maximalTimeIncrementRelativeIncrease' parameter"});
+         "multiplied by the 'MaximalTimeIncrementRelativeIncrease' parameter"});
     d.insert({"MaximalTimeIncrementRelativeIncrease",
               "coefficient used to determined the maximum ratio between the "
               "next time step "
