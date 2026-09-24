@@ -29,7 +29,7 @@ namespace mfem_mgis {
   }  // end of raiseInvalidGetRotationMatrixCall
 
   [[nodiscard]] static const Behaviour &Material_dereferenceBehaviour(
-      std::unique_ptr<const Behaviour>& b_ptr) {
+      std::unique_ptr<const Behaviour> &b_ptr) {
     if (isInvalid(b_ptr)) {
       raise("invalid behaviour");
     }

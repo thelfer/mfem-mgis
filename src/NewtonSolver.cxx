@@ -49,15 +49,18 @@ namespace mfem_mgis {
                 "the Solver is not set (use setLinearSolver).");
     //
     this->iterations_information.clear();
-    auto add_to_iterations_information = [this](Parameters iteration, bool ls_cv){
-        auto linear_solver_iterations = getNumberOfIterationsAtConvergence(*(this->prec));
-        if (isValid(linear_solver_iterations)){
-          auto ls = Parameters{};
-          ls.replaceOrInsert("NumberOfIterations", linear_solver_iterations.value());
-          ls.replaceOrInsert("HasConverged", ls_cv); 
-          iteration.replaceOrInsert("LinearSolver", ls);
-        }
-        this->iterations_information.push_back(iteration);
+    auto add_to_iterations_information = [this](const Parameters &iteration,
+                                                const bool ls_cv) {
+      auto linear_solver_iterations =
+          getNumberOfIterationsAtConvergence(*(this->prec));
+      if (isValid(linear_solver_iterations)) {
+        auto ls = Parameters{};
+        ls.replaceOrInsert("NumberOfIterations",
+                           linear_solver_iterations.value());
+        ls.replaceOrInsert("HasConverged", ls_cv);
+        iteration.replaceOrInsert("LinearSolver", ls);
+      }
+      this->iterations_information.push_back(iteration);
     };
     // log stream
     auto &log = [this]() -> std::ostream & {
@@ -152,7 +155,9 @@ namespace mfem_mgis {
       //
       if (!this->computeNewtonCorrection(c, r, x)) {
         auto iteration = Parameters{};
-        add_to_iterations_information(iteration,false); // Reaching this line means the linear solver didn't converge
+        add_to_iterations_information(iteration,
+                                      false);  // Reaching this line means the
+                                               // linear solver didn't converge
         break;
       }
       //
@@ -197,7 +202,8 @@ namespace mfem_mgis {
       auto iteration = Parameters{};
       iteration.replaceOrInsert("Norm", norm);
       // Called after computeNewtonCorrection which uses prec->Mult
-      add_to_iterations_information(iteration, true); // here the linear solver did converge
+      add_to_iterations_information(
+          iteration, true);  // here the linear solver did converge
       //
       ++it;
     }

@@ -82,12 +82,12 @@ namespace mfem_mgis {
       const LinearSolver&) noexcept;  // end of hasConverged
   /*!
    * \brief get the number of iterations of an iterative linear solver
-   * 
+   *
    * Unified for both LinearSolver and Hypre solvers.
    * Optional return type in case the LinearSolver is not iterative.
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<int> getNumberOfIterationsAtConvergence(
-      const LinearSolver&) noexcept;
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<int>
+  getNumberOfIterationsAtConvergence(const LinearSolver&) noexcept;
 
 }  // end of namespace mfem_mgis
 

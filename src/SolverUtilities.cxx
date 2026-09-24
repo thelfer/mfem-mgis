@@ -125,7 +125,8 @@ namespace mfem_mgis {
     return true;
   }  // end of hasConverged
 
-  std::optional<int> getNumberOfIterationsAtConvergence(const LinearSolver& ls) noexcept {
+  std::optional<int> getNumberOfIterationsAtConvergence(
+      const LinearSolver& ls) noexcept {
     if (const auto* isolver = dynamic_cast<const IterativeSolver*>(&ls);
         isolver != nullptr) {
       return isolver->GetNumIterations();
@@ -133,9 +134,9 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     auto get_hypre_solver_iterations =
         []<typename SolverType>(const SolverType* ptr) {
-            int niter;
-            ptr->GetNumIterations(niter);
-            return niter;
+          int niter;
+          ptr->GetNumIterations(niter);
+          return niter;
         };
     if (const auto* hptr = dynamic_cast<const mfem::HyprePCG*>(&ls);
         hptr != nullptr) {
@@ -151,6 +152,6 @@ namespace mfem_mgis {
     }
 #endif /* MFEM_USE_MPI */
     // reached if the solver is not an iterative solver
-    return  {};
+    return {};
   }  // end of getNumberOfIterationsAtConvergence
 }  // end of namespace mfem_mgis
