@@ -53,14 +53,15 @@ namespace mfem_mgis {
 
   NonLinearEvolutionProblemImplementationBase::
       NonLinearEvolutionProblemImplementationBase(
-          Context& ctx,
+          Context&,
           std::shared_ptr<FiniteElementDiscretization> fed,
           const Hypothesis h,
           const Parameters& p)
       : fe_discretization(fed),
         u0(getTrueVSize(*fed)),
         u1(getTrueVSize(*fed)),
-        mgis_integrator(buildMultiMaterialNonLinearIntegrator(throwing, fed, h, p)),
+        mgis_integrator(
+            buildMultiMaterialNonLinearIntegrator(throwing, fed, h, p)),
         hypothesis(h) {
     this->u0 = real{0};
     this->u1 = real{0};
