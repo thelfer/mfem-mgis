@@ -250,7 +250,7 @@ namespace mfem_mgis {
         const real t,
         const real dt) noexcept override {
       auto success = true;
-      auto fed = p.getFiniteElementDiscretization();
+      const auto& fed = p.getFiniteElementDiscretization();
       try {
         this->f(t, dt);
       } catch (...) {
