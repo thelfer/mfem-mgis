@@ -73,6 +73,13 @@ namespace mfem_mgis {
   inline std::span<const real, N>
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValues(
       const size_type o) const {
+#ifdef MFEM_MGIS_DEBUG
+    if (N != this->data_size) {
+      abort(
+          "ImmutablePartialQuadratureFunctionView::getIntegrationPointValues: "
+          "inconstent data size");
+    }
+#endif /* MFEM_MGIS_DEBUG */
     return std::span<const real, N>(
         this->immutable_values.data() + this->getDataOffset(o),
         this->data_size);
@@ -137,6 +144,13 @@ namespace mfem_mgis {
   template <size_type N>
   inline std::span<real, N>
   PartialQuadratureFunctionView::getIntegrationPointValues(const size_type o) {
+#ifdef MFEM_MGIS_DEBUG
+    if (N != this->data_size) {
+      abort(
+          "ImmutablePartialQuadratureFunctionView::getIntegrationPointValues: "
+          "inconstent data size");
+    }
+#endif /* MFEM_MGIS_DEBUG */
     return std::span<real, N>(
         this->mutable_values.data() + this->getDataOffset(o), this->data_size);
   }  // end of getIntegrationPointValues

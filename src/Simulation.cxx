@@ -98,8 +98,7 @@ namespace mfem_mgis {
     d.insert({"MaximumNumberOfFailuresPerTemporalSequence",
               "maximum number of failures or time step rejections allowed "
               "within each temporal sequence"});
-    d.insert(
-        {"TimeStepValidator", "strategy used to validate the time step"});
+    d.insert({"TimeStepValidator", "strategy used to validate the time step"});
     d.insert({"TimeIncrementComputer",
               "strategy used to determine the next time step"});
     d.insert(
