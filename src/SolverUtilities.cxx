@@ -125,7 +125,7 @@ namespace mfem_mgis {
     return true;
   }  // end of hasConverged
 
-  std::optional<int> getNumIterations(const LinearSolver& ls) noexcept {
+  std::optional<int> getNumberOfIterationsAtConvergence(const LinearSolver& ls) noexcept {
     if (const auto* isolver = dynamic_cast<const IterativeSolver*>(&ls);
         isolver != nullptr) {
       return isolver->GetNumIterations();
