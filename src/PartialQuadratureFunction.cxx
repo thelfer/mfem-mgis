@@ -104,21 +104,21 @@ namespace mfem_mgis {
   ImmutablePartialQuadratureFunctionView::
       ImmutablePartialQuadratureFunctionView() = default;
 
-  static void checkViewSpecfications(attributes::Throwing,
-                                     const ViewSpecifications& specs) {
+  static void checkViewSpecifications(attributes::Throwing,
+                                      const ViewSpecifications& specs) {
     if (specs.data_begin < 0) {
       raise("invalid start of the data");
     }
     if (specs.data_size <= 0) {
       raise("invalid data size");
     }
-    if (specs.data_begin + specs.data_size >  specs.data_stride) {
+    if (specs.data_begin + specs.data_size > specs.data_stride) {
       raise("data range is outside the stride: data offset is (" +
             std::to_string(specs.data_begin) + "), data size is (" +
             std::to_string(specs.data_size) + "), and data stride is (" +
             std::to_string(specs.data_stride) + ")");
     }
-  } // end of checkViewSpecfications
+  }  // end of checkViewSpecifications
 
   ImmutablePartialQuadratureFunctionView::
       ImmutablePartialQuadratureFunctionView(
@@ -128,7 +128,7 @@ namespace mfem_mgis {
     if (s.get() == nullptr) {
       raise("invalid partial quadrature space pointer");
     }
-    checkViewSpecfications(throwing, specs);
+    checkViewSpecifications(throwing, specs);
     //
     this->data_begin = specs.data_begin;
     this->data_size = specs.data_size;
@@ -144,7 +144,7 @@ namespace mfem_mgis {
     if (v.size() !=
         this->qspace->getNumberOfIntegrationPoints() * specs.data_stride) {
       raise("invalid value size");
-    }   
+    }
     this->immutable_values = v;
   }  // end of ImmutablePartialQuadratureFunctionView
 
@@ -256,7 +256,7 @@ namespace mfem_mgis {
     if (v.size() != specs.data_stride * getSpaceSize(*s)) {
       raise("invalid values size");
     }
-    checkViewSpecfications(throwing, specs);
+    checkViewSpecifications(throwing, specs);
     this->qspace = s;
     this->data_begin = specs.data_begin;
     this->data_size = specs.data_size;

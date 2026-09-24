@@ -34,8 +34,8 @@ namespace mfem_mgis {
    *
    * To be valid, the following conditions must hold:
    *
-   * - data_stride, data_begin and, data_size must be positive
-   * - data_stride and data_size must be strictly positive
+   * - data_begin must be positive
+   * - data_size and data_stride must be strictly positive
    * - data_begin + data_size <= data_stride
    *
    */
@@ -48,7 +48,7 @@ namespace mfem_mgis {
     //! \brief data size
     size_type data_size = size_type{};
     //! \brief data stride
-    size_type data_stride;
+    size_type data_stride = size_type{};
   };
 
   /*!

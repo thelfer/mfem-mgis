@@ -193,7 +193,7 @@ namespace mfem_mgis {
     const auto ostride = getArraySize(ctx, variables, h);
     const auto ov = getVariable(ctx, variables, n);
     const auto oo = getVariableOffset(ctx, variables, n, h);
-    if (isInvalid(ostride) ||isInvalid(oo) || isInvalid(ov)) {
+    if (isInvalid(ostride) || isInvalid(oo) || isInvalid(ov)) {
       return {};
     }
     const auto os = getVariableSize(ctx, *ov, h);
@@ -246,24 +246,6 @@ namespace mfem_mgis {
          .data_size = static_cast<size_type>(*os),
          .data_stride = static_cast<size_type>(*ostride)});
   }  // end of buildImmutablePartialQuadratureFunctionView
-
-  //   static ImmutablePartialQuadratureFunctionView
-  //   buildImmutablePartialQuadratureFunctionView(
-  //       std::shared_ptr<const PartialQuadratureSpace> qs,
-  //       std::span<const mgis::real> values,
-  //       const std::vector<mgis::behaviour::Variable> &variables,
-  //       const std::string_view n,
-  //       const Hypothesis h) {
-  //     const auto stride = getArraySize(variables, h);
-  //     const auto o = getVariableOffset(variables, n, h);
-  //     const auto s =
-  //         getVariableSize(mgis::behaviour::getVariable(variables, n), h);
-  //     return ImmutablePartialQuadratureFunctionView(
-  //         qs, values,
-  //         {.data_begin = static_cast<size_type>(o),
-  //          .data_size = static_cast<size_type>(s),
-  //          .data_stride = static_cast<size_type>(stride)});
-  //   }  // end of buildImmutablePartialQuadratureFunctionView
 
   std::optional<PartialQuadratureFunction> getGradient(
       Context &ctx,
@@ -450,7 +432,7 @@ namespace mfem_mgis {
     }
     return ImmutablePartialQuadratureFunctionView(
         m.getPartialQuadratureSpacePointer(), sm.dissipated_energies,
-               {.data_begin = 0, .data_size = 1, .data_stride = 1});
+        {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getDissipatedEnergy
 
   real computeStoredEnergy(const AbstractBehaviourIntegrator &bi,
