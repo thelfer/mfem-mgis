@@ -71,7 +71,7 @@ Main parameters
   computation leads to a greater value.
 - :param:`MaximumNumberOfFailuresPerTemporalSequence`: maximum number of
   failures or time step rejections allowed within each temporal sequence.
-- :param:`TimeIncrementComputer`: strategy used to determine the next time step.
+- :param:`TimeIncrementComputer`: strategy used to validate the time step.
 - :param:`TimeStepValidator`:  strategy used to determine the next time step.
 - :param:`ConvergenceFailureHandler`: strategy used to determine how a
   divergence of the resolution shall be handled.
