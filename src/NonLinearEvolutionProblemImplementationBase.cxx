@@ -583,6 +583,7 @@ namespace mfem_mgis {
       output.status = s.GetConverged();
       output.iterations = s.GetNumIterations();
       output.final_residual_norm = s.GetFinalNorm();
+      output.iterations_information = s.getIterationsInformation();
     };
     if (usePETSc()) {
 #ifdef MFEM_USE_PETSC

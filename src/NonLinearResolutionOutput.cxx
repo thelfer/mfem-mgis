@@ -18,6 +18,7 @@ namespace mfem_mgis {
     solver.replaceOrInsert("InitialResidualNorm", output.initial_residual_norm);
     solver.replaceOrInsert("FinalResidualNorm", output.final_residual_norm);
     solver.replaceOrInsert("NumberOfIterations", output.iterations);
+    solver.replaceOrInsert("Iterations", output.iterations_information);
     auto p = ComputeNextStateOutput{};
     p.replaceOrInsert("Solver", solver);
     return p;

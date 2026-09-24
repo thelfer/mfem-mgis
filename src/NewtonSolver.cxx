@@ -8,6 +8,7 @@
 #include <array>
 #include <iomanip>
 #include <utility>
+#include "MFEMMGIS/Parameters.hxx"
 #include "MGIS/Raise.hxx"
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
@@ -46,6 +47,18 @@ namespace mfem_mgis {
                 "the Operator is not set (use SetOperator).");
     MFEM_ASSERT(this->prec != nullptr,
                 "the Solver is not set (use setLinearSolver).");
+    //
+    this->iterations_information.clear();
+    auto add_to_iterations_information = [this](Parameters iteration, bool ls_cv){
+        auto linear_solver_iterations = getNumberOfIterationsAtConvergence(*(this->prec));
+        if (isValid(linear_solver_iterations)){
+          auto ls = Parameters{};
+          ls.replaceOrInsert("NumberOfIterations", linear_solver_iterations.value());
+          ls.replaceOrInsert("HasConverged", ls_cv); 
+          iteration.replaceOrInsert("LinearSolver", ls);
+        }
+        this->iterations_information.push_back(iteration);
+    };
     // log stream
     auto &log = [this]() -> std::ostream & {
       if (this->ctx_ptr == nullptr) {
@@ -138,6 +151,8 @@ namespace mfem_mgis {
       }
       //
       if (!this->computeNewtonCorrection(c, r, x)) {
+        auto iteration = Parameters{};
+        add_to_iterations_information(iteration,false); // Reaching this line means the linear solver didn't converge
         break;
       }
       //
@@ -178,6 +193,12 @@ namespace mfem_mgis {
       previous_norms[0] = previous_norms[1];
       previous_norms[1] = norm;
       norm = this->Norm(r);
+      //
+      auto iteration = Parameters{};
+      iteration.replaceOrInsert("Norm", norm);
+      // Called after computeNewtonCorrection which uses prec->Mult
+      add_to_iterations_information(iteration, true); // here the linear solver did converge
+      //
       ++it;
     }
     this->final_iter = it;
