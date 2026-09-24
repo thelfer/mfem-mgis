@@ -32,9 +32,9 @@ namespace mfem_mgis {
       : StandardBehaviourIntegratorCRTPBase<
             IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>(
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
-    if (this->b.symmetry != Behaviour::ISOTROPIC) {
-      raise("invalid behaviour symmetry");
-    }
+    this->checkIfAFiniteStrainBehaviourIsDeclared(throwing);
+    this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
+    this->checkHypothesis(throwing, Hypothesis::TRIDIMENSIONAL);
   }  // end of
      // IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator
 

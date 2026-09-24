@@ -38,9 +38,8 @@ namespace mfem_mgis {
           std::unique_ptr<const Behaviour> b_ptr)
       : BehaviourIntegratorBase(buildQuadratureSpace(fed, m),
                                 std::move(b_ptr)) {
-    if (this->b.symmetry != Behaviour::ISOTROPIC) {
-      raise("invalid behaviour symmetry");
-    }
+    this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
+    this->checkHypothesis(throwing, Hypothesis::TRIDIMENSIONAL);
   }  // end of TridimensionalMicromorphicDamageBehaviourIntegrator
 
   real TridimensionalMicromorphicDamageBehaviourIntegrator::

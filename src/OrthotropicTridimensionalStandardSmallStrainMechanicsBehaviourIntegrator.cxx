@@ -32,9 +32,8 @@ namespace mfem_mgis {
       : StandardBehaviourIntegratorCRTPBase<
             OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator>(
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
-    if (this->b.symmetry != Behaviour::ORTHOTROPIC) {
-      raise("invalid behaviour symmetry");
-    }
+    this->checkBehaviourSymmetry(throwing, Behaviour::ORTHOTROPIC);
+    this->checkHypothesis(throwing, Hypothesis::TRIDIMENSIONAL);
   }  // end of
      // OrthotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator
 

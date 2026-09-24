@@ -31,9 +31,9 @@ namespace mfem_mgis {
             FBarOrthotropicPlaneStrainBehaviourIntegrator,
             Hypothesis::PLANESTRAIN>(buildQuadratureSpace(fed, m),
                                      std::move(b_ptr)) {
-    if (this->b.symmetry != Behaviour::ORTHOTROPIC) {
-      raise("invalid behaviour symmetry");
-    }
+    this->checkIfAFiniteStrainBehaviourIsDeclared(throwing);
+    this->checkBehaviourSymmetry(throwing, Behaviour::ORTHOTROPIC);
+    this->checkHypothesis(throwing, Hypothesis::PLANESTRAIN);
   }  // end of
      // FBarOrthotropicPlaneStrainBehaviourIntegrator
 

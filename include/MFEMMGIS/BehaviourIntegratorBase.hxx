@@ -67,29 +67,46 @@ namespace mfem_mgis {
     BehaviourIntegratorBase(std::shared_ptr<const PartialQuadratureSpace>,
                             std::unique_ptr<const Behaviour>);
     /*!
+     * \brief check that the behaviour is a standard finite strain behaviour
+     * or a general behaviour whose only gradient is the deformation
+     * gradient, whose only thermodynamic force is the first Piola-Kirchhoff
+     * stress and whose only tangent operator block is the derivative of the
+     * latter with respect to the former.
+     */
+    void checkIfAFiniteStrainBehaviourIsDeclared(attributes::Throwing) const;
+    /*!
+     * \brief check if the behaviour has the expected symmetry.
+     * \param[in] s: expected symmetry
+     */
+    void checkBehaviourSymmetry(attributes::Throwing,
+                                const Behaviour::Symmetry) const;
+    /*!
      * \brief check that the integrator hypothesis is the same than the
      * behaviour hypothesis.
      * \param[in] h: integrator' hypothesis
-     *
-     * \throw an `std::runtime_error` if the hypotheses don't match.
      */
-    void checkHypotheses(const Hypothesis) const;
+    void checkHypothesis(attributes::Throwing, const Hypothesis) const;
     /*!
      * \brief throw an exception stating that the behaviour type is not the
      * expected one.
-     * \param[in] mn: calling method name
-     * \param[in] m: error message
+     * \param[in] e: error message
      */
-    [[noreturn]] void throwInvalidBehaviourType(const char* const,
-                                                const char* const) const;
+    [[noreturn]] void throwInvalidBehaviourType(attributes::Throwing,
+                                                const std::string&) const;
     /*!
      * \brief throw an exception stating that the behaviour kinematic is not the
      * expected one.
-     * \param[in] mn: calling method name
-     * \param[in] m: error message
+     * \param[in] e: error message
      */
-    [[noreturn]] void throwInvalidBehaviourKinematic(const char* const,
-                                                     const char* const) const;
+    [[noreturn]] void throwInvalidBehaviourKinematic(attributes::Throwing,
+                                                     const std::string&) const;
+    /*!
+     * \brief throw an exception stating that the behaviour symmetry is not the
+     * expected one.
+     * \param[in] e: error message
+     */
+    [[noreturn]] void throwInvalidBehaviourSymmetry(attributes::Throwing,
+                                                    const std::string&) const;
     /*!
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent

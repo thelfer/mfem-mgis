@@ -39,30 +39,29 @@ namespace mfem_mgis {
 
   [[nodiscard]] static MultiMaterialNonLinearIntegrator*
   buildMultiMaterialNonLinearIntegrator(
-      Context& ctx,
+      attributes::Throwing,
       std::shared_ptr<FiniteElementDiscretization> fed,
       const Hypothesis h,
       const Parameters& p) {
     const auto* const n = NonLinearEvolutionProblemImplementationBase::
         UseMultiMaterialNonLinearIntegrator;
-    if (contains(p, n)) {
-      if (!get<bool>(ctx, p, n)) {
-        return nullptr;
-      }
+    if (!get_if<bool>(throwing, p, n, true)) {
+      return nullptr;
     }
     return new MultiMaterialNonLinearIntegrator(fed, h);
   }  // end of buildMultiMaterialNonLinearIntegrator
 
   NonLinearEvolutionProblemImplementationBase::
       NonLinearEvolutionProblemImplementationBase(
-          Context& ctx,
+          Context&,
           std::shared_ptr<FiniteElementDiscretization> fed,
           const Hypothesis h,
           const Parameters& p)
       : fe_discretization(fed),
         u0(getTrueVSize(*fed)),
         u1(getTrueVSize(*fed)),
-        mgis_integrator(buildMultiMaterialNonLinearIntegrator(ctx, fed, h, p)),
+        mgis_integrator(
+            buildMultiMaterialNonLinearIntegrator(throwing, fed, h, p)),
         hypothesis(h) {
     this->u0 = real{0};
     this->u1 = real{0};

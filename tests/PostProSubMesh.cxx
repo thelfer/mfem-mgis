@@ -188,6 +188,7 @@ int main(int argc, char* argv[]) {
   /** Check convergence */
   if (!statistics.status) {
     mfem_mgis::Profiler::Utils::Message("INFO: FAILED");
+    mfem_mgis::abort(EXIT_FAILURE);
   }
   time += dt;
 

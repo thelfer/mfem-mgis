@@ -30,9 +30,7 @@ namespace mfem_mgis {
       : StandardBehaviourIntegratorCRTPBase<
             TransientHeatTransferBehaviourIntegrator>(
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
-    if (this->b.symmetry != Behaviour::ISOTROPIC) {
-      raise("invalid behaviour symmetry");
-    }
+    this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
   }  // end of
      // TransientHeatTransferBehaviourIntegrator
 
