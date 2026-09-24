@@ -253,11 +253,15 @@ namespace mfem_mgis {
 
   template <QPEvaluatorConcept EvaluatorType1,
             QPEvaluatorConcept EvaluatorType2>
-  void checkMatchingQuadratureSpaces(const EvaluatorType1& e1,
-                                     const EvaluatorType2& e2) {
+  bool checkMatchingQuadratureSpaces(Context& ctx,
+                                     const EvaluatorType1& e1,
+                                     const EvaluatorType2& e2) noexcept {
     const auto& qspace1 = getSpace(e1);
     const auto& qspace2 = getSpace(e2);
-    raise_if(&qspace1 != &qspace2, "unmatched quadrature spaces");
+    if (&qspace1 != &qspace2) {
+      return ctx.registerErrorMessage("unmatched quadrature spaces");
+    }
+    return true;
   }  // end of checkMatchingQuadratureSpaces
 
 }  // end of namespace mfem_mgis

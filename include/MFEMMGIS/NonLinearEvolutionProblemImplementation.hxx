@@ -91,7 +91,9 @@ namespace mfem_mgis {
                                          const Parameters&) noexcept override;
     [[nodiscard]] bool executeInitialPostProcessings(
         Context&, const real) noexcept override;
-    void executePostProcessings(Context&, const real, const real) override;
+    [[nodiscard]] bool executePostProcessings(Context&,
+                                              const real,
+                                              const real) noexcept override;
     [[deprecated]] void setLinearSolver(std::string_view,
                                         const Parameters&) override;
     [[deprecated]] void addBoundaryCondition(
@@ -181,7 +183,9 @@ namespace mfem_mgis {
                                          const Parameters&) noexcept override;
     [[nodiscard]] bool executeInitialPostProcessings(
         Context&, const real) noexcept override;
-    void executePostProcessings(Context&, const real, const real) override;
+    [[nodiscard]] bool executePostProcessings(Context&,
+                                              const real,
+                                              const real) noexcept override;
     //
     [[deprecated]] void setLinearSolver(std::string_view,
                                         const Parameters&) override;

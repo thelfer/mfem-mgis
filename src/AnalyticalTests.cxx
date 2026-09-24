@@ -50,6 +50,12 @@ namespace mfem_mgis {
       NonLinearEvolutionProblem &p,
       std::function<void(mfem::Vector &, const mfem::Vector &)> f,
       const Parameters &params) noexcept {
+    auto validator = ParametersValidator{}
+                         .add<int>("VerbosityLevel")
+                         .add<real>("CriterionThreshold", {.required = true});
+    if (!validator.validate(ctx, params)) {
+      return {};
+    }
     const auto error = computeL2ErrorAgainstAnalyticalSolution(p, f);
     const auto overbosity = get_if<int>(ctx, params, "VerbosityLevel", 0);
     const auto ocriterion = get<real>(ctx, params, "CriterionThreshold");
@@ -63,18 +69,6 @@ namespace mfem_mgis {
       ctx.log() << "L2Error: " << error << "\n";
     }
     return error < *ocriterion;
-  }  // end of compareToAnalyticalSolution
-
-  bool compareToAnalyticalSolution(
-      NonLinearEvolutionProblem &p,
-      std::function<void(mfem::Vector &, const mfem::Vector &)> f,
-      const Parameters &params) noexcept {
-    auto ctx = Context{};
-    const auto osuccess = compareToAnalyticalSolution(ctx, p, f, params);
-    if (isInvalid(osuccess)) {
-      raise(ctx.getErrorMessage());
-    }
-    return *osuccess;
   }  // end of compareToAnalyticalSolution
 
 }  // end of namespace mfem_mgis

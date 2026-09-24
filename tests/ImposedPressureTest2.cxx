@@ -88,7 +88,10 @@ int main(int argc, char** argv) {
     std::cerr << "The newton solver shall not make any iteration";
     return EXIT_FAILURE;
   }
-  problem.update();
+  if (!problem.update(ctx)) {
+    std::cerr << "call to update failed";
+    return EXIT_FAILURE;
+  }
   mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -35,8 +35,8 @@ namespace mfem_mgis {
         macroscopic_gradients(this->s1.gradients_stride, real(0)),
         get_rotation_fct_ptr(this->b.symmetry ==
                                      mgis::behaviour::Behaviour::ORTHOTROPIC
-                                 ? &raiseInvalidGetRotationMatrixCall
-                                 : &raiseUnsetRotationMatrix),
+                                 ? &raiseUnsetRotationMatrix
+                                 : &raiseInvalidGetRotationMatrixCall),
         behaviour_ptr(std::move(b_ptr)) {
     this->allocateArrayOfTangentOperatorBlocks();
   }  // end of Material::Material

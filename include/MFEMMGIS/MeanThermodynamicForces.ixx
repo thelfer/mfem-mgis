@@ -43,11 +43,11 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   template <bool parallel>
-  void MeanThermodynamicForces<parallel>::execute(
+  bool MeanThermodynamicForces<parallel>::execute(
       Context &,
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const real t,
-      const real dt) {
+      const real dt) noexcept {
     const auto [tf_integrals, volumes] =
         computeMeanThermodynamicForcesValues(p);
     if constexpr (parallel) {
@@ -82,6 +82,7 @@ namespace mfem_mgis {
       }
       this->out << std::endl;
     }
+    return true;
   }  // end of MeanThermodynamicForces
 
   template <bool parallel>

@@ -162,29 +162,39 @@ namespace mfem_mgis {
     r.behaviour_integrators = std::move(bis);
   }  // end of getResultDescription
 
-  std::vector<ImmutablePartialQuadratureFunctionView>
+  std::optional<std::vector<ImmutablePartialQuadratureFunctionView>>
   ParaviewExportIntegrationPointResultsAtNodesBase::
       getPartialQuadratureFunctionViews(
-          attributes::Throwing,
+          Context& ctx,
           const MaterialIntegrationPointResultBase& r,
-          const TimeStepStage s) {
+          const TimeStepStage s) noexcept {
     using Category = MaterialIntegrationPointResultBase::Category;
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
     auto fcts = std::vector<ImmutablePartialQuadratureFunctionView>{};
     fcts.reserve(r.behaviour_integrators.size());
     for (const auto& bi : r.behaviour_integrators) {
       const auto om = bi->getMaterial(ctx);
       if (isInvalid(om)) {
-        raise(ctx.getErrorMessage());
+        return {};
       }
       const auto& m = *om;
       if (r.category == Category::GRADIENTS) {
-        fcts.push_back(getGradient(ctx, m, r.name, s) | or_raise);
+        const auto og = getGradient(ctx, m, r.name, s);
+        if (isInvalid(og)) {
+          return {};
+        }
+        fcts.push_back(std::move(*og));
       } else if (r.category == Category::THERMODYNAMIC_FORCES) {
-        fcts.push_back(getThermodynamicForce(ctx, m, r.name, s) | or_raise);
+        const auto oth = getThermodynamicForce(ctx, m, r.name, s);
+        if (isInvalid(oth)) {
+          return {};
+        }
+        fcts.push_back(std::move(*oth));
       } else {
-        fcts.push_back(getInternalStateVariable(ctx, m, r.name, s) | or_raise);
+        const auto ov = getInternalStateVariable(ctx, m, r.name, s);
+        if (isInvalid(ov)) {
+          return {};
+        }
+        fcts.push_back(std::move(*ov));
       }
     }
     return fcts;
@@ -263,27 +273,29 @@ namespace mfem_mgis {
     }
   }
 
-  void ParaviewExportIntegrationPointResultsAtNodes::execute(
-      Context& ctx, NonLinearEvolutionProblem& p, const real t, const real dt) {
+  bool ParaviewExportIntegrationPointResultsAtNodes::execute(
+      Context& ctx,
+      NonLinearEvolutionProblem& p,
+      const real t,
+      const real dt) noexcept {
     CatchTimeSection(ctx, "ParaviewExportResults::Execute");
     const auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       auto& i = p.getImplementation<true>();
-      std::get<
-          ParaviewExportIntegrationPointResultsAtNodesImplementation<true>>(
-          this->implementations)
-          .execute(ctx, i, t, dt);
+      return std::
+          get<ParaviewExportIntegrationPointResultsAtNodesImplementation<true>>(
+                 this->implementations)
+              .execute(ctx, i, t, dt);
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
-    } else {
-      auto& i = p.getImplementation<false>();
-      std::get<
-          ParaviewExportIntegrationPointResultsAtNodesImplementation<false>>(
-          this->implementations)
-          .execute(ctx, i, t, dt);
     }
+    auto& i = p.getImplementation<false>();
+    return std::
+        get<ParaviewExportIntegrationPointResultsAtNodesImplementation<false>>(
+               this->implementations)
+            .execute(ctx, i, t, dt);
   }
 
   bool

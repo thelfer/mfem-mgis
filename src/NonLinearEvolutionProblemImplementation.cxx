@@ -232,7 +232,11 @@ namespace mfem_mgis {
      */
     StdFunctionPostProcessing(
         const std::function<void(const real, const real)>& fct)
-        : f(fct) {}  // end of StdFunctionPostProcessing
+        : f(fct) {
+      if (!f) {
+        raise("invalid function");
+      }
+    }  // end of StdFunctionPostProcessing
     //
     [[nodiscard]] bool executeInitialPostProcessing(
         Context&,
@@ -240,11 +244,20 @@ namespace mfem_mgis {
         const real) noexcept override {
       return true;
     }  // end of executeInitialPostProcessing
-    void execute(Context&,
-                 NonLinearEvolutionProblemImplementation<parallel>&,
-                 const real t,
-                 const real dt) override {
-      this->f(t, dt);
+    [[nodiscard]] bool execute(
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const real t,
+        const real dt) noexcept override {
+      auto success = true;
+      auto fed = p.getFiniteElementDiscretization();
+      try {
+        this->f(t, dt);
+      } catch (...) {
+        std::ignore = registerExceptionInErrorBacktrace(ctx);
+        success = false;
+      }
+      return isTrueOnAllProcesses(fed, success);
     }  // end of execute
     //! \brief destructor
     ~StdFunctionPostProcessing() override = default;
@@ -461,11 +474,14 @@ namespace mfem_mgis {
     return true;
   }  // end of executeInitialPostProcessings
 
-  void NonLinearEvolutionProblemImplementation<true>::executePostProcessings(
-      Context& ctx, const real t, const real dt) {
+  bool NonLinearEvolutionProblemImplementation<true>::executePostProcessings(
+      Context& ctx, const real t, const real dt) noexcept {
     for (auto& p : this->postprocessings) {
-      p->execute(ctx, *this, t, dt);
+      if (!p->execute(ctx, *this, t, dt)) {
+        return false;
+      }
     }
+    return true;
   }  // end of executePostProcessings
 
   Mesh<true>& NonLinearEvolutionProblemImplementation<true>::getMesh() {
@@ -691,11 +707,14 @@ namespace mfem_mgis {
     return true;
   }  // end of executeInitialPostProcessings
 
-  void NonLinearEvolutionProblemImplementation<false>::executePostProcessings(
-      Context& ctx, const real t, const real dt) {
+  bool NonLinearEvolutionProblemImplementation<false>::executePostProcessings(
+      Context& ctx, const real t, const real dt) noexcept {
     for (auto& p : this->postprocessings) {
-      p->execute(ctx, *this, t, dt);
+      if (!p->execute(ctx, *this, t, dt)) {
+        return false;
+      }
     }
+    return true;
   }  // end of executePostProcessings
 
   Mesh<false>&

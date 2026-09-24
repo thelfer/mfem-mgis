@@ -122,18 +122,20 @@ namespace mfem_mgis {
     return this->u1;
   }  // end of getUnknowns
 
-  void NonLinearEvolutionProblemImplementationBase::revert() {
+  bool NonLinearEvolutionProblemImplementationBase::revert(Context&) noexcept {
     this->u1 = this->u0;
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->revert();
     }
+    return true;
   }  // end of revert
 
-  void NonLinearEvolutionProblemImplementationBase::update() {
+  bool NonLinearEvolutionProblemImplementationBase::update(Context&) noexcept {
     this->u0 = this->u1;
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->update();
     }
+    return true;
   }  // end of update
 
   [[nodiscard]] static bool checkMultiMaterialSupportEnabled(
@@ -465,7 +467,9 @@ namespace mfem_mgis {
         bc->updateImposedValues(this->u1, t + dt);
       }
       for (const auto& bc : this->boundary_conditions) {
-        bc->setup(t, dt);
+        if (!bc->setup(ctx, t, dt)) {
+          return false;
+        }
       }
       if (this->mgis_integrator != nullptr) {
         if (!this->mgis_integrator->setup(ctx, t, dt)) {
@@ -491,6 +495,9 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
           "call to this method is meaningless if PETSc is used");
+    }
+    if (s.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid linear solver");
     }
     this->linear_solver_preconditioner.reset();
     this->linear_solver = std::move(s);

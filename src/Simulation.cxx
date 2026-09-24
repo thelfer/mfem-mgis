@@ -837,12 +837,13 @@ namespace mfem_mgis {
       s = previousStatus;
       //
       if (isValid(this->nonlinearEvolutionProblem)) {
-        this->nonlinearEvolutionProblem->revert();
+        updateAndSynchronize(this->nonlinearEvolutionProblem->revert(ctx));
+        return s.shallContinue() ? true : false;
       }
       if (isValid(this->physicalSystem)) {
         updateAndSynchronize(this->physicalSystem->revert(ctx));
+        return s.shallContinue() ? true : false;
       }
-      return s.shallContinue() ? true : false;
     };
     //
     auto reportMaximumFailureReached = [&ctx, &s, &t,
@@ -1003,15 +1004,18 @@ namespace mfem_mgis {
           return;
         }
       }
-      // updating the physical system
+      // updating the nonlinear evolution problem and the physical system
       if (isValid(this->nonlinearEvolutionProblem)) {
-        this->nonlinearEvolutionProblem->update();
+        updateAndSynchronize(this->nonlinearEvolutionProblem->update(ctx));
+        if (!s.shallContinue()) {
+          return;
+        }
       }
       if (isValid(this->physicalSystem)) {
         updateAndSynchronize(this->physicalSystem->update(ctx));
-      }
-      if (!s.shallContinue()) {
-        return;
+        if (!s.shallContinue()) {
+          return;
+        }
       }
       // updating the previous status
       previousStatus = s;

@@ -168,6 +168,9 @@ namespace mfem_mgis {
                                      const Parameters& m) const noexcept {
     for (const auto& keys : this->incompatibilities) {
       for (const auto& k : keys) {
+        // this test is meant to dectect an error on the developper side, the
+        // end-user can't do nothing about it, so we choose to abort the
+        // execution if it happens
         ctx.assertOrTerminate(
             !this->required_keys.contains(k),
             "parameter '" + k +

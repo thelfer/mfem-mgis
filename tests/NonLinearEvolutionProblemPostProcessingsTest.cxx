@@ -54,11 +54,12 @@ struct TestPostProcessing final
     this->times.push_back(t);
     return true;
   }  // end of executeInitialPostProcessing
-  void execute(mfem_mgis::Context&,
+  bool execute(mfem_mgis::Context&,
                mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>&,
                const mfem_mgis::real t,
-               const mfem_mgis::real dt) override {
+               const mfem_mgis::real dt) noexcept override {
     this->times.push_back(t + dt);
+    return true;
   }  // end of execute
   //! \brief destructor
   ~TestPostProcessing() override = default;

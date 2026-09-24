@@ -284,7 +284,9 @@ int main(int argc, char* argv[]) {
                                         (i + 1) * dt);
     run_solve(ctx, problem, i * dt, dt);
     if (use_post_processing) execute_post_processings(ctx, problem, i * dt, dt);
-    problem.update();
+    if (!problem.update(ctx)) {
+      mfem_mgis::Profiler::Utils::Message("INFO: UPDATE FAILED");
+    }
   }
 
   // print and write timetable

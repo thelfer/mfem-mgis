@@ -145,13 +145,15 @@ namespace mfem_mgis {
 
   /*!
    * \brief check if the given evaluators have the same partial quadrature space
+   * \param[in, out] ctx: execution context
    * \param[in] e1: first evaluator
    * \param[in] e2: second evaluator
    */
   template <QPEvaluatorConcept EvaluatorType1,
             QPEvaluatorConcept EvaluatorType2>
-  void checkMatchingQuadratureSpaces(const EvaluatorType1&,
-                                     const EvaluatorType2&);
+  bool checkMatchingQuadratureSpaces(Context&,
+                                     const EvaluatorType1&,
+                                     const EvaluatorType2&) noexcept;
 
 }  // end of namespace mfem_mgis
 

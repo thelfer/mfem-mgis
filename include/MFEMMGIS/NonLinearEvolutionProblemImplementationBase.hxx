@@ -166,8 +166,8 @@ namespace mfem_mgis {
     [[nodiscard]] NonLinearResolutionOutput solve(Context&,
                                                   const real,
                                                   const real) noexcept override;
-    void revert() override;
-    void update() override;
+    [[nodiscard]] bool revert(Context&) noexcept override;
+    [[nodiscard]] bool update(Context&) noexcept override;
     //
     [[deprecated]] void setMaterialsNames(
         const std::map<size_type, std::string>&) override;

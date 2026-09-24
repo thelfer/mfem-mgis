@@ -17,6 +17,7 @@
 #endif /* MFEM_USE_MPI */
 #include "mfem/fem/lininteg.hpp"
 #include "mfem/fem/nonlininteg.hpp"
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Parameter.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
@@ -163,7 +164,11 @@ namespace mfem_mgis {
         bids(getBoundariesIdentifiers(throwing, p, params, false)),
         prfct(get<std::function<real(const real)>>(
             throwing, params, "LoadingEvolution")),
-        nfi(new UniformImposedPressureNonlinearFormIntegrator) {}
+        nfi(new UniformImposedPressureNonlinearFormIntegrator) {
+    if (!prfct) {
+      raise("invalid evolution of the imposed pressure");
+    }
+  }
 
   UniformImposedPressureBoundaryCondition::
       UniformImposedPressureBoundaryCondition(
@@ -173,7 +178,11 @@ namespace mfem_mgis {
       : finiteElementDiscretization(fed),
         bids(1, bid),
         prfct(prvalues),
-        nfi(new UniformImposedPressureNonlinearFormIntegrator) {}
+        nfi(new UniformImposedPressureNonlinearFormIntegrator) {
+    if (!prfct) {
+      raise("invalid evolution of the imposed pressure");
+    }
+  }
 
   UniformImposedPressureBoundaryCondition::
       UniformImposedPressureBoundaryCondition(
@@ -183,12 +192,23 @@ namespace mfem_mgis {
       : finiteElementDiscretization(fed),
         bids(getBoundariesIdentifiers(throwing, *fed, bid)),
         prfct(prvalues),
-        nfi(new UniformImposedPressureNonlinearFormIntegrator) {}
-
-  void UniformImposedPressureBoundaryCondition::setup(const real t,
-                                                      const real dt) {
-    this->nfi->setPressure(this->prfct(t + dt));
+        nfi(new UniformImposedPressureNonlinearFormIntegrator) {
+    if (!prfct) {
+      raise("invalid evolution of the imposed pressure");
+    }
   }
+
+  [[nodiscard]] bool UniformImposedPressureBoundaryCondition::setup(
+      Context &ctx, const real t, const real dt) noexcept {
+    auto success = true;
+    try {
+      this->nfi->setPressure(this->prfct(t + dt));
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+      success = false;
+    }
+    return isTrueOnAllProcesses(*(this->finiteElementDiscretization), success);
+  }  // end of setup
 
 #ifdef MFEM_USE_MPI
   bool UniformImposedPressureBoundaryCondition::addNonlinearFormIntegrator(

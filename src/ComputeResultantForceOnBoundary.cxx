@@ -72,11 +72,11 @@ namespace mfem_mgis {
     return true;
   }  // end of executeInitialPostProcessing
 
-  void ComputeResultantForceOnBoundary<true>::execute(
+  bool ComputeResultantForceOnBoundary<true>::execute(
       Context&,
       NonLinearEvolutionProblemImplementation<true>& p,
       const real t,
-      const real dt) {
+      const real dt) noexcept {
     mfem::Vector F;
     computeResultantForceOnBoundary(F, p, this->elts_dofs);
     //
@@ -89,6 +89,7 @@ namespace mfem_mgis {
     if (rank == 0) {
       writeResultantForce(this->out, gF, t + dt);
     }
+    return true;
   }  // end of execute
 
   ComputeResultantForceOnBoundary<true>::~ComputeResultantForceOnBoundary() =
@@ -120,14 +121,15 @@ namespace mfem_mgis {
     return true;
   }  // end of executeInitialPostProcessing
 
-  void ComputeResultantForceOnBoundary<false>::execute(
+  bool ComputeResultantForceOnBoundary<false>::execute(
       Context&,
       NonLinearEvolutionProblemImplementation<false>& p,
       const real t,
-      const real dt) {
+      const real dt) noexcept {
     mfem::Vector F;
     computeResultantForceOnBoundary(F, p, this->elts_dofs);
     writeResultantForce(this->out, F, t + dt);
+    return true;
   }  // end of execute
 
   ComputeResultantForceOnBoundary<false>::~ComputeResultantForceOnBoundary() =

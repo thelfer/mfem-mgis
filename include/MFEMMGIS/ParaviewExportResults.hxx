@@ -35,10 +35,11 @@ namespace mfem_mgis {
         mgis::Context&,
         NonLinearEvolutionProblemImplementation<parallel>&,
         const real) noexcept override;
-    void execute(mgis::Context& ctx,
-                 NonLinearEvolutionProblemImplementation<parallel>&,
-                 const real,
-                 const real) override;
+    [[nodiscard]] bool execute(
+        mgis::Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>&,
+        const real,
+        const real) noexcept override;
     //! \brief destructor
     ~ParaviewExportResults() override;
 

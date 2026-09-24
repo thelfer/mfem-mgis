@@ -27,6 +27,7 @@ namespace mfem_mgis {
             get<std::string>(throwing, params, "OutputFileName")),
         shallExecuteInitialPostProcessing(get_if<bool>(
             throwing, params, "ExecuteInitialPostProcessing", true)) {
+    auto or_raise = ctx.getThrowingFailureHandler();
     checkParameters(throwing, params,
                     {"OutputFileName", "Materials", "Results",
                      "ExecuteInitialPostProcessing"});
@@ -47,22 +48,20 @@ namespace mfem_mgis {
           "no results to export declared");
     }
     //
-    auto add_result = [this, &p, &ctx](const std::string& rn) {
+    auto add_result = [this, &p, &ctx, or_raise](const std::string& rn) {
       auto r = MaterialIntegrationPointResult{};
       r.name = rn;
       this->getResultDescription(throwing, r, p);
+      const auto fcts =
+          this->getPartialQuadratureFunctionViews(ctx, r) | or_raise;
       if (this->submesh.get() == nullptr) {
-        auto or2 = makeGridFunction<parallel>(
-            ctx, this->getPartialQuadratureFunctionViews(throwing, r),
-            p.getMesh());
+        auto or2 = makeGridFunction<parallel>(ctx, fcts, p.getMesh());
         if (isInvalid(or2)) {
           raise(ctx.getErrorMessage());
         }
         r.f = std::move(or2);
       } else {
-        auto or2 = makeGridFunction<parallel>(
-            ctx, this->getPartialQuadratureFunctionViews(throwing, r),
-            *(this->submesh));
+        auto or2 = makeGridFunction<parallel>(ctx, fcts, *(this->submesh));
         if (isInvalid(or2)) {
           raise(ctx.getErrorMessage());
         }
@@ -151,43 +150,47 @@ namespace mfem_mgis {
   template <bool parallel>
   bool ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
       executeInitialPostProcessing(
-          Context&,
+          Context& ctx,
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const real t) noexcept {
     if (this->shallExecuteInitialPostProcessing) {
-      this->exportResults(p, t, bts);
+      if (!this->exportResults(ctx, p, t, bts)) {
+        return false;
+      }
     }
     return true;
   }  // end of executeInitialPostProcessing
 
   template <bool parallel>
-  void
+  bool
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::execute(
-      Context&,
+      Context& ctx,
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const real t,
-      const real dt) {
-    this->exportResults(p, t + dt, ets);
+      const real dt) noexcept {
+    return this->exportResults(ctx, p, t + dt, ets);
   }  // end of execute
 
   template <bool parallel>
-  void ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
-      exportResults(NonLinearEvolutionProblemImplementation<parallel>& p,
+  bool ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
+      exportResults(Context& ctx,
+                    NonLinearEvolutionProblemImplementation<parallel>& p,
                     const real t,
-                    const TimeStepStage s) {
+                    const TimeStepStage s) noexcept {
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t);
+
     // updating grid functions
     if (!this->results.empty()) {
       for (auto& r : this->results) {
+        const auto ofcts = this->getPartialQuadratureFunctionViews(ctx, r, s);
+        if (isInvalid(ofcts)) {
+          return false;
+        }
         if (this->submesh.get() == nullptr) {
-          updateGridFunction<parallel>(
-              *(r.f), this->getPartialQuadratureFunctionViews(throwing, r, s),
-              p.getMesh());
+          updateGridFunction<parallel>(*(r.f), *(ofcts), p.getMesh());
         } else {
-          updateGridFunction<parallel>(
-              *(r.f), this->getPartialQuadratureFunctionViews(throwing, r, s),
-              *(this->submesh));
+          updateGridFunction<parallel>(*(r.f), *(ofcts), *(this->submesh));
         }
       }
     } else {
@@ -203,6 +206,7 @@ namespace mfem_mgis {
     }
     this->exporter.Save();
     ++(this->cycle);
+    return true;
   }  // end of exportResults
 
   template <bool parallel>

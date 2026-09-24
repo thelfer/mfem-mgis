@@ -295,8 +295,12 @@ int main(int argc, char** argv) {
     }
     mechanical_problem->executePostProcessings(ctx, t, dt);
     micromorphic_problem->executePostProcessings(ctx, t, dt);
-    mechanical_problem->update();
-    micromorphic_problem->update();
+    if (!mechanical_problem->update(ctx)) {
+      mfem_mgis::raise("updating the mechanical problem failed");
+    }
+    if (!micromorphic_problem->update(ctx)) {
+      mfem_mgis::raise("updating the micromorphic problem failed");
+    }
     t += dt;
   }
   return EXIT_SUCCESS;

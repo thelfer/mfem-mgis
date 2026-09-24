@@ -190,18 +190,18 @@ namespace mfem_mgis {
     // the unknowns at the beginning of the time step for this export.
     auto& fespace = p.getFiniteElementSpace();
     this->result.MakeTRef(&fespace, p.getUnknowns(bts), 0);
-    this->execute(ctx, p, t, real{});
+    auto success = this->execute(ctx, p, t, real{});
     // restore the association with the unknowns at the end of the time step
     this->result.MakeTRef(&fespace, p.getUnknowns(ets), 0);
-    return true;
+    return success;
   }  // end of executeInitialPostProcessing
 
   template <bool parallel>
-  void ParaviewExportResults<parallel>::execute(
+  bool ParaviewExportResults<parallel>::execute(
       mgis::Context& ctx,
       NonLinearEvolutionProblemImplementation<parallel>&,
       const real t,
-      const real dt) {
+      const real dt) noexcept {
     CatchTimeSection(ctx, "ParaviewExportResults::Execute");
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t + dt);
@@ -220,6 +220,7 @@ namespace mfem_mgis {
       this->exporter.Save();
     }
     ++(this->cycle);
+    return true;
   }  // end of execute
 
   template <bool parallel>

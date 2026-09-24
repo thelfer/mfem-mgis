@@ -75,7 +75,9 @@ namespace mfem_mgis {
                                                 const mfem::Vector&,
                                                 const real,
                                                 const real) noexcept override;
-    void setup(const real, const real) override;
+    [[nodiscard]] bool setup(Context&,
+                             const real,
+                             const real) noexcept override;
     //! \brief destructor
     ~UniformImposedPressureBoundaryCondition() override;
 
