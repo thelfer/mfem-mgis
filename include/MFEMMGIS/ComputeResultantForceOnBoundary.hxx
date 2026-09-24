@@ -73,10 +73,10 @@ namespace mfem_mgis {
         Context&,
         NonLinearEvolutionProblemImplementation<true>&,
         const real) noexcept override;
-    void execute(Context&,
-                 NonLinearEvolutionProblemImplementation<true>&,
-                 const real,
-                 const real) override;
+    [[nodiscard]] bool execute(Context&,
+                               NonLinearEvolutionProblemImplementation<true>&,
+                               const real,
+                               const real) noexcept override;
     //! \brief destructor
     ~ComputeResultantForceOnBoundary() override;
   };  // end of struct ComputeResultantForceOnBoundary
@@ -103,10 +103,10 @@ namespace mfem_mgis {
         Context&,
         NonLinearEvolutionProblemImplementation<false>&,
         const real) noexcept override;
-    void execute(Context&,
-                 NonLinearEvolutionProblemImplementation<false>&,
-                 const real,
-                 const real) override;
+    [[nodiscard]] bool execute(Context&,
+                               NonLinearEvolutionProblemImplementation<false>&,
+                               const real,
+                               const real) noexcept override;
     //! \brief destructor
     ~ComputeResultantForceOnBoundary() override;
   };  // end of struct ComputeResultantForceOnBoundary

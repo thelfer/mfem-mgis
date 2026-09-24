@@ -718,11 +718,11 @@ namespace mfem_mgis {
     }
     const auto& fespace = *ofespace;
     if constexpr (parallel) {
-      if (!fed.template isSlibing<parallel>(*(src.ParFESpace()))) {
+      if (!fed.template isSibling<parallel>(*(src.ParFESpace()))) {
         return ctx.registerErrorMessage("unmatched finite element space");
       }
     } else {
-      if (!fed.template isSlibing<parallel>(*(src.FESpace()))) {
+      if (!fed.template isSibling<parallel>(*(src.FESpace()))) {
         return ctx.registerErrorMessage("unmatched finite element space");
       }
     }

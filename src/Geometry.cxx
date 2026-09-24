@@ -61,7 +61,7 @@ namespace mfem_mgis::internals {
     }
     auto weights = std::vector<real>(static_cast<std::size_t>(n));
     const auto dx = static_cast<real>(1) / (n - 1);
-    for (std::size_t i = 0; i != n - 1; ++i) {
+    for (size_type i = 0; i != n - 1; ++i) {
       weights[i] = dx * i;
     }
     weights.back() = 1;

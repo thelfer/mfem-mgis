@@ -121,18 +121,20 @@ namespace mfem_mgis {
     return this->u1;
   }  // end of getUnknowns
 
-  void NonLinearEvolutionProblemImplementationBase::revert() {
+  bool NonLinearEvolutionProblemImplementationBase::revert(Context&) noexcept {
     this->u1 = this->u0;
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->revert();
     }
+    return true;
   }  // end of revert
 
-  void NonLinearEvolutionProblemImplementationBase::update() {
+  bool NonLinearEvolutionProblemImplementationBase::update(Context&) noexcept {
     this->u0 = this->u1;
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->update();
     }
+    return true;
   }  // end of update
 
   [[nodiscard]] static bool checkMultiMaterialSupportEnabled(
@@ -475,7 +477,9 @@ namespace mfem_mgis {
         bc->updateImposedValues(this->u1, t + dt);
       }
       for (const auto& bc : this->boundary_conditions) {
-        bc->setup(t, dt);
+        if (!bc->setup(ctx, t, dt)) {
+          return false;
+        }
       }
       if (this->mgis_integrator != nullptr) {
         if (!this->mgis_integrator->setup(ctx, t, dt)) {
@@ -487,43 +491,50 @@ namespace mfem_mgis {
     return isTrueOnAllProcesses(*(this->fe_discretization), success);
   }  // end of setup
 
-  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
-      std::unique_ptr<LinearSolver> s) {
+  bool NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      Context& ctx, std::unique_ptr<LinearSolver> s) noexcept {
     if (usePETSc()) {
-      mgis::raise(
+      return ctx.registerErrorMessage(
           "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
           "call to this method is meaningless if PETSc is used");
+    }
+    if (s.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid linear solver");
     }
     this->linear_solver_preconditioner.reset();
     this->linear_solver = std::move(s);
     this->solver->setLinearSolver(*(this->linear_solver));
+    return true;
   }  // end of updateLinearSolver
 
-  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+  bool NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      Context& ctx,
       std::unique_ptr<LinearSolver> s,
-      std::unique_ptr<LinearSolverPreconditioner> p) {
+      std::unique_ptr<LinearSolverPreconditioner> p) noexcept {
     if (usePETSc()) {
-      mgis::raise(
+      return ctx.registerErrorMessage(
           "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
           "call to this method is meaningless if PETSc is used");
     }
-    if (p != nullptr) {
+    if (p.get() != nullptr) {
       auto* const isolver = dynamic_cast<IterativeSolver*>(s.get());
       if (isolver != nullptr) {
         isolver->SetPreconditioner(*p);
       }
-      this->updateLinearSolver(std::move(s));
+      if (isInvalid(this->updateLinearSolver(ctx, std::move(s)))) {
+        return false;
+      }
       this->linear_solver_preconditioner = std::move(p);
-    } else {
-      this->updateLinearSolver(std::move(s));
+      return true;
     }
+    return this->updateLinearSolver(ctx, std::move(s));
   }  // end of updateLinearSolver
 
-  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
-      Context& ctx, LinearSolverHandler s) {
+  bool NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      Context& ctx, LinearSolverHandler s) noexcept {
     CatchTimeSection(ctx, "NLEPIB::updateLinearSolver");
-    this->updateLinearSolver(std::move(s.linear_solver),
-                             std::move(s.preconditioner));
+    return this->updateLinearSolver(ctx, std::move(s.linear_solver),
+                                    std::move(s.preconditioner));
   }  // end of updateLinearSolver
 
   std::optional<LinearizedOperators>

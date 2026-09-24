@@ -97,14 +97,15 @@ namespace mfem_mgis {
         const NonLinearEvolutionProblemImplementationBase &);
     /*!
      * \return the functions associated with the given result
+     * \param[in, out] ctx: execution context
      * \param[in] r: results considered
      * \param[in] s: time step stage
      */
-    std::vector<ImmutablePartialQuadratureFunctionView>
+    std::optional<std::vector<ImmutablePartialQuadratureFunctionView>>
     getPartialQuadratureFunctionViews(
-        attributes::Throwing,
+        Context &ctx,
         const MaterialIntegrationPointResultBase &,
-        const TimeStepStage = ets);
+        const TimeStepStage = ets) noexcept;
     //! \brief paraview exporter
     mfem::ParaViewDataCollection exporter;
     //! \brief list of material' identifiers
@@ -166,10 +167,11 @@ namespace mfem_mgis {
         Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
         const real) noexcept override;
-    void execute(Context &,
-                 NonLinearEvolutionProblemImplementation<parallel> &,
-                 const real,
-                 const real) override;
+    [[nodiscard]] bool execute(
+        Context &,
+        NonLinearEvolutionProblemImplementation<parallel> &,
+        const real,
+        const real) noexcept override;
     //! \brief destructor
     ~ParaviewExportIntegrationPointResultsAtNodesImplementation() override;
 
@@ -188,13 +190,15 @@ namespace mfem_mgis {
                        NonLinearEvolutionProblemImplementation<parallel> &);
     /*!
      * \brief update the grid functions and export them
+     * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] t: time
      * \param[in] s: time step stage
      */
-    void exportResults(NonLinearEvolutionProblemImplementation<parallel> &,
+    bool exportResults(Context &ctx,
+                       NonLinearEvolutionProblemImplementation<parallel> &,
                        const real,
-                       const TimeStepStage);
+                       const TimeStepStage) noexcept;
     //! \brief submesh defined when exporting data
     std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;
     //! \brief list of results defined through parameters
@@ -263,18 +267,6 @@ namespace mfem_mgis {
         NonLinearEvolutionProblem &,
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);
-    //
-    /*!
-     * \brief execute the export
-     * \param[in,out] ctx: execution context
-     * \param[in] p: non linear problem
-     * \param[in] t: current time
-     * \param[in] dt: current time step
-     */
-    void execute(Context &,
-                 NonLinearEvolutionProblem &,
-                 const real,
-                 const real);
     /*!
      * \brief execute the export at the initial time of the simulation
      * \param[in,out] ctx: execution context
@@ -284,6 +276,17 @@ namespace mfem_mgis {
     [[nodiscard]] bool executeInitialPostProcessing(Context &,
                                                     NonLinearEvolutionProblem &,
                                                     const real) noexcept;
+    /*!
+     * \brief execute the export
+     * \param[in,out] ctx: execution context
+     * \param[in] p: non linear problem
+     * \param[in] t: current time
+     * \param[in] dt: current time step
+     */
+    [[nodiscard]] bool execute(Context &,
+                               NonLinearEvolutionProblem &,
+                               const real,
+                               const real) noexcept;
     //! \brief destructor
     ~ParaviewExportIntegrationPointResultsAtNodes();
 

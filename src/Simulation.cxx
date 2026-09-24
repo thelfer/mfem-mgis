@@ -99,14 +99,14 @@ namespace mfem_mgis {
               "maximum number of failures or time step rejections allowed "
               "within each temporal sequence"});
     d.insert(
-        {"TimeStepValidator", "strategy used to determine the next time step"});
+        {"TimeStepValidator", "strategy used to validate the time step"});
     d.insert({"TimeIncrementComputer",
               "strategy used to determine the next time step"});
     d.insert(
         {"LimitTimeIncrementIncrease",
          "boolean stating if the current estimate of the next time step can "
          "be greater than the previous time increment "
-         "multiplied by the 'maximalTimeIncrementRelativeIncrease' parameter"});
+         "multiplied by the 'MaximalTimeIncrementRelativeIncrease' parameter"});
     d.insert({"MaximalTimeIncrementRelativeIncrease",
               "coefficient used to determined the maximum ratio between the "
               "next time step "
@@ -837,12 +837,14 @@ namespace mfem_mgis {
       s = previousStatus;
       //
       if (isValid(this->nonlinearEvolutionProblem)) {
-        this->nonlinearEvolutionProblem->revert();
+        updateAndSynchronize(this->nonlinearEvolutionProblem->revert(ctx));
+        return s.shallContinue() ? true : false;
       }
       if (isValid(this->physicalSystem)) {
         updateAndSynchronize(this->physicalSystem->revert(ctx));
+        return s.shallContinue() ? true : false;
       }
-      return s.shallContinue() ? true : false;
+      return true;
     };
     //
     auto reportMaximumFailureReached = [&ctx, &s, &t,
@@ -1003,15 +1005,18 @@ namespace mfem_mgis {
           return;
         }
       }
-      // updating the physical system
+      // updating the nonlinear evolution problem and the physical system
       if (isValid(this->nonlinearEvolutionProblem)) {
-        this->nonlinearEvolutionProblem->update();
+        updateAndSynchronize(this->nonlinearEvolutionProblem->update(ctx));
+        if (!s.shallContinue()) {
+          return;
+        }
       }
       if (isValid(this->physicalSystem)) {
         updateAndSynchronize(this->physicalSystem->update(ctx));
-      }
-      if (!s.shallContinue()) {
-        return;
+        if (!s.shallContinue()) {
+          return;
+        }
       }
       // updating the previous status
       previousStatus = s;

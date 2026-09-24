@@ -315,7 +315,9 @@ namespace mfem_mgis::unit_tests {
       }
       {
         // CatchNestedTimeSection("update");
-        problem.update();
+        if (!problem.update(ctx)) {
+          mfem_mgis::abort("updating failed");
+        }
       }
       t += dt;
       extractResults(r, m1, parameters);

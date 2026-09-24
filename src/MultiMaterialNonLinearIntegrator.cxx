@@ -389,7 +389,11 @@ namespace mfem_mgis {
     if (isInvalid(obi)) {
       return {};
     }
-    return {&(obi->getMaterial())};
+    const auto& om = obi->getMaterial(ctx);
+    if (isInvalid(om)) {
+      return {};
+    }
+    return {&(*om)};
   }  // end of getMaterial
 
   OptionalReference<Material> MultiMaterialNonLinearIntegrator::getMaterial(
@@ -398,7 +402,11 @@ namespace mfem_mgis {
     if (isInvalid(obi)) {
       return {};
     }
-    return {&(obi->getMaterial())};
+    const auto& om = obi->getMaterial(ctx);
+    if (isInvalid(om)) {
+      return {};
+    }
+    return {&(*om)};
   }  // end of getMaterial
 
   std::optional<size_type>

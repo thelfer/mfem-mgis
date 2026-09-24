@@ -288,7 +288,9 @@ int main(int argc, char* argv[]) {
       mfem_mgis::abort(EXIT_FAILURE);
     }
     if (use_post_processing) execute_post_processings(ctx, problem, i * dt, dt);
-    problem.update();
+    if (!problem.update(ctx)) {
+      mfem_mgis::Profiler::Utils::Message("INFO: UPDATE FAILED");
+    }
   }
 
   // print and write timetable

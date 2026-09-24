@@ -46,14 +46,20 @@ namespace mfem_mgis {
       if (*ostrategy == "Elasticity") {
         amg->SetElasticityOptions(&fespace);
       } else if (*ostrategy == "System") {
-        const auto* const m = fespace.GetMesh();
         const auto o = fespace.GetOrdering();
-        amg->SetSystemsOptions(m->Dimension(), o == mfem::Ordering::byNODES);
+        amg->SetSystemsOptions(fespace.GetVDim(), o == mfem::Ordering::byNODES);
       } else if (*ostrategy != "None") {
         return ctx.registerErrorMessage(
             "setLinearSolverParameters: "
             "invalid strategy '" +
             *ostrategy + "' for preconditioner HypreBoomerAMG");
+      }
+    } else {
+      // without the `Strategy` option, the preconditioner is a scalar AMG
+      // whatever the number of components.
+      if (fespace.GetVDim() > 1) {
+        const auto o = fespace.GetOrdering();
+        amg->SetSystemsOptions(fespace.GetVDim(), o == mfem::Ordering::byNODES);
       }
     }
     if (contains(opts, Problem::SolverVerbosityLevel)) {

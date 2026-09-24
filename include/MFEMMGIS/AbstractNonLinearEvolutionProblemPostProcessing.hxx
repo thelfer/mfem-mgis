@@ -47,10 +47,11 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void execute(mgis::Context& ctx,
-                         NonLinearEvolutionProblemImplementation<true>&,
-                         const real,
-                         const real) = 0;
+    [[nodiscard]] virtual bool execute(
+        mgis::Context& ctx,
+        NonLinearEvolutionProblemImplementation<true>&,
+        const real,
+        const real) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblemPostProcessing();
   };  // end of struct AbstractNonLinearEvolutionProblemPostProcessing
@@ -74,14 +75,16 @@ namespace mfem_mgis {
         const real) noexcept = 0;
     /*!
      * \brief execute the post-processing
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void execute(mgis::Context& ctx,
-                         NonLinearEvolutionProblemImplementation<false>&,
-                         const real,
-                         const real) = 0;
+    [[nodiscard]] virtual bool execute(
+        mgis::Context& ctx,
+        NonLinearEvolutionProblemImplementation<false>&,
+        const real,
+        const real) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblemPostProcessing();
   };  // end of struct AbstractNonLinearEvolutionProblemPostProcessing

@@ -193,7 +193,9 @@ int main(int argc, char* argv[]) {
   time += dt;
 
   /** Do not forget to update your problem at each timestep */
-  problem.update();
+  if (!problem.update(ctx)) {
+    mfem_mgis::Profiler::Utils::Message("INFO: UPDATE FAILED");
+  }
 
   /** Run post processings previously defined */
   problem.executePostProcessings(ctx, time, dt);

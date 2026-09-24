@@ -16,6 +16,7 @@
 #include "mfem/fem/pnonlinearform.hpp"
 #endif /* MFEM_USE_MPI */
 #include "mfem/fem/nonlininteg.hpp"
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Parameter.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
@@ -149,7 +150,11 @@ namespace mfem_mgis {
         mids(getMaterialsIdentifiers(throwing, p, params, false)),
         qfct(get<std::function<real(const real)>>(
             throwing, params, "LoadingEvolution")),
-        nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
+        nfi(new UniformHeatSourceNonlinearFormIntegrator) {
+    if (!qfct) {
+      raise("invalid evolution of the heat source");
+    }
+  }
 
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
       std::shared_ptr<FiniteElementDiscretization> fed,
@@ -158,7 +163,11 @@ namespace mfem_mgis {
       : finiteElementDiscretization(fed),
         mids(1, mid),
         qfct(prvalues),
-        nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
+        nfi(new UniformHeatSourceNonlinearFormIntegrator) {
+    if (!qfct) {
+      raise("invalid evolution of the heat source");
+    }
+  }
 
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
       std::shared_ptr<FiniteElementDiscretization> fed,
@@ -167,11 +176,24 @@ namespace mfem_mgis {
       : finiteElementDiscretization(fed),
         mids(getMaterialsIdentifiers(throwing, *fed, mid)),
         qfct(prvalues),
-        nfi(new UniformHeatSourceNonlinearFormIntegrator) {}
-
-  void UniformHeatSourceBoundaryCondition::setup(const real t, const real dt) {
-    this->nfi->setHeatSource(this->qfct(t + dt));
+        nfi(new UniformHeatSourceNonlinearFormIntegrator) {
+    if (!qfct) {
+      raise("invalid evolution of the heat source");
+    }
   }
+
+  bool UniformHeatSourceBoundaryCondition::setup(Context &ctx,
+                                                 const real t,
+                                                 const real dt) noexcept {
+    auto success = true;
+    try {
+      this->nfi->setHeatSource(this->qfct(t + dt));
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+      success = false;
+    }
+    return isTrueOnAllProcesses(*(this->finiteElementDiscretization), success);
+  }  // end of setup
 
 #ifdef MFEM_USE_MPI
   bool UniformHeatSourceBoundaryCondition::addNonlinearFormIntegrator(

@@ -38,10 +38,11 @@ namespace mfem_mgis {
         Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
         const real) noexcept override;
-    void execute(Context &,
-                 NonLinearEvolutionProblemImplementation<parallel> &,
-                 const real,
-                 const real) override;
+    [[nodiscard]] bool execute(
+        Context &,
+        NonLinearEvolutionProblemImplementation<parallel> &,
+        const real,
+        const real) noexcept override;
     //! \brief destructor
     ~EnergyPostProcessingBase() override;
 

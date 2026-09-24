@@ -63,9 +63,9 @@ namespace mfem_mgis {
   }  // end of raiseUnmatchedParameterType
 
   Parameter::Parameter() = default;
-  Parameter::Parameter(Parameter&&) = default;
+  Parameter::Parameter(Parameter&&) noexcept = default;
   Parameter::Parameter(const Parameter&) = default;
-  Parameter& Parameter::operator=(Parameter&&) = default;
+  Parameter& Parameter::operator=(Parameter&&) noexcept = default;
   Parameter& Parameter::operator=(const Parameter&) = default;
 
   Parameter::Parameter(const char* const src)

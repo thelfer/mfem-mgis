@@ -82,10 +82,13 @@ namespace mfem_mgis {
         const real) noexcept = 0;
     /*!
      * \brief method call at the beginning of each resolution
+     * \param[in] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void setup(const real, const real) = 0;
+    [[nodiscard]] virtual bool setup(Context&,
+                                     const real,
+                                     const real) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractBoundaryCondition();
   };

@@ -12,7 +12,7 @@ namespace mfem_mgis {
 
   std::map<std::string, std::string>
   PostProcessingBase::getParametersDescription() noexcept {
-    return {{"allTimeSteps",
+    return {{"AllTimeSteps",
              "boolean stating if the fields must be written at each time step "
              "or only at the end time steps marked by the user as  "
              "post-processing times (default option)"}};
@@ -23,7 +23,7 @@ namespace mfem_mgis {
                                          const bool defaultAllTimeStepsValue)
       : physicalSystem(ps),
         allTimeSteps(get_if<bool>(
-            throwing, params, "allTimeSteps", defaultAllTimeStepsValue)) {}
+            throwing, params, "AllTimeSteps", defaultAllTimeStepsValue)) {}
 
   PhysicalSystem &PostProcessingBase::getPhysicalSystem() noexcept {
     return this->physicalSystem;

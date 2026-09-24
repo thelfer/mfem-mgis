@@ -29,9 +29,10 @@ namespace mfem_mgis {
   //! \brief remove extra spaces on the right
   [[nodiscard]] static std::string trim_right(const std::string& s) noexcept {
     auto r = std::string{s};
-    r.erase(std::find_if(
-                r.rbegin(), r.rend(),
-                [](std::string::value_type ch) { return !std::isspace(ch); })
+    r.erase(std::find_if(r.rbegin(), r.rend(),
+                         [](std::string::value_type ch) {
+                           return !std::isspace(static_cast<unsigned char>(ch));
+                         })
                 .base(),
             r.end());
     return r;
@@ -127,14 +128,15 @@ namespace mfem_mgis {
       return false;
     }
     auto p = n.begin();
-    if (std::isdigit(*p)) {
+    if (std::isdigit(static_cast<unsigned char>(*p))) {
       return false;
     }
     for (; p != n.end(); ++p) {
-      if ((!std::isalpha(*p)) && (!(std::isdigit(*p))) && (*p != '_')) {
+      if ((!std::isalpha(static_cast<unsigned char>(*p))) &&
+          (!(std::isdigit(static_cast<unsigned char>(*p)))) && (*p != '_')) {
         return false;
       }
-      if (std::isspace(*p)) {
+      if (std::isspace(static_cast<unsigned char>(*p))) {
         return false;
       }
     }

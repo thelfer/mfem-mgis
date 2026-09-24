@@ -81,7 +81,9 @@ namespace mfem_mgis {
       return false;
     }
     if (b) {
-      this->problem->executePostProcessings(ctx, ts.begin, ts.dt);
+      if (!this->problem->executePostProcessings(ctx, ts.begin, ts.dt)) {
+        return false;
+      }
     }
     return true;
   }
@@ -103,16 +105,14 @@ namespace mfem_mgis {
     if (!ModelBase::update(ctx)) {
       return false;
     }
-    this->problem->update();
-    return true;
+    return this->problem->update(ctx);
   }  // end of update
 
   bool NonLinearModel::revert(Context &ctx) noexcept {
     if (!ModelBase::revert(ctx)) {
       return false;
     }
-    this->problem->revert();
-    return true;
+    return this->problem->revert(ctx);
   }  // end of revert
 
   NonLinearModel::~NonLinearModel() noexcept = default;

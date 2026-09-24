@@ -14,7 +14,9 @@ namespace mfem_mgis {
   bool assign(Context& ctx,
               PartialQuadratureFunction& f,
               EvaluatorType e) requires(N > 0) {
-    checkMatchingQuadratureSpaces(f, e);
+    if (!checkMatchingQuadratureSpaces(f, e)) {
+      return false;
+    }
     raise_if(f.getNumberOfComponents() != N,
              "assign: invalid number of components for the left hand size");
     raise_if(e.getNumberOfComponents() != N,

@@ -501,13 +501,13 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual void executePostProcessings(Context &ctx,
-                                        const real,
-                                        const real) = 0;
+    [[nodiscard]] virtual bool executePostProcessings(Context &ctx,
+                                                      const real,
+                                                      const real) noexcept = 0;
     //! \brief revert the state to the beginning of the time step.
-    virtual void revert() = 0;
+    [[nodiscard]] virtual bool revert(Context &) noexcept = 0;
     //! \brief update the state to the end of the time step.
-    virtual void update() = 0;
+    [[nodiscard]] virtual bool update(Context &) noexcept = 0;
     //! \return the unknowns at the beginning of the time step
     [[nodiscard, deprecated("use getUnknowns instead")]]  //
     virtual mfem::Vector &

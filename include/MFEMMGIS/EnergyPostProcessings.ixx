@@ -48,11 +48,11 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   template <bool parallel>
-  void EnergyPostProcessingBase<parallel>::execute(
+  bool EnergyPostProcessingBase<parallel>::execute(
       Context &,
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const real t,
-      const real dt) {
+      const real dt) noexcept {
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
@@ -72,6 +72,7 @@ namespace mfem_mgis {
       const auto energies = this->computeEnergies(p);
       this->writeResults(energies);
     }
+    return true;
   }  // end of EnergyPostProcessingBase
 
   template <bool parallel>

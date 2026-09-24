@@ -105,7 +105,9 @@ int main(int argc, char** argv) {
       mfem_mgis::raise("non convergence");
     }
     problem.executePostProcessings(ctx, t, dt);
-    problem.update();
+    if (!problem.update(ctx)) {
+      mfem_mgis::raise("update faile");
+    }
     t += dt;
   }
   //

@@ -385,11 +385,10 @@ namespace mfem_mgis {
     return this->pimpl->executeInitialPostProcessings(ctx, t);
   }  // end of executeInitialPostProcessings
 
-  void NonLinearEvolutionProblem::executePostProcessings(Context& ctx,
-                                                         const real t,
-                                                         const real dt) {
-    this->pimpl->executePostProcessings(ctx, t, dt);
-  }
+  bool NonLinearEvolutionProblem::executePostProcessings(
+      Context& ctx, const real t, const real dt) noexcept {
+    return this->pimpl->executePostProcessings(ctx, t, dt);
+  }  // end of executePostProcessings
 
   std::optional<std::map<size_type, size_type>>
   NonLinearEvolutionProblem::addBehaviourIntegrator(
@@ -468,12 +467,12 @@ namespace mfem_mgis {
     return this->pimpl->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 
-  void NonLinearEvolutionProblem::update() {
-    this->pimpl->update();
+  bool NonLinearEvolutionProblem::update(Context& ctx) noexcept {
+    return this->pimpl->update(ctx);
   }  // end of update
 
-  void NonLinearEvolutionProblem::revert() {
-    this->pimpl->revert();
+  bool NonLinearEvolutionProblem::revert(Context& ctx) noexcept {
+    return this->pimpl->revert(ctx);
   }  // end of revert
 
   bool NonLinearEvolutionProblem::setup(Context& ctx,
