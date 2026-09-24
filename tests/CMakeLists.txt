@@ -298,6 +298,26 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_material_quantity_provider_search_test()
 
+  # BehaviourIntegratorBaseTest executable
+  add_tfel_test_executable(BehaviourIntegratorBaseTest)
+
+  # Helper function for BehaviourIntegratorBaseTest cases
+  function(add_behaviour_integrator_base_test)
+    set(test "BehaviourIntegratorBaseTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+               "--library" "$<TARGET_FILE:BehaviourTest>")
+    add_test(NAME ${test}
+             COMMAND ./BehaviourIntegratorBaseTest ${params} "--parallel" 0)
+    set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./BehaviourIntegratorBaseTest ${params} "--parallel" 1)
+      set_property(TEST Parallel${test} PROPERTY DEPENDS BehaviourTest)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_behaviour_integrator_base_test()
+
   # StateManagerTest executable
   add_tfel_test_executable(StateManagerTest)
 
