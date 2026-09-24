@@ -121,7 +121,7 @@ namespace mfem_mgis {
      * \param[in] s: finite element space
      */
     template <bool parallel>
-    [[nodiscard]] bool isSlibing(
+    [[nodiscard]] bool isSibling(
         const FiniteElementSpace<parallel>&) const noexcept;
     //! \return the underlying finite element space manager
     [[nodiscard]] FiniteElementSpacesManager getFiniteElementSpacesManager()

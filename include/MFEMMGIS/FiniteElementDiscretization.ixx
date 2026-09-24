@@ -11,7 +11,7 @@
 namespace mfem_mgis {
 
   template <bool parallel>
-  [[nodiscard]] bool FiniteElementDiscretization::isSlibing(
+  [[nodiscard]] bool FiniteElementDiscretization::isSibling(
       const FiniteElementSpace<parallel>& s) const noexcept {
     return this->fespaces_manager.manages(s);
   }  // end of isSibling
