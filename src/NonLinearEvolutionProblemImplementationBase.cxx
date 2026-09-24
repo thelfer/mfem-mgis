@@ -485,43 +485,47 @@ namespace mfem_mgis {
     }
   }  // end of setup
 
-  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
-      std::unique_ptr<LinearSolver> s) {
+  bool NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      Context& ctx, std::unique_ptr<LinearSolver> s) noexcept {
     if (usePETSc()) {
-      mgis::raise(
+      return ctx.registerErrorMessage(
           "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
           "call to this method is meaningless if PETSc is used");
     }
     this->linear_solver_preconditioner.reset();
     this->linear_solver = std::move(s);
     this->solver->setLinearSolver(*(this->linear_solver));
+    return true;
   }  // end of updateLinearSolver
 
-  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+  bool NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      Context& ctx,
       std::unique_ptr<LinearSolver> s,
-      std::unique_ptr<LinearSolverPreconditioner> p) {
+      std::unique_ptr<LinearSolverPreconditioner> p) noexcept {
     if (usePETSc()) {
-      mgis::raise(
+      return ctx.registerErrorMessage(
           "NonLinearEvolutionProblemImplementationBase::updateLinearSolver: "
           "call to this method is meaningless if PETSc is used");
     }
-    if (p != nullptr) {
+    if (p.get() != nullptr) {
       auto* const isolver = dynamic_cast<IterativeSolver*>(s.get());
       if (isolver != nullptr) {
         isolver->SetPreconditioner(*p);
       }
-      this->updateLinearSolver(std::move(s));
+      if (isInvalid(this->updateLinearSolver(ctx, std::move(s)))) {
+        return false;
+      }
       this->linear_solver_preconditioner = std::move(p);
-    } else {
-      this->updateLinearSolver(std::move(s));
+      return true;
     }
+    return this->updateLinearSolver(ctx, std::move(s));
   }  // end of updateLinearSolver
 
-  void NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
-      Context& ctx, LinearSolverHandler s) {
+  bool NonLinearEvolutionProblemImplementationBase::updateLinearSolver(
+      Context& ctx, LinearSolverHandler s) noexcept {
     CatchTimeSection(ctx, "NLEPIB::updateLinearSolver");
-    this->updateLinearSolver(std::move(s.linear_solver),
-                             std::move(s.preconditioner));
+    return this->updateLinearSolver(ctx, std::move(s.linear_solver),
+                                    std::move(s.preconditioner));
   }  // end of updateLinearSolver
 
   std::optional<LinearizedOperators>

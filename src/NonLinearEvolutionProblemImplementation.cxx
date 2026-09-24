@@ -597,7 +597,7 @@ namespace mfem_mgis {
       return {};
     }
     this->u1 = this->u0;
-    this->u1 -= *(oresult->mdu);
+    this->u1 -= oresult->mdu->GetTrueVector();
     return oresult->initial_residual_norm;
   }  // end of computePrediction
 
@@ -621,6 +621,9 @@ namespace mfem_mgis {
 
   void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
       std::unique_ptr<AbstractBoundaryCondition> f) {
+    if (f.get() == nullptr) {
+      raise("invalid boundary condition");
+    }
     auto ctx = Context{};
     if (!this->addBoundaryCondition(ctx, std::move(f))) {
       raise(ctx.getErrorMessage());
@@ -629,6 +632,9 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
       Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
+    if (f.get() == nullptr) {
+      return ctx.registerErrorMessage("invalid boundary condition");
+    }
     if (!f->addNonlinearFormIntegrator(ctx, *this, this->u1)) {
       return false;
     }

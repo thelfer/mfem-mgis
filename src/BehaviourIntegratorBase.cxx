@@ -383,8 +383,9 @@ namespace mfem_mgis {
         -> std::optional<
             std::vector<std::tuple<size_type, size_type, const real*>>> {
       const auto h = this->getMaterial().b.hypothesis;
-      raise_if(v.size() != mgis::behaviour::getArraySize(ds, h),
-               "integrate: ill allocated memory");
+      if (v.size() != mgis::behaviour::getArraySize(ds, h)) {
+        return ctx.registerErrorMessage("integrate: ill allocated memory");
+      }
       // evaluators
       auto evs = std::vector<std::tuple<size_type, size_type, const real*>>{};
       auto i = mgis::size_type{};

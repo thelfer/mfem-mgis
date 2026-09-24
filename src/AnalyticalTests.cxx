@@ -19,7 +19,7 @@ namespace mfem_mgis {
       std::function<void(const mfem::Vector &, mfem::Vector &)> f) noexcept {
     auto &problem = p.template getImplementation<parallel>();
     mfem_mgis::GridFunction<parallel> x(&problem.getFiniteElementSpace());
-    const auto dim = problem.getFiniteElementSpace().GetMesh()->Dimension();
+    const auto dim = problem.getFiniteElementSpace().GetVDim();
     // recover the solution as a grid function
     auto &u1 = problem.getUnknownsAtEndOfTheTimeStep();
     x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
