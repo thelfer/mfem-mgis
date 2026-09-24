@@ -110,7 +110,6 @@ struct PartialQuadratureSpaceTest final : public tfel::tests::TestCase {
                   {"FiniteElementOrder", parameters.order},
                   {"UnknownsSize", dim},
                   {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-                  {"Hypothesis", "Tridimensional"},
                   {"Parallel", bool(parameters.parallel)}});
     TFEL_TESTS_ASSERT(isValid(ofed));
     auto oqspace = construct<PartialQuadratureSpace>(

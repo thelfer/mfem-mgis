@@ -278,6 +278,23 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_use_multi_material_non_linear_integrator_test()
 
+  # AddBehaviourIntegratorTest executable
+  add_tfel_test_executable(AddBehaviourIntegratorTest)
+
+  # Helper function for AddBehaviourIntegratorTest cases
+  function(add_add_behaviour_integrator_test)
+    set(test "AddBehaviourIntegratorTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh")
+    add_test(NAME ${test}
+             COMMAND ./AddBehaviourIntegratorTest ${params} "--parallel" 0)
+    if(MFEM_USE_MPI)
+      add_test(NAME Parallel${test}
+               COMMAND mpirun -n 2 ./AddBehaviourIntegratorTest ${params} "--parallel" 1)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_add_behaviour_integrator_test()
+
   # MaterialQuantityProviderSearchTest executable
   add_tfel_test_executable(MaterialQuantityProviderSearchTest)
 
