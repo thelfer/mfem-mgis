@@ -6,7 +6,11 @@ on:
       - master
   push:
     branches:
-      - master     
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   pages:
@@ -25,6 +29,7 @@ jobs:
         requirements_path: docs/source/requirements.txt
         publish: false
     - uses: peaceiris/actions-gh-pages@v3
+      if: github.event_name == 'push'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ${{ steps.deployment.outputs.artifact }}         

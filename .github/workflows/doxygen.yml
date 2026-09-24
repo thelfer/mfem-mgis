@@ -8,68 +8,48 @@ on:
 
 permissions:
   contents: write
-  
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
 
   doc-html:
-    
+
     runs-on: ubuntu-latest
-    
+
     steps:
 
     - uses: actions/checkout@v4
 
-    - name: Set up Spack
-      uses: spack/setup-spack@v2
-      with:
-        ref: v1.0.1      # Spack version (examples: develop, releases/v0.21)
-        buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
-        color: true       # Force color output (SPACK_COLOR=always)
-        path: ${{github.workspace}}/spack       # Where to clone Spack
-    
     - name: Install Doxygen
-      run: sudo apt-get install doxygen graphviz -y
-      shell: bash
+      run: sudo apt-get install doxygen -y
 
-    - name: Install libfabric
-      run: sudo apt-get install libfabric-dev
-      
-    - name: Get Spack repo [required by mgis]
+    # Doxyfile.in only uses the project information and directories,
+    # so there is no need to configure the project with CMake.
+    - name: Generate Doxyfile
       run: |
-        git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-        spack repo add spack-repo-mfem-mgis
+        version=$(sed -n 's/^ *VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt | head -1)
+        description=$(sed -n 's/^ *DESCRIPTION "\(.*\)")*$/\1/p' CMakeLists.txt | head -1)
+        mkdir -p build/docs/doxygen
+        sed -e "s|@CMAKE_PROJECT_NAME@|mfem-mgis|g" \
+            -e "s|@CMAKE_PROJECT_VERSION@|${version}|g" \
+            -e "s|@CMAKE_PROJECT_DESCRIPTION@|${description}|g" \
+            -e "s|@PROJECT_SOURCE_DIR@|${{github.workspace}}|g" \
+            -e "s|@PROJECT_BINARY_DIR@|${{github.workspace}}/build|g" \
+            Doxyfile.in > build/Doxyfile
 
-    - name: Install Packages
-      run: |
-        spack compiler find
-        spack external find libfabric
-        spack install mfem~mpi+suite-sparse~mumps@4.7.0%gcc@12.4.0
-        spack install tfel@master:~python~python_bindings%gcc@12.4.0
-        spack install mgis@master:~c~fortran~python%gcc@12.4.0
-
-    - name: Configure CMake
-      shell: spack-sh {0}    
-      run:  |
-        spack load mfem 
-        cmake -B ${{github.workspace}}/mfem-mgis/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -Denable-doxygen-doc=ON \
-              -DCMAKE_C_COMPILER=gcc-12 \
-              -DCMAKE_CXX_COMPILER=g++-12 \
-              -DMFEM_DIR=`spack location -i mfem` \
-              -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-              -DCMAKE_PREFIX_PATH=`spack location -i tfel`/share/tfel/cmake                 
-    
     - name: Generate doxygen
-      run: cmake --build ${{github.workspace}}/mfem-mgis/build --config ${{env.BUILD_TYPE}} --target doc-html 
+      working-directory: ${{github.workspace}}/build
+      run: doxygen Doxyfile
 
     - name: Deploy
+      if: github.event_name == 'push'
       uses: peaceiris/actions-gh-pages@v4
       with:
         personal_token: ${{ secrets.DEPLOY_TO_THELFER_GITHUB_IO }}
         publish_branch: master
-        publish_dir: ${{github.workspace}}/mfem-mgis/build/docs/doxygen/html/ 
+        publish_dir: ${{github.workspace}}/build/docs/doxygen/html/
         external_repository: thelfer/thelfer.github.io
         destination_dir: mfem-mgis-doxygen/
