@@ -60,13 +60,13 @@ jobs:
                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
         else
-          spack load mfem build_type=${{ matrix.build_type }}
+          spack load mfem
           spack load mgis
           cmake -B ${{github.workspace}}/build \
                 -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install/mfem-mgis \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_COMPILER=gcc-12 \
                 -DCMAKE_CXX_COMPILER=g++-12 \
-                -DMFEM_DIR=`spack location -i mfem build_type=${{ matrix.build_type }}` \
+                -DMFEM_DIR=`spack location -i mfem` \
                 -DHYPRE_DIR=`spack location -i hypre` \
                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
@@ -82,7 +82,7 @@ jobs:
         if [ "${{ matrix.build_type }}" = "Coverage" ]; then
           spack load mfem
         else
-          spack load mfem build_type=${{ matrix.build_type }}
+          spack load mfem
         fi
         spack load tfel
         make check
@@ -105,7 +105,7 @@ jobs:
                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
         else
-          spack load mfem build_type=${{ matrix.build_type }} tfel mgis
+          spack load mfem tfel mgis
           cmake -S ${{github.workspace}}/mfem-mgis-examples\
                 -B ${{github.workspace}}/build-mfem-mgis-examples \
                 -DCMAKE_C_COMPILER=gcc-12 \
@@ -143,7 +143,7 @@ jobs:
                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
         else
-          spack load mfem build_type=${{ matrix.build_type }}
+          spack load mfem
           spack load mgis
           cmake -S ${{github.workspace}}/mm-opera-hpc\
                 -B ${{github.workspace}}/build-mm-opera-hpc \
@@ -163,7 +163,7 @@ jobs:
         if [ "${{ matrix.build_type }}" = "Coverage" ]; then
           spack load mfem tfel
         else
-          spack load mfem build_type=${{ matrix.build_type }} tfel
+          spack load mfem tfel
         fi
         ctest --rerun-failed --output-on-failure
 
