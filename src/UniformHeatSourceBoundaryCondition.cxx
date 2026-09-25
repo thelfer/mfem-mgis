@@ -97,7 +97,7 @@ namespace mfem_mgis {
         const mfem::FiniteElement &e) const noexcept override {
       const auto *ir = this->IntRule;
       if (ir == nullptr) {
-        const int o = e.GetOrder();
+        const auto o = 2 * e.GetOrder();
         return &mfem::IntRules.Get(e.GetGeomType(), o);
       }
       return ir;
@@ -137,7 +137,7 @@ namespace mfem_mgis {
         const mfem::FiniteElement &e) const noexcept override {
       const auto *ir = this->IntRule;
       if (ir == nullptr) {
-        const int o = e.GetOrder();
+        const auto o = 2 * e.GetOrder();
         return &mfem::IntRules.Get(e.GetGeomType(), o);
       }
       return ir;

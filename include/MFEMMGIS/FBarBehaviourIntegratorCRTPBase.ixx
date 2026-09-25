@@ -119,11 +119,15 @@ namespace mfem_mgis {
       const auto &ir0 = mfem::IntRules.Get(e.GetGeomType(), 0);
       const auto &ip = ir0.IntPoint(0);
       tr.SetIntPoint(&ip);
+      if constexpr (evaluateShapeFunctions) {
+        e.CalcPhysShape(tr, shape0);
+      }
       e.CalcPhysDShape(tr, dshape0);
       for (size_type ni = 0; ni != nnodes; ++ni) {
         child.updateGradients(F0v, u, dshape0, ni);
       }
     }
+    const auto J0 = tfel::math::det(F0);
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
       const auto &ip = ir.IntPoint(i);
       tr.SetIntPoint(&ip);
@@ -149,7 +153,6 @@ namespace mfem_mgis {
           child.updateGradients(Fv, u, dshape, ni);
         }
       }
-      const auto J0 = tfel::math::det(F0);
       const auto J = tfel::math::det(F);
       const auto alpha = tfel::math::power<1, ie>(J0 / J);
       auto g = this->s1.gradients.subspan(o * gsize, gsize);
@@ -306,6 +309,9 @@ namespace mfem_mgis {
       const auto &ir = mfem::IntRules.Get(e.GetGeomType(), 0);
       const auto &ip = ir.IntPoint(0);
       tr.SetIntPoint(&ip);
+      if constexpr (evaluateShapeFunctions) {
+        e.CalcPhysShape(tr, shape0);
+      }
       e.CalcPhysDShape(tr, dshape0);
       for (size_type ni = 0; ni != nnodes; ++ni) {
         child.updateGradients(F0v, u, dshape0, ni);
@@ -332,17 +338,19 @@ namespace mfem_mgis {
       const auto w = child.getIntegrationPointWeight(tr, ip);
       // offset of the integration point
       const auto o = eoffset + i;
-      auto g = this->s1.gradients.subspan(o * gsize, gsize);
-      const auto Fbar =
-          tfel::math::map<tfel::math::tensor<dimension, real>>(g.data());
-      const auto Jbar = tfel::math::det(Fbar);
-      const auto J = J0 / Jbar;
-      const auto alpha = tfel::math::power<1, ie>(J0 / J);
-      auto F =
-          eval(Fbar / alpha);  // deformation gradient, without Fbar correction
-      if constexpr (ie == 2u) {
-        F[2] = 1;
+      auto F = tfel::math::tensor<dimension, real>{};
+      std::copy(this->macroscopic_gradients.begin(),
+                this->macroscopic_gradients.end(), F.begin());
+      auto Fv = std::span<real>(F.data(), F.size());
+      for (size_type ni = 0; ni != nnodes; ++ni) {
+        if constexpr (Traits::gradientsComputationRequiresShapeFunctions) {
+          child.updateGradients(Fv, u, shape, dshape, ni);
+        } else {
+          child.updateGradients(Fv, u, dshape, ni);
+        }
       }
+      const auto J = tfel::math::det(F);
+      const auto alpha = tfel::math::power<1, ie>(J0 / J);
       auto dJ_dF = tfel::math::computeDeterminantDerivative(F);
       auto dJ_dF0 = tfel::math::computeDeterminantDerivative(F0);
       const auto dalpha_dF0 = (alpha / (ie * J0)) * dJ_dF0;

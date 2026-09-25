@@ -42,13 +42,24 @@ namespace mfem_mgis::internals {
                        std::vector<real>& points) {
     const auto& mesh = fespaces_manager.getMeshDiscretization();
     const auto d = getSpaceDimension(mesh);
-    const auto* fespace = [&f] {
+    const auto* const fespace = [&f] {
       if constexpr (parallel) {
         return f.ParFESpace();
       } else {
         return f.FESpace();
       }
     }();
+    const auto* const m = [&fespace] {
+      if constexpr (parallel) {
+        return fespace->GetParMesh();
+      } else {
+        return fespace->GetMesh();
+      }
+    }();
+    auto m_ptr = mesh.getMutableMeshPointer<parallel>(ctx, *m);
+    if (isInvalid(m_ptr)) {
+      return {};
+    }
     if (d != N) {
       return ctx.registerErrorMessage(
           "a grid function defined on a mesh with space dimension " +
@@ -57,12 +68,12 @@ namespace mfem_mgis::internals {
           std::to_string(N) + "'");
     }
     //
-    if (!fespaces_manager.setNodalFiniteElementSpace(ctx)) {
+    if (!fespaces_manager.setNodalFiniteElementSpace(ctx, *m_ptr)) {
       return {};
     }
     //
     auto finder = mfem::FindPointsGSLIB{};
-    finder.Setup(*(mesh.getMutableMeshPointer<parallel>()));
+    finder.Setup(*m_ptr);
     finder.SetDefaultInterpolationValue(std::numeric_limits<real>::quiet_NaN());
     //
     auto pts =
