@@ -17,165 +17,165 @@ jobs:
       matrix:
         build_type: [Release, Debug, Coverage]
     steps:
-     - uses: actions/checkout@v4
-     - name: Set up Spack
-       uses: spack/setup-spack@v3
-       with:
-         spack_ref: v1.2.2      # Spack version
-         packages_ref: develop  # Spack packages (builtin repository) version
-         buildcache: true       # Configure oci://ghcr.io/spack/github-actions-buildcache
-         color: true            # Force color output (SPACK_COLOR=always)
-         spack_path: ${{github.workspace}}/spack       # Where to clone Spack
+    - uses: actions/checkout@v4
+    - name: Set up Spack
+      uses: spack/setup-spack@v3
+      with:
+        spack_ref: v1.2.2      # Spack version
+        packages_ref: develop  # Spack packages (builtin repository) version
+        buildcache: true       # Configure oci://ghcr.io/spack/github-actions-buildcache
+        color: true            # Force color output (SPACK_COLOR=always)
+        spack_path: ${{github.workspace}}/spack       # Where to clone Spack
 
-     - name: Setup LCOV
-       if: matrix.build_type == 'Coverage'
-       uses: hrishikesh-kadam/setup-lcov@v1
+    - name: Setup LCOV
+      if: matrix.build_type == 'Coverage'
+      uses: hrishikesh-kadam/setup-lcov@v1
 
-     - name: Install Packages
-       run: |
-         git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-         spack repo add spack-repo-mfem-mgis
-         spack compiler find
-         spack config add "packages:c:require:[gcc@12.4.0]"
-         spack config add "packages:cxx:require:[gcc@12.4.0]"
-         spack config add "packages:fortran:require:[gcc@12.4.0]"
-         if [ "${{ matrix.build_type }}" = "Debug" ]; then
-           spack install --only dependencies mfem-mgis ^mfem+debug ^tfel~python~python_bindings ^mgis~python~fortran
-         else
-           spack install --only dependencies mfem-mgis ^tfel~python~python_bindings ^mgis~python~fortran
-         fi
+    - name: Install Packages
+      run: |
+        git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
+        spack repo add spack-repo-mfem-mgis
+        spack compiler find
+        spack config add "packages:c:require:[gcc@12.4.0]"
+        spack config add "packages:cxx:require:[gcc@12.4.0]"
+        spack config add "packages:fortran:require:[gcc@12.4.0]"
+        if [ "${{ matrix.build_type }}" = "Debug" ]; then
+          spack install --only dependencies mfem-mgis ^mfem+debug ^tfel~python~python_bindings ^mgis~python~fortran
+        else
+          spack install --only dependencies mfem-mgis ^tfel~python~python_bindings ^mgis~python~fortran
+        fi
 
-     - name: Config MFEM-MGIS
-       shell: spack-sh {0}    
-       run: |
-         if [ "${{ matrix.build_type }}" = "Coverage" ]; then
-           spack load mfem
-           cmake -B ${{github.workspace}}/build \
-                 -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install/mfem-mgis \
-                 -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
-                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_COMPILER=gcc-12 \
-                 -DCMAKE_CXX_COMPILER=g++-12 \
-                 -DMFEM_DIR=`spack location -i mfem` \
-                 -DHYPRE_DIR=`spack location -i hypre` \
-                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-         else
-           spack load mfem build_type=${{ matrix.build_type }}
-           spack load mgis
-           cmake -B ${{github.workspace}}/build \
-                 -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install/mfem-mgis \
-                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_COMPILER=gcc-12 \
-                 -DCMAKE_CXX_COMPILER=g++-12 \
-                 -DMFEM_DIR=`spack location -i mfem build_type=${{ matrix.build_type }}` \
-                 -DHYPRE_DIR=`spack location -i hypre` \
-                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-         fi
+    - name: Config MFEM-MGIS
+      shell: spack-sh {0}    
+      run: |
+        if [ "${{ matrix.build_type }}" = "Coverage" ]; then
+          spack load mfem
+          cmake -B ${{github.workspace}}/build \
+                -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install/mfem-mgis \
+                -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_COMPILER=gcc-12 \
+                -DCMAKE_CXX_COMPILER=g++-12 \
+                -DMFEM_DIR=`spack location -i mfem` \
+                -DHYPRE_DIR=`spack location -i hypre` \
+                -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+                -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
+        else
+          spack load mfem build_type=${{ matrix.build_type }}
+          spack load mgis
+          cmake -B ${{github.workspace}}/build \
+                -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install/mfem-mgis \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_COMPILER=gcc-12 \
+                -DCMAKE_CXX_COMPILER=g++-12 \
+                -DMFEM_DIR=`spack location -i mfem build_type=${{ matrix.build_type }}` \
+                -DHYPRE_DIR=`spack location -i hypre` \
+                -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+                -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
+        fi
 
-     - name: Build MFEM-MGIS
-       run: cmake --build ${{github.workspace}}/build --target install -j $(nproc)
-       
-     - name: Run examples 
-       shell: spack-sh {0}    
-       working-directory: ${{github.workspace}}/build
-       run: |
-         if [ "${{ matrix.build_type }}" = "Coverage" ]; then
-           spack load mfem
-         else
-           spack load mfem build_type=${{ matrix.build_type }}
-         fi
-         spack load tfel
-         make check
-
-     - name: clone MFEM-MGIS-EXAMPLES
-       run: git clone https://github.com/latug0/mfem-mgis-examples.git
-
-     - name: CMake && Compile MFEM-MGIS-EXAMPLES
-       shell: spack-sh {0} 
-       run: |
-         if [ "${{ matrix.build_type }}" = "Coverage" ]; then
-           spack load mfem tfel mgis
-           cmake -S ${{github.workspace}}/mfem-mgis-examples\
-                 -B ${{github.workspace}}/build-mfem-mgis-examples \
-                 -DCMAKE_C_COMPILER=gcc-12 \
-                 -DCMAKE_CXX_COMPILER=g++-12 \
-                 -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
-                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                 -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
-                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-         else
-           spack load mfem build_type=${{ matrix.build_type }} tfel mgis
-           cmake -S ${{github.workspace}}/mfem-mgis-examples\
-                 -B ${{github.workspace}}/build-mfem-mgis-examples \
-                 -DCMAKE_C_COMPILER=gcc-12 \
-                 -DCMAKE_CXX_COMPILER=g++-12 \
-                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                 -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
-                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-         fi
-         cmake --build ${{github.workspace}}/build-mfem-mgis-examples
+    - name: Build MFEM-MGIS
+      run: cmake --build ${{github.workspace}}/build --target install -j $(nproc)
       
-     - name: Run MFEM-MGIS-EXAMPLES
-       shell: spack-sh {0} 
-       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
-       run: |
-         spack load tfel
-         ctest --rerun-failed --output-on-failure -V
-         
-     - name: Run OperaHPC repository
-       run: git clone https://github.com/rprat-pro/mm-opera-hpc.git
-        
-     - name: CMake && Compile OperaHPC examples
-       shell: spack-sh {0} 
-       run: |
-         if [ "${{ matrix.build_type }}" = "Coverage" ]; then
-           spack load mfem
-           spack load mgis
-           cmake -S ${{github.workspace}}/mm-opera-hpc\
-                 -B ${{github.workspace}}/build-mm-opera-hpc \
-                 -DCMAKE_C_COMPILER=gcc-12 \
-                 -DCMAKE_CXX_COMPILER=g++-12 \
-                 -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
-                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                 -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
-                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-         else
-           spack load mfem build_type=${{ matrix.build_type }}
-           spack load mgis
-           cmake -S ${{github.workspace}}/mm-opera-hpc\
-                 -B ${{github.workspace}}/build-mm-opera-hpc \
-                 -DCMAKE_C_COMPILER=gcc-12 \
-                 -DCMAKE_CXX_COMPILER=g++-12 \
-                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                 -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
-                 -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
-                 -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-         fi
-         cmake --build ${{github.workspace}}/build-mm-opera-hpc
-        
-     - name: Run OperaHPC examples
-       shell: spack-sh {0} 
-       working-directory: ${{github.workspace}}/build-mm-opera-hpc
-       run: |
-         if [ "${{ matrix.build_type }}" = "Coverage" ]; then
-           spack load mfem tfel
-         else
-           spack load mfem build_type=${{ matrix.build_type }} tfel
-         fi
-         ctest --rerun-failed --output-on-failure
+    - name: Run examples 
+      shell: spack-sh {0}    
+      working-directory: ${{github.workspace}}/build
+      run: |
+        if [ "${{ matrix.build_type }}" = "Coverage" ]; then
+          spack load mfem
+        else
+          spack load mfem build_type=${{ matrix.build_type }}
+        fi
+        spack load tfel
+        make check
 
-     - name: Generate a code coverage report part2
-       if: matrix.build_type == 'Coverage'
-       working-directory: ${{github.workspace}}/
-       run: |
-         gcovr --root=. --gcov-ignore-errors=no_working_dir_found --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
+    - name: clone MFEM-MGIS-EXAMPLES
+      run: git clone https://github.com/latug0/mfem-mgis-examples.git
 
-     - name: Archive code coverage results
-       if: matrix.build_type == 'Coverage'
-       uses: actions/upload-artifact@v4
-       with:
-         name: code-coverage-report
-         path: ${{github.workspace}}/coverage.html
+    - name: CMake && Compile MFEM-MGIS-EXAMPLES
+      shell: spack-sh {0} 
+      run: |
+        if [ "${{ matrix.build_type }}" = "Coverage" ]; then
+          spack load mfem tfel mgis
+          cmake -S ${{github.workspace}}/mfem-mgis-examples\
+                -B ${{github.workspace}}/build-mfem-mgis-examples \
+                -DCMAKE_C_COMPILER=gcc-12 \
+                -DCMAKE_CXX_COMPILER=g++-12 \
+                -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
+                -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+                -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
+        else
+          spack load mfem build_type=${{ matrix.build_type }} tfel mgis
+          cmake -S ${{github.workspace}}/mfem-mgis-examples\
+                -B ${{github.workspace}}/build-mfem-mgis-examples \
+                -DCMAKE_C_COMPILER=gcc-12 \
+                -DCMAKE_CXX_COMPILER=g++-12 \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
+                -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+                -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
+        fi
+        cmake --build ${{github.workspace}}/build-mfem-mgis-examples
+     
+    - name: Run MFEM-MGIS-EXAMPLES
+      shell: spack-sh {0} 
+      working-directory: ${{github.workspace}}/build-mfem-mgis-examples
+      run: |
+        spack load tfel
+        ctest --rerun-failed --output-on-failure -V
+        
+    - name: Run OperaHPC repository
+      run: git clone https://github.com/rprat-pro/mm-opera-hpc.git
+       
+    - name: CMake && Compile OperaHPC examples
+      shell: spack-sh {0} 
+      run: |
+        if [ "${{ matrix.build_type }}" = "Coverage" ]; then
+          spack load mfem
+          spack load mgis
+          cmake -S ${{github.workspace}}/mm-opera-hpc\
+                -B ${{github.workspace}}/build-mm-opera-hpc \
+                -DCMAKE_C_COMPILER=gcc-12 \
+                -DCMAKE_CXX_COMPILER=g++-12 \
+                -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
+                -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+                -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
+        else
+          spack load mfem build_type=${{ matrix.build_type }}
+          spack load mgis
+          cmake -S ${{github.workspace}}/mm-opera-hpc\
+                -B ${{github.workspace}}/build-mm-opera-hpc \
+                -DCMAKE_C_COMPILER=gcc-12 \
+                -DCMAKE_CXX_COMPILER=g++-12 \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
+                -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
+                -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
+        fi
+        cmake --build ${{github.workspace}}/build-mm-opera-hpc
+       
+    - name: Run OperaHPC examples
+      shell: spack-sh {0} 
+      working-directory: ${{github.workspace}}/build-mm-opera-hpc
+      run: |
+        if [ "${{ matrix.build_type }}" = "Coverage" ]; then
+          spack load mfem tfel
+        else
+          spack load mfem build_type=${{ matrix.build_type }} tfel
+        fi
+        ctest --rerun-failed --output-on-failure
+
+    - name: Generate a code coverage report part2
+      if: matrix.build_type == 'Coverage'
+      working-directory: ${{github.workspace}}/
+      run: |
+        gcovr --root=. --gcov-ignore-errors=no_working_dir_found --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
+
+    - name: Archive code coverage results
+      if: matrix.build_type == 'Coverage'
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: ${{github.workspace}}/coverage.html
