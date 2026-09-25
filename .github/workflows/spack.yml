@@ -19,6 +19,13 @@ on:
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        spack:
+          - {version: v1.1.0, packages: releases/v2025.11}
+          - {version: v1.2.2, packages: develop}
+        mpi: ["+mpi", "~mpi"]
     runs-on: ubuntu-latest
     steps:
       - name: Check for dockerenv file
@@ -26,14 +33,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Spack
-        uses: spack/setup-spack@v2
+        uses: spack/setup-spack@v3
         with:
-          ref: v1.2.2      # Spack version (examples: develop, releases/v0.21)
-          buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
+          spack_ref: ${{ matrix.spack.version }}      # Spack version
+          packages_ref: ${{ matrix.spack.packages }}  # Spack packages (builtin repository) version
+          buildcache: false # like users: its openblas+ilp64 breaks mumps~int64
           color: true       # Force color output (SPACK_COLOR=always)
-          path: spack       # Where to clone Spack
+          spack_path: spack # Where to clone Spack
       - name: Install MFEM MGIS
         run: |
           git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
           spack repo add spack-repo-mfem-mgis
-          spack install mfem-mgis
+          spack install --test=root mfem-mgis${{ matrix.mpi }}

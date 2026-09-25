@@ -16,22 +16,26 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Spack
-      uses: spack/setup-spack@v2
+      uses: spack/setup-spack@v3
       with:
-        ref: v1.2.2      # Spack version (examples: develop, releases/v0.21)
-        buildcache: true  # Configure oci://ghcr.io/spack/github-actions-buildcache
-        color: true       # Force color output (SPACK_COLOR=always)
-        path: ${{github.workspace}}/spack       # Where to clone Spack
+        spack_ref: v1.2.2      # Spack version
+        packages_ref: develop  # Spack packages (builtin repository) version
+        buildcache: true       # Configure oci://ghcr.io/spack/github-actions-buildcache
+        color: true            # Force color output (SPACK_COLOR=always)
+        spack_path: ${{github.workspace}}/spack       # Where to clone Spack
 
     - name: Setup LCOV
       uses: hrishikesh-kadam/setup-lcov@v1
 
     - name: Install Packages
       run: |
+        git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
+        spack repo add spack-repo-mfem-mgis
         spack compiler find
-        spack install mfem+mpi+suite-sparse+mumps@4.8.0%gcc@12.4.0
-        spack install tfel@master:~python~python_bindings%gcc@12.4.0
-        spack install mgis@master:+c~fortran~python%gcc@12.4.0
+        spack config add "packages:c:require:[gcc@12.4.0]"
+        spack config add "packages:cxx:require:[gcc@12.4.0]"
+        spack config add "packages:fortran:require:[gcc@12.4.0]"
+        spack install --only dependencies mfem-mgis ^tfel~python~python_bindings ^mgis~python~fortran
 
     - name: Config MFEM-MGIS [coverage]
       shell: spack-sh {0}    
