@@ -90,7 +90,8 @@ namespace mfem_mgis {
                         p,
                         FiniteElementDiscretization::getParametersList())),
             h,
-            p) {}  // end of NonLinearEvolutionProblem
+            remove(p, FiniteElementDiscretization::getParametersList())) {
+  }  // end of NonLinearEvolutionProblem
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(Context& ctx,
                                                        MeshDiscretization& m,
