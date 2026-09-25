@@ -1,4 +1,4 @@
-name: Build with Cmake and Run Examples
+name: Coverage Build with Cmake and Run Examples
 
 on:
   push:
@@ -110,13 +110,13 @@ jobs:
         spack load mfem tfel
         ctest --rerun-failed --output-on-failure
 
-#    - name: Generate a code coverage report part2
-#      working-directory: ${{github.workspace}}/
-#      run: |
-#        gcovr --root=. --gcov-ignore-errors=no_working_dir_found --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
+    - name: Generate a code coverage report part2
+      working-directory: ${{github.workspace}}/
+      run: |
+        gcovr --root=. --gcov-ignore-errors=no_working_dir_found --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage.html
         
-#    - name: Archive code coverage results
-#      uses: actions/upload-artifact@v4
-#      with:
-#        name: code-coverage-report
-#        path: ${{github.workspace}}/coverage.html
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: ${{github.workspace}}/coverage.html
