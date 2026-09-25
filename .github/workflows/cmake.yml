@@ -129,7 +129,7 @@ jobs:
       run: |
         pipx install gcovr
         mkdir -p coverage-report
-        gcovr --root=. --gcov-executable gcov-12 --exclude='build/*' --exclude='tests/*' --exclude='spack/*' --exclude='coverage/*' --html-details coverage-report/index.html
+        gcovr --root=. --gcov-executable gcov-12 --filter src/ --filter include/ --html-details coverage-report/index.html
 
     - name: Archive code coverage results
       if: matrix.build_type == 'Coverage'
