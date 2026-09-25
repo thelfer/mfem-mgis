@@ -18,7 +18,8 @@
 
 namespace mfem_mgis {
 
-  std::map<std::string, std::string> getParametersDescription() noexcept {
+  std::map<std::string, std::string>
+  GridFunctionValuesCurve::getParametersDescription() noexcept {
     return {{"Points",
              "list of points on which the grid function is interpolated"}};
   }  // end of getParametersDescription()
