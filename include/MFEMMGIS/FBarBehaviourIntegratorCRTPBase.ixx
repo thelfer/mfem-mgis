@@ -119,6 +119,9 @@ namespace mfem_mgis {
       const auto &ir0 = mfem::IntRules.Get(e.GetGeomType(), 0);
       const auto &ip = ir0.IntPoint(0);
       tr.SetIntPoint(&ip);
+      if constexpr (evaluateShapeFunctions) {
+        e.CalcPhysShape(tr, shape0);
+      }
       e.CalcPhysDShape(tr, dshape0);
       for (size_type ni = 0; ni != nnodes; ++ni) {
         child.updateGradients(F0v, u, dshape0, ni);
@@ -306,6 +309,9 @@ namespace mfem_mgis {
       const auto &ir = mfem::IntRules.Get(e.GetGeomType(), 0);
       const auto &ip = ir.IntPoint(0);
       tr.SetIntPoint(&ip);
+      if constexpr (evaluateShapeFunctions) {
+        e.CalcPhysShape(tr, shape0);
+      }
       e.CalcPhysDShape(tr, dshape0);
       for (size_type ni = 0; ni != nnodes; ++ni) {
         child.updateGradients(F0v, u, dshape0, ni);
