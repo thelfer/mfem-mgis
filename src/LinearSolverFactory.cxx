@@ -44,7 +44,16 @@ namespace mfem_mgis {
         return {};
       }
       if (*ostrategy == "Elasticity") {
-        amg->SetElasticityOptions(&fespace);
+        if (fespace.GetOrdering() == mfem::Ordering::byVDIM) {
+          amg->SetElasticityOptions(&fespace);
+        } else {
+          // the elasticity version of BoomerAMG requires Ordering::byVDIM
+          warning(ctx.log(),
+                  "setLinearSolverParameters: strategy 'Elasticity' of "
+                  "preconditioner HypreBoomerAMG requires unknowns ordered by "
+                  "vector dimension, using strategy 'System' instead");
+          amg->SetSystemsOptions(fespace.GetVDim(), true);
+        }
       } else if (*ostrategy == "System") {
         const auto o = fespace.GetOrdering();
         amg->SetSystemsOptions(fespace.GetVDim(), o == mfem::Ordering::byNODES);
