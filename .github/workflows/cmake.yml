@@ -13,6 +13,9 @@ concurrency:
 jobs:
   run_tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Spack
@@ -26,20 +29,24 @@ jobs:
     - name: Install Packages
       run: |
         spack compiler find
-        spack install mfem+mpi+suite-sparse+mumps@4.8.0%gcc@12.4.0
+        if [ "${{ matrix.build_type }}" = "Release" ]; then
+          spack install mfem+mpi+suite-sparse+mumps@4.8.0%gcc@12.4.0
+        elif [ "${{ matrix.build_type }}" = "Debug" ]; then
+          spack install mfem+mpi+suite-sparse+mumps@4.8.0%gcc@12.4.0 build_type=Debug
+        fi
         spack install tfel@master:~python~python_bindings%gcc@12.4.0
         spack install mgis@master:+c~fortran~python%gcc@12.4.0
 
     - name: Config MFEM-MGIS
       shell: spack-sh {0}    
       run: |
-        spack load mfem 
+        spack load mfem build_type=${{ matrix.build_type }}
         spack load mgis
         cmake -B ${{github.workspace}}/build \
               -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install/mfem-mgis \
-              -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-12 \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
-              -DMFEM_DIR=`spack location -i mfem` \
+              -DMFEM_DIR=`spack location -i mfem build_type=${{ matrix.build_type }}` \
               -DHYPRE_DIR=`spack location -i hypre` \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
@@ -51,7 +58,7 @@ jobs:
       shell: spack-sh {0}    
       working-directory: ${{github.workspace}}/build
       run: |
-        spack load mfem
+        spack load mfem build_type=${{ matrix.build_type }}
         spack load tfel
         make check
     - name: clone MFEM-MGIS-EXAMPLES
@@ -59,12 +66,12 @@ jobs:
     - name: CMake && Compile MFEM-MGIS-EXAMPLES
       shell: spack-sh {0} 
       run: |
-        spack load mfem tfel mgis
+        spack load mfem build_type=${{ matrix.build_type }} tfel mgis
         cmake -S ${{github.workspace}}/mfem-mgis-examples\
               -B ${{github.workspace}}/build-mfem-mgis-examples \
               -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
-              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
@@ -83,13 +90,13 @@ jobs:
     - name: CMake && Compile OperaHPC examples
       shell: spack-sh {0} 
       run: |
-        spack load mfem 
+        spack load mfem build_type=${{ matrix.build_type }}
         spack load mgis
         cmake -S ${{github.workspace}}/mm-opera-hpc\
               -B ${{github.workspace}}/build-mm-opera-hpc \
               -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
-              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
@@ -99,5 +106,5 @@ jobs:
       shell: spack-sh {0} 
       working-directory: ${{github.workspace}}/build-mm-opera-hpc
       run: |
-        spack load mfem tfel
+        spack load mfem build_type=${{ matrix.build_type }} tfel
         ctest --rerun-failed --output-on-failure
