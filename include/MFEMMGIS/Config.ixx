@@ -25,7 +25,7 @@ namespace mfem_mgis {
 
   template <typename Exception, typename... Args>
   inline void raise(Args&&... args) {
-    mgis::raise<Exception>(std::forward<Args...>(args...));
+    mgis::raise<Exception>(std::forward<Args>(args)...);
   }  // end of raise
 
   template <typename Exception>
@@ -38,7 +38,7 @@ namespace mfem_mgis {
   template <typename Exception, typename... Args>
   void raise_if(const bool c, Args&&... a) {
     if (c) {
-      raise<Exception>(std::forward<Args...>(a...));
+      raise<Exception>(std::forward<Args>(a)...);
     }
   }  // end of raise
 
