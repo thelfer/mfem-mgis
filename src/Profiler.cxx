@@ -3,9 +3,14 @@
  * \brief  This file implements the profiling output utilities
  */
 
-#include "MGIS/Context.hxx"
-#include "MGIS/Profiling.hxx"
-#include "MFEMMGIS/Profiler.hxx"
+
+#ifdef MFEM_USE_MPI
+#include <mpi.h>
+#endif
+#ifdef MFEM_USE_OPENMP
+#include <omp.h>
+#endif /* MFEM_USE_OPENMP */
+
 #include <iomanip>
 #include <numeric>
 #include <algorithm>
@@ -14,10 +19,9 @@
 #include <sstream>
 #include <vector>
 #include <mfem.hpp>
-
-#ifdef MFEM_USE_MPI
-#include "mpi.h"
-#endif
+#include "MGIS/Context.hxx"
+#include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/Profiler.hxx"
 
 namespace mfem_mgis {
   namespace Profiler {
