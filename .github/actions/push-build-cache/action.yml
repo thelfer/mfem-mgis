@@ -24,7 +24,7 @@ runs:
       spack --color never python -c 'import spack.store; print("\n".join(sorted({d.dag_hash() for s in spack.store.STORE.db.query() for d in s.traverse() if not d.external})))' \
             > used-hashes.txt
       echo "$(wc -l < used-hashes.txt) packages used"
-  - uses: actions/upload-artifact@v4
+  - uses: actions/upload-artifact@v7
     with:
       name: ${{ inputs.artifact }}
       path: used-hashes.txt

@@ -29,7 +29,7 @@ jobs:
       matrix:
         build_type: [Release, Debug, Coverage]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Spack
       uses: spack/setup-spack@v3
       with:
@@ -39,9 +39,12 @@ jobs:
         color: true            # Force color output (SPACK_COLOR=always)
         spack_path: ${{github.workspace}}/spack       # Where to clone Spack
 
+    # only required by the coverage target of CMakeLists.txt, the report being made by gcovr
     - name: Set up LCOV
       if: matrix.build_type == 'Coverage'
-      uses: hrishikesh-kadam/setup-lcov@v1
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lcov
 
     - name: Set up the build cache
       uses: ./.github/actions/setup-build-cache
@@ -173,10 +176,11 @@ jobs:
 
     - name: Upload coverage report
       if: matrix.build_type == 'Coverage'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: code-coverage-report
         path: ${{github.workspace}}/coverage-report
+        overwrite: true  # when the job is rerun
 
     # even when a test fails, so that the next run does not compile everything again
     - name: Save ccache
@@ -193,7 +197,7 @@ jobs:
       contents: read
       packages: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Spack
       uses: spack/setup-spack@v3
       with:
