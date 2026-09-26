@@ -13,14 +13,20 @@ on:
     branches:
       - master
 
+  # Test the pull requests, which only read the build cache
+  pull_request:
+    branches:
+      - master
+
   # Publish packages on release
   release:
     types: [published]
 
-# one run at a time, since each run cleans the build cache
+# one run at a time outside pull requests, since the runs on master clean the build
+# cache, whereas a new commit pushed to a pull request cancels the previous run
 concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || 'master' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   BUILD_CACHE: oci://ghcr.io/${{ github.repository_owner }}/mfem-mgis-spack-buildcache
@@ -66,9 +72,13 @@ jobs:
           # pin the master commits, otherwise older binaries from the cache would be reused
           tfel=$(git ls-remote https://github.com/thelfer/tfel.git refs/heads/master | cut -f1)
           mgis=$(git ls-remote https://github.com/thelfer/MFrontGenericInterfaceSupport.git refs/heads/master | cut -f1)
-          spec="mfem-mgis@master${{ matrix.mpi }} ^tfel@master commit=$tfel ^mgis@master commit=$mgis"
-          echo "SPEC=$spec" >> $GITHUB_ENV
-          spack install --only dependencies $spec
+          env=${{ runner.temp }}/mfem-mgis-env
+          spack env create -d $env
+          spack -e $env add "mfem-mgis@master${{ matrix.mpi }} ^tfel@master commit=$tfel ^mgis@master commit=$mgis"
+          # build the checked out sources rather than the master branch fetched by the
+          # recipe, which only changes the hash of mfem-mgis, not of its dependencies
+          spack -e $env develop --no-clone --path ${{ github.workspace }} mfem-mgis@master
+          spack -e $env install --only dependencies
       # MFEM MGIS itself is never cached, so that it is always built and tested
       - name: Push the dependencies to the build cache
         if: github.ref == 'refs/heads/master'
@@ -83,7 +93,7 @@ jobs:
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: spack install --test=root $SPEC
+        run: spack -e ${{ runner.temp }}/mfem-mgis-env install --test=root
 
   # a single update of the build cache once all the jobs have pushed, only on master
   update_build_cache:
