@@ -3,7 +3,7 @@ name: "Spack"
 on:
   # Always have a base image ready to go - this is a nightly build
   schedule:
-    - cron: 0 3 * * *
+    - cron: 17 1 * * *
 
   # Allow manual trigger of a build
   workflow_dispatch:
@@ -17,6 +17,14 @@ on:
   release:
     types: [published]
 
+# one run at a time, since each run cleans the build cache
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  BUILD_CACHE: oci://ghcr.io/${{ github.repository_owner }}/mfem-mgis-spack-buildcache
+
 jobs:
   build:
     strategy:
@@ -27,6 +35,9 @@ jobs:
           - {version: v1.2.2, packages: develop}
         mpi: ["+mpi", "~mpi"]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Check for dockerenv file
         run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
@@ -40,8 +51,60 @@ jobs:
           buildcache: false # like users: its openblas+ilp64 breaks mumps~int64
           color: true       # Force color output (SPACK_COLOR=always)
           spack_path: spack # Where to clone Spack
-      - name: Install MFEM MGIS
+      - name: Set up the build cache
+        uses: ./.github/actions/setup-build-cache
+      - name: Install the dependencies of MFEM MGIS
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
           spack repo add spack-repo-mfem-mgis
-          spack install --test=root mfem-mgis${{ matrix.mpi }}
+          # pin the master commits, otherwise older binaries from the cache would be reused
+          tfel=$(git ls-remote https://github.com/thelfer/tfel.git refs/heads/master | cut -f1)
+          mgis=$(git ls-remote https://github.com/thelfer/MFrontGenericInterfaceSupport.git refs/heads/master | cut -f1)
+          spec="mfem-mgis${{ matrix.mpi }} ^tfel@master commit=$tfel ^mgis@master commit=$mgis"
+          echo "SPEC=$spec" >> $GITHUB_ENV
+          spack install --only dependencies $spec
+      # MFEM MGIS itself is never cached, so that it is always built and tested
+      - name: Push the dependencies to the build cache
+        if: github.ref == 'refs/heads/master'
+        uses: ./.github/actions/push-build-cache
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          artifact: used-hashes-${{ matrix.spack.version }}${{ matrix.mpi }}
+          exclude: mfem-mgis
+      - name: Install MFEM MGIS
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: spack install --test=root $SPEC
+
+  # a single update of the build cache once all the jobs have pushed, only on master
+  update_build_cache:
+    needs: build
+    if: ${{ !cancelled() && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Spack
+        uses: spack/setup-spack@v3
+        with:
+          spack_ref: v1.2.2
+          packages_ref: develop
+          buildcache: false
+          spack_path: spack
+      - name: Clean the build cache
+        uses: ./.github/actions/clean-build-cache
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          prune: ${{ needs.build.result == 'success' }}

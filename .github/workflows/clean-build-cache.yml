@@ -1,0 +1,41 @@
+name: Clean the build caches
+
+on:
+  # remove everything once a month, before the nightly builds which fill the build
+  # caches again, so that they cannot grow while the builds keep failing
+  schedule:
+    - cron: 47 0 1 * *
+  workflow_dispatch:
+
+jobs:
+  clean:
+    strategy:
+      fail-fast: false
+      matrix:
+        # the build caches of cmake.yml and spack.yml
+        build_cache: [mfem-mgis-buildcache, mfem-mgis-spack-buildcache]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      BUILD_CACHE: oci://ghcr.io/${{ github.repository_owner }}/${{ matrix.build_cache }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Spack
+      uses: spack/setup-spack@v3
+      with:
+        spack_ref: v1.2.2
+        packages_ref: develop
+        buildcache: false
+        spack_path: ${{github.workspace}}/spack
+
+    - name: Remove all the packages
+      uses: ./.github/actions/clean-build-cache
+      env:
+        GITHUB_USER: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        prune: false
+        wipe: true
