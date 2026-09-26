@@ -89,11 +89,23 @@ jobs:
         with:
           artifact: used-hashes-${{ matrix.spack.version }}${{ matrix.mpi }}
           exclude: mfem-mgis
+      - name: Set up ccache
+        id: ccache
+        uses: ./.github/actions/setup-ccache
+        with:
+          key: spack-${{ matrix.spack.version }}${{ matrix.mpi }}
       - name: Install MFEM MGIS
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: spack -e ${{ runner.temp }}/mfem-mgis-env install --test=root
+        run: |
+          # only MFEM MGIS is compiled with ccache, the dependencies come from the build cache
+          spack config add config:ccache:true
+          spack -e ${{ runner.temp }}/mfem-mgis-env install --test=root
+      # even when a test fails, so that the next run does not compile everything again
+      - name: Save ccache
+        if: ${{ !cancelled() && steps.ccache.outcome == 'success' }}
+        uses: ./.github/actions/save-ccache
 
   # a single update of the build cache once all the jobs have pushed, only on master
   update_build_cache:
