@@ -100,7 +100,7 @@ jobs:
       run: |
         spack load mfem
         spack load tfel
-        make check
+        CTEST_PARALLEL_LEVEL=$(nproc) make -j $(nproc) check
 
     - name: Clone MFEM-MGIS-EXAMPLES
       run: git clone https://github.com/latug0/mfem-mgis-examples.git
@@ -118,14 +118,14 @@ jobs:
               -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-        cmake --build ${{github.workspace}}/build-mfem-mgis-examples
+        cmake --build ${{github.workspace}}/build-mfem-mgis-examples -j $(nproc)
 
     - name: Test MFEM-MGIS-EXAMPLES
       shell: spack-sh {0}
       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
       run: |
         spack load tfel
-        ctest --rerun-failed --output-on-failure -V
+        ctest -j $(nproc) --output-on-failure
 
     - name: Clone MM-OPERA-HPC
       run: git clone https://github.com/rprat-pro/mm-opera-hpc.git
@@ -144,14 +144,14 @@ jobs:
               -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-        cmake --build ${{github.workspace}}/build-mm-opera-hpc
+        cmake --build ${{github.workspace}}/build-mm-opera-hpc -j $(nproc)
 
     - name: Test MM-OPERA-HPC
       shell: spack-sh {0}
       working-directory: ${{github.workspace}}/build-mm-opera-hpc
       run: |
         spack load mfem tfel
-        ctest --rerun-failed --output-on-failure
+        ctest -j $(nproc) --output-on-failure
 
     - name: Generate coverage report
       if: matrix.build_type == 'Coverage'
