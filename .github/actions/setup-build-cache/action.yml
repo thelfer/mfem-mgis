@@ -1,0 +1,22 @@
+name: Set up the build cache
+description: >
+  Use the spack build cache given by the BUILD_CACHE environment variable, read and
+  written with the GITHUB_USER and GITHUB_TOKEN environment variables.
+runs:
+  using: composite
+  steps:
+  - shell: bash
+    run: |
+      spack mirror add --unsigned --oci-username-variable GITHUB_USER --oci-password-variable GITHUB_TOKEN \
+            buildcache $BUILD_CACHE
+      # binaries usable on all the runners, whatever their CPU and install path
+      spack config add "config:install_tree:padded_length:128"
+      spack config add "packages:all:require:[target=x86_64_v3]"
+      # openblas 0.3.34 overflows in its Haswell/Zen fallback kernels on AVX-512 Zen 4/5
+      # hosts (OpenMathLib/OpenBLAS#6013, #6021), fixed after 0.3.34
+      spack config add "packages:openblas:conflict:['@0.3.34']"
+      # otherwise excluding a version silently switches to another BLAS provider
+      spack config add "packages:blas:require:[openblas]"
+      spack config add "packages:lapack:require:[openblas]"
+      # always the latest versions: binaries are only taken when their hash matches
+      spack config add "concretizer:reuse:false"

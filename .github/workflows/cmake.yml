@@ -5,57 +5,98 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  # keep the build cache up to date with the latest dependencies, not at the start of
+  # an hour, when GitHub delays the scheduled runs the most
+  schedule:
+    - cron: 17 1 * * *
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  BUILD_CACHE: oci://ghcr.io/${{ github.repository_owner }}/mfem-mgis-buildcache
+
 jobs:
   run_tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
         build_type: [Release, Debug, Coverage]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Spack
       uses: spack/setup-spack@v3
       with:
         spack_ref: v1.2.2      # Spack version
         packages_ref: develop  # Spack packages (builtin repository) version
-        buildcache: true       # Configure oci://ghcr.io/spack/github-actions-buildcache
+        buildcache: false      # Our own build cache is configured below
         color: true            # Force color output (SPACK_COLOR=always)
         spack_path: ${{github.workspace}}/spack       # Where to clone Spack
 
+    # only required by the coverage target of CMakeLists.txt, the report being made by gcovr
     - name: Set up LCOV
       if: matrix.build_type == 'Coverage'
-      uses: hrishikesh-kadam/setup-lcov@v1
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lcov
+
+    - name: Set up the build cache
+      uses: ./.github/actions/setup-build-cache
 
     - name: Install dependencies
+      env:
+        GITHUB_USER: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-        spack repo add spack-repo-mfem-mgis
         spack compiler find
         spack config add "packages:c:require:[gcc@12.4.0]"
         spack config add "packages:cxx:require:[gcc@12.4.0]"
         spack config add "packages:fortran:require:[gcc@12.4.0]"
+        # pin the master commits, otherwise older binaries from the cache would be reused
+        tfel=$(git ls-remote https://github.com/thelfer/tfel.git refs/heads/master | cut -f1)
+        mgis=$(git ls-remote https://github.com/thelfer/MFrontGenericInterfaceSupport.git refs/heads/master | cut -f1)
+        deps="^tfel@master commit=$tfel ~python~python_bindings ^mgis@master commit=$mgis ~python~fortran"
         if [ "${{ matrix.build_type }}" = "Debug" ]; then
-          spack install --only dependencies mfem-mgis ^mfem+debug ^tfel~python~python_bindings ^mgis~python~fortran
+          spack install --only dependencies mfem-mgis@master ^mfem+debug $deps
         else
-          spack install --only dependencies mfem-mgis ^tfel~python~python_bindings ^mgis~python~fortran
+          spack install --only dependencies mfem-mgis@master $deps
         fi
+
+    - name: Push dependencies to the build cache
+      if: github.ref == 'refs/heads/master'
+      uses: ./.github/actions/push-build-cache
+      env:
+        GITHUB_USER: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        artifact: used-hashes-${{ matrix.build_type }}
+
+    - name: Set up ccache
+      id: ccache
+      uses: ./.github/actions/setup-ccache
+      with:
+        key: ${{ matrix.build_type }}
 
     - name: Configure MFEM-MGIS
       shell: spack-sh {0}
       run: |
         spack load mfem
         spack load mgis
+        # a portable build, without -march=native, whose compilations ccache can share
+        # between the runners, which have different processors (see setup-ccache)
         cmake -B ${{github.workspace}}/build \
               -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install/mfem-mgis \
+              -Denable-portable-build=ON \
               -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
               -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DMFEM_DIR=`spack location -i mfem` \
               -DHYPRE_DIR=`spack location -i hypre` \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
@@ -70,7 +111,7 @@ jobs:
       run: |
         spack load mfem
         spack load tfel
-        make check
+        CTEST_PARALLEL_LEVEL=$(nproc) make -j $(nproc) check
 
     - name: Clone MFEM-MGIS-EXAMPLES
       run: git clone https://github.com/latug0/mfem-mgis-examples.git
@@ -83,19 +124,20 @@ jobs:
               -B ${{github.workspace}}/build-mfem-mgis-examples \
               -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
               -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-        cmake --build ${{github.workspace}}/build-mfem-mgis-examples
+        cmake --build ${{github.workspace}}/build-mfem-mgis-examples -j $(nproc)
 
     - name: Test MFEM-MGIS-EXAMPLES
       shell: spack-sh {0}
       working-directory: ${{github.workspace}}/build-mfem-mgis-examples
       run: |
         spack load tfel
-        ctest --rerun-failed --output-on-failure -V
+        ctest -j $(nproc) --output-on-failure
 
     - name: Clone MM-OPERA-HPC
       run: git clone https://github.com/rprat-pro/mm-opera-hpc.git
@@ -109,19 +151,20 @@ jobs:
               -B ${{github.workspace}}/build-mm-opera-hpc \
               -DCMAKE_C_COMPILER=gcc-12 \
               -DCMAKE_CXX_COMPILER=g++-12 \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DCMAKE_CXX_FLAGS_COVERAGE="--coverage -g" \
               -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DMFEMMGIS_DIR=${{github.workspace}}/install/mfem-mgis/share/mfem-mgis/cmake/ \
               -DMFrontGenericInterface_DIR=`spack location -i mgis`/share/mgis/cmake \
               -DTFEL_DIR=`spack location -i tfel`/share/tfel/cmake
-        cmake --build ${{github.workspace}}/build-mm-opera-hpc
+        cmake --build ${{github.workspace}}/build-mm-opera-hpc -j $(nproc)
 
     - name: Test MM-OPERA-HPC
       shell: spack-sh {0}
       working-directory: ${{github.workspace}}/build-mm-opera-hpc
       run: |
         spack load mfem tfel
-        ctest --rerun-failed --output-on-failure
+        ctest -j $(nproc) --output-on-failure
 
     - name: Generate coverage report
       if: matrix.build_type == 'Coverage'
@@ -133,7 +176,41 @@ jobs:
 
     - name: Upload coverage report
       if: matrix.build_type == 'Coverage'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: code-coverage-report
         path: ${{github.workspace}}/coverage-report
+        overwrite: true  # when the job is rerun
+
+    # even when a test fails, so that the next run does not compile everything again
+    - name: Save ccache
+      if: ${{ !cancelled() && steps.ccache.outcome == 'success' }}
+      uses: ./.github/actions/save-ccache
+
+  # a single update of the build cache once all the jobs have pushed, to avoid
+  # concurrent index updates, only on master
+  update_build_cache:
+    needs: run_tests
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v7
+    - name: Set up Spack
+      uses: spack/setup-spack@v3
+      with:
+        spack_ref: v1.2.2
+        packages_ref: develop
+        buildcache: false
+        spack_path: ${{github.workspace}}/spack
+
+    - name: Clean the build cache
+      uses: ./.github/actions/clean-build-cache
+      env:
+        GITHUB_USER: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        prune: ${{ needs.run_tests.result == 'success' }}

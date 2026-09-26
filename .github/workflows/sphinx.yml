@@ -23,14 +23,14 @@ jobs:
       contents: write
     steps:
     - id: deployment
-      uses: sphinx-notes/pages@3.2
+      uses: sphinx-notes/pages@3.6
       with:
         documentation_path: docs/source
         requirements_path: docs/source/requirements.txt
         publish: false
-    - uses: peaceiris/actions-gh-pages@v3
+    - uses: peaceiris/actions-gh-pages@v4
       if: github.event_name == 'push'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ${{ steps.deployment.outputs.artifact }}         
+        publish_dir: ${{ steps.deployment.outputs.artifact }}
 #        publish_branch: gh-pages
