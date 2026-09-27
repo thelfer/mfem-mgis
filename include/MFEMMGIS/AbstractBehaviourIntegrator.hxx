@@ -206,10 +206,6 @@ namespace mfem_mgis {
         std::string_view,
         std::shared_ptr<const AbstractQPEvaluator>,
         const TimeStepStage) noexcept = 0;
-    //! \return the underlying material
-    [[deprecated, nodiscard]] virtual Material &getMaterial() = 0;
-    //! \return the underlying material
-    [[deprecated, nodiscard]] virtual const Material &getMaterial() const = 0;
     //! \brief destructor
     virtual ~AbstractBehaviourIntegrator();
   };  // end of struct AbstractBehaviourIntegrator

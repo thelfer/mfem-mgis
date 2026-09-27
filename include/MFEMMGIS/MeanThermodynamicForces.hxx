@@ -25,10 +25,12 @@ namespace mfem_mgis {
       : public AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
     /*!
      * \brief constructor
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] params: parameters passed to the post-processing
      */
-    MeanThermodynamicForces(NonLinearEvolutionProblemImplementation<parallel>&,
+    MeanThermodynamicForces(Context&,
+                            NonLinearEvolutionProblemImplementation<parallel>&,
                             const Parameters&);
     //
     [[nodiscard]] bool executeInitialPostProcessing(
@@ -46,11 +48,14 @@ namespace mfem_mgis {
    private:
     /*!
      * \brief open the output file and write the header
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] f: file name
      */
-    void openFile(NonLinearEvolutionProblemImplementation<parallel>&,
-                  const std::string&);
+    [[nodiscard]] bool openFile(
+        Context&,
+        NonLinearEvolutionProblemImplementation<parallel>&,
+        const std::string&) noexcept;
     /*!
      * \brief write the mean of the value of the thermodynamic forces of a
      * material to the output file.

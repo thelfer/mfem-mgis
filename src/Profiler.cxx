@@ -3,7 +3,6 @@
  * \brief  This file implements the profiling output utilities
  */
 
-
 #ifdef MFEM_USE_MPI
 #include <mpi.h>
 #endif

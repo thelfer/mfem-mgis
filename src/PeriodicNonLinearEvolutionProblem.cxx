@@ -311,11 +311,6 @@ namespace mfem_mgis {
     }
   }  // end of PeriodicNonLinearEvolutionProblem
 
-  void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
-      std::unique_ptr<AbstractBoundaryCondition> f) {
-    NonLinearEvolutionProblem::addBoundaryCondition(std::move(f));
-  }  // end of addBoundaryCondition
-
   bool PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
       Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
     return NonLinearEvolutionProblem::addBoundaryCondition(ctx, std::move(f));
@@ -325,13 +320,6 @@ namespace mfem_mgis {
       Context& ctx,
       std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept {
     return ctx.registerErrorMessage(
-        "PeriodicNonLinearEvolutionProblem::addBoundaryCondition: "
-        "invalid call");
-  }  // end of addBoundaryCondition
-
-  void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
-      std::unique_ptr<AbstractDirichletBoundaryCondition>) {
-    raise(
         "PeriodicNonLinearEvolutionProblem::addBoundaryCondition: "
         "invalid call");
   }  // end of addBoundaryCondition

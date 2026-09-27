@@ -38,6 +38,7 @@ static void parseCommandLineOptions(TestParameters& params,
 template <bool parallel>
 bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   using namespace mfem_mgis;
+  auto or_die = ctx.getFatalFailureHandler();
   auto fed = FiniteElementDiscretization{
       ctx,
       {{"MeshFileName", params.mesh_file},
@@ -60,18 +61,22 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
     std::cerr << ctx.getErrorMessage() << '\n';
     return EXIT_FAILURE;
   }
-  auto m = Material(qspace, std::make_unique<Behaviour>(*omodel));
-  mgis::behaviour::setExternalStateVariable(m.s0, "Temperature", 893.15);
-  mgis::behaviour::setExternalStateVariable(m.s0, "BurnUp_AtPercent", 0);
-  mgis::behaviour::setExternalStateVariable(m.s1, "Temperature", 893.15);
-  mgis::behaviour::setExternalStateVariable(m.s1, "BurnUp_AtPercent", 5);
+  auto m = Material(qspace, make_unique<Behaviour>(ctx, *omodel) | or_die);
+  mgis::behaviour::setExternalStateVariable(ctx, m.s0, "Temperature", 893.15) |
+      or_die;
+  mgis::behaviour::setExternalStateVariable(ctx, m.s0, "BurnUp_AtPercent", 0) |
+      or_die;
+  mgis::behaviour::setExternalStateVariable(ctx, m.s1, "Temperature", 893.15) |
+      or_die;
+  mgis::behaviour::setExternalStateVariable(ctx, m.s1, "BurnUp_AtPercent", 5) |
+      or_die;
   const auto r = mgis::behaviour::integrate(
       m, mgis::behaviour::IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR, 1,
       0, m.n);
   if (!((r == 1) || (r == 0))) {
     return false;
   }
-  const auto s = getInternalStateVariable(m, "Shrinkage", ets);
+  const auto s = getInternalStateVariable(ctx, m, "Shrinkage", ets) | or_die;
   const auto Ta = real{750};
   const auto Tm = real{893.15};
   const auto A = std::max(real{5.e-3}, real{-1.26e-2 + 1.8e-5 * Tm});

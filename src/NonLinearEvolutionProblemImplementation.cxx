@@ -368,22 +368,6 @@ namespace mfem_mgis {
     return true;
   }  // end of addBoundaryCondition
 
-  void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
-      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
-    if (bc.get() == nullptr) {
-      raise("invalid boundary condition");
-    }
-    this->dirichlet_boundary_conditions.push_back(std::move(bc));
-  }  // end of addBoundaryCondition
-
-  void NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
-      std::unique_ptr<AbstractBoundaryCondition> f) {
-    auto ctx = Context{};
-    if (!this->addBoundaryCondition(ctx, std::move(f))) {
-      raise(ctx.getErrorMessage());
-    }
-  }  // end of addBoundaryCondition
-
   bool NonLinearEvolutionProblemImplementation<true>::addBoundaryCondition(
       Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
     if (f.get() == nullptr) {
@@ -407,25 +391,10 @@ namespace mfem_mgis {
     return true;
   }  // end of addPostProcessing
 
-  void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
-      std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>
-          p) {
-    if (p.get() == nullptr) {
-      raise("invalid post-processing");
-    }
-    this->postprocessings.push_back(std::move(p));
-  }  // end of addPostProcessing
-
   bool NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
       Context& ctx, std::string_view n, const Parameters& p) noexcept {
     const auto& f = PostProcessingFactory<true>::getFactory();
     return this->addPostProcessing(ctx, f.generate(ctx, n, *this, p));
-  }  // end of addPostProcessing
-
-  void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
-      std::string_view n, const Parameters& p) {
-    const auto& f = PostProcessingFactory<true>::getFactory();
-    this->addPostProcessing(f.generate(n, *this, p));
   }  // end of addPostProcessing
 
   bool NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
@@ -436,14 +405,6 @@ namespace mfem_mgis {
     this->updateLinearSolver(ctx, std::move(s));
     return true;
   }
-
-  void NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
-      std::string_view n, const Parameters& p) {
-    auto ctx = Context{};
-    if (!this->setLinearSolver(ctx, n, p)) {
-      raise(ctx.getErrorMessage());
-    }
-  }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<true>::setLinearSolver(
       Context& ctx, std::string_view n, const Parameters& p) noexcept {
@@ -457,10 +418,17 @@ namespace mfem_mgis {
     return true;
   }  // end of setLinearSolver
 
-  void NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
-      const std::function<void(const real, const real)>& p) {
-    this->addPostProcessing(
-        std::make_unique<StdFunctionPostProcessing<true>>(p));
+  bool NonLinearEvolutionProblemImplementation<true>::addPostProcessing(
+      Context& ctx,
+      const std::function<void(const real, const real)>& p) noexcept {
+    if (!p) {
+      return ctx.registerErrorMessage("invalid post-processing function");
+    }
+    auto ptr = make_unique<StdFunctionPostProcessing<true>>(ctx, p);
+    if (isInvalid(ptr)) {
+      return false;
+    }
+    return this->addPostProcessing(ctx, std::move(ptr));
   }  // end of addPostProcessing
 
   bool
@@ -627,25 +595,6 @@ namespace mfem_mgis {
     return true;
   }  // end of addBoundaryCondition
 
-  void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
-      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
-    if (bc.get() == nullptr) {
-      raise("invalid boundary condition");
-    }
-    this->dirichlet_boundary_conditions.push_back(std::move(bc));
-  }  // end of addBoundaryCondition
-
-  void NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
-      std::unique_ptr<AbstractBoundaryCondition> f) {
-    if (f.get() == nullptr) {
-      raise("invalid boundary condition");
-    }
-    auto ctx = Context{};
-    if (!this->addBoundaryCondition(ctx, std::move(f))) {
-      raise(ctx.getErrorMessage());
-    }
-  }  // end of addBoundaryCondition
-
   bool NonLinearEvolutionProblemImplementation<false>::addBoundaryCondition(
       Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
     if (f.get() == nullptr) {
@@ -669,31 +618,23 @@ namespace mfem_mgis {
     return true;
   }  // end of addPostProcessing
 
-  void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
-      std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>
-          p) {
-    if (p.get() == nullptr) {
-      raise("invalid post-processing");
+  bool NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
+      Context& ctx,
+      const std::function<void(const real, const real)>& p) noexcept {
+    if (!p) {
+      return ctx.registerErrorMessage("invalid post-processing function");
     }
-    this->postprocessings.push_back(std::move(p));
-  }  // end of addPostProcessing
-
-  void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
-      const std::function<void(const real, const real)>& p) {
-    this->addPostProcessing(
-        std::make_unique<StdFunctionPostProcessing<false>>(p));
+    auto ptr = make_unique<StdFunctionPostProcessing<false>>(ctx, p);
+    if (isInvalid(ptr)) {
+      return false;
+    }
+    return this->addPostProcessing(ctx, std::move(ptr));
   }  // end of addPostProcessing
 
   bool NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
       Context& ctx, std::string_view n, const Parameters& p) noexcept {
     const auto& f = PostProcessingFactory<false>::getFactory();
     return this->addPostProcessing(ctx, f.generate(ctx, n, *this, p));
-  }  // end of addPostProcessing
-
-  void NonLinearEvolutionProblemImplementation<false>::addPostProcessing(
-      std::string_view n, const Parameters& p) {
-    const auto& f = PostProcessingFactory<false>::getFactory();
-    this->addPostProcessing(f.generate(n, *this, p));
   }  // end of addPostProcessing
 
   bool
@@ -745,14 +686,6 @@ namespace mfem_mgis {
     this->updateLinearSolver(ctx, std::move(s));
     return true;
   }
-
-  void NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
-      std::string_view n, const Parameters& p) {
-    auto ctx = Context{};
-    if (!this->setLinearSolver(ctx, n, p)) {
-      raise(ctx.getErrorMessage());
-    }
-  }  // end of setLinearSolver
 
   bool NonLinearEvolutionProblemImplementation<false>::setLinearSolver(
       Context& ctx, std::string_view n, const Parameters& p) noexcept {

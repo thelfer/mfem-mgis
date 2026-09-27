@@ -84,27 +84,6 @@ namespace mfem_mgis {
     return this->fe_discretization;
   }  // end of getFiniteElementDiscretization
 
-  mfem::Vector& NonLinearEvolutionProblemImplementationBase::
-      getUnknownsAtBeginningOfTheTimeStep() {
-    return this->u0;
-  }  // end of getUnknownsAtBeginningOfTheTimeStep
-
-  const mfem::Vector& NonLinearEvolutionProblemImplementationBase::
-      getUnknownsAtBeginningOfTheTimeStep() const {
-    return this->u0;
-  }  // end of getUnknownsAtBeginningOfTheTimeStep
-
-  mfem::Vector&
-  NonLinearEvolutionProblemImplementationBase::getUnknownsAtEndOfTheTimeStep() {
-    return this->u1;
-  }  // end of getUnknownsAtEndOfTheTimeStep
-
-  const mfem::Vector&
-  NonLinearEvolutionProblemImplementationBase::getUnknownsAtEndOfTheTimeStep()
-      const {
-    return this->u1;
-  }  // end of getUnknownsAtEndOfTheTimeStep
-
   mfem::Vector& NonLinearEvolutionProblemImplementationBase::getUnknowns(
       const TimeStepStage ts) noexcept {
     if (ts == bts) {
@@ -168,22 +147,6 @@ namespace mfem_mgis {
     return this->getFiniteElementDiscretization().setBoundariesNames(ctx, ids);
   }  // end of setBoundariesNames
 
-  void NonLinearEvolutionProblemImplementationBase::setMaterialsNames(
-      const std::map<size_type, std::string>& ids) {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    this->getFiniteElementDiscretization().setMaterialsNames(ctx, ids) |
-        or_raise;
-  }
-
-  void NonLinearEvolutionProblemImplementationBase::setBoundariesNames(
-      const std::map<size_type, std::string>& ids) {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    this->getFiniteElementDiscretization().setBoundariesNames(ctx, ids) |
-        or_raise;
-  }
-
   std::optional<size_type>
   NonLinearEvolutionProblemImplementationBase::getMaterialIdentifier(
       Context& ctx, const Parameter& p) const noexcept {
@@ -208,36 +171,6 @@ namespace mfem_mgis {
       Context& ctx, const Parameter& p) const noexcept {
     return this->getFiniteElementDiscretization().getBoundariesIdentifiers(ctx,
                                                                            p);
-  }  // end of getBoundariesIdentifiers
-
-  size_type NonLinearEvolutionProblemImplementationBase::getMaterialIdentifier(
-      const Parameter& p) const {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    const auto& fed = this->getFiniteElementDiscretization();
-    return fed.getMaterialIdentifier(ctx, p) | or_raise;
-  }  // end of getMaterialIdentifier
-
-  size_type NonLinearEvolutionProblemImplementationBase::getBoundaryIdentifier(
-      const Parameter& p) const {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    const auto& fed = this->getFiniteElementDiscretization();
-    return fed.getBoundaryIdentifier(ctx, p) | or_raise;
-  }  // end of getBoundaryIdentifier
-
-  std::vector<size_type>
-  NonLinearEvolutionProblemImplementationBase::getMaterialsIdentifiers(
-      const Parameter& p) const {
-    return ::mfem_mgis::getMaterialsIdentifiers(
-        throwing, this->getFiniteElementDiscretization(), p);
-  }  // end of getMaterialsIdentifiers
-
-  std::vector<size_type>
-  NonLinearEvolutionProblemImplementationBase::getBoundariesIdentifiers(
-      const Parameter& p) const {
-    return ::mfem_mgis::getBoundariesIdentifiers(
-        throwing, this->getFiniteElementDiscretization(), p);
   }  // end of getBoundariesIdentifiers
 
   std::vector<size_type>
@@ -285,17 +218,6 @@ namespace mfem_mgis {
       bids.insert({mid, *obid});
     }
     return bids;
-  }  // end of addBehaviourIntegrator
-
-  std::map<size_type, size_type>
-  NonLinearEvolutionProblemImplementationBase::addBehaviourIntegrator(
-      const std::string& n,
-      const Parameter& m,
-      const std::string& l,
-      const std::string& b) {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    return this->addBehaviourIntegrator(ctx, n, m, l, b) | or_raise;
   }  // end of addBehaviourIntegrator
 
   OptionalReference<const Material>
@@ -368,36 +290,6 @@ namespace mfem_mgis {
     return this->mgis_integrator->getBehaviourIntegrator(ctx, *om, b);
   }  // end of getBehaviourIntegrator
 
-  const Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
-      const Parameter& m) const {
-    checkMultiMaterialSupportEnabled(throwing, "getMaterial",
-                                     this->mgis_integrator);
-    return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
-  }  // end of getMaterial
-
-  Material& NonLinearEvolutionProblemImplementationBase::getMaterial(
-      const Parameter& m) {
-    checkMultiMaterialSupportEnabled(throwing, "getMaterial",
-                                     this->mgis_integrator);
-    return this->mgis_integrator->getMaterial(this->getMaterialIdentifier(m));
-  }  // end of getMaterial
-
-  const AbstractBehaviourIntegrator&
-  NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
-      const size_type m) const {
-    checkMultiMaterialSupportEnabled(throwing, "getBehaviourIntegrator",
-                                     this->mgis_integrator);
-    return this->mgis_integrator->getBehaviourIntegrator(m);
-  }  // end of getBehaviourIntegrator
-
-  AbstractBehaviourIntegrator&
-  NonLinearEvolutionProblemImplementationBase::getBehaviourIntegrator(
-      const size_type m) {
-    checkMultiMaterialSupportEnabled(throwing, "getBehaviourIntegrator",
-                                     this->mgis_integrator);
-    return this->mgis_integrator->getBehaviourIntegrator(m);
-  }  // end of getBehaviourIntegrator
-
   void NonLinearEvolutionProblemImplementationBase::setTimeIncrement(
       const real dt) {
     if (this->mgis_integrator != nullptr) {
@@ -421,19 +313,6 @@ namespace mfem_mgis {
     return this->solver->setSolverParameters(ctx, params);
 #else  /* MFEM_USE_PETSC */
     return this->solver->setSolverParameters(ctx, params);
-#endif /* MFEM_USE_PETSC */
-  }    // end of setSolverParameters
-
-  void NonLinearEvolutionProblemImplementationBase::setSolverParameters(
-      const Parameters& params) {
-#ifdef MFEM_USE_PETSC
-    if (usePETSc()) {
-      mfem_mgis::setSolverParameters(throwing, *(this->petsc_solver), params);
-    } else {
-      mfem_mgis::setSolverParameters(throwing, *(this->solver), params);
-    }
-#else  /* MFEM_USE_PETSC */
-    mfem_mgis::setSolverParameters(throwing, *(this->solver), params);
 #endif /* MFEM_USE_PETSC */
   }    // end of setSolverParameters
 

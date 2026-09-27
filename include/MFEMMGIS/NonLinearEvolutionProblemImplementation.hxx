@@ -84,8 +84,9 @@ namespace mfem_mgis {
     [[nodiscard]] bool setLinearSolver(Context&,
                                        std::string_view,
                                        const Parameters&) noexcept override;
-    void addPostProcessing(
-        const std::function<void(const real, const real)>&) override;
+    [[nodiscard]] bool addPostProcessing(
+        Context&,
+        const std::function<void(const real, const real)>&) noexcept override;
     [[nodiscard]] bool addPostProcessing(Context&,
                                          std::string_view,
                                          const Parameters&) noexcept override;
@@ -94,21 +95,6 @@ namespace mfem_mgis {
     [[nodiscard]] bool executePostProcessings(Context&,
                                               const real,
                                               const real) noexcept override;
-    [[deprecated]] void setLinearSolver(std::string_view,
-                                        const Parameters&) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
-    [[deprecated]] void addPostProcessing(std::string_view,
-                                          const Parameters&) override;
-    /*!
-     * \brief add a new post-processing
-     * \param[in, out] ctx: execution context
-     * \param[in] p: post-processing
-     */
-    [[deprecated]] virtual void addPostProcessing(
-        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>);
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -176,8 +162,9 @@ namespace mfem_mgis {
     [[nodiscard]] bool integrate(const mfem::Vector&,
                                  const IntegrationType,
                                  const std::optional<real>) override;
-    void addPostProcessing(
-        const std::function<void(const real, const real)>&) override;
+    [[nodiscard]] bool addPostProcessing(
+        Context&,
+        const std::function<void(const real, const real)>&) noexcept override;
     [[nodiscard]] bool addPostProcessing(Context&,
                                          std::string_view,
                                          const Parameters&) noexcept override;
@@ -186,22 +173,6 @@ namespace mfem_mgis {
     [[nodiscard]] bool executePostProcessings(Context&,
                                               const real,
                                               const real) noexcept override;
-    //
-    [[deprecated]] void setLinearSolver(std::string_view,
-                                        const Parameters&) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
-    [[deprecated]] void addPostProcessing(std::string_view,
-                                          const Parameters&) override;
-    /*!
-     * \brief add a new post-processing
-     * \param[in] p: post-processing
-     */
-    [[deprecated]] virtual void addPostProcessing(
-        std::unique_ptr<
-            AbstractNonLinearEvolutionProblemPostProcessing<false>>);
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
@@ -218,7 +189,8 @@ namespace mfem_mgis {
   };  // end of struct NonLinearEvolutionProblemImplementation
 
   /*!
-   * \brief return the resultant of the inner forces on the given boundary
+   * \brief compute the resultant of the inner forces on the given boundary
+   * \param[in,out] ctx: execution context
    * \param[out] F: resultant
    * \param[in] p: non linear evolution problem
    * \param[in] elements: a structure which gives for each element having a
@@ -229,22 +201,25 @@ namespace mfem_mgis {
    * process
    */
   template <bool parallel>
-  void computeResultantForceOnBoundary(
+  bool computeResultantForceOnBoundary(
+      Context&,
       mfem::Vector&,
       NonLinearEvolutionProblemImplementation<parallel>&,
-      const std::vector<std::pair<size_type, std::vector<size_type>>>&);
+      const std::vector<
+          std::pair<size_type, std::vector<size_type>>>&) noexcept;
 
   /*!
    * \return the integral of the thermodynamic forces at the end of the time
    * step and the volume of each material.
+   * \param[in,out] ctx: execution context
    * \param[in] p: non linear evolution problem
    * \note in parallel, the returned value is only the contribution of the given
    * process
    */
   template <bool parallel>
-  std::pair<std::vector<std::vector<real>>, std::vector<real>>
+  std::optional<std::pair<std::vector<std::vector<real>>, std::vector<real>>>
   computeMeanThermodynamicForcesValues(
-      NonLinearEvolutionProblemImplementation<parallel>&);
+      Context&, NonLinearEvolutionProblemImplementation<parallel>&) noexcept;
 
 }  // end of namespace mfem_mgis
 

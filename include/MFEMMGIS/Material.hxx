@@ -197,6 +197,7 @@ namespace mfem_mgis {
       const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function for the given state variable
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
    * \param[in] n: name of the state variable
    * \param[in] s: state considered
@@ -210,132 +211,77 @@ namespace mfem_mgis {
       const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function holding the stored energy
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
-  getStoredEnergy(Material &,
-                  const Material::StateSelection = Material::END_OF_TIME_STEP);
+  getStoredEnergy(
+      Context &,
+      Material &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function holding the stored energy
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
   std::optional<ImmutablePartialQuadratureFunctionView>
-  getStoredEnergy(const Material &,
-                  const Material::StateSelection = Material::END_OF_TIME_STEP);
+  getStoredEnergy(
+      Context &,
+      const Material &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function holding the dissipated energy
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
   getDissipatedEnergy(
-      Material &, const Material::StateSelection = Material::END_OF_TIME_STEP);
+      Context &,
+      Material &,
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function holding the dissipated energy
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT
   [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
   getDissipatedEnergy(
+      Context &,
       const Material &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return the stored energy by the whole material if the behaviour computes
    * it, zero otherwise
+   * \param[in, out] ctx: execution context
    * \param[in] bi: behaviour integrator
    * \param[in] s: selection of the state
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] real computeStoredEnergy(
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<real> computeStoredEnergy(
+      Context &,
       const AbstractBehaviourIntegrator &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return the stored energy if the behaviour computes it, zero otherwise
+   * \param[in, out] ctx: execution context
    * \param[in] bi: behaviour integrator
    * \param[in] s: selection of the state
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] real computeDissipatedEnergy(
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<real> computeDissipatedEnergy(
+      Context &,
       const AbstractBehaviourIntegrator &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
+      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
 
   [[nodiscard]] mgis::behaviour::MaterialStateManager &getStateManager(
       Material &, const Material::StateSelection) noexcept;
 
   [[nodiscard]] const mgis::behaviour::MaterialStateManager &getStateManager(
       const Material &, const Material::StateSelection) noexcept;
-
-  /*!
-   * \return a partial quadrature function for the given gradient
-   * \param[in] m: material
-   * \param[in] n: name of the gradient
-   * \param[in] s: state considered
-   */
-  MFEM_MGIS_EXPORT [[nodiscard, deprecated]]  //
-  PartialQuadratureFunction
-  getGradient(Material &,
-              const std::string_view,
-              const Material::StateSelection = Material::END_OF_TIME_STEP);
-  /*!
-   * \return a partial quadrature function for the given gradient
-   * \param[in] m: material
-   * \param[in] n: name of the gradient
-   * \param[in] s: state considered
-   */
-  MFEM_MGIS_EXPORT [[nodiscard, deprecated]]  //
-  ImmutablePartialQuadratureFunctionView
-  getGradient(const Material &,
-              const std::string_view,
-              const Material::StateSelection = Material::END_OF_TIME_STEP);
-  /*!
-   * \return a partial quadrature function for the given thermodynamic force
-   * \param[in] m: material
-   * \param[in] n: name of the thermodynamic force
-   * \param[in] s: state considered
-   */
-  MFEM_MGIS_EXPORT [[nodiscard, deprecated]]  //
-  PartialQuadratureFunction
-  getThermodynamicForce(
-      Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
-  /*!
-   * \return a partial quadrature function for the given thermodynamic force
-   * \param[in] m: material
-   * \param[in] n: name of the thermodynamic force
-   * \param[in] s: state considered
-   */
-  MFEM_MGIS_EXPORT [[nodiscard, deprecated]]  //
-  ImmutablePartialQuadratureFunctionView
-  getThermodynamicForce(
-      const Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
-  /*!
-   * \return a partial quadrature function for the given state variable
-   * \param[in] m: material
-   * \param[in] n: name of the state variable
-   * \param[in] s: state considered
-   */
-  MFEM_MGIS_EXPORT [[nodiscard, deprecated]] PartialQuadratureFunction
-  getInternalStateVariable(
-      Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
-  /*!
-   * \return a partial quadrature function for the given state variable
-   * \param[in] m: material
-   * \param[in] n: name of the state variable
-   * \param[in] s: state considered
-   */
-  MFEM_MGIS_EXPORT [[nodiscard, deprecated]]  //
-  ImmutablePartialQuadratureFunctionView
-  getInternalStateVariable(
-      const Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP);
 
 #ifdef MGIS_FUNCTION_SUPPORT
 

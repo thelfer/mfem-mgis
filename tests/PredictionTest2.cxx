@@ -55,49 +55,67 @@ int main(int argc, char *argv[]) {
   }
   args.PrintOptions(mfem_mgis::getOutputStream());
   //
-  mfem_mgis::NonLinearEvolutionProblem problem(
-      ctx, {{"MeshFileName", mesh_file},
-            {"FiniteElementFamily", "H1"},
-            {"FiniteElementOrder", order},
-            {"UnknownsSize", 3},
-            {"NumberOfUniformRefinements", 2},
-            {"Hypothesis", "Tridimensional"},
-            {"Parallel", bool(parallel)}});
+  auto problem =
+      construct<mfem_mgis::NonLinearEvolutionProblem>(
+          ctx, mfem_mgis::Parameters{{"MeshFileName", mesh_file},
+                                     {"FiniteElementFamily", "H1"},
+                                     {"FiniteElementOrder", order},
+                                     {"UnknownsSize", 3},
+                                     {"NumberOfUniformRefinements", 2},
+                                     {"Hypothesis", "Tridimensional"},
+                                     {"Parallel", bool(parallel)}}) |
+      or_die;
   //
-  problem.addBehaviourIntegrator("Mechanics", 1, library, "Elasticity");
-  auto &m1 = problem.getMaterial(1);
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 1, library, "Elasticity") |
+      or_die;
+  auto &m1 = problem.getMaterial(ctx, 1, 0) | or_die;
   for (auto *ps : {&m1.s0, &m1.s1}) {
-    mgis::behaviour::setMaterialProperty(*ps, "FirstLameCoefficient", 100e9);
-    mgis::behaviour::setMaterialProperty(*ps, "ShearModulus", 75e9);
-    mgis::behaviour::setExternalStateVariable(*ps, "Temperature", 293.15);
+    mgis::behaviour::setMaterialProperty(ctx, *ps, "FirstLameCoefficient",
+                                         100e9) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, *ps, "ShearModulus", 75e9) |
+        or_die;
+    mgis::behaviour::setExternalStateVariable(ctx, *ps, "Temperature", 293.15) |
+        or_die;
   }
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 1, 1));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 1) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 2, 2));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 2) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 5, 0));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 5, 0) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 3, 0,
-          [](const auto t) noexcept { return 3e-2 * t; }));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 3, 0,
+               [](const auto t) noexcept { return 3e-2 * t; }) |
+               or_die) |
+      or_die;
   problem.setPredictionPolicy(
       {.strategy =
            mfem_mgis::PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION});
   // set the solver parameters
-  problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
-                                       {"AbsoluteTolerance", 1e-16},
-                                       {"RelativeTolerance", 1e-16},
-                                       {"MaximumNumberOfIterations", 1000}});
-  problem.setSolverParameters({{"VerbosityLevel", 2},
-                               {"RelativeTolerance", 1e-12},
-                               {"AbsoluteTolerance", 0.},
-                               {"MaximumNumberOfIterations", 10}});
+  problem.setLinearSolver(ctx, "CGSolver",
+                          {{"VerbosityLevel", 1},
+                           {"AbsoluteTolerance", 1e-16},
+                           {"RelativeTolerance", 1e-16},
+                           {"MaximumNumberOfIterations", 1000}}) |
+      or_die;
+  problem.setSolverParameters(ctx, {{"VerbosityLevel", 2},
+                                    {"RelativeTolerance", 1e-12},
+                                    {"AbsoluteTolerance", 0.},
+                                    {"MaximumNumberOfIterations", 10}}) |
+      or_die;
   //
-  auto r = problem.solve(ctx, 0, 1) | or_die;
+  auto r = problem.solve(ctx, 0, 1);
   if (!r) {
     std::cout << "Non convergence of the nonlinear algorithm\n";
     return EXIT_FAILURE;

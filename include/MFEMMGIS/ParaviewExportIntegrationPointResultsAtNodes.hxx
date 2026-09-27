@@ -50,6 +50,11 @@ namespace mfem_mgis {
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodesBase(const std::string &);
+    //
+    ParaviewExportIntegrationPointResultsAtNodesBase(
+        ParaviewExportIntegrationPointResultsAtNodesBase &&) noexcept = default;
+    ParaviewExportIntegrationPointResultsAtNodesBase(
+        const ParaviewExportIntegrationPointResultsAtNodesBase &) = delete;
 
    protected:
     //
@@ -163,6 +168,13 @@ namespace mfem_mgis {
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);
     //
+    ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        ParaviewExportIntegrationPointResultsAtNodesImplementation
+            &&) noexcept = default;
+    ParaviewExportIntegrationPointResultsAtNodesImplementation(
+        const ParaviewExportIntegrationPointResultsAtNodesImplementation &) =
+        delete;
+    //
     [[nodiscard]] bool executeInitialPostProcessing(
         Context &,
         NonLinearEvolutionProblemImplementation<parallel> &,
@@ -267,6 +279,11 @@ namespace mfem_mgis {
         NonLinearEvolutionProblem &,
         const std::vector<ExportedFunctionsDescription> &,
         const std::string &);
+    //
+    ParaviewExportIntegrationPointResultsAtNodes(
+        ParaviewExportIntegrationPointResultsAtNodes &&) = default;
+    ParaviewExportIntegrationPointResultsAtNodes(
+        const ParaviewExportIntegrationPointResultsAtNodes &) = delete;
     /*!
      * \brief execute the export at the initial time of the simulation
      * \param[in,out] ctx: execution context
@@ -320,11 +337,12 @@ namespace mfem_mgis {
   makeExportedFunctionsDescriptions(
       const std::map<std::string, const PartialQuadratureFunctionsSet &> &);
 
-  MFEM_MGIS_EXPORT PartialQuadratureFunctionsSet
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunctionsSet>
   buildPartialQuadratureFunctionsSet(
+      Context &,
       const NonLinearEvolutionProblemImplementationBase &,
       const std::vector<size_type> &,
-      const size_type);
+      const size_type) noexcept;
 
   template <bool parallel>
   struct ParaviewExportIntegrationPointPostProcessingsResultsAtNodes

@@ -372,16 +372,6 @@ namespace mfem_mgis {
     return s;
   }  // end of addBehaviourIntegrator
 
-  size_type MultiMaterialNonLinearIntegrator::addBehaviourIntegrator(
-      const std::string& n,
-      const size_type m,
-      const std::string& l,
-      const std::string& b) {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    return this->addBehaviourIntegrator(ctx, n, m, l, b) | or_raise;
-  }  // end of addBehaviourIntegrator
-
   OptionalReference<const Material>
   MultiMaterialNonLinearIntegrator::getMaterial(
       Context& ctx, const size_type m, const size_type b) const noexcept {
@@ -448,38 +438,6 @@ namespace mfem_mgis {
                                       std::to_string(b) + "'");
     }
     return {bis.at(b).get()};
-  }  // end of getBehaviourIntegrator
-
-  const Material& MultiMaterialNonLinearIntegrator::getMaterial(
-      const size_type m) const {
-    checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
-                                          "getMaterial", m);
-    const auto& bis = this->behaviour_integrators[m];
-    return bis.front()->getMaterial();
-  }  // end of getMaterial
-
-  Material& MultiMaterialNonLinearIntegrator::getMaterial(const size_type m) {
-    checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
-                                          "getMaterial", m);
-    const auto& bis = this->behaviour_integrators[m];
-    return bis.front()->getMaterial();
-  }  // end of getMaterial
-
-  const AbstractBehaviourIntegrator&
-  MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
-      const size_type m) const {
-    checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
-                                          "getBehaviourIntegrator", m);
-    const auto& bis = this->behaviour_integrators[m];
-    return *(bis.front());
-  }  // end of getBehaviourIntegrator
-
-  AbstractBehaviourIntegrator&
-  MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(const size_type m) {
-    checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
-                                          "getBehaviourIntegrator", m);
-    const auto& bis = this->behaviour_integrators[m];
-    return *(bis.front());
   }  // end of getBehaviourIntegrator
 
   real MultiMaterialNonLinearIntegrator::getTimeIncrement() const noexcept {

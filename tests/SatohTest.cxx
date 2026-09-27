@@ -99,6 +99,7 @@ int main(int argc, char** argv) {
   mfem_mgis::initialize(argc, argv);
   // init timers
   auto ctx = mgis::Context{};
+  auto or_die = ctx.getFatalFailureHandler();
   ctx.enableProfiling(true);
 
   // get parameters
@@ -119,8 +120,10 @@ int main(int argc, char** argv) {
             {"Hypothesis", "PlaneStrain"},
             {"Parallel", p.parallel}});
   // materials
-  problem.addBehaviourIntegrator("Mechanics", "plate", p.library, p.behaviour);
-  auto& m1 = problem.getMaterial("plate");
+  problem.addBehaviourIntegrator(ctx, "Mechanics", "plate", p.library,
+                                 p.behaviour) |
+      or_die;
+  auto& m1 = problem.getMaterial(ctx, "plate", 0) | or_die;
   // material properties at the beginning and the end of the time step
   for (auto& s : {&m1.s0, &m1.s1}) {
     mgis::behaviour::setMaterialProperty(*s, "YoungModulus", 150e9);
@@ -141,41 +144,55 @@ int main(int argc, char** argv) {
   for (const auto boundary : {"left", "right"}) {
     for (const auto dof : {0, 1}) {
       problem.addBoundaryCondition(
-          std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-              problem.getFiniteElementDiscretizationPointer(), boundary, dof));
+          ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                   ctx, problem.getFiniteElementDiscretizationPointer(),
+                   boundary, dof) |
+                   or_die) |
+          or_die;
     }
   }
   // set the solver parameters
-  problem.setLinearSolver("HyprePCG", {});
-  problem.setSolverParameters({{"VerbosityLevel", 0},
-                               {"RelativeTolerance", 1e-12},
-                               {"AbsoluteTolerance", 0.},
-                               {"MaximumNumberOfIterations", 10}});
+  problem.setLinearSolver(ctx, "HyprePCG", {}) | or_die;
+  problem.setSolverParameters(ctx, {{"VerbosityLevel", 0},
+                                    {"RelativeTolerance", 1e-12},
+                                    {"AbsoluteTolerance", 0.},
+                                    {"MaximumNumberOfIterations", 10}}) |
+      or_die;
   // vtk export
-  problem.addPostProcessing("ParaviewExportResults",
-                            {{"OutputFileName", "SatohTestOutput"}});
+  problem.addPostProcessing(ctx, "ParaviewExportResults",
+                            {{"OutputFileName", "SatohTestOutput"}}) |
+      or_die;
   auto results = std::vector<mfem_mgis::Parameter>{
       "Stress", "ImposedTemperature", "HydrostaticPressure"};
   problem.addPostProcessing(
-      "ParaviewExportIntegrationPointResultsAtNodes",
+      ctx, "ParaviewExportIntegrationPointResultsAtNodes",
       {{"OutputFileName", "SatohTestIntegrationPointOutput"},
        {"Materials", {"plate"}},
-       {"Results", results}});
+       {"Results", results}}) |
+      or_die;
   // solving the problem on 1 time step
-  auto r = problem.solve(ctx, 0, 1);
-  problem.executePostProcessings(ctx, 0, 1);
+  auto r = problem.solve(ctx, 0, 1) | or_die;
+  problem.executePostProcessings(ctx, 0, 1) | or_die;
   // manual export
-  auto export_stress = mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes{
-      ctx,
-      problem,
-      {{.name = "Stress",
-        .functions = {mfem_mgis::getThermodynamicForce(m1, "Stress")}}},
-      "SatohTestStressOutput"};
+  auto export_stress =
+      ::mfem_mgis::construct<
+          mfem_mgis::ParaviewExportIntegrationPointResultsAtNodes>(
+          ctx, problem,
+          ::mfem_mgis::ParaviewExportIntegrationPointResultsAtNodesBase::
+              ExportedFunctionsDescription{
+                  .name = "Stress",
+                  .functions = {mfem_mgis::getThermodynamicForce(ctx, m1,
+                                                                 "Stress") |
+                                or_die}},
+          "SatohTestStressOutput") |
+      or_die;
   export_stress.execute(ctx, problem, 0, 1);
   //
   std::ofstream output("HydrostaticPressure.txt");
-  const auto pr = getInternalStateVariable(
-      static_cast<const mfem_mgis::Material&>(m1), "HydrostaticPressure");
+  const auto pr =
+      getInternalStateVariable(ctx, static_cast<const mfem_mgis::Material&>(m1),
+                               "HydrostaticPressure") |
+      or_die;
   if (p.parallel == 0) {
     dumpPartialQuadratureFunction<false>(output, pr);
   } else {

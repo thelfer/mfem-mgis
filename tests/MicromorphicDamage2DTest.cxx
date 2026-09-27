@@ -27,7 +27,7 @@
 
 int main(int argc, char** argv) {
   auto ctx = mfem_mgis::Context{};
-
+  auto or_die = ctx.getFatalFailureHandler();
   constexpr auto pi = mfem_mgis::real{3.14159265358979323846};
   constexpr auto Gc = mfem_mgis::real{1};
   constexpr auto l0 = mfem_mgis::real{0.1};
@@ -39,22 +39,28 @@ int main(int argc, char** argv) {
     mfem_mgis::abort("no internal state variable expected");
   }
   // building the non linear problem
-  mfem_mgis::NonLinearEvolutionProblem problem(
-      ctx, {{"MeshFileName", parameters.mesh_file},
-            {"FiniteElementFamily", "H1"},
-            {"FiniteElementOrder", parameters.order},
-            {"UnknownsSize", 1},
-            {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-            {"Hypothesis", "PlaneStrain"},
-            {"Parallel", bool(parameters.parallel)}});
+  auto problem =
+      mfem_mgis::construct<mfem_mgis::NonLinearEvolutionProblem>(
+          ctx, mfem_mgis::Parameters{{"MeshFileName", parameters.mesh_file},
+                                     {"FiniteElementFamily", "H1"},
+                                     {"FiniteElementOrder", parameters.order},
+                                     {"UnknownsSize", 1},
+                                     {"NumberOfUniformRefinements",
+                                      parameters.parallel ? 1 : 0},
+                                     {"Hypothesis", "PlaneStrain"},
+                                     {"Parallel", bool(parameters.parallel)}}) |
+      or_die;
   // materials
-  problem.addBehaviourIntegrator("MicromorphicDamage", 5, parameters.library,
-                                 parameters.behaviour);
-  auto& m = problem.getMaterial(5);
+  problem.addBehaviourIntegrator(ctx, "MicromorphicDamage", 5,
+                                 parameters.library, parameters.behaviour) |
+      or_die;
+  auto& m = problem.getMaterial(ctx, 5, 0) | or_die;
   for (const auto& ev : std::map<std::string, double>{{"Temperature", 293.15},
                                                       {"HistoryFunction", 0}}) {
-    mgis::behaviour::setExternalStateVariable(m.s0, ev.first, ev.second);
-    mgis::behaviour::setExternalStateVariable(m.s1, ev.first, ev.second);
+    mgis::behaviour::setExternalStateVariable(ctx, m.s0, ev.first, ev.second) |
+        or_die;
+    mgis::behaviour::setExternalStateVariable(ctx, m.s1, ev.first, ev.second) |
+        or_die;
   }
   //
   const auto H = mfem_mgis::PartialQuadratureFunction::evaluate(
@@ -64,13 +70,16 @@ int main(int argc, char** argv) {
         return Gc * d * (1 + l0 * l0 * 16 * pi * pi) / (2 * l0 * (1 - d));
       });
   mgis::behaviour::setExternalStateVariable(
-      m.s1, "HistoryFunction", H->getValues(),
-      mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE);
+      ctx, m.s1, "HistoryFunction", H->getValues(),
+      mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE) |
+      or_die;
   // material properties
   for (const auto& mp : std::map<std::string, double>{
            {"FractureEnergy", Gc}, {"RegularizationLength", l0}}) {
-    mgis::behaviour::setMaterialProperty(m.s0, mp.first, mp.second);
-    mgis::behaviour::setMaterialProperty(m.s1, mp.first, mp.second);
+    mgis::behaviour::setMaterialProperty(ctx, m.s0, mp.first, mp.second) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s1, mp.first, mp.second) |
+        or_die;
   }
   // boundary conditions
   //    $PhysicalNames
@@ -78,22 +87,29 @@ int main(int argc, char** argv) {
   // 1 1 "LG"
   //    $EndPhysicalNames
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 3, 0));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 3, 0) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 1, 0));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 0) |
+               or_die) |
+      or_die;
   // set the solver parameters
-  mfem_mgis::unit_tests::setLinearSolver(problem, parameters);
-  problem.setSolverParameters({{"VerbosityLevel", 0},
-                               {"RelativeTolerance", 1e-10},
-                               {"AbsoluteTolerance", 0.},
-                               {"MaximumNumberOfIterations", 10}});
+  mfem_mgis::unit_tests::setLinearSolver(mfem_mgis::may_abort, ctx, problem,
+                                         parameters);
+  problem.setSolverParameters(ctx, {{"VerbosityLevel", 0},
+                                    {"RelativeTolerance", 1e-10},
+                                    {"AbsoluteTolerance", 0.},
+                                    {"MaximumNumberOfIterations", 10}}) |
+      or_die;
   // vtk export
   problem.addPostProcessing(
-      "ParaviewExportResults",
+      ctx, "ParaviewExportResults",
       {{"OutputFileName", "MicromorphicDamage2DTestOutput-" +
-                              std::string(parameters.behaviour)}});
+                              std::string(parameters.behaviour)}}) |
+      or_die;
   // solving the problem in 1 time steps
   const auto t0 = mfem_mgis::real{0};
   const auto t1 = mfem_mgis::real{1};
@@ -101,13 +117,9 @@ int main(int argc, char** argv) {
   const auto dt = (t1 - t0) / nsteps;
   auto t = mfem_mgis::real{0};
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
-    if (!problem.solve(ctx, t, dt)) {
-      mfem_mgis::raise("non convergence");
-    }
-    problem.executePostProcessings(ctx, t, dt);
-    if (!problem.update(ctx)) {
-      mfem_mgis::raise("update faile");
-    }
+    problem.solve(ctx, t, dt) | or_die;
+    problem.executePostProcessings(ctx, t, dt) | or_die;
+    problem.update(ctx) | or_die;
     t += dt;
   }
   //

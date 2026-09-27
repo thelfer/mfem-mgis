@@ -176,9 +176,11 @@ namespace mfem_mgis::unit_tests {
 
   template <typename TestParametersT>
   [[maybe_unused]] static void setLinearSolver(
+      attributes::MayAbort,
+      Context& ctx,
       mfem_mgis::NonLinearEvolutionProblem& problem,
       const TestParametersT& parameters) {
-    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     auto s = [&] {
       if (parameters.parallel == 1) {
 #ifdef MFEM_USE_MPI
@@ -193,14 +195,7 @@ namespace mfem_mgis::unit_tests {
                           .getFiniteElementSpace<false>();
       return getLinearSolver<false>(ctx, fespace, parameters);
     }();
-    if (isInvalid(s)) {
-      mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
-      mfem_mgis::abort(EXIT_FAILURE);
-    }
-    if (!problem.setLinearSolver(ctx, std::move(s))) {
-      mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
-      mfem_mgis::abort(EXIT_FAILURE);
-    }
+    problem.setLinearSolver(ctx, std::move(s)) | or_die;
   }  // end of setLinearSolver
 
   [[maybe_unused]] static void extractResults(
@@ -298,18 +293,19 @@ namespace mfem_mgis::unit_tests {
   }
 
   [[maybe_unused]] static UniaxialTestResults solve(
+      Context& ctx,
       mfem_mgis::NonLinearEvolutionProblem& problem,
       const TestParameters& parameters,
       const mfem_mgis::real t0,
       const mfem_mgis::real t1,
       const mfem_mgis::size_type nsteps) {
-    const auto& m1 = problem.getMaterial(1);
+    auto or_die = ctx.getFatalFailureHandler();
+    const auto& m1 = problem.getMaterial(ctx, 1, 0) | or_die;
     const auto dt = (t1 - t0) / nsteps;
     auto r = mfem_mgis::unit_tests::UniaxialTestResults{};
     extractInitialResults(r, m1, parameters);
     // loop over time step
     auto t = t0;
-    auto ctx = Context{};
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
       // resolution
 
@@ -319,19 +315,15 @@ namespace mfem_mgis::unit_tests {
       // CatchTimeSection(step_name);
       {
         // CatchNestedTimeSection("solve");
-        if (!problem.solve(ctx, t, dt)) {
-          mfem_mgis::abort("non convergence");
-        }
+        problem.solve(ctx, t, dt) | or_die;
       }
       {
         // CatchNestedTimeSection("post_processing_timer");
-        problem.executePostProcessings(ctx, t, dt);
+        problem.executePostProcessings(ctx, t, dt) | or_die;
       }
       {
         // CatchNestedTimeSection("update");
-        if (!problem.update(ctx)) {
-          mfem_mgis::abort("updating failed");
-        }
+        problem.update(ctx) | or_die;
       }
       t += dt;
       extractResults(r, m1, parameters);
