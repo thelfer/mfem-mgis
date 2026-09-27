@@ -63,9 +63,10 @@ namespace mfem_mgis::unit_tests {
                    "Internal variable name to be post-processed.");
     args.AddOption(&params.library, "-l", "--library", "Material library.");
     args.AddOption(&params.linearsolver, "-ls", "--linearsolver",
-                   "identifier of the linear solver: 0 -> CG, 1 -> GMRES, 2 -> "
-                   "UMFPack (serial), 3-> MUMPS(serial), 2 -> HypreFGMRES "
-                   "(//), 3 -> HyprePCG (//), 4 -> HypreGMRES (//)");
+                   "identifier of the linear solver. Serial: 0 -> CG, "
+                   "1 -> GMRES, 2 -> UMFPack. Parallel: 0 -> CG, 1 -> GMRES, "
+                   "2 -> HypreFGMRES, 3 -> MUMPS (HyprePCG without MUMPS), "
+                   "4 -> HypreGMRES");
     args.AddOption(&params.order, "-o", "--order",
                    "Finite element order (polynomial degree).");
     args.AddOption(&params.parallel, "-p", "--parallel",
@@ -255,6 +256,11 @@ namespace mfem_mgis::unit_tests {
           check(r.tf0[i], tf0_ref, seps, "invalid thermodynamic force value");
           check(r.v[i], v_ref, eeps, "invalid internal state variable");
         }
+      } else {
+        mfem_mgis::getErrorStream()
+            << "test failed (unable to open the reference file '"
+            << parameters.reference_file << "')\n";
+        success = false;
       }
     }  // end of if (m1.n != 0)
 #ifdef MFEM_USE_MPI

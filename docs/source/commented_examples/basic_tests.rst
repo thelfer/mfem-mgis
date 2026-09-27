@@ -10,38 +10,50 @@ website : https://github.com/latug0/mfem-mgis-examples/tree/master/ex1
 
 Description:
 
+This example is a cyclic tension-compression test on a unit cube. The
+imposed axial strain goes up to 0.9 %, down to -2.1 % and back up to
+1.9 %, in 100 time steps. Its test compares the results to the reference
+file ``Plasticity.ref``.
+
 .. figure:: img/ex1Start.png
     :alt: Illustration of the start of the TensileTest simulation.
 
 .. figure:: img/ex1End.png
-    :alt: Illustration of the start of the TensileTest simulation.
-
-.. warning::
-
-   Complete the description
+    :alt: Illustration of the end of the TensileTest simulation.
 
 Problem Solved
 ~~~~~~~~~~~~~~
 
 .. code:: text
 
-   Export the internal value named plasticity strain
+   Plastic behaviour with linear isotropic hardening (Plasticity.mfront):
+   [ parameters      , material ]
+   [ Young Modulus   , 70e9     ];
+   [ Poisson Ratio   , 0.34     ];
+   [ Yield Stress    , 300e6    ];
+   [ Hardening Slope , 10e9     ];
+
+   Boundary conditions:
+   - symmetry on the faces x = 0, y = 0 and z = 0
+   - imposed displacement along x on the face x = 1
 
    Solver : Conjugate Gradient (default)
-   Preconditioner : Depends on the solver
 
-   The default is plasticity; behaviour law parameters are defined in the loaded library.
-
-   Element: 
+   Element:
    - Family H1
    - Order 1
 
 Run This Simulation
 ~~~~~~~~~~~~~~~~~~~
 
+Without any option, the example runs as described above, in serial or
+in parallel. The ``-r`` option compares the results to the reference file:
+
 .. code-block:: bash
 
-   mpirun -n 10 ./UniaxialTensileTestEx -m cube.mesh -l  src/libBehaviour.so -b Plasticity -r Plasticity.ref -ls 1 -p 1 -v EquivalentPlasticStrain
+   ./UniaxialTensileTestEx
+   mpirun -n 2 ./UniaxialTensileTestEx -p 1
+   ./UniaxialTensileTestEx -r Plasticity.ref
 
 Available options
 ~~~~~~~~~~~~~~~~~
@@ -52,31 +64,32 @@ below.
 +---------------------------------+--------------------------------------------+
 | Command line                    | Description                                |
 +=================================+============================================+
-| --mesh or -m                    | Specify the mesh ".msh" used (default =    |
-|                                 | inclusion.msh)                             |
+| --mesh or -m                    | Mesh file (default = cube.mesh)            |
 +---------------------------------+--------------------------------------------+
-| --refinement or -r              | The reference file                         |
-|                                 | (default = Plasticity.ref)                 |
+| --reference-file or -r          | Reference file, compared to the results    |
+|                                 | when given (default = none)                |
 +---------------------------------+--------------------------------------------+
-| --behaviour or -b               | Name of the behaviour law                  |
+| --behaviour or -b               | Name of the behaviour                      |
 |                                 | (default = Plasticity)                     |
 +---------------------------------+--------------------------------------------+
-| --internal-state-variable or -v | Internal variable name to be post-processed|
+| --internal-state-variable or -v | Internal state variable compared to the    |
+|                                 | reference                                  |
 |                                 | (default = EquivalentPlasticStrain)        |
 +---------------------------------+--------------------------------------------+
 | --library or -l                 | Material library                           |
 |                                 | (default = src/libBehaviour.so)            |
 +---------------------------------+--------------------------------------------+
-| --linearsolver or -ls           | Identifier of the linear solver: 0 -> CG,  |
-|                                 | 1 -> GMRES, 2 -> UMFPack (serial),         |
-|                                 | 3-> MUMPS(serial), 2 -> HypreFGMRES (//),  |
-|                                 | 3 -> HyprePCG (//), 4 -> HypreGMRES (//).  |
+| --linearsolver or -ls           | Linear solver. Serial: 0 -> CG,            |
+|                                 | 1 -> GMRES, 2 -> UMFPack. Parallel:        |
+|                                 | 0 -> CG, 1 -> GMRES, 2 -> HypreFGMRES,     |
+|                                 | 3 -> MUMPS (HyprePCG without MUMPS),       |
+|                                 | 4 -> HypreGMRES (default = 0)              |
 +---------------------------------+--------------------------------------------+
 | --order or -o                   | Finite element order (polynomial degree)   |
-|                                 | (default = 2)                              |
+|                                 | (default = 1)                              |
 +---------------------------------+--------------------------------------------+
-| --parallel or -p                | Run parallel execution                     |
-|                                 | (default = 0, serial)                      |
+| --parallel or -p                | 0 for a serial run, 1 for a parallel run   |
+|                                 | (default = 0)                              |
 +---------------------------------+--------------------------------------------+
 
 Satoh

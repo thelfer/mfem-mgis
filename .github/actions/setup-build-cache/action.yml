@@ -1,0 +1,16 @@
+name: Set up the build cache
+description: >
+  Use the spack build cache given by the BUILD_CACHE environment variable, read and
+  written with the GITHUB_USER and GITHUB_TOKEN environment variables.
+runs:
+  using: composite
+  steps:
+  - shell: bash
+    run: |
+      spack mirror add --unsigned --oci-username-variable GITHUB_USER --oci-password-variable GITHUB_TOKEN \
+            buildcache $BUILD_CACHE
+      # binaries usable on all the runners, whatever their CPU and install path
+      spack config add "config:install_tree:padded_length:128"
+      spack config add "packages:all:require:[target=x86_64_v3]"
+      # always the latest versions: binaries are only taken when their hash matches
+      spack config add "concretizer:reuse:false"
