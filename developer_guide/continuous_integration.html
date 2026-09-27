@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Continuous integration &mdash; The MFEM MGIS project  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing guide" href="contributing_guide.html" />
+    <link rel="prev" title="Benchmarks" href="benchmark.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The MFEM MGIS project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commented_examples/index.html">Commented Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer_guide.html">Developer guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="benchmark.html">Benchmarks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Continuous integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflows">Workflows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cmake-yml"><code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spack-yml"><code class="docutils literal notranslate"><span class="pre">spack.yml</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#spack-binary-caches">Spack binary caches</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reusing-the-binaries">Reusing the binaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filling-and-cleaning">Filling and cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#visibility">Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ccache">ccache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#safety">Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-operations">Common operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rules-to-keep">Rules to keep</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing_guide.html">Contributing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributors.html">Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guidelines.html">Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter.html">Parameter Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main_classes/main_classes.html">Main classes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The MFEM MGIS project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="developer_guide.html">Developer guide</a></li>
+      <li class="breadcrumb-item active">Continuous integration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developer_guide/continuous_integration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="continuous-integration">
+<span id="mfem-mgis-developer-guide-continuous-integration"></span><h1>Continuous integration<a class="headerlink" href="#continuous-integration" title="Link to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#how-it-works" id="id1">How it works</a></p></li>
+<li><p><a class="reference internal" href="#workflows" id="id2">Workflows</a></p>
+<ul>
+<li><p><a class="reference internal" href="#cmake-yml" id="id3"><code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code></a></p></li>
+<li><p><a class="reference internal" href="#spack-yml" id="id4"><code class="docutils literal notranslate"><span class="pre">spack.yml</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#spack-binary-caches" id="id5">Spack binary caches</a></p>
+<ul>
+<li><p><a class="reference internal" href="#reusing-the-binaries" id="id6">Reusing the binaries</a></p></li>
+<li><p><a class="reference internal" href="#filling-and-cleaning" id="id7">Filling and cleaning</a></p></li>
+<li><p><a class="reference internal" href="#visibility" id="id8">Visibility</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#ccache" id="id9">ccache</a></p></li>
+<li><p><a class="reference internal" href="#safety" id="id10">Safety</a></p></li>
+<li><p><a class="reference internal" href="#common-operations" id="id11">Common operations</a></p></li>
+<li><p><a class="reference internal" href="#rules-to-keep" id="id12">Rules to keep</a></p></li>
+</ul>
+</nav>
+<section id="how-it-works">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">How it works</a><a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
+<p>The continuous integration runs on GitHub Actions. It builds and tests
+mfem-mgis in two complementary ways:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code> installs the dependencies with Spack, then builds mfem-mgis
+with CMake in <code class="docutils literal notranslate"><span class="pre">Release</span></code>, <code class="docutils literal notranslate"><span class="pre">Debug</span></code> and <code class="docutils literal notranslate"><span class="pre">Coverage</span></code> modes. It also builds
+and tests <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples">mfem-mgis-examples</a>
+and <a class="reference external" href="https://github.com/rprat-pro/mm-opera-hpc">mm-opera-hpc</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spack.yml</span></code> builds and tests mfem-mgis as a Spack package, as a user
+would install it.</p></li>
+</ul>
+<p>Two kinds of caches keep the runs short:</p>
+<ul class="simple">
+<li><p>the dependencies are stored as Spack binaries in the GitHub Container
+Registry;</p></li>
+<li><p>the compilations are stored by ccache in the GitHub Actions cache.</p></li>
+</ul>
+<p>Only the runs on <code class="docutils literal notranslate"><span class="pre">master</span></code> write to the Spack binary caches. Pull requests
+only read them.</p>
+<p>A run with empty caches builds all the dependencies, which takes about 1h30.
+The next runs take about 15 minutes, because they find the dependencies and
+most of the compilations in the caches.</p>
+</section>
+<section id="workflows">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Workflows</a><a class="headerlink" href="#workflows" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 35.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Workflow</p></th>
+<th class="head"><p>Triggers</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code></p></td>
+<td><p>pushes and pull requests on <code class="docutils literal notranslate"><span class="pre">master</span></code>, every night, manual</p></td>
+<td><p>CMake builds, tests, examples, OperaHPC and coverage report</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">spack.yml</span></code></p></td>
+<td><p>pushes and pull requests on <code class="docutils literal notranslate"><span class="pre">master</span></code>, every night, releases, manual</p></td>
+<td><p>Spack builds and tests of the checked out sources</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clean-build-cache.yml</span></code></p></td>
+<td><p>first day of every month, manual</p></td>
+<td><p>empties the two Spack binary caches</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">doxygen.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">sphinx.yml</span></code></p></td>
+<td><p>pushes and pull requests on <code class="docutils literal notranslate"><span class="pre">master</span></code></p></td>
+<td><p>build the documentation, published on pushes</p></td>
+</tr>
+</tbody>
+</table>
+<section id="cmake-yml">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code></a><a class="headerlink" href="#cmake-yml" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">run_tests</span></code> job runs once per build type. It uses Spack 1.2.2 and the
+<code class="docutils literal notranslate"><span class="pre">develop</span></code> branch of the Spack packages. The compilers are restricted to
+GCC 12.4. TFEL and MGIS are built from their <code class="docutils literal notranslate"><span class="pre">master</span></code> branches, without
+Python. The <code class="docutils literal notranslate"><span class="pre">Debug</span></code> job also uses a debug build of MFEM.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Coverage</span></code> job uploads its report as the <code class="docutils literal notranslate"><span class="pre">code-coverage-report</span></code>
+artifact.</p>
+</section>
+<section id="spack-yml">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">spack.yml</span></code></a><a class="headerlink" href="#spack-yml" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">build</span></code> job covers two versions of Spack, with and without MPI:</p>
+<ul class="simple">
+<li><p>Spack 1.1.0 with the <code class="docutils literal notranslate"><span class="pre">releases/v2025.11</span></code> packages. They do not provide
+mfem-mgis, which comes from the
+<a class="reference external" href="https://github.com/rprat-pro/spack-repo-mfem-mgis">mfem-mgis Spack repository</a>.</p></li>
+<li><p>Spack 1.2.2 with the <code class="docutils literal notranslate"><span class="pre">develop</span></code> packages, which provide mfem-mgis.</p></li>
+</ul>
+<p>The job first creates a Spack environment, where <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">develop</span></code> points
+mfem-mgis to the checked out sources. It installs the dependencies and, on
+<code class="docutils literal notranslate"><span class="pre">master</span></code>, pushes them to the cache. <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">install</span> <span class="pre">--test=root</span></code> then builds
+and tests mfem-mgis. Only the hash of mfem-mgis differs from a regular
+installation, so the dependencies still come from the cache.</p>
+</section>
+</section>
+<section id="spack-binary-caches">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Spack binary caches</a><a class="headerlink" href="#spack-binary-caches" title="Link to this heading"></a></h2>
+<p>Each workflow has its own cache, as their dependencies differ:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ghcr.io/&lt;owner&gt;/mfem-mgis-buildcache</span></code> for <code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ghcr.io/&lt;owner&gt;/mfem-mgis-spack-buildcache</span></code> for <code class="docutils literal notranslate"><span class="pre">spack.yml</span></code>.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;owner&gt;</span></code> is the owner of the repository. A fork thus has its own caches.</p>
+<section id="reusing-the-binaries">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Reusing the binaries</a><a class="headerlink" href="#reusing-the-binaries" title="Link to this heading"></a></h3>
+<p>Spack only reuses a binary when its hash matches. The configuration must thus
+stay the same from one run to the next. The <code class="docutils literal notranslate"><span class="pre">setup-build-cache</span></code> action sets
+it:</p>
+<ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">x86_64_v3</span></code> target, which all the runners support;</p></li>
+<li><p>padded installation paths, so that the binaries can be relocated;</p></li>
+<li><p>no reuse of the installed packages, so that the latest versions are used.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">master</span></code> branches of TFEL and MGIS are pinned to their latest commit.
+Otherwise, an older binary of <code class="docutils literal notranslate"><span class="pre">tfel&#64;master</span></code> could be reused.</p>
+<p>Any change of the configuration, of the Spack version or of the specs changes
+the hashes. The first run after such a change rebuilds the dependencies.</p>
+</section>
+<section id="filling-and-cleaning">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Filling and cleaning</a><a class="headerlink" href="#filling-and-cleaning" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Each job of a run on <code class="docutils literal notranslate"><span class="pre">master</span></code> pushes the dependencies it installed.
+mfem-mgis itself is never pushed.</p></li>
+<li><p>Each job also records the hashes of all the packages it used.</p></li>
+<li><p>Once all the jobs are done, <code class="docutils literal notranslate"><span class="pre">update_build_cache</span></code> removes the packages
+that no job used, but only if all the jobs succeeded. It then updates the
+index of the cache.</p></li>
+<li><p>On the first day of every month, <code class="docutils literal notranslate"><span class="pre">clean-build-cache.yml</span></code> empties the
+caches. The next nightly runs fill them again.</p></li>
+</ol>
+<p>Pull requests, manual runs on other branches and releases never write to
+these caches.</p>
+<p>Spack cannot prune a cache stored in a container registry.
+<code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">buildcache</span> <span class="pre">prune</span></code> only supports local, S3 and Google Cloud Storage
+mirrors. The <code class="docutils literal notranslate"><span class="pre">clean-build-cache</span></code> action thus deletes the package versions
+with the GitHub API.</p>
+</section>
+<section id="visibility">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Visibility</a><a class="headerlink" href="#visibility" title="Link to this heading"></a></h3>
+<p>The first run on <code class="docutils literal notranslate"><span class="pre">master</span></code> creates the two caches as private packages. They
+should be made public in their package settings. Public packages are free,
+whereas private ones count against the storage quota of the owner.</p>
+<p>Once public, the caches can also be used by the continuous integration of
+other repositories, such as mfem-mgis-examples and mm-opera-hpc. These
+repositories can only read them. Only the workflows of mfem-mgis can write to
+them.</p>
+</section>
+</section>
+<section id="ccache">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">ccache</a><a class="headerlink" href="#ccache" title="Link to this heading"></a></h2>
+<p>The compilations of mfem-mgis, of its tests, of the examples and of OperaHPC
+go through ccache. In <code class="docutils literal notranslate"><span class="pre">spack.yml</span></code>, only the compilation of mfem-mgis does.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">setup-ccache</span></code> installs ccache. It restores the latest cache saved under
+the same key: the build type, or the Spack version and the MPI variant.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save-ccache</span></code> removes the entries that the job did not use. It then saves
+the cache under a new key.</p></li>
+</ul>
+<p>GitHub removes the caches unused for 7 days and limits a repository to 10 GB.
+A pull request reads the caches of <code class="docutils literal notranslate"><span class="pre">master</span></code>. It saves its own caches, which
+only this pull request can read.</p>
+<p>The runners have different processors. The ccache of Ubuntu 24.04 ignores
+what <code class="docutils literal notranslate"><span class="pre">-march=native</span></code> stands for, so it could reuse an object built for
+another processor. <code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code> thus builds mfem-mgis with
+<code class="docutils literal notranslate"><span class="pre">-Denable-portable-build=ON</span></code>, which removes <code class="docutils literal notranslate"><span class="pre">-march=native</span></code>. This caused no
+measurable slowdown.</p>
+</section>
+<section id="safety">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Safety</a><a class="headerlink" href="#safety" title="Link to this heading"></a></h2>
+<p>Nobody outside the project can fill or corrupt the caches.</p>
+<ul class="simple">
+<li><p>The steps writing to the Spack binary caches only run on <code class="docutils literal notranslate"><span class="pre">master</span></code>. Only
+the users with write access to the repository can push to <code class="docutils literal notranslate"><span class="pre">master</span></code>.</p></li>
+<li><p>A pull request from a fork runs with a read-only token. It cannot write to
+the Spack binary caches, even if it modifies the workflows. No workflow uses
+<code class="docutils literal notranslate"><span class="pre">pull_request_target</span></code>, the event that would give it a write token.</p></li>
+<li><p>The size of the Spack binary caches is bounded. Each run on <code class="docutils literal notranslate"><span class="pre">master</span></code>
+removes the unused packages, and the caches are emptied every month.</p></li>
+<li><p>A pull request can save ccache entries, but only this pull request can read
+them. They never reach <code class="docutils literal notranslate"><span class="pre">master</span></code>.</p></li>
+<li><p>All the ccache entries share the 10 GB of the repository. Beyond this limit,
+GitHub removes the least recently used entries. A pull request can thus at
+worst slow down the next runs. It cannot make them wrong.</p></li>
+</ul>
+</section>
+<section id="common-operations">
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">Common operations</a><a class="headerlink" href="#common-operations" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>Empty the Spack binary caches</dt><dd><p>Run the <code class="docutils literal notranslate"><span class="pre">Clean</span> <span class="pre">the</span> <span class="pre">build</span> <span class="pre">caches</span></code> workflow from the Actions tab.</p>
+</dd>
+<dt>Refresh the Spack binary caches</dt><dd><p>Run <code class="docutils literal notranslate"><span class="pre">Build</span> <span class="pre">with</span> <span class="pre">Cmake</span> <span class="pre">and</span> <span class="pre">Run</span> <span class="pre">Examples</span></code> or <code class="docutils literal notranslate"><span class="pre">Spack</span></code> manually on
+<code class="docutils literal notranslate"><span class="pre">master</span></code>.</p>
+</dd>
+<dt>Empty the ccache caches</dt><dd><p>Delete them in the Caches page of the Actions tab, or run
+<code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">cache</span> <span class="pre">delete</span> <span class="pre">--all</span></code>.</p>
+</dd>
+<dt>Understand a slow job</dt><dd><p>In the step installing the dependencies, <code class="docutils literal notranslate"><span class="pre">fetching</span> <span class="pre">from</span> <span class="pre">build</span> <span class="pre">cache</span></code>
+marks a reused binary and <code class="docutils literal notranslate"><span class="pre">no</span> <span class="pre">binary</span> <span class="pre">available</span></code> a built one. The
+<code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">ccache</span></code> step shows the ccache statistics of the job.</p>
+</dd>
+<dt>Rerun a failed job</dt><dd><p>Reruns are safe. The artifacts of the previous attempt are overwritten.</p>
+</dd>
+</dl>
+</section>
+<section id="rules-to-keep">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Rules to keep</a><a class="headerlink" href="#rules-to-keep" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Never write to the Spack binary caches from a pull request.</p></li>
+<li><p>Never enable the <code class="docutils literal notranslate"><span class="pre">Send</span> <span class="pre">write</span> <span class="pre">tokens</span> <span class="pre">to</span> <span class="pre">workflows</span> <span class="pre">from</span> <span class="pre">pull</span> <span class="pre">requests</span></code>
+setting of the repository.</p></li>
+<li><p>Never use <code class="docutils literal notranslate"><span class="pre">-march=native</span></code> in the compilations cached by ccache.</p></li>
+<li><p>Keep the Spack configuration shared by the workflows in
+<code class="docutils literal notranslate"><span class="pre">setup-build-cache</span></code>.</p></li>
+<li><p>The nightly runs are scheduled at 01:17 UTC. GitHub delays the scheduled
+runs the most at the start of an hour. They may still start a few hours
+late.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="benchmark.html" class="btn btn-neutral float-left" title="Benchmarks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contributing_guide.html" class="btn btn-neutral float-right" title="Contributing guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
