@@ -729,7 +729,8 @@ endif(MFEM_MGIS_HAVE_TFEL)
 # from the unit tests
 
 set(EX1_DIR "share/mfem-mgis/examples/ex1")
-install(FILES Plasticity.mfront cube.mesh DESTINATION ${EX1_DIR})
+install(FILES Plasticity.mfront cube.mesh references/Plasticity.ref
+        DESTINATION ${EX1_DIR})
 
 install(
   FILES ex1CMakeLists.txt

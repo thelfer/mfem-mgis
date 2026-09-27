@@ -50,6 +50,7 @@ target_include_directories(UniaxialTensileTestEx
 file(COPY
   ${PROJECT_SOURCE_DIR}/Plasticity.mfront
   ${PROJECT_SOURCE_DIR}/cube.mesh
+  ${PROJECT_SOURCE_DIR}/Plasticity.ref
   DESTINATION ${PROJECT_BINARY_DIR})
 
 # Use mfront to generate libBehaviour.so
@@ -67,7 +68,8 @@ add_dependencies(check UniaxialTensileTestEx generate-libBehaviour-ex1)
 # Define a test that will be called during the "make check"
 function(add_uniaxial_tensile_test_ex)
   set(test "UniaxialTensileTestEx")
-  add_test(NAME ${test} COMMAND UniaxialTensileTestEx)
+  add_test(NAME ${test} COMMAND UniaxialTensileTestEx
+           --reference-file Plasticity.ref)
 endfunction(add_uniaxial_tensile_test_ex)
 
 add_uniaxial_tensile_test_ex()
