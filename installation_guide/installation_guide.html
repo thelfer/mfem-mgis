@@ -45,38 +45,22 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation-tutorial-for-mfem-mgis-mfront-using-spack">Installation Tutorial for <code class="docutils literal notranslate"><span class="pre">MFEM-MGIS-MFront</span></code> using Spack</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-1-clone-the-spack-repository">Step 1: Clone the Spack Repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-2-set-up-spack-environment">Step 2: Set Up Spack Environment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-3-detect-available-compilers">Step 3: Detect Available Compilers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-4-detect-external-dependencies">Step 4: Detect External Dependencies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-5-install-mfem-mgis-mfront">Step 5: Install MFEM-MGIS-MFront</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-6-load-the-installed-package">Step 6: Load the Installed Package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-7-build-and-install-the-project">Step 7: Build and Install the Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-with-spack">Installing with Spack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#versions">Versions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variants">Variants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compilers">Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-installed-package">Using the installed package</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#alternative-installation-method">Alternative Installation Method</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#step-1-install-required-packages">Step 1: Install Required Packages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-2-load-the-installed-packages">Step 2: Load the Installed Packages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-3-set-hypre-dir-environment-variable">Step 3: Set HYPRE_DIR Environment Variable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-4-build-and-install-the-project">Step 4: Build and Install the Project</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#creating-a-simple-example-based-on-mfem-mgis">Creating a Simple Example Based on <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#step-1-locate-and-copy-example-files">Step 1: Locate and Copy Example Files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-2-set-up-and-compile-the-example">Step 2: Set Up and Compile the Example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-3-run-the-example">Step 3: Run the Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#building-in-debug-mode">Building in Debug Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-from-the-sources">Building from the sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-simple-example-based-on-mfem-mgis">Creating a simple example based on <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation-guide-on-topaze-ccrt-of-mfem-mgis-examples">Installation Guide on Topaze/CCRT of mfem-mgis-examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#create-a-new-directory-and-useful-paths">Create a new directory and useful paths</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#download-spack-mfem-mgis-and-mfem-mgis-examples-not-required">Download Spack, mfem-mgis, and mfem-mgis-examples (not required)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#create-a-spack-mirror-on-your-machine-local">Create a Spack Mirror on Your Machine (Local)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#install-mfem-mgis-on-topaze">Install mfem-mgis on Topaze</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#install-mfem-mgis-example-on-topaze">Install MFEM-MGIS-example on Topaze</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-mfem-mgis-examples-on-topaze">Install MFEM-MGIS-examples on Topaze</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-ccc-mprun">Using ccc_mprun</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-ccc-msub">Using ccc_msub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
@@ -115,215 +99,151 @@
              
   <section id="installation-guide">
 <h1>Installation guide<a class="headerlink" href="#installation-guide" title="Link to this heading"></a></h1>
-<p>This project uses <code class="docutils literal notranslate"><span class="pre">cmake</span></code> as build system.</p>
-<section id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
+<nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference external" href="https://mfem.org/">MFEM</a></p></li>
-<li><p><a class="reference external" href="https://github.com/thelfer/MFrontGenericInterfaceSupport">MGIS</a></p></li>
+<li><p><a class="reference internal" href="#quick-start" id="id1">Quick start</a></p></li>
+<li><p><a class="reference internal" href="#installing-with-spack" id="id2">Installing with Spack</a></p>
+<ul>
+<li><p><a class="reference internal" href="#versions" id="id3">Versions</a></p></li>
+<li><p><a class="reference internal" href="#variants" id="id4">Variants</a></p></li>
+<li><p><a class="reference internal" href="#compilers" id="id5">Compilers</a></p></li>
+<li><p><a class="reference internal" href="#using-the-installed-package" id="id6">Using the installed package</a></p></li>
 </ul>
-<p>A simple way to install dependencies is to rely on <code class="docutils literal notranslate"><span class="pre">Spack</span></code> packaging
-system. <code class="docutils literal notranslate"><span class="pre">Spack</span></code> is an open source package
-manager that simplifies building, installing, customizing, and sharing
-HPC software. It will allow you to install recent versions of compilers
-(that handle <code class="docutils literal notranslate"><span class="pre">C++20</span></code>, for example gnu compiler suite version 11+), and
-to get <code class="docutils literal notranslate"><span class="pre">python</span></code>, <code class="docutils literal notranslate"><span class="pre">cmake</span></code> and other tools that are required for this
-project to be installed (see hereafter).</p>
-</section>
-<section id="installation-tutorial-for-mfem-mgis-mfront-using-spack">
-<h2>Installation Tutorial for <code class="docutils literal notranslate"><span class="pre">MFEM-MGIS-MFront</span></code> using Spack<a class="headerlink" href="#installation-tutorial-for-mfem-mgis-mfront-using-spack" title="Link to this heading"></a></h2>
-<p>This tutorial provides detailed instructions on how to install
-<code class="docutils literal notranslate"><span class="pre">MFEM-MGIS-MFront</span></code> using <a class="reference external" href="https://spack.io/">Spack</a>. Follow the
-steps carefully to ensure a successful installation.</p>
-<section id="prerequisites">
-<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Ensure you have <code class="docutils literal notranslate"><span class="pre">git</span></code>, <code class="docutils literal notranslate"><span class="pre">mpi</span></code>, <code class="docutils literal notranslate"><span class="pre">hypre</span></code>, <code class="docutils literal notranslate"><span class="pre">tfel</span></code>, <code class="docutils literal notranslate"><span class="pre">mgis</span></code>, and <code class="docutils literal notranslate"><span class="pre">mfem</span></code> installed on your system with a recent c++ gnu compiler.</p></li>
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">spack</span></code> to install missing Prerequisites.</p></li>
+</li>
+<li><p><a class="reference internal" href="#building-from-the-sources" id="id7">Building from the sources</a></p></li>
+<li><p><a class="reference internal" href="#creating-a-simple-example-based-on-mfem-mgis" id="id8">Creating a simple example based on <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code></a></p></li>
+<li><p><a class="reference internal" href="#installation-guide-on-topaze-ccrt-of-mfem-mgis-examples" id="id9">Installation Guide on Topaze/CCRT of mfem-mgis-examples</a></p>
+<ul>
+<li><p><a class="reference internal" href="#create-a-new-directory-and-useful-paths" id="id10">Create a new directory and useful paths</a></p></li>
+<li><p><a class="reference internal" href="#download-spack-mfem-mgis-and-mfem-mgis-examples-not-required" id="id11">Download Spack, mfem-mgis, and mfem-mgis-examples (not required)</a></p></li>
+<li><p><a class="reference internal" href="#create-a-spack-mirror-on-your-machine-local" id="id12">Create a Spack Mirror on Your Machine (Local)</a></p></li>
+<li><p><a class="reference internal" href="#install-mfem-mgis-on-topaze" id="id13">Install mfem-mgis on Topaze</a></p></li>
+<li><p><a class="reference internal" href="#install-mfem-mgis-examples-on-topaze" id="id14">Install MFEM-MGIS-examples on Topaze</a></p></li>
+<li><p><a class="reference internal" href="#using-ccc-mprun" id="id15">Using ccc_mprun</a></p></li>
+<li><p><a class="reference internal" href="#using-ccc-msub" id="id16">Using ccc_msub</a></p></li>
+<li><p><a class="reference internal" href="#troubleshooting" id="id17">Troubleshooting</a></p></li>
 </ul>
-</section>
-<section id="step-1-clone-the-spack-repository">
-<h3>Step 1: Clone the Spack Repository<a class="headerlink" href="#step-1-clone-the-spack-repository" title="Link to this heading"></a></h3>
-<p>First, clone the Spack repository from GitHub.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="o">=</span><span class="m">2</span><span class="w"> </span>--branch<span class="o">=</span>v1.1.0<span class="w"> </span>https://github.com/spack/spack.git
+</li>
+</ul>
+</nav>
+<section id="quick-start">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Quick start</a><a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> is packaged in <a class="reference external" href="https://spack.io/">Spack</a>, which also
+installs all its dependencies. These commands set up Spack:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="o">=</span><span class="m">2</span><span class="w"> </span>--branch<span class="o">=</span>v1.2.2<span class="w"> </span>https://github.com/spack/spack.git
+<span class="nb">source</span><span class="w"> </span>spack/share/spack/setup-env.sh
+spack<span class="w"> </span>repo<span class="w"> </span>update<span class="w"> </span><span class="nb">builtin</span><span class="w"> </span>--branch<span class="w"> </span>develop
 </pre></div>
 </div>
+<p>The last command selects the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch of the Spack packages,
+because their releases do not provide <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> yet.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;master</span></code> version of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>, its development version, is
+currently recommended, as it includes many fixes:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>install<span class="w"> </span>mfem-mgis@master
+</pre></div>
+</div>
+<p>The last release (1.0.4) is installed by:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>install<span class="w"> </span>mfem-mgis
+</pre></div>
+</div>
+<p>Spack needs a few system tools, such as <code class="docutils literal notranslate"><span class="pre">git</span></code>, <code class="docutils literal notranslate"><span class="pre">python3</span></code> and C, C++
+and Fortran compilers. They are listed in the <a class="reference external" href="https://spack.readthedocs.io/en/latest/installing_prerequisites.html">Spack documentation</a>.
+The first installation builds about 90 packages from their sources. It
+takes about 15 minutes on a computer with 8 cores.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Install Spack outside the source directory of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> to avoid issues with CMake.</p>
+<p>Install Spack outside the sources of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>, to avoid issues
+with CMake.</p>
 </div>
 </section>
-<section id="step-2-set-up-spack-environment">
-<h3>Step 2: Set Up Spack Environment<a class="headerlink" href="#step-2-set-up-spack-environment" title="Link to this heading"></a></h3>
-<p>Set up the Spack environment by configuring the <code class="docutils literal notranslate"><span class="pre">SPACK_ROOT</span></code>
-environment variable and sourcing the setup script.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">SPACK_ROOT</span><span class="o">=</span><span class="nv">$PWD</span>/spack
-<span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>/share/spack/setup-env.sh
+<section id="installing-with-spack">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Installing with Spack</a><a class="headerlink" href="#installing-with-spack" title="Link to this heading"></a></h2>
+<section id="versions">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Versions</a><a class="headerlink" href="#versions" title="Link to this heading"></a></h3>
+<p>This documentation is generated from the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch, so it
+describes the <code class="docutils literal notranslate"><span class="pre">&#64;master</span></code> version. Some of the features it describes are
+not available in the last release (1.0.4). They are marked as such.</p>
+</section>
+<section id="variants">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">Variants</a><a class="headerlink" href="#variants" title="Link to this heading"></a></h3>
+<p>The package has three variants:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mpi</span></code> enables MPI parallelism. It is enabled by default. Only the
+<code class="docutils literal notranslate"><span class="pre">&#64;master</span></code> version can be built without MPI, with <code class="docutils literal notranslate"><span class="pre">~mpi</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mumps</span></code> adds the <code class="docutils literal notranslate"><span class="pre">MUMPS</span></code> solver to <code class="docutils literal notranslate"><span class="pre">MFEM</span></code>. It is enabled by
+default when MPI is.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">int64</span></code> uses 64 bit integers in <code class="docutils literal notranslate"><span class="pre">hypre</span></code> and <code class="docutils literal notranslate"><span class="pre">metis</span></code>. It is
+enabled by default.</p></li>
+</ul>
+<p>For example, this command installs the <code class="docutils literal notranslate"><span class="pre">&#64;master</span></code> version without MPI:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>install<span class="w"> </span>mfem-mgis@master~mpi
 </pre></div>
 </div>
 </section>
-<section id="step-3-detect-available-compilers">
-<h3>Step 3: Detect Available Compilers<a class="headerlink" href="#step-3-detect-available-compilers" title="Link to this heading"></a></h3>
-<p>Detect the available compilers on your system. Ensure to select a
-version that provides C, C++, and Fortran compilers.</p>
+<section id="compilers">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Compilers</a><a class="headerlink" href="#compilers" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> requires GCC 11 or newer. Spack detects the compilers of
+the system the first time it runs. A compiler made available later, for
+example by <code class="docutils literal notranslate"><span class="pre">module</span> <span class="pre">load</span></code>, must be added with:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>compiler<span class="w"> </span>find
 </pre></div>
 </div>
-<p>If necessary, remove unwanted compilers with the command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>compiler<span class="w"> </span>remove<span class="w"> </span>&lt;compiler_name&gt;
-</pre></div>
-</div>
 </section>
-<section id="step-4-detect-external-dependencies">
-<h3>Step 4: Detect External Dependencies<a class="headerlink" href="#step-4-detect-external-dependencies" title="Link to this heading"></a></h3>
-<p>Use Spack to detect already installed libraries and programs to avoid
-reinstalling them.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>m4<span class="w"> </span>openssl<span class="w"> </span>automake<span class="w"> </span>ncurses
-spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>autoconf<span class="w"> </span>libtool<span class="w"> </span>xz<span class="w"> </span>gmake<span class="w"> </span>cmake
-spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>tar<span class="w"> </span>tcl<span class="w"> </span>perl<span class="w"> </span>curl<span class="w"> </span>zlib<span class="w"> </span>openblas
-</pre></div>
-</div>
-</section>
-<section id="step-5-install-mfem-mgis-mfront">
-<h3>Step 5: Install MFEM-MGIS-MFront<a class="headerlink" href="#step-5-install-mfem-mgis-mfront" title="Link to this heading"></a></h3>
-<p>Change to the <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> directory, add the Spack repository, and
-install the package.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-spack<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>spack-repo-mfem-mgis
-spack<span class="w"> </span>install<span class="w"> </span>-j<span class="w"> </span><span class="m">8</span><span class="w"> </span>mfem-mgis
-</pre></div>
-</div>
-</section>
-<section id="step-6-load-the-installed-package">
-<h3>Step 6: Load the Installed Package<a class="headerlink" href="#step-6-load-the-installed-package" title="Link to this heading"></a></h3>
-<p>Load the installed package.</p>
+<section id="using-the-installed-package">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Using the installed package</a><a class="headerlink" href="#using-the-installed-package" title="Link to this heading"></a></h3>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>load<span class="w"> </span>mfem-mgis
 </pre></div>
 </div>
+<p>This command makes <code class="docutils literal notranslate"><span class="pre">mfront</span></code> and <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> available. It also sets the
+<code class="docutils literal notranslate"><span class="pre">MFEMMGIS_DIR</span></code> variable, which CMake projects use to find
+<code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>. When several versions are installed, the version must be
+given, for example <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">load</span> <span class="pre">mfem-mgis&#64;master</span></code>.</p>
 </section>
-<section id="step-7-build-and-install-the-project">
-<h3>Step 7: Build and Install the Project<a class="headerlink" href="#step-7-build-and-install-the-project" title="Link to this heading"></a></h3>
-<p>Create a build directory, configure the project with CMake, build it,
-and install.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
-cmake<span class="w"> </span>..<span class="w"> </span>-DCMAKE_INSTALL_PREFIX<span class="o">=</span>../install
-make<span class="w"> </span>-j<span class="w"> </span><span class="m">4</span><span class="w"> </span>check
-make<span class="w"> </span>install
+</section>
+<section id="building-from-the-sources">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Building from the sources</a><a class="headerlink" href="#building-from-the-sources" title="Link to this heading"></a></h2>
+<p>To work on the sources of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>, Spack only installs its
+dependencies, in an environment:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/thelfer/mfem-mgis.git
+spack<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>mfem-mgis-deps
+spack<span class="w"> </span>-e<span class="w"> </span>mfem-mgis-deps<span class="w"> </span>add<span class="w"> </span>mfem-mgis@master
+spack<span class="w"> </span>-e<span class="w"> </span>mfem-mgis-deps<span class="w"> </span>install<span class="w"> </span>--only<span class="w"> </span>dependencies
+spack<span class="w"> </span>env<span class="w"> </span>activate<span class="w"> </span>mfem-mgis-deps
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">MGIS</span></code> and <code class="docutils literal notranslate"><span class="pre">hypre</span></code> are located through the <code class="docutils literal notranslate"><span class="pre">CMAKE_PREFIX_PATH</span></code> exported
-by <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">load</span></code>. Their locations can be overridden on the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command
-line with <code class="docutils literal notranslate"><span class="pre">-DMFrontGenericInterface_DIR=&lt;mgis</span> <span class="pre">prefix&gt;/share/mgis/cmake</span></code> and
-<code class="docutils literal notranslate"><span class="pre">-DHYPRE_DIR=&lt;hypre</span> <span class="pre">prefix&gt;</span></code>.</p>
-</section>
-</section>
-<section id="alternative-installation-method">
-<h2>Alternative Installation Method<a class="headerlink" href="#alternative-installation-method" title="Link to this heading"></a></h2>
-<p>If you already have <code class="docutils literal notranslate"><span class="pre">mfem</span></code>, <code class="docutils literal notranslate"><span class="pre">tfel</span></code>, and <code class="docutils literal notranslate"><span class="pre">mgis</span></code> installed via
-Spack, follow these steps:</p>
-<section id="step-1-install-required-packages">
-<h3>Step 1: Install Required Packages<a class="headerlink" href="#step-1-install-required-packages" title="Link to this heading"></a></h3>
-<p>Install the required packages using Spack.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>install<span class="w"> </span>mfem+mpi+suite-sparse
-spack<span class="w"> </span>install<span class="w"> </span>tfel@master~python~python_bindings
-spack<span class="w"> </span>install<span class="w"> </span>mgis@master+c~fortran~python
+<p>Once activated, the environment gives CMake access to the dependencies.
+CMake builds the sources, and the <code class="docutils literal notranslate"><span class="pre">check</span></code> target runs the tests:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>cmake<span class="w"> </span>-S<span class="w"> </span>mfem-mgis<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span>-DCMAKE_INSTALL_PREFIX<span class="o">=</span>install
+cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>-j<span class="w"> </span><span class="m">8</span>
+cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>check
+cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>install
 </pre></div>
 </div>
-</section>
-<section id="step-2-load-the-installed-packages">
-<h3>Step 2: Load the Installed Packages<a class="headerlink" href="#step-2-load-the-installed-packages" title="Link to this heading"></a></h3>
-<p>Load the installed packages.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>load<span class="w"> </span>mfem
-spack<span class="w"> </span>load<span class="w"> </span>tfel
-spack<span class="w"> </span>load<span class="w"> </span>mgis
-spack<span class="w"> </span>load<span class="w"> </span>hypre
-</pre></div>
-</div>
-</section>
-<section id="step-3-set-hypre-dir-environment-variable">
-<h3>Step 3: Set HYPRE_DIR Environment Variable<a class="headerlink" href="#step-3-set-hypre-dir-environment-variable" title="Link to this heading"></a></h3>
-<p>Set the <code class="docutils literal notranslate"><span class="pre">HYPRE_DIR</span></code> environment variable to the installation location
-of <code class="docutils literal notranslate"><span class="pre">hypre</span></code>.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HYPRE_DIR</span><span class="o">=</span><span class="sb">`</span>spack<span class="w"> </span>location<span class="w"> </span>-i<span class="w"> </span>hypre<span class="sb">`</span>
-</pre></div>
-</div>
-</section>
-<section id="step-4-build-and-install-the-project">
-<h3>Step 4: Build and Install the Project<a class="headerlink" href="#step-4-build-and-install-the-project" title="Link to this heading"></a></h3>
-<p>Create a build directory, configure the project with CMake, and build
-it.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
-cmake<span class="w"> </span>..
-make<span class="w"> </span>-j<span class="w"> </span><span class="m">4</span><span class="w"> </span>check
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">MGIS</span></code> is located through the <code class="docutils literal notranslate"><span class="pre">CMAKE_PREFIX_PATH</span></code> exported by <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">load</span></code>.
-Its location can be overridden on the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command line with
-<code class="docutils literal notranslate"><span class="pre">-DMFrontGenericInterface_DIR=&lt;mgis</span> <span class="pre">prefix&gt;/share/mgis/cmake</span></code>.</p>
-<p>By following these detailed instructions, you should be able to install
-and configure <code class="docutils literal notranslate"><span class="pre">MFEM-MGIS-MFront</span></code> using Spack successfully.</p>
-</section>
 </section>
 <section id="creating-a-simple-example-based-on-mfem-mgis">
-<h2>Creating a Simple Example Based on <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code><a class="headerlink" href="#creating-a-simple-example-based-on-mfem-mgis" title="Link to this heading"></a></h2>
-<p>Upon executing the <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> command during the installation
-process, a simple example is created in your installation directory.
-This example can be found in the “install/share/mfem-mgis/examples”
-directory. You can copy this example and the associated <code class="docutils literal notranslate"><span class="pre">env.sh</span></code> file
-to another location. The example can be compiled using either the
-<code class="docutils literal notranslate"><span class="pre">cmake</span></code> or <code class="docutils literal notranslate"><span class="pre">make</span></code> build systems.</p>
-<section id="step-1-locate-and-copy-example-files">
-<h3>Step 1: Locate and Copy Example Files<a class="headerlink" href="#step-1-locate-and-copy-example-files" title="Link to this heading"></a></h3>
-<p>First, locate your installation directory and copy the example and
-environment setup file to a new location.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">INSTALLDIR</span><span class="o">=</span>&lt;your_mfemmgis_install_directory&gt;
-cp<span class="w"> </span>-r<span class="w"> </span><span class="si">${</span><span class="nv">INSTALLDIR</span><span class="si">}</span>/share/mfem-mgis/examples/ex1<span class="w"> </span>.
-cp<span class="w"> </span><span class="si">${</span><span class="nv">INSTALLDIR</span><span class="si">}</span>/share/mfem-mgis/examples/env.sh<span class="w"> </span>ex1/
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Creating a simple example based on <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code></a><a class="headerlink" href="#creating-a-simple-example-based-on-mfem-mgis" title="Link to this heading"></a></h2>
+<p>The installation of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> includes a simple example, <code class="docutils literal notranslate"><span class="pre">ex1</span></code>.
+It requires the <code class="docutils literal notranslate"><span class="pre">&#64;master</span></code> version. It can be copied to another location
+and built with CMake:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>load<span class="w"> </span>mfem-mgis
+cp<span class="w"> </span>-r<span class="w"> </span><span class="sb">`</span>spack<span class="w"> </span>location<span class="w"> </span>-i<span class="w"> </span>mfem-mgis<span class="sb">`</span>/share/mfem-mgis/examples/ex1<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>ex1
+cmake<span class="w"> </span>-B<span class="w"> </span>build
+cmake<span class="w"> </span>--build<span class="w"> </span>build
+ctest<span class="w"> </span>--test-dir<span class="w"> </span>build
 </pre></div>
 </div>
-</section>
-<section id="step-2-set-up-and-compile-the-example">
-<h3>Step 2: Set Up and Compile the Example<a class="headerlink" href="#step-2-set-up-and-compile-the-example" title="Link to this heading"></a></h3>
-<p>Navigate to the example directory, source the environment setup file,
-create a build directory, and compile the example using <code class="docutils literal notranslate"><span class="pre">cmake</span></code>.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ex1
-<span class="nb">source</span><span class="w"> </span>env.sh
-mkdir<span class="w"> </span>build
-<span class="nb">cd</span><span class="w"> </span>build
-cmake<span class="w"> </span>..
-make
-make<span class="w"> </span>check
-</pre></div>
-</div>
-</section>
-<section id="step-3-run-the-example">
-<h3>Step 3: Run the Example<a class="headerlink" href="#step-3-run-the-example" title="Link to this heading"></a></h3>
-<p>After successfully building the example, you can run it using the
-following command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./UniaxialTensileTest
-</pre></div>
-</div>
-</section>
-</section>
-<section id="building-in-debug-mode">
-<h2>Building in Debug Mode<a class="headerlink" href="#building-in-debug-mode" title="Link to this heading"></a></h2>
-<p>To compile the example and the <code class="docutils literal notranslate"><span class="pre">MFront</span></code> behavior in debug mode, use
-the following command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean
-make<span class="w"> </span><span class="nv">DEBUG</span><span class="o">=</span><span class="m">1</span>
-</pre></div>
-</div>
-<p>By following these steps, you can successfully create, build, and run a
-simple example based on <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>. Modify the source files as needed
-to develop and test your own study cases.</p>
+<p>The example also provides a <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>, which needs the variables set
+by <code class="docutils literal notranslate"><span class="pre">share/mfem-mgis/examples/env.sh</span></code>.</p>
+<p>Its sources can be modified to develop your own study cases.</p>
 </section>
 <section id="installation-guide-on-topaze-ccrt-of-mfem-mgis-examples">
-<h2>Installation Guide on Topaze/CCRT of mfem-mgis-examples<a class="headerlink" href="#installation-guide-on-topaze-ccrt-of-mfem-mgis-examples" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">Installation Guide on Topaze/CCRT of mfem-mgis-examples</a><a class="headerlink" href="#installation-guide-on-topaze-ccrt-of-mfem-mgis-examples" title="Link to this heading"></a></h2>
 <p>This guide provides step-by-step instructions for setting up your
 environment on <code class="docutils literal notranslate"><span class="pre">Topaze/CCRT</span></code> and installing the necessary software. Follow
 these steps to get started.</p>
 <section id="create-a-new-directory-and-useful-paths">
-<h3>Create a new directory and useful paths<a class="headerlink" href="#create-a-new-directory-and-useful-paths" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Create a new directory and useful paths</a><a class="headerlink" href="#create-a-new-directory-and-useful-paths" title="Link to this heading"></a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>topaze-dir<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>topaze-dir
 <span class="nb">export</span><span class="w"> </span><span class="nv">MY_DIR</span><span class="o">=</span><span class="nv">$PWD</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">MY_LOG</span><span class="o">=</span>YOURLOGIN
@@ -332,11 +252,11 @@ these steps to get started.</p>
 </div>
 </section>
 <section id="download-spack-mfem-mgis-and-mfem-mgis-examples-not-required">
-<h3>Download Spack, mfem-mgis, and mfem-mgis-examples (not required)<a class="headerlink" href="#download-spack-mfem-mgis-and-mfem-mgis-examples-not-required" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Download Spack, mfem-mgis, and mfem-mgis-examples (not required)</a><a class="headerlink" href="#download-spack-mfem-mgis-and-mfem-mgis-examples-not-required" title="Link to this heading"></a></h3>
 <p>Before proceeding, make sure to source Spack and clear your local <code class="docutils literal notranslate"><span class="pre">~/.spack</span></code> repository.
 Download Spack and the git directories of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> and <code class="docutils literal notranslate"><span class="pre">mfem-mgis-examples</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$MY_DIR</span>
-git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="o">=</span><span class="m">2</span><span class="w"> </span>--branch<span class="o">=</span>v1.1.0<span class="w"> </span>https://github.com/spack/spack.git
+git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="o">=</span><span class="m">2</span><span class="w"> </span>--branch<span class="o">=</span>v1.2.2<span class="w"> </span>https://github.com/spack/spack.git
 rm<span class="w"> </span>-r<span class="w"> </span>~/.spack
 <span class="nb">export</span><span class="w"> </span><span class="nv">SPACK_ROOT</span><span class="o">=</span><span class="nv">$PWD</span>/spack
 <span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">SPACK_ROOT</span><span class="si">}</span>/share/spack/setup-env.sh
@@ -350,22 +270,19 @@ git<span class="w"> </span>clone<span class="w"> </span>https://github.com/latug
 </div>
 </section>
 <section id="create-a-spack-mirror-on-your-machine-local">
-<h3>Create a Spack Mirror on Your Machine (Local)<a class="headerlink" href="#create-a-spack-mirror-on-your-machine-local" title="Link to this heading"></a></h3>
-<p>Firstly, you need to get the mfem-mgis spack repository.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-spack<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span><span class="nv">$PWD</span>/spack-repo-mfem-mgis
-</pre></div>
-</div>
-<p>Now, you will create a <code class="docutils literal notranslate"><span class="pre">spack</span></code> mirror and a bootstrap directory.</p>
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Create a Spack Mirror on Your Machine (Local)</a><a class="headerlink" href="#create-a-spack-mirror-on-your-machine-local" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch of the Spack packages provides <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>. The
+examples require the <code class="docutils literal notranslate"><span class="pre">&#64;master</span></code> version of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code>. Create a
+<code class="docutils literal notranslate"><span class="pre">spack</span></code> mirror and a bootstrap directory.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>bootstrap<span class="w"> </span>mirror<span class="w"> </span>--binary-packages<span class="w"> </span>my_bootstrap
 spack<span class="w"> </span>mirror<span class="w"> </span>create<span class="w"> </span>-d<span class="w"> </span>re2c_mirror<span class="w"> </span>re2c@3.0
 cp<span class="w"> </span>-r<span class="w"> </span>re2c_mirror/_source-cache/archive/b3/<span class="w"> </span>my_bootstrap/bootstrap_cache/_source-cache/archive
-spack<span class="w"> </span>mirror<span class="w"> </span>create<span class="w"> </span>-d<span class="w"> </span>mirror-mfem-mgis<span class="w"> </span>-D<span class="w"> </span>mfem-mgis
+spack<span class="w"> </span>mirror<span class="w"> </span>create<span class="w"> </span>-d<span class="w"> </span>mirror-mfem-mgis<span class="w"> </span>-D<span class="w"> </span>mfem-mgis@master
 </pre></div>
 </div>
 <p>It’s possible that you will need some packages in your mirror, you can
 specify them with the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>mirror<span class="w"> </span>create<span class="w"> </span>-d<span class="w"> </span>mirror-mfem-mgis<span class="w"> </span>-D<span class="w"> </span>mfem-mgis<span class="w"> </span>zlib<span class="w"> </span>ca-certificates-mozilla<span class="w"> </span>zlib-ng<span class="w"> </span>util-macros<span class="w"> </span>pkgconf<span class="w"> </span>findutils<span class="w"> </span>libpciaccess<span class="w"> </span>libedit<span class="w"> </span>libxcrypt<span class="w"> </span>bison<span class="w"> </span>libevent<span class="w"> </span>numactl
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>mirror<span class="w"> </span>create<span class="w"> </span>-d<span class="w"> </span>mirror-mfem-mgis<span class="w"> </span>-D<span class="w"> </span>mfem-mgis@master<span class="w"> </span>zlib<span class="w"> </span>ca-certificates-mozilla<span class="w"> </span>zlib-ng<span class="w"> </span>util-macros<span class="w"> </span>pkgconf<span class="w"> </span>findutils<span class="w"> </span>libpciaccess<span class="w"> </span>libedit<span class="w"> </span>libxcrypt<span class="w"> </span>bison<span class="w"> </span>libevent<span class="w"> </span>numactl
 </pre></div>
 </div>
 <p><strong>Copy Data to Topaze</strong></p>
@@ -374,10 +291,12 @@ specify them with the following command:</p>
 <li><p>spack</p></li>
 <li><p>mfem-mgis</p></li>
 <li><p>mfem-mgis-examples</p></li>
+<li><p>mirror-mfem-mgis</p></li>
+<li><p>my_bootstrap</p></li>
 </ul>
 <p>Create an archive for these files:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$MY_DIR</span>
-tar<span class="w"> </span>cvf<span class="w"> </span>archive.tar.gz<span class="w"> </span>mfem-mgis/<span class="w"> </span>mfem-mgis-examples/<span class="w"> </span>mirror-mfem-mgis/<span class="w"> </span>spack/<span class="w"> </span>my_bootstrap/<span class="w"> </span>spack-repo-mfem-mgis/
+tar<span class="w"> </span>cvf<span class="w"> </span>archive.tar.gz<span class="w"> </span>mfem-mgis/<span class="w"> </span>mfem-mgis-examples/<span class="w"> </span>mirror-mfem-mgis/<span class="w"> </span>spack/<span class="w"> </span>my_bootstrap/
 scp<span class="w"> </span>archive.tar.gz<span class="w"> </span><span class="nv">$MY_LOG</span>@topaze.ccc.cea.fr:<span class="nv">$MY_DEST</span>/
 </pre></div>
 </div>
@@ -387,14 +306,14 @@ scp<span class="w"> </span>archive.tar.gz<span class="w"> </span><span class="nv
 </pre></div>
 </div>
 <p>Load the required modules on Topaze:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>gnu/12.3.0
-module<span class="w"> </span>load<span class="w"> </span>mpi
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>gnu/13.2.0
+module<span class="w"> </span>load<span class="w"> </span>mpi/openmpi/4.0.5
 module<span class="w"> </span>load<span class="w"> </span>cmake/3.29.6
 </pre></div>
 </div>
 </section>
 <section id="install-mfem-mgis-on-topaze">
-<h3>Install mfem-mgis on Topaze<a class="headerlink" href="#install-mfem-mgis-on-topaze" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Install mfem-mgis on Topaze</a><a class="headerlink" href="#install-mfem-mgis-on-topaze" title="Link to this heading"></a></h3>
 <p>Note that the installation is performed in your scratch directory, and
 files are automatically removed after 3 months.</p>
 <p><strong>Setup spack</strong></p>
@@ -411,11 +330,10 @@ spack<span class="w"> </span>bootstrap<span class="w"> </span>reset<span class="
 spack<span class="w"> </span>bootstrap<span class="w"> </span>add<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>--trust<span class="w"> </span>local-binaries<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/metadata/binaries/
 spack<span class="w"> </span>bootstrap<span class="w"> </span>add<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>--trust<span class="w"> </span>local-sources<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/metadata/sources/
 spack<span class="w"> </span>buildcache<span class="w"> </span>update-index<span class="w"> </span><span class="nv">$PWD</span>/my_bootstrap/bootstrap_cache
-spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>github-actions-v0.5
+spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>github-actions-v2
 spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>github-actions-v0.6
 spack<span class="w"> </span>bootstrap<span class="w"> </span>disable<span class="w"> </span>--scope<span class="o">=</span>site<span class="w"> </span>spack-install
 spack<span class="w"> </span>bootstrap<span class="w"> </span>root<span class="w"> </span><span class="nv">$PWD</span>/spack/bootstrap
-spack<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>spack-repo-mfem-mgis/
 </pre></div>
 </div>
 <p>Now you can look for the compilers</p>
@@ -432,9 +350,7 @@ spack<span class="w"> </span>bootstrap<span class="w"> </span>status
 </pre></div>
 </div>
 <p>If everything goes well, you will obtain something like</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Spack<span class="w"> </span>v1.0.2<span class="w"> </span>-<span class="w"> </span>python@3.6
-
-<span class="o">[</span>PASS<span class="o">]</span><span class="w"> </span>Core<span class="w"> </span>Functionalities
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>PASS<span class="o">]</span><span class="w"> </span>Core<span class="w"> </span>Functionalities
 
 <span class="o">[</span>PASS<span class="o">]</span><span class="w"> </span>Binary<span class="w"> </span>packages
 </pre></div>
@@ -451,26 +367,25 @@ the following commands:</p>
 </pre></div>
 </div>
 <p><strong>Install MFEM-MGIS</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span><span class="nv">$PWD</span>/spack-repo-mfem-mgis
-spack<span class="w"> </span>mirror<span class="w"> </span>add<span class="w"> </span>MMM<span class="w"> </span><span class="nv">$PWD</span>/mirror-mfem-mgis/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>mirror<span class="w"> </span>add<span class="w"> </span>MMM<span class="w"> </span><span class="nv">$PWD</span>/mirror-mfem-mgis/
 </pre></div>
 </div>
 <p><strong>Run installation</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>gnu/12.3.0<span class="w"> </span>mpi<span class="w"> </span>hwloc<span class="w"> </span>cmake/3.29.6
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>gnu/13.2.0<span class="w"> </span>mpi/openmpi/4.0.5<span class="w"> </span>hwloc<span class="w"> </span>cmake/3.29.6
 spack<span class="w"> </span>compiler<span class="w"> </span>find
 spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>hwloc
 spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>cmake
 spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>openssh
 spack<span class="w"> </span>external<span class="w"> </span>find<span class="w"> </span>openmpi
 
-spack<span class="w"> </span>install<span class="w"> </span>mfem-mgis%gcc@12.3.0
+spack<span class="w"> </span>install<span class="w"> </span>mfem-mgis@master%gcc@13.2.0
 </pre></div>
 </div>
 </section>
-<section id="install-mfem-mgis-example-on-topaze">
-<h3>Install MFEM-MGIS-example on Topaze<a class="headerlink" href="#install-mfem-mgis-example-on-topaze" title="Link to this heading"></a></h3>
-<p>Follow these steps to install mfem-mgis-example on Topaze:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>mfem-mgis-example
+<section id="install-mfem-mgis-examples-on-topaze">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Install MFEM-MGIS-examples on Topaze</a><a class="headerlink" href="#install-mfem-mgis-examples-on-topaze" title="Link to this heading"></a></h3>
+<p>Follow these steps to install mfem-mgis-examples on Topaze:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>mfem-mgis-examples
 mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
 spack<span class="w"> </span>load<span class="w"> </span>mfem-mgis
 cmake<span class="w"> </span>..
@@ -478,19 +393,20 @@ make<span class="w"> </span>-j<span class="w"> </span><span class="m">10</span>
 ctest
 </pre></div>
 </div>
-<p><strong>How to run an example (ex8)</strong></p>
-<p>There are two ways to run an example, such as ex8:</p>
+<p><strong>How to run an example (ex7)</strong></p>
+<p>There are two ways to run an example, such as ex7, from its build
+directory <code class="docutils literal notranslate"><span class="pre">build/ex7</span></code>:</p>
 </section>
 <section id="using-ccc-mprun">
-<h3>Using ccc_mprun<a class="headerlink" href="#using-ccc-mprun" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Using ccc_mprun</a><a class="headerlink" href="#using-ccc-mprun" title="Link to this heading"></a></h3>
 <p>To run an example using ccc_mprun with 1024 processes and 1 core per process (-m access to other filesystem, -T time), execute the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ccc_mprun<span class="w"> </span>-n<span class="w"> </span><span class="m">1024</span><span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>-m<span class="w"> </span>work,store,scratch<span class="w"> </span>-T<span class="w"> </span><span class="m">84000</span><span class="w"> </span>-pmilan<span class="w"> </span>./uniaxial-elastic
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ccc_mprun<span class="w"> </span>-n<span class="w"> </span><span class="m">1024</span><span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>-m<span class="w"> </span>work,store,scratch<span class="w"> </span>-T<span class="w"> </span><span class="m">84000</span><span class="w"> </span>-pmilan<span class="w"> </span>./mox2<span class="w"> </span>-m<span class="w"> </span>mesh/inclusion.msh<span class="w"> </span>-o<span class="w"> </span><span class="m">1</span><span class="w"> </span>-r<span class="w"> </span><span class="m">2</span><span class="w"> </span>--post-processing<span class="w"> </span><span class="m">0</span>
 </pre></div>
 </div>
 </section>
 <section id="using-ccc-msub">
-<h3>Using ccc_msub<a class="headerlink" href="#using-ccc-msub" title="Link to this heading"></a></h3>
-<p>Here’s an example of a <cite>run.batch</cite> job submission file to run an RVE simulation on 4096 MPI processes on the partition named milan for 84000 seconds.</p>
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Using ccc_msub</a><a class="headerlink" href="#using-ccc-msub" title="Link to this heading"></a></h3>
+<p>Here’s an example of a <cite>run.batch</cite> job submission file to run an RVE simulation on 4096 MPI processes on the partition named milan for 86400 seconds.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 <span class="c1">#MSUB -r ver</span>
 <span class="c1">#MSUB -n 4096</span>
@@ -504,7 +420,7 @@ ctest
 module<span class="w"> </span>load<span class="w"> </span>gnu/13.2.0<span class="w"> </span>mpi/openmpi/4.0.5<span class="w"> </span>cmake/3.29.6
 <span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span>
 <span class="nb">set</span><span class="w"> </span>-x
-ccc_mprun<span class="w"> </span>./ex7<span class="w"> </span>-m<span class="w"> </span>../par-mesh/mesh-4096.<span class="w"> </span>-o<span class="w"> </span><span class="m">1</span><span class="w"> </span>-r<span class="w"> </span><span class="m">2</span><span class="w"> </span>--post-processing<span class="w"> </span><span class="m">0</span>
+ccc_mprun<span class="w"> </span>./mox2<span class="w"> </span>-m<span class="w"> </span>mesh/inclusion.msh<span class="w"> </span>-o<span class="w"> </span><span class="m">1</span><span class="w"> </span>-r<span class="w"> </span><span class="m">2</span><span class="w"> </span>--post-processing<span class="w"> </span><span class="m">0</span>
 </pre></div>
 </div>
 <p>Then, to submit the job:</p>
@@ -513,7 +429,7 @@ ccc_mprun<span class="w"> </span>./ex7<span class="w"> </span>-m<span class="w">
 </div>
 </section>
 <section id="troubleshooting">
-<h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Troubleshooting</a><a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h3>
 <p>If you encounter <code class="docutils literal notranslate"><span class="pre">Spack</span></code> errors due to missing packages, consider the following two possibilities:</p>
 <ul class="simple">
 <li><p>Check if the package is already installed on Topaze by running:</p></li>
