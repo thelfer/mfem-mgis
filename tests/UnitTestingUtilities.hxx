@@ -303,13 +303,14 @@ namespace mfem_mgis::unit_tests {
       const mfem_mgis::real t0,
       const mfem_mgis::real t1,
       const mfem_mgis::size_type nsteps) {
-    const auto& m1 = problem.getMaterial(1);
+    auto ctx = Context{};
+    const auto& m1 =
+        problem.getMaterial(ctx, 1, 0) | ctx.getThrowingFailureHandler();
     const auto dt = (t1 - t0) / nsteps;
     auto r = mfem_mgis::unit_tests::UniaxialTestResults{};
     extractInitialResults(r, m1, parameters);
     // loop over time step
     auto t = t0;
-    auto ctx = Context{};
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
       // resolution
 

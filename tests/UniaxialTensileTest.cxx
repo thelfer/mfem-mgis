@@ -20,6 +20,7 @@
 
 int main(int argc, char** argv) {
   auto ctx = mgis::Context{};
+  auto or_raise = ctx.getThrowingFailureHandler();
 
   constexpr const auto dim = mfem_mgis::size_type{3};
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
@@ -39,9 +40,10 @@ int main(int argc, char** argv) {
               {"Hypothesis", "Tridimensional"},
               {"Parallel", bool(parameters.parallel)}});
     // materials
-    problem.addBehaviourIntegrator("Mechanics", 1, parameters.library,
-                                   parameters.behaviour);
-    auto& m1 = problem.getMaterial(1);
+    problem.addBehaviourIntegrator(ctx, "Mechanics", 1, parameters.library,
+                                   parameters.behaviour) |
+        or_raise;
+    auto& m1 = problem.getMaterial(ctx, 1, 0) | or_raise;
     mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
     mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
     if (m1.b.symmetry == mgis::behaviour::Behaviour::ORTHOTROPIC) {
@@ -69,45 +71,52 @@ int main(int argc, char** argv) {
     //    $EndPhysicalNames
     // Only the index is used in this C++ code for manipulating related dof.
     problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 1, 1));
+        ctx, std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                 problem.getFiniteElementDiscretizationPointer(), 1, 1)) |
+        or_raise;
     problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 2, 2));
+        ctx, std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                 problem.getFiniteElementDiscretizationPointer(), 2, 2)) |
+        or_raise;
     problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 5, 0));
+        ctx, std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                 problem.getFiniteElementDiscretizationPointer(), 5, 0)) |
+        or_raise;
     problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 3, 0,
-            [](const auto t) noexcept {
-              if (t < 0.3) {
-                return 3e-2 * t;
-              } else if (t < 0.6) {
-                return 0.009 - 0.1 * (t - 0.3);
-              }
-              return -0.021 + 0.1 * (t - 0.6);
-            }));
+        ctx, std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                 problem.getFiniteElementDiscretizationPointer(), 3, 0,
+                 [](const auto t) noexcept {
+                   if (t < 0.3) {
+                     return 3e-2 * t;
+                   } else if (t < 0.6) {
+                     return 0.009 - 0.1 * (t - 0.3);
+                   }
+                   return -0.021 + 0.1 * (t - 0.6);
+                 })) |
+        or_raise;
     // set the solver parameters
     mfem_mgis::unit_tests::setLinearSolver(problem, parameters);
-    problem.setSolverParameters({{"VerbosityLevel", 0},
-                                 {"RelativeTolerance", 1e-12},
-                                 {"AbsoluteTolerance", 0.},
-                                 {"MaximumNumberOfIterations", 10}});
+    problem.setSolverParameters(ctx, {{"VerbosityLevel", 0},
+                                      {"RelativeTolerance", 1e-12},
+                                      {"AbsoluteTolerance", 0.},
+                                      {"MaximumNumberOfIterations", 10}}) |
+        or_raise;
     // vtk export
     problem.addPostProcessing(
-        "ParaviewExportResults",
+        ctx, "ParaviewExportResults",
         {{"OutputFileName",
-          "UniaxialTensileTestOutput-" + std::string(parameters.behaviour)}});
-    const auto& b = problem.getMaterial(1).b;
+          "UniaxialTensileTestOutput-" + std::string(parameters.behaviour)}}) |
+        or_raise;
+    const auto& b = m1.b;
     if ((b.btype == mgis::behaviour::Behaviour::STANDARDSTRAINBASEDBEHAVIOUR) &&
         (b.kinematic == mgis::behaviour::Behaviour::SMALLSTRAINKINEMATIC)) {
       problem.addPostProcessing(
-          "ParaviewExportIntegrationPointResultsAtNodes",
+          ctx, "ParaviewExportIntegrationPointResultsAtNodes",
           {{"OutputFileName", "UniaxialTensileTestIntegrationPointOutput-" +
                                   std::string(parameters.behaviour)},
            {"Materials", {1}},
-           {"Results", {"Strain"}}});
+           {"Results", {"Strain"}}}) |
+          or_raise;
     }
     // solving the problem in 100 time steps
     auto r = mfem_mgis::unit_tests::solve(problem, parameters, 0, 1, 100);
