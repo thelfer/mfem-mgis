@@ -127,6 +127,9 @@ namespace mfem_mgis {
   }  // end of finalize
 
   [[noreturn]] void Finalizer::abort(int error) {
+    // MPI_Abort does not flush the output streams
+    mfem_mgis::getOutputStream().flush();
+    mfem_mgis::getErrorStream().flush();
     if (!this->pendingExit) {
 #ifdef MFEM_USE_MPI
       MPI_Abort(MPI_COMM_WORLD, error);

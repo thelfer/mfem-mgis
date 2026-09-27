@@ -23,7 +23,9 @@ namespace mfem_mgis::unit_tests {
     const char* mesh_file = nullptr;
     const char* behaviour = nullptr;
     const char* library = nullptr;
-    const char* reference_file = nullptr;
+    //! \brief reference file, no comparison if empty. Not null, since
+    //! mfem::OptionsParser::PrintUsage stops at the first null string
+    const char* reference_file = "";
     const char* isv_name = nullptr;
     int linearsolver = 0;
     int order = 1;
@@ -72,6 +74,11 @@ namespace mfem_mgis::unit_tests {
     args.AddOption(&params.parallel, "-p", "--parallel",
                    "choose between serial (-p 0) and parallel (-p 1)");
     args.Parse();
+    if (args.Help()) {
+      args.PrintUsage(mfem_mgis::getOutputStream());
+      mfem_mgis::finalize();
+      std::exit(EXIT_SUCCESS);
+    }
     if ((!args.Good()) || (params.mesh_file == nullptr) ||
         (params.library == nullptr) || (params.behaviour == nullptr)) {
       args.PrintUsage(mfem_mgis::getOutputStream());
@@ -236,7 +243,8 @@ namespace mfem_mgis::unit_tests {
                                             const real seps) {
     // comparison to reference results
     bool success = true;
-    if ((m.n != 0) && (parameters.reference_file != nullptr)) {
+    if ((m.n != 0) && (parameters.reference_file != nullptr) &&
+        (parameters.reference_file[0] != '\0')) {
       std::ifstream in(parameters.reference_file);
       if (in) {
         auto check = [&success](const auto cv,  // computed value
