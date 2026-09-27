@@ -1,3 +1,4 @@
+# Documented in docs/source/developer_guide/continuous_integration.rst
 name: "Spack"
 
 on:

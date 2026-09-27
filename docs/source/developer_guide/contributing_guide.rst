@@ -70,6 +70,8 @@ Please, before any merge request of a new feature, make sure that non-regression
 
    New features must be accompanied by one or more ``non-regression tests`` in tests repository and a ``documentation`` in the /docs/source/developer_guide repository in sphinx format. 
 
+Every pull request is built and tested by the continuous integration. Its workflows and caches are described in :ref:`mfem_mgis_developer_guide_continuous_integration`.
+
 .. warning:: 
 
   By submitting a patch, you agree to allow the project owners to license your work under the terms of the LGPL License.

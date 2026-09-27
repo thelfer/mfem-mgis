@@ -12,6 +12,7 @@ The `doxygen` documentation is available on `this page <https://thelfer.github.i
    :maxdepth: 1
 
    benchmark.rst
+   continuous_integration.rst
    contributing_guide.rst
    contributors.rst
    guidelines.rst
