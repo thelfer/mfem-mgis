@@ -269,7 +269,7 @@ namespace mfem_mgis {
 
   const PartialQuadratureSpace&
   BehaviourIntegratorBase::getPartialQuadratureSpace() const noexcept {
-    return this->getMaterial().getPartialQuadratureSpace();
+    return static_cast<const Material*>(this)->getPartialQuadratureSpace();
   }  // end of getPartialQuadratureSpace
 
   real BehaviourIntegratorBase::getTimeIncrement() const noexcept {
@@ -290,14 +290,6 @@ namespace mfem_mgis {
   OptionalReference<const Material> BehaviourIntegratorBase::getMaterial(
       Context&) const noexcept {
     return OptionalReference<const Material>{this};
-  }  // end of getMaterial
-
-  Material& BehaviourIntegratorBase::getMaterial() {
-    return *this;
-  }  // end of getMaterial
-
-  const Material& BehaviourIntegratorBase::getMaterial() const {
-    return *this;
   }  // end of getMaterial
 
   bool BehaviourIntegratorBase::setup(Context& ctx,
@@ -483,7 +475,7 @@ namespace mfem_mgis {
             const std::vector<mgis::behaviour::Variable>& ds)
         -> std::optional<
             std::vector<std::tuple<size_type, size_type, const real*>>> {
-      const auto h = this->getMaterial().b.hypothesis;
+      const auto h = this->b.hypothesis;
       if (v.size() != mgis::behaviour::getArraySize(ds, h)) {
         return ctx.registerErrorMessage("integrate: ill allocated memory");
       }

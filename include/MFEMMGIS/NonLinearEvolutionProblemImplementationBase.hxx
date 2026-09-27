@@ -1,4 +1,3 @@
-
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx
  * \brief
@@ -113,10 +112,6 @@ namespace mfem_mgis {
         Context&, const std::map<size_type, std::string>&) noexcept override;
     [[nodiscard]] bool setBoundariesNames(
         Context&, const std::map<size_type, std::string>&) noexcept override;
-    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
-    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
-    mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
-    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
     [[nodiscard]] mfem::Vector& getUnknowns(
         const TimeStepStage) noexcept override;
     [[nodiscard]] const mfem::Vector& getUnknowns(
@@ -177,32 +172,6 @@ namespace mfem_mgis {
                                                   const real) noexcept override;
     [[nodiscard]] bool revert(Context&) noexcept override;
     [[nodiscard]] bool update(Context&) noexcept override;
-    //
-    [[deprecated]] void setMaterialsNames(
-        const std::map<size_type, std::string>&) override;
-    [[deprecated]] void setBoundariesNames(
-        const std::map<size_type, std::string>&) override;
-    [[deprecated, nodiscard]] size_type getMaterialIdentifier(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] size_type getBoundaryIdentifier(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] const Material& getMaterial(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] Material& getMaterial(const Parameter&) override;
-    [[deprecated, nodiscard]] const AbstractBehaviourIntegrator&
-    getBehaviourIntegrator(const size_type) const override;
-    [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
-    getBehaviourIntegrator(const size_type) override;
-    [[deprecated]] void setSolverParameters(const Parameters&) override;
-    [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
-        const std::string&,
-        const Parameter&,
-        const std::string&,
-        const std::string&) override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementationBase() override;
 

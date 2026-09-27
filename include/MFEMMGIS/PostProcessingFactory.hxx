@@ -40,7 +40,9 @@ namespace mfem_mgis {
     //! a simple alias
     using Generator = std::function<
         std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>(
-            NonLinearEvolutionProblemImplementation<true>&, const Parameters&)>;
+            Context&,
+            NonLinearEvolutionProblemImplementation<true>&,
+            const Parameters&)>;
     //! \return the unique instance of the class
     static PostProcessingFactory& getFactory();
     /*!
@@ -62,17 +64,6 @@ namespace mfem_mgis {
              std::string_view,
              NonLinearEvolutionProblemImplementation<true>&,
              const Parameters&) const noexcept;
-    /*!
-     * \return the requested post-processing
-     * \param[in] n: name of the post-processing
-     * \param[in] p: non linear evolution postprocessing
-     * \param[in] params: parameters passed to the post-processing
-     */
-    [[deprecated, nodiscard]] std::unique_ptr<
-        AbstractNonLinearEvolutionProblemPostProcessing<true>>
-    generate(std::string_view,
-             NonLinearEvolutionProblemImplementation<true>&,
-             const Parameters&) const;
 
    private:
     //! \brief default destructor
@@ -89,9 +80,11 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT PostProcessingFactory<false> {
     //! a simple alias
-    using Generator = std::function<std::unique_ptr<
-        AbstractNonLinearEvolutionProblemPostProcessing<false>>(
-        NonLinearEvolutionProblemImplementation<false>&, const Parameters&)>;
+    using Generator = std::function<
+        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>(
+            Context&,
+            NonLinearEvolutionProblemImplementation<false>&,
+            const Parameters&)>;
     //! \return the unique instance of the class
     static PostProcessingFactory& getFactory();
     /*!
@@ -113,17 +106,6 @@ namespace mfem_mgis {
              std::string_view,
              NonLinearEvolutionProblemImplementation<false>&,
              const Parameters&) const noexcept;
-    /*!
-     * \return the requested post-processing
-     * \param[in] n: name of the post-processing
-     * \param[in] p: non linear evolution postprocessing
-     * \param[in] params: parameters passed to the post-processing
-     */
-    [[deprecated, nodiscard]] std::unique_ptr<
-        AbstractNonLinearEvolutionProblemPostProcessing<false>>
-    generate(std::string_view,
-             NonLinearEvolutionProblemImplementation<false>&,
-             const Parameters&) const;
 
    private:
     //! \brief default destructor

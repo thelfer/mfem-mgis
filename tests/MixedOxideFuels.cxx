@@ -104,16 +104,15 @@ void common_parameters(mfem::OptionsParser& args, TestParameters& p) {
 }
 
 template <typename Problem>
-void add_post_processings(Problem& p, std::string msg) {
-  p.addPostProcessing("ParaviewExportResults", {{"OutputFileName", msg}});
-  p.addPostProcessing("MeanThermodynamicForces",
-                      {{"OutputFileName", "avgStress"}});
-
-  /** add outputs for coverage, it doesn't make sense here */
-  p.addPostProcessing("StoredEnergy", {{"OutputFileName", "energy.txt"}});
-
-  p.addPostProcessing("DissipatedEnergy",
-                      {{"OutputFileName", "dissiped_energy.txt"}});
+void add_post_processings(::mfem_mgis::Context& ctx,
+                          Problem& p,
+                          std::string msg) {
+  auto or_die = ctx.getFatalFailureHandler();
+  p.addPostProcessing(ctx, "ParaviewExportResults", {{"OutputFileName", msg}}) |
+      or_die;
+  p.addPostProcessing(ctx, "MeanThermodynamicForces",
+                      {{"OutputFileName", "avgStress"}}) |
+      or_die;
 }  // end timer add_postprocessing_and_outputs
 
 template <typename Problem>
@@ -121,22 +120,26 @@ void execute_post_processings(mgis::Context& ctx,
                               Problem& p,
                               double start,
                               double end) {
+  auto or_die = ctx.getFatalFailureHandler();
   CatchTimeSection(ctx, "common::post_processing_step");
-  p.executePostProcessings(ctx, start, end);
+  p.executePostProcessings(ctx, start, end) | or_die;
 }
 
 void setup_properties(mgis::Context& ctx,
                       const TestParameters& p,
                       mfem_mgis::PeriodicNonLinearEvolutionProblem& problem) {
   using namespace mgis::behaviour;
+  auto or_die = ctx.getFatalFailureHandler();
   using real = mfem_mgis::real;
 
   CatchTimeSection(ctx, "set_mgis_stuff");
-  problem.addBehaviourIntegrator("Mechanics", 1, p.library, p.behaviour);
-  problem.addBehaviourIntegrator("Mechanics", 2, p.library, p.behaviour);
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 1, p.library, p.behaviour) |
+      or_die;
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 2, p.library, p.behaviour) |
+      or_die;
   // materials
-  auto& m1 = problem.getMaterial(1);
-  auto& m2 = problem.getMaterial(2);
+  auto& m1 = problem.getMaterial(ctx, 1, 0) | or_die;
+  auto& m2 = problem.getMaterial(ctx, 2, 0) | or_die;
   auto set_properties = [](auto& m, const double yo, const double po,
                            const double st, const double no) {
     setMaterialProperty(m.s0, "YoungModulus", yo);
@@ -185,6 +188,7 @@ static void setLinearSolver(mgis::Context& ctx,
                             bool parallel,
                             const int verbosity = 0,
                             const mfem_mgis::real Tol = 1e-12) {
+  auto or_die = ctx.getFatalFailureHandler();
   CatchTimeSection(ctx, "set_linear_solver");
   // pilote
   constexpr int defaultMaxNumOfIt = 5000;  // MaximumNumberOfIterations
@@ -210,10 +214,10 @@ static void setLinearSolver(mgis::Context& ctx,
         mfem_mgis::throwing,
         mfem_mgis::Parameters{{"Preconditioner", preconditionner}});
     // solver HyprePCG
-    p.setLinearSolver("HyprePCG", solverParameters);
+    p.setLinearSolver(ctx, "HyprePCG", solverParameters) | or_die;
   } else {
     // solver CGSolver
-    p.setLinearSolver("CGSolver", solverParameters);
+    p.setLinearSolver(ctx, "CGSolver", solverParameters) | or_die;
   }
 }
 
@@ -235,6 +239,7 @@ int main(int argc, char* argv[]) {
   mfem_mgis::initialize(argc, argv);
 
   auto ctx = mgis::Context{};
+  auto or_die = ctx.getFatalFailureHandler();
   ctx.enableProfiling(true);
 
   // get parameters
@@ -250,28 +255,31 @@ int main(int argc, char* argv[]) {
   constexpr const auto dim = mfem_mgis::size_type{3};
 
   // creating the finite element workspace
-  auto fed = std::make_shared<mfem_mgis::FiniteElementDiscretization>(
-      ctx, mfem_mgis::Parameters{
-               {"MeshFileName", p.mesh_file},
-               {"FiniteElementFamily", "H1"},
-               {"FiniteElementOrder", p.order},
-               {"UnknownsSize", dim},
-               {"NumberOfUniformRefinements", p.parallel ? p.refinement : 0},
-               {"Parallel", bool(p.parallel)}});
+  auto fed = mfem_mgis::make_shared<mfem_mgis::FiniteElementDiscretization>(
+                 ctx, mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
+                                            {"FiniteElementFamily", "H1"},
+                                            {"FiniteElementOrder", p.order},
+                                            {"UnknownsSize", dim},
+                                            {"NumberOfUniformRefinements",
+                                             p.parallel ? p.refinement : 0},
+                                            {"Parallel", bool(p.parallel)}}) |
+             or_die;
   mfem_mgis::PeriodicNonLinearEvolutionProblem problem(ctx, fed);
 
   // set problem
   setup_properties(ctx, p, problem);
   setLinearSolver(ctx, problem, p.parallel, p.verbosity_level);
 
-  problem.setSolverParameters({{"VerbosityLevel", 1},
-                               {"RelativeTolerance", 1e-6},
-                               {"AbsoluteTolerance", 0.},
-                               {"MaximumNumberOfIterations", 6}});
+  problem.setSolverParameters(
+      ctx, ::mfem_mgis::Parameters{{"VerbosityLevel", 1},
+                                   {"RelativeTolerance", 1e-6},
+                                   {"AbsoluteTolerance", 0.},
+                                   {"MaximumNumberOfIterations", 6}}) |
+      or_die;
 
   // add post processings
   if (use_post_processing)
-    add_post_processings(problem, "OutputFile-mixed-oxide-fuels");
+    add_post_processings(ctx, problem, "OutputFile-mixed-oxide-fuels");
 
   // main function here
   // int nStep=40;

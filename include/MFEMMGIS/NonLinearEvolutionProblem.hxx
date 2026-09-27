@@ -115,6 +115,10 @@ namespace mfem_mgis {
                               std::shared_ptr<FiniteElementDiscretization>,
                               const Hypothesis,
                               const Parameters & = Parameters());
+    //
+    NonLinearEvolutionProblem(NonLinearEvolutionProblem &&) noexcept = default;
+    NonLinearEvolutionProblem(const NonLinearEvolutionProblem &) noexcept =
+        delete;
     /*!
      * \return the internal implementation
      * \warning this method shall be used with care: calling it if the
@@ -168,11 +172,14 @@ namespace mfem_mgis {
         std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
     /*!
      * \brief add an uniform boundary condition
+     * \param[in,out] ctx: execution context
      * \param[in] params: parameters defining the boundary condition
      */
-    void addUniformDirichletBoundaryCondition(const Parameters &);
-    void addPostProcessing(
-        const std::function<void(const real, const real)> &) override;
+    [[nodiscard]] bool addUniformDirichletBoundaryCondition(
+        Context &, const Parameters &) noexcept;
+    [[nodiscard]] bool addPostProcessing(
+        Context &,
+        const std::function<void(const real, const real)> &) noexcept override;
     [[nodiscard]] bool addPostProcessing(Context &,
                                          std::string_view,
                                          const Parameters &) noexcept override;
@@ -233,48 +240,6 @@ namespace mfem_mgis {
                                                   const real) noexcept override;
     [[nodiscard]] bool revert(Context &) noexcept override;
     [[nodiscard]] bool update(Context &) noexcept override;
-    //
-    [[deprecated]] void setMaterialsNames(
-        const std::map<size_type, std::string> &) override;
-    [[deprecated]] void setBoundariesNames(
-        const std::map<size_type, std::string> &) override;
-    [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &
-    getUnknownsAtBeginningOfTheTimeStep() override;
-    [[nodiscard, deprecated("use getUnknowns instead")]] const mfem::Vector &
-    getUnknownsAtBeginningOfTheTimeStep() const override;
-    [[nodiscard, deprecated("use getUnknowns instead")]] mfem::Vector &
-    getUnknownsAtEndOfTheTimeStep() override;
-    [[nodiscard, deprecated("use getUnknowns instead")]] const mfem::Vector &
-    getUnknownsAtEndOfTheTimeStep() const override;
-    [[deprecated, nodiscard]] size_type getMaterialIdentifier(
-        const Parameter &) const override;
-    [[deprecated, nodiscard]] size_type getBoundaryIdentifier(
-        const Parameter &) const override;
-    [[deprecated, nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter &) const override;
-    [[deprecated, nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter &) const override;
-    [[deprecated, nodiscard]] const Material &getMaterial(
-        const Parameter &) const override;
-    [[deprecated, nodiscard]] Material &getMaterial(const Parameter &) override;
-    [[deprecated, nodiscard]] const AbstractBehaviourIntegrator &
-    getBehaviourIntegrator(const size_type) const override;
-    [[deprecated, nodiscard]] AbstractBehaviourIntegrator &
-    getBehaviourIntegrator(const size_type) override;
-    [[deprecated]] void setLinearSolver(std::string_view,
-                                        const Parameters &) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
-    [[deprecated]] void addPostProcessing(std::string_view,
-                                          const Parameters &) override;
-    [[deprecated]] void setSolverParameters(const Parameters &) override;
-    [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
-        const std::string &,
-        const Parameter &,
-        const std::string &,
-        const std::string &) override;
     //! \brief destructor
     ~NonLinearEvolutionProblem() override;
 
@@ -346,7 +311,7 @@ namespace mfem_mgis {
    * \param[in] p: non linear evolution problem
    * \param[in] bid: boundary identifier
    */
-  MFEM_MGIS_EXPORT std::vector<std::pair<size_type, size_type>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<std::pair<size_type, size_type>>
   buildFacesDescription(NonLinearEvolutionProblem &, const size_type);
 
   /*!
@@ -358,12 +323,14 @@ namespace mfem_mgis {
    * \param[in] bid: boundary identifier
    */
   MFEM_MGIS_EXPORT
-  std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>
+  [[nodiscard]] std::vector<
+      std::pair<size_type, std::vector<std::vector<size_type>>>>
   getElementsDegreesOfFreedomOnBoundary(NonLinearEvolutionProblem &,
                                         const size_type);
 
   /*!
    * \return the resultant of the inner forces on the given boundary
+   * \param[in, out] ctx: execution context
    * \param[out] F: resultant
    * \param[in] p: non linear evolution problem
    * \param[in] elts: a structure which gives for each element having a
@@ -373,11 +340,13 @@ namespace mfem_mgis {
    * \note in parallel, the resultant is only the contribution of the given
    * process
    */
-  MFEM_MGIS_EXPORT void computeResultantForceOnBoundary(
+  MFEM_MGIS_EXPORT [[nodiscard]] bool computeResultantForceOnBoundary(
+      Context &,
       mfem::Vector &,
       NonLinearEvolutionProblem &,
       const std::vector<
-          std::pair<size_type, std::vector<std::vector<size_type>>>> &);
+          std::pair<size_type, std::vector<std::vector<size_type>>>>
+          &) noexcept;
 
 }  // end of namespace mfem_mgis
 

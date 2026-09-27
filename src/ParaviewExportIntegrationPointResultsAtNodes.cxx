@@ -352,14 +352,21 @@ namespace mfem_mgis {
     return efcts;
   }
 
-  PartialQuadratureFunctionsSet buildPartialQuadratureFunctionsSet(
+  std::optional<PartialQuadratureFunctionsSet>
+  buildPartialQuadratureFunctionsSet(
+      Context& ctx,
       const NonLinearEvolutionProblemImplementationBase& p,
       const std::vector<size_type>& mids,
-      const size_type nc) {
+      const size_type nc) noexcept {
     auto qspaces = std::vector<std::shared_ptr<const PartialQuadratureSpace>>{};
     qspaces.reserve(mids.size());
     for (const auto m : mids) {
-      qspaces.push_back(p.getMaterial(m).getPartialQuadratureSpacePointer());
+#pragma message("FIXME: invalid if multiple behaviour integrators is defined")
+      const auto om = p.getMaterial(ctx, m, 0);
+      if (isInvalid(om)) {
+        return {};
+      }
+      qspaces.push_back(om->getPartialQuadratureSpacePointer());
     }
     return PartialQuadratureFunctionsSet(qspaces, nc);
   }  // end of buildPartialQuadratureFunctionsSet

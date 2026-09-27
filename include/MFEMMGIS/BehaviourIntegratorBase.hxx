@@ -52,9 +52,6 @@ namespace mfem_mgis {
         std::string_view,
         std::shared_ptr<const AbstractQPEvaluator>,
         const TimeStepStage) noexcept override;
-    //
-    [[deprecated, nodiscard]] Material& getMaterial() override;
-    [[deprecated, nodiscard]] const Material& getMaterial() const override;
     //! \brief destructor
     ~BehaviourIntegratorBase() override;
 

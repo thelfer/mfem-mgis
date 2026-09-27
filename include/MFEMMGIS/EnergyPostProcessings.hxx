@@ -48,8 +48,9 @@ namespace mfem_mgis {
 
    protected:
     //!
-    virtual std::vector<real> computeEnergies(
-        const AbstractNonLinearEvolutionProblem &) const = 0;
+    [[nodiscard]] virtual std::optional<std::vector<real>> computeEnergies(
+        Context &,
+        const AbstractNonLinearEvolutionProblem &) const noexcept = 0;
     //! \brief materials
     std::vector<size_type> materials_identifiers;
 
@@ -83,8 +84,9 @@ namespace mfem_mgis {
     ~StoredEnergyPostProcessing() override;
 
    private:
-    std::vector<real> computeEnergies(
-        const AbstractNonLinearEvolutionProblem &) const override;
+    [[nodiscard]] std::optional<std::vector<real>> computeEnergies(
+        Context &,
+        const AbstractNonLinearEvolutionProblem &) const noexcept override;
   };  // end of struct StoredEnergyPostProcessing
 
   /*!
@@ -105,8 +107,9 @@ namespace mfem_mgis {
     ~DissipatedEnergyPostProcessing() override;
 
    private:
-    std::vector<real> computeEnergies(
-        const AbstractNonLinearEvolutionProblem &) const override;
+    [[nodiscard]] std::optional<std::vector<real>> computeEnergies(
+        Context &,
+        const AbstractNonLinearEvolutionProblem &) const noexcept override;
   };  // end of struct DissipatedEnergyPostProcessing
 
 }  // end of namespace mfem_mgis

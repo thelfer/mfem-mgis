@@ -75,12 +75,14 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   bool ComputeResultantForceOnBoundary<true>::execute(
-      Context&,
+      Context& ctx,
       NonLinearEvolutionProblemImplementation<true>& p,
       const real t,
       const real dt) noexcept {
     mfem::Vector F;
-    computeResultantForceOnBoundary(F, p, this->elts_dofs);
+    if (!computeResultantForceOnBoundary(ctx, F, p, this->elts_dofs)) {
+      return false;
+    }
     //
     int rank;
     MPI_Comm_rank(getMPICommunicator(p), &rank);
@@ -126,12 +128,14 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   bool ComputeResultantForceOnBoundary<false>::execute(
-      Context&,
+      Context& ctx,
       NonLinearEvolutionProblemImplementation<false>& p,
       const real t,
       const real dt) noexcept {
     mfem::Vector F;
-    computeResultantForceOnBoundary(F, p, this->elts_dofs);
+    if (!computeResultantForceOnBoundary(ctx, F, p, this->elts_dofs)) {
+      return false;
+    }
     writeResultantForce(this->out, F, t + dt);
     return true;
   }  // end of execute

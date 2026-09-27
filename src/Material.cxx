@@ -404,12 +404,12 @@ namespace mfem_mgis {
   }  // end of getInternalStateVariable
 
   std::optional<PartialQuadratureFunction> getStoredEnergy(
-      Material &m, const Material::StateSelection s) {
+      Context &ctx, Material &m, const Material::StateSelection s) noexcept {
     const auto &sm = getStateManager(m, s);
     if (!sm.b.computesStoredEnergy) {
-      return {};
+      return ctx.registerErrorMessage(
+          "behaviour does not compute the stored energy");
     }
-    auto ctx = Context{};
     auto or_die = ctx.getFatalFailureHandler();
     return PartialQuadratureFunction::borrow(
                ctx, m.getPartialQuadratureSpacePointer(), sm.stored_energies,
@@ -418,10 +418,13 @@ namespace mfem_mgis {
   }  // end of getStoredEnergy
 
   std::optional<ImmutablePartialQuadratureFunctionView> getStoredEnergy(
-      const Material &m, const Material::StateSelection s) {
+      Context &ctx,
+      const Material &m,
+      const Material::StateSelection s) noexcept {
     const auto &sm = getStateManager(m, s);
     if (!sm.b.computesStoredEnergy) {
-      return {};
+      return ctx.registerErrorMessage(
+          "behaviour does not compute the stored energy");
     }
     return ImmutablePartialQuadratureFunctionView(
         m.getPartialQuadratureSpacePointer(), sm.stored_energies,
@@ -429,53 +432,59 @@ namespace mfem_mgis {
   }  // end of getStoredEnergy
 
   std::optional<PartialQuadratureFunction> getDissipatedEnergy(
-      Material &m, const Material::StateSelection s) {
+      Context &ctx, Material &m, const Material::StateSelection s) noexcept {
     const auto &sm = getStateManager(m, s);
     if (!sm.b.computesDissipatedEnergy) {
-      return {};
+      return ctx.registerErrorMessage(
+          "behaviour does not compute the dissipated energy");
     }
-    auto ctx = Context{};
-    auto or_die = ctx.getFatalFailureHandler();
     return PartialQuadratureFunction::borrow(
-               ctx, m.getPartialQuadratureSpacePointer(),
-               sm.dissipated_energies,
-               {.data_begin = 0, .data_size = 1, .data_stride = 1}) |
-           or_die;
+        ctx, m.getPartialQuadratureSpacePointer(), sm.dissipated_energies,
+        {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getDissipatedEnergy
 
   std::optional<ImmutablePartialQuadratureFunctionView> getDissipatedEnergy(
-      const Material &m, const Material::StateSelection s) {
+      Context &ctx,
+      const Material &m,
+      const Material::StateSelection s) noexcept {
     const auto &sm = getStateManager(m, s);
     if (!sm.b.computesDissipatedEnergy) {
-      return {};
+      return ctx.registerErrorMessage(
+          "behaviour does not compute the dissipated energy");
     }
     return ImmutablePartialQuadratureFunctionView(
         m.getPartialQuadratureSpacePointer(), sm.dissipated_energies,
         {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getDissipatedEnergy
 
-  real computeStoredEnergy(const AbstractBehaviourIntegrator &bi,
-                           const Material::StateSelection s) {
-    if (!bi.hasMaterial()) {
-      raise("computeStoredEnergy: behaviour integrator has no material");
+  std::optional<real> computeStoredEnergy(
+      Context &ctx,
+      const AbstractBehaviourIntegrator &bi,
+      const Material::StateSelection s) noexcept {
+    const auto om = bi.getMaterial(ctx);
+    if (isInvalid(om)) {
+      return {};
     }
-    const auto e = getStoredEnergy(bi.getMaterial(), s);
-    if (e.has_value()) {
-      return computeIntegral<real>(bi, *e);
+    const auto oe = getStoredEnergy(ctx, *om, s);
+    if (isInvalid(oe)) {
+      return {};
     }
-    return {};
+    return computeIntegral<real>(bi, *oe);
   }
 
-  real computeDissipatedEnergy(const AbstractBehaviourIntegrator &bi,
-                               const Material::StateSelection s) {
-    if (!bi.hasMaterial()) {
-      raise("computeDissipatedEnergy: behaviour integrator has no material");
+  std::optional<real> computeDissipatedEnergy(
+      Context &ctx,
+      const AbstractBehaviourIntegrator &bi,
+      const Material::StateSelection s) noexcept {
+    const auto om = bi.getMaterial(ctx);
+    if (isInvalid(om)) {
+      return {};
     }
-    const auto e = getDissipatedEnergy(bi.getMaterial(), s);
-    if (e.has_value()) {
-      return computeIntegral<real>(bi, *e);
+    const auto oe = getDissipatedEnergy(ctx, *om, s);
+    if (isInvalid(oe)) {
+      return {};
     }
-    return {};
+    return computeIntegral<real>(bi, *oe);
   }
 
 }  // end of namespace mfem_mgis

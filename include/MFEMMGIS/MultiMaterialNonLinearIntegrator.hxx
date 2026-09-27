@@ -176,42 +176,6 @@ namespace mfem_mgis {
      */
     [[nodiscard]] LinearizedOperators getLinearizedOperators(
         const mfem::Vector &);
-    /*!
-     * \return the material with the given id for the first behaviour integrator
-     * \param[in] m: material id
-     */
-    [[nodiscard, deprecated]] const Material &getMaterial(
-        const size_type) const;
-    /*!
-     * \return the material with the given id for the first behaviour integrator
-     * \param[in] m: material id
-     */
-    [[nodiscard, deprecated]] Material &getMaterial(const size_type);
-    /*!
-     * \return the first behaviour integrator with the given material id
-     * \param[in] m: material id
-     */
-    [[nodiscard, deprecated]] const AbstractBehaviourIntegrator &
-    getBehaviourIntegrator(const size_type) const;
-    /*!
-     * \return the first behaviour integrator with the given material id
-     * \param[in] m: material id
-     */
-    [[nodiscard, deprecated]] AbstractBehaviourIntegrator &
-    getBehaviourIntegrator(const size_type);
-    /*!
-     * \brief add a new behaviour integrator
-     * \return the behaviour integrator identifier
-     * \param[in] n: name of the behaviour integrator
-     * \param[in] m: material id
-     * \param[in] l: library name
-     * \param[in] b: behaviour name
-     */
-    [[nodiscard, deprecated]] size_type addBehaviourIntegrator(
-        const std::string &,
-        const size_type,
-        const std::string &,
-        const std::string &);
     //! \brief destructor
     ~MultiMaterialNonLinearIntegrator() override;
 
