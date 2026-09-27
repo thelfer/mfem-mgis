@@ -2,247 +2,144 @@
 Installation guide
 ==================
 
-This project uses ``cmake`` as build system.
+.. contents::
+    :depth: 2
+    :local:
 
-Dependencies
-------------
+Quick start
+-----------
 
-- `MFEM <https://mfem.org/>`_
--  `MGIS <https://github.com/thelfer/MFrontGenericInterfaceSupport>`_
-
-A simple way to install dependencies is to rely on ``Spack`` packaging
-system. ``Spack`` is an open source package
-manager that simplifies building, installing, customizing, and sharing
-HPC software. It will allow you to install recent versions of compilers
-(that handle ``C++20``, for example gnu compiler suite version 11+), and
-to get ``python``, ``cmake`` and other tools that are required for this
-project to be installed (see hereafter).
-
-Installation Tutorial for ``MFEM-MGIS-MFront`` using Spack
-----------------------------------------------------------
-
-This tutorial provides detailed instructions on how to install
-``MFEM-MGIS-MFront`` using `Spack <https://spack.io/>`_. Follow the
-steps carefully to ensure a successful installation.
-
-Prerequisites
-^^^^^^^^^^^^^
-
-- Ensure you have ``git``, ``mpi``, ``hypre``, ``tfel``, ``mgis``, and ``mfem`` installed on your system with a recent c++ gnu compiler.
-- Use ``spack`` to install missing Prerequisites.
-
-Step 1: Clone the Spack Repository
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-First, clone the Spack repository from GitHub.
+``mfem-mgis`` is packaged in `Spack <https://spack.io/>`_, which also
+installs all its dependencies. These commands set up Spack:
 
 .. code:: sh
 
-   git clone --depth=2 --branch=v1.1.0 https://github.com/spack/spack.git
+   git clone --depth=2 --branch=v1.2.2 https://github.com/spack/spack.git
+   source spack/share/spack/setup-env.sh
+   spack repo update builtin --branch develop
+
+The last command selects the ``develop`` branch of the Spack packages,
+because their releases do not provide ``mfem-mgis`` yet.
+
+The ``@master`` version of ``mfem-mgis``, its development version, is
+currently recommended, as it includes many fixes:
+
+.. code:: sh
+
+   spack install mfem-mgis@master
+
+The last release (1.0.4) is installed by:
+
+.. code:: sh
+
+   spack install mfem-mgis
+
+Spack needs a few system tools, such as ``git``, ``python3`` and C, C++
+and Fortran compilers. They are listed in the `Spack documentation
+<https://spack.readthedocs.io/en/latest/installing_prerequisites.html>`_.
+The first installation builds about 90 packages from their sources. It
+takes about 15 minutes on a computer with 8 cores.
 
 .. note::
 
-  Install Spack outside the source directory of ``mfem-mgis`` to avoid issues with CMake.
+   Install Spack outside the sources of ``mfem-mgis``, to avoid issues
+   with CMake.
 
-Step 2: Set Up Spack Environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Installing with Spack
+---------------------
 
-Set up the Spack environment by configuring the ``SPACK_ROOT``
-environment variable and sourcing the setup script.
+Versions
+^^^^^^^^
+
+This documentation is generated from the ``master`` branch, so it
+describes the ``@master`` version. Some of the features it describes are
+not available in the last release (1.0.4). They are marked as such.
+
+Variants
+^^^^^^^^
+
+The package has three variants:
+
+- ``mpi`` enables MPI parallelism. It is enabled by default. Only the
+  ``@master`` version can be built without MPI, with ``~mpi``.
+- ``mumps`` adds the ``MUMPS`` solver to ``MFEM``. It is enabled by
+  default when MPI is.
+- ``int64`` uses 64 bit integers in ``hypre`` and ``metis``. It is
+  enabled by default.
+
+For example, this command installs the ``@master`` version without MPI:
 
 .. code:: sh
 
-   export SPACK_ROOT=$PWD/spack
-   source ${SPACK_ROOT}/share/spack/setup-env.sh
+   spack install mfem-mgis@master~mpi
 
-Step 3: Detect Available Compilers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Compilers
+^^^^^^^^^
 
-Detect the available compilers on your system. Ensure to select a
-version that provides C, C++, and Fortran compilers.
+``mfem-mgis`` requires GCC 11 or newer. Spack detects the compilers of
+the system the first time it runs. A compiler made available later, for
+example by ``module load``, must be added with:
 
 .. code:: sh
 
    spack compiler find
 
-If necessary, remove unwanted compilers with the command:
-
-.. code:: sh
-
-   spack compiler remove <compiler_name>
-
-Step 4: Detect External Dependencies
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Use Spack to detect already installed libraries and programs to avoid
-reinstalling them.
-
-.. code:: sh
-
-   spack external find m4 openssl automake ncurses
-   spack external find autoconf libtool xz gmake cmake
-   spack external find tar tcl perl curl zlib openblas
-
-Step 5: Install MFEM-MGIS-MFront
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Change to the ``mfem-mgis`` directory, add the Spack repository, and
-install the package.
-
-.. code:: sh
-
-   git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-   spack repo add spack-repo-mfem-mgis
-   spack install -j 8 mfem-mgis
-
-Step 6: Load the Installed Package
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Load the installed package.
+Using the installed package
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: sh
 
    spack load mfem-mgis
 
-Step 7: Build and Install the Project
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This command makes ``mfront`` and ``mpirun`` available. It also sets the
+``MFEMMGIS_DIR`` variable, which CMake projects use to find
+``mfem-mgis``. When several versions are installed, the version must be
+given, for example ``spack load mfem-mgis@master``.
 
-Create a build directory, configure the project with CMake, build it,
-and install.
+Building from the sources
+-------------------------
 
-.. code:: sh
-
-   mkdir build && cd build
-   cmake .. -DCMAKE_INSTALL_PREFIX=../install
-   make -j 4 check
-   make install
-
-``MGIS`` and ``hypre`` are located through the ``CMAKE_PREFIX_PATH`` exported
-by ``spack load``. Their locations can be overridden on the ``cmake`` command
-line with ``-DMFrontGenericInterface_DIR=<mgis prefix>/share/mgis/cmake`` and
-``-DHYPRE_DIR=<hypre prefix>``.
-
-Alternative Installation Method
--------------------------------
-
-If you already have ``mfem``, ``tfel``, and ``mgis`` installed via
-Spack, follow these steps:
-
-Step 1: Install Required Packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Install the required packages using Spack.
+To work on the sources of ``mfem-mgis``, Spack only installs its
+dependencies, in an environment:
 
 .. code:: sh
 
-   spack install mfem+mpi+suite-sparse
-   spack install tfel@master~python~python_bindings
-   spack install mgis@master+c~fortran~python
+   git clone https://github.com/thelfer/mfem-mgis.git
+   spack env create mfem-mgis-deps
+   spack -e mfem-mgis-deps add mfem-mgis@master
+   spack -e mfem-mgis-deps install --only dependencies
+   spack env activate mfem-mgis-deps
 
-Step 2: Load the Installed Packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Load the installed packages.
-
-.. code:: sh
-
-   spack load mfem
-   spack load tfel
-   spack load mgis
-   spack load hypre
-
-Step 3: Set HYPRE_DIR Environment Variable
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Set the ``HYPRE_DIR`` environment variable to the installation location
-of ``hypre``.
+Once activated, the environment gives CMake access to the dependencies.
+CMake builds the sources, and the ``check`` target runs the tests:
 
 .. code:: sh
 
-   export HYPRE_DIR=`spack location -i hypre`
+   cmake -S mfem-mgis -B build -DCMAKE_INSTALL_PREFIX=install
+   cmake --build build -j 8
+   cmake --build build --target check
+   cmake --build build --target install
 
-Step 4: Build and Install the Project
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Create a build directory, configure the project with CMake, and build
-it.
-
-.. code:: sh
-
-   mkdir build && cd build
-   cmake ..
-   make -j 4 check
-
-``MGIS`` is located through the ``CMAKE_PREFIX_PATH`` exported by ``spack load``.
-Its location can be overridden on the ``cmake`` command line with
-``-DMFrontGenericInterface_DIR=<mgis prefix>/share/mgis/cmake``.
-
-By following these detailed instructions, you should be able to install
-and configure ``MFEM-MGIS-MFront`` using Spack successfully.
-
-Creating a Simple Example Based on ``mfem-mgis``
+Creating a simple example based on ``mfem-mgis``
 ------------------------------------------------
 
-Upon executing the ``make install`` command during the installation
-process, a simple example is created in your installation directory.
-This example can be found in the “install/share/mfem-mgis/examples”
-directory. You can copy this example and the associated ``env.sh`` file
-to another location. The example can be compiled using either the
-``cmake`` or ``make`` build systems.
-
-Step 1: Locate and Copy Example Files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-First, locate your installation directory and copy the example and
-environment setup file to a new location.
+The installation of ``mfem-mgis`` includes a simple example, ``ex1``.
+It requires the ``@master`` version. It can be copied to another location
+and built with CMake:
 
 .. code:: sh
 
-   export INSTALLDIR=<your_mfemmgis_install_directory>
-   cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
-   cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
-
-Step 2: Set Up and Compile the Example
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Navigate to the example directory, source the environment setup file,
-create a build directory, and compile the example using ``cmake``.
-
-.. code:: sh
-
+   spack load mfem-mgis
+   cp -r `spack location -i mfem-mgis`/share/mfem-mgis/examples/ex1 .
    cd ex1
-   source env.sh
-   mkdir build
-   cd build
-   cmake ..
-   make
-   make check
+   cmake -B build
+   cmake --build build
+   ctest --test-dir build
 
-Step 3: Run the Example
-^^^^^^^^^^^^^^^^^^^^^^^
+The example also provides a ``Makefile``, which needs the variables set
+by ``share/mfem-mgis/examples/env.sh``.
 
-After successfully building the example, you can run it using the
-following command:
-
-.. code:: sh
-
-   ./UniaxialTensileTest
-
-Building in Debug Mode
-----------------------
-
-To compile the example and the ``MFront`` behavior in debug mode, use
-the following command:
-
-.. code:: sh
-
-   make clean
-   make DEBUG=1
-
-By following these steps, you can successfully create, build, and run a
-simple example based on ``mfem-mgis``. Modify the source files as needed
-to develop and test your own study cases.
-
+Its sources can be modified to develop your own study cases.
 
 
 Installation Guide on Topaze/CCRT of mfem-mgis-examples
@@ -271,7 +168,7 @@ Download Spack and the git directories of ``mfem-mgis`` and ``mfem-mgis-examples
 .. code-block:: bash
 
    cd $MY_DIR
-   git clone --depth=2 --branch=v1.1.0 https://github.com/spack/spack.git
+   git clone --depth=2 --branch=v1.2.2 https://github.com/spack/spack.git
    rm -r ~/.spack
    export SPACK_ROOT=$PWD/spack
    source ${SPACK_ROOT}/share/spack/setup-env.sh
@@ -285,28 +182,23 @@ Download Spack and the git directories of ``mfem-mgis`` and ``mfem-mgis-examples
 Create a Spack Mirror on Your Machine (Local)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Firstly, you need to get the mfem-mgis spack repository.
-
-.. code-block:: bash
-
-   git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-   spack repo add $PWD/spack-repo-mfem-mgis
-
-Now, you will create a ``spack`` mirror and a bootstrap directory.
+The ``develop`` branch of the Spack packages provides ``mfem-mgis``. The
+examples require the ``@master`` version of ``mfem-mgis``. Create a
+``spack`` mirror and a bootstrap directory.
 
 .. code-block:: bash
 
    spack bootstrap mirror --binary-packages my_bootstrap
    spack mirror create -d re2c_mirror re2c@3.0
    cp -r re2c_mirror/_source-cache/archive/b3/ my_bootstrap/bootstrap_cache/_source-cache/archive
-   spack mirror create -d mirror-mfem-mgis -D mfem-mgis
+   spack mirror create -d mirror-mfem-mgis -D mfem-mgis@master
 
 It’s possible that you will need some packages in your mirror, you can
 specify them with the following command:
 
 .. code-block:: bash
 
-   spack mirror create -d mirror-mfem-mgis -D mfem-mgis zlib ca-certificates-mozilla zlib-ng util-macros pkgconf findutils libpciaccess libedit libxcrypt bison libevent numactl
+   spack mirror create -d mirror-mfem-mgis -D mfem-mgis@master zlib ca-certificates-mozilla zlib-ng util-macros pkgconf findutils libpciaccess libedit libxcrypt bison libevent numactl
 
 **Copy Data to Topaze**
 
@@ -315,13 +207,15 @@ You’ll need to copy the following files to Topaze:
 - spack
 - mfem-mgis
 - mfem-mgis-examples
+- mirror-mfem-mgis
+- my_bootstrap
 
 Create an archive for these files:
 
 .. code-block:: bash
 
    cd $MY_DIR
-   tar cvf archive.tar.gz mfem-mgis/ mfem-mgis-examples/ mirror-mfem-mgis/ spack/ my_bootstrap/ spack-repo-mfem-mgis/
+   tar cvf archive.tar.gz mfem-mgis/ mfem-mgis-examples/ mirror-mfem-mgis/ spack/ my_bootstrap/
    scp archive.tar.gz $MY_LOG@topaze.ccc.cea.fr:$MY_DEST/
 
 **Load Topaze modules**
@@ -336,8 +230,8 @@ Load the required modules on Topaze:
 
 .. code-block:: bash
 
-   module load gnu/12.3.0
-   module load mpi
+   module load gnu/13.2.0
+   module load mpi/openmpi/4.0.5
    module load cmake/3.29.6
 
 Install mfem-mgis on Topaze
@@ -366,11 +260,10 @@ Now extract the files and set-up the bootstrapping
    spack bootstrap add --scope=site --trust local-binaries $PWD/my_bootstrap/metadata/binaries/
    spack bootstrap add --scope=site --trust local-sources $PWD/my_bootstrap/metadata/sources/
    spack buildcache update-index $PWD/my_bootstrap/bootstrap_cache
-   spack bootstrap disable --scope=site github-actions-v0.5
+   spack bootstrap disable --scope=site github-actions-v2
    spack bootstrap disable --scope=site github-actions-v0.6
    spack bootstrap disable --scope=site spack-install
    spack bootstrap root $PWD/spack/bootstrap
-   spack repo add spack-repo-mfem-mgis/
 
 Now you can look for the compilers
 
@@ -395,8 +288,6 @@ If everything goes well, you will obtain something like
 
 .. code-block:: bash
 
-   Spack v1.0.2 - python@3.6
-
    [PASS] Core Functionalities
 
    [PASS] Binary packages
@@ -419,39 +310,39 @@ the following commands:
 
 .. code-block:: bash
 
-   spack repo add $PWD/spack-repo-mfem-mgis
    spack mirror add MMM $PWD/mirror-mfem-mgis/
 
 **Run installation**
 
 .. code-block:: bash
 
-   module load gnu/12.3.0 mpi hwloc cmake/3.29.6
+   module load gnu/13.2.0 mpi/openmpi/4.0.5 hwloc cmake/3.29.6
    spack compiler find
    spack external find hwloc
    spack external find cmake
    spack external find openssh
    spack external find openmpi
    
-   spack install mfem-mgis%gcc@12.3.0
+   spack install mfem-mgis@master%gcc@13.2.0
 
-Install MFEM-MGIS-example on Topaze
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Install MFEM-MGIS-examples on Topaze
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Follow these steps to install mfem-mgis-example on Topaze:
+Follow these steps to install mfem-mgis-examples on Topaze:
 
 .. code-block:: bash
 
-   cd mfem-mgis-example
+   cd mfem-mgis-examples
    mkdir build && cd build
    spack load mfem-mgis
    cmake ..
    make -j 10
    ctest
 
-**How to run an example (ex8)**
+**How to run an example (ex7)**
 
-There are two ways to run an example, such as ex8:
+There are two ways to run an example, such as ex7, from its build
+directory ``build/ex7``:
 
 Using ccc_mprun
 ^^^^^^^^^^^^^^^
@@ -460,13 +351,13 @@ To run an example using ccc_mprun with 1024 processes and 1 core per process (-m
 
 .. code-block:: bash
 
-   ccc_mprun -n 1024 -c 1 -m work,store,scratch -T 84000 -pmilan ./uniaxial-elastic
+   ccc_mprun -n 1024 -c 1 -m work,store,scratch -T 84000 -pmilan ./mox2 -m mesh/inclusion.msh -o 1 -r 2 --post-processing 0
 
 Using ccc_msub
 ^^^^^^^^^^^^^^
 
 
-Here's an example of a `run.batch` job submission file to run an RVE simulation on 4096 MPI processes on the partition named milan for 84000 seconds.
+Here's an example of a `run.batch` job submission file to run an RVE simulation on 4096 MPI processes on the partition named milan for 86400 seconds.
 
 .. code-block:: bash
 
@@ -483,7 +374,7 @@ Here's an example of a `run.batch` job submission file to run an RVE simulation 
   module load gnu/13.2.0 mpi/openmpi/4.0.5 cmake/3.29.6
   export OMP_NUM_THREADS=1
   set -x
-  ccc_mprun ./ex7 -m ../par-mesh/mesh-4096. -o 1 -r 2 --post-processing 0
+  ccc_mprun ./mox2 -m mesh/inclusion.msh -o 1 -r 2 --post-processing 0
 
 Then, to submit the job:
 
