@@ -8,10 +8,10 @@ library.
 The goal and features of `mfem-mgis` are described in this JOSS paper:
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.07719/status.svg)](https://doi.org/10.21105/joss.07719)
 
-A tutorial based on a mechanical noteched beam is given here
-[tutorial](https://thelfer.github.io/mfem-mgis/tutorial.html).
+A tutorial based on a mechanical notched beam is given here
+[tutorial](https://thelfer.github.io/mfem-mgis/user_guide/tutorial.html).
 
-Installation guidelines are avaiblables here: [Installation Guidelines](https://thelfer.github.io/mfem-mgis/installation_guide/installation_guide.html).
+Installation guidelines are available here: [Installation Guidelines](https://thelfer.github.io/mfem-mgis/installation_guide/installation_guide.html).
 
 Some examples of MFEM-MGIS use (with mesh inputs) are stored on another repository here:
 [`MFEM-MGIS-EXAMPLES`](https://github.com/latug0/mfem-mgis-examples).
@@ -19,5 +19,5 @@ Some examples of MFEM-MGIS use (with mesh inputs) are stored on another reposito
 MFEM-MGIS project documentation is available here: [Documentation](https://thelfer.github.io/mfem-mgis/).
 
 The doxygen documentation of the MFEM-MGIS project is available here:
-<https://thelfer.github.io/mfem-mgis/doxygen/index.html>.
+<https://thelfer.github.io/mfem-mgis-doxygen/index.html>.
 
