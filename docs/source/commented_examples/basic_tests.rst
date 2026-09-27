@@ -82,7 +82,8 @@ below.
 | --linearsolver or -ls           | Linear solver. Serial: 0 -> CG,            |
 |                                 | 1 -> GMRES, 2 -> UMFPack. Parallel:        |
 |                                 | 0 -> CG, 1 -> GMRES, 2 -> HypreFGMRES,     |
-|                                 | 3 -> MUMPS, 4 -> HypreGMRES (default = 0)  |
+|                                 | 3 -> MUMPS (HyprePCG without MUMPS),       |
+|                                 | 4 -> HypreGMRES (default = 0)              |
 +---------------------------------+--------------------------------------------+
 | --order or -o                   | Finite element order (polynomial degree)   |
 |                                 | (default = 1)                              |
