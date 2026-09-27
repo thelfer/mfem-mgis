@@ -260,6 +260,11 @@ namespace mfem_mgis::unit_tests {
           check(r.tf0[i], tf0_ref, seps, "invalid thermodynamic force value");
           check(r.v[i], v_ref, eeps, "invalid internal state variable");
         }
+      } else {
+        mfem_mgis::getErrorStream()
+            << "test failed (unable to open the reference file '"
+            << parameters.reference_file << "')\n";
+        success = false;
       }
     }  // end of if (m1.n != 0)
 #ifdef MFEM_USE_MPI
