@@ -1,250 +1,29 @@
----
-title: Installation guide
-author: Guillaume Latu, Thomas Helfer, Raphaël Prat
-date: 30/03/2021
-lang: en-EN
-link-citations: true
-colorlinks: true
-numbersections: true
-toc: true
-geometry:
-  - margin=2cm
-papersize: a4
-figPrefixTemplate: "$$i$$"
-tblPrefixTemplate: "$$i$$"
-secPrefixTemplate: "$$i$$"
-eqnPrefixTemplate: "($$i$$)"
----
+# Installation guide
 
-This project uses [`cmake`](https://cmake.org/) as build system.
+The installation guide is available at
+<https://thelfer.github.io/mfem-mgis/installation_guide/installation_guide.html>.
 
-# Dependencies
-
-- [`MFEM`](https://mfem.org/)
-- [`MGIS`](https://github.com/thelfer/MFrontGenericInterfaceSupport)
-
-A simple way to install dependencies is to rely on [`Spack` packaging
-system](https://spack.io/). `Spack` is an open source package manager
-that simplifies building, installing, customizing, and sharing HPC
-software. It will allow you to install recent versions of compilers
-(that handle `C++20`, for example gnu compiler suite version 11+), and to
-get `python`, `cmake` and other tools that are required for this project
-to be installed (see hereafter).
-
-
-# Installation Tutorial for `MFEM-MGIS-MFront` using Spack
-
-This tutorial provides detailed instructions on how to install
-`MFEM-MGIS-MFront` using [`Spack`](https://spack.io/). Follow the steps
-carefully to ensure a successful installation.
-
-## Prerequisites
-
-- Ensure you have `git` installed on your system.
-
-## Step 1: Clone the Spack Repository
-
-First, clone the Spack repository from GitHub.
+In short, `mfem-mgis` is packaged in [Spack](https://spack.io/), which also
+installs all its dependencies. These commands set up Spack:
 
 ```sh
-git clone https://github.com/spack/spack.git
+git clone --depth=2 --branch=v1.2.2 https://github.com/spack/spack.git
+source spack/share/spack/setup-env.sh
+spack repo update builtin --branch develop
 ```
 
-**Note**: Install Spack outside the source directory of `mfem-mgis` to avoid issues with CMake.
+The last command selects the `develop` branch of the Spack packages, because
+their releases do not provide `mfem-mgis` yet.
 
-## Step 2: Set Up Spack Environment
-
-Set up the Spack environment by configuring the `SPACK_ROOT` environment
-variable and sourcing the setup script.
+The `@master` version of `mfem-mgis`, its development version, is currently
+recommended, as it includes many fixes:
 
 ```sh
-export SPACK_ROOT=$PWD/spack
-source ${SPACK_ROOT}/share/spack/setup-env.sh
+spack install mfem-mgis@master
 ```
 
-## Step 3: Detect Available Compilers
-
-Detect the available compilers on your system. Ensure to select a
-version that provides C, C++, and Fortran compilers.
+The last release (1.0.4) is installed by:
 
 ```sh
-spack compiler find
+spack install mfem-mgis
 ```
-
-If necessary, remove unwanted compilers with the command:
-
-```sh
-spack compiler remove <compiler_name>
-```
-
-## Step 4: Detect External Dependencies
-
-Use Spack to detect already installed libraries and programs to avoid reinstalling them.
-
-```sh
-spack external find m4 openssl automake ncurses
-spack external find autoconf libtool xz gmake cmake
-spack external find tar tcl perl curl zlib openblas
-```
-
-## Step 5: Install MFEM-MGIS-MFront
-
-Change to the `mfem-mgis` directory, add the Spack repository, and install the package.
-
-```sh
-git clone https://github.com/rprat-pro/spack-repo-mfem-mgis.git
-spack repo add spack-repo-mfem-mgis
-spack install -j 8 mfem-mgis
-```
-
-## Step 6: Load the Installed Package
-
-Load the installed package.
-
-```sh
-spack load mfem-mgis
-```
-
-#### Step 7: Build and Install the Project
-
-Create a build directory, configure the project with CMake, build it, and install.
-
-```sh
-mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../install
-make -j 4 check
-make install
-```
-
-`MGIS` and `hypre` are located through the `CMAKE_PREFIX_PATH` exported by
-`spack load`. Their locations can be overridden on the `cmake` command line
-with `-DMFrontGenericInterface_DIR=<mgis prefix>/share/mgis/cmake` and
-`-DHYPRE_DIR=<hypre prefix>`.
-
-# Alternative Installation Method
-
-If you already have `mfem`, `tfel`, and `mgis` installed via Spack, follow these steps:
-
-## Step 1: Install Required Packages
-
-Install the required packages using Spack.
-
-```sh
-spack install mfem+mpi+suite-sparse
-spack install tfel@master~python~python_bindings
-spack install mgis@master+c~fortran~python
-```
-
-## Step 2: Load the Installed Packages
-
-Load the installed packages.
-
-```sh
-spack load mfem
-spack load tfel
-spack load mgis
-spack load hypre
-```
-
-## Step 3: Set HYPRE_DIR Environment Variable
-
-Set the `HYPRE_DIR` environment variable to the installation location of `hypre`.
-
-```sh
-export HYPRE_DIR=`spack location -i hypre`
-```
-
-## Step 4: Build and Install the Project
-
-Create a build directory, configure the project with CMake, and build it.
-
-```sh
-mkdir build && cd build
-cmake ..
-make -j 4 check
-```
-
-`MGIS` is located through the `CMAKE_PREFIX_PATH` exported by `spack load`.
-Its location can be overridden on the `cmake` command line with
-`-DMFrontGenericInterface_DIR=<mgis prefix>/share/mgis/cmake`.
-
-By following these detailed instructions, you should be able to install
-and configure `MFEM-MGIS-MFront` using Spack successfully.
-
-
-# Creating a Simple Example Based on `mfem-mgis`
-
-Upon executing the `make install` command during the installation
-process, a simple example is created in your installation directory.
-This example can be found in the "install/share/mfem-mgis/examples"
-directory. You can copy this example and the associated `env.sh` file to
-another location. The example can be compiled using either the `cmake`
-or `make` build systems.
-
-## Step 1: Locate and Copy Example Files
-
-First, locate your installation directory and copy the example and
-environment setup file to a new location.
-
-```sh
-export INSTALLDIR=<your_mfemmgis_install_directory>
-cp -r ${INSTALLDIR}/share/mfem-mgis/examples/ex1 .
-cp ${INSTALLDIR}/share/mfem-mgis/examples/env.sh ex1/
-```
-
-# Building the Example Using the `cmake` Build-System
-
-## Step 1: Set Up and Compile the Example
-
-Navigate to the example directory, source the environment setup file,
-create a build directory, and compile the example using `cmake`.
-
-```sh
-cd ex1
-source env.sh
-mkdir build
-cd build
-cmake ..
-make
-make check
-```
-
-## Step 2: Run the Example
-After successfully building the example, you can run it using the following command:
-
-```sh
-./UniaxialTensileTest
-```
-
-You can then modify the source file to design your own case study.
-
-# Building the Example Using the `make` Build-System
-
-## Step 1: Set Up and Compile the Example
-
-Navigate to the example directory, source the environment setup file, and compile the example using `make`.
-
-```sh
-cd ex1
-source env.sh
-make
-```
-
-## Step 2: Run the Example
-
-After successfully building the example, you can run it using the following command:
-
-```sh
-./UniaxialTensileTest
-```
-
-# Building in Debug Mode
-
-To compile the example and the `MFront` behavior in debug mode, use the following command:
-
-```sh
-make clean
-make DEBUG=1
-```
-
-By following these steps, you can successfully create, build, and run a simple example based on `mfem-mgis`. Modify the source files as needed to develop and test your own study cases.
