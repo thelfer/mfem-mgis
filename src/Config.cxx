@@ -9,6 +9,7 @@
 #include <iostream>
 #ifdef MFEM_USE_MPI
 #include "mpi.h"
+#include "mfem/linalg/hypre.hpp"
 #endif /* MFEM_USE_MPI */
 #include "mfem/general/error.hpp"
 #include "mfem/general/optparser.hpp"
@@ -120,6 +121,7 @@ namespace mfem_mgis {
         mfem::MFEMFinalizePetsc();
       }
 #endif /* MFEM_USE_PETSC */
+      mfem::Hypre::Finalize();
       MPI_Finalize();
       this->pendingExit = true;
 #endif /* MFEM_USE_MPI */
@@ -165,6 +167,7 @@ namespace mfem_mgis {
     if (first) {
       mgis::setDefaultLogStream(mfem_mgis::getOutputStream());
       MPI_Init(&argc, &argv);
+      mfem::Hypre::Init();
       if (getMPIrank() != 0) {
         mfem::out.Disable();
         mfem::err.Disable();
