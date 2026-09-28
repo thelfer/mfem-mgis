@@ -484,6 +484,10 @@ namespace mfem_mgis {
       output.iterations_information = this->solver->getIterationsInformation();
       this->solver->unsetReferenceResidualNorm();
     }
+    if (!output.status) {
+      std::ignore = ctx.registerErrorMessage(
+          "solve: the non linear solver did not converge");
+    }
     return output;
   }  // end of solve
 
