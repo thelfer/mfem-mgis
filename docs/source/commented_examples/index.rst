@@ -2,20 +2,29 @@
 Commented Examples
 ==================
 
-All the examples presented in this section can be found in the git repositories: https://github.com/latug0/mfem-mgis-examples and https://github.com/rprat-pro/mm-opera-hpc (developed as part of operaHPC project).
+The examples come from two repositories.
+
+mfem-mgis-examples
+==================
+
+These examples are in https://github.com/latug0/mfem-mgis-examples.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Basic Examples
 
    basic_tests
+   rve_elastic_inclusions
+   rve_mox
+
+mm-opera-hpc
+============
+
+These examples are in https://github.com/rprat-pro/mm-opera-hpc. They were
+developed in the OperaHPC project.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Representative Volume Element Examples
 
-   rve_elastic_inclusions
    bubbles
    polycrystal
    cermet
-   rve_mox
