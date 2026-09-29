@@ -144,10 +144,17 @@ On Topaze, a supercomputer of the CCRT, the commands are:
 Test
 ~~~~
 
-The test runs the default simulation with 5 time steps instead of 40. It
-compares the mean stresses in each material to the reference values of
-``OneSphere-avgStress.ref``. With 5 time steps, the average stress SZZ differs
-by less than 6 % from the one computed with 40 time steps.
+The test ``mox2`` runs the default simulation. It compares the mean stresses
+in each material to the reference values computed with the same number of
+time steps:
+
+- 40 time steps and ``OneSphere-avgStress-40steps.ref`` in the full test mode.
+- 5 time steps and ``OneSphere-avgStress-5steps.ref`` in the restricted test
+  mode. The average stress SZZ then differs by less than 9 % from the one
+  computed with 40 time steps.
+
+The test ``mox2-petsc`` does the same with PETSc. It requires MFEM built with
+PETSc.
 
 Post-processing of simulation data
 ----------------------------------

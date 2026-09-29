@@ -95,6 +95,16 @@
 <section id="mfem-mgis-examples">
 <h2>mfem-mgis-examples<a class="headerlink" href="#mfem-mgis-examples" title="Link to this heading"></a></h2>
 <p>These examples are in <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples">https://github.com/latug0/mfem-mgis-examples</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ctest</span></code> runs their tests. The CMake option <code class="docutils literal notranslate"><span class="pre">MFEM_MGIS_EXAMPLES_TEST_MODE</span></code>
+selects their size:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">full</span></code> runs the complete simulations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restricted</span></code> only runs their beginning or a smaller case. It is much
+faster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code>, the default, selects <code class="docutils literal notranslate"><span class="pre">restricted</span></code> in the <code class="docutils literal notranslate"><span class="pre">Debug</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Coverage</span></code> builds and <code class="docutils literal notranslate"><span class="pre">full</span></code> otherwise.</p></li>
+</ul>
+<p>Some tests are the same in both modes.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="basic_tests.html">Basic Tests</a></li>

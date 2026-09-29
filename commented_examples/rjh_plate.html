@@ -184,7 +184,7 @@ outside the cladding</p></td>
 <section id="run-the-simulation">
 <h2><a class="toc-backref" href="#id3" role="doc-backlink">Run the simulation</a><a class="headerlink" href="#run-the-simulation" title="Link to this heading"></a></h2>
 <p>This command runs the default simulation on 2 processes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>./Thermomechanical
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>./rjh_plate
 </pre></div>
 </div>
 <p>The results are exported to Paraview in the <code class="docutils literal notranslate"><span class="pre">Results</span></code> directory:</p>
@@ -192,7 +192,7 @@ outside the cladding</p></td>
 </pre></div>
 </div>
 <p>The figures show the results at t = 2e6 s. They are computed with
-<code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-n</span> <span class="pre">4</span> <span class="pre">./Thermomechanical</span> <span class="pre">-et</span> <span class="pre">2e6</span> <span class="pre">-ns</span> <span class="pre">20</span></code>. The radial displacement is
+<code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-n</span> <span class="pre">4</span> <span class="pre">./rjh_plate</span> <span class="pre">-et</span> <span class="pre">2e6</span> <span class="pre">-ns</span> <span class="pre">20</span></code>. The radial displacement is
 amplified 100 times. The cladding bulges between the stiffeners.</p>
 <figure class="align-default">
 <img alt="Radial displacement at t = 2e6 s, amplified 100 times." src="../_images/ex8-3d.png" />
@@ -329,12 +329,14 @@ MUMPS and 165 s on 4 processes with <code class="docutils literal notranslate"><
 <h2><a class="toc-backref" href="#id5" role="doc-backlink">Tests</a><a class="headerlink" href="#tests" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ctest</span></code> runs three tests:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Thermomechanical_MUMPS</span></code> runs the simulation on 2 processes with the
-coarser mesh. It compares the statistics of the temperature and of the
-displacement to <code class="docutils literal notranslate"><span class="pre">assemblage_hexa_coarse-statistics.ref</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">U3Si2SwellingMTest</span></code> compares the swelling model to its exact value under
-a power ramp.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">RobinTest</span></code> compares the Robin boundary condition to the exact solution of
+<li><p><code class="docutils literal notranslate"><span class="pre">rjh_plate</span></code> runs the simulation on 2 processes. It compares the
+statistics of the temperature and of the displacement to the reference
+values. The full test mode uses the default mesh and
+<code class="docutils literal notranslate"><span class="pre">assemblage_hexa-statistics.ref</span></code>. The restricted test mode uses the
+coarser mesh and <code class="docutils literal notranslate"><span class="pre">assemblage_hexa_coarse-statistics.ref</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u3si2_swelling</span></code> compares the swelling model to its exact value under a
+power ramp.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">robin_test</span></code> compares the Robin boundary condition to the exact solution of
 a bar.</p></li>
 </ul>
 </section>

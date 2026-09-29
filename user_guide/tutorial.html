@@ -217,15 +217,18 @@ versus strain curve after the point of yield of a material.</p></li>
 <h4>Compilation of the <code class="docutils literal notranslate"><span class="pre">MFront</span></code> behaviour<a class="headerlink" href="#compilation-of-the-mfront-behaviour" title="Link to this heading"></a></h4>
 <p>The previous values are hard-coded in the <code class="docutils literal notranslate"><span class="pre">MFront</span></code> file. The
 <code class="docutils literal notranslate"><span class="pre">MFront</span></code> implementation is stored in a source file called
-<code class="docutils literal notranslate"><span class="pre">Plasticity.mfront</span></code>. This file must be compiled before the execution
-of our <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> <code class="docutils literal notranslate"><span class="pre">C++</span></code> example which will be detailed in depth in
-Section <a class="reference internal" href="#sec-mfem-mgis-ssna303"><span class="std std-ref">Numerical resolution</span></a>. Compilation is performed as follows:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mfront<span class="w"> </span>--obuild<span class="w"> </span>--interface<span class="o">=</span>generic<span class="w"> </span>Plasticity.mfront
-Treating<span class="w"> </span>target<span class="w"> </span>:<span class="w"> </span>all
+<code class="docutils literal notranslate"><span class="pre">IsotropicLinearHardeningPlasticity.mfront</span></code>. This file must be compiled
+before the execution of our <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code> <code class="docutils literal notranslate"><span class="pre">C++</span></code> example which will be
+detailed in depth in Section <a class="reference internal" href="#sec-mfem-mgis-ssna303"><span class="std std-ref">Numerical resolution</span></a>. Compilation is
+performed as follows:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mfront<span class="w"> </span>--obuild<span class="w"> </span>--interface<span class="o">=</span>generic<span class="w"> </span>IsotropicLinearHardeningPlasticity.mfront
+Treating<span class="w"> </span>target<span class="w"> </span><span class="s1">'all'</span>
 The<span class="w"> </span>following<span class="w"> </span>library<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>built<span class="w"> </span>:
--<span class="w"> </span>libBehaviour.so<span class="w"> </span>:<span class="w">  </span>Plasticity_AxisymmetricalGeneralisedPlaneStrain
-<span class="w">  </span>Plasticity_Axisymmetrical<span class="w"> </span>Plasticity_PlaneStrain
-<span class="w">  </span>Plasticity_GeneralisedPlaneStrain<span class="w"> </span>Plasticity_Tridimensional
+-<span class="w"> </span>libBehaviour.so<span class="w"> </span>:<span class="w">  </span>IsotropicLinearHardeningPlasticity_AxisymmetricalGeneralisedPlaneStrain
+<span class="w">  </span>IsotropicLinearHardeningPlasticity_Axisymmetrical
+<span class="w">  </span>IsotropicLinearHardeningPlasticity_PlaneStrain
+<span class="w">  </span>IsotropicLinearHardeningPlasticity_GeneralisedPlaneStrain
+<span class="w">  </span>IsotropicLinearHardeningPlasticity_Tridimensional
 </pre></div>
 </div>
 </section>
@@ -257,7 +260,7 @@ requested.</p></li>
 <h4>Execution context<a class="headerlink" href="#execution-context" title="Link to this heading"></a></h4>
 <p>Most functions of the library take an execution context as first argument.
 This context stores the error messages:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mgis</span><span class="o">::</span><span class="n">Context</span><span class="p">{};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Context</span><span class="p">{};</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">or_die</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">getFatalFailureHandler</span><span class="p">();</span>
 </pre></div>
 </div>
@@ -274,7 +277,7 @@ mesh file, the path to the <code class="docutils literal notranslate"><span clas
 the behaviour:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">mesh_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ssna303.msh"</span><span class="p">;</span>
 <span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">library</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"src/libBehaviour.so"</span><span class="p">;</span>
-<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">behaviour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Plasticity"</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">behaviour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"IsotropicLinearHardeningPlasticity"</span><span class="p">;</span>
 </pre></div>
 </div>
 </section>
@@ -293,10 +296,16 @@ steps and the end time of the loading.</p></li>
 the resultant force. No comparison is made if it is empty.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> and <code class="docutils literal notranslate"><span class="pre">--no-parallel</span></code> which specify if the simulation
 must be run in parallel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--use-fbar</span></code> which selects the FBar formulation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--standard-reference-file</span></code> which specifies a file of reference values
+computed without FBar. They are compared with a larger tolerance.</p></li>
 </ul>
+<p>The last two options require <code class="docutils literal notranslate"><span class="pre">MGIS</span></code> built with <code class="docutils literal notranslate"><span class="pre">TFEL</span></code>.</p>
 <p>Those options are associated with local variables which are
 default initialized as follows:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">reference_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">use_fbar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">reference_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">standard_reference_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span>
 <span class="cp">#if defined(MFEM_USE_MUMPS) &amp;&amp; defined(MFEM_USE_MPI)</span>
 <span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">parallel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
 <span class="cp">#else</span>
@@ -313,6 +322,7 @@ default initialized as follows:</p>
 <code class="docutils literal notranslate"><span class="pre">MUMPS</span></code> support and a sequential computation otherwise.</p></li>
 <li><p>the use of linear elements.</p></li>
 <li><p>50 time steps from 0 to 1.</p></li>
+<li><p>the standard formulation, without FBar.</p></li>
 <li><p>no comparison to reference values.</p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">MFEM</span></code> was built with support of <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> library, the following
@@ -325,29 +335,37 @@ for the <code class="docutils literal notranslate"><span class="pre">PETSc</span
 </ul>
 <p>In practice, an object of the class <code class="docutils literal notranslate"><span class="pre">mfem::OptionsParser</span></code> is declared.
 The expected options are declared and the <code class="docutils literal notranslate"><span class="pre">Parse</span></code> method is called:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">mfem</span><span class="o">::</span><span class="n">OptionsParser</span><span class="w"> </span><span class="nf">args</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
-<span class="n">mfem_mgis</span><span class="o">::</span><span class="n">declareDefaultOptions</span><span class="p">(</span><span class="n">args</span><span class="p">);</span>
-<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">order</span><span class="p">,</span><span class="w"> </span><span class="s">"-o"</span><span class="p">,</span><span class="w"> </span><span class="s">"--order"</span><span class="p">,</span>
-<span class="w">               </span><span class="s">"Finite element order (polynomial degree)."</span><span class="p">);</span>
-<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nbsteps</span><span class="p">,</span><span class="w"> </span><span class="s">"-ns"</span><span class="p">,</span><span class="w"> </span><span class="s">"--nbsteps"</span><span class="p">,</span><span class="w"> </span><span class="s">"Number of time steps."</span><span class="p">);</span>
-<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span>
-<span class="w">    </span><span class="o">&amp;</span><span class="n">end_time</span><span class="p">,</span><span class="w"> </span><span class="s">"-et"</span><span class="p">,</span><span class="w"> </span><span class="s">"--end-time"</span><span class="p">,</span>
-<span class="w">    </span><span class="s">"End time. The displacement of the upper boundary is 6e-3 * t."</span><span class="p">);</span>
-<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reference_file</span><span class="p">,</span><span class="w"> </span><span class="s">"-rf"</span><span class="p">,</span><span class="w"> </span><span class="s">"--reference-file"</span><span class="p">,</span>
-<span class="w">               </span><span class="s">"Reference values of the resultant force on the upper "</span>
-<span class="w">               </span><span class="s">"boundary, no comparison if empty."</span><span class="p">);</span>
-<span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">parallel</span><span class="p">,</span><span class="w"> </span><span class="s">"-p"</span><span class="p">,</span><span class="w"> </span><span class="s">"--parallel"</span><span class="p">,</span><span class="w"> </span><span class="s">"-no-p"</span><span class="p">,</span><span class="w"> </span><span class="s">"--no-parallel"</span><span class="p">,</span>
-<span class="w">               </span><span class="s">"Perform parallel computations."</span><span class="p">);</span>
-<span class="n">args</span><span class="p">.</span><span class="n">Parse</span><span class="p">();</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">Help</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">PrintUsage</span><span class="p">(</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">getOutputStream</span><span class="p">());</span>
-<span class="w">  </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">finalize</span><span class="p">();</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">args</span><span class="p">.</span><span class="n">Good</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">PrintUsage</span><span class="p">(</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">getOutputStream</span><span class="p">());</span>
-<span class="w">  </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">abort</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="n">mfem</span><span class="o">::</span><span class="n">OptionsParser</span><span class="w"> </span><span class="nf">args</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+<span class="w">  </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">declareDefaultOptions</span><span class="p">(</span><span class="n">args</span><span class="p">);</span>
+<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">order</span><span class="p">,</span><span class="w"> </span><span class="s">"-o"</span><span class="p">,</span><span class="w"> </span><span class="s">"--order"</span><span class="p">,</span>
+<span class="w">                 </span><span class="s">"Finite element order (polynomial degree)."</span><span class="p">);</span>
+<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nbsteps</span><span class="p">,</span><span class="w"> </span><span class="s">"-ns"</span><span class="p">,</span><span class="w"> </span><span class="s">"--nbsteps"</span><span class="p">,</span><span class="w"> </span><span class="s">"Number of time steps."</span><span class="p">);</span>
+<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span>
+<span class="w">      </span><span class="o">&amp;</span><span class="n">end_time</span><span class="p">,</span><span class="w"> </span><span class="s">"-et"</span><span class="p">,</span><span class="w"> </span><span class="s">"--end-time"</span><span class="p">,</span>
+<span class="w">      </span><span class="s">"End time. The displacement of the upper boundary is 6e-3 * t."</span><span class="p">);</span>
+<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reference_file</span><span class="p">,</span><span class="w"> </span><span class="s">"-rf"</span><span class="p">,</span><span class="w"> </span><span class="s">"--reference-file"</span><span class="p">,</span>
+<span class="w">                 </span><span class="s">"Reference values of the resultant force on the upper "</span>
+<span class="w">                 </span><span class="s">"boundary, no comparison if empty."</span><span class="p">);</span>
+<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">parallel</span><span class="p">,</span><span class="w"> </span><span class="s">"-p"</span><span class="p">,</span><span class="w"> </span><span class="s">"--parallel"</span><span class="p">,</span><span class="w"> </span><span class="s">"-no-p"</span><span class="p">,</span><span class="w"> </span><span class="s">"--no-parallel"</span><span class="p">,</span>
+<span class="w">                 </span><span class="s">"Perform parallel computations."</span><span class="p">);</span>
+<span class="cp">#ifdef MGIS_HAVE_TFEL</span>
+<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">use_fbar</span><span class="p">,</span><span class="w"> </span><span class="s">"-fb"</span><span class="p">,</span><span class="w"> </span><span class="s">"--use-fbar"</span><span class="p">,</span><span class="w"> </span><span class="s">"-no-fb"</span><span class="p">,</span><span class="w"> </span><span class="s">"--no-use-fbar"</span><span class="p">,</span>
+<span class="w">                 </span><span class="s">"Use the FBar formulation."</span><span class="p">);</span>
+<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">AddOption</span><span class="p">(</span><span class="o">&amp;</span><span class="n">standard_reference_file</span><span class="p">,</span><span class="w"> </span><span class="s">"-srf"</span><span class="p">,</span><span class="w"> </span><span class="s">"--standard-reference-file"</span><span class="p">,</span>
+<span class="w">                 </span><span class="s">"Reference values of the resultant force on the upper "</span>
+<span class="w">                 </span><span class="s">"boundary computed without FBar, compared with a larger "</span>
+<span class="w">                 </span><span class="s">"tolerance, no comparison if empty."</span><span class="p">);</span>
+<span class="cp">#endif </span><span class="cm">/* MGIS_HAVE_TFEL */</span>
+<span class="w">  </span><span class="n">args</span><span class="p">.</span><span class="n">Parse</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">Help</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">args</span><span class="p">.</span><span class="n">PrintUsage</span><span class="p">(</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">getOutputStream</span><span class="p">());</span>
+<span class="w">    </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">finalize</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">args</span><span class="p">.</span><span class="n">Good</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">args</span><span class="p">.</span><span class="n">PrintUsage</span><span class="p">(</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">getOutputStream</span><span class="p">());</span>
+<span class="w">    </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">abort</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -355,14 +373,21 @@ The expected options are declared and the <code class="docutils literal notransl
 <section id="declaring-the-non-linear-problem">
 <h3>Declaring the non linear problem<a class="headerlink" href="#declaring-the-non-linear-problem" title="Link to this heading"></a></h3>
 <p>The non linear evolution problem is defined as follows:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">construct</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">NonLinearEvolutionProblem</span><span class="o">&gt;</span><span class="p">(</span>
-<span class="w">                   </span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"MeshFileName"</span><span class="p">,</span><span class="w"> </span><span class="n">mesh_file</span><span class="p">},</span>
-<span class="w">                                              </span><span class="p">{</span><span class="s">"FiniteElementFamily"</span><span class="p">,</span><span class="w"> </span><span class="s">"H1"</span><span class="p">},</span>
-<span class="w">                                              </span><span class="p">{</span><span class="s">"FiniteElementOrder"</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">},</span>
-<span class="w">                                              </span><span class="p">{</span><span class="s">"UnknownsSize"</span><span class="p">,</span><span class="w"> </span><span class="n">dim</span><span class="p">},</span>
-<span class="w">                                              </span><span class="p">{</span><span class="s">"Hypothesis"</span><span class="p">,</span><span class="w"> </span><span class="s">"PlaneStrain"</span><span class="p">},</span>
-<span class="w">                                              </span><span class="p">{</span><span class="s">"Parallel"</span><span class="p">,</span><span class="w"> </span><span class="n">parallel</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span>
-<span class="w">               </span><span class="n">or_die</span><span class="p">;</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">problem</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">construct</span><span class="o">&lt;</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">NonLinearEvolutionProblem</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">        </span><span class="n">ctx</span><span class="p">,</span>
+<span class="w">        </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{</span>
+<span class="w">            </span><span class="p">{</span><span class="s">"MeshFileName"</span><span class="p">,</span><span class="w"> </span><span class="n">mesh_file</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s">"FiniteElementFamily"</span><span class="p">,</span><span class="w"> </span><span class="s">"H1"</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s">"FiniteElementOrder"</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s">"UnknownsSize"</span><span class="p">,</span><span class="w"> </span><span class="n">dim</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s">"Materials"</span><span class="p">,</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"NotchedBeam"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}}},</span>
+<span class="w">            </span><span class="p">{</span><span class="s">"Boundaries"</span><span class="p">,</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"LowerBoundary"</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">},</span>
+<span class="w">                                                 </span><span class="p">{</span><span class="s">"SymmetryAxis"</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">},</span>
+<span class="w">                                                 </span><span class="p">{</span><span class="s">"UpperBoundary"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}}},</span>
+<span class="w">            </span><span class="p">{</span><span class="s">"Hypothesis"</span><span class="p">,</span><span class="w"> </span><span class="s">"PlaneStrain"</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s">"Parallel"</span><span class="p">,</span><span class="w"> </span><span class="n">parallel</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span>
+<span class="w">    </span><span class="n">or_die</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">construct</span></code> function calls the constructor of the
@@ -396,22 +421,12 @@ etc. This lower level API is however not described in this tutorial.</p>
 <section id="naming-boundaries-and-materials">
 <h3>Naming boundaries and materials<a class="headerlink" href="#naming-boundaries-and-materials" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">MFEM</span></code> distinguishes elements of the mesh (materials and boundaries)
-by integers. This may seem unpractical to most users. The <code class="docutils literal notranslate"><span class="pre">MFEM/MGIS</span></code>
-allows associating names to materials and boundaries as follows:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">setMaterialsNames</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"NotchedBeam"</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">or_die</span><span class="p">;</span>
-<span class="n">problem</span><span class="p">.</span><span class="n">setBoundariesNames</span><span class="p">(</span>
-<span class="w">    </span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">"LowerBoundary"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="s">"SymmetryAxis"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">"UpperBoundary"</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span>
-<span class="w">    </span><span class="n">or_die</span><span class="p">;</span>
-</pre></div>
-</div>
-<blockquote>
-<div><p><strong>Automatic definition of the names of materials and boundaries</strong></p>
-<p>Many mesh file formats naturally associate names to mesh elements.
-This is the case for <code class="docutils literal notranslate"><span class="pre">MED</span></code> file format and the <code class="docutils literal notranslate"><span class="pre">msh</span></code> file format
-generated by <code class="docutils literal notranslate"><span class="pre">gmsh</span></code>.</p>
-<p>Future versions of the library may thus automatically define the
-names of materials and boundaries.</p>
-</div></blockquote>
+by integers. This may seem unpractical to most users. The <code class="docutils literal notranslate"><span class="pre">Materials</span></code>
+and <code class="docutils literal notranslate"><span class="pre">Boundaries</span></code> parameters of the <code class="docutils literal notranslate"><span class="pre">construct</span></code> function associate names
+to these integers.</p>
+<p>The names defined in the mesh file are also read, such as the physical names
+of the <code class="docutils literal notranslate"><span class="pre">msh</span></code> file format generated by <code class="docutils literal notranslate"><span class="pre">gmsh</span></code>. The names given by the user
+take precedence.</p>
 </section>
 <section id="declaring-the-mechanical-behaviour">
 <h3>Declaring the mechanical behaviour<a class="headerlink" href="#declaring-the-mechanical-behaviour" title="Link to this heading"></a></h3>
@@ -437,6 +452,17 @@ many cases <span class="bibtex-citation" id="id2">[<a class="reference internal"
 <li><p>The shared library containing the behaviour to be used.</p></li>
 <li><p>The name of the behaviour to be used.</p></li>
 </ul>
+<p>With the <code class="docutils literal notranslate"><span class="pre">--use-fbar</span></code> option, the <code class="docutils literal notranslate"><span class="pre">Regularization</span></code> parameter selects the
+FBar formulation:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"Mechanics"</span><span class="p">,</span><span class="w"> </span><span class="s">"NotchedBeam"</span><span class="p">,</span><span class="w"> </span><span class="n">library</span><span class="p">,</span><span class="w"> </span><span class="n">behaviour</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"Regularization"</span><span class="p">,</span>
+<span class="w">      </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{{</span><span class="s">"FBar"</span><span class="p">,</span><span class="w"> </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">Parameters</span><span class="p">{}}}}})</span><span class="w"> </span><span class="o">|</span>
+<span class="w">    </span><span class="n">or_die</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The FBar formulation avoids the volumetric locking of linear elements, due to
+the incompressibility of the plastic flow.</p>
 <blockquote>
 <div><p><strong>Information associated with the behaviour and automatic memory
 management</strong></p>
@@ -505,10 +531,13 @@ imposed displacement using a function of time (defined here using a
 </section>
 <section id="non-linear-solver-parameters">
 <h3>Non linear solver parameters.<a class="headerlink" href="#non-linear-solver-parameters" title="Link to this heading"></a></h3>
-<p>If <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> is not used, the following line sets the parameters of the
-Newton-Raphson solver used to find the equilibrium of the whole
-structure:</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> is not used, the following lines set the prediction policy and
+the parameters of the Newton-Raphson solver used to find the equilibrium of
+the whole structure:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">usePETSc</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">problem</span><span class="p">.</span><span class="n">setPredictionPolicy</span><span class="p">(</span>
+<span class="w">      </span><span class="p">{.</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span>
+<span class="w">           </span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">PredictionStrategy</span><span class="o">::</span><span class="n">BEGINNING_OF_TIME_STEP_PREDICTION</span><span class="p">});</span>
 <span class="w">  </span><span class="n">problem</span><span class="p">.</span><span class="n">setSolverParameters</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="s">"VerbosityLevel"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
 <span class="w">                                    </span><span class="p">{</span><span class="s">"RelativeTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">},</span>
 <span class="w">                                    </span><span class="p">{</span><span class="s">"AbsoluteTolerance"</span><span class="p">,</span><span class="w"> </span><span class="mf">0.</span><span class="p">},</span>
@@ -517,6 +546,11 @@ structure:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p>The default prediction only imposes the increment of the displacement on the
+upper boundary. It concentrates this increment in the elements next to this
+boundary. The <code class="docutils literal notranslate"><span class="pre">BEGINNING_OF_TIME_STEP_PREDICTION</span></code> strategy solves a linear
+problem with the elastic operator. It spreads the increment over the whole
+structure.</p>
 <p>Valid parameters for the <code class="docutils literal notranslate"><span class="pre">setSolverParameters</span></code> are described in the
 <code class="docutils literal notranslate"><span class="pre">doxygen</span></code> documentation of the library.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">PETSc</span></code> is used (see the <code class="docutils literal notranslate"><span class="pre">--use-petsc</span></code> command line option), the
@@ -549,10 +583,12 @@ parameters are required.</p>
 postprocessings.</p>
 <p>In this example, we export the displacements for visualization in
 <a class="reference external" href="https://www.paraview.org/">paraview</a> and compute the resultant
-force on the boundary where the displacement is imposed, as follows:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span>
+force on the boundary where the displacement is imposed. The resultant force
+is written in <code class="docutils literal notranslate"><span class="pre">force.txt</span></code>, or in <code class="docutils literal notranslate"><span class="pre">force-fbar.txt</span></code> with FBar:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">output_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">use_fbar</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"force-fbar.txt"</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">"force.txt"</span><span class="p">;</span>
+<span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span>
 <span class="w">    </span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"ComputeResultantForceOnBoundary"</span><span class="p">,</span>
-<span class="w">    </span><span class="p">{{</span><span class="s">"Boundary"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"force.txt"</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span>
+<span class="w">    </span><span class="p">{{</span><span class="s">"Boundary"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="n">output_file</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span>
 <span class="w">    </span><span class="n">or_die</span><span class="p">;</span>
 <span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"ParaviewExportResults"</span><span class="p">,</span>
 <span class="w">                          </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"ssna303-displacements"</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span>
@@ -637,30 +673,45 @@ and the time is incremented.</p>
 <h3>Comparison to the reference values<a class="headerlink" href="#comparison-to-the-reference-values" title="Link to this heading"></a></h3>
 <p>When a reference file is given, the vertical component of the resultant
 force is compared to the reference values at each time step. It is read in
-the file <code class="docutils literal notranslate"><span class="pre">force.txt</span></code> written by the <code class="docutils literal notranslate"><span class="pre">ComputeResultantForceOnBoundary</span></code>
-post-processing. Only the process writing this file makes the comparison:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="p">{</span><span class="n">reference_file</span><span class="p">}.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">    </span><span class="p">(</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">isMainProcess</span><span class="p">(</span><span class="n">problem</span><span class="p">.</span><span class="n">getFiniteElementDiscretization</span><span class="p">())))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">checkVerticalForce</span><span class="p">(</span><span class="s">"force.txt"</span><span class="p">,</span><span class="w"> </span><span class="n">reference_file</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+the file written by the <code class="docutils literal notranslate"><span class="pre">ComputeResultantForceOnBoundary</span></code> post-processing.
+Only the process writing this file makes the comparison:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mfem_mgis</span><span class="o">::</span><span class="n">isMainProcess</span><span class="p">(</span><span class="n">problem</span><span class="p">.</span><span class="n">getFiniteElementDiscretization</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="p">{</span><span class="n">reference_file</span><span class="p">}.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">      </span><span class="p">(</span><span class="o">!</span><span class="n">checkVerticalForce</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span><span class="w"> </span><span class="n">reference_file</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-4</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="p">{</span><span class="n">standard_reference_file</span><span class="p">}.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">      </span><span class="p">(</span><span class="o">!</span><span class="n">checkVerticalForce</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span><span class="w"> </span><span class="n">standard_reference_file</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-3</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p>The computed times must be the first times of the reference file. The
+beginning of the loading can thus be compared to the reference values of the
+whole loading.</p>
 <p>The relative tolerance is 1e-4, since the forces are written with 6
-significant digits.</p>
+significant digits. It is 1e-3 for the reference values computed without
+FBar, which are only close to the results with FBar.</p>
 </section>
 <section id="running-the-example">
 <h3>Running the example<a class="headerlink" href="#running-the-example" title="Link to this heading"></a></h3>
-<p>The whole loading is computed by default:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Ssna303
+<p>The whole loading is computed by default. The second command uses the FBar
+formulation:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./ssna303
+./ssna303<span class="w"> </span>--use-fbar
 </pre></div>
 </div>
-<p>The test of the example computes the first two time steps, during which the
-plastic flow starts. It compares the resultant force to the reference values:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Ssna303<span class="w"> </span>--nbsteps<span class="w"> </span><span class="m">2</span><span class="w"> </span>--end-time<span class="w"> </span><span class="m">0</span>.04<span class="w"> </span>--reference-file<span class="w"> </span>ssna303-force.ref
+<p>The tests of the example compare the resultant force to the reference values.
+In the full test mode, they compute the whole loading in 40 time steps:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./ssna303<span class="w"> </span>--nbsteps<span class="w"> </span><span class="m">40</span><span class="w"> </span>--end-time<span class="w"> </span><span class="m">1</span><span class="w"> </span>--reference-file<span class="w"> </span>ssna303-force.ref
+./ssna303<span class="w"> </span>--use-fbar<span class="w"> </span>--nbsteps<span class="w"> </span><span class="m">40</span><span class="w"> </span>--end-time<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reference-file<span class="w"> </span>ssna303-force-fbar.ref<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--standard-reference-file<span class="w"> </span>ssna303-force.ref
 </pre></div>
 </div>
+<p>In the restricted test mode, they only compute the first two time steps, up
+to 0.05, during which the plastic flow starts.</p>
 </section>
 </section>
 </section>

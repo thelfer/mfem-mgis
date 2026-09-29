@@ -127,18 +127,21 @@ Compilation of the ``MFront`` behaviour
 
 The previous values are hard-coded in the ``MFront`` file. The
 ``MFront`` implementation is stored in a source file called
-``Plasticity.mfront``. This file must be compiled before the execution
-of our ``MFEM/MGIS`` ``C++`` example which will be detailed in depth in
-Section :ref:`sec:mfem_mgis:ssna303`. Compilation is performed as follows:
+``IsotropicLinearHardeningPlasticity.mfront``. This file must be compiled
+before the execution of our ``MFEM/MGIS`` ``C++`` example which will be
+detailed in depth in Section :ref:`sec:mfem_mgis:ssna303`. Compilation is
+performed as follows:
 
 .. code:: sh
 
-   mfront --obuild --interface=generic Plasticity.mfront
-   Treating target : all
+   mfront --obuild --interface=generic IsotropicLinearHardeningPlasticity.mfront
+   Treating target 'all'
    The following library has been built :
-   - libBehaviour.so :  Plasticity_AxisymmetricalGeneralisedPlaneStrain 
-     Plasticity_Axisymmetrical Plasticity_PlaneStrain
-     Plasticity_GeneralisedPlaneStrain Plasticity_Tridimensional
+   - libBehaviour.so :  IsotropicLinearHardeningPlasticity_AxisymmetricalGeneralisedPlaneStrain
+     IsotropicLinearHardeningPlasticity_Axisymmetrical
+     IsotropicLinearHardeningPlasticity_PlaneStrain
+     IsotropicLinearHardeningPlasticity_GeneralisedPlaneStrain
+     IsotropicLinearHardeningPlasticity_Tridimensional
 
 .. _sec:mfem_mgis:ssna303:
 
@@ -178,7 +181,7 @@ This context stores the error messages:
 
 .. code:: cpp
 
-     auto ctx = mgis::Context{};
+     auto ctx = mfem_mgis::Context{};
      auto or_die = ctx.getFatalFailureHandler();
 
 These functions report their failures. The ``or_die`` handler stops the
@@ -199,7 +202,7 @@ the behaviour:
 
      const char* mesh_file = "ssna303.msh";
      const char* library = "src/libBehaviour.so";
-     const char* behaviour = "Plasticity";
+     const char* behaviour = "IsotropicLinearHardeningPlasticity";
 
 Command line options
 ~~~~~~~~~~~~~~~~~~~~
@@ -218,13 +221,20 @@ The proposed implementation allows the following options:
    the resultant force. No comparison is made if it is empty.
 -  ``--parallel`` and ``--no-parallel`` which specify if the simulation
    must be run in parallel.
+-  ``--use-fbar`` which selects the FBar formulation.
+-  ``--standard-reference-file`` which specifies a file of reference values
+   computed without FBar. They are compared with a larger tolerance.
+
+The last two options require ``MGIS`` built with ``TFEL``.
 
 Those options are associated with local variables which are
 default initialized as follows:
 
 .. code:: cpp
 
+     bool use_fbar = false;
      const char* reference_file = "";
+     const char* standard_reference_file = "";
    #if defined(MFEM_USE_MUMPS) && defined(MFEM_USE_MPI)
      bool parallel = true;
    #else
@@ -240,6 +250,7 @@ If left unchanged, those default values select:
    ``MUMPS`` support and a sequential computation otherwise.
 -  the use of linear elements.
 -  50 time steps from 0 to 1.
+-  the standard formulation, without FBar.
 -  no comparison to reference values.
 
 If ``MFEM`` was built with support of ``PETSc`` library, the following
@@ -268,6 +279,14 @@ The expected options are declared and the ``Parse`` method is called:
                     "boundary, no comparison if empty.");
      args.AddOption(&parallel, "-p", "--parallel", "-no-p", "--no-parallel",
                     "Perform parallel computations.");
+   #ifdef MGIS_HAVE_TFEL
+     args.AddOption(&use_fbar, "-fb", "--use-fbar", "-no-fb", "--no-use-fbar",
+                    "Use the FBar formulation.");
+     args.AddOption(&standard_reference_file, "-srf", "--standard-reference-file",
+                    "Reference values of the resultant force on the upper "
+                    "boundary computed without FBar, compared with a larger "
+                    "tolerance, no comparison if empty.");
+   #endif /* MGIS_HAVE_TFEL */
      args.Parse();
      if (args.Help()) {
        args.PrintUsage(mfem_mgis::getOutputStream());
@@ -286,14 +305,21 @@ The non linear evolution problem is defined as follows:
 
 .. code:: cpp
 
-     auto problem = mfem_mgis::construct<mfem_mgis::NonLinearEvolutionProblem>(
-                        ctx, mfem_mgis::Parameters{{"MeshFileName", mesh_file},
-                                                   {"FiniteElementFamily", "H1"},
-                                                   {"FiniteElementOrder", order},
-                                                   {"UnknownsSize", dim},
-                                                   {"Hypothesis", "PlaneStrain"},
-                                                   {"Parallel", parallel}}) |
-                    or_die;
+     auto problem =
+         mfem_mgis::construct<mfem_mgis::NonLinearEvolutionProblem>(
+             ctx,
+             mfem_mgis::Parameters{
+                 {"MeshFileName", mesh_file},
+                 {"FiniteElementFamily", "H1"},
+                 {"FiniteElementOrder", order},
+                 {"UnknownsSize", dim},
+                 {"Materials", mfem_mgis::Parameters{{"NotchedBeam", 1}}},
+                 {"Boundaries", mfem_mgis::Parameters{{"LowerBoundary", 3},
+                                                      {"SymmetryAxis", 4},
+                                                      {"UpperBoundary", 2}}},
+                 {"Hypothesis", "PlaneStrain"},
+                 {"Parallel", parallel}}) |
+         or_die;
 
 The ``construct`` function calls the constructor of the
 ``NonLinearEvolutionProblem`` class. This constructor takes an
@@ -330,26 +356,13 @@ Naming boundaries and materials
 -------------------------------
 
 ``MFEM`` distinguishes elements of the mesh (materials and boundaries)
-by integers. This may seem unpractical to most users. The ``MFEM/MGIS``
-allows associating names to materials and boundaries as follows:
+by integers. This may seem unpractical to most users. The ``Materials``
+and ``Boundaries`` parameters of the ``construct`` function associate names
+to these integers.
 
-.. code:: cpp
-
-     problem.setMaterialsNames(ctx, {{1, "NotchedBeam"}}) | or_die;
-     problem.setBoundariesNames(
-         ctx, {{3, "LowerBoundary"}, {4, "SymmetryAxis"}, {2, "UpperBoundary"}}) |
-         or_die;
-
-..
-
-   **Automatic definition of the names of materials and boundaries**
-
-   Many mesh file formats naturally associate names to mesh elements.
-   This is the case for ``MED`` file format and the ``msh`` file format
-   generated by ``gmsh``.
-
-   Future versions of the library may thus automatically define the
-   names of materials and boundaries.
+The names defined in the mesh file are also read, such as the physical names
+of the ``msh`` file format generated by ``gmsh``. The names given by the user
+take precedence.
 
 Declaring the mechanical behaviour
 ----------------------------------
@@ -377,6 +390,20 @@ execution context are:
    many cases :cite:`helfer_licos_2015`.
 -  The shared library containing the behaviour to be used.
 -  The name of the behaviour to be used.
+
+With the ``--use-fbar`` option, the ``Regularization`` parameter selects the
+FBar formulation:
+
+.. code:: cpp
+
+     problem.addBehaviourIntegrator(
+         ctx, "Mechanics", "NotchedBeam", library, behaviour,
+         {{"Regularization",
+           mfem_mgis::Parameters{{"FBar", mfem_mgis::Parameters{}}}}}) |
+         or_die;
+
+The FBar formulation avoids the volumetric locking of linear elements, due to
+the incompressibility of the plastic flow.
 
 ..
 
@@ -456,19 +483,28 @@ imposed displacement using a function of time (defined here using a
 Non linear solver parameters.
 -----------------------------
 
-If ``PETSc`` is not used, the following line sets the parameters of the
-Newton-Raphson solver used to find the equilibrium of the whole
-structure:
+If ``PETSc`` is not used, the following lines set the prediction policy and
+the parameters of the Newton-Raphson solver used to find the equilibrium of
+the whole structure:
 
 .. code:: cpp
 
      if (!mfem_mgis::usePETSc()) {
+       problem.setPredictionPolicy(
+           {.strategy =
+                mfem_mgis::PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION});
        problem.setSolverParameters(ctx, {{"VerbosityLevel", 0},
                                          {"RelativeTolerance", 1e-6},
                                          {"AbsoluteTolerance", 0.},
                                          {"MaximumNumberOfIterations", 10}}) |
            or_die;
      }
+
+The default prediction only imposes the increment of the displacement on the
+upper boundary. It concentrates this increment in the elements next to this
+boundary. The ``BEGINNING_OF_TIME_STEP_PREDICTION`` strategy solves a linear
+problem with the elastic operator. It spreads the increment over the whole
+structure.
 
 Valid parameters for the ``setSolverParameters`` are described in the
 ``doxygen`` documentation of the library.
@@ -508,13 +544,15 @@ postprocessings.
 
 In this example, we export the displacements for visualization in
 `paraview <https://www.paraview.org/>`_ and compute the resultant
-force on the boundary where the displacement is imposed, as follows:
+force on the boundary where the displacement is imposed. The resultant force
+is written in ``force.txt``, or in ``force-fbar.txt`` with FBar:
 
 .. code:: cpp
 
+     const auto* const output_file = use_fbar ? "force-fbar.txt" : "force.txt";
      problem.addPostProcessing(
          ctx, "ComputeResultantForceOnBoundary",
-         {{"Boundary", 2}, {"OutputFileName", "force.txt"}}) |
+         {{"Boundary", 2}, {"OutputFileName", output_file}}) |
          or_die;
      problem.addPostProcessing(ctx, "ParaviewExportResults",
                                {{"OutputFileName", "ssna303-displacements"}}) |
@@ -609,33 +647,50 @@ Comparison to the reference values
 
 When a reference file is given, the vertical component of the resultant
 force is compared to the reference values at each time step. It is read in
-the file ``force.txt`` written by the ``ComputeResultantForceOnBoundary``
-post-processing. Only the process writing this file makes the comparison:
+the file written by the ``ComputeResultantForceOnBoundary`` post-processing.
+Only the process writing this file makes the comparison:
 
 .. code:: cpp
 
-     if ((!std::string_view{reference_file}.empty()) &&
-         (mfem_mgis::isMainProcess(problem.getFiniteElementDiscretization()))) {
-       if (!checkVerticalForce("force.txt", reference_file)) {
+     if (mfem_mgis::isMainProcess(problem.getFiniteElementDiscretization())) {
+       if ((!std::string_view{reference_file}.empty()) &&
+           (!checkVerticalForce(output_file, reference_file, 1e-4))) {
+         return EXIT_FAILURE;
+       }
+       if ((!std::string_view{standard_reference_file}.empty()) &&
+           (!checkVerticalForce(output_file, standard_reference_file, 1e-3))) {
          return EXIT_FAILURE;
        }
      }
 
+The computed times must be the first times of the reference file. The
+beginning of the loading can thus be compared to the reference values of the
+whole loading.
+
 The relative tolerance is 1e-4, since the forces are written with 6
-significant digits.
+significant digits. It is 1e-3 for the reference values computed without
+FBar, which are only close to the results with FBar.
 
 Running the example
 -------------------
 
-The whole loading is computed by default:
+The whole loading is computed by default. The second command uses the FBar
+formulation:
 
 .. code:: sh
 
-   ./Ssna303
+   ./ssna303
+   ./ssna303 --use-fbar
 
-The test of the example computes the first two time steps, during which the
-plastic flow starts. It compares the resultant force to the reference values:
+The tests of the example compare the resultant force to the reference values.
+In the full test mode, they compute the whole loading in 40 time steps:
 
 .. code:: sh
 
-   ./Ssna303 --nbsteps 2 --end-time 0.04 --reference-file ssna303-force.ref
+   ./ssna303 --nbsteps 40 --end-time 1 --reference-file ssna303-force.ref
+   ./ssna303 --use-fbar --nbsteps 40 --end-time 1 \
+     --reference-file ssna303-force-fbar.ref \
+     --standard-reference-file ssna303-force.ref
+
+In the restricted test mode, they only compute the first two time steps, up
+to 0.05, during which the plastic flow starts.
