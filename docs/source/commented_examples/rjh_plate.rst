@@ -70,7 +70,7 @@ This command runs the default simulation on 2 processes:
 
 .. code-block:: bash
 
-   mpirun -n 2 ./Thermomechanical
+   mpirun -n 2 ./rjh_plate
 
 The results are exported to Paraview in the ``Results`` directory:
 
@@ -79,7 +79,7 @@ The results are exported to Paraview in the ``Results`` directory:
    paraview Results/Mechanics/Mechanics.pvd
 
 The figures show the results at t = 2e6 s. They are computed with
-``mpirun -n 4 ./Thermomechanical -et 2e6 -ns 20``. The radial displacement is
+``mpirun -n 4 ./rjh_plate -et 2e6 -ns 20``. The radial displacement is
 amplified 100 times. The cladding bulges between the stiffeners.
 
 .. figure:: img/ex8-3d.png
@@ -172,10 +172,12 @@ Tests
 
 ``ctest`` runs three tests:
 
-- ``Thermomechanical_MUMPS`` runs the simulation on 2 processes with the
-  coarser mesh. It compares the statistics of the temperature and of the
-  displacement to ``assemblage_hexa_coarse-statistics.ref``.
-- ``U3Si2SwellingMTest`` compares the swelling model to its exact value under
-  a power ramp.
-- ``RobinTest`` compares the Robin boundary condition to the exact solution of
+- ``rjh_plate`` runs the simulation on 2 processes. It compares the
+  statistics of the temperature and of the displacement to the reference
+  values. The full test mode uses the default mesh and
+  ``assemblage_hexa-statistics.ref``. The restricted test mode uses the
+  coarser mesh and ``assemblage_hexa_coarse-statistics.ref``.
+- ``u3si2_swelling`` compares the swelling model to its exact value under a
+  power ramp.
+- ``robin_test`` compares the Robin boundary condition to the exact solution of
   a bar.

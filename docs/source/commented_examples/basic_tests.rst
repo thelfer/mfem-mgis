@@ -117,7 +117,7 @@ Problem solved
 
    Solver : CGSolver
 
-   Elastic behaviour parameters, Elasticity.mfront :
+   Elastic behaviour parameters, IsotropicLinearElasticity.mfront :
    [ parameters             , material 1 , material 2 ]
    [ First Lame Coefficient , 100        , 200        ];
    [ Shear Modulus          , 75         , 150        ];
@@ -134,8 +134,8 @@ Exy on 4 processes:
 
 .. code-block:: bash
 
-   ./TwoLayerCubeEx
-   mpirun -n 4 ./TwoLayerCubeEx --test-case 3
+   ./two_layer_cube
+   mpirun -n 4 ./two_layer_cube --test-case 3
 
 The mesh ``cube_2mat_per.mesh`` has 4x4x4 hexahedra. The mesh ``Box.med``
 has 8x8x8 hexahedra. Its periodicity is described by ``Box.per``. Reading it
@@ -143,7 +143,7 @@ requires MFEM built with MED support:
 
 .. code-block:: bash
 
-   ./TwoLayerCubeEx --mesh Box.med
+   ./two_layer_cube --mesh Box.med
 
 Available options
 ~~~~~~~~~~~~~~~~~
@@ -227,7 +227,7 @@ Parameters are hardcoded in this example.
 
 .. code-block:: bash
 
-   ./SatohTest
+   ./satoh
 
 .. note::
 
@@ -260,7 +260,8 @@ Problem solved in 3D
    The mesh ssna303_3d.msh is made of hexahedra. Lengths are in meters.
    The mesh is 1.5e-3 thick.
 
-   Plastic behaviour with linear isotropic hardening, Plasticity.mfront :
+   Plastic behaviour with linear isotropic hardening,
+   IsotropicLinearHardeningPlasticity.mfront :
    [ parameters      , material ]
    [ Young Modulus   , 70e9     ];
    [ Poisson Ratio   , 0.34     ];
@@ -284,18 +285,18 @@ Run the 3D simulation
 
 Three executables solve this problem with different linear solvers:
 
-- ``Ssna303_3d_mumps`` uses MUMPS in parallel and UMFPack sequentially. It
-  requires MFEM built with MUMPS.
-- ``Ssna303_3d_hypre`` uses the FGMRES solver of hypre with the BoomerAMG
+- ``ssna303_3d_mumps`` uses MUMPS in parallel and UMFPack sequentially. It
+  requires MFEM built with MUMPS. It also offers the FBar formulation.
+- ``ssna303_3d_hypre`` uses the FGMRES solver of hypre with the BoomerAMG
   preconditioner.
-- ``Ssna303_3d_petsc`` uses PETSc with the configuration file ``rc_ex10p``.
+- ``ssna303_3d_petsc`` uses PETSc with the configuration file ``rc_ex10p``.
   It requires MFEM built with PETSc.
 
 .. code-block:: bash
 
-   mpirun -n 4 ./Ssna303_3d_mumps
-   mpirun -n 4 ./Ssna303_3d_hypre
-   mpirun -n 4 ./Ssna303_3d_petsc
+   mpirun -n 4 ./ssna303_3d_mumps
+   mpirun -n 4 ./ssna303_3d_hypre
+   mpirun -n 4 ./ssna303_3d_petsc
 
 Available options
 ~~~~~~~~~~~~~~~~~
@@ -313,23 +314,47 @@ Available options
 | ``--reference-file`` or ``-rf``      | Reference values of the resultant | no comparison          |
 |                                      | force on the upper boundary       |                        |
 +--------------------------------------+-----------------------------------+------------------------+
+| ``--use-fbar`` or ``-fb``,           | Use or not the FBar formulation.  | no FBar                |
+| ``--no-use-fbar`` or ``-no-fb``      | It requires MGIS built with TFEL. |                        |
+|                                      | Only for ``ssna303_3d_mumps``.    |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--standard-reference-file`` or     | Reference values computed without | no comparison          |
+| ``-srf``                             | FBar, compared with a larger      |                        |
+|                                      | tolerance. Only for               |                        |
+|                                      | ``ssna303_3d_mumps``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+
 | ``--parallel`` or ``-p``,            | Run in parallel with MUMPS or     | parallel               |
 | ``--no-parallel`` or ``-no-p``       | sequentially with UMFPack. Only   |                        |
-|                                      | for ``Ssna303_3d_mumps``.         |                        |
+|                                      | for ``ssna303_3d_mumps``.         |                        |
 +--------------------------------------+-----------------------------------+------------------------+
 | ``--linearsolver`` or ``-ls``        | Linear solver. Only for           | HypreFGMRES            |
-|                                      | ``Ssna303_3d_hypre``.             |                        |
+|                                      | ``ssna303_3d_hypre``.             |                        |
 +--------------------------------------+-----------------------------------+------------------------+
 | ``--preconditioner`` or ``-pc``      | Preconditioner of the linear      | HypreBoomerAMG         |
 |                                      | solver. Only for                  |                        |
-|                                      | ``Ssna303_3d_hypre``.             |                        |
+|                                      | ``ssna303_3d_hypre``.             |                        |
 +--------------------------------------+-----------------------------------+------------------------+
 | ``--refinement`` or ``-r``           | Number of uniform refinements of  | 0                      |
 |                                      | the mesh. Not for                 |                        |
-|                                      | ``Ssna303_3d_mumps``.             |                        |
+|                                      | ``ssna303_3d_mumps``.             |                        |
 +--------------------------------------+-----------------------------------+------------------------+
 | ``--use-petsc`` and                  | Use PETSc with the given          | ``rc_ex10p`` for       |
-| ``--petsc-configuration-file``       | configuration file. It requires   | ``Ssna303_3d_petsc``,  |
+| ``--petsc-configuration-file``       | configuration file. It requires   | ``ssna303_3d_petsc``,  |
 |                                      | MFEM built with PETSc. Not for    | no PETSc otherwise     |
-|                                      | ``Ssna303_3d_hypre``.             |                        |
+|                                      | ``ssna303_3d_hypre``.             |                        |
 +--------------------------------------+-----------------------------------+------------------------+
+
+Tests
+~~~~~
+
+In the full test mode, ``ssna303_3d_mumps`` and ``ssna303_3d_hypre`` compute
+the whole loading in 10 time steps. In the restricted test mode, they only
+compute the first time step, up to 0.1. The resultant force is compared to
+``ssna303_3d-force-10steps.ref``.
+
+The test ``ssna303_3d_mumps-fbar`` does the same with FBar. It compares the
+resultant force to ``ssna303_3d-force-10steps-fbar.ref``, and to the reference
+values without FBar with a larger tolerance.
+
+The test ``ssna303_3d_petsc`` always computes one time step up to 0.02. It
+compares the resultant force to ``ssna303_3d-force-1step.ref``.
