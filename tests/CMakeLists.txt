@@ -717,11 +717,6 @@ install(
   DESTINATION ${EX1_DIR}
   RENAME CMakeLists.txt)
 
-install(
-  FILES ex1Makefile
-  DESTINATION ${EX1_DIR}
-  RENAME Makefile)
-
 set(EX3_DIR "share/mfem-mgis/examples/ex3")
 install(FILES TwoLayerCube.cxx IsotropicLinearElasticity.mfront
               cube_2mat_per.mesh Box.med Box.per
