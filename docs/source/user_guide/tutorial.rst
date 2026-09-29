@@ -36,19 +36,21 @@ Geometry and mesh
 -----------------
 
 .. figure:: img/mesh.svg
-   :alt: Mesh used to described the notched beam
+   :alt: Mesh used to describe the notched beam
    :name: fig:mfem_mgis:ssna303:mesh
    :width: 80.0%
    :align: center
 
-   Mesh used to described the notched beam
+   Mesh used to describe the notched beam
 
-For symmetry reasons, only half of the notched beam is represented in
-Figure :ref:`fig:mfem_mgis:ssna303:mesh`. The height (h) of the beam is
-(30,mm). The half-width (w) of the beam is (5.4,mm).
+For symmetry reasons, only a quarter of the notched beam is represented in
+Figure :ref:`fig:mfem_mgis:ssna303:mesh`. Its length :math:`L` is 30 mm. Its
+width :math:`W` is 5.4 mm.
 
-The positions of the points (p1) (p2) and (c) are respectively
-(3,mm, 0), (5.4,mm, 4.8,mm), and (9,mm, 0).
+The positions of the points :math:`P_{1}`, :math:`P_{2}` and :math:`C` are
+respectively :math:`(3\,\mathrm{mm}, 0)`,
+:math:`(5.4\,\mathrm{mm}, 4.8\,\mathrm{mm})` and
+:math:`(9\,\mathrm{mm}, 0)`.
 
 This notched beam has been meshed using `Cast3M <http://www-cast3m.cea.fr/>`_ and exported in the ``MED`` 
 file format proposed and used by `Salomé <https://www.salome-platform.org/>`_ platform. This file has been
@@ -58,15 +60,15 @@ MFEM.
 
 .. note::
 
-   Direct support of the ``MED`` file format is currently under
-   development.
+   ``MED`` files are read directly when ``MFEM`` is built with ``MED``
+   support.
 
 Modelling hypothesis
 --------------------
 
 The beam is treated using the plane strain modelling hypothesis. In
 finite strain, this assumes that the axial component of the deformation
-gradient is set equal to (1).
+gradient is set equal to 1.
 
 .. _sec:mfem_mgis:ssna303:bc:
 
@@ -74,9 +76,9 @@ Boundary conditions
 -------------------
 
 Dirichlet boundary conditions force the solution to attain certain
-prescribed values a priori on some boundaries. The beam is fixed along the
-bottom line ((y=0)) and a displacement (U_{y}) is imposed at the top of
-the beam ((y=h)).
+prescribed values a priori on some boundaries. The vertical displacement is
+blocked on the bottom line :math:`y=0`. A vertical displacement
+:math:`U_{y}` is imposed at the top of the beam :math:`y=L`.
 
 The symmetry axis on the left is blocked in the ``x``-direction.
 
@@ -104,7 +106,7 @@ This behaviour is characterized by four parameters:
 -  The ``Yield Strength`` (:math:`\sigma_{0}`) defines the point on the
    stress versus strain curve where the material initially starts to go
    into plastic strain.
--  The ``Strain Hardening Modulus`` (H) defines the slope of the stress
+-  The ``Strain Hardening Modulus`` (:math:`H`) defines the slope of the stress
    versus strain curve after the point of yield of a material.
 
 In our example the following values are used:
@@ -113,10 +115,10 @@ In our example the following values are used:
 
    \left\{
        \begin{array}{lcl}
+           E & = & 70\,10^{9}\,\mathrm{Pa} \\
            \nu & = & 0.34 \\
-           \epsilon & = & 70.10^{9} MPa \\
-           H & = & 10.10^{9} \\
-           s_0 & = & 300.10^{6}
+           H & = & 10\,10^{9}\,\mathrm{Pa} \\
+           \sigma_{0} & = & 300\,10^{6}\,\mathrm{Pa}
        \end{array}
    \right.
 
@@ -168,6 +170,24 @@ This call is mostly useful in parallel and handles:
    toolkit, if supported and
    requested.
 
+Execution context
+~~~~~~~~~~~~~~~~~
+
+Most functions of the library take an execution context as first argument.
+This context stores the error messages:
+
+.. code:: cpp
+
+     auto ctx = mgis::Context{};
+     auto or_die = ctx.getFatalFailureHandler();
+
+These functions report their failures. The ``or_die`` handler stops the
+program with the error message when a failure occurs:
+
+.. code:: cpp
+
+     problem.update(ctx) | or_die;
+
 Constant variables
 ~~~~~~~~~~~~~~~~~~
 
@@ -192,26 +212,35 @@ The proposed implementation allows the following options:
 
 -  ``--order`` which specifies the finite element order (polynomial
    degree).
--  ``--parallel`` which specifies if the simulation must be run in
-   parallel.
+-  ``--nbsteps`` and ``--end-time`` which specify the number of time
+   steps and the end time of the loading.
+-  ``--reference-file`` which specifies a file of reference values of
+   the resultant force. No comparison is made if it is empty.
+-  ``--parallel`` and ``--no-parallel`` which specify if the simulation
+   must be run in parallel.
 
 Those options are associated with local variables which are
 default initialized as follows:
 
 .. code:: cpp
 
-     auto order = 1;
-   #if defined(MFEM_USE_MPI)
+     const char* reference_file = "";
+   #if defined(MFEM_USE_MUMPS) && defined(MFEM_USE_MPI)
      bool parallel = true;
    #else
      bool parallel = false;
    #endif
+     auto order = 1;
+     auto nbsteps = 50;
+     auto end_time = mfem_mgis::real{1};
 
 If left unchanged, those default values select:
 
--  a parallel computation if ``MFEM`` was built with ``MPI`` support and
-   a sequential computation otherwise.
+-  a parallel computation if ``MFEM`` was built with ``MPI`` and
+   ``MUMPS`` support and a sequential computation otherwise.
 -  the use of linear elements.
+-  50 time steps from 0 to 1.
+-  no comparison to reference values.
 
 If ``MFEM`` was built with support of ``PETSc`` library, the following
 options are added by the ``mfem_mgis::declareDefaultOptions`` function:
@@ -228,14 +257,26 @@ The expected options are declared and the ``Parse`` method is called:
 
      mfem::OptionsParser args(argc, argv);
      mfem_mgis::declareDefaultOptions(args);
-     args.AddOption(&parallel, "-p", "--parallel",
-                    "Perform parallel computations.");
      args.AddOption(&order, "-o", "--order",
                     "Finite element order (polynomial degree).");
+     args.AddOption(&nbsteps, "-ns", "--nbsteps", "Number of time steps.");
+     args.AddOption(
+         &end_time, "-et", "--end-time",
+         "End time. The displacement of the upper boundary is 6e-3 * t.");
+     args.AddOption(&reference_file, "-rf", "--reference-file",
+                    "Reference values of the resultant force on the upper "
+                    "boundary, no comparison if empty.");
+     args.AddOption(&parallel, "-p", "--parallel", "-no-p", "--no-parallel",
+                    "Perform parallel computations.");
      args.Parse();
+     if (args.Help()) {
+       args.PrintUsage(mfem_mgis::getOutputStream());
+       mfem_mgis::finalize();
+       return EXIT_SUCCESS;
+     }
      if (!args.Good()) {
-       args.PrintUsage(std::cout);
-       return EXIT_FAILURE;
+       args.PrintUsage(mfem_mgis::getOutputStream());
+       mfem_mgis::abort(EXIT_FAILURE);
      }
 
 Declaring the non linear problem
@@ -245,15 +286,17 @@ The non linear evolution problem is defined as follows:
 
 .. code:: cpp
 
-    mfem_mgis::NonLinearEvolutionProblem problem(
-         {{"MeshFileName", mesh_file},
-          {"FiniteElementFamily", "H1"},
-          {"FiniteElementOrder", order},
-          {"UnknownsSize", dim},
-          {"Hypothesis", "PlaneStrain"},
-          {"Parallel", parallel}});
+     auto problem = mfem_mgis::construct<mfem_mgis::NonLinearEvolutionProblem>(
+                        ctx, mfem_mgis::Parameters{{"MeshFileName", mesh_file},
+                                                   {"FiniteElementFamily", "H1"},
+                                                   {"FiniteElementOrder", order},
+                                                   {"UnknownsSize", dim},
+                                                   {"Hypothesis", "PlaneStrain"},
+                                                   {"Parallel", parallel}}) |
+                    or_die;
 
-The constructor of the ``NonLinearEvolutionProblem`` class takes an
+The ``construct`` function calls the constructor of the
+``NonLinearEvolutionProblem`` class. This constructor takes an
 object of ``Parameters`` type which is able to store various kinds of
 data in a hierarchical structure. The valid parameters for the
 construction of a non linear evolution problem are described in the
@@ -283,8 +326,8 @@ data-structures. However, the ``MFEM/MGIS`` library does not preclude directly u
 data-structures, built-in non linear forms,
 etc. This lower level API is however not described in this tutorial.
 
-Names boundaries and materials
-------------------------------
+Naming boundaries and materials
+-------------------------------
 
 ``MFEM`` distinguishes elements of the mesh (materials and boundaries)
 by integers. This may seem unpractical to most users. The ``MFEM/MGIS``
@@ -292,9 +335,10 @@ allows associating names to materials and boundaries as follows:
 
 .. code:: cpp
 
-     problem.setMaterialsNames({{1, "NotchedBeam"}});
+     problem.setMaterialsNames(ctx, {{1, "NotchedBeam"}}) | or_die;
      problem.setBoundariesNames(
-         {{3, "LowerBoundary"}, {4, "SymmetryAxis"}, {2, "UpperBoundary"}});
+         ctx, {{3, "LowerBoundary"}, {4, "SymmetryAxis"}, {2, "UpperBoundary"}}) |
+         or_die;
 
 ..
 
@@ -315,11 +359,12 @@ material:
 
 .. code:: cpp
 
-     problem.addBehaviourIntegrator("Mechanics", "NotchedBeam",
-                                    "src/libBehaviour.so",
-                                    "Plasticity");
+     problem.addBehaviourIntegrator(ctx, "Mechanics", "NotchedBeam", library,
+                                    behaviour) |
+         or_die;
 
-The four arguments of the ``addBehaviourIntegrator`` are:
+The four arguments of the ``addBehaviourIntegrator`` method following the
+execution context are:
 
 -  The type of physical problem described. Currently two types of
    physical problems are supported out of the box by the library:
@@ -359,13 +404,17 @@ beginning of the time step and at the end of time step:
 
 .. code:: cpp
 
-     auto& m1 = problem.getMaterial("NotchedBeam");
-     mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", 293.15);
-     mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", 293.15);
+     auto& m1 = problem.getMaterial(ctx, "NotchedBeam", 0) | or_die;
+     mgis::behaviour::setExternalStateVariable(ctx, m1.s0, "Temperature", 293.15) |
+         or_die;
+     mgis::behaviour::setExternalStateVariable(ctx, m1.s1, "Temperature", 293.15) |
+         or_die;
 
 Defining the temperature is required by all ``MFront`` behaviours.
 
-The object returned by the ``getMaterial`` method is a thin
+The last argument of the ``getMaterial`` method is the identifier of the
+behaviour integrator of the material. The object returned by this method is a
+thin
 wrapper around the ``MaterialDataManager`` provided by the `MGIS <https://thelfer.github.io/mfem-mgis/index.html>`_ project
 :cite:`helfer_mfrontgenericinterfacesupport_2020`.
 
@@ -383,16 +432,19 @@ Dirichlet boundary conditions (imposed displacement) using the
 .. code:: cpp
 
      problem.addUniformDirichletBoundaryCondition(
-         {{"Boundary", "LowerBoundary"}, {"Component", 1}});
+         ctx, {{"Boundary", "LowerBoundary"}, {"Component", 1}}) |
+         or_die;
      problem.addUniformDirichletBoundaryCondition(
-         {{"Boundary", "SymmetryAxis"}, {"Component", 0}});
+         ctx, {{"Boundary", "SymmetryAxis"}, {"Component", 0}}) |
+         or_die;
      problem.addUniformDirichletBoundaryCondition(
-         {{"Boundary", "UpperBoundary"},
-          {"Component", 1},
-          {"LoadingEvolution", [](const auto t) {
-             const auto u = 6e-3 * t;
-             return u;
-           }}});
+         ctx, {{"Boundary", "UpperBoundary"},
+               {"Component", 1},
+               {"LoadingEvolution", [](const auto t) {
+                  const auto u = 6e-3 * t;
+                  return u;
+                }}}) |
+         or_die;
 
 Again, the code is almost self-explanatory. If the value of the imposed
 displacement is not specified (using the ``LoadingEvolution``
@@ -411,10 +463,11 @@ structure:
 .. code:: cpp
 
      if (!mfem_mgis::usePETSc()) {
-       problem.setSolverParameters({{"VerbosityLevel", 0},
-                                    {"RelativeTolerance", 1e-6},
-                                    {"AbsoluteTolerance", 0.},
-                                    {"MaximumNumberOfIterations", 10}});
+       problem.setSolverParameters(ctx, {{"VerbosityLevel", 0},
+                                         {"RelativeTolerance", 1e-6},
+                                         {"AbsoluteTolerance", 0.},
+                                         {"MaximumNumberOfIterations", 10}}) |
+           or_die;
      }
 
 Valid parameters for the ``setSolverParameters`` are described in the
@@ -436,9 +489,9 @@ If ``PETSc`` is not used, the linear solver can be selected using the
 
      if (!mfem_mgis::usePETSc()) {
        if (parallel) {
-         problem.setLinearSolver("MUMPSSolver", {});
+         problem.setLinearSolver(ctx, "MUMPSSolver", {}) | or_die;
        } else {
-         problem.setLinearSolver("UMFPackSolver", {});
+         problem.setLinearSolver(ctx, "UMFPackSolver", {}) | or_die;
        }
      }
 
@@ -459,17 +512,22 @@ force on the boundary where the displacement is imposed, as follows:
 
 .. code:: cpp
 
-     problem.addPostProcessing("ParaviewExportResults",
-                               {{"OutputFileName", "ssna303-displacements"}});
-     problem.addPostProcessing("ParaviewExportIntegrationPointResultsAtNodes",
-                               {{{"Results", "FirstPiolaKirchhoffStress"},
-                                 {"OutputFileName", "ssna303-stress"}}});
      problem.addPostProcessing(
-         "ParaviewExportIntegrationPointResultsAtNodes",
+         ctx, "ComputeResultantForceOnBoundary",
+         {{"Boundary", 2}, {"OutputFileName", "force.txt"}}) |
+         or_die;
+     problem.addPostProcessing(ctx, "ParaviewExportResults",
+                               {{"OutputFileName", "ssna303-displacements"}}) |
+         or_die;
+     problem.addPostProcessing(ctx, "ParaviewExportIntegrationPointResultsAtNodes",
+                               {{{"Results", "FirstPiolaKirchhoffStress"},
+                                 {"OutputFileName", "ssna303-stress"}}}) |
+         or_die;
+     problem.addPostProcessing(
+         ctx, "ParaviewExportIntegrationPointResultsAtNodes",
          {{{"Results", "EquivalentPlasticStrain"},
-           {"OutputFileName", "ssna303-equivalent-plastic-strain"}}});
-     problem.addPostProcessing("ComputeResultantForceOnBoundary",
-                               {{"Boundary", 2}, {"OutputFileName", "force.txt"}});
+           {"OutputFileName", "ssna303-equivalent-plastic-strain"}}}) |
+         or_die;
 
 These post-processings are called using the ``executePostProcessings``
 method at runtime using the state at the end of the time step. The
@@ -487,13 +545,13 @@ scheme) or set up couplings with external solvers.
 In this tutorial, a local time-substepping scheme is set up to handle
 resolution failures.
 
-The loading starts at time (0) and ends at time (1). This range is
-divided into (50) time steps.
+By default, the loading starts at time 0 and ends at time 1. This range
+is divided into 50 time steps.
 
 .. code:: cpp
 
-     const auto nsteps = mfem_mgis::size_type{50};
-     const auto dt = mfem_mgis::real{1} / nsteps;
+     const auto nsteps = mfem_mgis::size_type(nbsteps);
+     const auto dt = end_time / nsteps;
      auto t = mfem_mgis::real{0};
      auto iteration = mfem_mgis::size_type{};
      for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
@@ -509,18 +567,18 @@ The local time substepping scheme is simply set up as follows:
        auto nsteps = mfem_mgis::size_type{1};
        auto nsubsteps  = mfem_mgis::size_type{0};
        while (nsteps != 0) {
-         auto converged = problem.solve(ct, dt2);
+         auto converged = problem.solve(ctx, ct, dt2);
          if (converged) {
            --nsteps;
            ct += dt2;
-           problem.update();
+           problem.update(ctx) | or_die;
          } else {
            nsteps *= 2;
            dt2 /= 2;
            ++nsubsteps;
-           problem.revert();
+           problem.revert(ctx) | or_die;
            if (nsubsteps == 10) {
-             mfem_mgis::raise("maximum number of substeps");
+             mfem_mgis::abort("maximum number of substeps");
            }
          }
        }
@@ -530,10 +588,10 @@ using the ``update`` method, the current time is incremented and the
 number of the remaining substeps is decreased. The loop stops when the
 remaining number of sub-steps goes to zero.
 
-If the resolution failed, the local time step is divided by (2), the
-number of remaining substeps is multiplied by (2) and the state of the
+If the resolution failed, the local time step is divided by 2, the
+number of remaining substeps is multiplied by 2 and the state of the
 material is reverted to the beginning of the time step using the
-``revert`` method. The resolution stops if more than (10) nested reverts
+``revert`` method. The resolution stops if more than 10 nested reverts
 are generated.
 
 Once a time step has been successful, the post-processings are executed
@@ -541,8 +599,43 @@ and the time is incremented.
 
 .. code:: cpp
 
-         problem.executePostProcessings(t, dt);
-         t += dt;
-         ++iteration;
+       problem.executePostProcessings(ctx, t, dt) | or_die;
+       t += dt;
+       ++iteration;
+     }
+
+Comparison to the reference values
+----------------------------------
+
+When a reference file is given, the vertical component of the resultant
+force is compared to the reference values at each time step. It is read in
+the file ``force.txt`` written by the ``ComputeResultantForceOnBoundary``
+post-processing. Only the process writing this file makes the comparison:
+
+.. code:: cpp
+
+     if ((!std::string_view{reference_file}.empty()) &&
+         (mfem_mgis::isMainProcess(problem.getFiniteElementDiscretization()))) {
+       if (!checkVerticalForce("force.txt", reference_file)) {
+         return EXIT_FAILURE;
        }
      }
+
+The relative tolerance is 1e-4, since the forces are written with 6
+significant digits.
+
+Running the example
+-------------------
+
+The whole loading is computed by default:
+
+.. code:: sh
+
+   ./Ssna303
+
+The test of the example computes the first two time steps, during which the
+plastic flow starts. It compares the resultant force to the reference values:
+
+.. code:: sh
+
+   ./Ssna303 --nbsteps 2 --end-time 0.04 --reference-file ssna303-force.ref
