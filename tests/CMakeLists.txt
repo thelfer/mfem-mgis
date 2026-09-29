@@ -71,8 +71,8 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_test_executable(PeriodicTest)
 
   # Helper function for PeriodicTest cases
-  function(add_periodic_test ncase nsolver)
-    set(test "PeriodicTest-${ncase}-${nsolver}")
+  function(add_periodic_test ncase solver)
+    set(test "PeriodicTest-${ncase}-${solver}")
     set(PeriodicTestParameters
         "--mesh"
         "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
@@ -81,23 +81,29 @@ if(MFEM_MGIS_HAVE_TFEL)
         "--test-case"
         "${ncase}"
         "--linearsolver"
-        "${nsolver}")
-    if("1" STREQUAL ${nsolver} OR "0" STREQUAL ${nsolver})
+        "${solver}")
+    if(solver STREQUAL "CGSolver" OR solver STREQUAL "GMRESSolver")
       add_test(NAME ${test} COMMAND ./PeriodicTest ${PeriodicTestParameters}
-                                    "--parallel" "0")
+                                    "--no-parallel")
       set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
     endif()
     if(MFEM_USE_MPI)
       add_test(NAME ${test}P COMMAND mpirun -n 2 ./PeriodicTest
-                                     ${PeriodicTestParameters} "--parallel" "1")
+                                     ${PeriodicTestParameters} "--parallel"
+                                     "--refinement" "1")
       set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
     endif(MFEM_USE_MPI)
   endfunction()
 
-  # Generate all PeriodicTest cases (6x6 matrix)
+  # Generate all PeriodicTest cases. The hypre solvers and MUMPS are only
+  # tested in parallel.
+  set(PeriodicTestSolvers CGSolver GMRESSolver HypreFGMRES HyprePCG HypreGMRES)
+  if(MFEM_USE_MUMPS)
+    list(APPEND PeriodicTestSolvers MUMPSSolver)
+  endif(MFEM_USE_MUMPS)
   foreach(ncase RANGE 0 5)
-    foreach(nsolver RANGE 0 5)
-      add_periodic_test(${ncase} ${nsolver})
+    foreach(solver IN LISTS PeriodicTestSolvers)
+      add_periodic_test(${ncase} ${solver})
     endforeach()
   endforeach()
 
@@ -734,7 +740,6 @@ install(FILES ${UTILITY_FILE}
 
 set(EX2_DIR "share/mfem-mgis/examples/ex2")
 install(FILES PeriodicTest.cxx Elasticity.mfront cube_2mat_per.mesh
-              ${UTILITY_FILE}
         DESTINATION ${EX2_DIR})
 
 install(
