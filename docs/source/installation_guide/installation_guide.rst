@@ -351,7 +351,7 @@ To run an example using ccc_mprun with 1024 processes and 1 core per process (-m
 
 .. code-block:: bash
 
-   ccc_mprun -n 1024 -c 1 -m work,store,scratch -T 84000 -pmilan ./mox2 -m mesh/inclusion.msh -o 1 -r 2 --post-processing 0
+   ccc_mprun -n 1024 -c 1 -m work,store,scratch -T 84000 -pmilan ./mox2 -m mesh/inclusion.msh -o 1 -r 2 --no-post-processing
 
 Using ccc_msub
 ^^^^^^^^^^^^^^
@@ -374,7 +374,7 @@ Here's an example of a `run.batch` job submission file to run an RVE simulation 
   module load gnu/13.2.0 mpi/openmpi/4.0.5 cmake/3.29.6
   export OMP_NUM_THREADS=1
   set -x
-  ccc_mprun ./mox2 -m mesh/inclusion.msh -o 1 -r 2 --post-processing 0
+  ccc_mprun ./mox2 -m mesh/inclusion.msh -o 1 -r 2 --no-post-processing
 
 Then, to submit the job:
 
