@@ -15,6 +15,7 @@ These examples are in https://github.com/latug0/mfem-mgis-examples.
    basic_tests
    rve_elastic_inclusions
    rve_mox
+   rjh_plate
 
 mm-opera-hpc
 ============
