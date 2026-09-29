@@ -43,11 +43,11 @@ Geometry and mesh
 
    Mesh used to describe the notched beam
 
-For symmetry reasons, only half of the notched beam is represented in
-Figure :ref:`fig:mfem_mgis:ssna303:mesh`. The height :math:`h` of the beam is
-30 mm. The half-width :math:`w` of the beam is 5.4 mm.
+For symmetry reasons, only a quarter of the notched beam is represented in
+Figure :ref:`fig:mfem_mgis:ssna303:mesh`. Its length :math:`L` is 30 mm. Its
+width :math:`W` is 5.4 mm.
 
-The positions of the points :math:`p_{1}`, :math:`p_{2}` and :math:`c` are
+The positions of the points :math:`P_{1}`, :math:`P_{2}` and :math:`C` are
 respectively :math:`(3\,\mathrm{mm}, 0)`,
 :math:`(5.4\,\mathrm{mm}, 4.8\,\mathrm{mm})` and
 :math:`(9\,\mathrm{mm}, 0)`.
@@ -78,7 +78,7 @@ Boundary conditions
 Dirichlet boundary conditions force the solution to attain certain
 prescribed values a priori on some boundaries. The vertical displacement is
 blocked on the bottom line :math:`y=0`. A vertical displacement
-:math:`U_{y}` is imposed at the top of the beam :math:`y=h`.
+:math:`U_{y}` is imposed at the top of the beam :math:`y=L`.
 
 The symmetry axis on the left is blocked in the ``x``-direction.
 
