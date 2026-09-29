@@ -8,6 +8,10 @@ TensileTest
 
 website : https://github.com/latug0/mfem-mgis-examples/tree/master/ex1
 
+The sources of this example live in mfem-mgis, in
+``tests/UniaxialTensileTest.cxx``. They are installed in
+``share/mfem-mgis/examples/ex1``.
+
 Description:
 
 This example is a cyclic tension-compression test on a unit cube. The
@@ -97,6 +101,9 @@ TwoLayerCube
 
 website: https://github.com/latug0/mfem-mgis-examples/tree/master/ex3
 
+The sources of this example live in mfem-mgis, in ``tests/TwoLayerCube.cxx``.
+They are installed in ``share/mfem-mgis/examples/ex3``.
+
 Description:
 
 Periodic unit cube made of two elastic layers. A macroscopic strain is
@@ -157,6 +164,9 @@ Available options
 +----------------------------------+----------------------------------+----------------------+
 | ``--order`` or ``-o``            | Finite element order             | 1                    |
 +----------------------------------+----------------------------------+----------------------+
+| ``--refinement`` or ``-r``       | Number of uniform refinements of | 0                    |
+|                                  | the mesh                         |                      |
++----------------------------------+----------------------------------+----------------------+
 | ``--xmax`` or ``-xm``,           | Coordinates of the upper corner  | 1                    |
 | ``--ymax`` or ``-ym``,           | of the cube. They must match the |                      |
 | ``--zmax`` or ``-zm``            | mesh.                            |                      |
@@ -165,10 +175,16 @@ Available options
 |                                  | from 0 to 5                      |                      |
 +----------------------------------+----------------------------------+----------------------+
 | ``--linearsolver`` or ``-ls``    | Linear solver: GMRESSolver,      | CGSolver             |
-|                                  | CGSolver, UMFPackSolver or       |                      |
-|                                  | MUMPSSolver. UMFPackSolver is    |                      |
-|                                  | sequential only. MUMPSSolver is  |                      |
-|                                  | parallel only.                   |                      |
+|                                  | CGSolver, UMFPackSolver,         |                      |
+|                                  | MUMPSSolver, HypreFGMRES,        |                      |
+|                                  | HyprePCG or HypreGMRES.          |                      |
+|                                  | UMFPackSolver is sequential      |                      |
+|                                  | only. MUMPSSolver and the hypre  |                      |
+|                                  | solvers are parallel only.       |                      |
+|                                  | HypreFGMRES uses the HypreILU    |                      |
+|                                  | preconditioner. HyprePCG uses    |                      |
+|                                  | the HypreDiagScale               |                      |
+|                                  | preconditioner.                  |                      |
 +----------------------------------+----------------------------------+----------------------+
 | ``--parallel`` or ``-p``,        | Run in parallel or not           | parallel             |
 | ``--no-parallel`` or ``-no-p``   |                                  |                      |
