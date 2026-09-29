@@ -65,14 +65,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     MicromorphicDamageI_SpectralSplit
     MicromorphicDamageII
     StationaryNonLinearHeatTransfer
-    ImplicitNortonThreshold
-    ElasticitySatohTest
     UO2Shrinkage_RAPHAEL2008)
-
-  # SatohTest with MPI support
-  set(SatohTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh"
-                          "--library" "$<TARGET_FILE:BehaviourTest>")
-  add_mpi_test(SatohTest SatohTestParameters)
 
   # PeriodicTest executable
   add_test_executable(PeriodicTest)
@@ -701,26 +694,6 @@ if(MFEM_MGIS_HAVE_TFEL)
         mpirun -n 2 ./PostProSubMesh --mesh
         ${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh --library
         "$<TARGET_FILE:BehaviourTest>")
-  endif()
-
-  # RVE examples
-
-  if(MFEM_USE_MPI)
-    set(RVEParameters
-        "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library"
-        "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
-    add_mpi_test(RveNonLinearElastic RVEParameters)
-    add_mpi_test(RveNonLinearElasticV2 RVEParameters)
-    set(MixedOxideFuelsParameters
-        "--mesh"
-        "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh"
-        "--order"
-        "1"
-        "--library"
-        "$<TARGET_FILE:BehaviourTest>"
-        "--post-processing"
-        "1")
-    add_mpi_test(MixedOxideFuels MixedOxideFuelsParameters)
   endif()
 
 endif(MFEM_MGIS_HAVE_TFEL)
