@@ -78,6 +78,16 @@ The results are exported to Paraview in the ``Results`` directory:
 
    paraview Results/Mechanics/Mechanics.pvd
 
+The figures show the results at t = 2e6 s. They are computed with
+``mpirun -n 4 ./Thermomechanical -et 2e6 -ns 20``. The radial displacement is
+amplified 100 times. The cladding bulges between the stiffeners.
+
+.. figure:: img/ex8-3d.png
+    :alt: Radial displacement at t = 2e6 s, amplified 100 times.
+
+.. figure:: img/ex8-section.png
+    :alt: Radial displacement at mid-height at t = 2e6 s, amplified 100 times.
+
 At the end of the simulation, the swelling is compared to its exact value. The
 end of the power ramp is a time step boundary. The power density is thus
 linear over each time step, and the swelling model integrates it exactly. The
