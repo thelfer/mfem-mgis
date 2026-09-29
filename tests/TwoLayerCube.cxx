@@ -36,7 +36,7 @@
 #include "mfem/general/optparser.hpp"
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/fem/datacollection.hpp"
-#include <MFEMMGIS/Profiler.hxx>
+#include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/AnalyticalTests.hxx"
@@ -255,96 +255,89 @@ int executeMFEMMGISTest(mfem_mgis::Context& ctx, const TestParameters& p) {
                                 {"NumberOfUniformRefinements", p.refinement},
                                 {"Parallel", p.parallel}}) |
       or_die;
+  // building the non linear problem
+  std::vector<mfem_mgis::real> corner1({0., 0., 0.});
+  std::vector<mfem_mgis::real> corner2({p.xmax, p.ymax, p.zmax});
+  auto problem =
+      mfem_mgis::construct<mfem_mgis::PeriodicNonLinearEvolutionProblem>(
+          ctx, fed, corner1, corner2) |
+      or_die;
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 1, p.library,
+                                 "IsotropicLinearElasticity") |
+      or_die;
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 2, p.library,
+                                 "IsotropicLinearElasticity") |
+      or_die;
+  // materials
+  auto& m1 = problem.getMaterial(ctx, 1, 0) | or_die;
+  auto& m2 = problem.getMaterial(ctx, 2, 0) | or_die;
+  // setting the material properties
+  auto set_properties = [&ctx, &or_die](auto& m, const double l,
+                                        const double mu) {
+    mgis::behaviour::setMaterialProperty(ctx, m.s0, "FirstLameCoefficient", l) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s0, "ShearModulus", mu) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s1, "FirstLameCoefficient", l) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s1, "ShearModulus", mu) |
+        or_die;
+  };
 
-  {
-    // building the non linear problem
-    std::vector<mfem_mgis::real> corner1({0., 0., 0.});
-    std::vector<mfem_mgis::real> corner2({p.xmax, p.ymax, p.zmax});
-    auto problem =
-        mfem_mgis::construct<mfem_mgis::PeriodicNonLinearEvolutionProblem>(
-            ctx, fed, corner1, corner2) |
+  std::array<mfem_mgis::real, 2> lambda({100, 200});
+  std::array<mfem_mgis::real, 2> mu({75, 150});
+  set_properties(m1, lambda[0], mu[0]);
+  set_properties(m2, lambda[1], mu[1]);
+  //
+  auto set_temperature = [&ctx, &or_die](auto& m) {
+    mgis::behaviour::setExternalStateVariable(ctx, m.s0, "Temperature",
+                                              293.15) |
         or_die;
-    problem.addBehaviourIntegrator(ctx, "Mechanics", 1, p.library,
-                                   "IsotropicLinearElasticity") |
+    mgis::behaviour::setExternalStateVariable(ctx, m.s1, "Temperature",
+                                              293.15) |
         or_die;
-    problem.addBehaviourIntegrator(ctx, "Mechanics", 2, p.library,
-                                   "IsotropicLinearElasticity") |
-        or_die;
-    // materials
-    auto& m1 = problem.getMaterial(ctx, 1, 0) | or_die;
-    auto& m2 = problem.getMaterial(ctx, 2, 0) | or_die;
-    // setting the material properties
-    auto set_properties = [&ctx, &or_die](auto& m, const double l,
-                                          const double mu) {
-      mgis::behaviour::setMaterialProperty(ctx, m.s0, "FirstLameCoefficient",
-                                           l) |
-          or_die;
-      mgis::behaviour::setMaterialProperty(ctx, m.s0, "ShearModulus", mu) |
-          or_die;
-      mgis::behaviour::setMaterialProperty(ctx, m.s1, "FirstLameCoefficient",
-                                           l) |
-          or_die;
-      mgis::behaviour::setMaterialProperty(ctx, m.s1, "ShearModulus", mu) |
-          or_die;
-    };
+  };
+  set_temperature(m1);
+  set_temperature(m2);
 
-    std::array<mfem_mgis::real, 2> lambda({100, 200});
-    std::array<mfem_mgis::real, 2> mu({75, 150});
-    set_properties(m1, lambda[0], mu[0]);
-    set_properties(m2, lambda[1], mu[1]);
-    //
-    auto set_temperature = [&ctx, &or_die](auto& m) {
-      mgis::behaviour::setExternalStateVariable(ctx, m.s0, "Temperature",
-                                                293.15) |
-          or_die;
-      mgis::behaviour::setExternalStateVariable(ctx, m.s1, "Temperature",
-                                                293.15) |
-          or_die;
-    };
-    set_temperature(m1);
-    set_temperature(m2);
-
-    // macroscopic strain
-    std::vector<mfem_mgis::real> e(6, mfem_mgis::real{});
-    if (p.tcase < 3) {
-      e[p.tcase] = 1;
-    } else {
-      e[p.tcase] = 1.41421356237309504880 / 2;
-    }
-    problem.setMacroscopicGradientsEvolution([e](const double) { return e; });
-    //
-    setLinearSolver(ctx, problem, p.linearsolver) | or_die;
-    setSolverParameters(ctx, problem) | or_die;
-
-    // Add postprocessing and outputs
-    problem.addPostProcessing(
-        ctx, "ParaviewExportResults",
-        {{"OutputFileName", "TwoLayerCubeOutput-" + std::to_string(p.tcase)}}) |
-        or_die;
-    std::vector<mfem_mgis::Parameter> materials_out{1, 2};
-    problem.addPostProcessing(ctx,
-                              "ParaviewExportIntegrationPointResultsAtNodes",
-                              {{"OutputFileName", "TwoLayerCubeOutput-Strain-" +
-                                                      std::to_string(p.tcase)},
-                               {"Materials", {materials_out}},
-                               {"Results", "Strain"}}) |
-        or_die;
-    problem.addPostProcessing(ctx,
-                              "ParaviewExportIntegrationPointResultsAtNodes",
-                              {{"OutputFileName", "TwoLayerCubeOutput-Stress-" +
-                                                      std::to_string(p.tcase)},
-                               {"Materials", {materials_out}},
-                               {"Results", "Stress"}}) |
-        or_die;
-    // solving the problem
-    problem.solve(ctx, 0, 1) | or_die;
-    problem.executePostProcessings(ctx, 0, 1) | or_die;
-    //
-    const auto b =
-        p.check ? (checkSolution(ctx, problem, p.tcase) | or_die) : true;
-    mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
-    return b ? EXIT_SUCCESS : EXIT_FAILURE;
+  // macroscopic strain
+  std::vector<mfem_mgis::real> e(6, mfem_mgis::real{});
+  if (p.tcase < 3) {
+    e[p.tcase] = 1;
+  } else {
+    e[p.tcase] = 1.41421356237309504880 / 2;
   }
+  problem.setMacroscopicGradientsEvolution([e](const double) { return e; });
+  //
+  setLinearSolver(ctx, problem, p.linearsolver) | or_die;
+  setSolverParameters(ctx, problem) | or_die;
+
+  // Add postprocessing and outputs
+  problem.addPostProcessing(
+      ctx, "ParaviewExportResults",
+      {{"OutputFileName", "TwoLayerCubeOutput-" + std::to_string(p.tcase)}}) |
+      or_die;
+  std::vector<mfem_mgis::Parameter> materials_out{1, 2};
+  problem.addPostProcessing(ctx, "ParaviewExportIntegrationPointResultsAtNodes",
+                            {{"OutputFileName", "TwoLayerCubeOutput-Strain-" +
+                                                    std::to_string(p.tcase)},
+                             {"Materials", {materials_out}},
+                             {"Results", "Strain"}}) |
+      or_die;
+  problem.addPostProcessing(ctx, "ParaviewExportIntegrationPointResultsAtNodes",
+                            {{"OutputFileName", "TwoLayerCubeOutput-Stress-" +
+                                                    std::to_string(p.tcase)},
+                             {"Materials", {materials_out}},
+                             {"Results", "Stress"}}) |
+      or_die;
+  // solving the problem
+  problem.solve(ctx, 0, 1) | or_die;
+  problem.executePostProcessings(ctx, 0, 1) | or_die;
+  //
+  const auto b =
+      p.check ? (checkSolution(ctx, problem, p.tcase) | or_die) : true;
+  mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
+  return b ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int main(int argc, char* argv[]) {
