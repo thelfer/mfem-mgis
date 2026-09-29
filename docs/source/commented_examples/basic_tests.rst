@@ -17,7 +17,7 @@ Description:
 This example is a cyclic tension-compression test on a unit cube. The
 imposed axial strain goes up to 0.9 %, down to -2.1 % and back up to
 1.9 %, in 100 time steps. Its test compares the results to the reference
-file ``Plasticity.ref``.
+file ``IsotropicLinearHardeningPlasticity.ref``.
 
 .. figure:: img/ex1Start.png
     :alt: Illustration of the start of the TensileTest simulation.
@@ -30,7 +30,8 @@ Problem Solved
 
 .. code:: text
 
-   Plastic behaviour with linear isotropic hardening (Plasticity.mfront):
+   Plastic behaviour with linear isotropic hardening,
+   IsotropicLinearHardeningPlasticity.mfront :
    [ parameters      , material ]
    [ Young Modulus   , 70e9     ];
    [ Poisson Ratio   , 0.34     ];
@@ -41,7 +42,7 @@ Problem Solved
    - symmetry on the faces x = 0, y = 0 and z = 0
    - imposed displacement along x on the face x = 1
 
-   Solver : Conjugate Gradient (default)
+   Solver : CGSolver
 
    Element:
    - Family H1
@@ -50,51 +51,60 @@ Problem Solved
 Run This Simulation
 ~~~~~~~~~~~~~~~~~~~
 
-Without any option, the example runs as described above, in serial or
-in parallel. The ``-r`` option compares the results to the reference file:
+Without any option, the example runs as described above. The
+``--reference-file`` option compares the results to the reference file:
 
 .. code-block:: bash
 
-   ./UniaxialTensileTestEx
-   mpirun -n 2 ./UniaxialTensileTestEx -p 1
-   ./UniaxialTensileTestEx -r Plasticity.ref
+   ./uniaxial_tensile_test
+   mpirun -n 2 ./uniaxial_tensile_test
+   ./uniaxial_tensile_test --reference-file IsotropicLinearHardeningPlasticity.ref
 
 Available options
 ~~~~~~~~~~~~~~~~~
 
-To customize the simulation, several options are available, as detailed
-below.
-
-+---------------------------------+--------------------------------------------+
-| Command line                    | Description                                |
-+=================================+============================================+
-| --mesh or -m                    | Mesh file (default = cube.mesh)            |
-+---------------------------------+--------------------------------------------+
-| --reference-file or -r          | Reference file, compared to the results    |
-|                                 | when given (default = none)                |
-+---------------------------------+--------------------------------------------+
-| --behaviour or -b               | Name of the behaviour                      |
-|                                 | (default = Plasticity)                     |
-+---------------------------------+--------------------------------------------+
-| --internal-state-variable or -v | Internal state variable compared to the    |
-|                                 | reference                                  |
-|                                 | (default = EquivalentPlasticStrain)        |
-+---------------------------------+--------------------------------------------+
-| --library or -l                 | Material library                           |
-|                                 | (default = src/libBehaviour.so)            |
-+---------------------------------+--------------------------------------------+
-| --linearsolver or -ls           | Linear solver. Serial: 0 -> CG,            |
-|                                 | 1 -> GMRES, 2 -> UMFPack. Parallel:        |
-|                                 | 0 -> CG, 1 -> GMRES, 2 -> HypreFGMRES,     |
-|                                 | 3 -> MUMPS (HyprePCG without MUMPS),       |
-|                                 | 4 -> HypreGMRES (default = 0)              |
-+---------------------------------+--------------------------------------------+
-| --order or -o                   | Finite element order (polynomial degree)   |
-|                                 | (default = 1)                              |
-+---------------------------------+--------------------------------------------+
-| --parallel or -p                | 0 for a serial run, 1 for a parallel run   |
-|                                 | (default = 0)                              |
-+---------------------------------+--------------------------------------------+
++----------------------------------------+------------------------------------+--------------------------------------+
+| Command line                           | Description                        | Default                              |
++========================================+====================================+======================================+
+| ``--mesh`` or ``-m``                   | Mesh file                          | cube.mesh                            |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--library`` or ``-l``                | Material library                   | src/libBehaviour.so                  |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--behaviour`` or ``-b``              | Name of the behaviour              | IsotropicLinearHardeningPlasticity   |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--internal-state-variable`` or       | Internal state variable saved and  | EquivalentPlasticStrain              |
+| ``-isv``                               | compared to the reference file,    |                                      |
+|                                        | none if empty                      |                                      |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--reference-file`` or ``-rf``        | Reference file                     | no comparison                        |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--order`` or ``-o``                  | Finite element order               | 1                                    |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--refinement`` or ``-r``             | Number of uniform refinements of   | 0                                    |
+|                                        | the mesh                           |                                      |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--nbsteps`` or ``-ns``               | Number of time steps. The          | 100                                  |
+|                                        | reference file must have been      |                                      |
+|                                        | computed with the same number of   |                                      |
+|                                        | time steps.                        |                                      |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--linearsolver`` or ``-ls``          | Linear solver: GMRESSolver,        | CGSolver                             |
+|                                        | CGSolver, UMFPackSolver,           |                                      |
+|                                        | MUMPSSolver, HypreFGMRES, HyprePCG |                                      |
+|                                        | or HypreGMRES. UMFPackSolver is    |                                      |
+|                                        | sequential only. MUMPSSolver and   |                                      |
+|                                        | the hypre solvers are parallel     |                                      |
+|                                        | only. HypreFGMRES uses the         |                                      |
+|                                        | HypreILU preconditioner. HyprePCG  |                                      |
+|                                        | uses the HypreDiagScale            |                                      |
+|                                        | preconditioner.                    |                                      |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--parallel`` or ``-p``,              | Run in parallel or not             | parallel if MFEM is built            |
+| ``--no-parallel`` or ``-no-p``         |                                    | with MPI                             |
++----------------------------------------+------------------------------------+--------------------------------------+
+| ``--post-processing`` or ``-pp``,      | Export or not the results to       | export                               |
+| ``--no-post-processing`` or ``-no-pp`` | Paraview                           |                                      |
++----------------------------------------+------------------------------------+--------------------------------------+
 
 TwoLayerCube
 ------------
