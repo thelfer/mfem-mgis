@@ -1,5 +1,5 @@
 @DSL DefaultDSL;
-@Behaviour Plasticity;
+@Behaviour IsotropicLinearHardeningPlasticity;
 @Author Thomas Helfer;
 @Date 14 / 12 / 2020;
 @Description {

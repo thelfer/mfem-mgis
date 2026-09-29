@@ -1,8 +1,8 @@
 if(MFEM_MGIS_HAVE_TFEL)
-mfront_behaviours_check_library(BehaviourBenchmarks  Elasticity)
+mfront_behaviours_check_library(BehaviourBenchmarks  IsotropicLinearElasticity)
 
   file(COPY
-      ${PROJECT_SOURCE_DIR}/benchmarks/Elasticity.mfront
+      ${PROJECT_SOURCE_DIR}/benchmarks/IsotropicLinearElasticity.mfront
       ${PROJECT_SOURCE_DIR}/benchmarks/beam-tet.mesh
       DESTINATION ${PROJECT_BINARY_DIR})
 
@@ -11,8 +11,8 @@ mfront_behaviours_check_library(BehaviourBenchmarks  Elasticity)
       MFEMMGISLinearElasticityBenchmark.cxx)
   add_custom_command(
       OUTPUT "src/libBehaviour.so"
-      COMMAND mfront --obuild --interface=generic ${PROJECT_BINARY_DIR}/Elasticity.mfront
-      DEPENDS ${PROJECT_BINARY_DIR}/Elasticity.mfront
+      COMMAND mfront --obuild --interface=generic ${PROJECT_BINARY_DIR}/IsotropicLinearElasticity.mfront
+      DEPENDS ${PROJECT_BINARY_DIR}/IsotropicLinearElasticity.mfront
       COMMENT "Performing mfront code generation")
 
   target_link_libraries(MFEMMGISLinearElasticityBenchmark

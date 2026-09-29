@@ -123,9 +123,9 @@ CMake builds the sources, and the ``check`` target runs the tests:
 Creating a simple example based on ``mfem-mgis``
 ------------------------------------------------
 
-The installation of ``mfem-mgis`` includes a simple example, ``ex1``.
-It requires the ``@master`` version. It can be copied to another location
-and built with CMake:
+The installation of ``mfem-mgis`` includes two simple examples, ``ex1`` and
+``ex3``. They require the ``@master`` version. They can be copied to another
+location and built with CMake:
 
 .. code:: sh
 
@@ -136,10 +136,10 @@ and built with CMake:
    cmake --build build
    ctest --test-dir build
 
-The example also provides a ``Makefile``, which needs the variables set
-by ``share/mfem-mgis/examples/env.sh``.
+Without spack, ``share/mfem-mgis/examples/env.sh`` sets the required
+environment variables.
 
-Its sources can be modified to develop your own study cases.
+Their sources can be modified to develop your own study cases.
 
 
 Installation Guide on Topaze/CCRT of mfem-mgis-examples

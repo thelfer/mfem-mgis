@@ -42,7 +42,8 @@ Unit tests
 ==========
 
 - `PostProSubMesh`: This test provides some tests of ParaviewExportResults 
-- `PeriodicTest`: This test provides some tests of periodic features 
+- `TwoLayerCube`: a periodic cube made of two elastic layers under an
+  imposed macroscopic strain, compared to the analytical solution
 - `ParallelReadMode`: This test checks that the reader can read
   correctly a splitted mesh.
 - `PartialQuadratureSpaceTest`: This test provides some tests on

@@ -182,7 +182,8 @@ int main(int argc, char *argv[]) {
               {"Parallel", bool(parallel)}}) |
       or_die;
   //
-  problem.addBehaviourIntegrator(ctx, "Mechanics", 1, library, "Elasticity") |
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 1, library,
+                                 "IsotropicLinearElasticity") |
       or_die;
   auto &m1 = problem.getMaterial(ctx, 1, 0) | or_die;
   for (auto *ps : {&m1.s0, &m1.s1}) {

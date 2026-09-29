@@ -106,7 +106,7 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
         load(opts, parameters.library, "SaintVenantKirchhoffElasticity", h);
     TFEL_TESTS_CHECK(getConstructionError<Integrator>(fed, b2).empty());
     // small strain behaviour
-    const auto b3 = load(parameters.library, "Elasticity", h);
+    const auto b3 = load(parameters.library, "IsotropicLinearElasticity", h);
     TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b3),
                               "invalid behaviour type"));
   }
@@ -115,8 +115,8 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
     using namespace mgis::behaviour;
     using Integrator = mfem_mgis::
         IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator;
-    const auto b =
-        load(parameters.library, "Elasticity", Hypothesis::PLANESTRAIN);
+    const auto b = load(parameters.library, "IsotropicLinearElasticity",
+                        Hypothesis::PLANESTRAIN);
     TFEL_TESTS_CHECK(
         contains(getConstructionError<Integrator>(fed, b), "does not match"));
   }
