@@ -35,8 +35,8 @@ all: UniaxialTensileTest src/libBehaviour.so
 UniaxialTensileTest: UniaxialTensileTest.cxx $(MFEM_LIB_FILE) ${CONFIG_MK}
 	$(CXX) $(INCFLAGS) $(CPPFLAGS) $(CXXFLAGS) UniaxialTensileTest.cxx -o UniaxialTensileTest $(LDFLAGS)
 
-src/libBehaviour.so: Plasticity.mfront
-	mfront --obuild --interface=generic $(MFRONT_FLAGS) Plasticity.mfront
+src/libBehaviour.so: IsotropicLinearHardeningPlasticity.mfront
+	mfront --obuild --interface=generic $(MFRONT_FLAGS) IsotropicLinearHardeningPlasticity.mfront
 
 clean:
 	rm -fr include/ src/ UniaxialTensileTest

@@ -57,7 +57,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     BehaviourTest
     IsotropicLinearElasticity
     OrthotropicElasticity
-    Plasticity
+    IsotropicLinearHardeningPlasticity
     Mazars
     SaintVenantKirchhoffElasticity
     SaintVenantKirchhoffElasticityV2
@@ -137,7 +137,8 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   # UniaxialTensileTest cases
   add_uniaxial_tensile_test(OrthotropicElasticity EquivalentStrain)
-  add_uniaxial_tensile_test(Plasticity EquivalentPlasticStrain)
+  add_uniaxial_tensile_test(IsotropicLinearHardeningPlasticity
+                            EquivalentPlasticStrain)
   add_uniaxial_tensile_test(Mazars Damage)
   add_uniaxial_tensile_test(SaintVenantKirchhoffElasticity EquivalentStrain)
 
@@ -708,7 +709,8 @@ endif(MFEM_MGIS_HAVE_TFEL)
 # from the unit tests
 
 set(EX1_DIR "share/mfem-mgis/examples/ex1")
-install(FILES Plasticity.mfront cube.mesh references/Plasticity.ref
+install(FILES IsotropicLinearHardeningPlasticity.mfront cube.mesh
+              references/IsotropicLinearHardeningPlasticity.ref
         DESTINATION ${EX1_DIR})
 
 install(
