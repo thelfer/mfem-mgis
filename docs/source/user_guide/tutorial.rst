@@ -36,19 +36,21 @@ Geometry and mesh
 -----------------
 
 .. figure:: img/mesh.svg
-   :alt: Mesh used to described the notched beam
+   :alt: Mesh used to describe the notched beam
    :name: fig:mfem_mgis:ssna303:mesh
    :width: 80.0%
    :align: center
 
-   Mesh used to described the notched beam
+   Mesh used to describe the notched beam
 
 For symmetry reasons, only half of the notched beam is represented in
-Figure :ref:`fig:mfem_mgis:ssna303:mesh`. The height (h) of the beam is
-(30,mm). The half-width (w) of the beam is (5.4,mm).
+Figure :ref:`fig:mfem_mgis:ssna303:mesh`. The height :math:`h` of the beam is
+30 mm. The half-width :math:`w` of the beam is 5.4 mm.
 
-The positions of the points (p1) (p2) and (c) are respectively
-(3,mm, 0), (5.4,mm, 4.8,mm), and (9,mm, 0).
+The positions of the points :math:`p_{1}`, :math:`p_{2}` and :math:`c` are
+respectively :math:`(3\,\mathrm{mm}, 0)`,
+:math:`(5.4\,\mathrm{mm}, 4.8\,\mathrm{mm})` and
+:math:`(9\,\mathrm{mm}, 0)`.
 
 This notched beam has been meshed using `Cast3M <http://www-cast3m.cea.fr/>`_ and exported in the ``MED`` 
 file format proposed and used by `Salomé <https://www.salome-platform.org/>`_ platform. This file has been
@@ -58,15 +60,15 @@ MFEM.
 
 .. note::
 
-   Direct support of the ``MED`` file format is currently under
-   development.
+   ``MED`` files are read directly when ``MFEM`` is built with ``MED``
+   support.
 
 Modelling hypothesis
 --------------------
 
 The beam is treated using the plane strain modelling hypothesis. In
 finite strain, this assumes that the axial component of the deformation
-gradient is set equal to (1).
+gradient is set equal to 1.
 
 .. _sec:mfem_mgis:ssna303:bc:
 
@@ -74,9 +76,9 @@ Boundary conditions
 -------------------
 
 Dirichlet boundary conditions force the solution to attain certain
-prescribed values a priori on some boundaries. The beam is fixed along the
-bottom line ((y=0)) and a displacement (U_{y}) is imposed at the top of
-the beam ((y=h)).
+prescribed values a priori on some boundaries. The vertical displacement is
+blocked on the bottom line :math:`y=0`. A vertical displacement
+:math:`U_{y}` is imposed at the top of the beam :math:`y=h`.
 
 The symmetry axis on the left is blocked in the ``x``-direction.
 
@@ -104,7 +106,7 @@ This behaviour is characterized by four parameters:
 -  The ``Yield Strength`` (:math:`\sigma_{0}`) defines the point on the
    stress versus strain curve where the material initially starts to go
    into plastic strain.
--  The ``Strain Hardening Modulus`` (H) defines the slope of the stress
+-  The ``Strain Hardening Modulus`` (:math:`H`) defines the slope of the stress
    versus strain curve after the point of yield of a material.
 
 In our example the following values are used:
@@ -113,10 +115,10 @@ In our example the following values are used:
 
    \left\{
        \begin{array}{lcl}
+           E & = & 70\,10^{9}\,\mathrm{Pa} \\
            \nu & = & 0.34 \\
-           \epsilon & = & 70.10^{9} MPa \\
-           H & = & 10.10^{9} \\
-           s_0 & = & 300.10^{6}
+           H & = & 10\,10^{9}\,\mathrm{Pa} \\
+           \sigma_{0} & = & 300\,10^{6}\,\mathrm{Pa}
        \end{array}
    \right.
 
@@ -324,8 +326,8 @@ data-structures. However, the ``MFEM/MGIS`` library does not preclude directly u
 data-structures, built-in non linear forms,
 etc. This lower level API is however not described in this tutorial.
 
-Names boundaries and materials
-------------------------------
+Naming boundaries and materials
+-------------------------------
 
 ``MFEM`` distinguishes elements of the mesh (materials and boundaries)
 by integers. This may seem unpractical to most users. The ``MFEM/MGIS``
@@ -586,10 +588,10 @@ using the ``update`` method, the current time is incremented and the
 number of the remaining substeps is decreased. The loop stops when the
 remaining number of sub-steps goes to zero.
 
-If the resolution failed, the local time step is divided by (2), the
-number of remaining substeps is multiplied by (2) and the state of the
+If the resolution failed, the local time step is divided by 2, the
+number of remaining substeps is multiplied by 2 and the state of the
 material is reverted to the beginning of the time step using the
-``revert`` method. The resolution stops if more than (10) nested reverts
+``revert`` method. The resolution stops if more than 10 nested reverts
 are generated.
 
 Once a time step has been successful, the post-processings are executed
