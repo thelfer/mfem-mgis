@@ -82,7 +82,7 @@ namespace mfem_mgis {
     if (!this->fespaces_manager.manages(*(f.ParFESpace()))) {
       return ctx.registerErrorMessage(
           "the given grid function is defined on a finite element space which "
-          "is not managed by the finite element spaces manager of which the "
+          "is not managed by the finite element spaces manager on which the "
           "points set curves is built");
     }
     for (const auto &[nf, vf] : this->gridfunctions) {
@@ -108,7 +108,7 @@ namespace mfem_mgis {
     if (!this->fespaces_manager.manages(*(f.FESpace()))) {
       return ctx.registerErrorMessage(
           "the given grid function is defined on a finite element space which "
-          "is not managed by the finite element spaces manager of which the "
+          "is not managed by the finite element spaces manager on which the "
           "points set curves is built");
     }
     for (const auto &[nf, vf] : this->gridfunctions) {
