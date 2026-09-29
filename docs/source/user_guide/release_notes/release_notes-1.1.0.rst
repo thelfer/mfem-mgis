@@ -348,6 +348,7 @@ material carrying several behaviour integrators.
 Issues fixed
 ============
 
+- Issue 427: satoh, rve and mox examples are duplicates from mm-examples
 - Issue 292: Remove deprecated usage of `getMaterial` in
   `ParaviewExportIntegrationPointResultsAtNodesBase::getPartialQuadratureFunctionViews`
   and `ParaviewExportIntegrationPointResultsAtNodesBase::getResultDescription`

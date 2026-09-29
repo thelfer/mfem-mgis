@@ -8,22 +8,8 @@ Mechanical tests
   - one of the Mazars damage behaviours,
   - the Saint-Venant-Kirchhoff hyperelastic behaviour
   The results are compared to reference results
-- `RveNonLinearElastic`: a test of a Representative Volume Element using
-  an elastic behavior law
-- `RveNonLinearElasticV2`: same test using another constructor of the
-  PeriodicNonLinearEvolutionProblem class
 - `ImposedPressureTest`: a simple test to check that the imposed
   pressure boundary condition works as expected.
-- `MixedOxideFuels`: a simple test of a RVE using an elasto-viscoplastic
-  law, the full simulation is available at `ex7` in the
-  `mfem-mgis-examples` github repository.
-- `SatohTest`: this test models a 2D plate of lenght 1 in plane strain
-  clamped on the left and right boundaries and submitted to a parabolic
-  thermal gradient along the x-axis:
-  - the temperature profile is minimal on the left and right boundaries
-  - the temperature profile is maximal for x = 0.5
-  This example shows how to define an external state variable using an
-  analytical profile.
 	   
 Heat transfer
 =============
