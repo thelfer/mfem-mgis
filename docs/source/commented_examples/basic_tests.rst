@@ -99,7 +99,8 @@ website: https://github.com/latug0/mfem-mgis-examples/tree/master/ex5
 
 Description:
 
-Modelling of a plate of length 1, in plane strain, clamped on the left and right boundaries and subjected to a parabolic thermal gradient along the x-axis. (source code 5)
+Plate of length 1 in plane strain, clamped on its left and right boundaries.
+A parabolic temperature profile is imposed along the x-axis.
 
 .. figure:: img/SatohTest.png
     :alt: Illustration of the displacement of the plate.
@@ -110,11 +111,11 @@ Problem solved
 .. code:: text
 
    This test models a 2D plate of length 1 in plane strain clamped on the left
-   and right boundaries and subjected to a parabolic thermal gradient along the
-   x-axis:
-    
-   - the temperature profile is minimal on the left and right boundaries
-   - the temperature profile is maximal for x = 0.5
+   and right boundaries and subjected to a parabolic temperature profile along
+   the x-axis:
+
+   - the temperature is 293.15 K on the left and right boundaries
+   - the temperature is 2000 K for x = 0.5
 
    This example shows how to define an external state variable using an
    analytical profile.
@@ -122,11 +123,12 @@ Problem solved
    Solver : UMFPackSolver
    Preconditioner : None
 
-   Elastic behavior law parameters :
-   [ parameters       , material ]
-   [ Young Modulus    , 150e9    ];
-   [ Poisson Ratio    , 0.3      ];
-   [ Temperature      , 293.15   ];
+   Thermoelastic behavior law parameters :
+   [ parameters            , material ]
+   [ Young Modulus         , 150e9    ];
+   [ Poisson Ratio         , 0.3      ];
+   [ Thermal Expansion     , 1e-5     ];
+   [ Reference Temperature , 293.15   ];
 
    Element: 
    - Family H1
@@ -143,7 +145,8 @@ Parameters are hardcoded in this example.
 
 .. note::
 
-   If you want to run this example in parallel, you'll have to change the solver too.
+   The example runs sequentially. A parallel run needs ``parallel`` set to
+   ``true`` in the source code and a parallel linear solver.
 
 Ssna303 Example (2D and 3D)
 ---------------------------
