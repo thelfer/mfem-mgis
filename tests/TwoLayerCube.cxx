@@ -1,5 +1,5 @@
 /*!
- * \file   tests/PeriodicTest.cxx
+ * \file   tests/TwoLayerCube.cxx
  * \brief
  * This example models a periodic unit cube made of two layers, split at
  * x = 0.5, under an imposed macroscopic strain. The solution is compared to
@@ -315,19 +315,19 @@ int executeMFEMMGISTest(mfem_mgis::Context& ctx, const TestParameters& p) {
     // Add postprocessing and outputs
     problem.addPostProcessing(
         ctx, "ParaviewExportResults",
-        {{"OutputFileName", "PeriodicTestOutput-" + std::to_string(p.tcase)}}) |
+        {{"OutputFileName", "TwoLayerCubeOutput-" + std::to_string(p.tcase)}}) |
         or_die;
     std::vector<mfem_mgis::Parameter> materials_out{1, 2};
     problem.addPostProcessing(ctx,
                               "ParaviewExportIntegrationPointResultsAtNodes",
-                              {{"OutputFileName", "PeriodicTestOutput-Strain-" +
+                              {{"OutputFileName", "TwoLayerCubeOutput-Strain-" +
                                                       std::to_string(p.tcase)},
                                {"Materials", {materials_out}},
                                {"Results", "Strain"}}) |
         or_die;
     problem.addPostProcessing(ctx,
                               "ParaviewExportIntegrationPointResultsAtNodes",
-                              {{"OutputFileName", "PeriodicTestOutput-Stress-" +
+                              {{"OutputFileName", "TwoLayerCubeOutput-Stress-" +
                                                       std::to_string(p.tcase)},
                                {"Materials", {materials_out}},
                                {"Results", "Stress"}}) |

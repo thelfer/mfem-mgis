@@ -94,7 +94,7 @@ namespace mfem_mgis {
      *
      * This method must be called before `solve`: this is not done automatically
      * as this is the case for `NonLinearEvolutionProblem::solve`. This is
-     * mostly motivated by unit testing, see `PeriodicTest` for an example.
+     * mostly motivated by unit testing, see `PredictionTest` for an example.
      *
      * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step

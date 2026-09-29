@@ -67,13 +67,13 @@ if(MFEM_MGIS_HAVE_TFEL)
     StationaryNonLinearHeatTransfer
     UO2Shrinkage_RAPHAEL2008)
 
-  # PeriodicTest executable
-  add_test_executable(PeriodicTest)
+  # TwoLayerCube executable
+  add_test_executable(TwoLayerCube)
 
-  # Helper function for PeriodicTest cases
-  function(add_periodic_test ncase solver)
-    set(test "PeriodicTest-${ncase}-${solver}")
-    set(PeriodicTestParameters
+  # Helper function for TwoLayerCube cases
+  function(add_two_layer_cube_test ncase solver)
+    set(test "TwoLayerCube-${ncase}-${solver}")
+    set(TwoLayerCubeParameters
         "--mesh"
         "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
         "--library"
@@ -83,27 +83,27 @@ if(MFEM_MGIS_HAVE_TFEL)
         "--linearsolver"
         "${solver}")
     if(solver STREQUAL "CGSolver" OR solver STREQUAL "GMRESSolver")
-      add_test(NAME ${test} COMMAND ./PeriodicTest ${PeriodicTestParameters}
+      add_test(NAME ${test} COMMAND ./TwoLayerCube ${TwoLayerCubeParameters}
                                     "--no-parallel")
       set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
     endif()
     if(MFEM_USE_MPI)
-      add_test(NAME ${test}P COMMAND mpirun -n 2 ./PeriodicTest
-                                     ${PeriodicTestParameters} "--parallel"
+      add_test(NAME ${test}P COMMAND mpirun -n 2 ./TwoLayerCube
+                                     ${TwoLayerCubeParameters} "--parallel"
                                      "--refinement" "1")
       set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
     endif(MFEM_USE_MPI)
   endfunction()
 
-  # Generate all PeriodicTest cases. The hypre solvers and MUMPS are only
+  # Generate all TwoLayerCube cases. The hypre solvers and MUMPS are only
   # tested in parallel.
-  set(PeriodicTestSolvers CGSolver GMRESSolver HypreFGMRES HyprePCG HypreGMRES)
+  set(TwoLayerCubeSolvers CGSolver GMRESSolver HypreFGMRES HyprePCG HypreGMRES)
   if(MFEM_USE_MUMPS)
-    list(APPEND PeriodicTestSolvers MUMPSSolver)
+    list(APPEND TwoLayerCubeSolvers MUMPSSolver)
   endif(MFEM_USE_MUMPS)
   foreach(ncase RANGE 0 5)
-    foreach(solver IN LISTS PeriodicTestSolvers)
-      add_periodic_test(${ncase} ${solver})
+    foreach(solver IN LISTS TwoLayerCubeSolvers)
+      add_two_layer_cube_test(${ncase} ${solver})
     endforeach()
   endforeach()
 
@@ -739,7 +739,7 @@ install(FILES ${UTILITY_FILE}
         DESTINATION ${EX1_DIR})
 
 set(EX2_DIR "share/mfem-mgis/examples/ex2")
-install(FILES PeriodicTest.cxx Elasticity.mfront cube_2mat_per.mesh
+install(FILES TwoLayerCube.cxx Elasticity.mfront cube_2mat_per.mesh
         DESTINATION ${EX2_DIR})
 
 install(

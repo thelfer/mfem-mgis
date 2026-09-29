@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(UnilateralTensileTestExample)
+project(TwoLayerCubeExample)
 include($ENV{MFEMMGIS_DIR}/MFEMMGISConfig.cmake)
 list(APPEND CMAKE_MODULE_PATH $ENV{MFEMMGIS_DIR})
 
@@ -39,9 +39,9 @@ if (NOT TARGET mfem-mgis::MFEMMGIS)
 endif(NOT TARGET mfem-mgis::MFEMMGIS)
 
 # Define the executable to build for this example
-add_executable(PeriodicTest  PeriodicTest.cxx)
-target_link_libraries(PeriodicTest mfem-mgis::MFEMMGIS)
-target_include_directories(PeriodicTest
+add_executable(TwoLayerCube  TwoLayerCube.cxx)
+target_link_libraries(TwoLayerCube mfem-mgis::MFEMMGIS)
+target_include_directories(TwoLayerCube
     SYSTEM
     PUBLIC "$<BUILD_INTERFACE:${MFEM_INCLUDE_DIRS}>"
     PUBLIC "$<INSTALL_INTERFACE:${MFEM_INCLUDE_DIRS}>")
@@ -64,13 +64,13 @@ add_custom_command(
 add_custom_target(generate-libBehaviour-ex2 ALL
   DEPENDS "src/libBehaviour.so")
 
-add_dependencies(check PeriodicTest generate-libBehaviour-ex2)
+add_dependencies(check TwoLayerCube generate-libBehaviour-ex2)
 
 # Define a test that will be called during the "make check"
-function(add_periodic_test ncase solver)
-  set(test "PeriodicTest-${ncase}-${solver}")
+function(add_two_layer_cube_test ncase solver)
+  set(test "TwoLayerCube-${ncase}-${solver}")
   add_test(NAME ${test}
-    COMMAND PeriodicTest 
+    COMMAND TwoLayerCube 
     "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
     "--library" "src/libBehaviour.so"
     "--test-case" "${ncase}"
@@ -84,12 +84,12 @@ function(add_periodic_test ncase solver)
     set_property(TEST ${test}
       PROPERTY DEPENDS BehaviourTest)
   endif((CMAKE_HOST_WIN32) AND (NOT MSYS))
-endfunction(add_periodic_test)
+endfunction(add_two_layer_cube_test)
 
 
 foreach(ncase RANGE 0 5)
   foreach(solver IN ITEMS CGSolver GMRESSolver)
-    add_periodic_test(${ncase} ${solver})
+    add_two_layer_cube_test(${ncase} ${solver})
   endforeach(solver)
 endforeach(ncase)
 

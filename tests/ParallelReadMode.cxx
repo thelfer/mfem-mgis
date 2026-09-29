@@ -1,5 +1,5 @@
 /*!
- * \file   tests/PeriodicTest.cxx
+ * \file   tests/ParallelReadMode.cxx
  * \brief
  * This example code solves a simple linear elasticity problem
  * describing a multi-material square.
