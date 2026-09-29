@@ -237,13 +237,99 @@ Parameters are hardcoded in this example.
 Ssna303 Example (2D and 3D)
 ---------------------------
 
-This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on a notched beam modeled by finite-strain plastic behavior. See the tutorial section. 
-
 - website 2D example: https://github.com/latug0/mfem-mgis-examples/tree/master/ex2
-- website 3D example : https://github.com/latug0/mfem-mgis-examples/tree/master/ex4
+- website 3D example: https://github.com/latug0/mfem-mgis-examples/tree/master/ex4
+
+Description:
+
+Tensile test on a notched beam with a finite-strain plastic behaviour. The 2D
+example ex2 is in plane strain. The :ref:`tutorial <mfem_mgis_tutorial>`
+describes it. The 3D example ex4 is described below.
 
 .. figure:: img/ssna303Start.png
-    :alt: Illustration of the start of the ssna303 simulation.
+    :alt: Illustration of the start of the 3D ssna303 simulation.
 
 .. figure:: img/ssna303End.png
-    :alt: Illustration of the start of the ssna303 simulation.
+    :alt: Illustration of the end of the 3D ssna303 simulation.
+
+Problem solved in 3D
+~~~~~~~~~~~~~~~~~~~~
+
+.. code:: text
+
+   The mesh ssna303_3d.msh is made of hexahedra. Lengths are in meters.
+   The mesh is 1.5e-3 thick.
+
+   Plastic behaviour with linear isotropic hardening, Plasticity.mfront :
+   [ parameters      , material ]
+   [ Young Modulus   , 70e9     ];
+   [ Poisson Ratio   , 0.34     ];
+   [ Yield Stress    , 300e6    ];
+   [ Hardening Slope , 10e9     ];
+
+   Boundary conditions:
+   - uy = 0 on the lower boundary y = 0
+   - ux = 0 on the symmetry plane x = 0
+   - uz = 0 on the symmetry plane z = 0
+   - uy = 6e-3 * t on the upper boundary y = 0.03
+
+   Time: 50 steps from t = 0 to t = 1
+
+   Element:
+   - Family H1
+   - Order 1
+
+Run the 3D simulation
+~~~~~~~~~~~~~~~~~~~~~
+
+Three executables solve this problem with different linear solvers:
+
+- ``Ssna303_3d_mumps`` uses MUMPS in parallel and UMFPack sequentially. It
+  requires MFEM built with MUMPS.
+- ``Ssna303_3d_hypre`` uses the FGMRES solver of hypre with the BoomerAMG
+  preconditioner.
+- ``Ssna303_3d_petsc`` uses PETSc with the configuration file ``rc_ex10p``.
+  It requires MFEM built with PETSc.
+
+.. code-block:: bash
+
+   mpirun -n 4 ./Ssna303_3d_mumps
+   mpirun -n 4 ./Ssna303_3d_hypre
+   mpirun -n 4 ./Ssna303_3d_petsc
+
+Available options
+~~~~~~~~~~~~~~~~~
+
++--------------------------------------+-----------------------------------+------------------------+
+| Command line                         | Description                       | Default                |
++======================================+===================================+========================+
+| ``--order`` or ``-o``                | Finite element order              | 1                      |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--nbsteps`` or ``-ns``             | Number of time steps              | 50                     |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--end-time`` or ``-et``            | End time. The displacement of the | 1                      |
+|                                      | upper boundary is 6e-3 * t.       |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--reference-file`` or ``-rf``      | Reference values of the resultant | no comparison          |
+|                                      | force on the upper boundary       |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--parallel`` or ``-p``,            | Run in parallel with MUMPS or     | parallel               |
+| ``--no-parallel`` or ``-no-p``       | sequentially with UMFPack. Only   |                        |
+|                                      | for ``Ssna303_3d_mumps``.         |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--linearsolver`` or ``-ls``        | Linear solver. Only for           | HypreFGMRES            |
+|                                      | ``Ssna303_3d_hypre``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--preconditioner`` or ``-pc``      | Preconditioner of the linear      | HypreBoomerAMG         |
+|                                      | solver. Only for                  |                        |
+|                                      | ``Ssna303_3d_hypre``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--refinement`` or ``-r``           | Number of uniform refinements of  | 0                      |
+|                                      | the mesh. Not for                 |                        |
+|                                      | ``Ssna303_3d_mumps``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--use-petsc`` and                  | Use PETSc with the given          | ``rc_ex10p`` for       |
+| ``--petsc-configuration-file``       | configuration file. It requires   | ``Ssna303_3d_petsc``,  |
+|                                      | MFEM built with PETSc. Not for    | no PETSc otherwise     |
+|                                      | ``Ssna303_3d_hypre``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+
