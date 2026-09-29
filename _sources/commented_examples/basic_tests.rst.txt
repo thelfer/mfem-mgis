@@ -92,6 +92,92 @@ below.
 |                                 | (default = 0)                              |
 +---------------------------------+--------------------------------------------+
 
+TwoLayerCube
+------------
+
+website: https://github.com/latug0/mfem-mgis-examples/tree/master/ex3
+
+Description:
+
+Periodic unit cube made of two elastic layers. A macroscopic strain is
+imposed. The solution is compared to the analytical one.
+
+Problem solved
+~~~~~~~~~~~~~~
+
+.. code:: text
+
+   The layers are split at x = 0.5. Material 1 fills x < 0.5. Material 2
+   fills x > 0.5.
+
+   One component of the macroscopic strain is imposed:
+   Exx -> 0, Eyy -> 1, Ezz -> 2, Exy -> 3, Exz -> 4, Eyz -> 5.
+   Its value is 1 for a normal component. It is √2/2 for a shear
+   component, in Mandel notation.
+
+   Solver : CGSolver
+
+   Elastic behaviour parameters, Elasticity.mfront :
+   [ parameters             , material 1 , material 2 ]
+   [ First Lame Coefficient , 100        , 200        ];
+   [ Shear Modulus          , 75         , 150        ];
+
+   Element:
+   - Family H1
+   - Order 1
+
+Run the simulation
+~~~~~~~~~~~~~~~~~~
+
+The first command runs the default case Eyy. The second one runs the case
+Exy on 4 processes:
+
+.. code-block:: bash
+
+   ./TwoLayerCubeEx
+   mpirun -n 4 ./TwoLayerCubeEx --test-case 3
+
+The mesh ``cube_2mat_per.mesh`` has 4x4x4 hexahedra. The mesh ``Box.med``
+has 8x8x8 hexahedra. Its periodicity is described by ``Box.per``. Reading it
+requires MFEM built with MED support:
+
+.. code-block:: bash
+
+   ./TwoLayerCubeEx --mesh Box.med
+
+Available options
+~~~~~~~~~~~~~~~~~
+
++----------------------------------+----------------------------------+----------------------+
+| Command line                     | Description                      | Default              |
++==================================+==================================+======================+
+| ``--mesh`` or ``-m``             | Mesh file                        | cube_2mat_per.mesh   |
++----------------------------------+----------------------------------+----------------------+
+| ``--library`` or ``-l``          | Material library                 | src/libBehaviour.so  |
++----------------------------------+----------------------------------+----------------------+
+| ``--order`` or ``-o``            | Finite element order             | 1                    |
++----------------------------------+----------------------------------+----------------------+
+| ``--xmax`` or ``-xm``,           | Coordinates of the upper corner  | 1                    |
+| ``--ymax`` or ``-ym``,           | of the cube. They must match the |                      |
+| ``--zmax`` or ``-zm``            | mesh.                            |                      |
++----------------------------------+----------------------------------+----------------------+
+| ``--test-case`` or ``-t``        | Imposed component of the strain, | 1                    |
+|                                  | from 0 to 5                      |                      |
++----------------------------------+----------------------------------+----------------------+
+| ``--linearsolver`` or ``-ls``    | Linear solver: GMRESSolver,      | CGSolver             |
+|                                  | CGSolver, UMFPackSolver or       |                      |
+|                                  | MUMPSSolver. UMFPackSolver is    |                      |
+|                                  | sequential only. MUMPSSolver is  |                      |
+|                                  | parallel only.                   |                      |
++----------------------------------+----------------------------------+----------------------+
+| ``--parallel`` or ``-p``,        | Run in parallel or not           | parallel             |
+| ``--no-parallel`` or ``-no-p``   |                                  |                      |
++----------------------------------+----------------------------------+----------------------+
+| ``--check`` or ``-c``,           | Compare or not the solution to   | compare              |
+| ``--no-check`` or ``-no-c``      | the analytical one. It is only   |                      |
+|                                  | valid for the provided meshes.   |                      |
++----------------------------------+----------------------------------+----------------------+
+
 Satoh
 -----
 
@@ -99,7 +185,8 @@ website: https://github.com/latug0/mfem-mgis-examples/tree/master/ex5
 
 Description:
 
-Modelling of a plate of length 1, in plane strain, clamped on the left and right boundaries and subjected to a parabolic thermal gradient along the x-axis. (source code 5)
+Plate of length 1 in plane strain, clamped on its left and right boundaries.
+A parabolic temperature profile is imposed along the x-axis.
 
 .. figure:: img/SatohTest.png
     :alt: Illustration of the displacement of the plate.
@@ -110,11 +197,11 @@ Problem solved
 .. code:: text
 
    This test models a 2D plate of length 1 in plane strain clamped on the left
-   and right boundaries and subjected to a parabolic thermal gradient along the
-   x-axis:
-    
-   - the temperature profile is minimal on the left and right boundaries
-   - the temperature profile is maximal for x = 0.5
+   and right boundaries and subjected to a parabolic temperature profile along
+   the x-axis:
+
+   - the temperature is 293.15 K on the left and right boundaries
+   - the temperature is 2000 K for x = 0.5
 
    This example shows how to define an external state variable using an
    analytical profile.
@@ -122,11 +209,12 @@ Problem solved
    Solver : UMFPackSolver
    Preconditioner : None
 
-   Elastic behavior law parameters :
-   [ parameters       , material ]
-   [ Young Modulus    , 150e9    ];
-   [ Poisson Ratio    , 0.3      ];
-   [ Temperature      , 293.15   ];
+   Thermoelastic behavior law parameters :
+   [ parameters            , material ]
+   [ Young Modulus         , 150e9    ];
+   [ Poisson Ratio         , 0.3      ];
+   [ Thermal Expansion     , 1e-5     ];
+   [ Reference Temperature , 293.15   ];
 
    Element: 
    - Family H1
@@ -143,18 +231,105 @@ Parameters are hardcoded in this example.
 
 .. note::
 
-   If you want to run this example in parallel, you'll have to change the solver too.
+   The example runs sequentially. A parallel run needs ``parallel`` set to
+   ``true`` in the source code and a parallel linear solver.
 
 Ssna303 Example (2D and 3D)
 ---------------------------
 
-This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on a notched beam modeled by finite-strain plastic behavior. See the tutorial section. 
-
 - website 2D example: https://github.com/latug0/mfem-mgis-examples/tree/master/ex2
-- website 3D example : https://github.com/latug0/mfem-mgis-examples/tree/master/ex4
+- website 3D example: https://github.com/latug0/mfem-mgis-examples/tree/master/ex4
+
+Description:
+
+Tensile test on a notched beam with a finite-strain plastic behaviour. The 2D
+example ex2 is in plane strain. The :ref:`tutorial <mfem_mgis_tutorial>`
+describes it. The 3D example ex4 is described below.
 
 .. figure:: img/ssna303Start.png
-    :alt: Illustration of the start of the ssna303 simulation.
+    :alt: Illustration of the start of the 3D ssna303 simulation.
 
 .. figure:: img/ssna303End.png
-    :alt: Illustration of the start of the ssna303 simulation.
+    :alt: Illustration of the end of the 3D ssna303 simulation.
+
+Problem solved in 3D
+~~~~~~~~~~~~~~~~~~~~
+
+.. code:: text
+
+   The mesh ssna303_3d.msh is made of hexahedra. Lengths are in meters.
+   The mesh is 1.5e-3 thick.
+
+   Plastic behaviour with linear isotropic hardening, Plasticity.mfront :
+   [ parameters      , material ]
+   [ Young Modulus   , 70e9     ];
+   [ Poisson Ratio   , 0.34     ];
+   [ Yield Stress    , 300e6    ];
+   [ Hardening Slope , 10e9     ];
+
+   Boundary conditions:
+   - uy = 0 on the lower boundary y = 0
+   - ux = 0 on the symmetry plane x = 0
+   - uz = 0 on the symmetry plane z = 0
+   - uy = 6e-3 * t on the upper boundary y = 0.03
+
+   Time: 50 steps from t = 0 to t = 1
+
+   Element:
+   - Family H1
+   - Order 1
+
+Run the 3D simulation
+~~~~~~~~~~~~~~~~~~~~~
+
+Three executables solve this problem with different linear solvers:
+
+- ``Ssna303_3d_mumps`` uses MUMPS in parallel and UMFPack sequentially. It
+  requires MFEM built with MUMPS.
+- ``Ssna303_3d_hypre`` uses the FGMRES solver of hypre with the BoomerAMG
+  preconditioner.
+- ``Ssna303_3d_petsc`` uses PETSc with the configuration file ``rc_ex10p``.
+  It requires MFEM built with PETSc.
+
+.. code-block:: bash
+
+   mpirun -n 4 ./Ssna303_3d_mumps
+   mpirun -n 4 ./Ssna303_3d_hypre
+   mpirun -n 4 ./Ssna303_3d_petsc
+
+Available options
+~~~~~~~~~~~~~~~~~
+
++--------------------------------------+-----------------------------------+------------------------+
+| Command line                         | Description                       | Default                |
++======================================+===================================+========================+
+| ``--order`` or ``-o``                | Finite element order              | 1                      |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--nbsteps`` or ``-ns``             | Number of time steps              | 50                     |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--end-time`` or ``-et``            | End time. The displacement of the | 1                      |
+|                                      | upper boundary is 6e-3 * t.       |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--reference-file`` or ``-rf``      | Reference values of the resultant | no comparison          |
+|                                      | force on the upper boundary       |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--parallel`` or ``-p``,            | Run in parallel with MUMPS or     | parallel               |
+| ``--no-parallel`` or ``-no-p``       | sequentially with UMFPack. Only   |                        |
+|                                      | for ``Ssna303_3d_mumps``.         |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--linearsolver`` or ``-ls``        | Linear solver. Only for           | HypreFGMRES            |
+|                                      | ``Ssna303_3d_hypre``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--preconditioner`` or ``-pc``      | Preconditioner of the linear      | HypreBoomerAMG         |
+|                                      | solver. Only for                  |                        |
+|                                      | ``Ssna303_3d_hypre``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--refinement`` or ``-r``           | Number of uniform refinements of  | 0                      |
+|                                      | the mesh. Not for                 |                        |
+|                                      | ``Ssna303_3d_mumps``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+
+| ``--use-petsc`` and                  | Use PETSc with the given          | ``rc_ex10p`` for       |
+| ``--petsc-configuration-file``       | configuration file. It requires   | ``Ssna303_3d_petsc``,  |
+|                                      | MFEM built with PETSc. Not for    | no PETSc otherwise     |
+|                                      | ``Ssna303_3d_hypre``.             |                        |
++--------------------------------------+-----------------------------------+------------------------+

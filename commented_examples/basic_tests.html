@@ -47,26 +47,20 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Commented Examples</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Basic Tests</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tensiletest">TensileTest</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#problem-solved">Problem Solved</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#run-this-simulation">Run This Simulation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#available-options">Available options</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#mfem-mgis-examples">mfem-mgis-examples</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Basic Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tensiletest">TensileTest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#twolayercube">TwoLayerCube</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#satoh">Satoh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ssna303-example-2d-and-3d">Ssna303 Example (2D and 3D)</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#satoh">Satoh</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id1">Problem solved</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#run-the-simulation">Run the simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rve_elastic_inclusions.html">Representative Volume Element with Elastic inclusions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rjh_plate.html">Thermomechanical Simulation of a RJH Plate</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ssna303-example-2d-and-3d">Ssna303 Example (2D and 3D)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rve_elastic_inclusions.html">Representative Volume Element with Elastic inclusions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bubbles.html">Simulation of pressurized bubbles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="polycrystal.html">Polycrystal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cermet.html">Cermet simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#mm-opera-hpc">mm-opera-hpc</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer_guide/developer_guide.html">Developer guide</a></li>
@@ -98,32 +92,45 @@
            <div itemprop="articleBody">
              
   <section id="basic-tests">
-<h1><a class="toc-backref" href="#id2" role="doc-backlink">Basic Tests</a><a class="headerlink" href="#basic-tests" title="Link to this heading"></a></h1>
+<h1><a class="toc-backref" href="#id6" role="doc-backlink">Basic Tests</a><a class="headerlink" href="#basic-tests" title="Link to this heading"></a></h1>
 <nav class="contents" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#basic-tests" id="id2">Basic Tests</a></p>
+<li><p><a class="reference internal" href="#basic-tests" id="id6">Basic Tests</a></p>
 <ul>
-<li><p><a class="reference internal" href="#tensiletest" id="id3">TensileTest</a></p>
+<li><p><a class="reference internal" href="#tensiletest" id="id7">TensileTest</a></p>
 <ul>
-<li><p><a class="reference internal" href="#problem-solved" id="id4">Problem Solved</a></p></li>
-<li><p><a class="reference internal" href="#run-this-simulation" id="id5">Run This Simulation</a></p></li>
-<li><p><a class="reference internal" href="#available-options" id="id6">Available options</a></p></li>
+<li><p><a class="reference internal" href="#problem-solved" id="id8">Problem Solved</a></p></li>
+<li><p><a class="reference internal" href="#run-this-simulation" id="id9">Run This Simulation</a></p></li>
+<li><p><a class="reference internal" href="#available-options" id="id10">Available options</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#satoh" id="id7">Satoh</a></p>
+<li><p><a class="reference internal" href="#twolayercube" id="id11">TwoLayerCube</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id8">Problem solved</a></p></li>
-<li><p><a class="reference internal" href="#run-the-simulation" id="id9">Run the simulation</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id12">Problem solved</a></p></li>
+<li><p><a class="reference internal" href="#run-the-simulation" id="id13">Run the simulation</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id14">Available options</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#ssna303-example-2d-and-3d" id="id10">Ssna303 Example (2D and 3D)</a></p></li>
+<li><p><a class="reference internal" href="#satoh" id="id15">Satoh</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id3" id="id16">Problem solved</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id17">Run the simulation</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#ssna303-example-2d-and-3d" id="id18">Ssna303 Example (2D and 3D)</a></p>
+<ul>
+<li><p><a class="reference internal" href="#problem-solved-in-3d" id="id19">Problem solved in 3D</a></p></li>
+<li><p><a class="reference internal" href="#run-the-3d-simulation" id="id20">Run the 3D simulation</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id21">Available options</a></p></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="tensiletest">
-<h2><a class="toc-backref" href="#id3" role="doc-backlink">TensileTest</a><a class="headerlink" href="#tensiletest" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">TensileTest</a><a class="headerlink" href="#tensiletest" title="Link to this heading"></a></h2>
 <p>website : <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex1">https://github.com/latug0/mfem-mgis-examples/tree/master/ex1</a></p>
 <p>Description:</p>
 <p>This example is a cyclic tension-compression test on a unit cube. The
@@ -137,7 +144,7 @@ file <code class="docutils literal notranslate"><span class="pre">Plasticity.ref
 <img alt="Illustration of the end of the TensileTest simulation." src="../_images/ex1End.png" />
 </figure>
 <section id="problem-solved">
-<h3><a class="toc-backref" href="#id4" role="doc-backlink">Problem Solved</a><a class="headerlink" href="#problem-solved" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Problem Solved</a><a class="headerlink" href="#problem-solved" title="Link to this heading"></a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Plastic behaviour with linear isotropic hardening (Plasticity.mfront):
 [ parameters      , material ]
 [ Young Modulus   , 70e9     ];
@@ -158,7 +165,7 @@ Element:
 </div>
 </section>
 <section id="run-this-simulation">
-<h3><a class="toc-backref" href="#id5" role="doc-backlink">Run This Simulation</a><a class="headerlink" href="#run-this-simulation" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Run This Simulation</a><a class="headerlink" href="#run-this-simulation" title="Link to this heading"></a></h3>
 <p>Without any option, the example runs as described above, in serial or
 in parallel. The <code class="docutils literal notranslate"><span class="pre">-r</span></code> option compares the results to the reference file:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./UniaxialTensileTestEx
@@ -168,7 +175,7 @@ mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span>
 </div>
 </section>
 <section id="available-options">
-<h3><a class="toc-backref" href="#id6" role="doc-backlink">Available options</a><a class="headerlink" href="#available-options" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Available options</a><a class="headerlink" href="#available-options" title="Link to this heading"></a></h3>
 <p>To customize the simulation, several options are available, as detailed
 below.</p>
 <table class="docutils align-default">
@@ -217,22 +224,126 @@ reference
 </table>
 </section>
 </section>
+<section id="twolayercube">
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">TwoLayerCube</a><a class="headerlink" href="#twolayercube" title="Link to this heading"></a></h2>
+<p>website: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex3">https://github.com/latug0/mfem-mgis-examples/tree/master/ex3</a></p>
+<p>Description:</p>
+<p>Periodic unit cube made of two elastic layers. A macroscopic strain is
+imposed. The solution is compared to the analytical one.</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Problem solved</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>The layers are split at x = 0.5. Material 1 fills x &lt; 0.5. Material 2
+fills x &gt; 0.5.
+
+One component of the macroscopic strain is imposed:
+Exx -&gt; 0, Eyy -&gt; 1, Ezz -&gt; 2, Exy -&gt; 3, Exz -&gt; 4, Eyz -&gt; 5.
+Its value is 1 for a normal component. It is √2/2 for a shear
+component, in Mandel notation.
+
+Solver : CGSolver
+
+Elastic behaviour parameters, Elasticity.mfront :
+[ parameters             , material 1 , material 2 ]
+[ First Lame Coefficient , 100        , 200        ];
+[ Shear Modulus          , 75         , 150        ];
+
+Element:
+- Family H1
+- Order 1
+</pre></div>
+</div>
+</section>
+<section id="run-the-simulation">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Run the simulation</a><a class="headerlink" href="#run-the-simulation" title="Link to this heading"></a></h3>
+<p>The first command runs the default case Eyy. The second one runs the case
+Exy on 4 processes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./TwoLayerCubeEx
+mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span>./TwoLayerCubeEx<span class="w"> </span>--test-case<span class="w"> </span><span class="m">3</span>
+</pre></div>
+</div>
+<p>The mesh <code class="docutils literal notranslate"><span class="pre">cube_2mat_per.mesh</span></code> has 4x4x4 hexahedra. The mesh <code class="docutils literal notranslate"><span class="pre">Box.med</span></code>
+has 8x8x8 hexahedra. Its periodicity is described by <code class="docutils literal notranslate"><span class="pre">Box.per</span></code>. Reading it
+requires MFEM built with MED support:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./TwoLayerCubeEx<span class="w"> </span>--mesh<span class="w"> </span>Box.med
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Available options</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command line</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--mesh</span></code> or <code class="docutils literal notranslate"><span class="pre">-m</span></code></p></td>
+<td><p>Mesh file</p></td>
+<td><p>cube_2mat_per.mesh</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--library</span></code> or <code class="docutils literal notranslate"><span class="pre">-l</span></code></p></td>
+<td><p>Material library</p></td>
+<td><p>src/libBehaviour.so</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--order</span></code> or <code class="docutils literal notranslate"><span class="pre">-o</span></code></p></td>
+<td><p>Finite element order</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--xmax</span></code> or <code class="docutils literal notranslate"><span class="pre">-xm</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--ymax</span></code> or <code class="docutils literal notranslate"><span class="pre">-ym</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--zmax</span></code> or <code class="docutils literal notranslate"><span class="pre">-zm</span></code></p></td>
+<td><p>Coordinates of the upper corner
+of the cube. They must match the
+mesh.</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--test-case</span></code> or <code class="docutils literal notranslate"><span class="pre">-t</span></code></p></td>
+<td><p>Imposed component of the strain,
+from 0 to 5</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--linearsolver</span></code> or <code class="docutils literal notranslate"><span class="pre">-ls</span></code></p></td>
+<td><p>Linear solver: GMRESSolver,
+CGSolver, UMFPackSolver or
+MUMPSSolver. UMFPackSolver is
+sequential only. MUMPSSolver is
+parallel only.</p></td>
+<td><p>CGSolver</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-p</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--no-parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-no-p</span></code></p></td>
+<td><p>Run in parallel or not</p></td>
+<td><p>parallel</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--check</span></code> or <code class="docutils literal notranslate"><span class="pre">-c</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--no-check</span></code> or <code class="docutils literal notranslate"><span class="pre">-no-c</span></code></p></td>
+<td><p>Compare or not the solution to
+the analytical one. It is only
+valid for the provided meshes.</p></td>
+<td><p>compare</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 <section id="satoh">
-<h2><a class="toc-backref" href="#id7" role="doc-backlink">Satoh</a><a class="headerlink" href="#satoh" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id15" role="doc-backlink">Satoh</a><a class="headerlink" href="#satoh" title="Link to this heading"></a></h2>
 <p>website: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex5">https://github.com/latug0/mfem-mgis-examples/tree/master/ex5</a></p>
 <p>Description:</p>
-<p>Modelling of a plate of length 1, in plane strain, clamped on the left and right boundaries and subjected to a parabolic thermal gradient along the x-axis. (source code 5)</p>
+<p>Plate of length 1 in plane strain, clamped on its left and right boundaries.
+A parabolic temperature profile is imposed along the x-axis.</p>
 <figure class="align-default">
 <img alt="Illustration of the displacement of the plate." src="../_images/SatohTest.png" />
 </figure>
-<section id="id1">
-<h3><a class="toc-backref" href="#id8" role="doc-backlink">Problem solved</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="id3">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Problem solved</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>This test models a 2D plate of length 1 in plane strain clamped on the left
-and right boundaries and subjected to a parabolic thermal gradient along the
-x-axis:
+and right boundaries and subjected to a parabolic temperature profile along
+the x-axis:
 
-- the temperature profile is minimal on the left and right boundaries
-- the temperature profile is maximal for x = 0.5
+- the temperature is 293.15 K on the left and right boundaries
+- the temperature is 2000 K for x = 0.5
 
 This example shows how to define an external state variable using an
 analytical profile.
@@ -240,11 +351,12 @@ analytical profile.
 Solver : UMFPackSolver
 Preconditioner : None
 
-Elastic behavior law parameters :
-[ parameters       , material ]
-[ Young Modulus    , 150e9    ];
-[ Poisson Ratio    , 0.3      ];
-[ Temperature      , 293.15   ];
+Thermoelastic behavior law parameters :
+[ parameters            , material ]
+[ Young Modulus         , 150e9    ];
+[ Poisson Ratio         , 0.3      ];
+[ Thermal Expansion     , 1e-5     ];
+[ Reference Temperature , 293.15   ];
 
 Element:
 - Family H1
@@ -252,31 +364,143 @@ Element:
 </pre></div>
 </div>
 </section>
-<section id="run-the-simulation">
-<h3><a class="toc-backref" href="#id9" role="doc-backlink">Run the simulation</a><a class="headerlink" href="#run-the-simulation" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Run the simulation</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <p>Parameters are hardcoded in this example.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./SatohTest
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you want to run this example in parallel, you’ll have to change the solver too.</p>
+<p>The example runs sequentially. A parallel run needs <code class="docutils literal notranslate"><span class="pre">parallel</span></code> set to
+<code class="docutils literal notranslate"><span class="pre">true</span></code> in the source code and a parallel linear solver.</p>
 </div>
 </section>
 </section>
 <section id="ssna303-example-2d-and-3d">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink">Ssna303 Example (2D and 3D)</a><a class="headerlink" href="#ssna303-example-2d-and-3d" title="Link to this heading"></a></h2>
-<p>This tutorial deals with a 2D (plane strain) tensile test (ex2) and 3D (ex4) on a notched beam modeled by finite-strain plastic behavior. See the tutorial section.</p>
+<h2><a class="toc-backref" href="#id18" role="doc-backlink">Ssna303 Example (2D and 3D)</a><a class="headerlink" href="#ssna303-example-2d-and-3d" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>website 2D example: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex2">https://github.com/latug0/mfem-mgis-examples/tree/master/ex2</a></p></li>
-<li><p>website 3D example : <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex4">https://github.com/latug0/mfem-mgis-examples/tree/master/ex4</a></p></li>
+<li><p>website 3D example: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex4">https://github.com/latug0/mfem-mgis-examples/tree/master/ex4</a></p></li>
 </ul>
+<p>Description:</p>
+<p>Tensile test on a notched beam with a finite-strain plastic behaviour. The 2D
+example ex2 is in plane strain. The <a class="reference internal" href="../user_guide/tutorial.html#mfem-mgis-tutorial"><span class="std std-ref">tutorial</span></a>
+describes it. The 3D example ex4 is described below.</p>
 <figure class="align-default">
-<img alt="Illustration of the start of the ssna303 simulation." src="../_images/ssna303Start.png" />
+<img alt="Illustration of the start of the 3D ssna303 simulation." src="../_images/ssna303Start.png" />
 </figure>
 <figure class="align-default">
-<img alt="Illustration of the start of the ssna303 simulation." src="../_images/ssna303End.png" />
+<img alt="Illustration of the end of the 3D ssna303 simulation." src="../_images/ssna303End.png" />
 </figure>
+<section id="problem-solved-in-3d">
+<h3><a class="toc-backref" href="#id19" role="doc-backlink">Problem solved in 3D</a><a class="headerlink" href="#problem-solved-in-3d" title="Link to this heading"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>The mesh ssna303_3d.msh is made of hexahedra. Lengths are in meters.
+The mesh is 1.5e-3 thick.
+
+Plastic behaviour with linear isotropic hardening, Plasticity.mfront :
+[ parameters      , material ]
+[ Young Modulus   , 70e9     ];
+[ Poisson Ratio   , 0.34     ];
+[ Yield Stress    , 300e6    ];
+[ Hardening Slope , 10e9     ];
+
+Boundary conditions:
+- uy = 0 on the lower boundary y = 0
+- ux = 0 on the symmetry plane x = 0
+- uz = 0 on the symmetry plane z = 0
+- uy = 6e-3 * t on the upper boundary y = 0.03
+
+Time: 50 steps from t = 0 to t = 1
+
+Element:
+- Family H1
+- Order 1
+</pre></div>
+</div>
+</section>
+<section id="run-the-3d-simulation">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Run the 3D simulation</a><a class="headerlink" href="#run-the-3d-simulation" title="Link to this heading"></a></h3>
+<p>Three executables solve this problem with different linear solvers:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Ssna303_3d_mumps</span></code> uses MUMPS in parallel and UMFPack sequentially. It
+requires MFEM built with MUMPS.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ssna303_3d_hypre</span></code> uses the FGMRES solver of hypre with the BoomerAMG
+preconditioner.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ssna303_3d_petsc</span></code> uses PETSc with the configuration file <code class="docutils literal notranslate"><span class="pre">rc_ex10p</span></code>.
+It requires MFEM built with PETSc.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span>./Ssna303_3d_mumps
+mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span>./Ssna303_3d_hypre
+mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span>./Ssna303_3d_petsc
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">Available options</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command line</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--order</span></code> or <code class="docutils literal notranslate"><span class="pre">-o</span></code></p></td>
+<td><p>Finite element order</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--nbsteps</span></code> or <code class="docutils literal notranslate"><span class="pre">-ns</span></code></p></td>
+<td><p>Number of time steps</p></td>
+<td><p>50</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--end-time</span></code> or <code class="docutils literal notranslate"><span class="pre">-et</span></code></p></td>
+<td><p>End time. The displacement of the
+upper boundary is 6e-3 * t.</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--reference-file</span></code> or <code class="docutils literal notranslate"><span class="pre">-rf</span></code></p></td>
+<td><p>Reference values of the resultant
+force on the upper boundary</p></td>
+<td><p>no comparison</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-p</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--no-parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-no-p</span></code></p></td>
+<td><p>Run in parallel with MUMPS or
+sequentially with UMFPack. Only
+for <code class="docutils literal notranslate"><span class="pre">Ssna303_3d_mumps</span></code>.</p></td>
+<td><p>parallel</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--linearsolver</span></code> or <code class="docutils literal notranslate"><span class="pre">-ls</span></code></p></td>
+<td><p>Linear solver. Only for
+<code class="docutils literal notranslate"><span class="pre">Ssna303_3d_hypre</span></code>.</p></td>
+<td><p>HypreFGMRES</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--preconditioner</span></code> or <code class="docutils literal notranslate"><span class="pre">-pc</span></code></p></td>
+<td><p>Preconditioner of the linear
+solver. Only for
+<code class="docutils literal notranslate"><span class="pre">Ssna303_3d_hypre</span></code>.</p></td>
+<td><p>HypreBoomerAMG</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--refinement</span></code> or <code class="docutils literal notranslate"><span class="pre">-r</span></code></p></td>
+<td><p>Number of uniform refinements of
+the mesh. Not for
+<code class="docutils literal notranslate"><span class="pre">Ssna303_3d_mumps</span></code>.</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--use-petsc</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--petsc-configuration-file</span></code></p></td>
+<td><p>Use PETSc with the given
+configuration file. It requires
+MFEM built with PETSc. Not for
+<code class="docutils literal notranslate"><span class="pre">Ssna303_3d_hypre</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rc_ex10p</span></code> for
+<code class="docutils literal notranslate"><span class="pre">Ssna303_3d_petsc</span></code>,
+no PETSc otherwise</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 

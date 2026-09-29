@@ -20,7 +20,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Simulation of pressurized bubbles" href="bubbles.html" />
+    <link rel="next" title="Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications" href="rve_mox.html" />
     <link rel="prev" title="Basic Tests" href="basic_tests.html" /> 
 </head>
 
@@ -47,19 +47,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation_guide/installation_guide.html">Installation guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/user_guide.html">User guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Commented Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="basic_tests.html">Basic Tests</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Representative Volume Element with Elastic inclusions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#build-the-mesh">Build the mesh</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#run-the-simulation">Run the Simulation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#available-options">Available options</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#mfem-mgis-examples">mfem-mgis-examples</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="basic_tests.html">Basic Tests</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Representative Volume Element with Elastic inclusions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#build-the-mesh">Build the mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-the-simulation">Run the Simulation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rjh_plate.html">Thermomechanical Simulation of a RJH Plate</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bubbles.html">Simulation of pressurized bubbles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="polycrystal.html">Polycrystal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cermet.html">Cermet simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rve_mox.html">Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#mm-opera-hpc">mm-opera-hpc</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer_guide/developer_guide.html">Developer guide</a></li>
@@ -107,7 +106,14 @@
 </li>
 </ul>
 </nav>
-<p>Simulation of a Representative Volume Element (RVE) with a non-linear elastic behavior law. A geometry mesh is provided : “inclusions_49.geo”. The mesh can be generated using the following command: gmsh -3 inclusions_49.geo. By modifying the parameters within the .geo file, such as the number of spheres and the size of the element mesh, you can control and customize the simulation accordingly. (code source: ex6)</p>
+<p>website: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex6">https://github.com/latug0/mfem-mgis-examples/tree/master/ex6</a></p>
+<p>This example models a periodic Representative Volume Element made of two
+materials. Both follow the Saint Venant-Kirchhoff hyperelastic behaviour. A
+macroscopic deformation gradient is imposed.</p>
+<p>By default, the Representative Volume Element is a cube made of two layers.
+The solution is then compared to the analytical one. The file
+<code class="docutils literal notranslate"><span class="pre">inclusions_49.geo</span></code> describes a Representative Volume Element with 49
+spherical inclusions.</p>
 <figure class="align-default">
 <img alt="Slice of a RVE with 49 spheres." src="../_images/ex6half.png" />
 </figure>
@@ -116,44 +122,67 @@
 </figure>
 <section id="build-the-mesh">
 <h2><a class="toc-backref" href="#id2" role="doc-backlink">Build the mesh</a><a class="headerlink" href="#build-the-mesh" title="Link to this heading"></a></h2>
-<p>Use GMSH to mesh the geometry. The <code class="docutils literal notranslate"><span class="pre">.geo</span></code> file is in the <code class="docutils literal notranslate"><span class="pre">ex6</span></code> repository. Command line:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate the .msh file with GMSH</span>
-gmsh<span class="w"> </span>-3<span class="w"> </span>inclusions_49.geo
+<p>The <code class="docutils literal notranslate"><span class="pre">.geo</span></code> file is in the <code class="docutils literal notranslate"><span class="pre">ex6</span></code> directory. Mesh it with GMSH:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gmsh<span class="w"> </span>-3<span class="w"> </span>inclusions_49.geo
 </pre></div>
 </div>
+<p>The number of spheres and the size of the elements are parameters of the
+<code class="docutils literal notranslate"><span class="pre">.geo</span></code> file.</p>
 </section>
 <section id="run-the-simulation">
 <h2><a class="toc-backref" href="#id3" role="doc-backlink">Run the Simulation</a><a class="headerlink" href="#run-the-simulation" title="Link to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./rve<span class="w"> </span>--mesh<span class="w"> </span>inclusions_49.msh<span class="w"> </span>--verbosity-level<span class="w"> </span><span class="m">0</span>
+<p>The first command runs the default case. The second one runs the case with
+inclusions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./rve
+mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">12</span><span class="w"> </span>./rve<span class="w"> </span>--mesh<span class="w"> </span>inclusions_49.msh<span class="w"> </span>--no-check
 </pre></div>
 </div>
+<p>The analytical solution is only valid for the default mesh. The option
+<code class="docutils literal notranslate"><span class="pre">--no-check</span></code> disables the comparison.</p>
 <section id="available-options">
 <h3><a class="toc-backref" href="#id4" role="doc-backlink">Available options</a><a class="headerlink" href="#available-options" title="Link to this heading"></a></h3>
-<p>To customize the simulation, several options are available, as detailed
-below.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Command line</p></th>
 <th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>–mesh or -m</p></td>
-<td><p>Specify the mesh “.msh” used (default =
-inclusion.msh)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--mesh</span></code> or <code class="docutils literal notranslate"><span class="pre">-m</span></code></p></td>
+<td><p>Mesh file</p></td>
+<td><p>cube_2mat_per.mesh</p></td>
 </tr>
-<tr class="row-odd"><td><p>–refinement or -r</p></td>
-<td><p>Refinement level of the mesh (default = 0)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--library</span></code> or <code class="docutils literal notranslate"><span class="pre">-l</span></code></p></td>
+<td><p>Material library</p></td>
+<td><p>src/libBehaviour.so</p></td>
 </tr>
-<tr class="row-even"><td><p>–order or -o</p></td>
-<td><p>Finite element order (polynomial degree)
-(default = 2)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--order</span></code> or <code class="docutils literal notranslate"><span class="pre">-o</span></code></p></td>
+<td><p>Finite element order</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p>–verbosity-level or -v</p></td>
-<td><p>Choose the verbosity level (default = 0)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--refinement</span></code> or <code class="docutils literal notranslate"><span class="pre">-r</span></code></p></td>
+<td><p>Number of uniform refinements of
+the mesh</p></td>
+<td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p>–post-processing or -p</p></td>
-<td><p>Run post processing step (default = 1)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--post-processing</span></code> or
+<code class="docutils literal notranslate"><span class="pre">-pp</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-post-processing</span></code>
+or <code class="docutils literal notranslate"><span class="pre">-no-pp</span></code></p></td>
+<td><p>Export or not the results to
+Paraview</p></td>
+<td><p>export</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--check</span></code> or <code class="docutils literal notranslate"><span class="pre">-c</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--no-check</span></code> or <code class="docutils literal notranslate"><span class="pre">-no-c</span></code></p></td>
+<td><p>Compare or not the solution to
+the analytical solution of the
+two-layer cube</p></td>
+<td><p>compare</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--verbosity-level</span></code> or <code class="docutils literal notranslate"><span class="pre">-v</span></code></p></td>
+<td><p>Verbosity level of the solvers</p></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
@@ -166,7 +195,7 @@ inclusion.msh)</p></td>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="basic_tests.html" class="btn btn-neutral float-left" title="Basic Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="bubbles.html" class="btn btn-neutral float-right" title="Simulation of pressurized bubbles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="rve_mox.html" class="btn btn-neutral float-right" title="Representative Volume Element of Combustible Mixed Oxides for Nuclear Applications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
