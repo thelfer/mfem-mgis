@@ -738,12 +738,12 @@ install(FILES ${UTILITY_FILE}
               ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
         DESTINATION ${EX1_DIR})
 
-set(EX2_DIR "share/mfem-mgis/examples/ex2")
+set(EX3_DIR "share/mfem-mgis/examples/ex3")
 install(FILES TwoLayerCube.cxx IsotropicLinearElasticity.mfront
-              cube_2mat_per.mesh
-        DESTINATION ${EX2_DIR})
+              cube_2mat_per.mesh Box.med Box.per
+        DESTINATION ${EX3_DIR})
 
 install(
-  FILES ex2CMakeLists.txt
-  DESTINATION ${EX2_DIR}
+  FILES ex3CMakeLists.txt
+  DESTINATION ${EX3_DIR}
   RENAME CMakeLists.txt)

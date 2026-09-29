@@ -6,7 +6,11 @@
  * the analytical solution of this case, for the loading case selected by the
  * --test-case option.
  *
- * The cube is meshed by cube_2mat_per.mesh (4x4x4 hexahedra).
+ * The cube is meshed by cube_2mat_per.mesh (4x4x4 hexahedra) and, more
+ * finely, by Box.med (8x8x8 hexahedra), whose periodicity is described by
+ * Box.per. Reading Box.med requires MFEM built with MED support:
+ *
+ *   --mesh Box.med
  *
  * Mechanical strain:
  *                 eps = E + grad_s v
