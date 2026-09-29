@@ -222,9 +222,9 @@ cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"
 </section>
 <section id="creating-a-simple-example-based-on-mfem-mgis">
 <h2><a class="toc-backref" href="#id8" role="doc-backlink">Creating a simple example based on <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code></a><a class="headerlink" href="#creating-a-simple-example-based-on-mfem-mgis" title="Link to this heading"></a></h2>
-<p>The installation of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> includes a simple example, <code class="docutils literal notranslate"><span class="pre">ex1</span></code>.
-It requires the <code class="docutils literal notranslate"><span class="pre">&#64;master</span></code> version. It can be copied to another location
-and built with CMake:</p>
+<p>The installation of <code class="docutils literal notranslate"><span class="pre">mfem-mgis</span></code> includes two simple examples, <code class="docutils literal notranslate"><span class="pre">ex1</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ex3</span></code>. They require the <code class="docutils literal notranslate"><span class="pre">&#64;master</span></code> version. They can be copied to another
+location and built with CMake:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>spack<span class="w"> </span>load<span class="w"> </span>mfem-mgis
 cp<span class="w"> </span>-r<span class="w"> </span><span class="sb">`</span>spack<span class="w"> </span>location<span class="w"> </span>-i<span class="w"> </span>mfem-mgis<span class="sb">`</span>/share/mfem-mgis/examples/ex1<span class="w"> </span>.
 <span class="nb">cd</span><span class="w"> </span>ex1
@@ -233,9 +233,9 @@ cmake<span class="w"> </span>--build<span class="w"> </span>build
 ctest<span class="w"> </span>--test-dir<span class="w"> </span>build
 </pre></div>
 </div>
-<p>The example also provides a <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>, which needs the variables set
-by <code class="docutils literal notranslate"><span class="pre">share/mfem-mgis/examples/env.sh</span></code>.</p>
-<p>Its sources can be modified to develop your own study cases.</p>
+<p>Without spack, <code class="docutils literal notranslate"><span class="pre">share/mfem-mgis/examples/env.sh</span></code> sets the required
+environment variables.</p>
+<p>Their sources can be modified to develop your own study cases.</p>
 </section>
 <section id="installation-guide-on-topaze-ccrt-of-mfem-mgis-examples">
 <h2><a class="toc-backref" href="#id9" role="doc-backlink">Installation Guide on Topaze/CCRT of mfem-mgis-examples</a><a class="headerlink" href="#installation-guide-on-topaze-ccrt-of-mfem-mgis-examples" title="Link to this heading"></a></h2>

@@ -133,11 +133,14 @@
 <section id="tensiletest">
 <h2><a class="toc-backref" href="#id7" role="doc-backlink">TensileTest</a><a class="headerlink" href="#tensiletest" title="Link to this heading"></a></h2>
 <p>website : <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex1">https://github.com/latug0/mfem-mgis-examples/tree/master/ex1</a></p>
+<p>The sources of this example live in mfem-mgis, in
+<code class="docutils literal notranslate"><span class="pre">tests/UniaxialTensileTest.cxx</span></code>. They are installed in
+<code class="docutils literal notranslate"><span class="pre">share/mfem-mgis/examples/ex1</span></code>.</p>
 <p>Description:</p>
 <p>This example is a cyclic tension-compression test on a unit cube. The
 imposed axial strain goes up to 0.9 %, down to -2.1 % and back up to
 1.9 %, in 100 time steps. Its test compares the results to the reference
-file <code class="docutils literal notranslate"><span class="pre">Plasticity.ref</span></code>.</p>
+file <code class="docutils literal notranslate"><span class="pre">IsotropicLinearHardeningPlasticity.ref</span></code>.</p>
 <figure class="align-default">
 <img alt="Illustration of the start of the TensileTest simulation." src="../_images/ex1Start.png" />
 </figure>
@@ -146,7 +149,8 @@ file <code class="docutils literal notranslate"><span class="pre">Plasticity.ref
 </figure>
 <section id="problem-solved">
 <h3><a class="toc-backref" href="#id8" role="doc-backlink">Problem Solved</a><a class="headerlink" href="#problem-solved" title="Link to this heading"></a></h3>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Plastic behaviour with linear isotropic hardening (Plasticity.mfront):
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Plastic behaviour with linear isotropic hardening,
+IsotropicLinearHardeningPlasticity.mfront :
 [ parameters      , material ]
 [ Young Modulus   , 70e9     ];
 [ Poisson Ratio   , 0.34     ];
@@ -157,7 +161,7 @@ Boundary conditions:
 - symmetry on the faces x = 0, y = 0 and z = 0
 - imposed displacement along x on the face x = 1
 
-Solver : Conjugate Gradient (default)
+Solver : CGSolver
 
 Element:
 - Family H1
@@ -167,59 +171,87 @@ Element:
 </section>
 <section id="run-this-simulation">
 <h3><a class="toc-backref" href="#id9" role="doc-backlink">Run This Simulation</a><a class="headerlink" href="#run-this-simulation" title="Link to this heading"></a></h3>
-<p>Without any option, the example runs as described above, in serial or
-in parallel. The <code class="docutils literal notranslate"><span class="pre">-r</span></code> option compares the results to the reference file:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./UniaxialTensileTestEx
-mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>./UniaxialTensileTestEx<span class="w"> </span>-p<span class="w"> </span><span class="m">1</span>
-./UniaxialTensileTestEx<span class="w"> </span>-r<span class="w"> </span>Plasticity.ref
+<p>Without any option, the example runs as described above. The
+<code class="docutils literal notranslate"><span class="pre">--reference-file</span></code> option compares the results to the reference file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uniaxial_tensile_test
+mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>./uniaxial_tensile_test
+./uniaxial_tensile_test<span class="w"> </span>--reference-file<span class="w"> </span>IsotropicLinearHardeningPlasticity.ref
 </pre></div>
 </div>
 </section>
 <section id="available-options">
 <h3><a class="toc-backref" href="#id10" role="doc-backlink">Available options</a><a class="headerlink" href="#available-options" title="Link to this heading"></a></h3>
-<p>To customize the simulation, several options are available, as detailed
-below.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Command line</p></th>
 <th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>–mesh or -m</p></td>
-<td><p>Mesh file (default = cube.mesh)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--mesh</span></code> or <code class="docutils literal notranslate"><span class="pre">-m</span></code></p></td>
+<td><p>Mesh file</p></td>
+<td><p>cube.mesh</p></td>
 </tr>
-<tr class="row-odd"><td><p>–reference-file or -r</p></td>
-<td><p>Reference file, compared to the results
-when given (default = none)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--library</span></code> or <code class="docutils literal notranslate"><span class="pre">-l</span></code></p></td>
+<td><p>Material library</p></td>
+<td><p>src/libBehaviour.so</p></td>
 </tr>
-<tr class="row-even"><td><p>–behaviour or -b</p></td>
-<td><p>Name of the behaviour
-(default = Plasticity)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--behaviour</span></code> or <code class="docutils literal notranslate"><span class="pre">-b</span></code></p></td>
+<td><p>Name of the behaviour</p></td>
+<td><p>IsotropicLinearHardeningPlasticity</p></td>
 </tr>
-<tr class="row-odd"><td><p>–internal-state-variable or -v</p></td>
-<td><p>Internal state variable compared to the
-reference
-(default = EquivalentPlasticStrain)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--internal-state-variable</span></code> or
+<code class="docutils literal notranslate"><span class="pre">-isv</span></code></p></td>
+<td><p>Internal state variable saved and
+compared to the reference file,
+none if empty</p></td>
+<td><p>EquivalentPlasticStrain</p></td>
 </tr>
-<tr class="row-even"><td><p>–library or -l</p></td>
-<td><p>Material library
-(default = src/libBehaviour.so)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--reference-file</span></code> or <code class="docutils literal notranslate"><span class="pre">-rf</span></code></p></td>
+<td><p>Reference file</p></td>
+<td><p>no comparison</p></td>
 </tr>
-<tr class="row-odd"><td><p>–linearsolver or -ls</p></td>
-<td><p>Linear solver. Serial: 0 -&gt; CG,
-1 -&gt; GMRES, 2 -&gt; UMFPack. Parallel:
-0 -&gt; CG, 1 -&gt; GMRES, 2 -&gt; HypreFGMRES,
-3 -&gt; MUMPS (HyprePCG without MUMPS),
-4 -&gt; HypreGMRES (default = 0)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--order</span></code> or <code class="docutils literal notranslate"><span class="pre">-o</span></code></p></td>
+<td><p>Finite element order</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p>–order or -o</p></td>
-<td><p>Finite element order (polynomial degree)
-(default = 1)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--refinement</span></code> or <code class="docutils literal notranslate"><span class="pre">-r</span></code></p></td>
+<td><p>Number of uniform refinements of
+the mesh</p></td>
+<td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p>–parallel or -p</p></td>
-<td><p>0 for a serial run, 1 for a parallel run
-(default = 0)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--nbsteps</span></code> or <code class="docutils literal notranslate"><span class="pre">-ns</span></code></p></td>
+<td><p>Number of time steps. The
+reference file must have been
+computed with the same number of
+time steps.</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--linearsolver</span></code> or <code class="docutils literal notranslate"><span class="pre">-ls</span></code></p></td>
+<td><p>Linear solver: GMRESSolver,
+CGSolver, UMFPackSolver,
+MUMPSSolver, HypreFGMRES, HyprePCG
+or HypreGMRES. UMFPackSolver is
+sequential only. MUMPSSolver and
+the hypre solvers are parallel
+only. HypreFGMRES uses the
+HypreILU preconditioner. HyprePCG
+uses the HypreDiagScale
+preconditioner.</p></td>
+<td><p>CGSolver</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-p</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--no-parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-no-p</span></code></p></td>
+<td><p>Run in parallel or not</p></td>
+<td><p>parallel if MFEM is built
+with MPI</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--post-processing</span></code> or <code class="docutils literal notranslate"><span class="pre">-pp</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--no-post-processing</span></code> or <code class="docutils literal notranslate"><span class="pre">-no-pp</span></code></p></td>
+<td><p>Export or not the results to
+Paraview</p></td>
+<td><p>export</p></td>
 </tr>
 </tbody>
 </table>
@@ -228,6 +260,8 @@ reference
 <section id="twolayercube">
 <h2><a class="toc-backref" href="#id11" role="doc-backlink">TwoLayerCube</a><a class="headerlink" href="#twolayercube" title="Link to this heading"></a></h2>
 <p>website: <a class="reference external" href="https://github.com/latug0/mfem-mgis-examples/tree/master/ex3">https://github.com/latug0/mfem-mgis-examples/tree/master/ex3</a></p>
+<p>The sources of this example live in mfem-mgis, in <code class="docutils literal notranslate"><span class="pre">tests/TwoLayerCube.cxx</span></code>.
+They are installed in <code class="docutils literal notranslate"><span class="pre">share/mfem-mgis/examples/ex3</span></code>.</p>
 <p>Description:</p>
 <p>Periodic unit cube made of two elastic layers. A macroscopic strain is
 imposed. The solution is compared to the analytical one.</p>
@@ -291,7 +325,12 @@ requires MFEM built with MED support:</p>
 <td><p>Finite element order</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--xmax</span></code> or <code class="docutils literal notranslate"><span class="pre">-xm</span></code>,
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--refinement</span></code> or <code class="docutils literal notranslate"><span class="pre">-r</span></code></p></td>
+<td><p>Number of uniform refinements of
+the mesh</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--xmax</span></code> or <code class="docutils literal notranslate"><span class="pre">-xm</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--ymax</span></code> or <code class="docutils literal notranslate"><span class="pre">-ym</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--zmax</span></code> or <code class="docutils literal notranslate"><span class="pre">-zm</span></code></p></td>
 <td><p>Coordinates of the upper corner
@@ -299,25 +338,31 @@ of the cube. They must match the
 mesh.</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--test-case</span></code> or <code class="docutils literal notranslate"><span class="pre">-t</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--test-case</span></code> or <code class="docutils literal notranslate"><span class="pre">-t</span></code></p></td>
 <td><p>Imposed component of the strain,
 from 0 to 5</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--linearsolver</span></code> or <code class="docutils literal notranslate"><span class="pre">-ls</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--linearsolver</span></code> or <code class="docutils literal notranslate"><span class="pre">-ls</span></code></p></td>
 <td><p>Linear solver: GMRESSolver,
-CGSolver, UMFPackSolver or
-MUMPSSolver. UMFPackSolver is
-sequential only. MUMPSSolver is
-parallel only.</p></td>
+CGSolver, UMFPackSolver,
+MUMPSSolver, HypreFGMRES,
+HyprePCG or HypreGMRES.
+UMFPackSolver is sequential
+only. MUMPSSolver and the hypre
+solvers are parallel only.
+HypreFGMRES uses the HypreILU
+preconditioner. HyprePCG uses
+the HypreDiagScale
+preconditioner.</p></td>
 <td><p>CGSolver</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-p</span></code>,
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-p</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--no-parallel</span></code> or <code class="docutils literal notranslate"><span class="pre">-no-p</span></code></p></td>
 <td><p>Run in parallel or not</p></td>
 <td><p>parallel</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--check</span></code> or <code class="docutils literal notranslate"><span class="pre">-c</span></code>,
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--check</span></code> or <code class="docutils literal notranslate"><span class="pre">-c</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--no-check</span></code> or <code class="docutils literal notranslate"><span class="pre">-no-c</span></code></p></td>
 <td><p>Compare or not the solution to
 the analytical one. It is only
