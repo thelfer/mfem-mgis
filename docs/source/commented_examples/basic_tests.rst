@@ -92,6 +92,92 @@ below.
 |                                 | (default = 0)                              |
 +---------------------------------+--------------------------------------------+
 
+TwoLayerCube
+------------
+
+website: https://github.com/latug0/mfem-mgis-examples/tree/master/ex3
+
+Description:
+
+Periodic unit cube made of two elastic layers. A macroscopic strain is
+imposed. The solution is compared to the analytical one.
+
+Problem solved
+~~~~~~~~~~~~~~
+
+.. code:: text
+
+   The layers are split at x = 0.5. Material 1 fills x < 0.5. Material 2
+   fills x > 0.5.
+
+   One component of the macroscopic strain is imposed:
+   Exx -> 0, Eyy -> 1, Ezz -> 2, Exy -> 3, Exz -> 4, Eyz -> 5.
+   Its value is 1 for a normal component. It is √2/2 for a shear
+   component, in Mandel notation.
+
+   Solver : CGSolver
+
+   Elastic behaviour parameters, Elasticity.mfront :
+   [ parameters             , material 1 , material 2 ]
+   [ First Lame Coefficient , 100        , 200        ];
+   [ Shear Modulus          , 75         , 150        ];
+
+   Element:
+   - Family H1
+   - Order 1
+
+Run the simulation
+~~~~~~~~~~~~~~~~~~
+
+The first command runs the default case Eyy. The second one runs the case
+Exy on 4 processes:
+
+.. code-block:: bash
+
+   ./TwoLayerCubeEx
+   mpirun -n 4 ./TwoLayerCubeEx --test-case 3
+
+The mesh ``cube_2mat_per.mesh`` has 4x4x4 hexahedra. The mesh ``Box.med``
+has 8x8x8 hexahedra. Its periodicity is described by ``Box.per``. Reading it
+requires MFEM built with MED support:
+
+.. code-block:: bash
+
+   ./TwoLayerCubeEx --mesh Box.med
+
+Available options
+~~~~~~~~~~~~~~~~~
+
++----------------------------------+----------------------------------+----------------------+
+| Command line                     | Description                      | Default              |
++==================================+==================================+======================+
+| ``--mesh`` or ``-m``             | Mesh file                        | cube_2mat_per.mesh   |
++----------------------------------+----------------------------------+----------------------+
+| ``--library`` or ``-l``          | Material library                 | src/libBehaviour.so  |
++----------------------------------+----------------------------------+----------------------+
+| ``--order`` or ``-o``            | Finite element order             | 1                    |
++----------------------------------+----------------------------------+----------------------+
+| ``--xmax`` or ``-xm``,           | Coordinates of the upper corner  | 1                    |
+| ``--ymax`` or ``-ym``,           | of the cube. They must match the |                      |
+| ``--zmax`` or ``-zm``            | mesh.                            |                      |
++----------------------------------+----------------------------------+----------------------+
+| ``--test-case`` or ``-t``        | Imposed component of the strain, | 1                    |
+|                                  | from 0 to 5                      |                      |
++----------------------------------+----------------------------------+----------------------+
+| ``--linearsolver`` or ``-ls``    | Linear solver: GMRESSolver,      | CGSolver             |
+|                                  | CGSolver, UMFPackSolver or       |                      |
+|                                  | MUMPSSolver. UMFPackSolver is    |                      |
+|                                  | sequential only. MUMPSSolver is  |                      |
+|                                  | parallel only.                   |                      |
++----------------------------------+----------------------------------+----------------------+
+| ``--parallel`` or ``-p``,        | Run in parallel or not           | parallel             |
+| ``--no-parallel`` or ``-no-p``   |                                  |                      |
++----------------------------------+----------------------------------+----------------------+
+| ``--check`` or ``-c``,           | Compare or not the solution to   | compare              |
+| ``--no-check`` or ``-no-c``      | the analytical one. It is only   |                      |
+|                                  | valid for the provided meshes.   |                      |
++----------------------------------+----------------------------------+----------------------+
+
 Satoh
 -----
 
