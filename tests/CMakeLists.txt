@@ -126,11 +126,11 @@ if(MFEM_MGIS_HAVE_TFEL)
         "${internal_state_variable}")
     add_test(NAME ${test}
              COMMAND ./UniaxialTensileTest ${UniaxialTensileTestParameters}
-                     "--parallel" "0")
+                     "--no-parallel")
     if(MFEM_USE_MPI)
       add_test(NAME ${test}P
                COMMAND mpirun -n 2 ./UniaxialTensileTest
-                       ${UniaxialTensileTestParameters} "--parallel" "1")
+                       ${UniaxialTensileTestParameters} "--parallel")
     endif(MFEM_USE_MPI)
     set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
   endfunction()
@@ -705,12 +705,11 @@ if(MFEM_MGIS_HAVE_TFEL)
 
 endif(MFEM_MGIS_HAVE_TFEL)
 
-# Configure and export example 1 This example is based on UniaxialTensileTest
-# from the unit tests
+# Install the example 1, based on UniaxialTensileTest
 
 set(EX1_DIR "share/mfem-mgis/examples/ex1")
-install(FILES IsotropicLinearHardeningPlasticity.mfront cube.mesh
-              references/IsotropicLinearHardeningPlasticity.ref
+install(FILES UniaxialTensileTest.cxx IsotropicLinearHardeningPlasticity.mfront
+              cube.mesh references/IsotropicLinearHardeningPlasticity.ref
         DESTINATION ${EX1_DIR})
 
 install(
@@ -722,23 +721,6 @@ install(
   FILES ex1Makefile
   DESTINATION ${EX1_DIR}
   RENAME Makefile)
-
-set(UTILITY_FILE
-    ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UnitTestingUtilities.hxx
-)
-add_custom_command(
-  OUTPUT ${UTILITY_FILE}
-  COMMAND ${PROJECT_SOURCE_DIR}/tests/sed_utility.sh
-          ${PROJECT_SOURCE_DIR}/tests/UnitTestingUtilities.hxx ${UTILITY_FILE}
-  DEPENDS ${PROJECT_SOURCE_DIR}/tests/sed_utility.sh
-          ${PROJECT_SOURCE_DIR}/tests/UnitTestingUtilities.hxx
-  COMMENT "seding the UnitTestingUtilities.hxx")
-
-add_custom_target(generate-ex1 ALL DEPENDS ${UTILITY_FILE})
-
-install(FILES ${UTILITY_FILE}
-              ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
-        DESTINATION ${EX1_DIR})
 
 set(EX3_DIR "share/mfem-mgis/examples/ex3")
 install(FILES TwoLayerCube.cxx IsotropicLinearElasticity.mfront
