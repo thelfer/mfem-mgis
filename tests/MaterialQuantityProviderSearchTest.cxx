@@ -57,8 +57,8 @@ struct MaterialQuantityProviderSearchTest final : public tfel::tests::TestCase {
   /*!
    * \brief add two behaviour integrators on the material `1`:
    *
-   * - the first one, based on the `Elasticity` behaviour, has no internal
-   *   state variable.
+   * - the first one, based on the `IsotropicLinearElasticity` behaviour, has
+   *   no internal state variable.
    * - the second one, based on the `Plasticity` behaviour, has two internal
    *   state variables: `ElasticStrain` and `EquivalentPlasticStrain`.
    *
@@ -69,7 +69,7 @@ struct MaterialQuantityProviderSearchTest final : public tfel::tests::TestCase {
    */
   void addBehaviourIntegrators(mfem_mgis::NonLinearEvolutionProblem& p) {
     auto ctx = mfem_mgis::Context{};
-    for (const auto& b : {"Elasticity", "Plasticity"}) {
+    for (const auto& b : {"IsotropicLinearElasticity", "Plasticity"}) {
       TFEL_TESTS_ASSERT(mfem_mgis::isValid(p.addBehaviourIntegrator(
           ctx, "Mechanics", 1, parameters.library, b)));
     }

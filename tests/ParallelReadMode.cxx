@@ -232,10 +232,10 @@ void executeMFEMMGISTest(mgis::Context& ctx, const TestParameters& p) {
             ctx, fed, corner1, corner2) |
         or_die;
     problem.addBehaviourIntegrator(ctx, "Mechanics", 1, p.library,
-                                   "Elasticity") |
+                                   "IsotropicLinearElasticity") |
         or_die;
     problem.addBehaviourIntegrator(ctx, "Mechanics", 2, p.library,
-                                   "Elasticity") |
+                                   "IsotropicLinearElasticity") |
         or_die;
     // materials
     auto& m1 = problem.getMaterial(ctx, 1, 0) | or_die;

@@ -55,7 +55,7 @@ if(MFEM_MGIS_HAVE_TFEL)
   # Compile MFront behaviours library
   mfront_behaviours_check_library(
     BehaviourTest
-    Elasticity
+    IsotropicLinearElasticity
     OrthotropicElasticity
     Plasticity
     Mazars
@@ -195,7 +195,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif(MFEM_USE_MPI)
   endfunction()
 
-  add_imposed_pressure_test2(Elasticity)
+  add_imposed_pressure_test2(IsotropicLinearElasticity)
 
   # PartialQuadratureSpaceTest executable
   add_tfel_test_executable(PartialQuadratureSpaceTest)
@@ -739,7 +739,8 @@ install(FILES ${UTILITY_FILE}
         DESTINATION ${EX1_DIR})
 
 set(EX2_DIR "share/mfem-mgis/examples/ex2")
-install(FILES TwoLayerCube.cxx Elasticity.mfront cube_2mat_per.mesh
+install(FILES TwoLayerCube.cxx IsotropicLinearElasticity.mfront
+              cube_2mat_per.mesh
         DESTINATION ${EX2_DIR})
 
 install(

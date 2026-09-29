@@ -52,7 +52,8 @@ struct AddBehaviourIntegratorTest final : public tfel::tests::TestCase {
         construct<NonLinearEvolutionProblem>(ctx, getProblemParameters());
     TFEL_TESTS_ASSERT(isValid(oproblem));
     const auto r = oproblem->addBehaviourIntegrator(
-        ctx, "Mechanics", "UnknownMaterial", "libBehaviour.so", "Elasticity");
+        ctx, "Mechanics", "UnknownMaterial", "libBehaviour.so",
+        "IsotropicLinearElasticity");
     TFEL_TESTS_CHECK(isInvalid(r));
     TFEL_TESTS_CHECK(!ctx.getErrorMessage().empty());
   }
@@ -65,7 +66,7 @@ struct AddBehaviourIntegratorTest final : public tfel::tests::TestCase {
     auto oproblem = construct<NonLinearEvolutionProblem>(ctx, params);
     TFEL_TESTS_ASSERT(isValid(oproblem));
     const auto r = oproblem->addBehaviourIntegrator(
-        ctx, "Mechanics", 1, "libBehaviour.so", "Elasticity");
+        ctx, "Mechanics", 1, "libBehaviour.so", "IsotropicLinearElasticity");
     TFEL_TESTS_CHECK(isInvalid(r));
     TFEL_TESTS_CHECK(ctx.getRawErrorMessage() ==
                      "NonLinearEvolutionProblemImplementationBase::"

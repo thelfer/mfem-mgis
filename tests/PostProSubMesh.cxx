@@ -22,7 +22,7 @@
 
 struct TestParameters {
   const char* mesh_file = "data/beam-tet.mesh";
-  const char* behaviour = "Elasticity";
+  const char* behaviour = "IsotropicLinearElasticity";
   const char* library = "src/libBehaviour.so";
   int order = 1;
   int refinement = 3;

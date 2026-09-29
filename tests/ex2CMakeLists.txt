@@ -50,15 +50,15 @@ target_include_directories(TwoLayerCube
 
 # Copy needed file for execution
 file(COPY
-  ${PROJECT_SOURCE_DIR}/Elasticity.mfront
+  ${PROJECT_SOURCE_DIR}/IsotropicLinearElasticity.mfront
   ${PROJECT_SOURCE_DIR}/cube_2mat_per.mesh
   DESTINATION ${PROJECT_BINARY_DIR})
 
 # Use mfront to generate libBehaviour.so
 add_custom_command(
   OUTPUT "src/libBehaviour.so"
-  COMMAND mfront --obuild --interface=generic ${PROJECT_BINARY_DIR}/Elasticity.mfront
-  DEPENDS ${PROJECT_BINARY_DIR}/Elasticity.mfront
+  COMMAND mfront --obuild --interface=generic ${PROJECT_BINARY_DIR}/IsotropicLinearElasticity.mfront
+  DEPENDS ${PROJECT_BINARY_DIR}/IsotropicLinearElasticity.mfront
   COMMENT "Performing mfront code generation")
 
 add_custom_target(generate-libBehaviour-ex2 ALL
