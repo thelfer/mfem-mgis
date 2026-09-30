@@ -35,7 +35,7 @@ namespace mfem_mgis {
    * \param[in, out] t: object for which information are requested
    */
   template <typename T>
-  bool info(Context&, const T&) noexcept;
+  bool info(Context&, std::ostream&, const T&) noexcept;
   /*!
    * \brief print information in the default log stream
    *
