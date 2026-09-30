@@ -17,8 +17,17 @@ namespace mfem_mgis {
       : AbstractTimeIncrementComputer {
     //! \brief constructor
     TimeIncrementComputerBase() noexcept;
-    //
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \return true
+     */
     [[nodiscard]] bool initialize(Context& ctx) noexcept override;
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \return true
+     */
     [[nodiscard]] bool prepareNextTimeStep(Context& ctx) noexcept override;
     //! \brief destructor
     ~TimeIncrementComputerBase() noexcept override;

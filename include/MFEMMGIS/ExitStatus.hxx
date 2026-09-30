@@ -62,25 +62,32 @@ namespace mfem_mgis {
     ExitStatus() noexcept;
     //! \brief move constructor
     ExitStatus(ExitStatus &&) noexcept = default;
-    //! \brief default constructor
+    //! \brief copy constructor
     ExitStatus(const ExitStatus &) noexcept = default;
-    //! \brief move assignement
+    //! \brief move assignment
     ExitStatus &operator=(ExitStatus &&) noexcept = default;
-    //! \brief standard assignement
+    //! \brief standard assignment
     ExitStatus &operator=(const ExitStatus &) noexcept = default;
-    //! \brief constructor from an ExitStatus
+    /*!
+     * \brief constructor from a boolean
+     * \param[in] s: if true, the status is `success`, otherwise
+     * `unrecoverableError`
+     */
     explicit ExitStatus(const bool s) noexcept;
-    //! \brief default comparison operators
+    /*!
+     * \brief default comparison operators
+     * \return the result of the three-way comparison
+     */
     auto operator<=>(ExitStatus const &) const = default;
     /*!
-     * \brief change the current status. This is equivalent to the assignement
+     * \brief change the current status. This is equivalent to the assignment
      * operator
      *
      * \param[in] s: new status
      */
     void setStatus(const bool s) noexcept;
     /*!
-     * \brief change the current status. This is equivalent to the assignement
+     * \brief change the current status. This is equivalent to the assignment
      * operator and the `setStatus` method
      *
      * \param[in] s: new status
@@ -92,7 +99,7 @@ namespace mfem_mgis {
      * This method is meant to test if the result of a function call
      * does not prevent from continuing the current computation process.
      * The user must however ensure that the distinction between
-     * `success` and `unreliableResults` is propagated apropriately.
+     * `success` and `unreliableResults` is propagated appropriately.
      */
     [[nodiscard]] bool shallContinue() const noexcept;
     /*!
@@ -114,7 +121,10 @@ namespace mfem_mgis {
      */
     bool update(const ExitStatus &o) noexcept;
 #ifdef MFEM_USE_MPI
-    //! \brief synchronize the object among MPI processes
+    /*!
+     * \brief synchronize the object among MPI processes
+     * \param[in] c: MPI communicator
+     */
     void synchronize(const MPI_Comm c) noexcept;
 #endif /* MFEM_USE_MPI */
     //! \brief destructor
@@ -126,13 +136,17 @@ namespace mfem_mgis {
      * values
      */
     struct Status {
+      //! \brief value of a success
       static constexpr size_type success = 0;
+      //! \brief value of unreliable results
       static constexpr size_type unreliableResults = 1;
+      //! \brief value of a recoverable error
       static constexpr size_type recoverableError = 2;
+      //! \brief value of an unrecoverable error
       static constexpr size_type unrecoverableError = 3;
       //! \brief default comparison operators
       auto operator<=>(Status const &) const = default;
-      //! \brief hold value
+      //! \brief held value
       size_type value;
     };
     //! \brief constructor from a Status
@@ -168,10 +182,12 @@ namespace mfem_mgis {
 
 namespace mgis::internal {
 
-  //! \brief partial specialisation for exit status
+  //! \brief specialisation for exit status
   template <>
   struct InvalidValueTraits<mfem_mgis::ExitStatus> {
+    //! \brief tag indicating that this class is properly specialized
     static constexpr bool isSpecialized = true;
+    //! \return an invalid exit status
     static mfem_mgis::ExitStatus getValue() noexcept {
       return mfem_mgis::ExitStatus::unrecoverableError;
     }

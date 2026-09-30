@@ -16,7 +16,10 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT DefaultTimeStepValidator : TimeStepValidatorBase {
     //! \brief constructor
     DefaultTimeStepValidator() noexcept;
-    //
+    /*!
+     * \return the result of the external validators on success
+     * \param[in, out] ctx: execution context
+     */
     [[nodiscard]] std::optional<Result> validate(
         Context& ctx) const noexcept override;
     //! \brief destructor

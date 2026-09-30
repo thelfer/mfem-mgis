@@ -17,48 +17,43 @@ namespace mfem_mgis {
   struct Parameters;
   struct ComputeNextStateOutput;
 
-  //! \brief interface of all coupling schemes
+  //! \brief interface of all convergence criteria of coupling schemes
   struct MFEM_MGIS_EXPORT AbstractCouplingSchemeConvergenceCriterion {
     /*!
      * \brief method called at the beginning of a time step
      *
      * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
-     *
-     * \note if required, the time step can be retrieved from the clock held by
-     * the physical system
+     * \return true on success
      */
     virtual bool performInitializationTaksAtTheBeginningOfTheTimeStep(
         Context& ctx, const TimeStep& ts) noexcept = 0;
     /*!
      * \return if the criterion is satisfied
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] o: output of all items of the
      * coupling scheme
      */
     virtual std::optional<bool> check(
         Context& ctx, const ComputeNextStateOutput& o) const noexcept = 0;
     /*!
-     * \brief update the state of the system for the next time step
+     * \brief update the state of the criterion for the next time step
      *
-     * This method is called at the end of the time step once the state of
-     * the system at the end of the time step is known. This state is generally
-     * defined by a set of unknown fields (usually defined as node fields or
-     * element fields) and a set of internal state variables (usually defined as
-     * fields at integration points).
+     * This method is called at the end of the time step, after convergence.
      *
-     * This method is first meant to copy the fields at the end of the time on
-     * the fields at the beginning of the time step.
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
     virtual bool update(Context& ctx) noexcept = 0;
     /*!
-     * \brief revert the state of the system at the beginning of the time step
+     * \brief revert the state of the criterion at the beginning of the time
+     * step
      *
      * This method is typically called in case of non convergence of the
-     * coupling scheme to restart the computation with a smaller the time step.
+     * coupling scheme to restart the computation with a smaller time step.
      *
-     * This method is first meant to copy the fields at the end of the time on
-     * the fields at the beginning of the time step.
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
     virtual bool revert(Context& ctx) noexcept = 0;
     //! \brief destructor

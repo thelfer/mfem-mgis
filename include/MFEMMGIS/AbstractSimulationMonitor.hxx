@@ -16,20 +16,20 @@ namespace mfem_mgis {
 
   /*!
    * \brief an abstract class used to monitor a simulation at the end of each
-   * successful time step or a the end of the simulation
+   * successful time step or at the end of the simulation
    *
-   * Such monitor can be used to report meaningful information to the user such
+   * Such monitors can be used to report meaningful information to the user
    * about the convergence or the resources usage.
    */
   struct MFEM_MGIS_EXPORT AbstractSimulationMonitor {
     /*!
      * \brief execute the monitor
      *
-     * \param[in] ctx: execution context
-     * \param[in] output: output of the call to
-     * `PhysicalSystem::computeNextState`
+     * \param[in, out] ctx: execution context
+     * \param[in] output: outputs of the simulation
      * \param[in] endOfSimulation: boolean
      * stating if the simulation is over
+     * \return true on success
      */
     virtual bool execute(Context& ctx,
                          const SimulationOutput& output,

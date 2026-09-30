@@ -31,17 +31,23 @@ namespace mfem_mgis {
   /*!
    * \brief a structure returned by the run method of the Simulation struct.
    *
-   * This is structure is mostly a wrapper around the `Parameters`
+   * This structure is mostly a wrapper around the `Parameters`
    * struct.
    */
   struct MFEM_MGIS_EXPORT SimulationOutput : public Parameters {
     using Parameters::Parameters;
     using Parameters::operator=;
+    //! \brief default constructor
     SimulationOutput() noexcept;
+    //! \brief move constructor
     SimulationOutput(SimulationOutput &&) noexcept;
+    //! \brief copy constructor
     SimulationOutput(const SimulationOutput &) noexcept;
+    //! \brief move assignment
     SimulationOutput &operator=(SimulationOutput &&) noexcept;
+    //! \brief copy assignment
     SimulationOutput &operator=(const SimulationOutput &) noexcept;
+    //! \brief destructor
     ~SimulationOutput() noexcept;
   };  // end of SimulationOutput
 
@@ -52,7 +58,7 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT Simulation {
     /*!
-     * \brief an helper struct to describe a set of time steps
+     * \brief a helper struct to describe a set of time steps
      */
     struct MFEM_MGIS_EXPORT TimesDescription : private std::vector<real> {
       /*!
@@ -65,7 +71,7 @@ namespace mfem_mgis {
        * \brief constructor
        * \param[in] tb: time at the beginning of the simulation.
        * \param[in] te: final time.
-       * \param[in] n: number of substeps.
+       * \param[in] n: number of temporal sequences.
        */
       TimesDescription(const real tb, const real te, const size_type n);
       /*!
@@ -77,9 +83,9 @@ namespace mfem_mgis {
       TimesDescription(TimesDescription &&) noexcept;
       //! \brief copy constructor
       TimesDescription(const TimesDescription &) noexcept;
-      //! \brief move assignement
+      //! \brief move assignment
       TimesDescription &operator=(TimesDescription &&) noexcept;
-      //! \brief copy assignement
+      //! \brief copy assignment
       TimesDescription &operator=(const TimesDescription &) noexcept;
       //
       using std::vector<real>::const_iterator;
@@ -93,29 +99,32 @@ namespace mfem_mgis {
       // this allows the Simulation struct to access the erase method
       friend struct Simulation;
     };
-    //! \brief a simple alias
+    /*!
+     * \brief external time step validator. It returns a boolean stating if
+     * the time step is valid and a recommended time increment.
+     */
     using ExternalTimeStepValidator = std::function<std::pair<bool, real>()>;
-    //! \brief a simple alias
+    //! \brief task executed at the beginning of the simulation
     using InitializationTask = std::function<void()>;
-    //! \brief a simple alias
+    //! \brief task executed at the end of each successful time step
     using PostProcessingTask = std::function<void()>;
     //! \return a description of the parameters of a simulation
     static std::map<std::string, std::string>
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] parameters: parameters passed to the simulation
      *
      * The main parameters are:
      *
-     * - `Times`: list of times defining temporal sequences. T
+     * - `Times`: list of times defining temporal sequences.
      * - `TimeIncrementComputer`: strategy used to determine the next time
      *   step.
      * - `ConvergenceFailureHandler`: strategy used to determine how a
      *   convergence failure of the resolution shall be handled.
-     * - `TimeStepValidator`: strategy used to validatoe the time step.
+     * - `TimeStepValidator`: strategy used to validate the time step.
      */
     Simulation(Context &ctx,
                AbstractNonLinearEvolutionProblem &p,
@@ -123,7 +132,7 @@ namespace mfem_mgis {
 
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] times: description of the temporal sequences
      */
@@ -133,7 +142,7 @@ namespace mfem_mgis {
 
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] times: list of times
      */
@@ -143,23 +152,23 @@ namespace mfem_mgis {
 
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] parameters: parameters passed to the simulation
      *
      * The main parameters are:
-     * - `Times`: list of times defining temporal sequences. T
+     * - `Times`: list of times defining temporal sequences.
      * - `TimeIncrementComputer`: strategy used to determine the next
-     time step.
+     *   time step.
      * - `ConvergenceFailureHandler`: strategy used to determine how a
-     convergence failure of the resolution shall be handled.
-     * - `TimeStepValidator`: strategy used to validatoe the time step.
+     *   convergence failure of the resolution shall be handled.
+     * - `TimeStepValidator`: strategy used to validate the time step.
      */
     Simulation(Context &ctx, PhysicalSystem &ps, const Parameters &parameters);
 
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] times: description of the temporal sequences
      */
@@ -167,7 +176,7 @@ namespace mfem_mgis {
 
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] times: list of times
      */
@@ -212,8 +221,9 @@ namespace mfem_mgis {
                               const ExternalTimeStepValidator &v) noexcept;
     /*!
      * \brief add a new time increment computer
-     * \param[in] ctx: execution context
-     * \param[in] c: time increment computer
+     * \param[in, out] ctx: execution context
+     * \param[in] m: time increment computer
+     * \return true on success
      */
     [[nodiscard]] bool addTimeIncrementComputer(
         Context &ctx,
@@ -229,25 +239,28 @@ namespace mfem_mgis {
     //   std::string_view, const Parameters &) noexcept;
     /*!
      * \brief add a new monitor
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] m: monitor
+     * \return true on success
      */
     [[nodiscard]] bool addMonitor(
         Context &ctx,
         const std::shared_ptr<AbstractSimulationMonitor> &m) noexcept;
     /*!
      * \brief add a new monitor
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name
      * \param[in] params: parameters passed to the monitor
+     * \return false, this method is not implemented yet
      */
     [[nodiscard]] bool addMonitor(Context &ctx,
                                   std::string_view n,
                                   const Parameters &params) noexcept;
     /*!
      * \brief set the maximum number of time steps
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: maximum number of time steps
+     * \return true on success
      */
     [[nodiscard]] bool setMaximumNumberOfTimeSteps(Context &ctx,
                                                    const size_type n) noexcept;
@@ -255,8 +268,9 @@ namespace mfem_mgis {
     void unsetMaximumNumberOfTimeSteps() noexcept;
     /*!
      * \brief set the post-processing periodicity
-     * \param[in] ctx: execution context
-     * \param[in] n: maximum number of time steps
+     * \param[in, out] ctx: execution context
+     * \param[in] n: number of time steps between two post-processings
+     * \return true on success
      */
     [[nodiscard]] bool setNumberOfTimeStepsBetweenPostProcessings(
         Context &ctx, const size_type n) noexcept;
@@ -264,17 +278,19 @@ namespace mfem_mgis {
     void unsetNumberOfTimeStepsBetweenPostProcessings() noexcept;
     /*!
      * \brief set the time between post-processings
-     * \param[in] ctx: execution context
-     * \param[in] dt: time
+     * \param[in, out] ctx: execution context
+     * \param[in] dt: time between two post-processings
+     * \return true on success
      */
     bool setTimeBetweenPostProcessings(Context &ctx, const real dt) noexcept;
     //! \brief clear the time between post-processings
     void unsetTimeBetweenPostProcessings() noexcept;
-    //! \brief return the current time description
+    //! \return the current time description
     [[nodiscard]] const TimesDescription &getTimes() const noexcept;
     /*!
      * \brief run the simulation
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
+     * \return the exit status and, on success, the outputs of the simulation
      */
     [[nodiscard]] std::pair<ExitStatus, std::optional<SimulationOutput>> run(
         Context &ctx) noexcept;
@@ -283,29 +299,29 @@ namespace mfem_mgis {
     /*!
      * \brief initialize the simulation from parameters
      *
-     * \param[in] throwing: dummy parameter to indicate that this function
-     * is throwing exceptions in case of errors \param[in] parameters:
-     * parameters used to initialize the simulation
+     * \param[in, out] ctx: execution context
+     * \param[in] parameters: parameters used to initialize the simulation
      */
     void treatParameters(Context &ctx, const Parameters &parameters);
     /*!
-     * \brief structure describing the state of a simulation'run
+     * \brief structure describing the state of a simulation run
      */
     struct SimulationRunState {
-      //! \brief number of time step done
+      //! \brief number of time steps done
       size_type numberOfTimeSteps = size_type{};
       //! \brief time since the last post-processing
       real timeSinceLastPostProcessing = real{};
-      //! \brief number of time step done
+      //! \brief boolean stating if the maximum number of time steps is reached
       bool maximumNumberOfTimeStepsReached = false;
     };
     /*!
      * \brief return the end of the next time step
-     * \param[in] ctx: execution context.
+     * \param[in, out] ctx: execution context
      * \param[in] sb: beginning of the time sequence.
      * \param[in] se: end of the time sequence.
      * \param[in] t: current time.
      * \param[in] pdt: previous time increment, if defined.
+     * \return the end of the next time step
      */
     [[nodiscard]] std::optional<real> getEndOfNextTimeStep(
         Context &ctx,
@@ -315,12 +331,12 @@ namespace mfem_mgis {
         const std::optional<real> pdt) noexcept;
     /*!
      * \brief run the simulation over a temporal sequence
-     * \param[in] ctx: execution context.
-     * \param[in,out] s: current status of the simulation.
-     * \param[in,out] output: output of the simulation.
-     * \param[in,out] state: simulation state.
+     * \param[in, out] ctx: execution context
+     * \param[in, out] s: current status of the simulation.
+     * \param[in, out] output: output of the simulation.
+     * \param[in, out] state: simulation state.
      * \param[out] t: time at the end of the last successful increment or time
-     * at the beginning of the time step if the no successful time step as been
+     * at the beginning of the time step if no successful time step has been
      * made.
      * \param[in, out] pdt: previous time increment.
      * \param[in] sb: beginning of the time sequence.
@@ -340,10 +356,11 @@ namespace mfem_mgis {
         const bool lastTemporalSequence) noexcept;
     /*!
      * \brief run the simulation over a time step
-     * \param[in] ctx: execution context.
-     * \param[in,out] output: output of the simulation.
-     * \param[in,out] state: simulation state.
+     * \param[in, out] ctx: execution context
+     * \param[in, out] output: output of the simulation.
+     * \param[in, out] state: simulation state.
      * \param[in] ts: description of the time step
+     * \return the exit status of the time step
      */
     ExitStatus simulateOverATimeStep(Context &ctx,
                                      SimulationOutput &output,
@@ -370,38 +387,37 @@ namespace mfem_mgis {
     /*!
      * \brief boolean stating if the temporal sequences are independent.
      *
-     * Currently, this boolonly choose if the last time increment of the
+     * Currently, this boolean only chooses if the last time increment of the
      * previous temporal sequence is taken into account to bound the first
      * time increment of the current temporal sequence
      * (bounding occurs if this boolean is false)
      */
     bool independentTemporalSequences = true;
-    //! \brief maximum number of failure per temporal sequence
+    //! \brief maximum number of failures per temporal sequence
     size_type maximumNumberOfFailuresPerTemporalSequence = 10;
     //! \brief minimal time increment
     std::optional<real> minimalTimeIncrement;
     //! \brief maximal time increment
     std::optional<real> maximalTimeIncrement;
     /*!
-     * \brief boolean stating if the current estimate of the next time step
-     can be greater
-     * than the previous time increment multiplied by the
-     `maximalTimeIncrementRelativeIncrease_` coefficient
+     * \brief boolean stating if the next time increment is bounded by the
+     * previous time increment multiplied by the
+     * `maximalTimeIncrementRelativeIncrease` coefficient
      */
     bool limitTimeIncrementIncrease = true;
     /*!
-     * \brief boolean stating if the current estimate of the next time step
-     * can be lower than the previous time increment multiplied by the
+     * \brief boolean stating if the next time increment is bounded below by
+     * the previous time increment multiplied by the
      * `maximalTimeIncrementRelativeDecrease` coefficient
      */
     bool limitTimeIncrementDecrease = true;
     /*!
-     * \brief coefficient used to determined the maximum ratio between the
+     * \brief coefficient used to determine the maximum ratio between the
      * next time step and the previous one
      */
     real maximalTimeIncrementRelativeIncrease = 1.1;
     /*!
-     * \brief coefficient used to determined the minimal ratio between the
+     * \brief coefficient used to determine the minimal ratio between the
      *    next time step and the previous one
      */
     real maximalTimeIncrementRelativeDecrease = 0.2;
@@ -424,12 +440,12 @@ namespace mfem_mgis {
      * \brief object called to determine what time step shall be used
      * to restart the computation in case of convergence failure.
      *
-     * \note the default divergenceHandler stops the computations
+     * \note the default handler divides the time increment by two
      */
     std::shared_ptr<AbstractConvergenceFailureHandler>
         convergenceFailureHandler;
     /*!
-     * \brief object called at the beginning of the time step to determine
+     * \brief objects called at the beginning of the time step to determine
      * the next time step in the current sequence.
      */
     std::vector<std::shared_ptr<AbstractTimeIncrementComputer>>
@@ -438,13 +454,13 @@ namespace mfem_mgis {
      * \brief object called to validate the time step
      * after the convergence of the coupling scheme.
      *
-     * \note the default validator always accepts the proposed solution.
+     * \note the default validator only calls the external validators.
      */
     std::shared_ptr<AbstractTimeStepValidator> timeStepValidator;
     /*!
-     * \brief maximum number of time steps for per call to `run`
+     * \brief maximum number of time steps per call to `run`
      *
-     * Once this maximum number of time steps, the simulation
+     * Once this maximum number of time steps is reached, the simulation
      * is stopped without error.
      */
     std::optional<size_type> maximumNumberOfTimeSteps;
@@ -452,18 +468,18 @@ namespace mfem_mgis {
      * \brief the number of time steps between two post-processings marked
      *  as 'explicitly requested by the user'.
      *
-     * Every time a post-processing is called, it recieves a boolean
-     * stating if the post-processing time as been
-     * explicitly requested by the user*. Lightweight post-processings
+     * Every time a post-processing is called, it receives a boolean
+     * stating if the post-processing time has been
+     * explicitly requested by the user. Lightweight post-processings
      * may ignore this boolean. This boolean is mostly important for heavy
-     *  post-processsings in terms of memory, disk usage
+     *  post-processings in terms of memory, disk usage
      * or computations, such as the `ParaviewExport` post-processing.
      *
-     * \note the each end of a temporal sequence is always flagged as
+     * \note each end of a temporal sequence is always flagged as
      * 'explicitly requested by the user', independently of the
      * `numberOfTimeStepsBetweenPostProcessings` parameter.
      * \note the number of computed time steps is reset at each call of the
-     * `run` method. The parameter`numberOfTimeStepsBetweenPostProcessings`
+     * `run` method. The parameter `numberOfTimeStepsBetweenPostProcessings`
      * thus has no effect if it is greater than `maximumNumberOfTimeSteps`
      * parameter.
      */
@@ -472,20 +488,18 @@ namespace mfem_mgis {
      * \brief the time between two post-processings marked as 'explicitly
      *     requested by the user'.
      *
-     * Every time a post-processing is called, it recieves a boolean
-     * stating if the post-processing time as been
-     * explicitly requested by the user*. Lightweight post-processings
+     * Every time a post-processing is called, it receives a boolean
+     * stating if the post-processing time has been
+     * explicitly requested by the user. Lightweight post-processings
      * may ignore this boolean. This boolean is mostly important for heavy
-     * post-processsings in terms of memory, disk usage
+     * post-processings in terms of memory, disk usage
      * or computations, such as the `ParaviewExport` post-processing.
      *
-     * \note the each end of a temporal sequence is always flaged as
+     * \note each end of a temporal sequence is always flagged as
      * 'explicitly requested by the user', independently of the
-     * `postProcessingPeriodicity` parameter.
-     * \note the number of computed time steps is reset at each call of the
-     * `run` method. The parameter  `postProcessingPeriodicity`
-     * thus has no effect if it is greated than `maximumNumberOfTimeSteps`
-     * parameter.
+     * `timeBetweenPostProcessings` parameter.
+     * \note the time since the last post-processing is reset at each call of
+     * the `run` method.
      */
     std::optional<real> timeBetweenPostProcessings;
     /*!

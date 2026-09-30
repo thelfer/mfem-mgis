@@ -29,7 +29,7 @@ namespace mfem_mgis {
    *
    * \note the `getVerbosityLevel` and `getLogStreamPointer` methods
    * are meant to be used by coupling schemes to modify the context passed to
-   * the coupling item automatically. There is probably no reason to
+   * the coupling item automatically. There is probably no reason
    * for other objects to call those methods.
    */
   struct MFEM_MGIS_EXPORT AbstractCouplingItem {
@@ -37,13 +37,16 @@ namespace mfem_mgis {
     static const std::string verbosityLevelParameter;
     //! \brief name of the parameter associated with an output file
     static const std::string logFileParameter;
-    //! \brief name of coupling item
+    //! \brief name of the parameter associated with the name of the item
     static const std::string nameParameter;
-    //! \return set the name of the coupling item
+    /*!
+     * \brief set the name of the coupling item
+     * \param[in] n: name
+     */
     virtual void setName(std::string_view n) noexcept = 0;
     //! \return a name describing the coupling item
     [[nodiscard]] virtual std::string getName() const noexcept = 0;
-    //! \brief return the mesh discretization
+    //! \return the mesh discretization
     virtual MeshDiscretization getMeshDiscretization() const noexcept = 0;
     //! \return the list of locations on which the item works
     [[nodiscard]] virtual std::vector<std::string> getLocations()
@@ -52,14 +55,13 @@ namespace mfem_mgis {
     [[nodiscard]] virtual VerbosityLevel getVerbosityLevel() const noexcept = 0;
     /*!
      * \brief associate a log stream to the current item. The given pointer can
-     * be null. \param[in] s: log stream
+     * be null.
+     * \param[in] s: log stream
      */
     virtual void setLogStream(std::shared_ptr<std::ostream> s) noexcept = 0;
     /*!
      * \return a pointer to a log stream. This pointer may be null if the
      * coupling item does not declare a specific log stream.
-     *
-     * \param[in] s: log stream
      */
     [[nodiscard]] virtual std::shared_ptr<std::ostream>
     getLogStreamPointer() noexcept = 0;
@@ -73,14 +75,15 @@ namespace mfem_mgis {
     /*!
      * \return a description of the coupling item
      *
+     * \param[in, out] ctx: execution context
      * \param[in] b: boolean being the default value for information requests.
-     * \param[in] parameters: dictionary that allows the parametrize the output.
-     * This dictionary is meant to contains boolean values corresponding
+     * \param[in] parameters: dictionary used to parametrize the output.
+     * This dictionary is meant to contain boolean values corresponding
      * to information requests. The default value of the boolean is given by the
-     * `b` parameter, except for the `shortDescription` request which default
+     * `b` parameter, except for the `ShortDescription` request whose default
      * value is true.
      *
-     * \note the short description is excepted to stand in a single line.
+     * \note the short description is expected to stand in a single line.
      */
     [[nodiscard]] virtual std::optional<std::string> describe(
         Context& ctx,
@@ -117,11 +120,9 @@ namespace mfem_mgis {
     /*!
      * \brief method called at the beginning of a time step
      *
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
-     *
-     * \note if required, the time step can be retrieved from the clock hold by
-     * the physical system
+     * \return true on success
      */
     [[nodiscard]] virtual bool
     performInitializationTaksAtTheBeginningOfTheTimeStep(
@@ -138,13 +139,15 @@ namespace mfem_mgis {
     [[nodiscard]] virtual std::optional<real> getNextTimeIncrement(
         Context& ctx, const real t, const real te) const noexcept = 0;
     /*!
-     * \brief compute the state of the system at the end of of the time step
+     * \brief compute the state of the system at the end of the time step
      *
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
+     * \return the exit status and, if available, the outputs of the
+     * computation
      *
      * The returned structure contains the information about the execution.
-     * Each item must document what is returned. Developpers are advised to
+     * Each item must document what is returned. Developers are advised to
      * return uniform information for items having the same role (i.e. coupling,
      * models, etc...)
      *
@@ -161,7 +164,7 @@ namespace mfem_mgis {
      * item at the last iteration.
      *
      * For an iteration, the outputs of each coupling item of this vector must
-     * contains
+     * contain
      *   - `Name` (string): the name of item
      *   - `Description` (string): the description of the item
      *   - `Output` (dictionary): the value returned by `computeNextState` for
@@ -173,9 +176,6 @@ namespace mfem_mgis {
      * entries:
      *   - `NumberOfIterations` (integer): the number of iterations to reach
      * convergence
-     *
-     * \note if required, the time step can be retrieved from the clock hold by
-     * the physical system
      */
     [[nodiscard]] virtual std::pair<ExitStatus,
                                     std::optional<ComputeNextStateOutput>>
@@ -185,11 +185,9 @@ namespace mfem_mgis {
      * instance, this method may display the initial values of the state
      * variables.
      *
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] t: initial time
-     *
-     * \note if required, the time at the beginning of the time step can be
-     * retrieved from the clock hold by the physical system
+     * \return true on success
      */
     [[nodiscard]] virtual bool executeInitialPostProcessingTasks(
         Context& ctx, const real t) noexcept = 0;
@@ -197,13 +195,11 @@ namespace mfem_mgis {
      * \brief execute post-processings at the end of a time step, after
      * convergence.
      *
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
-     * \param[in] b: boolean stating that if the time at the end of the time
+     * \param[in] b: boolean stating if the time at the end of the time
      * step is a post-processing time.
-     *
-     * \note if required, the time at the end of the time step can be retrieved
-     * from the clock hold by the physical system
+     * \return true on success
      */
     [[nodiscard]] virtual bool executePostProcessingTasks(
         Context& ctx, const TimeStep& ts, const bool b) noexcept = 0;
@@ -216,18 +212,24 @@ namespace mfem_mgis {
      * element fields) and a set of internal state variables (usually defined as
      * fields at integration points).
      *
-     * This method is first meant to copy the fields at the end of the time on
-     * the fields at the beginning of the time step.
+     * This method is first meant to copy the fields at the end of the time
+     * step on the fields at the beginning of the time step.
+     *
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
     [[nodiscard]] virtual bool update(Context& ctx) noexcept = 0;
     /*!
      * \brief revert the state of the system at the beginning of the time step
      *
      * This method is typically called in case of non convergence of the
-     * coupling scheme to restart the computation with a smaller the time step.
+     * coupling scheme to restart the computation with a smaller time step.
      *
-     * This method is first meant to copy the fields at the end of the time on
-     * the fields at the beginning of the time step.
+     * This method is first meant to copy the fields at the beginning of the
+     * time step on the fields at the end of the time step.
+     *
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
     [[nodiscard]] virtual bool revert(Context& ctx) noexcept = 0;
     //! \brief destructor
@@ -236,7 +238,8 @@ namespace mfem_mgis {
 
   /*!
    * \return a description of the given item from information returned by the
-   * `getName` and `getMeshSetsNames` methods \param[in] i: coupling item
+   * `getName` and `getLocations` methods
+   * \param[in] i: coupling item
    */
   [[nodiscard]] MFEM_MGIS_EXPORT std::string getShortDescription(
       const AbstractCouplingItem& i) noexcept;
@@ -250,8 +253,11 @@ namespace mfem_mgis {
   /*!
    * \brief handle parameters common to all coupling items.
    * Those parameters are related to the customization of a `Context` (verbosity
-   * level and/or log stream). \param[in] ctx: execution context \param[in] i:
-   * coupling item \param[in] params: parameters
+   * level and/or log stream) and to the name of the item.
+   * \param[in, out] ctx: execution context
+   * \param[in, out] i: coupling item
+   * \param[in] params: parameters
+   * \return true on success
    */
   MFEM_MGIS_EXPORT bool handleCouplingItemParameters(Context& ctx,
                                                      AbstractCouplingItem& i,

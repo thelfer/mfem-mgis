@@ -19,7 +19,8 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT AbstractTimeIncrementComputer {
     /*!
      * \brief method called before the start of a simulation
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
     [[nodiscard]] virtual bool initialize(Context& ctx) noexcept = 0;
     /*!
@@ -29,12 +30,13 @@ namespace mfem_mgis {
      * This method allows the time step computer to predict
      * the next time increment.
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
     [[nodiscard]] virtual bool prepareNextTimeStep(Context& ctx) noexcept = 0;
     /*!
      * \return the next time increment
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] t: current time in the temporal sequence
      * \param[in] te: end of the temporal sequence
      */

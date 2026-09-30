@@ -28,14 +28,14 @@ namespace mfem_mgis {
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      */
     ModelBase(Context &ctx, const MeshDiscretization &m) noexcept;
 
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] parameters: parameters
      */
@@ -45,6 +45,7 @@ namespace mfem_mgis {
     //
     [[nodiscard]] std::string getIdentifier() const noexcept override final;
     MeshDiscretization getMeshDiscretization() const noexcept override;
+    //! \return the verbosity level of the model or the default one if unset
     [[nodiscard]] VerbosityLevel getVerbosityLevel()
         const noexcept override final;
     void setName(std::string_view n) noexcept override final;
@@ -52,25 +53,59 @@ namespace mfem_mgis {
     void setLogStream(std::shared_ptr<std::ostream> s) noexcept override final;
     [[nodiscard]] std::shared_ptr<std::ostream> getLogStreamPointer() noexcept
         override final;
+    //! \return an empty list of locations
     [[nodiscard]] std::vector<std::string> getLocations()
         const noexcept override;
+    /*!
+     * \return a description of the model
+     * \param[in, out] ctx: execution context
+     * \param[in] b: boolean being the default value for information requests
+     * \param[in] parameters: information requests. Supported requests are
+     * `HelpOptions`, `ShortDescription`, `DetailedDescription`,
+     * `UnknownFields`, `StateVariables` and `Dependencies`.
+     */
     [[nodiscard]] std::optional<std::string> describe(
         Context &ctx,
         const bool b,
         const Parameters &parameters) const noexcept override;
+    //! \return an empty list
     [[nodiscard]] std::vector<std::string> getAvailablePostProcessings()
         const noexcept override;
+    /*!
+     * \brief report that no post-processing named `n` is available
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the post-processing
+     * \param[in] params: parameters defining the post-processing
+     * \return false
+     */
     [[nodiscard]] bool addPostProcessing(
         Context &ctx,
         std::string_view n,
         const Parameters &params) noexcept override;
     //     [[nodiscard]] bool declareDependencies(
     //         Context &, DependenciesManager &) const noexcept override;
+    /*!
+     * \brief do nothing: by default, a model provides no dependency
+     * \param[in, out] ctx: execution context
+     * \param[in, out] dm: dependencies manager
+     * \param[in] d: dependency
+     * \param[in] ts: time step stage
+     * \return true
+     */
     [[nodiscard]] bool analyseDependency(
         Context &ctx,
         DependenciesManager &dm,
         const QPDependency &d,
         const TimeStepStage ts) const noexcept override;
+    /*!
+     * \brief report an invalid call: by default, a model provides no
+     * dependency
+     * \param[in, out] ctx: execution context
+     * \param[in, out] f: evaluators factory
+     * \param[in] d: dependency
+     * \param[in] ts: time step stage
+     * \return false
+     */
     [[nodiscard]] bool resolveDependency(
         Context &ctx,
         QPEvaluatorsFactory &f,
@@ -83,34 +118,80 @@ namespace mfem_mgis {
     //         IPEvaluatorsFactory &) noexcept override;
     //     [[nodiscard]] bool initializeAfterResourcesAllocation(Context &)
     //     noexcept override;
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: description of the time step
+     * \return true
+     */
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
         Context &ctx, const TimeStep &ts) noexcept override;
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \param[in] t: initial time
+     * \return true
+     */
     [[nodiscard]] bool executeInitialPostProcessingTasks(
         Context &ctx, const real t) noexcept override;
+    /*!
+     * \brief execute the registered post-processings
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: description of the time step
+     * \param[in] b: boolean stating if the time at the end of the time
+     * step is a post-processing time
+     * \return true on success
+     */
     [[nodiscard]] bool executePostProcessingTasks(
         Context &ctx, const TimeStep &ts, const bool b) noexcept override;
+    /*!
+     * \return the time remaining until the end of the temporal sequence,
+     * minimum over all MPI processes
+     * \param[in, out] ctx: execution context
+     * \param[in] t: current time in the temporal sequence
+     * \param[in] te: end of the temporal sequence
+     */
     std::optional<real> getNextTimeIncrement(
         Context &ctx, const real t, const real te) const noexcept override;
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: description of the time step
+     * \return `ExitStatus::success` and an empty output
+     */
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
     computeNextState(Context &ctx, const TimeStep &ts) noexcept override;
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \return true
+     */
     [[nodiscard]] bool update(Context &ctx) noexcept override;
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \return true
+     */
     [[nodiscard]] bool revert(Context &ctx) noexcept override;
     //! \brief destructor
     ~ModelBase() noexcept override;
 
    protected:
-    // \brief return a detailed description of the model
+    //! \return a detailed description of the model
     [[nodiscard]] virtual std::string getDetailedDescription() const noexcept;
-    // \brief return a description of the unknown fields
+    //! \return a description of the unknown fields
     [[nodiscard]] virtual std::string getUnknownFieldsDescription()
         const noexcept;
-    // \brief return a description of the state variables
+    //! \return a description of the state variables
     [[nodiscard]] virtual std::string getStateVariablesDescription()
         const noexcept;
-    // \brief return a description of the dependencies
+    //! \return a description of the dependencies
     [[nodiscard]] virtual std::string getDependenciesDescription()
         const noexcept;
-    //! \brief add a post-processing (see executePostProceccing for details)
+    /*!
+     * \brief add a post-processing, see `executePostProcessingTasks`
+     * \param[in] p: post-processing
+     */
     virtual void addPostProcessing(
         std::function<bool(Context &, bool)> p) noexcept;
 
@@ -120,7 +201,7 @@ namespace mfem_mgis {
    private:
     //! \brief mesh discretization
     MeshDiscretization mesh;
-    //! \brief list of registred post-processings
+    //! \brief list of registered post-processings
     std::vector<std::function<bool(Context &, bool)>> postProcessings;
     //! \brief the verbosity level associated with the model
     std::optional<VerbosityLevel> verbosityLevel;

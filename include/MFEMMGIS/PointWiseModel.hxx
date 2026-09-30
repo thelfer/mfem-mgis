@@ -15,28 +15,49 @@
 
 namespace mfem_mgis {
 
+  //! \brief a model integrating a MFront model at each integration point
   struct PointWiseModel : public ModelBase, protected Material {
     //! \return a description of the parameters of this model
     [[nodiscard]] static std::map<std::string, std::string>
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] qspace: partial quadrature space
      * \param[in] parameters: parameters
      */
     PointWiseModel(Context &ctx,
                    std::shared_ptr<const PartialQuadratureSpace> qspace,
                    const Parameters &parameters);
-    //! \brief return the underlying material
+    //! \return the underlying material
     Material &getMaterial() noexcept;
-    //! \brief return the underlying material
+    //! \return the underlying material
     const Material &getMaterial() const noexcept;
-    //
+    //! \return the name of the MFront model
     [[nodiscard]] std::string getName() const noexcept override;
+    /*!
+     * \brief integrate the model at each integration point over the time step
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: description of the time step
+     * \return `ExitStatus::recoverableError` if the integration fails,
+     * `ExitStatus::unreliableResults` if the model reports unreliable results,
+     * `ExitStatus::success` otherwise, and an empty output
+     */
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
     computeNextState(Context &ctx, const TimeStep &ts) noexcept override;
+    /*!
+     * \brief copy the state at the end of the time step on the state at the
+     * beginning of the time step
+     * \param[in, out] ctx: execution context
+     * \return true on success
+     */
     [[nodiscard]] bool update(Context &ctx) noexcept override;
+    /*!
+     * \brief copy the state at the beginning of the time step on the state at
+     * the end of the time step
+     * \param[in, out] ctx: execution context
+     * \return true on success
+     */
     [[nodiscard]] bool revert(Context &ctx) noexcept override;
     //! \brief destructor
     ~PointWiseModel() override;

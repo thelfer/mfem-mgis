@@ -13,7 +13,7 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief data structure associated with at time step
+   * \brief data structure associated with a time step
    */
   struct TimeStep {
     //! \brief beginning of the time step

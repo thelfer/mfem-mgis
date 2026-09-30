@@ -34,21 +34,21 @@ namespace mfem_mgis {
         const PartialQuadratureSpaceIdentifiersManager &m) noexcept;
     /*!
      * \brief enumeration of filters usable as argument of the
-     * analyseDependencies method
+     * analyseDependencies method: only required dependencies, only optional
+     * dependencies or all dependencies
      */
     enum AnalyseDependenciesFilter {
-      ONLY_REQUIRED,
-      ONLY_OPTIONAL,
-      ALL
+      ONLY_REQUIRED,  //!< only required dependencies
+      ONLY_OPTIONAL,  //!< only optional dependencies
+      ALL             //!< all dependencies
     };
     /*!
-     * \brief structure return by the `analyseDependencies` method
+     * \brief structure returned by the `analyseDependencies` method
      */
     struct DependenciesAnalysisOutput {
       //! \brief missing dependencies at the beginning of the time step
       std::vector<QPDependency> missingQPDependencies_bts;
-      //! \brief missing dependencies at the beginning of the end of the time
-      //! step
+      //! \brief missing dependencies at the end of the time step
       std::vector<QPDependency> missingQPDependencies_ets;
     };
     /*!
@@ -62,9 +62,10 @@ namespace mfem_mgis {
                                               const TimeStepStage s) noexcept;
     /*!
      * \brief add a new dependency at integration points
-     * param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] s: time step stage
      * \param[in] d: dependency description
+     * \return true on success
      */
     [[nodiscard]] bool declareDependency(Context &ctx,
                                          const TimeStepStage s,
@@ -73,15 +74,16 @@ namespace mfem_mgis {
      * \brief set the provider of the dependency at integration points for the
      * given location with the given name
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] pr: provider
      * \param[in] d: dependency
-     * \param[in] qid: quadrature id
+     * \param[in] qspace: partial quadrature space
      * \param[in] nc: number of components
      * \param[in] ts: time step stage
+     * \return true on success
      *
-     * \note the quadrature id must be passed to properly treat the case when
-     * the dependency does not specify it.
+     * \note the partial quadrature space must be passed to properly treat the
+     * case when the dependency does not specify it.
      */
     [[nodiscard]] bool setProvider(
         Context &ctx,
@@ -93,14 +95,16 @@ namespace mfem_mgis {
     /*!
      * \brief analyse dependencies
      * \param[in] f: filter
+     * \return the dependencies without provider selected by the filter
      */
     [[nodiscard]] DependenciesAnalysisOutput analyseDependencies(
         const AnalyseDependenciesFilter f =
             AnalyseDependenciesFilter::ONLY_REQUIRED) const noexcept;
     /*!
      * \brief resolve all dependencies
-     * \param[in,out] ctx: execution context
-     * \param[in] f: factory
+     * \param[in, out] ctx: execution context
+     * \param[in, out] f: factory
+     * \return true on success
      */
     [[nodiscard]] bool resolveDependencies(
         Context &ctx, QPEvaluatorsFactory &f) const noexcept;
@@ -117,15 +121,15 @@ namespace mfem_mgis {
         const size_type m, const TimeStepStage s) noexcept;
     //! \brief partial quadrature space identifiers
     const PartialQuadratureSpaceIdentifiersManager &qids;
-    //! \brief list of registred dependencies at integration points
+    //! \brief list of registered dependencies at integration points
     std::array<std::map<size_type, std::vector<QPDependency>>, 2u>
         registeredQPDependencies;
   };  // end of DependenciesManager
 
   /*!
    * \return a pair containing the number of dependencies and a description of
-   * thoses dependencies in the form of a list. \param[in] a: output of the
-   * dependencies analysis
+   * those dependencies in the form of a list.
+   * \param[in] a: output of the dependencies analysis
    */
   [[nodiscard]] std::pair<size_type, std::string> getDescription(
       const DependenciesManager::DependenciesAnalysisOutput &a) noexcept;

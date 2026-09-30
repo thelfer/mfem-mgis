@@ -65,9 +65,10 @@ namespace mfem_mgis {
     //                                                const Parameters &)
     //                                                noexcept = 0;
     /*!
-     * \brief add a new model
-     * param[in, out] ctx: execution context
-     * \param[in] m: model
+     * \brief add a new coupling item
+     * \param[in, out] ctx: execution context
+     * \param[in] i: coupling item
+     * \return true on success
      */
     [[nodiscard]] virtual bool addCouplingItem(
         Context& ctx, std::shared_ptr<AbstractCouplingItem> i) noexcept = 0;
@@ -84,13 +85,15 @@ namespace mfem_mgis {
      * \brief add a new model
      * \param[in, out] ctx: execution context
      * \param[in] m: model
+     * \return true on success
      */
     [[nodiscard]] virtual bool addModel(
         Context& ctx, std::shared_ptr<AbstractModel> m) noexcept = 0;
     /*!
      * \brief add a new model
      * \param[in, out] ctx: execution context
-     * \param[in] m: model
+     * \param[in] m: non linear evolution problem
+     * \return true on success
      */
     [[nodiscard]] virtual bool addModel(
         Context& ctx,
@@ -99,6 +102,7 @@ namespace mfem_mgis {
      * \brief add a new convergence criterion
      * \param[in, out] ctx: execution context
      * \param[in] c: convergence criterion
+     * \return true on success
      */
     [[nodiscard]] virtual bool addConvergenceCriterion(
         Context& ctx,
