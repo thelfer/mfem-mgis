@@ -3,9 +3,9 @@
 [![ci](https://github.com/thelfer/mfem-mgis/actions/workflows/ci.yml/badge.svg)](https://github.com/thelfer/mfem-mgis/actions)
 [![docs](https://img.shields.io/github/actions/workflow/status/thelfer/mfem-mgis/sphinx.yml?branch=master&label=docs)](https://thelfer.github.io/mfem-mgis/)
 [![doxygen](https://img.shields.io/github/actions/workflow/status/thelfer/mfem-mgis/doxygen.yml?branch=master&label=doxygen)](https://thelfer.github.io/mfem-mgis-doxygen/index.html)
-[![DOI](https://joss.theoj.org/papers/10.21105/joss.07719/status.svg)](https://doi.org/10.21105/joss.07719)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)](https://en.cppreference.com/cpp/20)
 [![spack](https://img.shields.io/spack/v/mfem-mgis)](https://packages.spack.io/package.html?name=mfem-mgis)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.07719/status.svg)](https://doi.org/10.21105/joss.07719)
 
 MFEM/MGIS is a C++ library for nonlinear thermo-mechanical simulations on HPC
 systems, combining [`MFEM`](https://mfem.org/) finite elements and
