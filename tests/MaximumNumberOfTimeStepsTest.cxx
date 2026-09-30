@@ -67,7 +67,7 @@ struct MaximumNumberOfTimeStepsTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(s->run(ctx).first.shallContinue());
     TFEL_TESTS_ASSERT(s->getTimes().size() == 1);
     TFEL_TESTS_CHECK(s->run(ctx).first.shallStop());
-  }  // en of test1
+  }  // end of test1
 };
 
 TFEL_TESTS_GENERATE_PROXY(MaximumNumberOfTimeStepsTest,

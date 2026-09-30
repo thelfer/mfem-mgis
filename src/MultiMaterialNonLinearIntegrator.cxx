@@ -23,7 +23,7 @@ namespace mfem_mgis {
 
   /*!
    * \brief a simple test
-   * \param[in] i: pointer to behaviour integrator
+   * \param[in] bis: behaviour integrators per material
    * \param[in] n: name of the calling method
    * \param[in] m: material id
    */

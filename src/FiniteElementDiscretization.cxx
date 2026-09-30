@@ -27,7 +27,7 @@ namespace mfem_mgis {
 
   const char* const FiniteElementDiscretization::UnknownsSize = "UnknownsSize";
 
-  //! list of valid parametres when the mesh is alredy built
+  //! \return list of valid parameters when the mesh is already built
   [[nodiscard]] static std::vector<std::string>
   getFiniteElementDiscretizationParametersList() {
     auto d =

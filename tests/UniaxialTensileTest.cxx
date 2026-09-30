@@ -188,7 +188,7 @@ static void extractResults(UniaxialTestResults& r,
 }
 
 /*!
- * \return the values of a file of results, or an empty vector if the file
+ * \return the values of a file of results, or empty results if the file
  * can't be read
  * \param[in] f: file name
  */

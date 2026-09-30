@@ -88,7 +88,10 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
             {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
             {"Parallel", bool(parameters.parallel)}};
   }
-  //! \brief a finite strain integrator requires a PK1 behaviour
+  /*!
+   * \brief a finite strain integrator requires a PK1 behaviour
+   * \param[in] fed: finite element discretization
+   */
   void test1(const mfem_mgis::FiniteElementDiscretization& fed) {
     using namespace mgis::behaviour;
     using Integrator = mfem_mgis::
@@ -111,7 +114,10 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b3),
                               "invalid behaviour type"));
   }
-  //! \brief the hypothesis of the behaviour must match the integrator one
+  /*!
+   * \brief the hypothesis of the behaviour must match the integrator one
+   * \param[in] fed: finite element discretization
+   */
   void test2(const mfem_mgis::FiniteElementDiscretization& fed) {
     using namespace mgis::behaviour;
     using Integrator = mfem_mgis::
@@ -121,8 +127,11 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(
         contains(getConstructionError<Integrator>(fed, b), "does not match"));
   }
-  //! \brief the transient heat transfer integrator requires an isotropic
-  //! behaviour
+  /*!
+   * \brief the transient heat transfer integrator requires an isotropic
+   * behaviour
+   * \param[in] fed: finite element discretization
+   */
   void test3(const mfem_mgis::FiniteElementDiscretization& fed) {
     using namespace mgis::behaviour;
     using Integrator = mfem_mgis::TransientHeatTransferBehaviourIntegrator;
@@ -131,7 +140,11 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b),
                               "invalid behaviour symmetry"));
   }
-  //! \return if the string s contains the string s2
+  /*!
+   * \return if the string s contains the string s2
+   * \param[in] s: string
+   * \param[in] s2: searched string
+   */
   static bool contains(const std::string& s, std::string_view s2) {
     return s.find(s2) != std::string::npos;
   }
