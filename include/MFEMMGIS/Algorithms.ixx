@@ -10,10 +10,10 @@
 
 namespace mfem_mgis {
 
-  template <size_type N, QPEvaluatorConcept EvaluatorType>
+  template <size_type N, QPEvaluatorConcept QPEvaluatorType>
   bool assign(Context& ctx,
               PartialQuadratureFunction& f,
-              EvaluatorType e) requires(N > 0) {
+              QPEvaluatorType e) requires(N > 0) {
     if (!checkMatchingQuadratureSpaces(f, e)) {
       return false;
     }
@@ -42,8 +42,8 @@ namespace mfem_mgis {
     return true;
   }  // end of assign
 
-  template <QPEvaluatorConcept EvaluatorType>
-  bool assign(Context& ctx, PartialQuadratureFunction& f, EvaluatorType e) {
+  template <QPEvaluatorConcept QPEvaluatorType>
+  bool assign(Context& ctx, PartialQuadratureFunction& f, QPEvaluatorType e) {
     raise_if(&f.getPartialQuadratureSpace() != &e.getPartialQuadratureSpace(),
              "assign: unmatched number of components for the left hand size "
              "and the right hand side");
@@ -58,7 +58,7 @@ namespace mfem_mgis {
     const auto& qspace = f.getPartialQuadratureSpace();
     const auto ne = qspace.getNumberOfIntegrationPoints();
     if (f.isScalar()) {
-      using result_type = std::invoke_result_t<EvaluatorType, size_type>;
+      using result_type = std::invoke_result_t<QPEvaluatorType, size_type>;
       if constexpr (std::same_as<std::decay_t<result_type>, real>) {
         for (size_type i = 0; i != ne; ++i) {
           auto& lhs_value = f.getIntegrationPointValue(i);
