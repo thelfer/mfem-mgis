@@ -16,10 +16,12 @@ namespace mfem_mgis {
 
   /*!
    * \brief rotate the thermodynamic forces in the global frame
+   * \param[in, out] ctx: execution context
    * \param[out] f: quadrature function containing the thermodynamic forces in
    * the global frame
    * \param[in] m: material
    * \param[in] s: state considered
+   * \return true on success
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool rotateThermodynamicsForcesToGlobalFrame(
       Context& ctx,

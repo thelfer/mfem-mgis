@@ -14,9 +14,9 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief this class is meant to describe an QPEvaluator.
-   * A typicaly usage of this class is to describe a set of evaluators to be
-   * passed to the `QPEvaluatorsSet` class.
+   * \brief this class is meant to describe a QPEvaluator.
+   * A typical usage of this class is to describe the dependencies of an
+   * evaluator generator, see `AbstractQPEvaluatorGenerator::getDependencies`.
    */
   struct MFEM_MGIS_EXPORT QPEvaluatorDescription {
     /*!
@@ -36,15 +36,14 @@ namespace mfem_mgis {
     //! dependency
     [[nodiscard]] size_type getNumberOfComponents() const noexcept;
     /*!
-     * \return if this description shall be used to generate an evaluator
+     * \return if this description shall not be used to generate an evaluator
      *
      * This flag has been introduced because some formulations may want to
      * evaluate some external state variables internally. A typical example is
-     * the temperature which is evaluated internally by the
-     * `ImplicitHeatTransferSolidMaterialFormulation` and passed as the first
-     * external state variable to the heat transfer behavior (the fact that the
-     * temperature is passed as an external state variable is an `MFront`
-     * convention).
+     * the temperature which is evaluated internally by heat transfer
+     * formulations and passed as the first external state variable to the
+     * heat transfer behavior (the fact that the temperature is passed as an
+     * external state variable is an `MFront` convention).
      */
     bool shallNotBeUsedInEvaluatorsGeneration() const noexcept;
     //! \brief destructor
@@ -53,7 +52,7 @@ namespace mfem_mgis {
    private:
     //! \brief name of the dependency
     const std::string name;
-    //! \brief expected number of rows
+    //! \brief expected number of components
     const size_type number_of_components;
     //! \brief flag stating if an evaluator is just a placeholder
     const bool shall_not_be_used_in_evaluators_generation;

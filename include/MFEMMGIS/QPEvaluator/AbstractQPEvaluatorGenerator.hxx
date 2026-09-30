@@ -27,11 +27,11 @@ namespace mfem_mgis {
    * \brief this class is meant to generate integration
    * point value evaluators.
    *
-   * Such generator is meant to used as follows:
+   * Such generator is meant to be used as follows:
    *
-   * 1. They are registered in an instance of `QPFieldEvalutorManager`
+   * 1. They are registered in an instance of `QPEvaluatorsFactory`
    * 2. They are called through the `generate` method of the
-   *    `QPFieldEvalutorManager` class
+   *    `QPEvaluatorsFactory` class
    */
   struct MFEM_MGIS_EXPORT AbstractQPEvaluatorGenerator {
     //! \returns the number of components of the evaluator
@@ -40,8 +40,9 @@ namespace mfem_mgis {
     [[nodiscard]] virtual std::vector<QPEvaluatorDescription> getDependencies()
         const = 0;
     /*!
+     * \brief generate an evaluator
      * \return the evaluator generated
-     * param[in] ctx: execution context.
+     * \param[in, out] ctx: execution context
      * \param[in] f: factory used to retrieve the dependencies of the generated
      * evaluator.
      * \param[in] qspace: partial quadrature space

@@ -20,13 +20,13 @@ namespace mfem_mgis {
   // forward declarations
   struct Material;
 
-  //! \brief evaluator based on an uniform constant value
+  //! \brief evaluator based on a uniform constant value
   struct MFEM_MGIS_EXPORT UniformConstantScalarQPEvaluator final
       : UniformScalarQPEvaluatorBase {
     /*!
      * \brief constructor
      * \param[in] s: partial quadrature space
-     * \param[in] r: value
+     * \param[in] v: value
      */
     UniformConstantScalarQPEvaluator(
         std::shared_ptr<const PartialQuadratureSpace> s, const real v);
@@ -34,14 +34,22 @@ namespace mfem_mgis {
     ~UniformConstantScalarQPEvaluator() noexcept override;
 
    protected:
+    /*!
+     * \brief return the constant value
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step, unused
+     * \param[in] dt: time increment, unused
+     * \return the value
+     */
     [[nodiscard]] std::optional<real> getValue(
         Context& ctx, const real t, const real dt) const noexcept override;
 
    private:
+    //! \brief uniform value
     const real value;
   };
 
-  //! \brief evaluator based on an uniform value
+  //! \brief evaluator based on a uniform value
   struct MFEM_MGIS_EXPORT UniformScalarQPEvaluator final
       : UniformScalarQPEvaluatorBase {
     /*!
@@ -71,10 +79,11 @@ namespace mfem_mgis {
         Context& ctx, const real t, const real dt) const noexcept override;
 
    private:
+    //! \brief function returning the uniform value
     std::function<std::optional<real>(Context&, const real, const real)> fct;
   };
 
-  //! \brief evaluator based on an uniform value
+  //! \brief evaluator based on a function returning the values
   struct MFEM_MGIS_EXPORT StandardQPEvaluator final : QPEvaluatorBase {
     //! \brief a simple alias
     using FirstFunctionType =
@@ -105,6 +114,13 @@ namespace mfem_mgis {
     //
     [[nodiscard]] size_type getNumberOfComponents()
         const noexcept override final;
+    /*!
+     * \brief evaluate the values at the integration points
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return the values returned by the function
+     */
     [[nodiscard]] std::optional<QPEvaluatorResult> evaluate(
         Context& ctx,
         const real t,
@@ -120,9 +136,10 @@ namespace mfem_mgis {
   };
 
   /*!
+   * \brief create an evaluator of a gradient
    * \return an evaluator of the gradient of the given name
    *
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
    * \param[in] n: name of the gradient variable
    * \param[in] ts: time step stage
@@ -134,9 +151,10 @@ namespace mfem_mgis {
       std::string_view n,
       const TimeStepStage ts) noexcept;
   /*!
+   * \brief create an evaluator of a thermodynamic force
    * \return an evaluator of the thermodynamic force of the given name
    *
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
    * \param[in] n: name of the thermodynamic force variable
    * \param[in] ts: time step stage
@@ -148,9 +166,10 @@ namespace mfem_mgis {
       std::string_view n,
       const TimeStepStage ts) noexcept;
   /*!
+   * \brief create an evaluator of an internal state variable
    * \return an evaluator of the internal state variable of the given name
    *
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
    * \param[in] n: name of the internal state variable
    * \param[in] ts: time step stage

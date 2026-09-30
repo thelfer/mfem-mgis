@@ -18,7 +18,7 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief a class aiming at assigning an unique identifier to
+   * \brief a class aiming at assigning a unique identifier to
    * a set of equivalent partial quadrature spaces.
    *
    * In short, two partial quadrature spaces are equivalent if they define the
@@ -43,6 +43,7 @@ namespace mfem_mgis {
     PartialQuadratureSpaceIdentifiersManager& operator=(
         const PartialQuadratureSpaceIdentifiersManager&&) = delete;
     /*!
+     * \brief return the identifier of a partial quadrature space
      * \return the identifier associated with the given partial quadrature
      * space.
      *
@@ -59,6 +60,7 @@ namespace mfem_mgis {
      *
      * \param[in] qspace1: first partial quadrature space
      * \param[in] qspace2: second partial quadrature space
+     * \return if the two spaces are equivalent
      *
      * \note if quadrature spaces are defined on two distinct mesh
      * discretizations, this method returns false

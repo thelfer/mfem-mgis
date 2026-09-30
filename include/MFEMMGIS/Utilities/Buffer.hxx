@@ -16,12 +16,21 @@
 
 namespace mfem_mgis {
 
+  /*!
+   * \brief buffer of real values.
+   * A `std::vector` if the extent is dynamic, a `std::array` otherwise.
+   */
   template <size_type Extent = dynamic_extent>
   using Buffer =
       std::conditional_t<Extent == dynamic_extent,
                          std::vector<real>,
                          std::array<real, static_cast<std::size_t>(Extent)>>;
 
+  /*!
+   * \brief create a span on a buffer
+   * \param[in] b: buffer
+   * \return a span on the given buffer
+   */
   template <std::size_t Extent>
   auto makeSpan(const std::array<real, Extent>& b) noexcept {
     if constexpr (Extent == std::dynamic_extent) {
@@ -31,6 +40,11 @@ namespace mfem_mgis {
     }
   }  // end of makeSpan
 
+  /*!
+   * \brief create a span on a buffer
+   * \param[in] b: buffer
+   * \return a span on the given buffer
+   */
   inline auto makeSpan(const std::vector<real>& b) noexcept {
     return std::span<const real>(b);
   }  // end of makeSpan

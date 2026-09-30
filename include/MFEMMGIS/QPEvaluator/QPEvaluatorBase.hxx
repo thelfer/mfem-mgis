@@ -17,7 +17,7 @@ namespace mfem_mgis {
    * \brief base class for most partial quadrature evaluators
    *
    * \note by default, evaluators are assumed to be spatially variable, thus the
-   * default implementation of `isUniform` return false and `getUniformValue`
+   * default implementation of `isUniform` returns false and `getUniformValue`
    * returns an error.
    */
   struct MFEM_MGIS_EXPORT QPEvaluatorBase : AbstractQPEvaluator {
@@ -31,7 +31,15 @@ namespace mfem_mgis {
         const noexcept override;
     [[nodiscard]] std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const noexcept override;
+    //! \return if the evaluator is spatially uniform, always false
     [[nodiscard]] bool isUniform() const noexcept override;
+    /*!
+     * \brief report an error, the evaluator is not uniform
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step, unused
+     * \param[in] dt: time increment, unused
+     * \return an empty value
+     */
     [[nodiscard]] std::optional<std::variant<real, std::vector<real>>>
     getUniformValue(Context& ctx,
                     const real t,
@@ -48,13 +56,22 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT UniformScalarQPEvaluatorBase : QPEvaluatorBase {
     using QPEvaluatorBase::QPEvaluatorBase;
     //
+    //! \return the number of components, always 1
     [[nodiscard]] size_type getNumberOfComponents()
         const noexcept override final;
+    //! \return if the evaluator is spatially uniform, always true
     [[nodiscard]] bool isUniform() const noexcept override final;
     [[nodiscard]] std::optional<std::variant<real, std::vector<real>>>
     getUniformValue(Context& ctx,
                     const real t,
                     const real dt) const noexcept override final;
+    /*!
+     * \brief evaluate the values at the integration points
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return a function equal to the uniform value at each integration point
+     */
     [[nodiscard]] std::optional<QPEvaluatorResult> evaluate(
         Context& ctx,
         const real t,
@@ -64,6 +81,7 @@ namespace mfem_mgis {
 
    protected:
     /*!
+     * \brief return the value of the evaluator
      * \return the value of the evaluator
      *
      * \param[in, out] ctx: execution context

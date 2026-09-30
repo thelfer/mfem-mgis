@@ -34,7 +34,7 @@ namespace mfem_mgis {
    *
    * To be valid, the following conditions must hold:
    *
-   * - data_begin must be positive
+   * - data_begin must be non-negative
    * - data_size and data_stride must be strictly positive
    * - data_begin + data_size <= data_stride
    *
@@ -56,21 +56,21 @@ namespace mfem_mgis {
    * quadrature function is mapped in memory
    */
   struct PartialQuadratureFunctionDataLayout : ViewSpecifications {
-    // \brief default constructor
+    //! \brief default constructor
     PartialQuadratureFunctionDataLayout() = default;
-    // \brief move constructor
+    //! \brief move constructor
     PartialQuadratureFunctionDataLayout(PartialQuadratureFunctionDataLayout&&) =
         default;
-    // \brief copy constructor
+    //! \brief copy constructor
     PartialQuadratureFunctionDataLayout(
         const PartialQuadratureFunctionDataLayout&) = default;
-    // \brief move assignement
+    //! \brief move assignment
     PartialQuadratureFunctionDataLayout& operator=(
         PartialQuadratureFunctionDataLayout&&) = default;
-    // \brief standard assignement
+    //! \brief standard assignment
     PartialQuadratureFunctionDataLayout& operator=(
         const PartialQuadratureFunctionDataLayout&) = default;
-    //! \return the number of components
+    //! \return if the function is scalar
     bool isScalar() const noexcept;
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
@@ -87,6 +87,7 @@ namespace mfem_mgis {
 
    protected:
     /*!
+     * \brief compute the data offset of an integration point
      * \return the data offset associated with the given integration point.
      * \param[in] o: offset associated with the integration point
      */
@@ -94,7 +95,7 @@ namespace mfem_mgis {
   };  // end of struct PartialQuadratureFunctionDataLayout
 
   /*!
-   * \brief quadrature function defined on a partial quadrature space.
+   * \brief immutable view of a partial quadrature function
    *
    * The `ImmutablePartialQuadratureFunctionView` defines an immutable view
    * associated with a partial quadrature function on a memory region.
@@ -102,6 +103,7 @@ namespace mfem_mgis {
    * This memory region may contain more data than the one associated with the
    * quadrature function as illustrated by the following figure:
    *
+   * \verbatim
    * |---------------------------------------------------------------|
    * <-                         Raw data                            ->
    * |---------------------------------------|
@@ -111,22 +113,23 @@ namespace mfem_mgis {
    *        ^                                ^
    *        |                                |
    *    data_begin                           |
-   *                                     data_size
+   *                                    data_stride
+   * \endverbatim
    *
-   * The size of the all data (including the one not related to the partial
+   * The size of all the data (including the one not related to the partial
    * quadrature function) associated with one integration point is called the
    * `data_stride` in the `ImmutablePartialQuadratureFunctionView` class.
    *
-   * Inside the data associated with on integration point, the function data
+   * Inside the data associated with one integration point, the function data
    * starts at the offset given by `data_begin`.
    *
-   * The size of the data hold by the function per integration point, i.e. th
+   * The size of the data held by the function per integration point, i.e. the
    * number of components of the function is given by `data_size`.
    */
   struct MFEM_MGIS_EXPORT ImmutablePartialQuadratureFunctionView
       : PartialQuadratureFunctionDataLayout {
     /*!
-     * \brief constructor from an already allocated data
+     * \brief constructor from already allocated data
      *
      * \param[in] s: quadrature space.
      * \param[in] v: values
@@ -142,10 +145,10 @@ namespace mfem_mgis {
     //! \brief copy constructor
     ImmutablePartialQuadratureFunctionView(
         const ImmutablePartialQuadratureFunctionView&) noexcept;
-    //! \brief move assignement
+    //! \brief move assignment
     ImmutablePartialQuadratureFunctionView& operator=(
         ImmutablePartialQuadratureFunctionView&&) noexcept;
-    //! \brief copy assignement
+    //! \brief copy assignment
     ImmutablePartialQuadratureFunctionView& operator=(
         const ImmutablePartialQuadratureFunctionView&) noexcept;
     //! \return the underlying quadrature space
@@ -156,17 +159,20 @@ namespace mfem_mgis {
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return a pointer to the data
      */
     const real* data(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
+     * \return a pointer to the data
      */
     const real* data(const size_type e, const size_type i) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return the value
      * \note this method is only meaningful when the quadrature function is
      * scalar
      */
@@ -176,6 +182,7 @@ namespace mfem_mgis {
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
+     * \return the value
      * \note this method is only meaningful when the quadrature function is
      * scalar
      */
@@ -184,38 +191,44 @@ namespace mfem_mgis {
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return the values
      */
     template <size_type N>
     std::span<const real, N> getIntegrationPointValues(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return the values
      */
     std::span<const real> getIntegrationPointValues(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
+     * \return the values
      */
     std::span<const real> getIntegrationPointValues(const size_type e,
                                                     const size_type i) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return the values
      */
     std::span<const real> operator()(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
+     * \return the values
      */
     std::span<const real> operator()(const size_type e,
                                      const size_type i) const;
     //! \return a view to the function values
     std::span<const real> getValues() const;
     /*!
+     * \brief check the compatibility with the given view
      * \return if the current function has the same quadrature space and the
-     * same number of components than the given view
+     * same number of components as the given view
      * \param[in] v: view
      */
     bool checkCompatibility(
@@ -234,12 +247,13 @@ namespace mfem_mgis {
     ImmutablePartialQuadratureFunctionView(
         std::shared_ptr<const PartialQuadratureSpace> s,
         const ViewSpecifications& specs);
-    //! \brief underlying finite element space
+    //! \brief underlying partial quadrature space
     std::shared_ptr<const PartialQuadratureSpace> qspace;
     //! \brief underlying values
     std::span<const real> immutable_values;
   };  // end of ImmutablePartialQuadratureFunctionView
 
+  //! \brief mutable view of a partial quadrature function
   struct MFEM_MGIS_EXPORT PartialQuadratureFunctionView
       : ImmutablePartialQuadratureFunctionView {
     /*!
@@ -257,10 +271,10 @@ namespace mfem_mgis {
     //! \brief copy constructor
     PartialQuadratureFunctionView(
         const PartialQuadratureFunctionView&) noexcept;
-    //! \brief move assignement
+    //! \brief move assignment
     PartialQuadratureFunctionView& operator=(
         PartialQuadratureFunctionView&&) noexcept;
-    //! \brief copy assignement
+    //! \brief copy assignment
     PartialQuadratureFunctionView& operator=(
         const PartialQuadratureFunctionView&) noexcept;
     //
@@ -272,17 +286,20 @@ namespace mfem_mgis {
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return a pointer to the data
      */
     real* data(const size_type o);
     /*!
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
+     * \return a pointer to the data
      */
     real* data(const size_type e, const size_type i);
     /*!
      * \brief return the value associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return the value
      * \note this method is only meaningful when the quadrature function is
      * scalar
      */
@@ -291,6 +308,7 @@ namespace mfem_mgis {
      * \brief return the value associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
+     * \return the value
      * \note this method is only meaningful when the quadrature function is
      * scalar
      */
@@ -298,30 +316,35 @@ namespace mfem_mgis {
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return the values
      */
     template <size_type N>
     std::span<real, N> getIntegrationPointValues(const size_type o);
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return the values
      */
     std::span<real> getIntegrationPointValues(const size_type o);
     /*!
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
+     * \return the values
      */
     std::span<real> getIntegrationPointValues(const size_type e,
                                               const size_type i);
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
+     * \return the values
      */
     std::span<real> operator()(const size_type o);
     /*!
      * \brief return the data associated with an integration point
      * \param[in] e: global element number
      * \param[in] i: integration point number in the element
+     * \return the values
      */
     std::span<real> operator()(const size_type e, const size_type i);
     //! \return a view to the function values
@@ -347,9 +370,9 @@ namespace mfem_mgis {
    *
    * A partial quadrature function is movable, but not copyable.
    * Most of the time, the partial quadrature function holds the memory,
-   * but the `borrow` methods allows to use externally allocated memory
+   * but the `borrow` method allows to use externally allocated memory
    *
-   * The may reason for this choice is to force usage of parallel algorithms.
+   * The main reason for this choice is to force usage of parallel algorithms.
    */
   struct MFEM_MGIS_EXPORT PartialQuadratureFunction
       : PartialQuadratureFunctionView {
@@ -359,6 +382,7 @@ namespace mfem_mgis {
      * the `GetIntPoint` of the element transformation
      * \param[in] s: partial quadrature space
      * \param[in] f: function to be evaluated
+     * \return the partial quadrature function
      */
     static std::shared_ptr<PartialQuadratureFunction> evaluate(
         std::shared_ptr<const PartialQuadratureSpace> s,
@@ -368,6 +392,7 @@ namespace mfem_mgis {
      * \brief evaluate a spatial function in 2D
      * \param[in] s: partial quadrature space
      * \param[in] f: function to be evaluated
+     * \return the partial quadrature function
      */
     static std::shared_ptr<PartialQuadratureFunction> evaluate(
         std::shared_ptr<const PartialQuadratureSpace> s,
@@ -376,33 +401,36 @@ namespace mfem_mgis {
      * \brief evaluate a spatial function in 3D
      * \param[in] s: partial quadrature space
      * \param[in] f: function to be evaluated
+     * \return the partial quadrature function
      */
     static std::shared_ptr<PartialQuadratureFunction> evaluate(
         std::shared_ptr<const PartialQuadratureSpace> s,
         std::function<real(real, real, real)> f);
     /*!
+     * \brief copy a view
      * \return a newly created `PartialQuadratureFunction` which contains a copy
      * of the values of the source
      *
-     * \param[in] ctx: execution context
-     * \param[in] src: view being copied
+     * \param[in, out] ctx: execution context
+     * \param[in] v: view being copied
      *
-     * \note: this method has been introduced to avoid defining a copy
-     * constructor and an assignement operator in the
+     * \note this method has been introduced to avoid defining a copy
+     * constructor and an assignment operator in the
      * `PartialQuadratureFunction` class
      *
-     * \note: we strongly recommend not using this function, as it uses
+     * \note we strongly recommend not using this function, as it uses
      * `std::copy` to copy the values. It is much better to create another
-     * version relying an the `assign` algorithm using the parallel programming
+     * version relying on the `assign` algorithm using the parallel programming
      * model you wish to use
      */
     [[nodiscard]] static std::optional<PartialQuadratureFunction> copy(
         Context& ctx, const ImmutablePartialQuadratureFunctionView& v) noexcept;
     /*!
+     * \brief create a partial quadrature function on external memory
      * \return a partial quadrature function that does not manage its
-     * values, but borrows them to an external memory
+     * values, but borrows them from an external memory
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] s: quadrature space.
      * \param[in] v: values
      * \param[in] specs: specifications
@@ -417,22 +445,20 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
-     * \param[in] size: size of the data stored per integration points.
+     * \param[in] nv: size of the data stored per integration point.
      */
     PartialQuadratureFunction(std::shared_ptr<const PartialQuadratureSpace> s,
                               const size_type nv = 1);
     /*!
      * \brief move constructor
-     * \param[in] f: moved function
-     * \param[in] local_copy: copy locally the function values if the moved
-     * function does not holds them, i.e. is a view.
+     * \param[in, out] f: moved function
      * \note if the moved function holds the memory, the move constructor will
      * take ownership of the memory
      */
     PartialQuadratureFunction(PartialQuadratureFunction&& f);
-    //
+    //! \return a view of the function
     PartialQuadratureFunctionView view();
-    //
+    //! \return an immutable view of the function
     ImmutablePartialQuadratureFunctionView view() const;
 
     //! \brief destructor
@@ -441,7 +467,7 @@ namespace mfem_mgis {
    protected:
     /*!
      * \brief constructor
-     * \param[in] src: view to be copied
+     * \param[in] v: view to be copied
      */
     PartialQuadratureFunction(const ImmutablePartialQuadratureFunctionView& v);
     /*!
@@ -461,14 +487,14 @@ namespace mfem_mgis {
      */
     void makeView(PartialQuadratureFunction& f);
     /*!
-     * \brief turns this function into a view to the given function
+     * \brief copy the given function
      * \param[in] f: function
      */
     void copy(const ImmutablePartialQuadratureFunctionView& f);
     /*!
-     * \brief copy values for an immutable view
+     * \brief copy values from an immutable view
      * \param[in] v: view
-     * \note: no compatibility checks are perfomed
+     * \note the execution is aborted if the view is not compatible
      */
     void copyValues(const ImmutablePartialQuadratureFunctionView& v);
     /*!
@@ -478,18 +504,19 @@ namespace mfem_mgis {
     std::vector<real> local_values_storage;
   };  // end of struct PartialQuadratureFunction
 
-  /*:
+  /*!
    * \brief assign the values of an immutable view to the values of a mutable
-   * view. \return
+   * view.
    *
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] f: mutable view
    * \param[in] v: immutable view
    * \return true on success, false on failure
    *
    * \pre both views must have the same number of components.
    * \note partial quadrature spaces of the views may be
-   * different, we only require them to have the same size.
+   * different, we only require them to have the same identifier and the same
+   * size.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool assign_values(
       Context& ctx,
@@ -498,9 +525,10 @@ namespace mfem_mgis {
 
   /*!
    * \brief update the partial quadrature function from the given grid function
-   * \param[in,out] ctx: execution context
-   * \param[out] dest: partial quadrature function to be executed
+   * \param[in, out] ctx: execution context
+   * \param[out] dest: partial quadrature function to be updated
    * \param[in] src: grid function
+   * \return true on success
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool update(
       Context& ctx,
@@ -508,18 +536,19 @@ namespace mfem_mgis {
       const GridFunction<true>& src) noexcept;
   /*!
    * \brief update the partial quadrature function from the given grid function
-   * \param[in,out] ctx: execution context
-   * \param[out] dest: partial quadrature function to be executed
+   * \param[in, out] ctx: execution context
+   * \param[out] dest: partial quadrature function to be updated
    * \param[in] src: grid function
+   * \return true on success
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool update(
       Context& ctx,
       PartialQuadratureFunctionView& dest,
       const GridFunction<false>& src) noexcept;
   /*!
+   * \brief create a grid function for the given functions
    * \return a grid function able to store the result of the given functions
-   * \param[in,out] ctx: execution context
-   * \param[in] p: underlying problem
+   * \param[in, out] ctx: execution context
    * \param[in] fcts: functions
    * \note the values of the grid function are computed by the
    * updateGridFunction function.
@@ -529,21 +558,24 @@ namespace mfem_mgis {
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts);
 
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<GridFunction<true>>
   makeGridFunction<true>(
       Context&, const std::vector<ImmutablePartialQuadratureFunctionView>&);
 
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<GridFunction<false>>
   makeGridFunction<false>(
       Context&, const std::vector<ImmutablePartialQuadratureFunctionView>&);
 
   /*!
+   * \brief create a grid function for the given functions on the given mesh
    * \return a grid function able to store the result of the given functions
-   * \param[in] p: underlying problem
+   * \param[in, out] ctx: execution context
    * \param[in] fcts: functions
-   * \param[in] mesh: submesh on which the grid function is defined
+   * \param[in] mesh: mesh on which the grid function is defined
    * \note the values of the grid function are computed by the
    * updateGridFunction function.
    */
@@ -553,12 +585,14 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<parallel>& mesh);
 
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
       const Mesh<true>&);
 
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context&,
@@ -566,8 +600,9 @@ namespace mfem_mgis {
       const Mesh<false>&);
 
   /*!
+   * \brief create a grid function for the given functions on the given submesh
    * \return a grid function able to store the result of the given functions
-   * \param[in] p: underlying problem
+   * \param[in, out] ctx: execution context
    * \param[in] fcts: functions
    * \param[in] mesh: submesh on which the grid function is defined
    * \note the values of the grid function are computed by the
@@ -579,12 +614,14 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<parallel>& mesh);
 
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
       const SubMesh<true>&);
 
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context&,
@@ -593,7 +630,7 @@ namespace mfem_mgis {
 
   /*!
    * \brief update a grid function using the values of the given functions
-   * \param[in] f: function
+   * \param[out] f: grid function
    * \param[in] fcts: functions
    * \note the grid function must have been created by `makeGridFunction`
    */
@@ -602,11 +639,13 @@ namespace mfem_mgis {
       GridFunction<parallel>& f,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts);
 
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT void updateGridFunction<true>(
       GridFunction<true>&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&);
 
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT void updateGridFunction<false>(
       GridFunction<false>&,
@@ -614,9 +653,9 @@ namespace mfem_mgis {
 
   /*!
    * \brief update a grid function using the values of the given functions
-   * \param[in] f: function
+   * \param[out] f: grid function
    * \param[in] fcts: functions
-   * \param[in] mesh: submesh on which the grid function is defined
+   * \param[in] mesh: mesh on which the grid function is defined
    * \note the grid function must have been created by `makeGridFunction`
    */
   template <bool parallel>
@@ -625,12 +664,14 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const Mesh<parallel>& mesh);
 
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT void updateGridFunction<true>(
       GridFunction<true>&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
       const Mesh<true>&);
 
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT void updateGridFunction<false>(
       GridFunction<false>&,
@@ -639,7 +680,7 @@ namespace mfem_mgis {
 
   /*!
    * \brief update a grid function using the values of the given functions
-   * \param[in] f: function
+   * \param[out] f: grid function
    * \param[in] fcts: functions
    * \param[in] mesh: submesh on which the grid function is defined
    * \note the grid function must have been created by `makeGridFunction`
@@ -650,12 +691,14 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       const SubMesh<parallel>& mesh);
 
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT void updateGridFunction<true>(
       GridFunction<true>&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
       const SubMesh<true>&);
 
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT void updateGridFunction<false>(
       GridFunction<false>&,
@@ -668,6 +711,7 @@ namespace mfem_mgis {
 
 namespace mfem_mgis {
 
+  //! \brief concept of an evaluator defined on a partial quadrature space
   template <typename EvaluatorType>
   concept QPEvaluatorConcept =
       ((mgis::function::EvaluatorConcept<EvaluatorType>)&&  //
@@ -675,24 +719,56 @@ namespace mfem_mgis {
          { getSpace(e) } -> std::same_as<const PartialQuadratureSpace&>;
        }));
 
+  /*!
+   * \brief perform consistency checks
+   * \param[in, out] eh: error handler
+   * \param[in] f: function
+   * \return true on success
+   */
   constexpr bool check(
       AbstractErrorHandler& eh,
       const ImmutablePartialQuadratureFunctionView& f) noexcept;
 
+  //! \brief deleted, a partial quadrature function is not an evaluator
   bool check(AbstractErrorHandler&,
              const PartialQuadratureFunction&) noexcept = delete;
 
+  /*!
+   * \brief return the number of components
+   * \param[in] f: function
+   * \return the number of components
+   */
   mgis::size_type getNumberOfComponents(
       const ImmutablePartialQuadratureFunctionView& f) noexcept;
 
+  /*!
+   * \brief return the quadrature space of a view
+   * \param[in] f: view
+   * \return the quadrature space
+   */
   MFEM_MGIS_EXPORT const PartialQuadratureSpace& getSpace(
       const ImmutablePartialQuadratureFunctionView& f);
 
+  /*!
+   * \brief return the quadrature space of a function
+   * \param[in] f: function
+   * \return the quadrature space
+   */
   MFEM_MGIS_EXPORT const PartialQuadratureSpace& getSpace(
       const PartialQuadratureFunction& f);
 
+  /*!
+   * \brief return a view of a function
+   * \param[in] f: function
+   * \return a view of the given function
+   */
   PartialQuadratureFunctionView view(PartialQuadratureFunction& f);
 
+  /*!
+   * \brief return an immutable view of a function
+   * \param[in] f: function
+   * \return an immutable view of the given function
+   */
   ImmutablePartialQuadratureFunctionView view(
       const PartialQuadratureFunction& f);
 

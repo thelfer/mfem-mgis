@@ -20,16 +20,18 @@
 namespace mfem_mgis {
 
   /*!
-   * This class is an abstract factory for quadrature point evaluators
-   * evaluators, i.e. which provides methods to:
+   * \brief abstract factory for quadrature point evaluators
    *
-   * 1. registrer generators of quadrature point evaluators stored by name,
+   * This class is an abstract factory for quadrature point evaluators,
+   * i.e. which provides methods to:
+   *
+   * 1. register generators of quadrature point evaluators stored by name,
    * material identifier and equivalent partial quadrature space.
    * 2. handle the generation of evaluators.
    */
   struct MFEM_MGIS_EXPORT QPEvaluatorsFactory {
     /*!
-     * \brief structure return by the `analyseDependencies` method
+     * \brief structure returned by the `analyseDependencies` method
      */
     struct LocalDependenciesAnalysisOutput {
       //! \brief missing dependencies
@@ -38,9 +40,10 @@ namespace mfem_mgis {
     //! \brief a simple alias
     using Generator = std::shared_ptr<AbstractQPEvaluatorGenerator>;
     /*!
+     * \brief describe a location
      * \return a description of the given location usable in an error message
-     * \param[in] m: mesh set on which the evaluator is defined.
-     * \param[in] qid: quadrature id for which the evaluator is defined.
+     * \param[in] qspace: partial quadrature space on which the evaluator is
+     * defined.
      * \param[in] s: stage in the time step
      */
     static std::string getLocationDescription(
@@ -54,8 +57,9 @@ namespace mfem_mgis {
     QPEvaluatorsFactory &operator=(QPEvaluatorsFactory &&) = delete;
     QPEvaluatorsFactory &operator=(const QPEvaluatorsFactory &) = delete;
     /*!
+     * \brief check if a generator has been declared
      * \return if a generator associated with the given partial quadrature
-     * space, quadrature id and time set stage has been declared.
+     * space, time step stage and name has been declared.
      *
      * \param[in] qspace: partial quadrature space
      * \param[in] s: stage in the time step
@@ -217,7 +221,7 @@ namespace mfem_mgis {
      */
     GeneratorsContainer &getGeneratorsContainer(const TimeStepStage s) noexcept;
     /*!
-     * \return fields associated with the given stage in the time step
+     * \return generators associated with the given stage in the time step
      * \param[in] s: stage in the time step
      */
     const GeneratorsContainer &getGeneratorsContainer(
@@ -240,13 +244,13 @@ namespace mfem_mgis {
     //         const std::string &n,
     //         const std::vector<QPEvaluatorDescription> &) const noexcept;
     /*!
-     * \brief list of registered generators computing values of the beginning of
-     * the time step, sorted by mesh sets, quadrature id's and name
+     * \brief list of registered generators computing values at the beginning of
+     * the time step, sorted by location, partial quadrature space and name
      */
     GeneratorsContainer generatorsAtTheBeginningOfTheTimeStep;
     /*!
-     * \brief list of registered generators computing values of the end of the
-     * time step, sorted by mesh sets, quadrature id's and name
+     * \brief list of registered generators computing values at the end of the
+     * time step, sorted by location, partial quadrature space and name
      */
     GeneratorsContainer generatorsAtTheEndOfTheTimeStep;
   };
