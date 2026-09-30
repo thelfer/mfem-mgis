@@ -28,6 +28,11 @@ namespace mfem_mgis {
     mgis::raise<Exception>(std::forward<Args>(args)...);
   }  // end of raise
 
+  /*!
+   * \brief raise an exception if the argument is `true`.
+   * \tparam Exception: type of the exception to be thrown.
+   * \param[in] c: condition to be checked
+   */
   template <typename Exception>
   void raise_if(const bool c) {
     if (c) {

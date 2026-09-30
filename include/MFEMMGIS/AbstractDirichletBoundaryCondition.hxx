@@ -28,13 +28,14 @@ namespace mfem_mgis {
     virtual std::vector<size_type> getHandledDegreesOfFreedom() const = 0;
     /*!
      * \brief update the values of the imposed degrees of freedom
-     * \param[in] u: unknown vector
+     * \param[in, out] u: unknown vector
      * \param[in] t: time at the end of the time step
      */
     virtual void updateImposedValues(mfem::Vector& u, const real t) const = 0;
     /*!
-     * \brief update the values of the imposed degrees of freedom
-     * \param[in] du: unknown vector
+     * \brief set the increments of the imposed degrees of freedom between
+     * the two given times, multiplied by the given factor
+     * \param[in, out] du: increment of the unknowns
      * \param[in] ti: time at the beginning of the time step
      * \param[in] te: time at the end of the time step
      * \param[in] f: multiplicative factor

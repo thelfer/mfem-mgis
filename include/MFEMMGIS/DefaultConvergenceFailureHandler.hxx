@@ -12,12 +12,17 @@
 
 namespace mfem_mgis {
 
-  //! \brief the default time step computer
+  //! \brief the default convergence failure handler
   struct MFEM_MGIS_EXPORT DefaultConvergenceFailureHandler
       : ConvergenceFailureHandlerBase {
     //! \brief constructor
     DefaultConvergenceFailureHandler() noexcept;
-    //
+    /*!
+     * \brief divide the current time increment by two
+     * \return half of the current time increment
+     * \param[in, out] ctx: execution context
+     * \param[in] dt: current time increment
+     */
     [[nodiscard]] std::optional<real> getNewTimeIncrement(
         Context& ctx, const real dt) const noexcept override;
     //! \brief destructor

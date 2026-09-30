@@ -30,7 +30,8 @@ namespace mfem_mgis {
     /*!
      * \brief report that a key is missing.
      * \param[in, out] ctx: execution context
-     * \param[in] k: key
+     * \param[in] n: key
+     * \return an invalid result
      */
     static InvalidResult reportMissingKey(Context& ctx,
                                           std::string_view n) noexcept;
@@ -38,18 +39,22 @@ namespace mfem_mgis {
      * \brief report that the type of a parameter is not the expected one.
      * \param[in, out] ctx: execution context
      * \param[in] n: parameter's name
+     * \return an invalid result
      */
     static InvalidResult reportUnmatchedParameterType(
         Context& ctx, std::string_view n) noexcept;
     /*!
-     * \brief throw an exception if the parameter type is not the expected one.
-     * \note his function shall only be used in constructors or functions with
+     * \brief throw an exception stating that the parameter type is not the
+     * expected one.
+     * \note this function shall only be used in constructors or functions with
      * the `attributes::Throwing` attribute when no context is available.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] n: name of the parameter
      */
     [[noreturn]] static void raiseUnmatchedParameterType(
         attributes::Throwing throwing, std::string_view n);
-    // exposing base class iterator
+    //! \brief exposing base class iterator
     using const_iterator =
         std::map<std::string, Parameter, std::less<>>::const_iterator;
     // inheriting constructors
@@ -92,9 +97,11 @@ namespace mfem_mgis {
     bool contains(std::string_view n) const noexcept;
     /*!
      * \brief insert parameters
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] src: parameters
      * \return the modified parameters
-     * \throws if one of the parameters already exists
+     * \throws std::runtime_error if one of the parameters already exists
      * \note this function shall only be used in constructors or functions with
      * the `attributes::Throwing` attribute when no context is available.
      */
@@ -104,18 +111,22 @@ namespace mfem_mgis {
             std::map<std::string, Parameter, std::less<>>::value_type>& src);
     /*!
      * \brief insert parameters
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] src: parameters
      * \return the modified parameters
-     * \throws if one of the parameters already exists
+     * \throws std::runtime_error if one of the parameters already exists
      * \note this function shall only be used in constructors or functions with
      * the `attributes::Throwing` attribute when no context is available.
      */
     Parameters& insert(attributes::Throwing throwing, const Parameters& src);
     /*!
      * \brief insert parameters
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] src: parameters
      * \return the modified parameters
-     * \throws if one of the parameters already exists
+     * \throws std::runtime_error if one of the parameters already exists
      * \note this function shall only be used in constructors or functions with
      * the `attributes::Throwing` attribute when no context is available.
      */
@@ -123,11 +134,13 @@ namespace mfem_mgis {
                        const std::map<std::string, Parameter>& src);
     /*!
      * \brief insert a parameter using the given name
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] n: name of the parameter
      * \param[in] p: parameter
      * \return the modified parameters
-     * \throws if the given parameter already exists
-     * \note his function shall only be used in constructors or functions with
+     * \throws std::runtime_error if the given parameter already exists
+     * \note this function shall only be used in constructors or functions with
      * the `attributes::Throwing` attribute when no context is available.
      */
     Parameters& insert(attributes::Throwing throwing,
@@ -138,7 +151,7 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the parameter
      * \param[in] p: parameter
-     * \return true if the insertion succeeded
+     * \return true on success
      */
     [[nodiscard]] bool insert(Context& ctx,
                               std::string_view n,
@@ -153,18 +166,21 @@ namespace mfem_mgis {
                                            std::string_view n) const noexcept;
     /*!
      * \brief get the parameter associated with the given name
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] n: name of the parameter
      * \return the parameter associated with the given name
-     * \throws if the parameter does not exist
+     * \throws std::runtime_error if the parameter does not exist
      * \note this function shall only be used in constructors or functions with
      * the `attributes::Throwing` attribute when no context is available.
      */
     const Parameter& get(attributes::Throwing throwing,
                          std::string_view n) const;
     /*!
-     * \brief replace the given parameter by the new value
+     * \brief replace the given parameter by the new value, or insert it if it
+     * does not exist
      * \param[in] n: name of the parameter
-     * \param[in] v: new value
+     * \param[in] p: new value
      * \return the modified parameters
      */
     Parameters& replaceOrInsert(std::string_view n,
@@ -203,9 +219,11 @@ namespace mfem_mgis {
 
   /*!
    * \brief check if the given parameters are valid
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * throw an exception
    * \param[in] parameters: parameters
    * \param[in] names: list of valid parameters names
-   * \throws if an invalid parameter is present
+   * \throws std::runtime_error if an invalid parameter is present
    * \note prefer using `ParametersValidator`
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
@@ -215,9 +233,11 @@ namespace mfem_mgis {
                                         const std::vector<std::string>& names);
   /*!
    * \brief check if the given parameters are valid
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * throw an exception
    * \param[in] parameters: parameters
    * \param[in] descriptions: descriptions of the allowed parameters
-   * \throws if an invalid parameter is present
+   * \throws std::runtime_error if an invalid parameter is present
    * \note prefer using `ParametersValidator`
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
@@ -239,10 +259,12 @@ namespace mfem_mgis {
       const std::vector<std::string>& names) noexcept;
   /*!
    * \brief extract the given parameters if they exist
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * throw an exception
    * \param[in] parameters: parameters
    * \param[in] names: list of parameters names
    * \return the extracted parameters
-   * \throws if an error occurs
+   * \throws std::runtime_error if a name is repeated
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
    */
@@ -251,10 +273,11 @@ namespace mfem_mgis {
                                       const std::vector<std::string>& names);
   /*!
    * \brief extract the given parameters if they exist
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * throw an exception
    * \param[in] parameters: parameters
    * \param[in] descriptions: description of parameters to be extracted
    * \return the extracted parameters
-   * \throws if an error occurs
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
    */
@@ -265,16 +288,18 @@ namespace mfem_mgis {
   /*!
    * \brief extract the information required to build an object from a factory
    * \param[in, out] ctx: execution context
-   * \param[in] p: parameters
+   * \param[in] parameters: parameters
    * \return the information required to build an object from a factory
    */
   MFEM_MGIS_EXPORT std::optional<std::pair<std::string, Parameters>>
   extractFactoryArgument(Context& ctx, const Parameters& parameters) noexcept;
   /*!
    * \brief extract the information required to build an object from a factory
-   * \param[in] p: parameters
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * throw an exception
+   * \param[in] parameters: parameters
    * \return the information required to build an object from a factory
-   * \throws if an error occurs
+   * \throws std::runtime_error if an error occurs
    * \note this function shall only be used in constructors or functions with
    * the `attributes::Throwing` attribute when no context is available.
    */

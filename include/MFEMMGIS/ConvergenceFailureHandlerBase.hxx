@@ -12,10 +12,10 @@
 
 namespace mfem_mgis {
 
-  //! \brief a common class for most time step computers
+  //! \brief a common base class for convergence failure handlers
   struct MFEM_MGIS_EXPORT ConvergenceFailureHandlerBase
       : AbstractConvergenceFailureHandler {
-    //!\brief constructor
+    //! \brief constructor
     ConvergenceFailureHandlerBase() noexcept;
     //! \brief destructor
     ~ConvergenceFailureHandlerBase() noexcept override;

@@ -23,8 +23,8 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
-     * \param[in] bids: ids of the boundary
-     * \param[in] c: component of the unknows treated by this boundary
+     * \param[in] bid: ids of the boundary
+     * \param[in] c: component of the unknowns treated by this boundary
      * condition.
      */
     DirichletBoundaryConditionBase(FiniteElementDiscretization& fed,

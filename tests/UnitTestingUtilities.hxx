@@ -19,19 +19,28 @@
 
 namespace mfem_mgis::unit_tests {
 
+  //! \brief parameters of the unit tests
   struct TestParameters {
+    //! \brief mesh file
     const char* mesh_file = nullptr;
+    //! \brief name of the behaviour
     const char* behaviour = nullptr;
+    //! \brief material library
     const char* library = nullptr;
     //! \brief reference file, no comparison if empty. Not null, since
     //! mfem::OptionsParser::PrintUsage stops at the first null string
     const char* reference_file = "";
+    //! \brief name of the internal state variable to be post-processed
     const char* isv_name = nullptr;
+    //! \brief identifier of the linear solver
     int linearsolver = 0;
+    //! \brief finite element order
     int order = 1;
+    //! \brief serial if 0, parallel if 1
     int parallel = 0;
   };  // end of struct TestParameters
 
+  //! \brief results of a uniaxial test
   struct UniaxialTestResults {
     /*!
      * \brief values of the first component of the gradients in the material
@@ -52,6 +61,14 @@ namespace mfem_mgis::unit_tests {
     std::vector<mfem_mgis::real> v;
   };  // end of struct UniaxialTestResults
 
+  /*!
+   * \brief parse the command line options. Exits after printing the usage if
+   * help is requested. Aborts if the mesh, the library or the behaviour is
+   * missing.
+   * \param[in, out] params: test parameters
+   * \param[in] argc: number of arguments
+   * \param[in] argv: arguments
+   */
   [[maybe_unused]] static void parseCommandLineOptions(TestParameters& params,
                                                        int argc,
                                                        char** argv) {
@@ -87,6 +104,17 @@ namespace mfem_mgis::unit_tests {
     // args.PrintOptions(mfem_mgis::getOutputStream());
   }  // end of parseCommandLineOptions
 
+  /*!
+   * \brief create the linear solver selected by the `linearsolver` test
+   * parameter. In sequential, unsupported choices fall back to the conjugate
+   * gradient.
+   * \tparam parallel: boolean stating if the computation is parallel
+   * \tparam TestParametersT: type of the test parameters
+   * \param[in, out] ctx: execution context
+   * \param[in] fespace: finite element space
+   * \param[in] parameters: test parameters
+   * \return the linear solver, invalid on failure
+   */
   template <bool parallel, typename TestParametersT>
   static mfem_mgis::LinearSolverHandler getLinearSolver(
       mfem_mgis::Context& ctx,
@@ -174,6 +202,14 @@ namespace mfem_mgis::unit_tests {
     return ctx.registerErrorMessage("unsupported linear solver");
   }  // end of getLinearSolver
 
+  /*!
+   * \brief set the linear solver of the problem. Aborts on failure.
+   * \tparam TestParametersT: type of the test parameters
+   * \param[in] a: attribute stating that this function may abort on error
+   * \param[in, out] ctx: execution context
+   * \param[in, out] problem: non linear evolution problem
+   * \param[in] parameters: test parameters
+   */
   template <typename TestParametersT>
   [[maybe_unused]] static void setLinearSolver(
       [[maybe_unused]] attributes::MayAbort a,
@@ -198,6 +234,15 @@ namespace mfem_mgis::unit_tests {
     problem.setLinearSolver(ctx, std::move(s)) | or_die;
   }  // end of setLinearSolver
 
+  /*!
+   * \brief append the values at the first integration point of the given
+   * state to the results. Does nothing if the material has no integration
+   * point.
+   * \param[in, out] r: results
+   * \param[in] m: material
+   * \param[in] s: material state
+   * \param[in] parameters: test parameters
+   */
   [[maybe_unused]] static void extractResults(
       UniaxialTestResults& r,
       const mfem_mgis::Material& m,
@@ -217,6 +262,12 @@ namespace mfem_mgis::unit_tests {
     }
   }  // end of extractResults
 
+  /*!
+   * \brief append the values at the beginning of the time step to the results
+   * \param[in, out] r: results
+   * \param[in] m: material
+   * \param[in] parameters: test parameters
+   */
   [[maybe_unused]] static void extractInitialResults(
       UniaxialTestResults& r,
       const mfem_mgis::Material& m,
@@ -224,6 +275,12 @@ namespace mfem_mgis::unit_tests {
     extractResults(r, m, m.s0, parameters);
   }  // end of extractInitialResults
 
+  /*!
+   * \brief append the values at the end of the time step to the results
+   * \param[in, out] r: results
+   * \param[in] m: material
+   * \param[in] parameters: test parameters
+   */
   [[maybe_unused]] static void extractResults(
       UniaxialTestResults& r,
       const mfem_mgis::Material& m,
@@ -231,6 +288,16 @@ namespace mfem_mgis::unit_tests {
     extractResults(r, m, m.s1, parameters);
   }  // end of extractResults
 
+  /*!
+   * \brief compare the results to the reference file, if any
+   * \param[in] r: results
+   * \param[in] m: material
+   * \param[in] parameters: test parameters
+   * \param[in] eeps: tolerance on the second component of the gradients and
+   * on the internal state variable
+   * \param[in] seps: tolerance on the thermodynamic forces
+   * \return true if the results match the reference values on all processes
+   */
   [[maybe_unused]] static bool checkResults(UniaxialTestResults& r,
                                             const mfem_mgis::Material& m,
                                             const TestParameters& parameters,
@@ -282,6 +349,11 @@ namespace mfem_mgis::unit_tests {
     return success;
   }  // end of checkResults
 
+  /*!
+   * \brief save the results in a file
+   * \param[in] f: file name
+   * \param[in] r: results
+   */
   [[maybe_unused]] static void saveResults(const std::string& f,
                                            const UniaxialTestResults& r) {
     std::ofstream out(f);
@@ -292,6 +364,17 @@ namespace mfem_mgis::unit_tests {
     }
   }
 
+  /*!
+   * \brief solve the problem with a constant time step and extract the results
+   * of material 1. Aborts on failure.
+   * \param[in, out] ctx: execution context
+   * \param[in, out] problem: non linear evolution problem
+   * \param[in] parameters: test parameters
+   * \param[in] t0: initial time
+   * \param[in] t1: final time
+   * \param[in] nsteps: number of time steps
+   * \return the results
+   */
   [[maybe_unused]] static UniaxialTestResults solve(
       Context& ctx,
       mfem_mgis::NonLinearEvolutionProblem& problem,

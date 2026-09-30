@@ -174,15 +174,25 @@ namespace mfem_mgis {
 
   namespace internals {
 
+    /*!
+     * \brief convert a parameter to a vector of values. A single value gives
+     * a vector of one element.
+     * \tparam ValueType: type of the values
+     * \param[in, out] ctx: execution context
+     * \param[in] p: parameter
+     * \return the vector of values, empty on failure
+     */
     template <typename ValueType>
     requires((std::same_as<ValueType, real>) || (std::same_as<ValueType, int>))
         [[nodiscard]] std::optional<std::vector<ValueType>> convertToVector(
             Context& ctx, const Parameter& p) noexcept;
 
+    //! \brief specialisation for reals
     template <>
     MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<real>>
     convertToVector<real>(Context&, const Parameter&) noexcept;
 
+    //! \brief specialisation for integers
     template <>
     MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<int>>
     convertToVector<int>(Context&, const Parameter&) noexcept;

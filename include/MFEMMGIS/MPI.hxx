@@ -17,6 +17,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
+  //! \brief MPI data type associated with the type T
   template <typename T>
   inline const auto mpi_type = []() {
     if constexpr (std::is_enum_v<T>) {
@@ -84,6 +85,7 @@ namespace mfem_mgis {
    *
    * \param[in] m: mesh discretization
    * \param[in] b: boolean value in the current process
+   * \return true if the value is true on all processes
    *
    * \note if the computations are sequential, no MPI call is made
    */
@@ -91,10 +93,11 @@ namespace mfem_mgis {
       const MeshDiscretization& m, const bool b) noexcept;
 
   /*!
-   * \brief a simple reduction for boolean values
+   * \brief check the validity of a value on all processes
+   * \return if the given value is valid on all processes
    *
    * \param[in] m: mesh discretization
-   * \param[in] b: boolean value in the current process
+   * \param[in] v: value in the current process
    *
    * \note if the computations are sequential, no MPI call is made
    */

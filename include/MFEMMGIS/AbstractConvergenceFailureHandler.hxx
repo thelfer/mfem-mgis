@@ -18,9 +18,10 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT AbstractConvergenceFailureHandler {
     /*!
-     * \return a new time increment on case of convergence failure
-     * \param[in] ctx: execution context
-     * \param[in] dt: current time incremnent
+     * \brief compute a new time increment after a convergence failure
+     * \return the new time increment, empty on failure
+     * \param[in, out] ctx: execution context
+     * \param[in] dt: current time increment
      */
     virtual std::optional<real> getNewTimeIncrement(
         Context& ctx, const real dt) const noexcept = 0;

@@ -21,8 +21,8 @@ namespace mfem_mgis {
   struct Parameters;
 
   /*!
-   * \brief an helper structure to block the closest point to the given poistion
-   * along the a specified component.
+   * \brief a helper structure to impose the value of a specified component
+   * of the unknowns at the node closest to the given position.
    */
   struct MFEM_MGIS_EXPORT ImposedDirichletBoundaryConditionAtClosestNode
       : public AbstractDirichletBoundaryCondition {
@@ -70,9 +70,26 @@ namespace mfem_mgis {
         const std::array<real, 3u> pt,
         const size_type c,
         std::function<real(const real)> uvalues);
-    //
+    /*!
+     * \return the list of degrees of freedom treated by this boundary
+     * condition, empty if the closest node is not handled by the current
+     * process
+     */
     std::vector<size_type> getHandledDegreesOfFreedom() const override;
+    /*!
+     * \brief update the value of the imposed degree of freedom
+     * \param[in, out] u: unknown vector
+     * \param[in] t: time at the end of the time step
+     */
     void updateImposedValues(mfem::Vector& u, const real t) const override;
+    /*!
+     * \brief set the increment of the imposed degree of freedom between the
+     * two given times, multiplied by the given factor
+     * \param[in, out] du: increment of the unknowns
+     * \param[in] ti: time at the beginning of the time step
+     * \param[in] te: time at the end of the time step
+     * \param[in] f: multiplicative factor
+     */
     void setImposedValuesIncrements(mfem::Vector& du,
                                     const real ti,
                                     const real te,
@@ -83,7 +100,7 @@ namespace mfem_mgis {
    protected:
     //! \brief function returning the value of the imposed displacement
     std::function<real(const real)> ufct;
-    //! \brief degree of freedomon blocked
+    //! \brief blocked degree of freedom, if handled by the current process
     const std::optional<size_type> dof;
   };  // end of struct ImposedDirichletBoundaryConditionAtClosestNode
 
