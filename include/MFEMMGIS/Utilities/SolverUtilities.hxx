@@ -17,7 +17,7 @@ namespace mfem_mgis {
   struct Parameters;
 
   /*!
-   * \brief return the list of parameters for an interative solver
+   * \return the list of parameters for an iterative solver
    * \note the following parameters are available:
    * - `AbstractNonLinearEvolutionProblem::SolverVerbosityLevel`, aka
    *   `"VerbosityLevel"`,
@@ -35,8 +35,9 @@ namespace mfem_mgis {
    * \brief set the parameters of an iterative solver
    *
    * \param[in, out] ctx: execution context
-   * \param[in] s: iterative solver
+   * \param[in, out] s: iterative solver
    * \param[in] params: parameters
+   * \return true on success
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool setSolverParameters(
       Context& ctx, IterativeSolver& s, const Parameters& params) noexcept;
@@ -46,8 +47,9 @@ namespace mfem_mgis {
    * \brief set the parameters of a PETSc solver
    *
    * \param[in, out] ctx: execution context
-   * \param[in] s: solver
+   * \param[in, out] s: solver
    * \param[in] params: parameters
+   * \return true on success
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool setSolverParameters(
       Context& ctx,
@@ -58,9 +60,9 @@ namespace mfem_mgis {
   /*!
    * \brief set the parameters of an iterative solver
    *
-   * \param[in] throwing: dummy argument to indicate that this function may
-   * throw an exception.
-   * \param[in] s: iterative solver
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * throw an exception
+   * \param[in, out] s: iterative solver
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT [[deprecated]] void setSolverParameters(
@@ -72,9 +74,9 @@ namespace mfem_mgis {
   /*!
    * \brief set the parameters of a PETSc solver
    *
-   * \param[in] throwing: dummy argument to indicate that this function may
-   * throw an exception.
-   * \param[in] s: solver
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * throw an exception
+   * \param[in, out] s: solver
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT [[deprecated]] void setSolverParameters(
@@ -83,6 +85,11 @@ namespace mfem_mgis {
       const Parameters& params);
 #endif /* MFEM_USE_PETSC */
 
+  /*!
+   * \brief check if the linear solver has converged
+   * \param[in] ls: linear solver
+   * \return if the linear solver has converged
+   */
   MFEM_MGIS_EXPORT [[nodiscard]] bool hasConverged(
       const LinearSolver& ls) noexcept;  // end of hasConverged
   /*!
@@ -90,6 +97,9 @@ namespace mfem_mgis {
    *
    * Unified for both LinearSolver and Hypre solvers.
    * Optional return type in case the LinearSolver is not iterative.
+   *
+   * \param[in] ls: linear solver
+   * \return the number of iterations, empty if the solver is not iterative
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<int>
   getNumberOfIterationsAtConvergence(const LinearSolver& ls) noexcept;

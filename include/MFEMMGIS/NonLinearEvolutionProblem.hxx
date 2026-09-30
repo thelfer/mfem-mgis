@@ -37,38 +37,38 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] p: parameters.
      *
      * The following parameters are the most common (see also the
      * FiniteElementDiscretization class for details):
      *
-     * - `Parallel` (boolean): if true, a parallel computation is to be be
-     *    performed. This value if assumed to be false by default.
+     * - `Parallel` (boolean): if true, a parallel computation is to be
+     *    performed. This value is assumed to be false by default.
      * - `MeshFileName` (string): mesh file.
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used. The default value if `H1`.
+     *   used. The default value is `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `Hypothesis` (string): modelling hypothesis
-     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
+     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
     NonLinearEvolutionProblem(Context &ctx, const Parameters &p);
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
-     * \param[in] p: parameters use to initialize the underlying finite element
-     * discretization
+     * \param[in] p: parameters used to initialize the problem and the
+     * underlying finite element discretization
      *
      * The following parameters are the most common (see also the
      * FiniteElementDiscretization class for details):
      *
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used. The default value if `H1`.
+     *   used. The default value is `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
      * - `Hypothesis` (string): modelling hypothesis
-     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
+     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
     NonLinearEvolutionProblem(Context &ctx,
@@ -76,19 +76,19 @@ namespace mfem_mgis {
                               const Parameters &p);
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] h: modelling hypothesis
-     * \param[in] p: parameters use to initialize the underlying finite element
-     * discretization
+     * \param[in] p: parameters used to initialize the problem and the
+     * underlying finite element discretization
      *
      * The following parameters are the most common (see also the
      * FiniteElementDiscretization class for details):
      *
      * - `FiniteElementFamily` (string): name of the finite element family to be
-     *   used. The default value if `H1`.
+     *   used. The default value is `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
-     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not use
+     * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */
     NonLinearEvolutionProblem(Context &ctx,
@@ -97,7 +97,7 @@ namespace mfem_mgis {
                               const Parameters &p = Parameters());
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] p: parameters
      */
@@ -106,7 +106,7 @@ namespace mfem_mgis {
                               const Parameters &p);
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
@@ -115,14 +115,15 @@ namespace mfem_mgis {
                               std::shared_ptr<FiniteElementDiscretization> fed,
                               const Hypothesis h,
                               const Parameters &p = Parameters());
-    //
+    //! \brief move constructor
     NonLinearEvolutionProblem(NonLinearEvolutionProblem &&) noexcept = default;
+    //! \brief deleted copy constructor
     NonLinearEvolutionProblem(const NonLinearEvolutionProblem &) noexcept =
         delete;
     /*!
      * \return the internal implementation
      * \warning this method shall be used with care: calling it if the
-     * implementation does not match the parallel template argument abort the
+     * implementation does not match the parallel template argument aborts the
      * code
      */
     template <bool parallel>
@@ -131,7 +132,7 @@ namespace mfem_mgis {
     /*!
      * \return the internal implementation
      * \warning this method shall be used with care: calling it if the
-     * implementation does not match the parallel template argument abort the
+     * implementation does not match the parallel template argument aborts the
      * code
      */
     template <bool parallel>
@@ -175,9 +176,10 @@ namespace mfem_mgis {
         Context &ctx,
         std::unique_ptr<AbstractBoundaryCondition> f) noexcept override;
     /*!
-     * \brief add an uniform boundary condition
-     * \param[in,out] ctx: execution context
+     * \brief add a uniform Dirichlet boundary condition
+     * \param[in, out] ctx: execution context
      * \param[in] params: parameters defining the boundary condition
+     * \return true on success
      */
     [[nodiscard]] bool addUniformDirichletBoundaryCondition(
         Context &ctx, const Parameters &params) noexcept;
@@ -242,6 +244,14 @@ namespace mfem_mgis {
     [[nodiscard]] virtual const std::vector<
         std::unique_ptr<AbstractBoundaryCondition>>
         &getBoundaryConditions() const noexcept override;
+    /*!
+     * \brief call `setup`, then solve the non linear problem over the given
+     * time step
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return the output of the non linear resolution
+     */
     [[nodiscard]] NonLinearResolutionOutput solve(
         Context &ctx, const real t, const real dt) noexcept override;
     [[nodiscard]] bool revert(Context &ctx) noexcept override;
@@ -257,6 +267,7 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
     [[nodiscard]] virtual bool setup(Context &ctx,
                                      const real t,
@@ -266,7 +277,7 @@ namespace mfem_mgis {
   };  // end of struct NonLinearEvolutionProblem
 
   /*!
-   * \brief resolve the dependencies (material properties and and external state
+   * \brief resolve the dependencies (material properties and external state
    * variables) of the first nonlinear evolution problem given using the
    * gradients, thermodynamic forces and internal state variables from the
    * second.
@@ -274,6 +285,7 @@ namespace mfem_mgis {
    * \param[in, out] ctx: execution context
    * \param[in, out] p: problem to be treated
    * \param[in] provider: problem used to resolve the dependencies
+   * \return true on success
    */
   [[nodiscard]] bool resolveBehaviourIntegratorsDependencies(
       Context &ctx,
@@ -282,36 +294,43 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
+  //! \brief parallel specialisation
   template <>
   NonLinearEvolutionProblemImplementation<true>
       &NonLinearEvolutionProblem::getImplementation() noexcept;
 
+  //! \brief parallel specialisation
   template <>
   const NonLinearEvolutionProblemImplementation<true>
       &NonLinearEvolutionProblem::getImplementation() const noexcept;
 
 #else /* MFEM_USE_MPI */
 
+  //! \brief parallel specialisation
   template <>
   [[noreturn]] NonLinearEvolutionProblemImplementation<true>
       &NonLinearEvolutionProblem::getImplementation() noexcept;
 
+  //! \brief parallel specialisation
   template <>
   [[noreturn]] const NonLinearEvolutionProblemImplementation<true>
       &NonLinearEvolutionProblem::getImplementation() const noexcept;
 
 #endif /* MFEM_USE_MPI */
 
+  //! \brief sequential specialisation
   template <>
   NonLinearEvolutionProblemImplementation<false>
       &NonLinearEvolutionProblem::getImplementation() noexcept;
 
+  //! \brief sequential specialisation
   template <>
   const NonLinearEvolutionProblemImplementation<false>
       &NonLinearEvolutionProblem::getImplementation() const noexcept;
 
   /*!
-   * \return a description of the boundary by a vector of pair
+   * \brief describe a boundary by its faces
+   * \return a description of the boundary by a vector of pairs
    * associating for each face its identifier and the identifier of the
    * adjacent element.
    * \param[in] p: non linear evolution problem
@@ -321,10 +340,10 @@ namespace mfem_mgis {
   buildFacesDescription(NonLinearEvolutionProblem &p, const size_type bid);
 
   /*!
-   * \brief return a structure which associates the global number of the
-   * selected elements to the local indexes of its degrees of freedom sorted by
-   * components.
-   * \tparam parallel: boolean stating if the computation is done in parallel.
+   * \brief list the elements having degrees of freedom on a boundary
+   * \return a vector of pairs associating the index of each element having
+   * at least one degree of freedom on the boundary with the local indexes of
+   * these degrees of freedom, grouped by component.
    * \param[in] p: non linear evolution problem
    * \param[in] bid: boundary identifier
    */
@@ -335,13 +354,14 @@ namespace mfem_mgis {
                                         const size_type bid);
 
   /*!
-   * \return the resultant of the inner forces on the given boundary
+   * \brief compute the resultant of the inner forces on the given boundary
    * \param[in, out] ctx: execution context
    * \param[out] F: resultant
    * \param[in] p: non linear evolution problem
-   * \param[in] elts: a structure which gives for each element having a
+   * \param[in] elts_dofs: a structure which gives for each element having at
    * least one node on the boundary the list of the nodes of this element on the
    * boundary.
+   * \return true on success
    *
    * \note in parallel, the resultant is only the contribution of the given
    * process

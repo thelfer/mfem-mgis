@@ -20,11 +20,11 @@ namespace mfem_mgis {
   struct Parameters;
 
   /*!
-   * \brief an abstract factory for behaviour integrators
-   * \tparam parallel: boolean stating if parallel post-processing are
+   * \brief an abstract factory for linear solvers
+   * \tparam parallel: boolean stating if parallel linear solvers are
    * considered
    *
-   * \note if a linear solver is added, the `hadConverged` function in
+   * \note if a linear solver is added, the `hasConverged` function in
    * `SolverUtilities.hxx` shall also be modified
    */
   template <bool parallel>
@@ -32,29 +32,30 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  //! \brief partial specialisation in parallel
+  //! \brief specialisation in parallel
   template <>
   struct MFEM_MGIS_EXPORT LinearSolverFactory<true> {
-    //! a simple alias
+    //! \brief a simple alias
     using Generator = std::function<LinearSolverHandler(
         Context&, FiniteElementSpace<true>&, const Parameters&)>;
     //! \return the unique instance of the class
     static LinearSolverFactory& getFactory();
     /*!
-     * \brief register a new post-processing
-     * \param[in] ctx: execution context
-     * \param[in] n: name of the post-processing
-     * \param[in] g: generator of the post-processing
+     * \brief register a new linear solver
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the linear solver
+     * \param[in] g: generator of the linear solver
+     * \return true on success
      */
     [[nodiscard]] bool add(Context& ctx,
                            std::string_view n,
                            Generator g) noexcept;
     /*!
-     * \return the requested post-processing
-     * \param[in] ctx: execution context
-     * \param[in] n: name of the post-processing
-     * \param[in] p: problem to be solved
-     * \param[in] params: parameters passed to the post-processing
+     * \return the requested linear solver
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the linear solver
+     * \param[in] fespace: finite element space
+     * \param[in] params: parameters passed to the linear solver
      */
     LinearSolverHandler generate(Context& ctx,
                                  std::string_view n,
@@ -62,39 +63,40 @@ namespace mfem_mgis {
                                  const Parameters& params) const;
 
    private:
-    //! \brief default destructor
+    //! \brief default constructor
     LinearSolverFactory();
     //! \brief destructor
     ~LinearSolverFactory();
-    //! \brief registred factories
+    //! \brief registered generators
     std::map<std::string, Generator, std::less<>> generators;
   };  // end of struct LinearSolverFactory
 
 #endif /* MFEM_USE_MPI */
 
-  //! \brief partial specialisation in sequential
+  //! \brief specialisation in sequential
   template <>
   struct MFEM_MGIS_EXPORT LinearSolverFactory<false> {
-    //! a simple alias
+    //! \brief a simple alias
     using Generator = std::function<LinearSolverHandler(
         Context&, FiniteElementSpace<false>&, const Parameters&)>;
     //! \return the unique instance of the class
     static LinearSolverFactory& getFactory();
     /*!
-     * \brief register a new post-processing
-     * \param[in] ctx: execution context
-     * \param[in] n: name of the post-processing
-     * \param[in] g: generator of the post-processing
+     * \brief register a new linear solver
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the linear solver
+     * \param[in] g: generator of the linear solver
+     * \return true on success
      */
     [[nodiscard]] bool add(Context& ctx,
                            std::string_view n,
                            Generator g) noexcept;
     /*!
-     * \return the requested post-processing
-     * \param[in] ctx: execution context
-     * \param[in] n: name of the post-processing
-     * \param[in] p: problem to be solved
-     * \param[in] params: parameters passed to the post-processing
+     * \return the requested linear solver
+     * \param[in, out] ctx: execution context
+     * \param[in] n: name of the linear solver
+     * \param[in] fespace: finite element space
+     * \param[in] params: parameters passed to the linear solver
      */
     LinearSolverHandler generate(Context& ctx,
                                  std::string_view n,
@@ -102,11 +104,11 @@ namespace mfem_mgis {
                                  const Parameters& params) const;
 
    private:
-    //! \brief default destructor
+    //! \brief default constructor
     LinearSolverFactory();
     //! \brief destructor
     ~LinearSolverFactory();
-    //! \brief registred factories
+    //! \brief registered generators
     std::map<std::string, Generator, std::less<>> generators;
   };  // end of struct LinearSolverFactory
 

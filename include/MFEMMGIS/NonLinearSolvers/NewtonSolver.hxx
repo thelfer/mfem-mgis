@@ -23,12 +23,22 @@ namespace mfem_mgis {
   //! \brief custom implementation of the Newton Solver
   struct MFEM_MGIS_EXPORT NewtonSolver : public NonLinearSolverBase {
 #ifdef MFEM_USE_MPI
-    //! \brief default constructor
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear evolution problem
+     */
     NewtonSolver(NonLinearEvolutionProblemImplementation<true>& p);
 #endif /* MFEM_USE_MPI */
-    //! \brief default constructor
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear evolution problem
+     */
     NewtonSolver(NonLinearEvolutionProblemImplementation<false>& p);
-    //
+    /*!
+     * \brief solve the non linear problem
+     * \param[in] b: right hand side, unused
+     * \param[in, out] x: initial guess, then solution
+     */
     void Mult(const mfem::Vector& b, mfem::Vector& x) const override;
     //! \brief destructor
     ~NewtonSolver() override;
@@ -36,9 +46,10 @@ namespace mfem_mgis {
    protected:
     /*!
      * \brief compute the correction associated with the given residual
-     * \param[in] c: Newton' correction
+     * \param[out] c: opposite of the Newton correction
      * \param[in] r: residual
      * \param[in] u: current estimate of the unknowns
+     * \return true on success
      */
     virtual bool computeNewtonCorrection(mfem::Vector& c,
                                          const mfem::Vector& r,

@@ -17,10 +17,16 @@ namespace mfem_mgis {
   //! \brief base class for nonlinear solvers
   struct MFEM_MGIS_EXPORT NonLinearSolverBase : public AbstractNonLinearSolver {
 #ifdef MFEM_USE_MPI
-    //! \brief default constructor
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear evolution problem
+     */
     NonLinearSolverBase(NonLinearEvolutionProblemImplementation<true> &p);
 #endif /* MFEM_USE_MPI */
-    //! \brief default constructor
+    /*!
+     * \brief constructor
+     * \param[in] p: non linear evolution problem
+     */
     NonLinearSolverBase(NonLinearEvolutionProblemImplementation<false> &p);
     //
     void addNewUnknownsEstimateActions(
@@ -30,9 +36,16 @@ namespace mfem_mgis {
         Context &ctx, const Parameters &params) noexcept override;
     [[nodiscard]] bool isLinearSolverFailureDiscarded() const noexcept override;
     void setLinearSolver(LinearSolver &s) noexcept override;
+    /*!
+     * \brief set the reference value for the norm of the residual.
+     * \param[in, out] ctx: execution context
+     * \param[in] v: value of the reference residual, must be positive
+     * \return true on success
+     */
     [[nodiscard]] bool setReferenceResidualNorm(Context &ctx,
                                                 const real v) noexcept override;
     void unsetReferenceResidualNorm() noexcept override;
+    //! \return the reference residual norm if set, zero otherwise
     [[nodiscard]] real GetInitialNorm() const noexcept override;
     void setContext(Context &ctx) noexcept override;
     void unsetContext() noexcept override;
@@ -41,28 +54,41 @@ namespace mfem_mgis {
     ~NonLinearSolverBase() noexcept;
 
    protected:
+    /*!
+     * \brief not supported, throws an exception
+     * \param[in] s: preconditioner, unused
+     */
     [[noreturn]] void SetPreconditioner(Solver &s) override;
+    /*!
+     * \brief not supported, throws an exception
+     * \param[in] op: operator, unused
+     */
     [[noreturn]] void SetOperator(const mfem::Operator &op) override;
     /*!
      * \brief compute the residual
-     * \param[in] r: residual
+     * \param[out] r: residual
      * \param[in] u: current estimate of the unknowns
      */
     virtual void computeResidual(mfem::Vector &r, const mfem::Vector &u) const;
-    //! \return the jacobian of the system
+    /*!
+     * \brief return the jacobian of the system
+     * \param[in] u: current estimate of the unknowns
+     * \return the jacobian of the system
+     */
     virtual mfem::Operator &getJacobian(const mfem::Vector &u) const;
     /*!
      * \brief method called when a new estimate of the unknowns is available.
      * \param[in] u: new unknown estimate
+     * \return true on success
      */
     virtual bool processNewUnknownsEstimate(const mfem::Vector &u) const;
     /*!
-     * \brief actions performed when a new estimate of the unknowns are
+     * \brief actions performed when a new estimate of the unknowns is
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
     /*!
-     * \return the information collected during the iterations
+     * \brief information collected during the iterations
      * This vector is meant to be cleared at the beginning of the Mult method
      */
     mutable std::vector<Parameter> iterations_information;

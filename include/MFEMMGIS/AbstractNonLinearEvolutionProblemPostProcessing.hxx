@@ -26,7 +26,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  //! \brief partial specialisation for parallel post-processings
+  //! \brief specialisation for parallel post-processings
   template <>
   struct MFEM_MGIS_EXPORT
       AbstractNonLinearEvolutionProblemPostProcessing<true> {
@@ -36,6 +36,7 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] t: initial time
+     * \return true on success
      */
     [[nodiscard]] virtual bool executeInitialPostProcessing(
         Context& ctx,
@@ -43,9 +44,11 @@ namespace mfem_mgis {
         const real t) noexcept = 0;
     /*!
      * \brief execute the post-processing
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
     [[nodiscard]] virtual bool execute(
         mgis::Context& ctx,
@@ -58,7 +61,7 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
-  //! \brief partial specialisation for sequential post-processings
+  //! \brief specialisation for sequential post-processings
   template <>
   struct MFEM_MGIS_EXPORT
       AbstractNonLinearEvolutionProblemPostProcessing<false> {
@@ -68,6 +71,7 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] t: initial time
+     * \return true on success
      */
     [[nodiscard]] virtual bool executeInitialPostProcessing(
         Context& ctx,
@@ -79,6 +83,7 @@ namespace mfem_mgis {
      * \param[in] p: non linear evolution problem
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
     [[nodiscard]] virtual bool execute(
         mgis::Context& ctx,

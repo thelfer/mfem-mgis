@@ -32,6 +32,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
+  //! \brief parallel specialisation
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementation<true>
       : public NonLinearEvolutionProblemImplementationBase,
@@ -40,7 +41,7 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
@@ -58,7 +59,11 @@ namespace mfem_mgis {
     [[nodiscard]] FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
     [[nodiscard]] const FiniteElementSpace<true>& getFiniteElementSpace() const;
-    //
+    /*!
+     * \brief compute the residual
+     * \param[in] u: current estimate of the unknowns
+     * \param[out] r: residual
+     */
     void Mult(const mfem::Vector& u, mfem::Vector& r) const override;
     //
     [[nodiscard]] bool addBoundaryCondition(
@@ -72,6 +77,7 @@ namespace mfem_mgis {
      * \brief add a new post-processing
      * \param[in, out] ctx: execution context
      * \param[in] p: post-processing
+     * \return true on success
      */
     virtual bool addPostProcessing(
         Context& ctx,
@@ -107,7 +113,7 @@ namespace mfem_mgis {
         Context& ctx, const real t, const real dt) noexcept override;
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type> dofs) override;
-    //! \brief registred post-processings
+    //! \brief registered post-processings
     std::vector<
         std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>>
         postprocessings;
@@ -115,6 +121,7 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
+  //! \brief sequential specialisation
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementation<false>
       : public NonLinearEvolutionProblemImplementationBase,
@@ -123,6 +130,7 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
+     * \param[in, out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
@@ -153,6 +161,7 @@ namespace mfem_mgis {
      * \brief add a new post-processing
      * \param[in, out] ctx: execution context
      * \param[in] p: post-processing
+     * \return true on success
      */
     [[nodiscard]] virtual bool addPostProcessing(
         Context& ctx,
@@ -188,7 +197,7 @@ namespace mfem_mgis {
         Context& ctx, const real t, const real dt) noexcept override;
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
         std::vector<size_type> dofs) override;
-    //! \brief registred post-processings
+    //! \brief registered post-processings
     std::vector<
         std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>>
         postprocessings;
@@ -196,12 +205,13 @@ namespace mfem_mgis {
 
   /*!
    * \brief compute the resultant of the inner forces on the given boundary
-   * \param[in,out] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[out] F: resultant
    * \param[in] p: non linear evolution problem
-   * \param[in] elements: a structure which gives for each element having a
+   * \param[in] elements: a structure which gives for each element having at
    * least one node on the boundary the list of the nodes of this element on the
    * boundary.
+   * \return true on success
    *
    * \note in parallel, the resultant is only the contribution of the given
    * process
@@ -216,9 +226,11 @@ namespace mfem_mgis {
           elements) noexcept;
 
   /*!
+   * \brief compute the integral of the thermodynamic forces and the volume of
+   * each material
    * \return the integral of the thermodynamic forces at the end of the time
    * step and the volume of each material.
-   * \param[in,out] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] p: non linear evolution problem
    * \note in parallel, the returned value is only the contribution of the given
    * process
