@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/AbstractConvergenceFailureHandler.hxx
- * \brief  This class declares the `AbstractConvergenceFailureHandler` class
+ * \brief  This file declares the `AbstractConvergenceFailureHandler` class
  * \date   04/12/2023
  */
 

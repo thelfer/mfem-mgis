@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/Utilities/ParametersValidator.hxx
- * \brief  This files declares the `ParametersValidator` class
+ * \brief  This file declares the `ParametersValidator` class
  * \author Thomas Helfer
  * \date   19/09/2026
  */

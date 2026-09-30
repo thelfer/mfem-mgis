@@ -1,5 +1,5 @@
 /*!
- * \file   MFEM/MGIS/ExitStatus.hxx
+ * \file   MFEMMGIS/ExitStatus.hxx
  * \brief  This file declares the ExitStatus class.
  * \date   15/05/2023
  */

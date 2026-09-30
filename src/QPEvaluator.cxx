@@ -1,6 +1,7 @@
 /*!
  * \file   src/QPEvaluator.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/QPEvaluator/QPEvaluator.hxx`
  * \author Thomas Helfer
  * \date   29/04/2025
  */

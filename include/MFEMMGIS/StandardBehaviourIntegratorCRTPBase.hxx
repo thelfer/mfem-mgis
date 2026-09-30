@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/StandardBehaviourIntegratorCRTPBase.hxx
- * \brief
+ * \brief  This file declares the `StandardBehaviourIntegratorCRTPBase` class
  * \author Thomas Helfer
  * \date   14/12/2020
  */

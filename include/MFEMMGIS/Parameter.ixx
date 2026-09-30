@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/Parameter.ixx
- * \brief
+ * \brief  This file implements the template and inline functions declared in
+ * `Parameter.hxx`
  * \author Thomas Helfer
  * \date   30/03/2021
  */

@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/MeshDiscretization.ixx
- * \brief
+ * \brief  This file implements the inline methods of the `MeshDiscretization`
+ * class
  * \author Thomas Helfer
  * \date   06/03/2026
  */

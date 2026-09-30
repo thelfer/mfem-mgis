@@ -1,7 +1,8 @@
 /*!
  * \file
- * MFEMMGIS/OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.hxx
- * \brief
+ * \brief  This file declares the
+ * `OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator`
+ * class
  * \author Thomas Helfer
  * \date   22/03/2026
  */

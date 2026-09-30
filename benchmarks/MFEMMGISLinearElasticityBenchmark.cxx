@@ -1,3 +1,8 @@
+/*!
+ * \file   benchmarks/MFEMMGISLinearElasticityBenchmark.cxx
+ * \brief  Linear elasticity benchmark using MFEM/MGIS
+ */
+
 // Benchmark MFEM Versus MFEM-MGIS (lower overhead is better)
 
 #include <memory>

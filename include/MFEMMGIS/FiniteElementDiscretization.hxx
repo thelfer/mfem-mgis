@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/FiniteElementDiscretization.hxx
- * \brief
+ * \brief  This file declares the `FiniteElementDiscretization` class
  * \author Thomas Helfer
  * \date 16/12/2020
  */

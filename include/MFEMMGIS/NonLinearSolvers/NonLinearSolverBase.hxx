@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/NonLinearSolvers/NonLinearSolverBase.hxx
- * \brief  This file declars the `NonLinearSolverBase` class
+ * \brief  This file declares the `NonLinearSolverBase` class
  * \author Thomas Helfer
  * \date   20/09/2026
  */

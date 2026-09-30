@@ -1,3 +1,8 @@
+/*!
+ * \file   tests/elasticity.cxx
+ * \brief  Linear elasticity problem derived from the MFEM example 2
+ */
+
 //                                MFEM Example 2
 //
 // Compile with: make ex2

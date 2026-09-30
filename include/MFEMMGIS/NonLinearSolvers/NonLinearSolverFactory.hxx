@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/NonLinearSolvers/NonLinearSolverFactory.hxx
- * \brief
+ * \brief  This file declares the `NonLinearSolverFactory` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

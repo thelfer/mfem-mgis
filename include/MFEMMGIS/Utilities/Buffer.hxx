@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/Buffer.hxx
- * \brief
+ * \file   MFEMMGIS/Utilities/Buffer.hxx
+ * \brief  This file declares the `Buffer` alias and the `makeSpan` functions
  * \author Thomas Helfer
  * \date   30/04/2025
  */

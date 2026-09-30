@@ -1,6 +1,7 @@
 /*!
  * \file MFEMMGIS/FBarBehaviourIntegrators.hxx
- * \brief
+ * \brief  This file declares the functions generating the FBar behaviour
+ * integrators
  * \author Thomas Helfer
  * \date   22/03/2026
  */

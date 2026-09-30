@@ -1,6 +1,6 @@
 /*!
  * \file   src/PostProcessingFactory.cxx
- * \brief
+ * \brief  This file implements the `PostProcessingFactory` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

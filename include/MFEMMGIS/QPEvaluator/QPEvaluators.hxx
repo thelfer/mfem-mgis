@@ -1,7 +1,7 @@
 /*!
  * \file   MFEMMGIS/QPEvaluator/QPEvaluators.hxx
  * \brief  This file declares a list of standard evaluators
- * \author Thomas HElfer
+ * \author Thomas Helfer
  * \date   12/03/2026
  */
 

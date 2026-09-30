@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/UniformHeatSourceBoundaryCondition.hxx
- * \brief
+ * \brief  This file declares the `UniformHeatSourceBoundaryCondition` class
  * \author Thomas Helfer
  * \date   8/06/2020
  */

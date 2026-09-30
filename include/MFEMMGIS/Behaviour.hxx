@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/Behaviour.hxx
- * \brief
+ * \brief  This file declares the `Behaviour` alias and the `load` function
  * \author Thomas Helfer
  * \date   26/08/2020
  */

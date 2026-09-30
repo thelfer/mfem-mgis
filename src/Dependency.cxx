@@ -1,6 +1,7 @@
 /*!
  * \file   Dependency.cxx
- * \brief  This file implements the DependencyBase
+ * \brief  This file implements the `DependencyBase` and `QPDependency`
+ * classes
  * \date   01/04/2026
  */
 

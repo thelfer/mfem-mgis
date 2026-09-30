@@ -1,6 +1,7 @@
 /*!
- * \file   MFEMMGIS/QPEvaluator.hxx
- * \brief
+ * \file   MFEMMGIS/QPEvaluator/QPEvaluator.hxx
+ * \brief  This file declares the evaluators of the rotation matrix and of the
+ * rotated gradients and thermodynamic forces
  * \author Thomas Helfer
  * \date   29/04/2025
  */

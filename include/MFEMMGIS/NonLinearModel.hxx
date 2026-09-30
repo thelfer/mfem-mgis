@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/NonLinearModel.hxx
- * \brief
+ * \brief  This file declares the `NonLinearModel` class
  * \author Thomas Helfer
  * \date   05/03/2026
  */

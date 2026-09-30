@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/PostProcessingFactory.hxx
- * \brief
+ * \brief  This file declares the `PostProcessingFactory` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

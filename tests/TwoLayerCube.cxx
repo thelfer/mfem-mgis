@@ -15,7 +15,7 @@
  * Mechanical strain:
  *                 eps = E + grad_s v
  *
- *           with  E the given macrocoscopic strain
+ *           with  E the given macroscopic strain
  *                 v the periodic displacement fluctuation
  * Displacement:
  *                   u = U + v

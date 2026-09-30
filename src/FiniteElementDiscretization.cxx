@@ -1,6 +1,6 @@
 /*!
  * \file   src/FiniteElementDiscretization.cxx
- * \brief
+ * \brief  This file implements the `FiniteElementDiscretization` class
  * \author Thomas Helfer
  * \date 16/12/2020
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/Material.hxx
- * \brief
+ * \brief  This file declares the `Material` class
  * \author Thomas Helfer
  * \date   26/08/2020
  */

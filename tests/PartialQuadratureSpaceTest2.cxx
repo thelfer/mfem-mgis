@@ -1,6 +1,7 @@
 /*!
  * \file   tests/PartialQuadratureSpaceTest2.cxx
- * \brief
+ * \brief  Tests of the equivalence of partial quadrature spaces and of the
+ * `PartialQuadratureSpaceIdentifiersManager` class
  * \author Thomas Helfer
  * \date   29/03/2026
  */

@@ -1,6 +1,7 @@
 /*!
  * \file   src/UniformImposedPressureBoundaryCondition.cxx
- * \brief
+ * \brief  This file implements the `UniformImposedPressureBoundaryCondition`
+ * class
  * \author Thomas Helfer
  * \date   27/09/2024
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/BehaviourIntegratorTraits.hxx
- * \brief
+ * \brief  This file declares the `BehaviourIntegratorTraits` class
  * \author Thomas Helfer
  * \date   06/04/2021
  */

@@ -1,6 +1,7 @@
 /*!
  * \file   tests/FiniteElementDiscretizationTest.cxx
- * \brief
+ * \brief  Tests of the `FiniteElementDiscretization` and
+ * `FiniteElementSpacesManager` classes
  * \author Thomas Helfer
  * \date   14/09/2026
  */

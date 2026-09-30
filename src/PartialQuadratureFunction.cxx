@@ -1,6 +1,6 @@
 /*!
  * \file   src/PartialQuadratureFunction.cxx
- * \brief
+ * \brief  This file implements the `PartialQuadratureFunction` class
  * \author Thomas Helfer
  * \date   8/06/2020
  */

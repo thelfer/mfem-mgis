@@ -1,6 +1,7 @@
 /*!
  * \file   tests/StationaryNonLinearHeatTransferTest.cxx
- * \brief
+ * \brief  Tests of the tridimensional stationary non linear heat transfer
+ * behaviour integrator
  * \author Thomas Helfer
  * \date   14/12/2020
  */

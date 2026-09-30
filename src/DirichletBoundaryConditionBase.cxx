@@ -1,6 +1,6 @@
 /*!
  * \file   src/DirichletBoundaryConditionBase.cxx
- * \brief
+ * \brief  This file implements the `DirichletBoundaryConditionBase` class
  * \author Thomas Helfer
  * \date   18/03/2021
  */

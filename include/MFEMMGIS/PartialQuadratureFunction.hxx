@@ -1,6 +1,7 @@
 /*!
  * \file   PartialQuadratureFunction.hxx
- * \brief
+ * \brief  This file declares the `PartialQuadratureFunction` class and its
+ * views
  * \author Thomas Helfer
  * \date   11/06/2020
  */

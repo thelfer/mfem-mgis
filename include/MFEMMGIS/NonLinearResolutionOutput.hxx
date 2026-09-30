@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/NonLinearResolutionOutput.hxx
- * \brief
+ * \brief  This file declares the `NonLinearResolutionOutput` class
  * \author Thomas Helfer
  * \date   09/12/2021
  */

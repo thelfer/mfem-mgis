@@ -1,5 +1,5 @@
 /*!
- * \file   MFEM/MGIS/Simulation.hxx
+ * \file   MFEMMGIS/Simulation.hxx
  * \brief  This file declares the Simulation class.
  * \date   15/05/2023
  */

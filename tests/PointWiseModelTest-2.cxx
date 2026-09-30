@@ -1,6 +1,6 @@
 /*!
- * \file   PointWiseModelTest.cxx
- * \brief
+ * \file   tests/PointWiseModelTest-2.cxx
+ * \brief  Tests of the `PointWiseModel` class
  * \author Thomas Helfer
  * \date   26/01/2026
  */

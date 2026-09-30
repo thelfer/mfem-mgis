@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/MeanThermodynamicForces.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `MeanThermodynamicForces` class
  * \author Thomas Helfer, Hugo Copin
  * \date   08/04/2021
  */

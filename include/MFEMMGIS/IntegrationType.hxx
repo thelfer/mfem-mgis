@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/IntegrationType.hxx
- * \brief
+ * \brief  This file declares the `IntegrationType` enumeration
  * \author Thomas Helfer
  * \date   31/03/2021
  */

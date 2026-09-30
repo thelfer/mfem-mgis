@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/MeanThermodynamicForces.hxx
- * \brief
+ * \brief  This file declares the `MeanThermodynamicForces` class
  * \author Thomas Helfer, Hugo Copin
  * \date   08/04/2021
  */

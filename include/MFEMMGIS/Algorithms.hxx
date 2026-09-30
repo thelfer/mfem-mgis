@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/Algorithms.hxx
- * \brief
+ * \brief  This file declares algorithms acting on partial quadrature functions
  * \author Thomas Helfer
  * \date   23/04/2025
  */

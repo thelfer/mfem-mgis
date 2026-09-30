@@ -1,6 +1,7 @@
 /*!
  * \file   src/ParaviewExportIntegrationPointResultsAtNodes.cxx
- * \brief
+ * \brief  This file implements the
+ * `ParaviewExportIntegrationPointResultsAtNodes` class
  * \author Thomas Helfer
  * \date   27/05/2025
  */

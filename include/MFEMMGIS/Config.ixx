@@ -1,7 +1,7 @@
 
 /*!
- * \file   include/MFEMMGIS/Config.hxx
- * \brief
+ * \file   include/MFEMMGIS/Config.ixx
+ * \brief  This file implements the inline functions declared in `Config.hxx`
  * \author Thomas Helfer
  * \date   19/06/2018
  */

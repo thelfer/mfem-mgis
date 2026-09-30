@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/MeshDiscretization.hxx
- * \brief
+ * \brief  This file declares the `MeshDiscretization` class
  * \author Thomas Helfer
  * \date   06/03/2026
  */

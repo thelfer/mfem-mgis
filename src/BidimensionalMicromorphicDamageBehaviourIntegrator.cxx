@@ -1,6 +1,7 @@
 /*!
  * \file   BidimensionalMicromorphicDamageBehaviourIntegrator.cxx
- * \brief
+ * \brief  This file implements the
+ * `BidimensionalMicromorphicDamageBehaviourIntegrator` class
  * \author Thomas Helfer
  * \date   07/12/2021
  */

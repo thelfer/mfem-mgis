@@ -1,6 +1,6 @@
 /*!
  * \file   tests/PartialQuadratureFunctionTest.cxx
- * \brief
+ * \brief  Tests of the `PartialQuadratureFunction` class
  * \author Thomas Helfer
  * \date   14/12/2020
  */

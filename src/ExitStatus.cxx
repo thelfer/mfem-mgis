@@ -1,6 +1,6 @@
 /*!
  * \file   ExitStatus.cxx
- * \brief
+ * \brief  This file implements the `ExitStatus` class
  * \author Thomas Helfer
  * \date   15/03/2026
  */

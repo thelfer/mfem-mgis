@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/ParaviewExportResults.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `ParaviewExportResults` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

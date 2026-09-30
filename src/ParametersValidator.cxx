@@ -1,6 +1,6 @@
 /*!
  * \file   src/ParametersValidator.cxx
- * \brief  This files implements the `ParametersValidator` class
+ * \brief  This file implements the `ParametersValidator` class
  * \author Thomas Helfer
  * \date   19/09/2026
  */

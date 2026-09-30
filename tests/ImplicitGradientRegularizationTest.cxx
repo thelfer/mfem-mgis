@@ -1,6 +1,6 @@
 /*!
  * \file   tests/ImplicitGradientRegularizationTest.cxx
- * \brief
+ * \brief  Tests of the implicit gradient regularization
  * \author Thomas Helfer
  * \date   20/01/2026
  */

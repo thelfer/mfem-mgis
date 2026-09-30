@@ -1,6 +1,6 @@
 /*!
  * \file   PartialQuadratureSpace.hxx
- * \brief
+ * \brief  This file declares the `PartialQuadratureSpace` class
  * \author Thomas Helfer
  * \date   11/06/2020
  */

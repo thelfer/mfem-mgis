@@ -1,3 +1,9 @@
+/*!
+ * \file   src/FBarOrthotropicTridimensionalBehaviourIntegrator.cxx
+ * \brief  This file implements the
+ * `FBarOrthotropicTridimensionalBehaviourIntegrator` class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/FBarOrthotropicTridimensionalBehaviourIntegrator.hxx"

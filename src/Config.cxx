@@ -1,6 +1,6 @@
 /*!
  * \file   src/Config.cxx
- * \brief
+ * \brief  This file implements the functions declared in `MFEMMGIS/Config.hxx`
  * \author Thomas Helfer
  * \date   14/02/2021
  */

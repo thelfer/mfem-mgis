@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/QPEvaluator/AbstractQPEvaluator.hxx
- * \brief
+ * \brief  This file declares the `AbstractQPEvaluator` class
  * \author Thomas Helfer
  * \date   06/03/2026
  */

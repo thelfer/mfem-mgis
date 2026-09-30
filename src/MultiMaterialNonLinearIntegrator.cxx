@@ -1,6 +1,6 @@
 /*!
  * \file   src/MultiMaterialNonLinearIntegrator.cxx
- * \brief
+ * \brief  This file implements the `MultiMaterialNonLinearIntegrator` class
  * \author Thomas Helfer
  * \date   8/06/2020
  */

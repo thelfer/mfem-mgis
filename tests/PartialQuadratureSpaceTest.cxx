@@ -1,6 +1,6 @@
 /*!
  * \file   tests/PartialQuadratureSpaceTest.cxx
- * \brief
+ * \brief  Tests of the `PartialQuadratureSpace` class
  * \author Thomas Helfer
  * \date   14/12/2020
  */

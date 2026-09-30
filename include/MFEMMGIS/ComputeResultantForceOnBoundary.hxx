@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/ComputeResultantForceOnBoundary.hxx
- * \brief
+ * \brief  This file declares the `ComputeResultantForceOnBoundary` class
  * \author Thomas Helfer
  * \date   28/03/2021
  */

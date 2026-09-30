@@ -1,6 +1,6 @@
 /*!
- * \file   tests/PointsSetCurvesWriter.cxx
- * \brief
+ * \file   tests/PointsSetCurveTest.cxx
+ * \brief  Tests of the `PointsSetCurvesWriter` class
  * \author Thomas Helfer
  * \date   09/09/2026
  */

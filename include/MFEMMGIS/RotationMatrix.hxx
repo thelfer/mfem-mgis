@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/RotationMatrix.hxx
- * \brief
+ * \brief  This file declares the `RotationMatrix2D`, `RotationMatrix3D` and
+ * `MaterialAxis3D` aliases
  * \author Thomas Helfer
  * \date   26/08/2020
  */

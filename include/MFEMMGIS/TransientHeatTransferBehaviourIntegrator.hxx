@@ -1,3 +1,9 @@
+/*!
+ * \file   include/MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx
+ * \brief  This file declares the `TransientHeatTransferBehaviourIntegrator`
+ * class
+ */
+
 #ifndef LIB_MFEM_MGIS_TRANSIENT_HEAT_TRANSFERT_BEHAVIOUR_INTEGRATOR_HXX
 #define LIB_MFEM_MGIS_TRANSIENT_HEAT_TRANSFERT_BEHAVIOUR_INTEGRATOR_HXX
 

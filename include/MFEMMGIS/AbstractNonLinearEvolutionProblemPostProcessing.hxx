@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx
- * \brief
+ * \brief  This file declares the
+ * `AbstractNonLinearEvolutionProblemPostProcessing` class
  * \author Thomas Helfer
  * \date   08/03/2021
  */

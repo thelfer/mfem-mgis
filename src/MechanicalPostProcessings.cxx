@@ -1,6 +1,7 @@
 /*!
  * \file   src/MechanicalPostProcessings.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/MechanicalPostProcessings.hxx`
  * \author Thomas Helfer
  * \date   22/05/2025
  */

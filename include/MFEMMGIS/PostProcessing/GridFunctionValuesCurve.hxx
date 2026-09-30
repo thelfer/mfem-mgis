@@ -1,5 +1,5 @@
 /*!
- * \file   MFEMMGIS/PostProcessing/GridFunctionValuesCurves.hxx
+ * \file   MFEMMGIS/PostProcessing/GridFunctionValuesCurve.hxx
  * \brief  This file declares the `GridFunctionValuesCurve` class.
  * \date   29/09/2023
  */

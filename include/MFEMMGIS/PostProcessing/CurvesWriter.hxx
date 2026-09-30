@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/PostProcessing/CurvesWriter.hxx
- * \brief  This file declares the `CurvesWriter` classs
+ * \brief  This file declares the `CurvesWriter` class
  * \author Thomas Helfer
  * \date   07/09/2026
  */

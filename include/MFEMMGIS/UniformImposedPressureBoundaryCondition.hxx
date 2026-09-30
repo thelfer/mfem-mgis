@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/UniformImposedPressureBoundaryCondition.hxx
- * \brief
+ * \brief  This file declares the `UniformImposedPressureBoundaryCondition`
+ * class
  * \author Thomas Helfer
  * \date   8/06/2020
  */

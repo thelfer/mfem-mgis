@@ -1,6 +1,6 @@
 /*!
  * \file   src/MeshDiscretization.cxx
- * \brief
+ * \brief  This file implements the `MeshDiscretization` class
  * \author Thomas Helfer
  * \date 16/12/2020
  */

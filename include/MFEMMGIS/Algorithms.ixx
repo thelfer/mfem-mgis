@@ -1,6 +1,7 @@
 /*!
- * \file   MFEMMGIS/Algorithm.ixx
- * \brief
+ * \file   MFEMMGIS/Algorithms.ixx
+ * \brief  This file implements the template functions declared in
+ * `MFEMMGIS/Algorithms.hxx`
  * \author Thomas Helfer
  * \date   29/04/2025
  */

@@ -1,5 +1,7 @@
 /*!
  * \file   tests/MaximumNumberOfTimeStepsTest.cxx
+ * \brief  This test checks the maximum number of time steps performed by a
+ * call to the `run` method of the `Simulation` class
  * \author Thomas Helfer
  * \date   06/04/2023
  */

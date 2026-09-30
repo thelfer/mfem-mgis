@@ -1,6 +1,6 @@
 /*!
  * \file   QPEvaluatorTest.cxx
- * \brief
+ * \brief  Tests of the `algorithm::copy` function
  * \author th202608
  * \date   22/09/2026
  */

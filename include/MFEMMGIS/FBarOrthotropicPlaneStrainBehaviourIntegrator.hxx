@@ -1,3 +1,9 @@
+/*!
+ * \file   include/MFEMMGIS/FBarOrthotropicPlaneStrainBehaviourIntegrator.hxx
+ * \brief  This file declares the
+ * `FBarOrthotropicPlaneStrainBehaviourIntegrator` class
+ */
+
 #ifndef LIB_MFEM_MGIS_ORTHOTROPICPLANESTRAINBEHAVIOURINTEGRATOR_HXX
 #define LIB_MFEM_MGIS_ORTHOTROPICPLANESTRAINBEHAVIOURINTEGRATOR_HXX
 

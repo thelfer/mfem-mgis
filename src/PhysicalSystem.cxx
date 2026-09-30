@@ -1,5 +1,5 @@
 /*!
- * \file   manta/physical_system/physical_system.cpp
+ * \file   src/PhysicalSystem.cxx
  * \brief  This file implements the `PhysicalSystem` class
  * \date   05/12/2022
  */

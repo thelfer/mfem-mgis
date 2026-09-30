@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/L2Projection.hxx
- * \brief
+ * \brief  This file declares the L2 projection and the implicit gradient
+ * regularization of partial quadrature functions
  * \author Thomas Helfer
  * \date   14/01/2026
  */

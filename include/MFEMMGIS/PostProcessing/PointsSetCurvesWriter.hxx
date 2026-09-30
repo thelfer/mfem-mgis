@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/PostProcessing/PointsSetCurvesWriter.hxx
- * \brief  This file declares the `PointsSetCurvesWriter` classs
+ * \brief  This file declares the `PointsSetCurvesWriter` class
  * \author Thomas Helfer
  * \date   07/09/2026
  */

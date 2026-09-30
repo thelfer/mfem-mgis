@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/Parameters.hxx
- * \brief
+ * \brief  This file declares the `Parameters` class and the associated
+ * functions
  * \author Thomas Helfer
  * \date   23/03/2021
  */

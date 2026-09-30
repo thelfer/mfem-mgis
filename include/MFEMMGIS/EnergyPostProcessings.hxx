@@ -1,6 +1,7 @@
 /*!
- * \file   include/MFEMMGIS/StoredEnergyPostProcessing.hxx
- * \brief
+ * \file   include/MFEMMGIS/EnergyPostProcessings.hxx
+ * \brief  This file declares the post-processings exporting the stored and
+ * dissipated energies
  * \author Thomas Helfer
  * \date   14/12/2021
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   src/PointsSetCurvesWriter.cxx
- * \brief  This file implements the `PointsSetCurvesWriter` classs
+ * \brief  This file implements the `PointsSetCurvesWriter` class
  * \author Thomas Helfer
  * \date   07/09/2026
  */

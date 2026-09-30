@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/Utilities/SolverUtilities.hxx
- * \brief
+ * \brief  This file declares functions setting the parameters of solvers and
+ * checking their convergence
  * \author Thomas Helfer
  * \date   30/03/2021
  */

@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx
- * \brief
+ * \brief  This file declares the `ParaviewExportIntegrationPointResultsAtNodes`
+ * class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

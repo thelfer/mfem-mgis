@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/MFEMForward.hxx
- * \brief
+ * \brief  This file declares aliases to MFEM classes
  * \author Thomas Helfer
  * \date   11/06/2020
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   src/CurvesWriter.cxx
- * \brief  This file implements the `CurvesWriter` classs
+ * \brief  This file implements the `CurvesWriter` class
  * \author Thomas Helfer
  * \date   07/09/2026
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/NonLinearSolvers/NewtonSolver.hxx
- * \brief
+ * \brief  This file declares the `NewtonSolver` class
  * \author Thomas Helfer
  * \date   29/03/2021
  */

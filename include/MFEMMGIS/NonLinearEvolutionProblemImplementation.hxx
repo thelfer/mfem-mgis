@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx
- * \brief
+ * \brief  This file declares the `NonLinearEvolutionProblemImplementation`
+ * class
  * \author Thomas Helfer
  * \date 11/12/2020
  */

@@ -1,5 +1,5 @@
 /*!
- * \file   MFEMMGIS/DefaultTimeIncrementComputer.cxx
+ * \file   src/DefaultTimeIncrementComputer.cxx
  * \brief  This file implements the `DefaultTimeIncrementComputer` class
  * \date   08/12/2023
  */

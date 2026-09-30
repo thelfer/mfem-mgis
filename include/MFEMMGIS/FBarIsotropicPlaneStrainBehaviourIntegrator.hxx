@@ -1,3 +1,9 @@
+/*!
+ * \file   include/MFEMMGIS/FBarIsotropicPlaneStrainBehaviourIntegrator.hxx
+ * \brief  This file declares the `FBarIsotropicPlaneStrainBehaviourIntegrator`
+ * class
+ */
+
 #ifndef LIB_MFEM_MGIS_ISOTROPICPLANESTRAINBEHAVIOURINTEGRATOR_HXX
 #define LIB_MFEM_MGIS_ISOTROPICPLANESTRAINBEHAVIOURINTEGRATOR_HXX
 

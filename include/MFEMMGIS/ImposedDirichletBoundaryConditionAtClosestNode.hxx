@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/ImposedDirichletBoundaryConditionAtClosestNode.hxx
- * \brief
+ * \brief  This file declares the
+ * `ImposedDirichletBoundaryConditionAtClosestNode` class
  * \author Thomas Helfer
  * \date   18/03/2021
  */

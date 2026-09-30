@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/AbstractBehaviourIntegrator.hxx
- * \brief
+ * \brief  This file declares the `AbstractBehaviourIntegrator` class
  * \author Thomas Helfer
  * \date   27/08/2020
  */

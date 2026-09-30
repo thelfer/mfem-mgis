@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/TimeIncrementComputerBase.hxx
- * \brief  This class declares the `TimeIncrementComputerBase` class
+ * \brief  This file declares the `TimeIncrementComputerBase` class
  * \date   04/12/2023
  */
 

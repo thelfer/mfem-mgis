@@ -1,6 +1,7 @@
 /*!
  * \file   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
- * \brief
+ * \brief  This file implements the
+ * `TridimensionalMicromorphicDamageBehaviourIntegrator` class
  * \author Thomas Helfer
  * \date   31/03/2023
  */

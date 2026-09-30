@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/PartialQuadratureSpace.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `PartialQuadratureSpace` class
  * \author Thomas Helfer
  * \date   14/02/2021
  */

@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/MechanicalPostProcessings.hxx
- * \brief
+ * \brief  This file declares functions computing stress based quantities at
+ * integration points
  * \author Thomas Helfer
  * \date   22/05/2025
  */

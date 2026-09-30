@@ -1,3 +1,8 @@
+/*!
+ * \file   tests/PostProSubMesh.cxx
+ * \brief  Tests of the post-processings defined on submeshes
+ */
+
 #include <memory>
 #include <cstdlib>
 #include <iostream>

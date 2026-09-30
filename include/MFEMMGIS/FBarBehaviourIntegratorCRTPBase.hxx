@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/FBarBehaviourIntegratorCRTPBase.hxx
- * \brief
+ * \brief  This file declares the `FBarBehaviourIntegratorCRTPBase` class
  * \author Thomas Helfer
  * \date   14/12/2020
  */

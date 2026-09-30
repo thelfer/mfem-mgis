@@ -1,7 +1,7 @@
 
 /*!
  * \file   src/TimeStepValidatorBase.cxx
- * \brief  This class implements the `TimeStepValidatorBase` class
+ * \brief  This file implements the `TimeStepValidatorBase` class
  * \date   04/12/2023
  */
 

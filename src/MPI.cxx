@@ -1,6 +1,6 @@
 /*!
  * \file   src/MPI.cxx
- * \brief
+ * \brief  This file implements the functions declared in `MFEMMGIS/MPI.hxx`
  * \author Thomas Helfer
  * \date   25/02/2026
  */

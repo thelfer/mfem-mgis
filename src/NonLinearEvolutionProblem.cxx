@@ -1,6 +1,6 @@
 /*!
  * \file   src/NonLinearEvolutionProblem.cxx
- * \brief
+ * \brief  This file implements the `NonLinearEvolutionProblem` class
  * \author Thomas Helfer
  * \date   23/03/2021
  */

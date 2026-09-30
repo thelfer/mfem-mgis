@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/Config.hxx
- * \brief
+ * \brief  This file declares the basic types and functions of `mfem-mgis`
  * \author Thomas Helfer
  * \date   19/06/2018
  */

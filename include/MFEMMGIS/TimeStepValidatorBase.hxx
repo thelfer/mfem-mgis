@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/TimeStepValidatorBase.hxx
- * \brief  This class declares the `TimeStepValidatorBase` class
+ * \brief  This file declares the `TimeStepValidatorBase` class
  * \date   04/12/2023
  */
 

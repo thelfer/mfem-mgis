@@ -1,6 +1,6 @@
 /*!
  * \file   UnitTestingUtilities.hxx
- * \brief
+ * \brief  This file declares some utilities shared by the unit tests
  * \author Thomas Helfer
  * \date   08/04/2021
  */

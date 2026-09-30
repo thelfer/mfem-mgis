@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/AbstractTimeStepValidator.cxx
- * \brief  This class implements the `AbstractTimeStepValidator` class
+ * \file   src/AbstractTimeStepValidator.cxx
+ * \brief  This file implements the `AbstractTimeStepValidator` class
  * \date   04/12/2023
  */
 

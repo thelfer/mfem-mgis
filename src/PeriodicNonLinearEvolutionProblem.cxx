@@ -1,6 +1,6 @@
 /*!
  * \file   src/PeriodicNonLinearEvolutionProblem.cxx
- * \brief
+ * \brief  This file implements the `PeriodicNonLinearEvolutionProblem` class
  * \author Thomas Helfer
  * \date   10/03/2021
  */

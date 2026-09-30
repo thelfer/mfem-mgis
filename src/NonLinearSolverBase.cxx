@@ -1,6 +1,6 @@
 /*!
  * \file   src/NonLinearSolverBase.cxx
- * \brief
+ * \brief  This file implements the `NonLinearSolverBase` class
  * \author Thomas Helfer
  * \date   29/03/2021
  */

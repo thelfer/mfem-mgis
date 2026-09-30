@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/AnalyticalTests.hxx
- * \brief
+ * \brief  This file declares functions comparing the unknowns to an
+ * analytical solution
  * \author Thomas Helfer
  * \date   25/03/2021
  */

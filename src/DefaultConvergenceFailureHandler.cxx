@@ -1,5 +1,5 @@
 /*!
- * \file   MFEMMGIS/DefaultConvergenceFailureHandler.cxx
+ * \file   src/DefaultConvergenceFailureHandler.cxx
  * \brief  This file implements the `DefaultConvergenceFailureHandler` class
  * \date   08/12/2023
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/AbstractDirichletBoundaryCondition.hxx
- * \brief
+ * \brief  This file declares the `AbstractDirichletBoundaryCondition` class
  * \author Thomas Helfer
  * \date   18/03/2021
  */

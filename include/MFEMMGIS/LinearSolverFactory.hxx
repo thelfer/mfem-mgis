@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/LinearSolverFactory.hxx
- * \brief
+ * \brief  This file declares the `LinearSolverFactory` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

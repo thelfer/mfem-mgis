@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/Info.ixx
- * \brief
+ * \brief  This file implements the functions declared in `Info.hxx`
  * \author Thomas Helfer
  * \date   24/02/2026
  */

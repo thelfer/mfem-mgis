@@ -1,7 +1,5 @@
 /*!
  * \file
- * include/MFEMMGIS/OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.hxx
- * \brief
  * \author Thomas Helfer
  * \date   07/12/2021
  * \brief header file declaring the

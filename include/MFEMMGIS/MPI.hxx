@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/MPI.hxx
- * \brief
+ * \brief  This file declares some MPI utilities
  * \author Thomas Helfer
  * \date   06/02/2026
  */

@@ -1,6 +1,7 @@
 /*!
- * \file   MFEMMIGS/PartialQuadratureFunctionUtilities.hxx
- * \brief
+ * \file   MFEMMGIS/PartialQuadratureFunctionUtilities.hxx
+ * \brief  This file declares the `rotateThermodynamicsForcesToGlobalFrame`
+ * function
  * \author Thomas Helfer
  * \date   30/04/2025
  */

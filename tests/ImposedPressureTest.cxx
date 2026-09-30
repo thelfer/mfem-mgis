@@ -1,6 +1,6 @@
 /*!
  * \file   tests/ImposedPressureTest.cxx
- * \brief
+ * \brief  Tests of the `UniformImposedPressureBoundaryCondition` class
  * \author Thomas Helfer
  * \date   14/12/2020
  */

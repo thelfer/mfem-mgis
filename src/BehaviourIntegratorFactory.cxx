@@ -1,6 +1,6 @@
 /*!
  * \file   src/BehaviourIntegratorFactory.cxx
- * \brief
+ * \brief  This file implements the `BehaviourIntegratorFactory` class
  * \author Thomas Helfer
  * \date   13/10/2020
  */

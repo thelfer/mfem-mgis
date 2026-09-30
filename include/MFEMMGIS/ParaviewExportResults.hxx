@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/ParaviewExportResults.hxx
- * \brief
+ * \brief  This file declares the `ParaviewExportResults` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

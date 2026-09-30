@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/PartialQuadratureFunctionsSet.hxx
- * \brief
+ * \brief  This file declares the `PartialQuadratureFunctionsSet` class
  * \author Thomas Helfer
  * \date   02/06/2025
  */

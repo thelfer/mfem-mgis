@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/BoundaryUtilities.hxx
- * \brief
+ * \brief  This file declares functions describing the elements and the degrees
+ * of freedom on a boundary
  * \author Thomas Helfer
  * \date   28/03/2021
  */

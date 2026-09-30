@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/DefaultTimeStepValidator.hxx
- * \brief  This class declares the `DefaultTimeStepValidator` class
+ * \brief  This file declares the `DefaultTimeStepValidator` class
  * \date   04/12/2023
  */
 

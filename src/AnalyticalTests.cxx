@@ -1,6 +1,7 @@
 /*!
  * \file   src/AnalyticalTests.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/AnalyticalTests.hxx`
  * \author Thomas Helfer
  * \date   25/03/2021
  */

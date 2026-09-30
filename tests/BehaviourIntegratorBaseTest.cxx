@@ -1,7 +1,8 @@
 /*!
  * \file   tests/BehaviourIntegratorBaseTest.cxx
  * \brief  This test checks that the behaviour integrators reject behaviours
- * whose type, kinematic, symmetry or hypothesis are not the expected ones.
+ * whose type, stress measure, symmetry or hypothesis are not the expected
+ * ones.
  * \date   24/09/2026
  */
 

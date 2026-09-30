@@ -1,3 +1,9 @@
+/*!
+ * \file   tests/PredictionTest2.cxx
+ * \brief  This test checks that the prediction at the beginning of a time step
+ * gives the exact solution of a linear elastic problem
+ */
+
 #include <cstdlib>
 #include "mfem/linalg/sparsemat.hpp"
 #include "mfem/fem/linearform.hpp"

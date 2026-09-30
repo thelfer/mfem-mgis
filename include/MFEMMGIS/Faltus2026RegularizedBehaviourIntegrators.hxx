@@ -1,6 +1,8 @@
 /*!
  * \file MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.hxx
- * \brief
+ * \brief  This file declares the
+ * `Faltus2026RegularizedIsotropicBehaviourIntegrator` class and the functions
+ * generating it
  * \author Thomas Helfer
  * \date   17/03/2026
  */

@@ -1,6 +1,7 @@
 /*!
  * \file   src/MaterialQuantityProviderSearch.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/MaterialQuantityProviderSearch.hxx`
  * \date   23/09/2026
  */
 

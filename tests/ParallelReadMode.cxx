@@ -1,10 +1,12 @@
 /*!
  * \file   tests/ParallelReadMode.cxx
- * \brief
- * This example code solves a simple linear elasticity problem
- * describing a multi-material square.
+ * \brief  This test solves a periodic linear elasticity problem on a cube
+ * made of two materials and compares the solution to the analytical one. The
+ * mesh is read in the mode selected by the --read-mesh-mode option.
+ *
  * This problem has a 1D analytic solution along x1 dimension,
- * the solution is constant along x2 dimension which is also periodic.
+ * the solution is constant along the other dimensions which are also
+ * periodic.
  *
  * The geometry of the domain is assumed to be as
  * follows:
@@ -25,7 +27,7 @@
  * Mechanical strain:
  *                 eps = E + grad_s v
  *
- *           with  E the given macrocoscopic strain
+ *           with  E the given macroscopic strain
  *                 v the periodic displacement fluctuation
  * Displacement:
  *                   u = U + v

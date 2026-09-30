@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/MultiMaterialNonLinearIntegrator.hxx
- * \brief
+ * \brief  This file declares the `MultiMaterialNonLinearIntegrator` class
  * \author Thomas Helfer
  * \date   8/06/2020
  */

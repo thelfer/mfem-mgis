@@ -1,5 +1,5 @@
 /*!
- * \file   manta-ip_evaluator/decl/abstract_ip_evaluator_generator.h
+ * \file   src/AbstractQPEvaluatorGenerator.cxx
  * \brief  This file implements the AbstractQPEvaluatorGenerator class.
  * \author Thomas Helfer
  * \date   20/10/2022

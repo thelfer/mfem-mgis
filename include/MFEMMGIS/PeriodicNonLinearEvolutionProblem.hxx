@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/PeriodicNonLinearEvolutionProblem.hxx
- * \brief
+ * \brief  This file declares the `PeriodicNonLinearEvolutionProblem` class
  * \author Thomas Helfer
  * \date 11/12/2020
  */

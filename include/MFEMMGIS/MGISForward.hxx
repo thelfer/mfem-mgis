@@ -1,6 +1,7 @@
 /*!
  * \file   MGISForward.hxx
- * \brief
+ * \brief  This file forward declares the `Behaviour` class of MGIS and
+ * declares the `Hypothesis` alias
  * \author Thomas Helfer
  * \date   26/08/2020
  */

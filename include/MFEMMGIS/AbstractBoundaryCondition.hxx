@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/AbstractBoundaryCondition.hxx
- * \brief
+ * \brief  This file declares the `AbstractBoundaryCondition` class
  * \author Thomas Helfer
  * \date   27/09/2024
  */

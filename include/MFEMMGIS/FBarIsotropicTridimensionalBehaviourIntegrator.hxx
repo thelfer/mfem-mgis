@@ -1,3 +1,9 @@
+/*!
+ * \file   include/MFEMMGIS/FBarIsotropicTridimensionalBehaviourIntegrator.hxx
+ * \brief  This file declares the
+ * `FBarIsotropicTridimensionalBehaviourIntegrator` class
+ */
+
 #ifndef LIB_MFEM_MGIS_ISOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
 #define LIB_MFEM_MGIS_ISOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
 

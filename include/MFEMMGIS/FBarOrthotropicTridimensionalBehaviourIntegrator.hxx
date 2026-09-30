@@ -1,3 +1,9 @@
+/*!
+ * \file   include/MFEMMGIS/FBarOrthotropicTridimensionalBehaviourIntegrator.hxx
+ * \brief  This file declares the
+ * `FBarOrthotropicTridimensionalBehaviourIntegrator` class
+ */
+
 #ifndef LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
 #define LIB_MFEM_MGIS_ORTHOTROPICTRIDIMENSIONALBEHAVIOURINTEGRATOR_HXX
 

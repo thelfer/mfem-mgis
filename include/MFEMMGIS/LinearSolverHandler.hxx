@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/LinearSolverHandler.hxx
- * \brief
+ * \brief  This file declares the `LinearSolverHandler` class
  * \author Thomas Helfer
  * \date   20/01/2026
  */

@@ -1,3 +1,8 @@
+/*!
+ * \file   tests/UnitTestParameters.cxx
+ * \brief  Tests of the `Parameters` class
+ */
+
 #include <MFEMMGIS/Parameters.hxx>
 #include <cassert>
 

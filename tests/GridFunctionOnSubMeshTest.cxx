@@ -1,5 +1,5 @@
 /*!
- * \file   GridFunctionOnSubMeshTest.cxx
+ * \file   tests/GridFunctionOnSubMeshTest.cxx
  * \brief  This test checks that a grid function can only be built from partial
  * quadrature functions defined on all the materials or on all the boundaries
  * of its mesh.

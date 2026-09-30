@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/NonLinearResolutionOutput.cxx
- * \brief
+ * \file   src/NonLinearResolutionOutput.cxx
+ * \brief  This file implements the `convertToComputeNextStateOutput` function
  * \author Thomas Helfer
  * \date   04/03/2026
  */

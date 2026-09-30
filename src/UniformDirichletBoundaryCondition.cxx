@@ -1,6 +1,6 @@
 /*!
  * \file   UniformDirichletBoundaryCondition.cxx
- * \brief
+ * \brief  This file implements the `UniformDirichletBoundaryCondition` class
  * \author Thomas Helfer
  * \date   18/03/2021
  */

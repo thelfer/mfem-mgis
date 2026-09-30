@@ -1,6 +1,6 @@
 /*!
  * \file   src/UniformHeatSourceBoundaryCondition.cxx
- * \brief
+ * \brief  This file implements the `UniformHeatSourceBoundaryCondition` class
  * \author Thomas Helfer
  * \date   27/09/2024
  */

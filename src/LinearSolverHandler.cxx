@@ -1,6 +1,7 @@
 /*!
  * \file   src/LinearSolverHandler.cxx
- * \brief
+ * \brief  This file implements the `isInvalid` function for the
+ * `LinearSolverHandler` class
  * \author Thomas Helfer
  * \date   20/01/2026
  */
