@@ -177,7 +177,7 @@ namespace mfem_mgis {
     template <typename ValueType>
     requires((std::same_as<ValueType, real>) || (std::same_as<ValueType, int>))
         [[nodiscard]] std::optional<std::vector<ValueType>> convertToVector(
-            Context&, const Parameter&) noexcept;
+            Context& ctx, const Parameter& p) noexcept;
 
     template <>
     MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<real>>

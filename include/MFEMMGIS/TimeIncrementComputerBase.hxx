@@ -18,8 +18,8 @@ namespace mfem_mgis {
     //! \brief constructor
     TimeIncrementComputerBase() noexcept;
     //
-    [[nodiscard]] bool initialize(Context &) noexcept override;
-    [[nodiscard]] bool prepareNextTimeStep(Context &) noexcept override;
+    [[nodiscard]] bool initialize(Context& ctx) noexcept override;
+    [[nodiscard]] bool prepareNextTimeStep(Context& ctx) noexcept override;
     //! \brief destructor
     ~TimeIncrementComputerBase() noexcept override;
   };

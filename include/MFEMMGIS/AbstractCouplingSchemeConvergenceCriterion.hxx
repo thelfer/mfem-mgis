@@ -29,7 +29,7 @@ namespace mfem_mgis {
      * the physical system
      */
     virtual bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept = 0;
+        Context& ctx, const TimeStep& ts) noexcept = 0;
     /*!
      * \return if the criterion is satisfied
      * \param[in] ctx: execution context
@@ -37,7 +37,7 @@ namespace mfem_mgis {
      * coupling scheme
      */
     virtual std::optional<bool> check(
-        Context &, const ComputeNextStateOutput &) const noexcept = 0;
+        Context& ctx, const ComputeNextStateOutput& o) const noexcept = 0;
     /*!
      * \brief update the state of the system for the next time step
      *
@@ -50,7 +50,7 @@ namespace mfem_mgis {
      * This method is first meant to copy the fields at the end of the time on
      * the fields at the beginning of the time step.
      */
-    virtual bool update(Context &) noexcept = 0;
+    virtual bool update(Context& ctx) noexcept = 0;
     /*!
      * \brief revert the state of the system at the beginning of the time step
      *
@@ -60,7 +60,7 @@ namespace mfem_mgis {
      * This method is first meant to copy the fields at the end of the time on
      * the fields at the beginning of the time step.
      */
-    virtual bool revert(Context &) noexcept = 0;
+    virtual bool revert(Context& ctx) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractCouplingSchemeConvergenceCriterion() noexcept;
   };  // end of AbstractCouplingSchemeConvergenceCriterion

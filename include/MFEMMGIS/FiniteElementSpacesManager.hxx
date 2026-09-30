@@ -44,7 +44,7 @@ namespace mfem_mgis {
      * \param[in] ctx: execution context
      * \param[in] p: parameters
      */
-    FiniteElementSpacesManager(Context& ctx, const Parameters&);
+    FiniteElementSpacesManager(Context& ctx, const Parameters& parameters);
     /*!
      * \brief constructor from a mesh discretization
      * \param[in] ctx: execution context
@@ -52,17 +52,18 @@ namespace mfem_mgis {
      * \param[in] p: parameters
      */
     FiniteElementSpacesManager(Context& ctx,
-                               const MeshDiscretization&,
-                               const Parameters&);
+                               const MeshDiscretization& m,
+                               const Parameters& parameters);
     /*!
      * \brief constructor from a mesh discretization
      * \param[in] ctx: execution context
      * \param[in] m: mesh discretization
      * \param[in] fec: finite element collection
      */
-    FiniteElementSpacesManager(Context& ctx,
-                               const MeshDiscretization&,
-                               std::shared_ptr<const FiniteElementCollection>);
+    FiniteElementSpacesManager(
+        Context& ctx,
+        const MeshDiscretization& m,
+        std::shared_ptr<const FiniteElementCollection> c);
     //! \brief move constructor
     FiniteElementSpacesManager(FiniteElementSpacesManager&&) noexcept;
     //! \brief copy constructor
@@ -106,7 +107,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<parallel>>
-    getFiniteElementSpace(Context&, const size_type) const noexcept;
+    getFiniteElementSpace(Context& ctx, const size_type nc) const noexcept;
     /*!
      * \brief create a new finite element space or reuse an existing one
      * \param[in] ctx: execution context
@@ -115,9 +116,9 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<parallel>>
-    getFiniteElementSpace(Context&,
-                          const Mesh<parallel>&,
-                          const size_type) const noexcept;
+    getFiniteElementSpace(Context& ctx,
+                          const Mesh<parallel>& m,
+                          const size_type nc) const noexcept;
     /*!
      * \brief create a new finite element space or reuse an existing one
      * \param[in] ctx: execution context
@@ -135,8 +136,8 @@ namespace mfem_mgis {
     template <bool parallel>
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<parallel>>
     getFiniteElementSpace(
-        Context&,
-        const GetFiniteElementSpaceOnSubMeshArguments&) const noexcept;
+        Context& ctx,
+        const GetFiniteElementSpaceOnSubMeshArguments& args) const noexcept;
     /*!
      * \brief assign a suitable nodal finite element space to the underlying
      * mesh
@@ -145,7 +146,7 @@ namespace mfem_mgis {
      * \note if a scalar finite element space has already been declared, it is
      * reused.
      */
-    [[nodiscard]] bool setNodalFiniteElementSpace(Context&) const noexcept;
+    [[nodiscard]] bool setNodalFiniteElementSpace(Context& ctx) const noexcept;
     /*!
      * \brief assign a suitable nodal finite element space to the given
      * mesh
@@ -156,7 +157,7 @@ namespace mfem_mgis {
      * reused.
      */
     [[nodiscard]] bool setNodalFiniteElementSpace(
-        Context&, const Mesh<true>&) const noexcept;
+        Context& ctx, const Mesh<true>& m) const noexcept;
     /*!
      * \brief assign a suitable nodal finite element space to the given
      * mesh
@@ -167,7 +168,7 @@ namespace mfem_mgis {
      * reused.
      */
     [[nodiscard]] bool setNodalFiniteElementSpace(
-        Context&, const Mesh<false>&) const noexcept;
+        Context& ctx, const Mesh<false>& m) const noexcept;
     /*!
      * \return if the given element space is also managed by this finite
      * element space manager
@@ -190,14 +191,15 @@ namespace mfem_mgis {
      * \param[in] nc: vectorial dimension
      */
     std::shared_ptr<FiniteElementSpace<true>> getParallelFiniteElementSpace(
-        Context&, const size_type) const noexcept;
+        Context& ctx, const size_type nc) const noexcept;
     /*!
      * \brief create a sequential finite element space
      * \param[in] ctx: execution context
      * \param[in] nc: vectorial dimension
      */
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<false>>
-    getSequentialFiniteElementSpace(Context&, const size_type) const noexcept;
+    getSequentialFiniteElementSpace(Context& ctx,
+                                    const size_type nc) const noexcept;
     /*!
      * \brief create a parallel finite element space
      * \param[in] ctx: execution context
@@ -205,7 +207,7 @@ namespace mfem_mgis {
      * \param[in] nc: vectorial dimension
      */
     std::shared_ptr<FiniteElementSpace<true>> getParallelFiniteElementSpace(
-        Context&, const Mesh<true>&, const size_type) const noexcept;
+        Context& ctx, const Mesh<true>& m, const size_type nc) const noexcept;
     /*!
      * \brief create a sequential finite element space
      * \param[in] ctx: execution context
@@ -213,9 +215,9 @@ namespace mfem_mgis {
      * \param[in] nc: vectorial dimension
      */
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<false>>
-    getSequentialFiniteElementSpace(Context&,
-                                    const Mesh<false>&,
-                                    const size_type) const noexcept;
+    getSequentialFiniteElementSpace(Context& ctx,
+                                    const Mesh<false>& m,
+                                    const size_type nc) const noexcept;
     /*!
      * \brief create a new parallel finite element space or reuse an existing
      * one
@@ -233,8 +235,8 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<true>>
     getParallelFiniteElementSpace(
-        Context&,
-        const GetFiniteElementSpaceOnSubMeshArguments&) const noexcept;
+        Context& ctx,
+        const GetFiniteElementSpaceOnSubMeshArguments& args) const noexcept;
     /*!
      * \brief create a new sequential finite element space or reuse an existing
      * one
@@ -252,8 +254,8 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<false>>
     getSequentialFiniteElementSpace(
-        Context&,
-        const GetFiniteElementSpaceOnSubMeshArguments&) const noexcept;
+        Context& ctx,
+        const GetFiniteElementSpaceOnSubMeshArguments& args) const noexcept;
     //! \internal structure to implement the PIMPL idiom
     struct Implementation;
     //! \brief pointer to the implementation

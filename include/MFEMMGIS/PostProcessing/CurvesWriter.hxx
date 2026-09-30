@@ -36,33 +36,39 @@ namespace mfem_mgis {
      * \param[in] m: mesh discretization
      * \param[in] params: parameters
      */
-    CurvesWriter(Context &, const MeshDiscretization &, const Parameters &);
+    CurvesWriter(Context& ctx,
+                 const MeshDiscretization& m,
+                 const Parameters& parameters);
     /*!
      * \brief constructor
      * \param[in] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] params: parameters
      */
-    CurvesWriter(Context &, const PhysicalSystem &, const Parameters &);
+    CurvesWriter(Context& ctx,
+                 const PhysicalSystem& ps,
+                 const Parameters& parameters);
     /*!
      * \brief add a new curve
      * \param[in] ctx: execution context
      * \param[in] c: curve
      */
-    [[nodiscard]] bool addCurve(Context &,
-                                std::shared_ptr<const AbstractCurve>);
+    [[nodiscard]] bool addCurve(Context& ctx,
+                                std::shared_ptr<const AbstractCurve> c);
     /*!
      * \brief write the file headers
      * \param[in] ctx: execution context
      */
-    bool writeFileHeader(Context &);
+    bool writeFileHeader(Context& ctx);
     /*!
      * \brief write the file headers
      * \param[in] ctx: execution context
      * \param[in] ts: time step
      * \param[in] tss: time step stage
      */
-    bool writeValues(Context &, const TimeStep &, const TimeStepStage &);
+    bool writeValues(Context& ctx,
+                     const TimeStep& ts,
+                     const TimeStepStage& tss);
 
    private:
     //! \brief list of registred curves packed into a `MultipleCurves`

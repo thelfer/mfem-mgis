@@ -40,7 +40,7 @@ namespace mfem_mgis {
     //! \brief name of coupling item
     static const std::string nameParameter;
     //! \return set the name of the coupling item
-    virtual void setName(std::string_view) noexcept = 0;
+    virtual void setName(std::string_view n) noexcept = 0;
     //! \return a name describing the coupling item
     [[nodiscard]] virtual std::string getName() const noexcept = 0;
     //! \brief return the mesh discretization
@@ -54,7 +54,7 @@ namespace mfem_mgis {
      * \brief associate a log stream to the current item. The given pointer can
      * be null. \param[in] s: log stream
      */
-    virtual void setLogStream(std::shared_ptr<std::ostream>) noexcept = 0;
+    virtual void setLogStream(std::shared_ptr<std::ostream> s) noexcept = 0;
     /*!
      * \return a pointer to a log stream. This pointer may be null if the
      * coupling item does not declare a specific log stream.
@@ -69,7 +69,7 @@ namespace mfem_mgis {
      *
      * \param[in] l: the new verbose level
      */
-    virtual void setVerbosityLevel(const VerbosityLevel) noexcept = 0;
+    virtual void setVerbosityLevel(const VerbosityLevel l) noexcept = 0;
     /*!
      * \return a description of the coupling item
      *
@@ -83,7 +83,9 @@ namespace mfem_mgis {
      * \note the short description is excepted to stand in a single line.
      */
     [[nodiscard]] virtual std::optional<std::string> describe(
-        Context &, const bool, const Parameters &) const noexcept = 0;
+        Context& ctx,
+        const bool b,
+        const Parameters& parameters) const noexcept = 0;
     //     /*!
     //      * \brief declare the minimal depencies of the item.
     //      * \param[in] ctx: execution context
@@ -123,7 +125,7 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool
     performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept = 0;
+        Context& ctx, const TimeStep& ts) noexcept = 0;
     /*!
      * \brief This method is called at the beginning of a time step to determine
      * a suitable time increment.
@@ -134,7 +136,7 @@ namespace mfem_mgis {
      * \param[in] te: end of the temporal sequence
      */
     [[nodiscard]] virtual std::optional<real> getNextTimeIncrement(
-        Context &, const real, const real) const noexcept = 0;
+        Context& ctx, const real t, const real te) const noexcept = 0;
     /*!
      * \brief compute the state of the system at the end of of the time step
      *
@@ -177,7 +179,7 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual std::pair<ExitStatus,
                                     std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &, const TimeStep &) noexcept = 0;
+    computeNextState(Context& ctx, const TimeStep& ts) noexcept = 0;
     /*!
      * \brief execute post-processings at the beginning of the simulation. For
      * instance, this method may display the initial values of the state
@@ -190,7 +192,7 @@ namespace mfem_mgis {
      * retrieved from the clock hold by the physical system
      */
     [[nodiscard]] virtual bool executeInitialPostProcessingTasks(
-        Context &, const real) noexcept = 0;
+        Context& ctx, const real t) noexcept = 0;
     /*!
      * \brief execute post-processings at the end of a time step, after
      * convergence.
@@ -204,7 +206,7 @@ namespace mfem_mgis {
      * from the clock hold by the physical system
      */
     [[nodiscard]] virtual bool executePostProcessingTasks(
-        Context &, const TimeStep &, const bool) noexcept = 0;
+        Context& ctx, const TimeStep& ts, const bool b) noexcept = 0;
     /*!
      * \brief update the state of the system for the next time step
      *
@@ -217,7 +219,7 @@ namespace mfem_mgis {
      * This method is first meant to copy the fields at the end of the time on
      * the fields at the beginning of the time step.
      */
-    [[nodiscard]] virtual bool update(Context &) noexcept = 0;
+    [[nodiscard]] virtual bool update(Context& ctx) noexcept = 0;
     /*!
      * \brief revert the state of the system at the beginning of the time step
      *
@@ -227,7 +229,7 @@ namespace mfem_mgis {
      * This method is first meant to copy the fields at the end of the time on
      * the fields at the beginning of the time step.
      */
-    [[nodiscard]] virtual bool revert(Context &) noexcept = 0;
+    [[nodiscard]] virtual bool revert(Context& ctx) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractCouplingItem();
   };
@@ -237,7 +239,7 @@ namespace mfem_mgis {
    * `getName` and `getMeshSetsNames` methods \param[in] i: coupling item
    */
   [[nodiscard]] MFEM_MGIS_EXPORT std::string getShortDescription(
-      const AbstractCouplingItem &) noexcept;
+      const AbstractCouplingItem& i) noexcept;
   /*!
    * \return a description of the parameters that shall be used by all coupling
    * items. Those parameters are related to the customization of a `Context`
@@ -251,9 +253,9 @@ namespace mfem_mgis {
    * level and/or log stream). \param[in] ctx: execution context \param[in] i:
    * coupling item \param[in] params: parameters
    */
-  MFEM_MGIS_EXPORT bool handleCouplingItemParameters(Context &,
-                                                     AbstractCouplingItem &,
-                                                     const Parameters &);
+  MFEM_MGIS_EXPORT bool handleCouplingItemParameters(Context& ctx,
+                                                     AbstractCouplingItem& i,
+                                                     const Parameters& params);
 
 }  // end of namespace mfem_mgis
 

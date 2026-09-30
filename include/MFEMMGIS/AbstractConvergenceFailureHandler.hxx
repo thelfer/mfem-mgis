@@ -23,7 +23,7 @@ namespace mfem_mgis {
      * \param[in] dt: current time incremnent
      */
     virtual std::optional<real> getNewTimeIncrement(
-        Context &, const real) const noexcept = 0;
+        Context& ctx, const real dt) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractConvergenceFailureHandler();
   };

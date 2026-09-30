@@ -23,14 +23,14 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] m: material
      */
-    RotationMatrixQPEvaluator(const Material&);
+    RotationMatrixQPEvaluator(const Material& m);
     //! \brief perform consistency checks
-    [[nodiscard]] bool check(AbstractErrorHandler&) const;
+    [[nodiscard]] bool check(AbstractErrorHandler& eh) const;
     //! \brief return the underlying partial quadrature space
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const;
     // access operator
-    auto operator()(const size_type) const;
+    auto operator()(const size_type i) const;
 
    private:
     //! \brief underlying material
@@ -38,13 +38,13 @@ namespace mfem_mgis {
   };  // end of RotationMatrixQPEvaluator
 
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
-      const RotationMatrixQPEvaluator&);
+      const RotationMatrixQPEvaluator& e);
 
-  [[nodiscard]] bool check(AbstractErrorHandler&,
-                           const RotationMatrixQPEvaluator&);
+  [[nodiscard]] bool check(AbstractErrorHandler& eh,
+                           const RotationMatrixQPEvaluator& e);
 
   [[nodiscard]] constexpr mgis::size_type getNumberOfComponents(
-      const RotationMatrixQPEvaluator&) noexcept;
+      const RotationMatrixQPEvaluator& e) noexcept;
 
   /*!
    * \brief an evaluator returning the rotated thermodynamic forces
@@ -56,17 +56,17 @@ namespace mfem_mgis {
      * \param[in] m: material
      */
     RotatedThermodynamicForcesMatrixQPEvaluator(
-        const Material&,
-        const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+        const Material& m,
+        const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
     //! \brief return the underlying partial quadrature space
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const;
     //! \brief perform consistency checks
-    [[nodiscard]] bool check(AbstractErrorHandler&) const;
+    [[nodiscard]] bool check(AbstractErrorHandler& ctx) const;
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
     // access operator
-    auto operator()(const size_type) const;
+    auto operator()(const size_type i) const;
 
    private:
     //! \brief underlying material
@@ -84,17 +84,17 @@ namespace mfem_mgis {
   template <size_type ThermodynamicForcesSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
       const RotatedThermodynamicForcesMatrixQPEvaluator<
-          ThermodynamicForcesSize>&);
+          ThermodynamicForcesSize>& e);
   //! \brief perform consistency checks
   template <size_type ThermodynamicForcesSize>
-  [[nodiscard]] bool check(AbstractErrorHandler&,
+  [[nodiscard]] bool check(AbstractErrorHandler& eh,
                            const RotatedThermodynamicForcesMatrixQPEvaluator<
-                               ThermodynamicForcesSize>&);
+                               ThermodynamicForcesSize>& e);
   //! \brief return the number of components
   template <size_type ThermodynamicForcesSize>
   mgis::size_type getNumberOfComponents(
       const RotatedThermodynamicForcesMatrixQPEvaluator<
-          ThermodynamicForcesSize>&) noexcept;
+          ThermodynamicForcesSize>& e) noexcept;
 
   /*!
    * \brief an evaluator returning the gradients rotated in the material frame
@@ -106,17 +106,17 @@ namespace mfem_mgis {
      * \param[in] m: material
      */
     RotatedGradientsMatrixQPEvaluator(
-        const Material&,
-        const Material::StateSelection = Material::END_OF_TIME_STEP);
+        const Material& m,
+        const Material::StateSelection s = Material::END_OF_TIME_STEP);
     //! \brief perform consistency checks
-    [[nodiscard]] bool check(AbstractErrorHandler&) const;
+    [[nodiscard]] bool check(AbstractErrorHandler& ctx) const;
     //! \brief return the underlying partial quadrature space
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const;
     //! \return the number of components
     size_type getNumberOfComponents() const noexcept;
     // \brief access operator
-    auto operator()(const size_type) const;
+    auto operator()(const size_type i) const;
 
    private:
     //! \brief underlying material
@@ -132,16 +132,16 @@ namespace mfem_mgis {
   //! \bref return the quadrature space
   template <size_type GradientsSize>
   [[nodiscard]] const PartialQuadratureSpace& getSpace(
-      const RotatedGradientsMatrixQPEvaluator<GradientsSize>&);
+      const RotatedGradientsMatrixQPEvaluator<GradientsSize>& e);
   //! \brief perform consistency checks
   template <size_type GradientsSize>
   [[nodiscard]] bool check(
-      AbstractErrorHandler&,
-      const RotatedGradientsMatrixQPEvaluator<GradientsSize>&);
+      AbstractErrorHandler& eh,
+      const RotatedGradientsMatrixQPEvaluator<GradientsSize>& e);
   //! \brief return the number of components
   template <size_type GradientsSize>
   mgis::size_type getNumberOfComponents(
-      const RotatedGradientsMatrixQPEvaluator<GradientsSize>&) noexcept;
+      const RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) noexcept;
 
   /*!
    * \brief check if the given evaluators have the same partial quadrature space
@@ -151,9 +151,9 @@ namespace mfem_mgis {
    */
   template <QPEvaluatorConcept EvaluatorType1,
             QPEvaluatorConcept EvaluatorType2>
-  bool checkMatchingQuadratureSpaces(Context&,
-                                     const EvaluatorType1&,
-                                     const EvaluatorType2&) noexcept;
+  bool checkMatchingQuadratureSpaces(Context& ctx,
+                                     const EvaluatorType1& e1,
+                                     const EvaluatorType2& e2) noexcept;
 
 }  // end of namespace mfem_mgis
 

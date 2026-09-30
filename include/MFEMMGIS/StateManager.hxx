@@ -33,7 +33,7 @@ namespace mfem_mgis {
      * \brief constructor from a mesh discretization
      * \param[in] m: mesh discretization
      */
-    StateManager(const MeshDiscretization&) noexcept;
+    StateManager(const MeshDiscretization& m) noexcept;
     /*!
      * \brief register a partial quadrature function
      *
@@ -44,10 +44,10 @@ namespace mfem_mgis {
      *
      * \note the callee is responsible for keeping the view alive
      */
-    [[nodiscard]] bool add(Context&,
-                           std::string_view,
-                           ImmutablePartialQuadratureFunctionView,
-                           const TimeStepStage) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           ImmutablePartialQuadratureFunctionView f,
+                           const TimeStepStage ts) noexcept;
     /*!
      * \brief register a partial quadrature function
      *
@@ -58,10 +58,10 @@ namespace mfem_mgis {
      *
      * \note the shared pointer is stored internally
      */
-    [[nodiscard]] bool add(Context&,
-                           std::string_view,
-                           const std::shared_ptr<PartialQuadratureFunction>&,
-                           const TimeStepStage) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           const std::shared_ptr<PartialQuadratureFunction>& f,
+                           const TimeStepStage ts) noexcept;
     /*!
      * \return if a partial quadrature function with the given name has been
      * registred
@@ -72,10 +72,10 @@ namespace mfem_mgis {
      * \param[in] ts: time step stage
      */
     [[nodiscard]] std::optional<bool> contains(
-        Context&,
-        const std::shared_ptr<const PartialQuadratureSpace>&,
-        std::string_view,
-        const TimeStepStage) const noexcept;
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& qspace,
+        std::string_view n,
+        const TimeStepStage ts) const noexcept;
     /*!
      * \return the registred partial quadrature function
      *
@@ -85,10 +85,10 @@ namespace mfem_mgis {
      * \param[in] ts: time step stage
      */
     [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView> get(
-        Context&,
-        const std::shared_ptr<const PartialQuadratureSpace>&,
-        std::string_view,
-        const TimeStepStage) const noexcept;
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& qspace,
+        std::string_view n,
+        const TimeStepStage ts) const noexcept;
 
     //! \brief destructor
     ~StateManager() noexcept;
@@ -104,10 +104,10 @@ namespace mfem_mgis {
        * \param[in] f: partial quadrature function
        * \param[in] ts: time step stage
        */
-      [[nodiscard]] bool add(Context&,
-                             std::string_view,
-                             ImmutablePartialQuadratureFunctionView,
-                             const TimeStepStage) noexcept;
+      [[nodiscard]] bool add(Context& ctx,
+                             std::string_view n,
+                             ImmutablePartialQuadratureFunctionView f,
+                             const TimeStepStage ts) noexcept;
       /*!
        * \return if a partial quadrature function with the given name has been
        * registred
@@ -115,8 +115,8 @@ namespace mfem_mgis {
        * \param[in] f: function name
        * \param[in] ts: time step stage
        */
-      [[nodiscard]] bool contains(std::string_view,
-                                  const TimeStepStage) const noexcept;
+      [[nodiscard]] bool contains(std::string_view n,
+                                  const TimeStepStage ts) const noexcept;
       /*!
        * \return the registred partial quadrature function
        *
@@ -125,7 +125,9 @@ namespace mfem_mgis {
        * \param[in] ts: time step stage
        */
       [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView> get(
-          Context&, std::string_view, const TimeStepStage) const noexcept;
+          Context& ctx,
+          std::string_view n,
+          const TimeStepStage ts) const noexcept;
 
      protected:
       /*!
@@ -162,9 +164,9 @@ namespace mfem_mgis {
    * \param[in] p: nonlinear evolution problem
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool addPartialQuadratureFunctions(
-      Context&,
-      StateManager&,
-      const AbstractNonLinearEvolutionProblem&) noexcept;
+      Context& ctx,
+      StateManager& s,
+      const AbstractNonLinearEvolutionProblem& p) noexcept;
 
 }  // end of namespace mfem_mgis
 

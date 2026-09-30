@@ -220,14 +220,14 @@ namespace mfem_mgis {
      * \param[in] ids: mapping between mesh identifiers and names
      */
     [[nodiscard]] virtual bool setMaterialsNames(
-        Context &, const std::map<size_type, std::string> &) noexcept = 0;
+        Context &ctx, const std::map<size_type, std::string> &ids) noexcept = 0;
     /*!
      * \brief set the names of the boundaries
      * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
      */
     [[nodiscard]] virtual bool setBoundariesNames(
-        Context &, const std::map<size_type, std::string> &) noexcept = 0;
+        Context &ctx, const std::map<size_type, std::string> &ids) noexcept = 0;
     //! \return the underlying finite element discretization
     [[nodiscard]] virtual FiniteElementDiscretization &
     getFiniteElementDiscretization() noexcept = 0;
@@ -239,39 +239,40 @@ namespace mfem_mgis {
     getFiniteElementDiscretizationPointer() noexcept = 0;
     //! \return the unknowns at the end of the time step
     [[nodiscard]] virtual mfem::Vector &getUnknowns(
-        const TimeStepStage) noexcept = 0;
+        const TimeStepStage ts) noexcept = 0;
     //! \return the unknowns at the end of the time step
     [[nodiscard]] virtual const mfem::Vector &getUnknowns(
-        const TimeStepStage) const noexcept = 0;
+        const TimeStepStage ts) const noexcept = 0;
     /*!
      * \brief set the solver parameters
      * \param[in, out] ctx: execution context
      * \param[in] params: parameters
      */
     [[nodiscard]] virtual bool setSolverParameters(
-        Context &, const Parameters &) noexcept = 0;
+        Context &ctx, const Parameters &params) noexcept = 0;
     /*!
      * \brief set the linear solver
      * \param[in, out] ctx: execution context
      * \param[in] s: linear solver
      */
     [[nodiscard]] virtual bool setLinearSolver(
-        Context &, LinearSolverHandler) noexcept = 0;
+        Context &ctx, LinearSolverHandler s) noexcept = 0;
     /*!
      * \brief set the linear solver
      * \param[in] n: name of the linear solver
      * \param[in] params: parameters
      */
-    [[nodiscard]] virtual bool setLinearSolver(Context &,
-                                               std::string_view,
-                                               const Parameters &) noexcept = 0;
+    [[nodiscard]] virtual bool setLinearSolver(
+        Context &ctx,
+        std::string_view n,
+        const Parameters &params) noexcept = 0;
     //! \return if the stiffness operators from the last iteration are available
     [[nodiscard]] virtual bool areStiffnessOperatorsFromLastIterationAvailable()
         const noexcept = 0;
     /*!
      * \param[in] p: prediction policy
      */
-    virtual void setPredictionPolicy(const PredictionPolicy &) noexcept = 0;
+    virtual void setPredictionPolicy(const PredictionPolicy &p) noexcept = 0;
     //! \return the prediction policy
     [[nodiscard]] virtual PredictionPolicy getPredictionPolicy()
         const noexcept = 0;
@@ -289,16 +290,16 @@ namespace mfem_mgis {
      * \param[in] odt: optional value for the time step. If invalid, the real
      * time step is used.
      */
-    virtual bool integrate(const mfem::Vector &,
-                           const IntegrationType,
-                           const std::optional<real>) = 0;
+    virtual bool integrate(const mfem::Vector &u,
+                           const IntegrationType it,
+                           const std::optional<real> odt) = 0;
     /*!
      * \brief return the linearised operators
      * \note the integrate method shall be call appropriately before calling
      * those operators
      */
     [[nodiscard]] virtual std::optional<LinearizedOperators>
-    getLinearizedOperators(Context &, const mfem::Vector &) noexcept = 0;
+    getLinearizedOperators(Context &ctx, const mfem::Vector &U) noexcept = 0;
     //! \brief return the Dirichlet boundary conditions
     [[nodiscard]] virtual const std::vector<
         std::unique_ptr<AbstractDirichletBoundaryCondition>>
@@ -314,7 +315,7 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     [[nodiscard]] virtual NonLinearResolutionOutput solve(
-        Context &, const real, const real) noexcept = 0;
+        Context &ctx, const real t, const real dt) noexcept = 0;
     /*!
      * \brief add a new behaviour integrator
      * \return a mapping between the material id and the identifier of the
@@ -326,11 +327,11 @@ namespace mfem_mgis {
      * \param[in] b: behaviour name
      */
     virtual std::optional<std::map<size_type, size_type>>
-    addBehaviourIntegrator(Context &,
-                           const std::string &,
-                           const Parameter &,
-                           const std::string &,
-                           const std::string &) noexcept = 0;
+    addBehaviourIntegrator(Context &ctx,
+                           const std::string &n,
+                           const Parameter &m,
+                           const std::string &l,
+                           const std::string &b) noexcept = 0;
     /*!
      * \brief add a new behaviour integrator
      * \return a mapping between the material id and the identifier of the
@@ -343,12 +344,12 @@ namespace mfem_mgis {
      * \param[in] params: additional parameters
      */
     virtual std::optional<std::map<size_type, size_type>>
-    addBehaviourIntegrator(Context &,
-                           const std::string &,
-                           const Parameter &,
-                           const std::string &,
-                           const std::string &,
-                           const Parameters &) noexcept = 0;
+    addBehaviourIntegrator(Context &ctx,
+                           const std::string &n,
+                           const Parameter &m,
+                           const std::string &l,
+                           const std::string &b,
+                           const Parameters &params) noexcept = 0;
     /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
@@ -364,7 +365,7 @@ namespace mfem_mgis {
      * \note The parameter may hold an integer or a string.
      */
     [[nodiscard]] virtual std::optional<size_type> getMaterialIdentifier(
-        Context &, const Parameter &) const noexcept = 0;
+        Context &ctx, const Parameter &m) const noexcept = 0;
     /*!
      * \return the material identifier by the given parameter.
      *
@@ -374,7 +375,7 @@ namespace mfem_mgis {
      * \note The parameter may hold an integer or a string.
      */
     [[nodiscard]] virtual std::optional<size_type> getBoundaryIdentifier(
-        Context &, const Parameter &) const noexcept = 0;
+        Context &ctx, const Parameter &m) const noexcept = 0;
     /*!
      * \return the list of materials identifiers described by the given
      * parameter.
@@ -394,7 +395,8 @@ namespace mfem_mgis {
      * of materials by names.
      */
     [[nodiscard]] virtual std::optional<std::vector<size_type>>
-    getMaterialsIdentifiers(Context &, const Parameter &) const noexcept = 0;
+    getMaterialsIdentifiers(Context &ctx,
+                            const Parameter &m) const noexcept = 0;
     /*!
      * \return the list of boundaries identifiers described by the given
      * parameter.
@@ -414,7 +416,8 @@ namespace mfem_mgis {
      * of boundaries by names.
      */
     [[nodiscard]] virtual std::optional<std::vector<size_type>>
-    getBoundariesIdentifiers(Context &, const Parameter &) const noexcept = 0;
+    getBoundariesIdentifiers(Context &ctx,
+                             const Parameter &m) const noexcept = 0;
     /*!
      * \return the material with the given id
      * \param[in, out] ctx: execution context
@@ -422,7 +425,7 @@ namespace mfem_mgis {
      * \param[in] b: behaviour integrator id
      */
     virtual OptionalReference<const Material> getMaterial(
-        Context &, const Parameter &, const size_type) const noexcept = 0;
+        Context &ctx, const Parameter &m, const size_type b) const noexcept = 0;
     /*!
      * \return the material with the given id
      * \param[in, out] ctx: execution context
@@ -430,7 +433,7 @@ namespace mfem_mgis {
      * \param[in] b: behaviour integrator id
      */
     virtual OptionalReference<Material> getMaterial(
-        Context &, const Parameter &, const size_type) noexcept = 0;
+        Context &ctx, const Parameter &m, const size_type b) noexcept = 0;
     /*!
      * \return the number of behaviour integrators for the given material
      *
@@ -438,8 +441,8 @@ namespace mfem_mgis {
      * \param[in] m: material id
      */
     [[nodiscard]] virtual std::optional<size_type>
-    getNumberOfBehaviourIntegrators(Context &,
-                                    const Parameter &) const noexcept = 0;
+    getNumberOfBehaviourIntegrators(Context &ctx,
+                                    const Parameter &m) const noexcept = 0;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
@@ -447,9 +450,9 @@ namespace mfem_mgis {
      * \param[in] b: behaviour integrator id
      */
     virtual OptionalReference<const AbstractBehaviourIntegrator>
-    getBehaviourIntegrator(Context &,
-                           const Parameter &,
-                           const size_type) const noexcept = 0;
+    getBehaviourIntegrator(Context &ctx,
+                           const Parameter &m,
+                           const size_type b) const noexcept = 0;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
@@ -457,31 +460,33 @@ namespace mfem_mgis {
      * \param[in] b: behaviour integrator id
      */
     virtual OptionalReference<AbstractBehaviourIntegrator>
-    getBehaviourIntegrator(Context &,
-                           const Parameter &,
-                           const size_type) noexcept = 0;
+    getBehaviourIntegrator(Context &ctx,
+                           const Parameter &m,
+                           const size_type b) noexcept = 0;
     /*!
      * \brief add a boundary condition
      * \param[in, out] ctx: execution context
      * \param[in] f: boundary condition
      */
     [[nodiscard]] virtual bool addBoundaryCondition(
-        Context &, std::unique_ptr<AbstractBoundaryCondition>) noexcept = 0;
+        Context &ctx,
+        std::unique_ptr<AbstractBoundaryCondition> f) noexcept = 0;
     /*!
      * \brief add a Dirichlet boundary condition
      * \param[in, out] ctx: execution context
      * \param[in] bc: boundary condition
      */
     [[nodiscard]] virtual bool addBoundaryCondition(
-        Context &, std::unique_ptr<AbstractDirichletBoundaryCondition>) = 0;
+        Context &ctx,
+        std::unique_ptr<AbstractDirichletBoundaryCondition> bc) = 0;
     /*!
      * \brief add a new post-processing
      * \param[in, out] ctx: execution context
      * \param[in] p: post-processing
      */
     [[nodiscard]] virtual bool addPostProcessing(
-        Context &,
-        const std::function<void(const real, const real)> &) noexcept = 0;
+        Context &ctx,
+        const std::function<void(const real, const real)> &p) noexcept = 0;
     /*!
      * \brief add a new post-processing
      * \param[in, out] ctx: execution context
@@ -489,7 +494,7 @@ namespace mfem_mgis {
      * \param[in] p: parameters
      */
     [[nodiscard]] virtual bool addPostProcessing(
-        Context &, std::string_view, const Parameters &) noexcept = 0;
+        Context &ctx, std::string_view n, const Parameters &p) noexcept = 0;
     /*!
      * \brief execute the registred postprocessings at the initial time of the
      * simulation
@@ -497,19 +502,18 @@ namespace mfem_mgis {
      * \param[in] t: initial time
      */
     [[nodiscard]] virtual bool executeInitialPostProcessings(
-        Context &, const real) noexcept = 0;
+        Context &ctx, const real t) noexcept = 0;
     /*!
      * \brief execute the registred postprocessings
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    [[nodiscard]] virtual bool executePostProcessings(Context &ctx,
-                                                      const real,
-                                                      const real) noexcept = 0;
+    [[nodiscard]] virtual bool executePostProcessings(
+        Context &ctx, const real t, const real dt) noexcept = 0;
     //! \brief revert the state to the beginning of the time step.
-    [[nodiscard]] virtual bool revert(Context &) noexcept = 0;
+    [[nodiscard]] virtual bool revert(Context &ctx) noexcept = 0;
     //! \brief update the state to the end of the time step.
-    [[nodiscard]] virtual bool update(Context &) noexcept = 0;
+    [[nodiscard]] virtual bool update(Context &ctx) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblem();
   };  // end of struct AbstractNonLinearEvolutionProblem
@@ -525,9 +529,9 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT std::optional<size_type> getMaterialIdentifier(
-      Context &,
-      const AbstractNonLinearEvolutionProblem &,
-      const Parameters &) noexcept;
+      Context &ctx,
+      const AbstractNonLinearEvolutionProblem &p,
+      const Parameters &params) noexcept;
 
   /*!
    * \return the boundary identifier from the parameters from the `Boundary`
@@ -540,9 +544,9 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT std::optional<size_type> getBoundaryIdentifier(
-      Context &,
-      const AbstractNonLinearEvolutionProblem &,
-      const Parameters &) noexcept;
+      Context &ctx,
+      const AbstractNonLinearEvolutionProblem &p,
+      const Parameters &params) noexcept;
 
   /*!
    * \return the materials identifiers from the parameters if the one of
@@ -562,10 +566,10 @@ namespace mfem_mgis {
    * \param[in] b: allowing missing `Material` or `Materials` parameters
    */
   MFEM_MGIS_EXPORT std::optional<std::vector<size_type>>
-  getMaterialsIdentifiers(Context &,
-                          const AbstractNonLinearEvolutionProblem &,
-                          const Parameters &,
-                          const bool = true) noexcept;
+  getMaterialsIdentifiers(Context &ctx,
+                          const AbstractNonLinearEvolutionProblem &p,
+                          const Parameters &params,
+                          const bool b = true) noexcept;
 
   /*!
    * \return the boundaries identifiers from the parameters if the one of
@@ -585,10 +589,10 @@ namespace mfem_mgis {
    * \param[in] b: allowing missing `Boundary` or `Boundaries` parameters
    */
   MFEM_MGIS_EXPORT std::optional<std::vector<size_type>>
-  getBoundariesIdentifiers(Context &,
-                           const AbstractNonLinearEvolutionProblem &,
-                           const Parameters &,
-                           const bool = true) noexcept;
+  getBoundariesIdentifiers(Context &ctx,
+                           const AbstractNonLinearEvolutionProblem &p,
+                           const Parameters &params,
+                           const bool b = true) noexcept;
 
   /*!
    * \return the material identifier from the parameters from the `Material`
@@ -601,9 +605,9 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT size_type
-  getMaterialIdentifier(attributes::Throwing,
-                        const AbstractNonLinearEvolutionProblem &,
-                        const Parameters &);
+  getMaterialIdentifier(attributes::Throwing throwing,
+                        const AbstractNonLinearEvolutionProblem &p,
+                        const Parameters &params);
 
   /*!
    * \return the boundary identifier from the parameters from the `Boundary`
@@ -616,9 +620,9 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT size_type
-  getBoundaryIdentifier(attributes::Throwing,
-                        const AbstractNonLinearEvolutionProblem &,
-                        const Parameters &);
+  getBoundaryIdentifier(attributes::Throwing throwing,
+                        const AbstractNonLinearEvolutionProblem &p,
+                        const Parameters &params);
 
   /*!
    * \return the materials identifiers from the parameters if the one of
@@ -638,10 +642,10 @@ namespace mfem_mgis {
    * \param[in] b: allowing missing `Material` or `Materials` parameters
    */
   MFEM_MGIS_EXPORT std::vector<size_type> getMaterialsIdentifiers(
-      attributes::Throwing,
-      const AbstractNonLinearEvolutionProblem &,
-      const Parameters &,
-      const bool = true);
+      attributes::Throwing throwing,
+      const AbstractNonLinearEvolutionProblem &p,
+      const Parameters &params,
+      const bool b = true);
 
   /*!
    * \return the boundaries identifiers from the parameters if the one of
@@ -661,10 +665,10 @@ namespace mfem_mgis {
    * \param[in] b: allowing missing `Boundary` or `Boundaries` parameters
    */
   MFEM_MGIS_EXPORT std::vector<size_type> getBoundariesIdentifiers(
-      attributes::Throwing,
-      const AbstractNonLinearEvolutionProblem &,
-      const Parameters &,
-      const bool = true);
+      attributes::Throwing throwing,
+      const AbstractNonLinearEvolutionProblem &p,
+      const Parameters &params,
+      const bool b = true);
 
 #ifdef MFEM_USE_MPI
 
@@ -678,13 +682,13 @@ namespace mfem_mgis {
    * returned.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] MPI_Comm getMPICommunicator(
-      const AbstractNonLinearEvolutionProblem &) noexcept;
+      const AbstractNonLinearEvolutionProblem &p) noexcept;
   /*!
    * \return if the current process is the main one (the process of rank 0)
    * \param[in] p: nonlinear evolution problem
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool isMainProcess(
-      const AbstractNonLinearEvolutionProblem &) noexcept;
+      const AbstractNonLinearEvolutionProblem &p) noexcept;
 
 #endif /* MFEM_USE_MPI */
 

@@ -22,7 +22,7 @@ namespace mfem_mgis {
   };  // end of LinearSolverHandler
 
   MFEM_MGIS_EXPORT [[nodiscard]] bool isInvalid(
-      const LinearSolverHandler&) noexcept;
+      const LinearSolverHandler& s) noexcept;
 
 }  // end of namespace mfem_mgis
 

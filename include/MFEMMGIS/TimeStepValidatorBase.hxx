@@ -18,9 +18,9 @@ namespace mfem_mgis {
     //! \brief constructor
     TimeStepValidatorBase() noexcept;
     //
-    void addValidator(const std::string_view,
-                      const ExternalValidator &) noexcept override;
-    void addValidator(const ExternalValidator &) noexcept override;
+    void addValidator(const std::string_view n,
+                      const ExternalValidator& v) noexcept override;
+    void addValidator(const ExternalValidator& v) noexcept override;
     //! \brief destructor
     ~TimeStepValidatorBase() override;
 
@@ -29,7 +29,7 @@ namespace mfem_mgis {
      * \brief call the external validators
      * \param[in] ctx: execution context
      */
-    std::optional<Result> callExternalValidators(Context &) const noexcept;
+    std::optional<Result> callExternalValidators(Context& ctx) const noexcept;
     //! \brief registered external validators
     std::vector<std::pair<std::string, ExternalValidator>> externalValidators;
   };  // end of struct TimeStepValidatorBase

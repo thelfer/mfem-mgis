@@ -56,50 +56,50 @@ namespace mfem_mgis {
      * \param[in] b_ptr: behaviour
      */
     TransientHeatTransferBehaviourIntegrator(
-        const FiniteElementDiscretization &,
-        const size_type,
-        std::unique_ptr<const Behaviour>);
+        const FiniteElementDiscretization &fed,
+        const size_type m,
+        std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \return the rotation matrix associated with the given integration
      * point
      * \param[in] i: integration points
      */
-    inline RotationMatrix getRotationMatrix(const size_type) const;
+    inline RotationMatrix getRotationMatrix(const size_type i) const;
 
-    inline void rotateGradients(std::span<real>, const RotationMatrix &);
+    inline void rotateGradients(std::span<real> g, const RotationMatrix &r);
 
     inline std::span<const real> rotateThermodynamicForces(
-        std::span<const real>, const RotationMatrix &);
+        std::span<const real> s, const RotationMatrix &r);
 
-    inline void rotateTangentOperatorBlocks(std::span<real>,
-                                            const RotationMatrix &);
+    inline void rotateTangentOperatorBlocks(std::span<real> Kip,
+                                            const RotationMatrix &r);
 
     const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &,
-        const mfem::ElementTransformation &) const override;
+        const mfem::FiniteElement &e,
+        const mfem::ElementTransformation &tr) const override;
 
     real getIntegrationPointWeight(
-        mfem::ElementTransformation &,
-        const mfem::IntegrationPoint &) const noexcept override;
+        mfem::ElementTransformation &tr,
+        const mfem::IntegrationPoint &ip) const noexcept override;
 
-    bool integrate(const mfem::FiniteElement &,
-                   mfem::ElementTransformation &,
-                   const mfem::Vector &,
-                   const IntegrationType) override;
+    bool integrate(const mfem::FiniteElement &e,
+                   mfem::ElementTransformation &tr,
+                   const mfem::Vector &u,
+                   const IntegrationType it) override;
 
-    void updateResidual(mfem::Vector &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateResidual(mfem::Vector &Fe,
+                        const mfem::FiniteElement &e,
+                        mfem::ElementTransformation &tr,
+                        const mfem::Vector &u) override;
 
-    void updateJacobian(mfem::DenseMatrix &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateJacobian(mfem::DenseMatrix &Ke,
+                        const mfem::FiniteElement &e,
+                        mfem::ElementTransformation &tr,
+                        const mfem::Vector &u) override;
 
-    void computeInnerForces(mfem::Vector &,
-                            const mfem::FiniteElement &,
-                            mfem::ElementTransformation &) override;
+    void computeInnerForces(mfem::Vector &Fe,
+                            const mfem::FiniteElement &e,
+                            mfem::ElementTransformation &tr) override;
 
     //! \brief destructor
     ~TransientHeatTransferBehaviourIntegrator() override;
@@ -114,14 +114,14 @@ namespace mfem_mgis {
      * transformation
      */
     static const mfem::IntegrationRule &selectIntegrationRule(
-        const mfem::FiniteElement &, const mfem::ElementTransformation &);
+        const mfem::FiniteElement &e, const mfem::ElementTransformation &t);
     /*!
      * \brief build the quadrature space for the given  * material
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
-        const FiniteElementDiscretization &, const size_type);
+        const FiniteElementDiscretization &fed, const size_type m);
     /*!
      * \brief update the strain with the contribution of the
      * given node
@@ -130,10 +130,10 @@ namespace mfem_mgis {
      * \param[in] N: shape functions
      * \param[in] n: node index
      */
-    void updateGradients(std::span<real> &,
-                         const mfem::Vector &,
-                         const mfem::Vector &,
-                         const size_type) noexcept;
+    void updateGradients(std::span<real> &g,
+                         const mfem::Vector &T,
+                         const mfem::Vector &N,
+                         const size_type ni) noexcept;
     /*!
      * \brief update the inner forces of the given node  with
      * the contribution of the stress of an integration point.
@@ -144,11 +144,11 @@ namespace mfem_mgis {
      * \param[in] w: weight of the integration point
      * \param[in] n: node index
      */
-    void updateInnerForces(mfem::Vector &,
-                           const std::span<const real> &,
-                           const mfem::Vector &,
-                           const real,
-                           const size_type) const noexcept;
+    void updateInnerForces(mfem::Vector &Fe,
+                           const std::span<const real> &s,
+                           const mfem::Vector &N,
+                           const real w,
+                           const size_type ni) const noexcept;
     /*!
      * \brief update the stiffness matrix of the given node
      * with the contribution of the consistent tangent operator of  * an
@@ -160,11 +160,11 @@ namespace mfem_mgis {
      * \param[in] w: weight of the integration point
      * \param[in] n: node index
      */
-    void updateStiffnessMatrix(mfem::DenseMatrix &,
-                               const std::span<const real> &,
-                               const mfem::Vector &,
-                               const real,
-                               const size_type) const noexcept;
+    void updateStiffnessMatrix(mfem::DenseMatrix &Ke,
+                               const std::span<const real> &Kip,
+                               const mfem::Vector &N,
+                               const real w,
+                               const size_type ni) const noexcept;
   };  // end of struct TransientHeatTransferBehaviourIntegrator
 
 }  // end of namespace mfem_mgis

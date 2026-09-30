@@ -29,19 +29,20 @@ namespace mfem_mgis {
      * \param[in] p: non linear problem
      * \param[in] params: parameters passed to the post-processing
      */
-    MeanThermodynamicForces(Context&,
-                            NonLinearEvolutionProblemImplementation<parallel>&,
-                            const Parameters&);
+    MeanThermodynamicForces(
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const Parameters& params);
     //
     [[nodiscard]] bool executeInitialPostProcessing(
-        Context&,
-        NonLinearEvolutionProblemImplementation<parallel>&,
-        const real) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const real t) noexcept override;
     [[nodiscard]] bool execute(
-        Context&,
-        NonLinearEvolutionProblemImplementation<parallel>&,
-        const real,
-        const real) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const real t,
+        const real dt) noexcept override;
     //! \brief destructor
     ~MeanThermodynamicForces() override;
 
@@ -53,9 +54,9 @@ namespace mfem_mgis {
      * \param[in] f: file name
      */
     [[nodiscard]] bool openFile(
-        Context&,
-        NonLinearEvolutionProblemImplementation<parallel>&,
-        const std::string&) noexcept;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const std::string& f) noexcept;
     /*!
      * \brief write the mean of the value of the thermodynamic forces of a
      * material to the output file.
@@ -63,7 +64,7 @@ namespace mfem_mgis {
      * material.
      * \param[in] v: volume of the material
      */
-    void writeResults(const std::vector<real>&, const real);
+    void writeResults(const std::vector<real>& tf_integral, const real v);
 
     //! \brief output file
     std::ofstream out;

@@ -49,7 +49,7 @@ namespace mfem_mgis {
     /*!
      * \param[in] n: output directory name
      */
-    ParaviewExportIntegrationPointResultsAtNodesBase(const std::string &);
+    ParaviewExportIntegrationPointResultsAtNodesBase(const std::string &d);
     //
     ParaviewExportIntegrationPointResultsAtNodesBase(
         ParaviewExportIntegrationPointResultsAtNodesBase &&) noexcept = default;
@@ -83,7 +83,7 @@ namespace mfem_mgis {
      * \param[in] ds: functions to be exported
      */
     void extractMaterialIdentifiers(
-        const std::vector<ExportedFunctionsDescription> &);
+        const std::vector<ExportedFunctionsDescription> &ds);
     /*!
      * \brief get information about the given result (number of components,
      * category and behaviour integrators providing the result)
@@ -97,9 +97,9 @@ namespace mfem_mgis {
      * \param[in] p: non linear evolution problem
      */
     void getResultDescription(
-        attributes::Throwing,
-        MaterialIntegrationPointResultBase &,
-        const NonLinearEvolutionProblemImplementationBase &);
+        attributes::Throwing throwing,
+        MaterialIntegrationPointResultBase &r,
+        const NonLinearEvolutionProblemImplementationBase &p);
     /*!
      * \return the functions associated with the given result
      * \param[in, out] ctx: execution context
@@ -109,8 +109,8 @@ namespace mfem_mgis {
     std::optional<std::vector<ImmutablePartialQuadratureFunctionView>>
     getPartialQuadratureFunctionViews(
         Context &ctx,
-        const MaterialIntegrationPointResultBase &,
-        const TimeStepStage = ets) noexcept;
+        const MaterialIntegrationPointResultBase &r,
+        const TimeStepStage s = ets) noexcept;
     //! \brief paraview exporter
     mfem::ParaViewDataCollection exporter;
     //! \brief list of material' identifiers
@@ -140,9 +140,9 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the post-processing
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const Parameters &);
+        Context &ctx,
+        NonLinearEvolutionProblemImplementation<parallel> &p,
+        const Parameters &params);
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -151,10 +151,10 @@ namespace mfem_mgis {
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const ExportedFunctionsDescription &,
-        const std::string &);
+        Context &ctx,
+        NonLinearEvolutionProblemImplementation<parallel> &p,
+        const ExportedFunctionsDescription &d,
+        const std::string &n);
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -163,10 +163,10 @@ namespace mfem_mgis {
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const std::vector<ExportedFunctionsDescription> &,
-        const std::string &);
+        Context &ctx,
+        NonLinearEvolutionProblemImplementation<parallel> &p,
+        const std::vector<ExportedFunctionsDescription> &ds,
+        const std::string &n);
     //
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
         ParaviewExportIntegrationPointResultsAtNodesImplementation
@@ -176,14 +176,14 @@ namespace mfem_mgis {
         delete;
     //
     [[nodiscard]] bool executeInitialPostProcessing(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const real) noexcept override;
+        Context &ctx,
+        NonLinearEvolutionProblemImplementation<parallel> &p,
+        const real t) noexcept override;
     [[nodiscard]] bool execute(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const real,
-        const real) noexcept override;
+        Context &ctx,
+        NonLinearEvolutionProblemImplementation<parallel> &p,
+        const real t,
+        const real dt) noexcept override;
     //! \brief destructor
     ~ParaviewExportIntegrationPointResultsAtNodesImplementation() override;
 
@@ -198,8 +198,8 @@ namespace mfem_mgis {
      * \param[in,out] ctx: execution context
      * \param[in] p: non linear problem
      */
-    void createSubMesh(Context &,
-                       NonLinearEvolutionProblemImplementation<parallel> &);
+    void createSubMesh(Context &ctx,
+                       NonLinearEvolutionProblemImplementation<parallel> &p);
     /*!
      * \brief update the grid functions and export them
      * \param[in,out] ctx: execution context
@@ -208,9 +208,9 @@ namespace mfem_mgis {
      * \param[in] s: time step stage
      */
     bool exportResults(Context &ctx,
-                       NonLinearEvolutionProblemImplementation<parallel> &,
-                       const real,
-                       const TimeStepStage) noexcept;
+                       NonLinearEvolutionProblemImplementation<parallel> &p,
+                       const real t,
+                       const TimeStepStage s) noexcept;
     //! \brief submesh defined when exporting data
     std::shared_ptr<mfem_mgis::SubMesh<parallel>> submesh;
     //! \brief list of results defined through parameters
@@ -252,9 +252,9 @@ namespace mfem_mgis {
      * \param[in] p: non linear problem
      * \param[in] params: parameters passed to the post-processing
      */
-    ParaviewExportIntegrationPointResultsAtNodes(Context &,
-                                                 NonLinearEvolutionProblem &,
-                                                 const Parameters &);
+    ParaviewExportIntegrationPointResultsAtNodes(Context &ctx,
+                                                 NonLinearEvolutionProblem &p,
+                                                 const Parameters &params);
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -263,10 +263,10 @@ namespace mfem_mgis {
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodes(
-        Context &,
-        NonLinearEvolutionProblem &,
-        const ExportedFunctionsDescription &,
-        const std::string &);
+        Context &ctx,
+        NonLinearEvolutionProblem &p,
+        const ExportedFunctionsDescription &efcts,
+        const std::string &d);
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -275,10 +275,10 @@ namespace mfem_mgis {
      * \param[in] n: output directory name
      */
     ParaviewExportIntegrationPointResultsAtNodes(
-        Context &,
-        NonLinearEvolutionProblem &,
-        const std::vector<ExportedFunctionsDescription> &,
-        const std::string &);
+        Context &ctx,
+        NonLinearEvolutionProblem &p,
+        const std::vector<ExportedFunctionsDescription> &ds,
+        const std::string &d);
     //
     ParaviewExportIntegrationPointResultsAtNodes(
         ParaviewExportIntegrationPointResultsAtNodes &&) = default;
@@ -290,9 +290,8 @@ namespace mfem_mgis {
      * \param[in] p: non linear problem
      * \param[in] t: initial time
      */
-    [[nodiscard]] bool executeInitialPostProcessing(Context &,
-                                                    NonLinearEvolutionProblem &,
-                                                    const real) noexcept;
+    [[nodiscard]] bool executeInitialPostProcessing(
+        Context &ctx, NonLinearEvolutionProblem &p, const real t) noexcept;
     /*!
      * \brief execute the export
      * \param[in,out] ctx: execution context
@@ -300,10 +299,10 @@ namespace mfem_mgis {
      * \param[in] t: current time
      * \param[in] dt: current time step
      */
-    [[nodiscard]] bool execute(Context &,
-                               NonLinearEvolutionProblem &,
-                               const real,
-                               const real) noexcept;
+    [[nodiscard]] bool execute(Context &ctx,
+                               NonLinearEvolutionProblem &p,
+                               const real t,
+                               const real dt) noexcept;
     //! \brief destructor
     ~ParaviewExportIntegrationPointResultsAtNodes();
 
@@ -326,8 +325,8 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT ParaviewExportIntegrationPointResultsAtNodesBase::
       ExportedFunctionsDescription
-      makeExportedFunctionsDescription(std::string_view,
-                                       const PartialQuadratureFunctionsSet &);
+      makeExportedFunctionsDescription(std::string_view n,
+                                       const PartialQuadratureFunctionsSet &f);
   /*!
    *
    */
@@ -335,14 +334,14 @@ namespace mfem_mgis {
   std::vector<ParaviewExportIntegrationPointResultsAtNodesBase::
                   ExportedFunctionsDescription>
   makeExportedFunctionsDescriptions(
-      const std::map<std::string, const PartialQuadratureFunctionsSet &> &);
+      const std::map<std::string, const PartialQuadratureFunctionsSet &> &fcts);
 
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunctionsSet>
   buildPartialQuadratureFunctionsSet(
-      Context &,
-      const NonLinearEvolutionProblemImplementationBase &,
-      const std::vector<size_type> &,
-      const size_type) noexcept;
+      Context &ctx,
+      const NonLinearEvolutionProblemImplementationBase &p,
+      const std::vector<size_type> &mids,
+      const size_type nc) noexcept;
 
   template <bool parallel>
   struct ParaviewExportIntegrationPointPostProcessingsResultsAtNodes
@@ -358,18 +357,18 @@ namespace mfem_mgis {
      * \param[in] d: output directory
      */
     ParaviewExportIntegrationPointPostProcessingsResultsAtNodes(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        std::string_view,
-        const std::vector<size_type>,
-        const size_type,
-        std::function<bool(Context &, PartialQuadratureFunction &)>,
-        std::string_view);
+        Context &ctx,
+        NonLinearEvolutionProblemImplementation<parallel> &p,
+        std::string_view n,
+        const std::vector<size_type> mids,
+        const size_type nc,
+        std::function<bool(Context &, PartialQuadratureFunction &)> fct,
+        std::string_view d);
     //
     [[nodiscard]] bool executeInitialPostProcessing(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const real) noexcept override;
+        Context &ctx,
+        NonLinearEvolutionProblemImplementation<parallel> &p,
+        const real t) noexcept override;
     void execute(Context &ctx,
                  NonLinearEvolutionProblemImplementation<parallel> &p,
                  const real t,

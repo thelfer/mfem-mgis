@@ -43,7 +43,7 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context used for profiling
      * \param[in] params: parameters
      */
-    FiniteElementDiscretization(Context& ctx, const Parameters&);
+    FiniteElementDiscretization(Context& ctx, const Parameters& params);
     /*!
      * \brief constructor with profiling support
      * \param[in, out] ctx: execution context used for profiling
@@ -51,8 +51,8 @@ namespace mfem_mgis {
      * \param[in] params: parameters
      */
     FiniteElementDiscretization(Context& ctx,
-                                const FiniteElementSpacesManager&,
-                                const Parameters&);
+                                const FiniteElementSpacesManager& m,
+                                const Parameters& params);
     /*!
      * \brief constructor with profiling support
      * \param[in, out] ctx: execution context used for profiling
@@ -60,8 +60,8 @@ namespace mfem_mgis {
      * \param[in] params: parameters
      */
     FiniteElementDiscretization(Context& ctx,
-                                const MeshDiscretization&,
-                                const Parameters&);
+                                const MeshDiscretization& m,
+                                const Parameters& params);
     /*!
      * \brief constructor with profiling support
      * \param[in, out] ctx: execution context used for profiling
@@ -69,8 +69,8 @@ namespace mfem_mgis {
      * \param[in] params: parameters
      */
     FiniteElementDiscretization(Context& ctx,
-                                std::shared_ptr<Mesh<true>>,
-                                const Parameters&);
+                                std::shared_ptr<Mesh<true>> m,
+                                const Parameters& params);
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context used for profiling
@@ -87,8 +87,8 @@ namespace mfem_mgis {
      * - `UnknownsSize` (int): number of components of the unknows
      */
     FiniteElementDiscretization(Context& ctx,
-                                std::shared_ptr<Mesh<false>>,
-                                const Parameters&);
+                                std::shared_ptr<Mesh<false>> m,
+                                const Parameters& params);
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context used for profiling
@@ -98,10 +98,11 @@ namespace mfem_mgis {
      *
      * \note this methods creates the finite element space.
      */
-    FiniteElementDiscretization(Context& ctx,
-                                std::shared_ptr<Mesh<true>>,
-                                std::shared_ptr<const FiniteElementCollection>,
-                                const size_type);
+    FiniteElementDiscretization(
+        Context& ctx,
+        std::shared_ptr<Mesh<true>> m,
+        std::shared_ptr<const FiniteElementCollection> c,
+        const size_type d);
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context used for profiling
@@ -111,10 +112,11 @@ namespace mfem_mgis {
      *
      * \note this methods creates the finite element space.
      */
-    FiniteElementDiscretization(Context& ctx,
-                                std::shared_ptr<Mesh<false>>,
-                                std::shared_ptr<const FiniteElementCollection>,
-                                const size_type);
+    FiniteElementDiscretization(
+        Context& ctx,
+        std::shared_ptr<Mesh<false>> m,
+        std::shared_ptr<const FiniteElementCollection> c,
+        const size_type d);
     /*!
      * \return if the given element space is also managed by the finite element
      * space manager
@@ -122,7 +124,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     [[nodiscard]] bool isSibling(
-        const FiniteElementSpace<parallel>&) const noexcept;
+        const FiniteElementSpace<parallel>& s) const noexcept;
     //! \return the underlying finite element space manager
     [[nodiscard]] FiniteElementSpacesManager getFiniteElementSpacesManager()
         const noexcept;
@@ -131,7 +133,7 @@ namespace mfem_mgis {
      * mesh
      * \param[in] ctx: execution context
      */
-    [[nodiscard]] bool setNodalFiniteElementSpace(Context&) const noexcept;
+    [[nodiscard]] bool setNodalFiniteElementSpace(Context& ctx) const noexcept;
     //! \return the finite element space
     template <bool parallel>
     [[nodiscard]] FiniteElementSpace<parallel>& getFiniteElementSpace();
@@ -178,7 +180,7 @@ namespace mfem_mgis {
    * \param[in] fed: finite element discretization
    */
   MFEM_MGIS_EXPORT size_type
-  getNumberOfComponents(const FiniteElementDiscretization&) noexcept;
+  getNumberOfComponents(const FiniteElementDiscretization& fed) noexcept;
 
   /*!
    * \return the total number of unknowns of the underyling
@@ -187,14 +189,14 @@ namespace mfem_mgis {
    * \param[in] fed: finite element discretization
    */
   MFEM_MGIS_EXPORT size_type
-  getVSize(const FiniteElementDiscretization&) noexcept;
+  getVSize(const FiniteElementDiscretization& fed) noexcept;
 
   /*!
    * \brief return the total number of unknowns
    * \param[in] fed: finite element discretization
    */
   MFEM_MGIS_EXPORT size_type
-  getTrueVSize(const FiniteElementDiscretization&) noexcept;
+  getTrueVSize(const FiniteElementDiscretization& fed) noexcept;
 
   /*!
    * \brief display information about a finite element discretization
@@ -205,7 +207,9 @@ namespace mfem_mgis {
    */
   template <>
   MFEM_MGIS_EXPORT bool getInformation<FiniteElementDiscretization>(
-      Context&, std::ostream&, const FiniteElementDiscretization&) noexcept;
+      Context& ctx,
+      std::ostream& os,
+      const FiniteElementDiscretization& fed) noexcept;
 
 }  // end of namespace mfem_mgis
 

@@ -46,7 +46,7 @@ namespace mfem_mgis {
      * is required
      */
     explicit GridFunctionInterpolator(
-        const FiniteElementSpacesManager&) noexcept;
+        const FiniteElementSpacesManager& m) noexcept;
     /*!
      * \brief constructor from a set of 2D points
      *
@@ -58,9 +58,9 @@ namespace mfem_mgis {
      * of an interpolator as only the underlying finite element spaces manager
      * is required
      */
-    GridFunctionInterpolator(Context&,
-                             const FiniteElementSpacesManager&,
-                             const std::vector<Point<2>>&);
+    GridFunctionInterpolator(Context& ctx,
+                             const FiniteElementSpacesManager& m,
+                             const std::vector<Point<2>>& pts);
     /*!
      * \brief constructor from a set of 3D points
      *
@@ -72,9 +72,9 @@ namespace mfem_mgis {
      * of an interpolator as only the underlying finite element spaces manager
      * is required
      */
-    GridFunctionInterpolator(Context&,
-                             const FiniteElementSpacesManager&,
-                             const std::vector<Point<3>>&);
+    GridFunctionInterpolator(Context& ctx,
+                             const FiniteElementSpacesManager& m,
+                             const std::vector<Point<3>>& pts);
     /*!
      * \brief default constructor from a finite element discretization
      * \param[in] fed: finite element discretization
@@ -84,7 +84,7 @@ namespace mfem_mgis {
      * is required
      */
     explicit GridFunctionInterpolator(
-        const FiniteElementDiscretization&) noexcept;
+        const FiniteElementDiscretization& fed) noexcept;
     /*!
      * \brief constructor from a set of 2D points
      *
@@ -96,9 +96,9 @@ namespace mfem_mgis {
      * of an interpolator as only the underlying finite element spaces manager
      * is required
      */
-    GridFunctionInterpolator(Context&,
-                             const FiniteElementDiscretization&,
-                             const std::vector<Point<2>>&);
+    GridFunctionInterpolator(Context& ctx,
+                             const FiniteElementDiscretization& fed,
+                             const std::vector<Point<2>>& pts);
     /*!
      * \brief constructor from a set of 3D points
      *
@@ -110,25 +110,25 @@ namespace mfem_mgis {
      * of an interpolator as only the underlying finite element spaces manager
      * is required
      */
-    GridFunctionInterpolator(Context&,
-                             const FiniteElementDiscretization&,
-                             const std::vector<Point<3>>&);
+    GridFunctionInterpolator(Context& ctx,
+                             const FiniteElementDiscretization& fed,
+                             const std::vector<Point<3>>& pts);
     /*!
      * \brief add the given 2D points to the list of points to be post-processed
      *
      * \param[in] ctx: execution context
      * \param[in] pts: points to be added
      */
-    [[nodiscard]] bool addPoints(Context&,
-                                 const std::vector<Point<2>>&) noexcept;
+    [[nodiscard]] bool addPoints(Context& ctx,
+                                 const std::vector<Point<2>>& pts) noexcept;
     /*!
      * \brief add the given 3D points to the list of points to be post-processed
      *
      * \param[in] ctx: execution context
      * \param[in] pts: points to be added
      */
-    [[nodiscard]] bool addPoints(Context&,
-                                 const std::vector<Point<3>>&) noexcept;
+    [[nodiscard]] bool addPoints(Context& ctx,
+                                 const std::vector<Point<3>>& pts) noexcept;
 #ifdef MFEM_USE_MPI
     /*!
      * \brief interpolate the given grid function at the previously defined
@@ -142,7 +142,7 @@ namespace mfem_mgis {
      * used to build order finite element spaces.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
-        Context&, const GridFunction<true>&) noexcept;
+        Context& ctx, const GridFunction<true>& f) noexcept;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief interpolate the given grid function at the previously defined
@@ -156,7 +156,7 @@ namespace mfem_mgis {
      * used to build order finite element spaces.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
-        Context&, const GridFunction<false>&) noexcept;
+        Context& ctx, const GridFunction<false>& f) noexcept;
 
     //! \brief destructor
     ~GridFunctionInterpolator();

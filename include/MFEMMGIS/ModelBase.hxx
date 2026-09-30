@@ -31,7 +31,7 @@ namespace mfem_mgis {
      * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      */
-    ModelBase(Context &ctx, const MeshDiscretization &) noexcept;
+    ModelBase(Context &ctx, const MeshDiscretization &m) noexcept;
 
     /*!
      * \brief constructor
@@ -39,38 +39,43 @@ namespace mfem_mgis {
      * \param[in] m: mesh
      * \param[in] parameters: parameters
      */
-    ModelBase(Context &ctx, const MeshDiscretization &, const Parameters &);
+    ModelBase(Context &ctx,
+              const MeshDiscretization &m,
+              const Parameters &parameters);
     //
     [[nodiscard]] std::string getIdentifier() const noexcept override final;
     MeshDiscretization getMeshDiscretization() const noexcept override;
     [[nodiscard]] VerbosityLevel getVerbosityLevel()
         const noexcept override final;
-    void setName(std::string_view) noexcept override final;
-    void setVerbosityLevel(const VerbosityLevel) noexcept override final;
-    void setLogStream(std::shared_ptr<std::ostream>) noexcept override final;
+    void setName(std::string_view n) noexcept override final;
+    void setVerbosityLevel(const VerbosityLevel l) noexcept override final;
+    void setLogStream(std::shared_ptr<std::ostream> s) noexcept override final;
     [[nodiscard]] std::shared_ptr<std::ostream> getLogStreamPointer() noexcept
         override final;
     [[nodiscard]] std::vector<std::string> getLocations()
         const noexcept override;
     [[nodiscard]] std::optional<std::string> describe(
-        Context &, const bool, const Parameters &) const noexcept override;
+        Context &ctx,
+        const bool b,
+        const Parameters &parameters) const noexcept override;
     [[nodiscard]] std::vector<std::string> getAvailablePostProcessings()
         const noexcept override;
-    [[nodiscard]] bool addPostProcessing(Context &,
-                                         std::string_view,
-                                         const Parameters &) noexcept override;
+    [[nodiscard]] bool addPostProcessing(
+        Context &ctx,
+        std::string_view n,
+        const Parameters &params) noexcept override;
     //     [[nodiscard]] bool declareDependencies(
     //         Context &, DependenciesManager &) const noexcept override;
     [[nodiscard]] bool analyseDependency(
-        Context &,
-        DependenciesManager &,
-        const QPDependency &,
-        const TimeStepStage) const noexcept override;
+        Context &ctx,
+        DependenciesManager &dm,
+        const QPDependency &d,
+        const TimeStepStage ts) const noexcept override;
     [[nodiscard]] bool resolveDependency(
-        Context &,
-        QPEvaluatorsFactory &,
-        const QPDependency &,
-        const TimeStepStage) const noexcept override;
+        Context &ctx,
+        QPEvaluatorsFactory &f,
+        const QPDependency &d,
+        const TimeStepStage ts) const noexcept override;
     //     [[nodiscard]] bool initializeBeforeResourcesAllocation(
     //         Context &,
     //         ValueEvaluatorsFactory &,
@@ -79,18 +84,17 @@ namespace mfem_mgis {
     //     [[nodiscard]] bool initializeAfterResourcesAllocation(Context &)
     //     noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept override;
+        Context &ctx, const TimeStep &ts) noexcept override;
     [[nodiscard]] bool executeInitialPostProcessingTasks(
-        Context &, const real) noexcept override;
-    [[nodiscard]] bool executePostProcessingTasks(Context &,
-                                                  const TimeStep &,
-                                                  const bool) noexcept override;
+        Context &ctx, const real t) noexcept override;
+    [[nodiscard]] bool executePostProcessingTasks(
+        Context &ctx, const TimeStep &ts, const bool b) noexcept override;
     std::optional<real> getNextTimeIncrement(
-        Context &, const real, const real) const noexcept override;
+        Context &ctx, const real t, const real te) const noexcept override;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &, const TimeStep &) noexcept override;
-    [[nodiscard]] bool update(Context &) noexcept override;
-    [[nodiscard]] bool revert(Context &) noexcept override;
+    computeNextState(Context &ctx, const TimeStep &ts) noexcept override;
+    [[nodiscard]] bool update(Context &ctx) noexcept override;
+    [[nodiscard]] bool revert(Context &ctx) noexcept override;
     //! \brief destructor
     ~ModelBase() noexcept override;
 
@@ -108,7 +112,7 @@ namespace mfem_mgis {
         const noexcept;
     //! \brief add a post-processing (see executePostProceccing for details)
     virtual void addPostProcessing(
-        std::function<bool(Context &, bool)>) noexcept;
+        std::function<bool(Context &, bool)> p) noexcept;
 
     //! \brief name of the model, specified externally
     std::optional<std::string> name;

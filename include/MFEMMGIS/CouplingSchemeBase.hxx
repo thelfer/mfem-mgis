@@ -29,7 +29,7 @@ namespace mfem_mgis {
      * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      */
-    CouplingSchemeBase(Context &ctx, const MeshDiscretization &) noexcept;
+    CouplingSchemeBase(Context &ctx, const MeshDiscretization &m) noexcept;
 
     /*!
      * \brief constructor
@@ -38,17 +38,17 @@ namespace mfem_mgis {
      * \param[in] parameters: parameters
      */
     CouplingSchemeBase(Context &ctx,
-                       const MeshDiscretization &,
-                       const Parameters &);
+                       const MeshDiscretization &m,
+                       const Parameters &parameters);
     //
     MeshDiscretization getMeshDiscretization() const noexcept override;
-    void setName(std::string_view) noexcept override final;
+    void setName(std::string_view n) noexcept override final;
     [[nodiscard]] std::vector<std::string> getLocations()
         const noexcept override;
     [[nodiscard]] VerbosityLevel getVerbosityLevel()
         const noexcept override final;
-    void setVerbosityLevel(const VerbosityLevel) noexcept override final;
-    void setLogStream(std::shared_ptr<std::ostream>) noexcept override final;
+    void setVerbosityLevel(const VerbosityLevel l) noexcept override final;
+    void setLogStream(std::shared_ptr<std::ostream> s) noexcept override final;
     [[nodiscard]] std::shared_ptr<std::ostream> getLogStreamPointer() noexcept
         override final;
     [[nodiscard]] std::vector<const Provider *> getProviders() noexcept
@@ -61,15 +61,16 @@ namespace mfem_mgis {
     //                                        const Parameters &) noexcept
     //                                        override;
     [[nodiscard]] bool addCouplingItem(
-        Context &, std::shared_ptr<AbstractCouplingItem>) noexcept override;
+        Context &ctx,
+        std::shared_ptr<AbstractCouplingItem> i) noexcept override;
     //     [[nodiscard]] bool addModel(Context &,
     //                                 std::string_view,
     //                                 const Parameters &) noexcept override;
     [[nodiscard]] bool addModel(
-        Context &, std::shared_ptr<AbstractModel>) noexcept override;
+        Context &ctx, std::shared_ptr<AbstractModel> m) noexcept override;
     [[nodiscard]] bool addModel(
-        Context &,
-        std::shared_ptr<NonLinearEvolutionProblem>) noexcept override;
+        Context &ctx,
+        std::shared_ptr<NonLinearEvolutionProblem> m) noexcept override;
     //     [[nodiscard]] bool declareDependencies(
     //         Context &, DependenciesManager &) const noexcept override;
     //     [[nodiscard]] bool initializeBeforeResourcesAllocation(
@@ -80,16 +81,15 @@ namespace mfem_mgis {
     //     [[nodiscard]] bool initializeAfterResourcesAllocation(
     //         Context &) noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept override;
+        Context &ctx, const TimeStep &ts) noexcept override;
     std::optional<real> getNextTimeIncrement(
-        Context &, const real, const real) const noexcept override;
+        Context &ctx, const real t, const real te) const noexcept override;
     [[nodiscard]] bool executeInitialPostProcessingTasks(
-        Context &, const real) noexcept override;
-    [[nodiscard]] bool executePostProcessingTasks(Context &,
-                                                  const TimeStep &,
-                                                  const bool) noexcept override;
-    [[nodiscard]] bool update(Context &) noexcept override;
-    [[nodiscard]] bool revert(Context &) noexcept override;
+        Context &ctx, const real t) noexcept override;
+    [[nodiscard]] bool executePostProcessingTasks(
+        Context &ctx, const TimeStep &ts, const bool b) noexcept override;
+    [[nodiscard]] bool update(Context &ctx) noexcept override;
+    [[nodiscard]] bool revert(Context &ctx) noexcept override;
     //! \brief destructor
     ~CouplingSchemeBase() noexcept override;
 
@@ -111,13 +111,13 @@ namespace mfem_mgis {
      * \param[in] i: coupling item
      * \return the state before the update
      */
-    static ContextState update(Context &, AbstractCouplingItem &) noexcept;
+    static ContextState update(Context &ctx, AbstractCouplingItem &m) noexcept;
     /*!
      * \brief restore the state of a context
      * \param[in,out] ctx: execution context
      * \param[in] s: context state
      */
-    static void restore(Context &, const ContextState &) noexcept;
+    static void restore(Context &ctx, const ContextState &s) noexcept;
     //! \return a description of the coupling items
     [[nodiscard]] virtual std::string getCouplingItemsDescription()
         const noexcept;

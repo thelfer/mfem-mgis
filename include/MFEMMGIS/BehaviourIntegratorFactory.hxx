@@ -34,7 +34,7 @@ namespace mfem_mgis {
    * `fillWithDefaultBehaviourIntegrators`.
    */
   template <Hypothesis H>
-  void buildFactory(BehaviourIntegratorFactory&);
+  void buildFactory(BehaviourIntegratorFactory& f);
   /*!
    * \brief an abstract factory for behaviour integrators
    */
@@ -59,21 +59,21 @@ namespace mfem_mgis {
      * \param[in] h: modelling hypothesis
      */
     static OptionalReference<BehaviourIntegratorFactory> get(
-        Context&, const Hypothesis) noexcept;
+        Context& ctx, const Hypothesis h) noexcept;
     /*!
      * \return the unique instance of this class for the given hypothesis
      * \param[in] h: modelling hypothesis
      */
-    static BehaviourIntegratorFactory& get(const Hypothesis);
+    static BehaviourIntegratorFactory& get(const Hypothesis h);
     /*!
      * \brief register a new behaviour integrator
      * \param[in] ctx: execution context
      * \param[in] n: name
      * \param[in] g: generator
      */
-    [[nodiscard]] bool addGenerator(Context&,
-                                    const std::string&,
-                                    const Generator) noexcept;
+    [[nodiscard]] bool addGenerator(Context& ctx,
+                                    const std::string& n,
+                                    const Generator g) noexcept;
     /*!
      * \return a newly created behaviour integrator
      * \param[in] ctx: execution context
@@ -84,12 +84,12 @@ namespace mfem_mgis {
      * \param[in] params: additional parameters
      */
     [[nodiscard, deprecated]] std::unique_ptr<AbstractBehaviourIntegrator>
-    generate(Context&,
-             std::string_view,
-             const FiniteElementDiscretization&,
-             const size_type,
-             std::unique_ptr<const Behaviour>,
-             const Parameters& = Parameters{}) const noexcept;
+    generate(Context& ctx,
+             std::string_view n,
+             const FiniteElementDiscretization& fed,
+             const size_type m,
+             std::unique_ptr<const Behaviour> b,
+             const Parameters& params = Parameters{}) const noexcept;
     /*!
      * \return a newly created behaviour integrator
      * \param[in] n: name
@@ -98,10 +98,10 @@ namespace mfem_mgis {
      * \param[in] b: behaviour
      */
     [[nodiscard, deprecated]] std::unique_ptr<AbstractBehaviourIntegrator>
-    generate(std::string_view,
-             const FiniteElementDiscretization&,
-             const size_type,
-             std::unique_ptr<const Behaviour>) const;
+    generate(std::string_view n,
+             const FiniteElementDiscretization& fed,
+             const size_type m,
+             std::unique_ptr<const Behaviour> b) const;
     //! \brief destructor
     ~BehaviourIntegratorFactory() noexcept;
 
@@ -124,19 +124,21 @@ namespace mfem_mgis {
      * \param[in] n: name
      * \param[in] g: generator
      */
-    void addGenerator(attributes::MayAbort, std::string_view, const Generator);
+    void addGenerator(attributes::MayAbort a,
+                      std::string_view n,
+                      const Generator g);
     /*!
      * \brief register a new behaviour integrator
      * \param[in] a: attribute expliciting that this method may abort on error
      * \param[in] n: name
      * \param[in] g: generator
      */
-    void addGenerator(attributes::MayAbort,
-                      std::string_view,
-                      const DeprecatedGeneratorType);
+    void addGenerator(attributes::MayAbort a,
+                      std::string_view n,
+                      const DeprecatedGeneratorType g);
     //
     template <Hypothesis H>
-    friend void buildFactory(BehaviourIntegratorFactory&);
+    friend void buildFactory(BehaviourIntegratorFactory& f);
     /*!
      * \brief an helper function which add the behaviour integrators for the
      * given hypothesis \tparam H: modelling hypothesis \param[in, out]
@@ -144,7 +146,8 @@ namespace mfem_mgis {
      */
     template <Hypothesis H>
     static void addFactory(
-        std::map<Hypothesis, std::unique_ptr<BehaviourIntegratorFactory>>&);
+        std::map<Hypothesis, std::unique_ptr<BehaviourIntegratorFactory>>&
+            factories);
     /*!
      * \return default initialised factories for the supported modelling
      * hypotheses.

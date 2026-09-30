@@ -29,7 +29,9 @@ namespace mfem_mgis {
      * \param[in] defaultAllTimeStepsValue: default value for the `allTimeSteps`
      * parameter
      */
-    PostProcessingBase(PhysicalSystem &, const Parameters &, const bool);
+    PostProcessingBase(PhysicalSystem &ps,
+                       const Parameters &params,
+                       const bool defaultAllTimeStepsValue);
     //
     [[nodiscard]] PhysicalSystem &getPhysicalSystem() noexcept override;
     [[nodiscard]] const PhysicalSystem &getPhysicalSystem()

@@ -176,7 +176,7 @@ namespace mfem_mgis::unit_tests {
 
   template <typename TestParametersT>
   [[maybe_unused]] static void setLinearSolver(
-      attributes::MayAbort,
+      [[maybe_unused]] attributes::MayAbort a,
       Context& ctx,
       mfem_mgis::NonLinearEvolutionProblem& problem,
       const TestParametersT& parameters) {

@@ -24,8 +24,8 @@ namespace mfem_mgis {
    * \param[in] f: reference function to compare with
    */
   MFEM_MGIS_EXPORT real computeL2ErrorAgainstAnalyticalSolution(
-      NonLinearEvolutionProblem &,
-      std::function<void(mfem::Vector &, const mfem::Vector &)>) noexcept;
+      NonLinearEvolutionProblem& p,
+      std::function<void(mfem::Vector&, const mfem::Vector&)> f) noexcept;
 
   /*!
    * \brief Compare the results to analytical solution with a specified
@@ -35,10 +35,10 @@ namespace mfem_mgis {
    * \param[in] params: set of parameters
    */
   MFEM_MGIS_EXPORT std::optional<bool> compareToAnalyticalSolution(
-      Context &,
-      NonLinearEvolutionProblem &,
-      std::function<void(mfem::Vector &, const mfem::Vector &)>,
-      const Parameters &) noexcept;
+      Context& ctx,
+      NonLinearEvolutionProblem& p,
+      std::function<void(mfem::Vector&, const mfem::Vector&)> f,
+      const Parameters& params) noexcept;
 
 }  // end of namespace mfem_mgis
 

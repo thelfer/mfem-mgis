@@ -31,7 +31,7 @@ namespace mfem_mgis {
    * \param[in] f: grid function
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getNumberOfComponents(
-      const GridFunction<true>&) noexcept;
+      const GridFunction<true>& f) noexcept;
 
 #endif /* MFEM_USE_MPI */
 
@@ -40,7 +40,7 @@ namespace mfem_mgis {
    * \param[in] f: grid function
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getNumberOfComponents(
-      const GridFunction<false>&) noexcept;
+      const GridFunction<false>& f) noexcept;
 
   /*!
    * \return a GridFunction with the given number of components, creating a new
@@ -56,7 +56,9 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   [[nodiscard]] std::unique_ptr<GridFunction<parallel>> makeGridFunction(
-      Context&, const FiniteElementDiscretization&, const size_type) noexcept;
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type nc) noexcept;
 
   // partial specialisations
   template <>

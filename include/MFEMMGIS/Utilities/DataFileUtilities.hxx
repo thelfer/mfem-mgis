@@ -33,20 +33,20 @@ namespace mfem_mgis {
    * extension \param[in] ctx: exectution context \param[in] f: file name
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<DataFileFormat>
-  getDataFileFormatFromFileExtension(Context &, std::string_view) noexcept;
+  getDataFileFormatFromFileExtension(Context& ctx, std::string_view f) noexcept;
   /*!
    * \return the data file format from a string
    * \param[in] ctx: exectution context
    * \param[in] f: data file format
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<DataFileFormat>
-  getDataFileFormat(Context &, std::string_view) noexcept;
+  getDataFileFormat(Context& ctx, std::string_view f) noexcept;
   /*!
    * \return the data file format for the given file name, using the file
    * extention \param[in] ctx: exectution context \param[in] f: data file format
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::string_view>
-  getValueSeparator(Context &, const DataFileFormat) noexcept;
+  getValueSeparator(Context& ctx, const DataFileFormat f) noexcept;
   /*!
    * \brief write the header of the data file
    * \param[in] ctx: exectution context
@@ -55,10 +55,10 @@ namespace mfem_mgis {
    * \param[in] cnames: column names
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool writeDataFileHeader(
-      Context &,
-      std::ostream &,
-      const DataFileFormat,
-      const std::vector<std::string> &) noexcept;
+      Context& ctx,
+      std::ostream& os,
+      const DataFileFormat f,
+      const std::vector<std::string>& cnames) noexcept;
 
 }  // end of namespace mfem_mgis
 

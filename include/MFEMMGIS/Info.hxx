@@ -26,7 +26,9 @@ namespace mfem_mgis {
    * overloaded.
    */
   template <typename T>
-  [[nodiscard]] bool getInformation(Context&, std::ostream&, const T&) noexcept;
+  [[nodiscard]] bool getInformation(Context& ctx,
+                                    std::ostream& os,
+                                    const T& t) noexcept;
 
   /*!
    * \brief print information in the default log stream
@@ -35,7 +37,7 @@ namespace mfem_mgis {
    * \param[in, out] t: object for which information are requested
    */
   template <typename T>
-  bool info(Context&, std::ostream&, const T&) noexcept;
+  bool info(Context& ctx, std::ostream& os, const T& t) noexcept;
   /*!
    * \brief print information in the default log stream
    *
@@ -43,7 +45,7 @@ namespace mfem_mgis {
    * \param[in] t: object for which information are requested
    */
   template <typename T>
-  bool info(Context&, const T&) noexcept;
+  bool info(Context& ctx, const T& t) noexcept;
 
 }  // end of namespace mfem_mgis
 

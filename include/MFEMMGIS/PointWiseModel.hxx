@@ -25,9 +25,9 @@ namespace mfem_mgis {
      * \param[in] qspace: partial quadrature space
      * \param[in] parameters: parameters
      */
-    PointWiseModel(Context &,
-                   std::shared_ptr<const PartialQuadratureSpace>,
-                   const Parameters &);
+    PointWiseModel(Context &ctx,
+                   std::shared_ptr<const PartialQuadratureSpace> qspace,
+                   const Parameters &parameters);
     //! \brief return the underlying material
     Material &getMaterial() noexcept;
     //! \brief return the underlying material
@@ -35,9 +35,9 @@ namespace mfem_mgis {
     //
     [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &, const TimeStep &) noexcept override;
-    [[nodiscard]] bool update(Context &) noexcept override;
-    [[nodiscard]] bool revert(Context &) noexcept override;
+    computeNextState(Context &ctx, const TimeStep &ts) noexcept override;
+    [[nodiscard]] bool update(Context &ctx) noexcept override;
+    [[nodiscard]] bool revert(Context &ctx) noexcept override;
     //! \brief destructor
     ~PointWiseModel() override;
   };

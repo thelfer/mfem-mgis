@@ -39,7 +39,7 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool setSolverParameters(
-      Context&, IterativeSolver&, const Parameters&) noexcept;
+      Context& ctx, IterativeSolver& s, const Parameters& params) noexcept;
 
 #ifdef MFEM_USE_PETSC
   /*!
@@ -50,7 +50,9 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool setSolverParameters(
-      Context&, mfem::PetscNonlinearSolver&, const Parameters&) noexcept;
+      Context& ctx,
+      mfem::PetscNonlinearSolver& s,
+      const Parameters& params) noexcept;
 #endif /* MFEM_USE_PETSC */
 
   /*!
@@ -61,9 +63,10 @@ namespace mfem_mgis {
    * \param[in] s: iterative solver
    * \param[in] params: parameters
    */
-  MFEM_MGIS_EXPORT [[deprecated]] void setSolverParameters(attributes::Throwing,
-                                                           IterativeSolver&,
-                                                           const Parameters&);
+  MFEM_MGIS_EXPORT [[deprecated]] void setSolverParameters(
+      attributes::Throwing throwing,
+      IterativeSolver& s,
+      const Parameters& params);
 
 #ifdef MFEM_USE_PETSC
   /*!
@@ -75,11 +78,13 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    */
   MFEM_MGIS_EXPORT [[deprecated]] void setSolverParameters(
-      attributes::Throwing, mfem::PetscNonlinearSolver&, const Parameters&);
+      attributes::Throwing throwing,
+      mfem::PetscNonlinearSolver& s,
+      const Parameters& params);
 #endif /* MFEM_USE_PETSC */
 
   MFEM_MGIS_EXPORT [[nodiscard]] bool hasConverged(
-      const LinearSolver&) noexcept;  // end of hasConverged
+      const LinearSolver& ls) noexcept;  // end of hasConverged
   /*!
    * \brief get the number of iterations of an iterative linear solver
    *
@@ -87,7 +92,7 @@ namespace mfem_mgis {
    * Optional return type in case the LinearSolver is not iterative.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<int>
-  getNumberOfIterationsAtConvergence(const LinearSolver&) noexcept;
+  getNumberOfIterationsAtConvergence(const LinearSolver& ls) noexcept;
 
 }  // end of namespace mfem_mgis
 

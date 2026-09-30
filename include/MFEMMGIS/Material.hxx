@@ -49,26 +49,26 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space
      * \param[in] b_ptr: behaviour
      */
-    Material(std::shared_ptr<const PartialQuadratureSpace>,
-             std::unique_ptr<const Behaviour>);
+    Material(std::shared_ptr<const PartialQuadratureSpace> s,
+             std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    void setMacroscopicGradients(std::span<const real>);
+    void setMacroscopicGradients(std::span<const real> g);
     /*!
      * \brief set the rotation matrix
      * \param[in] r: rotation matrix
      * \note this call is only meaningfull in 2D hypotheses for orthotropic
      * behaviours.
      */
-    void setRotationMatrix(const RotationMatrix2D &);
+    void setRotationMatrix(const RotationMatrix2D &r);
     /*!
      * \brief set the rotation matrix
      * \param[in] r: rotation matrix
      * \note this call is only meaningfull in 3D for orthotropic behaviours
      */
-    void setRotationMatrix(const RotationMatrix3D &);
+    void setRotationMatrix(const RotationMatrix3D &r);
     //! \return the quadrature space
     const PartialQuadratureSpace &getPartialQuadratureSpace() const;
     //! \return the quadrature space
@@ -80,7 +80,7 @@ namespace mfem_mgis {
      * \note this method is only valid for orthotropic behaviours
      */
     std::array<real, 9u> getRotationMatrixAtIntegrationPoint(
-        const size_type) const;
+        const size_type i) const;
     //! \brief destructor
     ~Material();
 
@@ -133,10 +133,10 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
   getGradient(
-      Context &,
-      Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Context &ctx,
+      Material &m,
+      const std::string_view n,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function for the given gradient
    *
@@ -146,12 +146,11 @@ namespace mfem_mgis {
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::optional<ImmutablePartialQuadratureFunctionView>
-  getGradient(
-      Context &,
-      const Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+  std::optional<ImmutablePartialQuadratureFunctionView> getGradient(
+      Context &ctx,
+      const Material &m,
+      const std::string_view n,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function for the given thermodynamic force
    *
@@ -161,26 +160,25 @@ namespace mfem_mgis {
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
-  getThermodynamicForce(
-      Context &,
-      Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
-  /*!
-   * \return a partial quadrature function for the given thermodynamic force
-   *
-   * \param[in, out] ctx: execution context
-   * \param[in] m: material
-   * \param[in] n: name of the thermodynamic force
-   * \param[in] s: state considered
-   */
-  MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::optional<ImmutablePartialQuadratureFunctionView>
   getThermodynamicForce(
       Context &ctx,
-      const Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Material &m,
+      const std::string_view n,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
+  /*!
+   * \return a partial quadrature function for the given thermodynamic force
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in] m: material
+   * \param[in] n: name of the thermodynamic force
+   * \param[in] s: state considered
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]]  //
+  std::optional<ImmutablePartialQuadratureFunctionView> getThermodynamicForce(
+      Context &ctx,
+      const Material &m,
+      const std::string_view n,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function for the given state variable
    *
@@ -191,10 +189,10 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
   getInternalStateVariable(
-      Context &,
-      Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Context &ctx,
+      Material &m,
+      const std::string_view n,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function for the given state variable
    * \param[in, out] ctx: execution context
@@ -205,10 +203,10 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT [[nodiscard]]  //
   std::optional<ImmutablePartialQuadratureFunctionView>
   getInternalStateVariable(
-      Context &,
-      const Material &,
-      const std::string_view,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Context &ctx,
+      const Material &m,
+      const std::string_view n,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function holding the stored energy
    * \param[in, out] ctx: execution context
@@ -217,9 +215,9 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
   getStoredEnergy(
-      Context &,
-      Material &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Context &ctx,
+      Material &m,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function holding the stored energy
    * \param[in, out] ctx: execution context
@@ -227,11 +225,10 @@ namespace mfem_mgis {
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::optional<ImmutablePartialQuadratureFunctionView>
-  getStoredEnergy(
-      Context &,
-      const Material &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+  std::optional<ImmutablePartialQuadratureFunctionView> getStoredEnergy(
+      Context &ctx,
+      const Material &m,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function holding the dissipated energy
    * \param[in, out] ctx: execution context
@@ -240,9 +237,9 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<PartialQuadratureFunction>
   getDissipatedEnergy(
-      Context &,
-      Material &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Context &ctx,
+      Material &m,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return a partial quadrature function holding the dissipated energy
    * \param[in, out] ctx: execution context
@@ -252,9 +249,9 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT
   [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView>
   getDissipatedEnergy(
-      Context &,
-      const Material &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Context &ctx,
+      const Material &m,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return the stored energy by the whole material if the behaviour computes
    * it, zero otherwise
@@ -263,9 +260,9 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<real> computeStoredEnergy(
-      Context &,
-      const AbstractBehaviourIntegrator &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Context &ctx,
+      const AbstractBehaviourIntegrator &bi,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
   /*!
    * \return the stored energy if the behaviour computes it, zero otherwise
    * \param[in, out] ctx: execution context
@@ -273,15 +270,15 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<real> computeDissipatedEnergy(
-      Context &,
-      const AbstractBehaviourIntegrator &,
-      const Material::StateSelection = Material::END_OF_TIME_STEP) noexcept;
+      Context &ctx,
+      const AbstractBehaviourIntegrator &bi,
+      const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;
 
   [[nodiscard]] mgis::behaviour::MaterialStateManager &getStateManager(
-      Material &, const Material::StateSelection) noexcept;
+      Material &m, const Material::StateSelection s) noexcept;
 
   [[nodiscard]] const mgis::behaviour::MaterialStateManager &getStateManager(
-      const Material &, const Material::StateSelection) noexcept;
+      const Material &m, const Material::StateSelection s) noexcept;
 
 #ifdef MGIS_FUNCTION_SUPPORT
 
@@ -311,10 +308,10 @@ namespace mfem_mgis {
     return e.getSpace();
   }  // end of getSpace
 
-  bool check(AbstractErrorHandler &, const RotationMatrixEvaluator &);
+  bool check(AbstractErrorHandler &eh, const RotationMatrixEvaluator &e);
 
   constexpr mgis::size_type getNumberOfComponents(
-      const RotationMatrixEvaluator &) noexcept;
+      const RotationMatrixEvaluator &e) noexcept;
 
   static_assert(mgis::function::EvaluatorConcept<RotationMatrixEvaluator>);
   static_assert(!mgis::function::FunctionConcept<RotationMatrixEvaluator>);

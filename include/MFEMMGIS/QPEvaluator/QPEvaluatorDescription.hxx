@@ -27,7 +27,9 @@ namespace mfem_mgis {
      * generate an evaluator. See the description of the
      * `shallNotBeUsedInEvaluatorsGeneration` method.
      */
-    QPEvaluatorDescription(std::string, const size_type, const bool = false);
+    QPEvaluatorDescription(std::string n,
+                           const size_type nc,
+                           const bool b = false);
     //! \return the name of the dependency
     [[nodiscard]] std::string getName() const noexcept;
     //! \return the expected number of components to be computed by the

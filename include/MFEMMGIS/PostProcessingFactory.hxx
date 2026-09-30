@@ -50,7 +50,7 @@ namespace mfem_mgis {
      * \param[in] n: name of the post-processing
      * \param[in] g: generator of the post-processing
      */
-    void add(std::string_view, Generator);
+    void add(std::string_view n, Generator g);
     /*!
      * \return the requested post-processing
      * \param[in, out] ctx: execution context
@@ -60,10 +60,10 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::unique_ptr<
         AbstractNonLinearEvolutionProblemPostProcessing<true>>
-    generate(Context&,
-             std::string_view,
-             NonLinearEvolutionProblemImplementation<true>&,
-             const Parameters&) const noexcept;
+    generate(Context& ctx,
+             std::string_view n,
+             NonLinearEvolutionProblemImplementation<true>& p,
+             const Parameters& params) const noexcept;
 
    private:
     //! \brief default destructor
@@ -92,7 +92,7 @@ namespace mfem_mgis {
      * \param[in] n: name of the post-processing
      * \param[in] g: generator of the post-processing
      */
-    void add(std::string_view, Generator);
+    void add(std::string_view n, Generator g);
     /*!
      * \return the requested post-processing
      * \param[in, out] ctx: execution context
@@ -102,10 +102,10 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::unique_ptr<
         AbstractNonLinearEvolutionProblemPostProcessing<false>>
-    generate(Context&,
-             std::string_view,
-             NonLinearEvolutionProblemImplementation<false>&,
-             const Parameters&) const noexcept;
+    generate(Context& ctx,
+             std::string_view n,
+             NonLinearEvolutionProblemImplementation<false>& p,
+             const Parameters& params) const noexcept;
 
    private:
     //! \brief default destructor

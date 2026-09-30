@@ -47,16 +47,16 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] k: key
      */
-    static InvalidResult reportUnmatchedTypeError(Context&,
-                                                  const std::string&) noexcept;
+    static InvalidResult reportUnmatchedTypeError(
+        Context& ctx, const std::string& k) noexcept;
     /*!
      * \brief report that the value associated with the given key does not
      * have one of the expected types.
      * \param[in, out] ctx: execution context
      * \param[in] k: key
      */
-    static InvalidResult reportUnmatchedTypesError(Context&,
-                                                   const std::string&) noexcept;
+    static InvalidResult reportUnmatchedTypesError(
+        Context& ctx, const std::string& k) noexcept;
     //! \brief default constructor
     ParametersValidator() noexcept;
     //! \brief move constructor
@@ -74,8 +74,8 @@ namespace mfem_mgis {
      * \return the modified validator
      * \note if the given key already exists, nothing is done.
      */
-    ParametersValidator& add(const std::string&,
-                             const AddArguments& = not_required) noexcept;
+    ParametersValidator& add(const std::string& k,
+                             const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief add a new allowed key with its associated description.
      * \param[in] keys: list of keys
@@ -83,8 +83,8 @@ namespace mfem_mgis {
      * \return the modified validator
      * \note if one of the given keys already exists, nothing is done.
      */
-    ParametersValidator& add(const std::vector<std::string>&,
-                             const AddArguments& = not_required) noexcept;
+    ParametersValidator& add(const std::vector<std::string>& keys,
+                             const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief add a new allowed key with its associated description.
      * \param[in] k: key
@@ -94,9 +94,9 @@ namespace mfem_mgis {
      * \note if the given key already exists and the documentation is empty,
      * the given documentation overwrites it. Otherwise, nothing is done.
      */
-    ParametersValidator& add(const std::string&,
-                             const std::string&,
-                             const AddArguments& = not_required) noexcept;
+    ParametersValidator& add(const std::string& k,
+                             const std::string& d,
+                             const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief add a dictionary associating some allowed keys with their
      * description.
@@ -106,8 +106,8 @@ namespace mfem_mgis {
      * \note if the given key already exists and the documentation is empty,
      * the given documentation overwrites it. Otherwise, nothing is done.
      */
-    ParametersValidator& add(const std::map<std::string, std::string>&,
-                             const AddArguments& = not_required) noexcept;
+    ParametersValidator& add(const std::map<std::string, std::string>& m,
+                             const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief add an arbitrary parameter validator
      * \param[in] k: name of the parameter
@@ -117,9 +117,9 @@ namespace mfem_mgis {
      * \note the given name is automatically added to the allowed keys with an
      * empty description if it does not exist
      */
-    ParametersValidator& add(const std::string&,
-                             const ParameterValidator&,
-                             const AddArguments& = not_required) noexcept;
+    ParametersValidator& add(const std::string& k,
+                             const ParameterValidator& f,
+                             const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief add an arbitrary parameter validator
      * \param[in] k: name of the parameter
@@ -130,10 +130,10 @@ namespace mfem_mgis {
      * \note hte given name is automatically added to the allowed keys with an
      * empty description if it does not exist
      */
-    ParametersValidator& add(const std::string&,
-                             const std::string&,
-                             const ParameterValidator&,
-                             const AddArguments& = not_required) noexcept;
+    ParametersValidator& add(const std::string& k,
+                             const std::string& d,
+                             const ParameterValidator& f,
+                             const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief check that the data has one of types given as template arguments
      * \tparam Types: list of allowed types
@@ -142,10 +142,10 @@ namespace mfem_mgis {
      * \return the modified validator
      */
     template <typename... Types>
-    ParametersValidator& add(const std::string&,
-                             const AddArguments& = not_required) noexcept
-        requires((sizeof...(Types) > 0) &&
-                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
+    ParametersValidator& add(const std::string& k,
+                             const AddArguments& opts = not_required) noexcept
+      requires((sizeof...(Types) > 0) &&
+               (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief check that the data has one of types given as template arguments
      * \tparam Types: list of allowed types
@@ -155,11 +155,11 @@ namespace mfem_mgis {
      * \return the modified validator
      */
     template <typename... Types>
-    ParametersValidator& add(const std::string&,
-                             const std::string&,
-                             const AddArguments& = not_required) noexcept
-        requires((sizeof...(Types) > 0) &&
-                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
+    ParametersValidator& add(const std::string& k,
+                             const std::string& d,
+                             const AddArguments& opts = not_required) noexcept
+      requires((sizeof...(Types) > 0) &&
+               (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief check that the data has one of types given as template arguments
      * \tparam Types: list of allowed types
@@ -168,10 +168,10 @@ namespace mfem_mgis {
      * \return the modified validator
      */
     template <typename... Types>
-    ParametersValidator& add(const std::vector<std::string>&,
-                             const AddArguments& = not_required) noexcept
-        requires((sizeof...(Types) > 0) &&
-                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
+    ParametersValidator& add(const std::vector<std::string>& keys,
+                             const AddArguments& opts = not_required) noexcept
+      requires((sizeof...(Types) > 0) &&
+               (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief check that the data has one of types given as template arguments
      * \tparam Types: list of allowed types
@@ -180,10 +180,10 @@ namespace mfem_mgis {
      * \return the modified validator
      */
     template <typename... Types>
-    ParametersValidator& add(const std::map<std::string, std::string>&,
-                             const AddArguments& = not_required) noexcept
-        requires((sizeof...(Types) > 0) &&
-                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
+    ParametersValidator& add(const std::map<std::string, std::string>& m,
+                             const AddArguments& opts = not_required) noexcept
+      requires((sizeof...(Types) > 0) &&
+               (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief check that the data associated with the given key is a strictly
      * positive integer
@@ -193,9 +193,9 @@ namespace mfem_mgis {
      * \return the modified validator
      */
     ParametersValidator& addStrictlyPositiveIntegerCheck(
-        const std::string&,
-        const std::string&,
-        const AddArguments& = not_required) noexcept;
+        const std::string& k,
+        const std::string& d,
+        const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief check that the data associated with the given key is a strictly
      * positive integer
@@ -204,7 +204,7 @@ namespace mfem_mgis {
      * \return the modified validator
      */
     ParametersValidator& addStrictlyPositiveIntegerCheck(
-        const std::string&, const AddArguments& = not_required) noexcept;
+        const std::string& k, const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief declare a list of keys to be incompatible
      * \tparam Types: list of allowed types
@@ -217,10 +217,10 @@ namespace mfem_mgis {
      */
     template <typename... Types>
     ParametersValidator& addIncompatibleParametersList(
-        const std::vector<std::string>&,
-        const AddArguments& = not_required) noexcept
-        requires((sizeof...(Types) > 0) &&
-                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
+        const std::vector<std::string>& keys,
+        const AddArguments& opts = not_required) noexcept
+      requires((sizeof...(Types) > 0) &&
+               (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief declare a list of keys to be incompatible
      * \tparam Types: list of allowed types
@@ -233,10 +233,10 @@ namespace mfem_mgis {
      */
     template <typename... Types>
     ParametersValidator& addIncompatibleParametersList(
-        const std::map<std::string, std::string>&,
-        const AddArguments& = not_required) noexcept
-        requires((sizeof...(Types) > 0) &&
-                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
+        const std::map<std::string, std::string>& m,
+        const AddArguments& opts = not_required) noexcept
+      requires((sizeof...(Types) > 0) &&
+               (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief declare a list of keys to be incompatible
      * \param[in] k: keys
@@ -247,8 +247,8 @@ namespace mfem_mgis {
      * \note none of those keys have to be declared required
      */
     ParametersValidator& addIncompatibleParametersList(
-        const std::vector<std::string>&,
-        const AddArguments& = not_required) noexcept;
+        const std::vector<std::string>& keys,
+        const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief declare a list of keys to be incompatible
      * \param[in] m: keys and associated descriptions
@@ -259,8 +259,8 @@ namespace mfem_mgis {
      * \note none of those keys have to be declared required
      */
     ParametersValidator& addIncompatibleParametersList(
-        const std::map<std::string, std::string>&,
-        const AddArguments& = not_required) noexcept;
+        const std::map<std::string, std::string>& m,
+        const AddArguments& opts = not_required) noexcept;
     /*!
      * \brief validate a dictionary of parameters
      * \param[in] throwing: attribute indicating that errors are reported by
@@ -275,14 +275,16 @@ namespace mfem_mgis {
      * validator.validate(ctx, parameters) | or_raise;
      * \endcode
      */
-    void validate(attributes::Throwing, const Parameters&) const;
+    void validate(attributes::Throwing throwing,
+                  const Parameters& parameters) const;
     /*!
      * \brief validate a dictionary of parameters
      * \param[in, out] ctx: execution context
      * \param[in] parameters: tested parameters
      * \return true if validation succeeds
      */
-    [[nodiscard]] bool validate(Context&, const Parameters&) const noexcept;
+    [[nodiscard]] bool validate(Context& ctx,
+                                const Parameters& m) const noexcept;
     /*!
      * \brief get the list of allowed parameters and their associated
      * documentation \return the list of allowed parameters and their associated
@@ -308,7 +310,7 @@ namespace mfem_mgis {
      * \param[in] opts: option used to declare the key
      * \note f the key already exists, this is a no-op.
      */
-    void addKey(const std::string&, const AddArguments&) noexcept;
+    void addKey(const std::string& k, const AddArguments& opts) noexcept;
     //! \brief list of incompatible keys
     std::vector<std::vector<std::string>> incompatibilities;
     //! \brief dictionary associating a valid key and its description

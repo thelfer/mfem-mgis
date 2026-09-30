@@ -48,10 +48,10 @@ namespace mfem_mgis {
      * \param[in] s: stage in the time step
      */
     [[nodiscard]] virtual std::shared_ptr<AbstractQPEvaluator> operator()(
-        Context &,
-        const QPEvaluatorsFactory &,
-        const PartialQuadratureSpace &,
-        const TimeStepStage) const = 0;
+        Context& ctx,
+        const QPEvaluatorsFactory& f,
+        const PartialQuadratureSpace& qspace,
+        const TimeStepStage s) const = 0;
     //! \brief destructor
     virtual ~AbstractQPEvaluatorGenerator();
   };

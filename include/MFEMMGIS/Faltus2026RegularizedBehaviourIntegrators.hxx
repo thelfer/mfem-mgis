@@ -73,19 +73,19 @@ namespace mfem_mgis {
      * \param[in] params: parameters defining the penalization coefficient
      */
     Faltus2026RegularizedIsotropicBehaviourIntegrator(
-        const FiniteElementDiscretization &,
-        const size_type,
-        std::unique_ptr<const Behaviour>,
-        const Parameters &);
+        const FiniteElementDiscretization& fed,
+        const size_type m,
+        std::unique_ptr<const Behaviour> b_ptr,
+        const Parameters& params);
     //
-    void updateResidual(mfem::Vector &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
-    void updateJacobian(mfem::DenseMatrix &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateResidual(mfem::Vector& Fe,
+                        const mfem::FiniteElement& e,
+                        mfem::ElementTransformation& tr,
+                        const mfem::Vector& u) override;
+    void updateJacobian(mfem::DenseMatrix& Je,
+                        const mfem::FiniteElement& e,
+                        mfem::ElementTransformation& tr,
+                        const mfem::Vector& u) override;
     [[nodiscard]] bool requiresCurrentSolutionForResidualAssembly()
         const noexcept override;
     [[nodiscard]] bool requiresCurrentSolutionForJacobianAssembly()
@@ -105,27 +105,27 @@ namespace mfem_mgis {
 
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generatePlaneStrainFaltus2026RegularizedMechanicalBehaviourIntegrators(
-      Context &,
-      const FiniteElementDiscretization &,
-      const size_type,
-      std::unique_ptr<const Behaviour>,
-      const Parameters &) noexcept;
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) noexcept;
 
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generatePlaneStressFaltus2026RegularizedMechanicalBehaviourIntegrators(
-      Context &,
-      const FiniteElementDiscretization &,
-      const size_type,
-      std::unique_ptr<const Behaviour>,
-      const Parameters &) noexcept;
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) noexcept;
 
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generateTridimensionalFaltus2026RegularizedMechanicalBehaviourIntegrators(
-      Context &,
-      const FiniteElementDiscretization &,
-      const size_type,
-      std::unique_ptr<const Behaviour>,
-      const Parameters &) noexcept;
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) noexcept;
 
 }  // end of namespace mfem_mgis
 

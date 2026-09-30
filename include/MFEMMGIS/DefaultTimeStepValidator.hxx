@@ -18,7 +18,7 @@ namespace mfem_mgis {
     DefaultTimeStepValidator() noexcept;
     //
     [[nodiscard]] std::optional<Result> validate(
-        Context &) const noexcept override;
+        Context& ctx) const noexcept override;
     //! \brief destructor
     ~DefaultTimeStepValidator() override;
   };  // end of DefaultTimeStepValidator

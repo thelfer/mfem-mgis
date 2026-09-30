@@ -39,8 +39,8 @@ namespace mfem_mgis {
      * \param[in] b_ptr: behaviour
      */
     StandardBehaviourIntegratorCRTPBase(
-        std::shared_ptr<const PartialQuadratureSpace>,
-        std::unique_ptr<const Behaviour>);
+        std::shared_ptr<const PartialQuadratureSpace> s,
+        std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent
@@ -51,10 +51,10 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
      */
-    bool implementIntegrate(const mfem::FiniteElement &,
-                            mfem::ElementTransformation &,
-                            const mfem::Vector &,
-                            const IntegrationType);
+    bool implementIntegrate(const mfem::FiniteElement& e,
+                            mfem::ElementTransformation& tr,
+                            const mfem::Vector& u,
+                            const IntegrationType it);
     /*!
      * \brief compute the contribution of the element to the residual
      * \param[out] Fe: element stiffness matrix
@@ -71,10 +71,10 @@ namespace mfem_mgis {
      * control where the code associated to the `implementUpdateResidual` is
      * generated.
      */
-    void implementUpdateResidual(mfem::Vector &,
-                                 const mfem::FiniteElement &,
-                                 mfem::ElementTransformation &,
-                                 const mfem::Vector &);
+    void implementUpdateResidual(mfem::Vector& Fe,
+                                 const mfem::FiniteElement& e,
+                                 mfem::ElementTransformation& tr,
+                                 const mfem::Vector& u);
     /*!
      * \brief compute the contribution of the element to the jacobian
      * \param[out] Ke: element stiffness matrix
@@ -86,18 +86,18 @@ namespace mfem_mgis {
      * control where the code associated to the
      * `implementUpdateJacobian` is generated.
      */
-    void implementUpdateJacobian(mfem::DenseMatrix &,
-                                 const mfem::FiniteElement &,
-                                 mfem::ElementTransformation &);
+    void implementUpdateJacobian(mfem::DenseMatrix& Ke,
+                                 const mfem::FiniteElement& e,
+                                 mfem::ElementTransformation& tr);
     /*!
      * \brief compute the contribution of the element to the inner forces
      * \param[out] Fe: element stiffness matrix
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
      */
-    void implementComputeInnerForces(mfem::Vector &,
-                                     const mfem::FiniteElement &,
-                                     mfem::ElementTransformation &);
+    void implementComputeInnerForces(mfem::Vector& Fe,
+                                     const mfem::FiniteElement& e,
+                                     mfem::ElementTransformation& tr);
     //! \brief destructor
     ~StandardBehaviourIntegratorCRTPBase() override;
 

@@ -31,9 +31,9 @@ namespace mfem_mgis {
    * of time step)
    */
   [[nodiscard]] MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeVonMisesEquivalentStress(Context&,
-                                  const Material&,
-                                  const Material::StateSelection);
+  computeVonMisesEquivalentStress(Context& ctx,
+                                  const Material& m,
+                                  const Material::StateSelection s);
   /*!
    * \brief compute the von Mises equivalent stress.
    *
@@ -49,10 +49,10 @@ namespace mfem_mgis {
    * of time step)
    */
   [[nodiscard]] MFEM_MGIS_EXPORT bool computeVonMisesEquivalentStress(
-      Context&,
-      PartialQuadratureFunction&,
-      const Material&,
-      const Material::StateSelection);
+      Context& ctx,
+      PartialQuadratureFunction& seq,
+      const Material& m,
+      const Material::StateSelection s);
 
   /*!
    * \brief compute the eigen values of the stress.
@@ -69,9 +69,9 @@ namespace mfem_mgis {
    * of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeEigenStresses(Context&,
-                       const Material&,
-                       const Material::StateSelection);
+  computeEigenStresses(Context& ctx,
+                       const Material& m,
+                       const Material::StateSelection s);
   /*!
    * \brief compute the eigen values of the stress.
    *
@@ -87,10 +87,10 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state considered (beginnig of time step, end
    * of time step)
    */
-  MFEM_MGIS_EXPORT bool computeEigenStresses(Context&,
-                                             PartialQuadratureFunction&,
-                                             const Material&,
-                                             const Material::StateSelection);
+  MFEM_MGIS_EXPORT bool computeEigenStresses(Context& ctx,
+                                             PartialQuadratureFunction& svp,
+                                             const Material& m,
+                                             const Material::StateSelection s);
 
   /*!
    * \brief compute the first (maximum) eigen value of the stress.
@@ -107,9 +107,9 @@ namespace mfem_mgis {
    * of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeFirstEigenStress(Context&,
-                          const Material&,
-                          const Material::StateSelection);
+  computeFirstEigenStress(Context& ctx,
+                          const Material& m,
+                          const Material::StateSelection s);
   /*!
    * \brief compute the first (maximum) eigen value of the stress.
    *
@@ -124,10 +124,11 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state considered (beginnig of time step, end
    * of time step)
    */
-  MFEM_MGIS_EXPORT bool computeFirstEigenStress(Context&,
-                                                PartialQuadratureFunction&,
-                                                const Material&,
-                                                const Material::StateSelection);
+  MFEM_MGIS_EXPORT bool computeFirstEigenStress(
+      Context& ctx,
+      PartialQuadratureFunction& s1,
+      const Material& m,
+      const Material::StateSelection s);
   /*!
    * \brief compute the stress in the global frame.
    *
@@ -141,9 +142,9 @@ namespace mfem_mgis {
    * of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeStressInGlobalFrame(Context&,
-                             const Material&,
-                             const Material::StateSelection);
+  computeStressInGlobalFrame(Context& ctx,
+                             const Material& m,
+                             const Material::StateSelection s);
   /*!
    * \brief compute the stress in the global frame.
    *
@@ -157,10 +158,10 @@ namespace mfem_mgis {
    * of time step)
    */
   MFEM_MGIS_EXPORT bool computeStressInGlobalFrame(
-      Context&,
-      PartialQuadratureFunction&,
-      const Material&,
-      const Material::StateSelection);
+      Context& ctx,
+      PartialQuadratureFunction& rstress,
+      const Material& m,
+      const Material::StateSelection s);
 
   /*!
    * \brief compute the Cauchy stress in the global frame.
@@ -175,9 +176,9 @@ namespace mfem_mgis {
    * of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeCauchyStressInGlobalFrame(Context&,
-                                   const Material&,
-                                   const Material::StateSelection);
+  computeCauchyStressInGlobalFrame(Context& ctx,
+                                   const Material& m,
+                                   const Material::StateSelection s);
   /*!
    * \brief compute the Cauchy stress in the global frame.
    *
@@ -191,10 +192,10 @@ namespace mfem_mgis {
    * of time step)
    */
   MFEM_MGIS_EXPORT bool computeCauchyStressInGlobalFrame(
-      Context&,
-      PartialQuadratureFunction&,
-      const Material&,
-      const Material::StateSelection);
+      Context& ctx,
+      PartialQuadratureFunction& sig,
+      const Material& m,
+      const Material::StateSelection s);
 
   /*!
    * \brief compute the Cauchy stress.
@@ -209,7 +210,7 @@ namespace mfem_mgis {
    * of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction> computeCauchyStress(
-      Context&, const Material&, const Material::StateSelection);
+      Context& ctx, const Material& m, const Material::StateSelection s);
   /*!
    * \brief compute the Cauchy stress.
    *
@@ -222,10 +223,10 @@ namespace mfem_mgis {
    * \param[in] s: selection of the state considered (beginnig of time step, end
    * of time step)
    */
-  MFEM_MGIS_EXPORT bool computeCauchyStress(Context&,
-                                            PartialQuadratureFunction&,
-                                            const Material&,
-                                            const Material::StateSelection);
+  MFEM_MGIS_EXPORT bool computeCauchyStress(Context& ctx,
+                                            PartialQuadratureFunction& sig,
+                                            const Material& m,
+                                            const Material::StateSelection s);
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 

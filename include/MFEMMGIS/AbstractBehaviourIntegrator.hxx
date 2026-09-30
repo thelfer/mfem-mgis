@@ -40,7 +40,7 @@ namespace mfem_mgis {
      * \brief set the time increment
      * \param[in] dt: time increment
      */
-    virtual void setTimeIncrement(const real) = 0;
+    virtual void setTimeIncrement(const real dt) = 0;
     //! \return the partial quadrature space
     virtual const PartialQuadratureSpace &getPartialQuadratureSpace()
         const noexcept = 0;
@@ -51,8 +51,8 @@ namespace mfem_mgis {
      * \param[in] tr: element transformation
      */
     virtual const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &,
-        const mfem::ElementTransformation &) const = 0;
+        const mfem::FiniteElement &e,
+        const mfem::ElementTransformation &tr) const = 0;
     /*!
      * \brief return the weight of the integration point, taking the
      * modelling hypothesis into account
@@ -60,8 +60,8 @@ namespace mfem_mgis {
      * \param[in] ip: integration point
      */
     virtual real getIntegrationPointWeight(
-        mfem::ElementTransformation &,
-        const mfem::IntegrationPoint &) const = 0;
+        mfem::ElementTransformation &tr,
+        const mfem::IntegrationPoint &ip) const = 0;
     /*!
      * \brief method call at the beginning of each resolution
      *
@@ -69,9 +69,9 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    [[nodiscard]] virtual bool setup(Context &,
-                                     const real,
-                                     const real) noexcept = 0;
+    [[nodiscard]] virtual bool setup(Context &ctx,
+                                     const real t,
+                                     const real dt) noexcept = 0;
     /*!
      * \brief integrate the mechanical behaviour over the time step
      * If successful, the value of the stress, consistent tangent
@@ -82,19 +82,19 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
      */
-    [[nodiscard]] virtual bool integrate(const mfem::FiniteElement &,
-                                         mfem::ElementTransformation &,
-                                         const mfem::Vector &,
-                                         const IntegrationType) = 0;
+    [[nodiscard]] virtual bool integrate(const mfem::FiniteElement &e,
+                                         mfem::ElementTransformation &tr,
+                                         const mfem::Vector &u,
+                                         const IntegrationType it) = 0;
     /*!
      * \brief compute the contribution of the given element to the inner forces
      * \param[out] Fe: inner forces
      * \param[in] e: finite element
      * \param[in] tr: finite element transformation
      */
-    virtual void computeInnerForces(mfem::Vector &,
-                                    const mfem::FiniteElement &,
-                                    mfem::ElementTransformation &) = 0;
+    virtual void computeInnerForces(mfem::Vector &Fe,
+                                    const mfem::FiniteElement &e,
+                                    mfem::ElementTransformation &tr) = 0;
     /*!
      * \brief compute the contribution of the given element to the residual
      * \param[out] Fe: element contribution to the residual
@@ -102,10 +102,10 @@ namespace mfem_mgis {
      * \param[in] tr: finite element transformation
      * \param[in] u: current estimation of the displacement field
      */
-    virtual void updateResidual(mfem::Vector &,
-                                const mfem::FiniteElement &,
-                                mfem::ElementTransformation &,
-                                const mfem::Vector &) = 0;
+    virtual void updateResidual(mfem::Vector &Fe,
+                                const mfem::FiniteElement &e,
+                                mfem::ElementTransformation &tr,
+                                const mfem::Vector &u) = 0;
     /*!
      * \brief compute the contribution of the given element to the jacobian
      * \param[out] Ke: element stiffness matrix
@@ -113,10 +113,10 @@ namespace mfem_mgis {
      * \param[in] tr: finite element transformation
      * \param[in] u: current estimation of the displacement field
      */
-    virtual void updateJacobian(mfem::DenseMatrix &,
-                                const mfem::FiniteElement &,
-                                mfem::ElementTransformation &,
-                                const mfem::Vector &) = 0;
+    virtual void updateJacobian(mfem::DenseMatrix &Ke,
+                                const mfem::FiniteElement &e,
+                                mfem::ElementTransformation &tr,
+                                const mfem::Vector &u) = 0;
     /*!
      * \brief clean-up at the end of a resolution
      *
@@ -125,7 +125,7 @@ namespace mfem_mgis {
      * \note this method is the counterpart of the `setup` method and is meant
      * to release any memory allocated byt this method.
      */
-    [[nodiscard]] virtual bool cleanup(Context &) noexcept = 0;
+    [[nodiscard]] virtual bool cleanup(Context &ctx) noexcept = 0;
     /*!
      * \brief revert the internal state variables.
      *
@@ -154,18 +154,18 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] virtual OptionalReference<Material> getMaterial(
-        Context &) noexcept = 0;
+        Context &ctx) noexcept = 0;
     /*!
      * \return the underlying material
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] virtual OptionalReference<const Material> getMaterial(
-        Context &) const noexcept = 0;
+        Context &ctx) const noexcept = 0;
     /*!
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    virtual void setMacroscopicGradients(std::span<const real>) = 0;
+    virtual void setMacroscopicGradients(std::span<const real> g) = 0;
     /*!
      * \return if the current solution is required for assembling the residual
      * \note this is required when creating a linear operator evaluating the
@@ -189,10 +189,10 @@ namespace mfem_mgis {
      * \param[in] ts: time step stage
      */
     [[nodiscard]] virtual bool setMaterialProperty(
-        Context &,
-        std::string_view,
-        std::shared_ptr<const AbstractQPEvaluator>,
-        const TimeStepStage) noexcept = 0;
+        Context &ctx,
+        std::string_view name,
+        std::shared_ptr<const AbstractQPEvaluator> e,
+        const TimeStepStage ts) noexcept = 0;
     /*!
      * \brief set the value of an external state variable
      *
@@ -202,10 +202,10 @@ namespace mfem_mgis {
      * \param[in] ts: time step stage
      */
     [[nodiscard]] virtual bool setExternalStateVariable(
-        Context &,
-        std::string_view,
-        std::shared_ptr<const AbstractQPEvaluator>,
-        const TimeStepStage) noexcept = 0;
+        Context &ctx,
+        std::string_view name,
+        std::shared_ptr<const AbstractQPEvaluator> e,
+        const TimeStepStage ts) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractBehaviourIntegrator();
   };  // end of struct AbstractBehaviourIntegrator
@@ -215,15 +215,15 @@ namespace mfem_mgis {
    * hypotheses, surface in other bidimensional hypotheses) on which is built
    * the behaviour integrator. \param[in] bi: behaviour integrator
    */
-  MFEM_MGIS_EXPORT real computeMeasure(const AbstractBehaviourIntegrator &);
+  MFEM_MGIS_EXPORT real computeMeasure(const AbstractBehaviourIntegrator &bi);
 
   /*!
    * \return the integral of a partial quadrature function
    * \param[in] f: function
    */
   template <typename ValueType>
-  ValueType computeIntegral(const AbstractBehaviourIntegrator &,
-                            const ImmutablePartialQuadratureFunctionView &);
+  ValueType computeIntegral(const AbstractBehaviourIntegrator &bi,
+                            const ImmutablePartialQuadratureFunctionView &f);
   /*!
    * \return the integral of a partial quadrature function
    * \param[in] bi: behaviour integrator
@@ -231,8 +231,8 @@ namespace mfem_mgis {
    */
   template <>
   MFEM_MGIS_EXPORT real
-  computeIntegral(const AbstractBehaviourIntegrator &,
-                  const ImmutablePartialQuadratureFunctionView &);
+  computeIntegral(const AbstractBehaviourIntegrator &bi,
+                  const ImmutablePartialQuadratureFunctionView &f);
 
 }  // end of namespace mfem_mgis
 

@@ -28,24 +28,26 @@ namespace mfem_mgis {
      * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      */
-    IterativeCouplingScheme(Context &ctx, const MeshDiscretization &);
+    IterativeCouplingScheme(Context &ctx, const MeshDiscretization &m);
     /*!
      * \brief set the maximum number of iterations
      * \param[in] ctx: execution context
      * \param[in] n: maximum number of iterations
      */
-    [[nodiscard]] bool setMaximumNumberOfIterations(Context &,
-                                                    const size_type) noexcept;
+    [[nodiscard]] bool setMaximumNumberOfIterations(Context &ctx,
+                                                    const size_type n) noexcept;
     //
     [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] std::optional<std::string> describe(
-        Context &, const bool, const Parameters &) const noexcept override;
+        Context &ctx,
+        const bool b,
+        const Parameters &parameters) const noexcept override;
     //     [[nodiscard]] bool addConvergenceCriterion(
     //         Context &, std::string_view, const Parameters &) noexcept
     //         override;
     [[nodiscard]] bool addConvergenceCriterion(
-        Context &,
-        std::shared_ptr<AbstractCouplingSchemeConvergenceCriterion>) noexcept
+        Context &ctx,
+        std::shared_ptr<AbstractCouplingSchemeConvergenceCriterion> c) noexcept
         override;
     //     [[nodiscard]] bool declareDependencies(
     //         Context &, DependenciesManager &) const noexcept override;
@@ -57,11 +59,11 @@ namespace mfem_mgis {
     //     [[nodiscard]] bool initializeAfterResourcesAllocation(Context &)
     //     noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept override;
+        Context &ctx, const TimeStep &ts) noexcept override;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &, const TimeStep &) noexcept override;
-    [[nodiscard]] bool update(Context &) noexcept override;
-    [[nodiscard]] bool revert(Context &) noexcept override;
+    computeNextState(Context &ctx, const TimeStep &ts) noexcept override;
+    [[nodiscard]] bool update(Context &ctx) noexcept override;
+    [[nodiscard]] bool revert(Context &ctx) noexcept override;
     //! \brief destructor
     ~IterativeCouplingScheme() noexcept override;
 

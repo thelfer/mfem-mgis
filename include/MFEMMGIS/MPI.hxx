@@ -88,7 +88,7 @@ namespace mfem_mgis {
    * \note if the computations are sequential, no MPI call is made
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool isTrueOnAllProcesses(
-      const MeshDiscretization&, const bool) noexcept;
+      const MeshDiscretization& m, const bool b) noexcept;
 
   /*!
    * \brief a simple reduction for boolean values
@@ -99,8 +99,8 @@ namespace mfem_mgis {
    * \note if the computations are sequential, no MPI call is made
    */
   template <typename T>
-  [[nodiscard]] bool isValidOnAllProcesses(const MeshDiscretization&,
-                                           const T&) noexcept;
+  [[nodiscard]] bool isValidOnAllProcesses(const MeshDiscretization& m,
+                                           const T& v) noexcept;
 
 }  // end of namespace mfem_mgis
 

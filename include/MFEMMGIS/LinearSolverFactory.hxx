@@ -46,7 +46,9 @@ namespace mfem_mgis {
      * \param[in] n: name of the post-processing
      * \param[in] g: generator of the post-processing
      */
-    [[nodiscard]] bool add(Context&, std::string_view, Generator) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           Generator g) noexcept;
     /*!
      * \return the requested post-processing
      * \param[in] ctx: execution context
@@ -54,10 +56,10 @@ namespace mfem_mgis {
      * \param[in] p: problem to be solved
      * \param[in] params: parameters passed to the post-processing
      */
-    LinearSolverHandler generate(Context&,
-                                 std::string_view,
-                                 FiniteElementSpace<true>&,
-                                 const Parameters&) const;
+    LinearSolverHandler generate(Context& ctx,
+                                 std::string_view n,
+                                 FiniteElementSpace<true>& fespace,
+                                 const Parameters& params) const;
 
    private:
     //! \brief default destructor
@@ -84,7 +86,9 @@ namespace mfem_mgis {
      * \param[in] n: name of the post-processing
      * \param[in] g: generator of the post-processing
      */
-    [[nodiscard]] bool add(Context&, std::string_view, Generator) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           Generator g) noexcept;
     /*!
      * \return the requested post-processing
      * \param[in] ctx: execution context
@@ -92,10 +96,10 @@ namespace mfem_mgis {
      * \param[in] p: problem to be solved
      * \param[in] params: parameters passed to the post-processing
      */
-    LinearSolverHandler generate(Context&,
-                                 std::string_view,
-                                 FiniteElementSpace<false>&,
-                                 const Parameters&) const;
+    LinearSolverHandler generate(Context& ctx,
+                                 std::string_view n,
+                                 FiniteElementSpace<false>& fespace,
+                                 const Parameters& params) const;
 
    private:
     //! \brief default destructor

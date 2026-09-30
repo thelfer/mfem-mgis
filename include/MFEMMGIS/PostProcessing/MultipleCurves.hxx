@@ -29,19 +29,21 @@ namespace mfem_mgis {
      * \param[in] ps: physical system
      * \param[in] parameters: parameters
      */
-    MultipleCurves(Context &, PhysicalSystem &, const Parameters &);
+    MultipleCurves(Context &ctx,
+                   PhysicalSystem &ps,
+                   const Parameters &parameters);
     /*!
      * \brief add a new curve
      * \param[in] ctx: execution context
      * \param[in] c: curve
      */
-    [[nodiscard]] bool addCurve(Context &,
-                                std::shared_ptr<const AbstractCurve>);
+    [[nodiscard]] bool addCurve(Context &ctx,
+                                std::shared_ptr<const AbstractCurve> c);
     //
     [[nodiscard]] std::vector<std::string> getDescriptions()
         const noexcept override;
     [[nodiscard]] std::optional<std::vector<real>> getValues(
-        Context &ctx, const TimeStepStage) const noexcept override;
+        Context &ctx, const TimeStepStage ts) const noexcept override;
     //! \brief destructor
     ~MultipleCurves() noexcept override;
 

@@ -44,8 +44,8 @@ namespace mfem_mgis {
      * \param[in] s: stage in the time step
      */
     static std::string getLocationDescription(
-        const std::shared_ptr<const PartialQuadratureSpace>,
-        const TimeStepStage) noexcept;
+        const std::shared_ptr<const PartialQuadratureSpace> qspace,
+        const TimeStepStage s) noexcept;
     //! \brief default constructor
     QPEvaluatorsFactory() noexcept;
     // disabling default constructors and assignement operators
@@ -62,9 +62,9 @@ namespace mfem_mgis {
      * \param[in] n: name of the evaluator
      */
     [[nodiscard]] bool containsGenerator(
-        const std::shared_ptr<const PartialQuadratureSpace>,
-        const TimeStepStage,
-        const std::string &) const noexcept;
+        const std::shared_ptr<const PartialQuadratureSpace> qspace,
+        const TimeStepStage s,
+        const std::string &n) const noexcept;
     //     /*!
     //      * \brief register a new evaluator generator
     //      * \param[in] ctx: execution context.
@@ -215,19 +215,19 @@ namespace mfem_mgis {
      * \return generators associated with the given stage in the time step
      * \param[in] s: stage in the time step
      */
-    GeneratorsContainer &getGeneratorsContainer(const TimeStepStage) noexcept;
+    GeneratorsContainer &getGeneratorsContainer(const TimeStepStage s) noexcept;
     /*!
      * \return fields associated with the given stage in the time step
      * \param[in] s: stage in the time step
      */
     const GeneratorsContainer &getGeneratorsContainer(
-        const TimeStepStage) const noexcept;
+        const TimeStepStage s) const noexcept;
     /*!
      * \return the list of registered generators for the given time step stage
      * \param[in] s: stage in the time step
      */
     [[nodiscard]] std::string getRegisteredGeneratorsList(
-        const TimeStepStage) const noexcept;
+        const TimeStepStage s) const noexcept;
     //     /*!
     //      * \brief check if the dependencies of the given evaluator are met
     //      * \param[in] m: registered generators

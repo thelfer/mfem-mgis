@@ -39,17 +39,18 @@ namespace mfem_mgis {
      * \param[in] h: modelling hypothesis
      */
     MultiMaterialNonLinearIntegrator(
-        std::shared_ptr<const FiniteElementDiscretization>, const Hypothesis);
+        std::shared_ptr<const FiniteElementDiscretization> fed,
+        const Hypothesis h);
     // MFEM API
-    void AssembleElementVector(const mfem::FiniteElement &,
-                               mfem::ElementTransformation &,
-                               const mfem::Vector &,
-                               mfem::Vector &) override;
+    void AssembleElementVector(const mfem::FiniteElement& e,
+                               mfem::ElementTransformation& tr,
+                               const mfem::Vector& U,
+                               mfem::Vector& F) override;
 
-    void AssembleElementGrad(const mfem::FiniteElement &,
-                             mfem::ElementTransformation &,
-                             const mfem::Vector &,
-                             mfem::DenseMatrix &) override;
+    void AssembleElementGrad(const mfem::FiniteElement& e,
+                             mfem::ElementTransformation& tr,
+                             const mfem::Vector& U,
+                             mfem::DenseMatrix& K) override;
     /*!
      * \brief integrate the behaviour for the current estimate of the unknowns
      * at the end of the time step.
@@ -58,17 +59,17 @@ namespace mfem_mgis {
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
      */
-    [[nodiscard]] bool integrate(const mfem::FiniteElement &,
-                                 mfem::ElementTransformation &,
-                                 const mfem::Vector &,
-                                 const IntegrationType);
+    [[nodiscard]] bool integrate(const mfem::FiniteElement& e,
+                                 mfem::ElementTransformation& tr,
+                                 const mfem::Vector& U,
+                                 const IntegrationType it);
     //! \return the current time increment
     [[nodiscard]] real getTimeIncrement() const noexcept;
     /*!
      * \brief set the value of the time increment
      * \param[in] dt: time increment
      */
-    void setTimeIncrement(const real);
+    void setTimeIncrement(const real dt);
     /*!
      * \brief method called before each resolution
      *
@@ -77,7 +78,9 @@ namespace mfem_mgis {
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    [[nodiscard]] bool setup(Context &, const real, const real) noexcept;
+    [[nodiscard]] bool setup(Context& ctx,
+                             const real t,
+                             const real dt) noexcept;
     /*!
      * \brief add a new behaviour integrator
      * \return the behaviour integrator identifier
@@ -89,12 +92,12 @@ namespace mfem_mgis {
      * \param[in] params: additional parameters
      */
     [[nodiscard]] std::optional<size_type> addBehaviourIntegrator(
-        Context &,
-        const std::string &,
-        const size_type,
-        const std::string &,
-        const std::string &,
-        const Parameters & = {}) noexcept;
+        Context& ctx,
+        const std::string& n,
+        const size_type m,
+        const std::string& l,
+        const std::string& b,
+        const Parameters& params = {}) noexcept;
     /*!
      * \return the material with the given id
      * \param[in, out] ctx: execution context
@@ -102,7 +105,7 @@ namespace mfem_mgis {
      * \param[in] b: behaviour id
      */
     [[nodiscard]] OptionalReference<const Material> getMaterial(
-        Context &, const size_type, const size_type) const noexcept;
+        Context& ctx, const size_type m, const size_type b) const noexcept;
     /*!
      * \return the material with the given id
      * \param[in, out] ctx: execution context
@@ -110,7 +113,7 @@ namespace mfem_mgis {
      * \param[in] b: behaviour id
      */
     [[nodiscard]] OptionalReference<Material> getMaterial(
-        Context &, const size_type, const size_type) noexcept;
+        Context& ctx, const size_type m, const size_type b) noexcept;
     /*!
      * \return the number of behaviour integrators associated with the given
      * material id
@@ -119,7 +122,7 @@ namespace mfem_mgis {
      * \param[in] m: material id
      */
     [[nodiscard]] std::optional<size_type> getNumberOfBehaviourIntegrators(
-        Context &, const size_type) const noexcept;
+        Context& ctx, const size_type m) const noexcept;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
@@ -127,9 +130,9 @@ namespace mfem_mgis {
      * \param[in] b: behaviour id
      */
     [[nodiscard]] OptionalReference<const AbstractBehaviourIntegrator>
-    getBehaviourIntegrator(Context &,
-                           const size_type,
-                           const size_type) const noexcept;
+    getBehaviourIntegrator(Context& ctx,
+                           const size_type m,
+                           const size_type b) const noexcept;
     /*!
      * \return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
@@ -137,9 +140,9 @@ namespace mfem_mgis {
      * \param[in] b: behaviour id
      */
     [[nodiscard]] OptionalReference<AbstractBehaviourIntegrator>
-    getBehaviourIntegrator(Context &,
-                           const size_type,
-                           const size_type) noexcept;
+    getBehaviourIntegrator(Context& ctx,
+                           const size_type m,
+                           const size_type b) noexcept;
     /*!
      * \brief revert the internal state variables.
      *
@@ -160,7 +163,7 @@ namespace mfem_mgis {
      * \brief set the macroscropic gradients
      * \param[in] g: macroscopic gradients
      */
-    void setMacroscopicGradients(std::span<const real>);
+    void setMacroscopicGradients(std::span<const real> g);
     /*!
      * \return the list of material identifiers for which a behaviour
      * integrator has been defined.
@@ -175,7 +178,7 @@ namespace mfem_mgis {
      * operators
      */
     [[nodiscard]] LinearizedOperators getLinearizedOperators(
-        const mfem::Vector &);
+        const mfem::Vector& u);
     //! \brief destructor
     ~MultiMaterialNonLinearIntegrator() override;
 

@@ -31,7 +31,7 @@ namespace mfem_mgis {
      * \param[in] m: mesh discretization
      */
     PartialQuadratureSpaceIdentifiersManager(
-        const MeshDiscretization&) noexcept;
+        const MeshDiscretization& m) noexcept;
     //
     PartialQuadratureSpaceIdentifiersManager() = delete;
     PartialQuadratureSpaceIdentifiersManager(
@@ -52,8 +52,8 @@ namespace mfem_mgis {
      * \note This identifier may be used for distinct material identifiers.
      */
     [[nodiscard]] std::optional<size_type> getIdentifier(
-        Context&,
-        const std::shared_ptr<const PartialQuadratureSpace>&) const noexcept;
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& s) const noexcept;
     /*!
      * \brief return if two partial quadrature spaces are equivalent
      *
@@ -64,8 +64,9 @@ namespace mfem_mgis {
      * discretizations, this method returns false
      */
     [[nodiscard]] bool areEquivalent(
-        const std::shared_ptr<const PartialQuadratureSpace>&,
-        const std::shared_ptr<const PartialQuadratureSpace>&) const noexcept;
+        const std::shared_ptr<const PartialQuadratureSpace>& qspace1,
+        const std::shared_ptr<const PartialQuadratureSpace>& qspace2)
+        const noexcept;
     //! \brief destructor
     ~PartialQuadratureSpaceIdentifiersManager() noexcept;
 

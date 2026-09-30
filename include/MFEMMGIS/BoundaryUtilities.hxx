@@ -28,7 +28,8 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   std::vector<std::pair<size_type, size_type>> buildFacesDescription(
-      NonLinearEvolutionProblemImplementation<parallel>&, const size_type);
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const size_type bid);
 
   /*!
    * \brief return a structure which associates the global number of the
@@ -46,7 +47,8 @@ namespace mfem_mgis {
                                                     //  freedoms
                             >>>
   getElementsDegreesOfFreedomOnBoundary(
-      NonLinearEvolutionProblemImplementation<parallel>&, const size_type);
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const size_type bid);
 
 }  // end of namespace mfem_mgis
 

@@ -35,15 +35,15 @@ namespace mfem_mgis {
      * \param[in] manager: finite element spaces manager
      * \param[in] params: parameters
      */
-    PointsSetCurvesWriter(const FiniteElementSpacesManager &,
-                          const Parameters &);
+    PointsSetCurvesWriter(const FiniteElementSpacesManager& manager,
+                          const Parameters& parameters);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
      * \param[in] params: parameters
      */
-    PointsSetCurvesWriter(const FiniteElementDiscretization &,
-                          const Parameters &);
+    PointsSetCurvesWriter(const FiniteElementDiscretization& fed,
+                          const Parameters& parameters);
 #ifdef MFEM_USE_MPI
     /*!
      * \brief add a grid function  (parallel version)
@@ -51,9 +51,9 @@ namespace mfem_mgis {
      * \param[in] n: name of the grid function
      * \param[in] f: grid function
      */
-    [[nodiscard]] bool add(Context &,
-                           std::string_view,
-                           const GridFunction<true> &) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           const GridFunction<true>& f) noexcept;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief add a grid function (sequential version)
@@ -61,21 +61,23 @@ namespace mfem_mgis {
      * \param[in] n: name of the grid function
      * \param[in] f: grid function
      */
-    [[nodiscard]] bool add(Context &,
-                           std::string_view,
-                           const GridFunction<false> &) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           const GridFunction<false>& f) noexcept;
     /*!
      * \brief write the file headers
      * \param[in] ctx: execution context
      */
-    bool writeFileHeader(Context &);
+    bool writeFileHeader(Context& ctx);
     /*!
      * \brief write the file headers
      * \param[in] ctx: execution context
      * \param[in] ts: time step
      * \param[in] tss: time step stage
      */
-    bool writeValues(Context &, const TimeStep &, const TimeStepStage &);
+    bool writeValues(Context& ctx,
+                     const TimeStep& ts,
+                     const TimeStepStage& tss);
 
    private:
     //! \brief underlying finite element space manager

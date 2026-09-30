@@ -33,9 +33,9 @@ namespace mfem_mgis {
      * \param[in] c: component blocked
      */
     ImposedDirichletBoundaryConditionAtClosestNode(
-        std::shared_ptr<FiniteElementDiscretization>,
-        const std::array<real, 2u>,
-        const size_type);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const std::array<real, 2u> pt,
+        const size_type c);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretisation
@@ -44,10 +44,10 @@ namespace mfem_mgis {
      * \param[in] uvalues: function returning the imposed values
      */
     ImposedDirichletBoundaryConditionAtClosestNode(
-        std::shared_ptr<FiniteElementDiscretization>,
-        const std::array<real, 2u>,
-        const size_type,
-        std::function<real(const real)>);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const std::array<real, 2u> pt,
+        const size_type c,
+        std::function<real(const real)> uvalues);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretisation
@@ -55,9 +55,9 @@ namespace mfem_mgis {
      * \param[in] c: component blocked
      */
     ImposedDirichletBoundaryConditionAtClosestNode(
-        std::shared_ptr<FiniteElementDiscretization>,
-        const std::array<real, 3u>,
-        const size_type);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const std::array<real, 3u> pt,
+        const size_type c);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretisation
@@ -66,17 +66,17 @@ namespace mfem_mgis {
      * \param[in] uvalues: function returning the imposed values
      */
     ImposedDirichletBoundaryConditionAtClosestNode(
-        std::shared_ptr<FiniteElementDiscretization>,
-        const std::array<real, 3u>,
-        const size_type,
-        std::function<real(const real)>);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const std::array<real, 3u> pt,
+        const size_type c,
+        std::function<real(const real)> uvalues);
     //
     std::vector<size_type> getHandledDegreesOfFreedom() const override;
-    void updateImposedValues(mfem::Vector&, const real) const override;
-    void setImposedValuesIncrements(mfem::Vector&,
-                                    const real,
-                                    const real,
-                                    const real) const override;
+    void updateImposedValues(mfem::Vector& u, const real t) const override;
+    void setImposedValuesIncrements(mfem::Vector& du,
+                                    const real ti,
+                                    const real te,
+                                    const real f) const override;
     //! \brief destructor
     ~ImposedDirichletBoundaryConditionAtClosestNode() override;
 

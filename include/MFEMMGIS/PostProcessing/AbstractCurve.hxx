@@ -45,7 +45,7 @@ namespace mfem_mgis {
      * \note all MPI processes are synchronized after this call
      */
     [[nodiscard]] virtual std::optional<std::vector<real>> getValues(
-        Context &, const TimeStepStage) const noexcept = 0;
+        Context& ctx, const TimeStepStage ts) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractCurve() noexcept;
   };  // end of AbstractCurve

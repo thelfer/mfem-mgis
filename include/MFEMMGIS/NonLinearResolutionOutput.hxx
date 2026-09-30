@@ -50,7 +50,8 @@ namespace mfem_mgis {
    * \param[in] output: non linear resolution output
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<ComputeNextStateOutput>
-  convertToComputeNextStateOutput(const NonLinearResolutionOutput&) noexcept;
+  convertToComputeNextStateOutput(
+      const NonLinearResolutionOutput& output) noexcept;
 
   [[nodiscard]] inline bool isInvalid(
       const NonLinearResolutionOutput& r) noexcept {

@@ -123,7 +123,7 @@ namespace mfem_mgis {
    * In parallel, this function calls the `MPI_Init` function.
    * It is safe to call this function multiple time.
    */
-  MFEM_MGIS_EXPORT void initialize(int&, MainFunctionArguments&);
+  MFEM_MGIS_EXPORT void initialize(int& argc, MainFunctionArguments& argv);
   /*!
    * \brief function that must be called to end `mfem-mgis`
    * This call is optional if the code exits normally.
@@ -157,7 +157,7 @@ namespace mfem_mgis {
    * \param[in] a: arguments passed to the exception' constructor.
    */
   template <typename Exception = std::runtime_error, typename... Args>
-  [[noreturn]] MFEM_MGIS_VISIBILITY_LOCAL void raise(Args&&...);
+  [[noreturn]] MFEM_MGIS_VISIBILITY_LOCAL void raise(Args&&... a);
   /*!
    * \brief raise an exception if the first argument is `true`.
    * \tparam Exception: type of the exception to be thrown.
@@ -168,28 +168,28 @@ namespace mfem_mgis {
    * \param[in] a: arguments passed to the exception' constructor.
    */
   template <typename Exception = std::runtime_error, typename... Args>
-  MFEM_MGIS_VISIBILITY_LOCAL inline void raise_if(const bool, Args&&...);
+  MFEM_MGIS_VISIBILITY_LOCAL inline void raise_if(const bool b, Args&&... a);
 
   /*!
    * \brief function that must be called if one MPI process detect an fatal
    * error.
    * \param[in] error: exit status
    */
-  MFEM_MGIS_EXPORT [[noreturn]] void abort(const int = EXIT_FAILURE);
+  MFEM_MGIS_EXPORT [[noreturn]] void abort(const int error = EXIT_FAILURE);
   /*!
    * \brief function that must be called if one MPI process detect an fatal
    * error.
    * \param[in] msg: message displayed of the calling process
    * \param[in] error: exit status
    */
-  MFEM_MGIS_EXPORT [[noreturn]] void abort(const char* const,
-                                           const int = EXIT_FAILURE);
+  MFEM_MGIS_EXPORT [[noreturn]] void abort(const char* const msg,
+                                           const int error = EXIT_FAILURE);
   //! \return if the usage of PETSc has been requested by the user.
   MFEM_MGIS_EXPORT bool usePETSc();
   //! \brief activate PETSc with the configuration file givien in parameter.
-  MFEM_MGIS_EXPORT void setPETSc(const char*);
+  MFEM_MGIS_EXPORT void setPETSc(const char* petscrc_file);
   //! \brief declare default options
-  MFEM_MGIS_EXPORT void declareDefaultOptions(mfem::OptionsParser&);
+  MFEM_MGIS_EXPORT void declareDefaultOptions(mfem::OptionsParser& parser);
 
   //! \brief get Output Stream
   MFEM_MGIS_EXPORT std::ostream& getOutputStream();

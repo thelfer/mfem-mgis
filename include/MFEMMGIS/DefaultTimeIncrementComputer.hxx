@@ -18,7 +18,7 @@ namespace mfem_mgis {
     DefaultTimeIncrementComputer() noexcept;
     //
     std::optional<real> getNextTimeIncrement(
-        Context &, const real, const real) const noexcept override;
+        Context& ctx, const real t, const real te) const noexcept override;
     //! \brief destructor
     ~DefaultTimeIncrementComputer() noexcept override;
   };  // end of DefaultTimeIncrementComputer

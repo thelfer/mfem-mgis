@@ -70,7 +70,7 @@ namespace mfem_mgis {
      * \param[in] m: model
      */
     [[nodiscard]] virtual bool addCouplingItem(
-        Context &, std::shared_ptr<AbstractCouplingItem>) noexcept = 0;
+        Context& ctx, std::shared_ptr<AbstractCouplingItem> i) noexcept = 0;
     //     /*!
     //      * \brief add a new model
     //      * \param[in, out] ctx: execution context
@@ -86,23 +86,24 @@ namespace mfem_mgis {
      * \param[in] m: model
      */
     [[nodiscard]] virtual bool addModel(
-        Context &, std::shared_ptr<AbstractModel>) noexcept = 0;
+        Context& ctx, std::shared_ptr<AbstractModel> m) noexcept = 0;
     /*!
      * \brief add a new model
      * \param[in, out] ctx: execution context
      * \param[in] m: model
      */
     [[nodiscard]] virtual bool addModel(
-        Context &, std::shared_ptr<NonLinearEvolutionProblem>) noexcept = 0;
+        Context& ctx,
+        std::shared_ptr<NonLinearEvolutionProblem> m) noexcept = 0;
     /*!
      * \brief add a new convergence criterion
      * \param[in, out] ctx: execution context
      * \param[in] c: convergence criterion
      */
     [[nodiscard]] virtual bool addConvergenceCriterion(
-        Context &,
-        std::shared_ptr<
-            AbstractCouplingSchemeConvergenceCriterion>) noexcept = 0;
+        Context& ctx,
+        std::shared_ptr<AbstractCouplingSchemeConvergenceCriterion>
+            c) noexcept = 0;
     //     /*!
     //      * \brief add a new convergence criterion
     //      * \param[in, out] ctx: execution context

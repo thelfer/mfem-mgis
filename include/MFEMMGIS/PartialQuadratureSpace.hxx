@@ -37,8 +37,8 @@ namespace mfem_mgis {
      * \param[in] id: material identifier
      * \param[in] i: element number
      */
-    [[noreturn]] static void treatInvalidElementIndex(const size_type,
-                                                      const size_type);
+    [[noreturn]] static void treatInvalidElementIndex(const size_type id,
+                                                      const size_type i);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
@@ -46,11 +46,11 @@ namespace mfem_mgis {
      * \param[in] irs: function returning the order of quadrature for the
      * considered finite element.
      */
-    PartialQuadratureSpace(const FiniteElementDiscretization &,
-                           const size_type,
+    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
+                           const size_type m,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &);
+                               const mfem::ElementTransformation &)> &irs);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
@@ -61,11 +61,11 @@ namespace mfem_mgis {
      *
      * If the identifier is on the boundary a new submesh may be created.
      */
-    PartialQuadratureSpace(const FiniteElementDiscretization &,
-                           const LocationIdentifier &,
+    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
+                           const LocationIdentifier &l,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &);
+                               const mfem::ElementTransformation &)> &irs);
 
 #ifdef MFEM_USE_MPI
     /*!
@@ -78,12 +78,12 @@ namespace mfem_mgis {
      *
      * If the identifier is on the boundary a new submesh may be created.
      */
-    PartialQuadratureSpace(const FiniteElementDiscretization &,
-                           const FiniteElementSpace<true> &,
-                           const size_type,
+    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
+                           const FiniteElementSpace<true> &fespace,
+                           const size_type l,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &);
+                               const mfem::ElementTransformation &)> &irs);
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief constructor
@@ -95,12 +95,12 @@ namespace mfem_mgis {
      *
      * If the identifier is on the boundary a new submesh may be created.
      */
-    PartialQuadratureSpace(const FiniteElementDiscretization &,
-                           const FiniteElementSpace<false> &,
-                           const size_type,
+    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
+                           const FiniteElementSpace<false> &fespace,
+                           const size_type l,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &);
+                               const mfem::ElementTransformation &)> &irs);
 
     //
     PartialQuadratureSpace(PartialQuadratureSpace &&) noexcept = default;
@@ -126,7 +126,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     [[nodiscard]] OptionalReference<const Mesh<parallel>> getMesh(
-        Context &) const noexcept;
+        Context &ctx) const noexcept;
     /*!
      * \return the finite element space on which the partial quadratue space is
      * built.
@@ -134,7 +134,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     [[nodiscard]] OptionalReference<const FiniteElementSpace<parallel>>
-    getFiniteElementSpace(Context &) const noexcept;
+    getFiniteElementSpace(Context &ctx) const noexcept;
     /*!
      * \return the integration ruel associated with the given finite element and
      * element transformation
@@ -142,7 +142,8 @@ namespace mfem_mgis {
      * \param[in] tr: element transformation
      */
     [[nodiscard]] const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &, const mfem::ElementTransformation &) const;
+        const mfem::FiniteElement &e,
+        const mfem::ElementTransformation &tr) const;
     /*!
      * \brief return the number of finite element associated with this material
      * identifier
@@ -155,7 +156,8 @@ namespace mfem_mgis {
      * element
      * \param[in] e: index of the finite element
      */
-    [[nodiscard]] size_type getNumberOfQuadraturePoints(const size_type) const;
+    [[nodiscard]] size_type getNumberOfQuadraturePoints(
+        const size_type e) const;
     /*!
      * \brief return the number of quadrature points for the given finite
      * element
@@ -163,7 +165,7 @@ namespace mfem_mgis {
      * \param[in] e: index of the finite element
      */
     [[nodiscard]] std::optional<size_type> getNumberOfQuadraturePoints(
-        Context &, const size_type) const noexcept;
+        Context &ctx, const size_type e) const noexcept;
     /*!
      * \brief return the hash table associating global element numbers and
      * local offsets.
@@ -174,7 +176,7 @@ namespace mfem_mgis {
      * \brief return the offset associated with an element
      * \param[in] i: element number (global numbering)
      */
-    [[nodiscard]] size_type getOffset(const size_type) const;
+    [[nodiscard]] size_type getOffset(const size_type i) const;
     //! \return the material id
     [[nodiscard]] size_type getId() const noexcept;
     //! \brief destructor
@@ -185,31 +187,31 @@ namespace mfem_mgis {
      * \brief internal method shared by constructors
      * \param[in] throwing: attribute
      */
-    void initialize(attributes::Throwing);
+    void initialize(attributes::Throwing throwing);
     /*!
      * \return the underlying mesh
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<const Mesh<true>> getParallelMesh(
-        Context &) const noexcept;
+        Context &ctx) const noexcept;
     /*!
      * \return the underlying mesh
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<const Mesh<false>> getSequentialMesh(
-        Context &) const noexcept;
+        Context &ctx) const noexcept;
     /*!
      * \return the underlying mesh
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<const FiniteElementSpace<true>>
-    getParallelFiniteElementSpace(Context &) const noexcept;
+    getParallelFiniteElementSpace(Context &ctx) const noexcept;
     /*!
      * \return the underlying mesh
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<const FiniteElementSpace<false>>
-    getSequentialFiniteElementSpace(Context &) const noexcept;
+    getSequentialFiniteElementSpace(Context &ctx) const noexcept;
     //! \brief underlying finite element discretization
     const FiniteElementDiscretization &fe_discretization;
 #ifdef MFEM_USE_MPI
@@ -246,7 +248,8 @@ namespace mfem_mgis {
 
   //! \return if two quadrature spaces are equivalent
   MFEM_MGIS_EXPORT [[nodiscard]] bool areEquivalent(
-      const PartialQuadratureSpace &, const PartialQuadratureSpace &) noexcept;
+      const PartialQuadratureSpace &s1,
+      const PartialQuadratureSpace &s2) noexcept;
 
   /*!
    * \brief return the number of integration points
@@ -254,7 +257,7 @@ namespace mfem_mgis {
    * \note this method is equivalent to `getNumberOfIntegrationPoints`
    * \note this is as requirement of mgis::function::SpaceConcept
    */
-  [[nodiscard]] size_type getSpaceSize(const PartialQuadratureSpace &);
+  [[nodiscard]] size_type getSpaceSize(const PartialQuadratureSpace &s);
   /*!
    * \brief return the number of quadrature points
    *
@@ -263,7 +266,7 @@ namespace mfem_mgis {
    * \note this is as
    * requirement of mgis::function::QuadratureSpaceConcept
    */
-  [[nodiscard]] size_type getNumberOfElements(const PartialQuadratureSpace &);
+  [[nodiscard]] size_type getNumberOfElements(const PartialQuadratureSpace &s);
   /*!
    * \brief return the number of finite elements associated identifier
    *
@@ -271,14 +274,14 @@ namespace mfem_mgis {
    * `PartialQuadratureSpace::getNumberOfElements`
    * \note this is as requirement of mgis::function::QuadratureSpaceConcept
    */
-  [[nodiscard]] size_type getNumberOfCells(const PartialQuadratureSpace &);
+  [[nodiscard]] size_type getNumberOfCells(const PartialQuadratureSpace &s);
   /*!
    * \brief return the number of quadrature points for the given finite
    * element
    * \param[in] e: index of the finite element
    */
   [[nodiscard]] size_type getNumberOfQuadraturePoints(
-      const PartialQuadratureSpace &, const size_type);
+      const PartialQuadratureSpace &s, const size_type e);
 
 }  // namespace mfem_mgis
 
@@ -368,7 +371,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT
   [[nodiscard]] std::optional<PartialQuadratureSpaceInformation>
-  getLocalInformation(Context &, const PartialQuadratureSpace &) noexcept;
+  getLocalInformation(Context &ctx, const PartialQuadratureSpace &s) noexcept;
   /*!
    * \return information about the partial quadrature space, gathered from all
    * processes
@@ -378,7 +381,7 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT
   [[nodiscard]] std::optional<PartialQuadratureSpaceInformation> getInformation(
-      Context &, const PartialQuadratureSpace &) noexcept;
+      Context &ctx, const PartialQuadratureSpace &s) noexcept;
   /*!
    * \brief write information, gathered from all processes in parallel, about
    * the partial quadrature space in the output stream
@@ -390,9 +393,9 @@ namespace mfem_mgis {
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] bool
   getInformation<PartialQuadratureSpaceInformation>(
-      Context &,
-      std::ostream &,
-      const PartialQuadratureSpaceInformation &) noexcept;
+      Context &ctx,
+      std::ostream &os,
+      const PartialQuadratureSpaceInformation &info) noexcept;
   /*!
    * \brief write information, gathered from all processes in parallel, about
    * the partial quadrature space in the output stream
@@ -403,7 +406,7 @@ namespace mfem_mgis {
    */
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] bool getInformation<PartialQuadratureSpace>(
-      Context &, std::ostream &, const PartialQuadratureSpace &) noexcept;
+      Context &ctx, std::ostream &os, const PartialQuadratureSpace &s) noexcept;
   /*!
    * \brief synchronize information of all processes
    *
@@ -411,7 +414,7 @@ namespace mfem_mgis {
    * \param[in] info: information to be shared
    */
   std::optional<PartialQuadratureSpaceInformation> synchronize(
-      Context &ctx, const PartialQuadratureSpaceInformation &) noexcept;
+      Context &ctx, const PartialQuadratureSpaceInformation &info) noexcept;
 
 }  // end of  namespace mfem_mgis
 

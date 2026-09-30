@@ -38,9 +38,9 @@ namespace mfem_mgis {
      * \param[in] manager: finite element spaces manager
      * \param[in] params: parameters
      */
-    PointsSetCurvesPostProcessing(PhysicalSystem &,
-                                  const FiniteElementSpacesManager &,
-                                  const Parameters &);
+    PointsSetCurvesPostProcessing(PhysicalSystem& ps,
+                                  const FiniteElementSpacesManager& manager,
+                                  const Parameters& params);
 #ifdef MFEM_USE_MPI
     /*!
      * \brief add a grid function  (parallel version)
@@ -48,9 +48,9 @@ namespace mfem_mgis {
      * \param[in] n: name of the grid function
      * \param[in] f: grid function
      */
-    [[nodiscard]] bool add(Context &,
-                           std::string_view,
-                           const GridFunction<true> &) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           const GridFunction<true>& f) noexcept;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief add a grid function (sequential version)
@@ -58,16 +58,17 @@ namespace mfem_mgis {
      * \param[in] n: name of the grid function
      * \param[in] f: grid function
      */
-    [[nodiscard]] bool add(Context &,
-                           std::string_view,
-                           const GridFunction<false> &) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           const GridFunction<false>& f) noexcept;
     //
     [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] bool executeInitialPostProcessingTasks(
-        Context &, const real) noexcept override;
-    [[nodiscard]] bool executePostProcessingTasks(Context &,
-                                                  const TimeStep &,
-                                                  const bool) noexcept override;
+        Context& ctx, const real t) noexcept override;
+    [[nodiscard]] bool executePostProcessingTasks(
+        Context& ctx,
+        const TimeStep& ts,
+        const bool isPostProcessingRequired) noexcept override;
     // \brief destructor
     ~PointsSetCurvesPostProcessing() noexcept override;
 

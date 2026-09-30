@@ -25,7 +25,7 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] s: partial quadrature space
      */
-    QPEvaluatorBase(std::shared_ptr<const PartialQuadratureSpace>);
+    QPEvaluatorBase(std::shared_ptr<const PartialQuadratureSpace> s);
     //
     [[nodiscard]] const PartialQuadratureSpace& getQuadratureSpace()
         const noexcept override;
@@ -34,8 +34,8 @@ namespace mfem_mgis {
     [[nodiscard]] bool isUniform() const noexcept override;
     [[nodiscard]] std::optional<std::variant<real, std::vector<real>>>
     getUniformValue(Context& ctx,
-                    const real,
-                    const real) const noexcept override;
+                    const real t,
+                    const real dt) const noexcept override;
     //! \brief destructor
     ~QPEvaluatorBase() noexcept override;
 
@@ -53,10 +53,12 @@ namespace mfem_mgis {
     [[nodiscard]] bool isUniform() const noexcept override final;
     [[nodiscard]] std::optional<std::variant<real, std::vector<real>>>
     getUniformValue(Context& ctx,
-                    const real,
-                    const real) const noexcept override final;
+                    const real t,
+                    const real dt) const noexcept override final;
     [[nodiscard]] std::optional<QPEvaluatorResult> evaluate(
-        Context&, const real, const real) const noexcept override final;
+        Context& ctx,
+        const real t,
+        const real dt) const noexcept override final;
     //! \brief destructor
     ~UniformScalarQPEvaluatorBase() noexcept override;
 
@@ -69,7 +71,7 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     [[nodiscard]] virtual std::optional<real> getValue(
-        Context&, const real, const real) const noexcept = 0;
+        Context& ctx, const real t, const real dt) const noexcept = 0;
   };  // end of UniformScalarQPEvaluatorBase
 
 }  // end of namespace mfem_mgis

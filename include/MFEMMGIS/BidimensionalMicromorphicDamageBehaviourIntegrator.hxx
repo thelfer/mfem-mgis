@@ -32,34 +32,34 @@ namespace mfem_mgis {
      * \param[in] b_ptr: behaviour
      */
     BidimensionalMicromorphicDamageBehaviourIntegrator(
-        const FiniteElementDiscretization &,
-        const size_type,
-        std::unique_ptr<const Behaviour>);
+        const FiniteElementDiscretization &fed,
+        const size_type m,
+        std::unique_ptr<const Behaviour> b_ptr);
     //
     const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &,
-        const mfem::ElementTransformation &) const override;
+        const mfem::FiniteElement &e,
+        const mfem::ElementTransformation &tr) const override;
     real getIntegrationPointWeight(
-        mfem::ElementTransformation &,
-        const mfem::IntegrationPoint &) const noexcept override;
-    bool integrate(const mfem::FiniteElement &,
-                   mfem::ElementTransformation &,
-                   const mfem::Vector &,
-                   const IntegrationType) override;
+        mfem::ElementTransformation &tr,
+        const mfem::IntegrationPoint &ip) const noexcept override;
+    bool integrate(const mfem::FiniteElement &e,
+                   mfem::ElementTransformation &tr,
+                   const mfem::Vector &u,
+                   const IntegrationType it) override;
 
-    void updateResidual(mfem::Vector &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateResidual(mfem::Vector &Fe,
+                        const mfem::FiniteElement &e,
+                        mfem::ElementTransformation &tr,
+                        const mfem::Vector &u) override;
 
-    void updateJacobian(mfem::DenseMatrix &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateJacobian(mfem::DenseMatrix &Ke,
+                        const mfem::FiniteElement &e,
+                        mfem::ElementTransformation &tr,
+                        const mfem::Vector &u) override;
 
-    void computeInnerForces(mfem::Vector &,
-                            const mfem::FiniteElement &,
-                            mfem::ElementTransformation &) override;
+    void computeInnerForces(mfem::Vector &Fe,
+                            const mfem::FiniteElement &e,
+                            mfem::ElementTransformation &tr) override;
     //! \brief destructor
     ~BidimensionalMicromorphicDamageBehaviourIntegrator() override;
 
@@ -70,14 +70,14 @@ namespace mfem_mgis {
      * transformation
      */
     static const mfem::IntegrationRule &selectIntegrationRule(
-        const mfem::FiniteElement &, const mfem::ElementTransformation &);
+        const mfem::FiniteElement &e, const mfem::ElementTransformation &t);
     /*!
      * \brief build the quadrature space for the given  * material
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
-        const FiniteElementDiscretization &, const size_type);
+        const FiniteElementDiscretization &fed, const size_type m);
 
 #ifndef MFEM_THREAD_SAFE
     //! \brief vector used to store the value of the shape functions

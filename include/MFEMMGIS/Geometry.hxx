@@ -31,56 +31,57 @@ namespace mfem_mgis {
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<Point<N>> makePoint(
-          Context&, const Parameter&) noexcept;
+          Context& ctx, const Parameter& p) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsSet(
-          Context&, const Parameter&) noexcept;
+          Context& ctx, const Parameter& p) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsOnCurve(
-          Context&, const Parameters&) noexcept;
+          Context& ctx, const Parameters& p) noexcept;
 
   template <unsigned short N>
   requires((N == 2) || (N == 3))  //
-      [[nodiscard]] std::string toString(const Point<N>&) noexcept;
+      [[nodiscard]] std::string toString(const Point<N>& pt) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<Point<N>> makePoint(
-          Context&,
-          const std::map<std::string, Point<N>, std::less<>>&,
-          const Parameter&) noexcept;
+          Context& ctx,
+          const std::map<std::string, Point<N>, std::less<>>& pts,
+          const Parameter& p) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsSet(
-          Context&,
-          const std::map<std::string, std::vector<Point<N>>, std::less<>>&,
-          const std::map<std::string, Point<N>, std::less<>>&,
-          const Parameter&) noexcept;
+          Context& ctx,
+          const std::map<std::string, std::vector<Point<N>>, std::less<>>&
+              pointsSets,
+          const std::map<std::string, Point<N>, std::less<>>& pts,
+          const Parameter& p) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsOnCurve(
-          Context&,
-          const std::map<std::string, Point<N>, std::less<>>&,
-          const Parameters&) noexcept;
+          Context& ctx,
+          const std::map<std::string, Point<N>, std::less<>>& pts,
+          const Parameters& p) noexcept;
 
   /*!
    * \return the curvilinear abscissae along the given points set
    * \param[in] pts: points set
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::vector<real> computeCurvilinearAbscissae(
-      const std::vector<Point<2>>&) noexcept;
+      const std::vector<Point<2>>& pts) noexcept;
   /*!
    * \return the curvilinear abscissae along the given points set
    * \param[in] pts: points set
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::vector<real> computeCurvilinearAbscissae(
-      const std::vector<Point<3>>&) noexcept;
+      const std::vector<Point<3>>& pts) noexcept;
 
   // partial specialisation
   template <>

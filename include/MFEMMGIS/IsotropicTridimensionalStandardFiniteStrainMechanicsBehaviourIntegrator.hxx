@@ -54,50 +54,50 @@ namespace mfem_mgis {
      * \param[in] b_ptr: behaviour
      */
     IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator(
-        const FiniteElementDiscretization &,
-        const size_type,
-        std::unique_ptr<const Behaviour>);
+        const FiniteElementDiscretization &fed,
+        const size_type m,
+        std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \return the rotation matrix associated with the given integration
      * point
      * \param[in] i: integration points
      */
-    inline RotationMatrix getRotationMatrix(const size_type) const;
+    inline RotationMatrix getRotationMatrix(const size_type i) const;
 
-    inline void rotateGradients(std::span<real>, const RotationMatrix &);
+    inline void rotateGradients(std::span<real> g, const RotationMatrix &r);
 
     inline std::span<const real> rotateThermodynamicForces(
-        std::span<const real>, const RotationMatrix &);
+        std::span<const real> s, const RotationMatrix &r);
 
-    inline void rotateTangentOperatorBlocks(std::span<real>,
-                                            const RotationMatrix &);
+    inline void rotateTangentOperatorBlocks(std::span<real> Kip,
+                                            const RotationMatrix &r);
 
     const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &,
-        const mfem::ElementTransformation &) const override;
+        const mfem::FiniteElement &e,
+        const mfem::ElementTransformation &tr) const override;
 
     real getIntegrationPointWeight(
-        mfem::ElementTransformation &,
-        const mfem::IntegrationPoint &) const noexcept override;
+        mfem::ElementTransformation &tr,
+        const mfem::IntegrationPoint &ip) const noexcept override;
 
-    bool integrate(const mfem::FiniteElement &,
-                   mfem::ElementTransformation &,
-                   const mfem::Vector &,
-                   const IntegrationType) override;
+    bool integrate(const mfem::FiniteElement &e,
+                   mfem::ElementTransformation &tr,
+                   const mfem::Vector &u,
+                   const IntegrationType it) override;
 
-    void updateResidual(mfem::Vector &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateResidual(mfem::Vector &Fe,
+                        const mfem::FiniteElement &e,
+                        mfem::ElementTransformation &tr,
+                        const mfem::Vector &u) override;
 
-    void updateJacobian(mfem::DenseMatrix &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateJacobian(mfem::DenseMatrix &Ke,
+                        const mfem::FiniteElement &e,
+                        mfem::ElementTransformation &tr,
+                        const mfem::Vector &u) override;
 
-    void computeInnerForces(mfem::Vector &,
-                            const mfem::FiniteElement &,
-                            mfem::ElementTransformation &) override;
+    void computeInnerForces(mfem::Vector &Fe,
+                            const mfem::FiniteElement &e,
+                            mfem::ElementTransformation &tr) override;
 
     //! \brief destructor
     ~IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator()
@@ -113,14 +113,14 @@ namespace mfem_mgis {
      * transformation
      */
     static const mfem::IntegrationRule &selectIntegrationRule(
-        const mfem::FiniteElement &, const mfem::ElementTransformation &);
+        const mfem::FiniteElement &e, const mfem::ElementTransformation &t);
     /*!
      * \brief build the quadrature space for the given  * material
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
-        const FiniteElementDiscretization &, const size_type);
+        const FiniteElementDiscretization &fed, const size_type m);
 
   };  // end of struct
       // IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator

@@ -46,13 +46,13 @@ namespace mfem_mgis {
      * \param[in] n: name of the external validator
      * \param[in] v: external validator
      */
-    virtual void addValidator(std::string_view,
-                              const ExternalValidator &) noexcept = 0;
+    virtual void addValidator(std::string_view n,
+                              const ExternalValidator& v) noexcept = 0;
     /*!
      * \brief add an external validator
      * \param[in] v: external validator
      */
-    virtual void addValidator(const ExternalValidator &) noexcept = 0;
+    virtual void addValidator(const ExternalValidator& v) noexcept = 0;
     /*!
      * \return a pair on success. The first member states if the time step is
      * valid. The second member is an estimate of a better time step if the time
@@ -61,7 +61,7 @@ namespace mfem_mgis {
      * \param[in] ctx: execution context
      */
     [[nodiscard]] virtual std::optional<Result> validate(
-        Context &) const noexcept = 0;
+        Context& ctx) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractTimeStepValidator();
   };

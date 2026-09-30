@@ -30,27 +30,27 @@ namespace mfem_mgis {
      * \param[in] etype: type of energy post-processed
      */
     EnergyPostProcessingBase(
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const Parameters &,
-        const std::string_view);
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const Parameters& params,
+        const std::string_view etype);
     //
     [[nodiscard]] bool executeInitialPostProcessing(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const real) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const real t) noexcept override;
     [[nodiscard]] bool execute(
-        Context &,
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const real,
-        const real) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const real t,
+        const real dt) noexcept override;
     //! \brief destructor
     ~EnergyPostProcessingBase() override;
 
    protected:
     //!
     [[nodiscard]] virtual std::optional<std::vector<real>> computeEnergies(
-        Context &,
-        const AbstractNonLinearEvolutionProblem &) const noexcept = 0;
+        Context& ctx,
+        const AbstractNonLinearEvolutionProblem& p) const noexcept = 0;
     //! \brief materials
     std::vector<size_type> materials_identifiers;
 
@@ -60,9 +60,9 @@ namespace mfem_mgis {
      * \param[in] f: file name
      * \param[in] etype: type of energy post-processed
      */
-    void openFile(const std::string &, const std::string_view);
+    void openFile(const std::string& f, const std::string_view etype);
     //!
-    void writeResults(const std::vector<real> &);
+    void writeResults(const std::vector<real>& energies);
     //! \brief output file
     std::ofstream out;
   };  // end of struct EnergyPostProcessingBase
@@ -78,15 +78,15 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the post-processing
      */
     StoredEnergyPostProcessing(
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const Parameters &);
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const Parameters& params);
     //! \brief destructor
     ~StoredEnergyPostProcessing() override;
 
    private:
     [[nodiscard]] std::optional<std::vector<real>> computeEnergies(
-        Context &,
-        const AbstractNonLinearEvolutionProblem &) const noexcept override;
+        Context& ctx,
+        const AbstractNonLinearEvolutionProblem& p) const noexcept override;
   };  // end of struct StoredEnergyPostProcessing
 
   /*!
@@ -101,15 +101,15 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the post-processing
      */
     DissipatedEnergyPostProcessing(
-        NonLinearEvolutionProblemImplementation<parallel> &,
-        const Parameters &);
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const Parameters& params);
     //! \brief destructor
     ~DissipatedEnergyPostProcessing() override;
 
    private:
     [[nodiscard]] std::optional<std::vector<real>> computeEnergies(
-        Context &,
-        const AbstractNonLinearEvolutionProblem &) const noexcept override;
+        Context& ctx,
+        const AbstractNonLinearEvolutionProblem& p) const noexcept override;
   };  // end of struct DissipatedEnergyPostProcessing
 
 }  // end of namespace mfem_mgis

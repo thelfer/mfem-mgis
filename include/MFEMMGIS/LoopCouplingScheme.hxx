@@ -26,7 +26,7 @@ namespace mfem_mgis {
      * \param[in,out] ctx: execution context
      * \param[in] m: mesh
      */
-    LoopCouplingScheme(Context &ctx, const MeshDiscretization &);
+    LoopCouplingScheme(Context &ctx, const MeshDiscretization &m);
     /*!
      * \brief constructor
      * \param[in,out] ctx: execution context
@@ -34,29 +34,31 @@ namespace mfem_mgis {
      * \param[in] params: parameters
      */
     LoopCouplingScheme(Context &ctx,
-                       const MeshDiscretization &,
-                       const Parameters &);
+                       const MeshDiscretization &m,
+                       const Parameters &params);
     /*!
      * \brief set the number of iterations
      * \param[in] ctx: execution context
      * \param[in] n: number of iterations
      */
-    [[nodiscard]] bool setNumberOfIterations(Context &,
-                                             const size_type) noexcept;
+    [[nodiscard]] bool setNumberOfIterations(Context &ctx,
+                                             const size_type n) noexcept;
     //
     [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] std::optional<std::string> describe(
-        Context &, const bool, const Parameters &) const noexcept override;
+        Context &ctx,
+        const bool b,
+        const Parameters &parameters) const noexcept override;
     //     [[nodiscard]] bool addConvergenceCriterion(
     //         Context &,
     //         std::string_view,
     //         const Parameters &) noexcept override final;
     [[nodiscard]] bool addConvergenceCriterion(
-        Context &,
-        std::shared_ptr<AbstractCouplingSchemeConvergenceCriterion>) noexcept
+        Context &ctx,
+        std::shared_ptr<AbstractCouplingSchemeConvergenceCriterion> c) noexcept
         override final;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &, const TimeStep &) noexcept override;
+    computeNextState(Context &ctx, const TimeStep &ts) noexcept override;
     //! \brief destructor
     ~LoopCouplingScheme() noexcept override;
 

@@ -69,7 +69,7 @@ namespace mfem_mgis {
     //! \brief standard assignement
     ExitStatus &operator=(const ExitStatus &) noexcept = default;
     //! \brief constructor from an ExitStatus
-    explicit ExitStatus(const bool) noexcept;
+    explicit ExitStatus(const bool s) noexcept;
     //! \brief default comparison operators
     auto operator<=>(ExitStatus const &) const = default;
     /*!
@@ -78,14 +78,14 @@ namespace mfem_mgis {
      *
      * \param[in] s: new status
      */
-    void setStatus(const bool) noexcept;
+    void setStatus(const bool s) noexcept;
     /*!
      * \brief change the current status. This is equivalent to the assignement
      * operator and the `setStatus` method
      *
      * \param[in] s: new status
      */
-    void update(const bool) noexcept;
+    void update(const bool s) noexcept;
     /*!
      * \return if the status is either `success` or `unreliableResults`
      *
@@ -112,10 +112,10 @@ namespace mfem_mgis {
      * \param[in] o: status used to update the current one
      * \return the result of `shallContinue` after the update
      */
-    bool update(const ExitStatus &) noexcept;
+    bool update(const ExitStatus &o) noexcept;
 #ifdef MFEM_USE_MPI
     //! \brief synchronize the object among MPI processes
-    void synchronize(const MPI_Comm) noexcept;
+    void synchronize(const MPI_Comm c) noexcept;
 #endif /* MFEM_USE_MPI */
     //! \brief destructor
     inline ~ExitStatus() noexcept = default;
@@ -160,7 +160,7 @@ namespace mfem_mgis {
    * \param[in] c: MPI communicator
    */
   MFEM_MGIS_EXPORT ExitStatus synchronize(const ExitStatus s,
-                                          const MPI_Comm) noexcept;
+                                          const MPI_Comm c) noexcept;
 
 #endif /* MFEM_USE_MPI */
 

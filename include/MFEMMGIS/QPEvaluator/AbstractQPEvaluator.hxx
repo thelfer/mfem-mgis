@@ -36,10 +36,10 @@ namespace mfem_mgis {
       : ImmutablePartialQuadratureFunctionView {
     //! \brief build from a function
     [[nodiscard]] static QPEvaluatorResult fromFunction(
-        PartialQuadratureFunction&&) noexcept;
+        PartialQuadratureFunction&& v) noexcept;
     //! \brief build from a view
     [[nodiscard]] static QPEvaluatorResult fromView(
-        const ImmutablePartialQuadratureFunctionView&) noexcept;
+        const ImmutablePartialQuadratureFunctionView& v) noexcept;
     //! \brief move constructor
     QPEvaluatorResult(QPEvaluatorResult&&) noexcept;
     //
@@ -77,7 +77,9 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     [[nodiscard]] virtual std::optional<std::variant<real, std::vector<real>>>
-    getUniformValue(Context& ctx, const real, const real) const noexcept = 0;
+    getUniformValue(Context& ctx,
+                    const real t,
+                    const real dt) const noexcept = 0;
     /*!
      * \return the value of the evaluator
      *
@@ -86,7 +88,7 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     [[nodiscard]] virtual std::optional<QPEvaluatorResult> evaluate(
-        Context&, const real, const real) const noexcept = 0;
+        Context& ctx, const real t, const real dt) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractQPEvaluator() noexcept;
   };  // end of AbstractQPEvaluator
@@ -107,12 +109,12 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT
   [[nodiscard]]  //
-  std::optional<QPEvaluatorResult>
-  evaluate(Context&,
-           const AbstractQPEvaluator&,
-           const real,
-           const real,
-           const QPEvaluationOptions& = QPEvaluationOptions{}) noexcept;
+  std::optional<QPEvaluatorResult> evaluate(
+      Context& ctx,
+      const AbstractQPEvaluator& e,
+      const real t,
+      const real dt,
+      const QPEvaluationOptions& opts = QPEvaluationOptions{}) noexcept;
 
 }  // end of namespace mfem_mgis
 

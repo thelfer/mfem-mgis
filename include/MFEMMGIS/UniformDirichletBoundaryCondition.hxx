@@ -29,8 +29,8 @@ namespace mfem_mgis {
      * \param[in] p: non linear evolution problem
      * \param[in] params: parameters defining the boundary condition
      */
-    UniformDirichletBoundaryCondition(AbstractNonLinearEvolutionProblem&,
-                                      const Parameters&);
+    UniformDirichletBoundaryCondition(AbstractNonLinearEvolutionProblem& p,
+                                      const Parameters& params);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretiszation
@@ -41,9 +41,9 @@ namespace mfem_mgis {
      * \note the degree of freedom are set to zero
      */
     UniformDirichletBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization>,
-        const size_type,
-        const size_type);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const size_type bid,
+        const size_type c);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretiszation
@@ -53,10 +53,10 @@ namespace mfem_mgis {
      * \param[in] uvalues: function returning the imposed values
      */
     UniformDirichletBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization>,
-        const size_type,
-        const size_type,
-        std::function<real(const real)>);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const size_type bid,
+        const size_type c,
+        std::function<real(const real)> uvalues);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretiszation
@@ -67,9 +67,9 @@ namespace mfem_mgis {
      * \note the degree of freedom are set to zero
      */
     UniformDirichletBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization>,
-        const std::string_view,
-        const size_type);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const std::string_view bid,
+        const size_type c);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretiszation
@@ -79,16 +79,16 @@ namespace mfem_mgis {
      * \param[in] uvalues: function returning the imposed values
      */
     UniformDirichletBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization>,
-        const std::string_view,
-        const size_type,
-        std::function<real(const real)>);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const std::string_view bid,
+        const size_type c,
+        std::function<real(const real)> uvalues);
     //
-    void updateImposedValues(mfem::Vector&, const real) const override;
-    void setImposedValuesIncrements(mfem::Vector&,
-                                    const real,
-                                    const real,
-                                    const real) const override;
+    void updateImposedValues(mfem::Vector& u, const real t) const override;
+    void setImposedValuesIncrements(mfem::Vector& du,
+                                    const real ti,
+                                    const real te,
+                                    const real f) const override;
     //! \brief destructor
     ~UniformDirichletBoundaryCondition() override;
 

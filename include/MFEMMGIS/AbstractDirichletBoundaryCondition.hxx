@@ -31,7 +31,7 @@ namespace mfem_mgis {
      * \param[in] u: unknown vector
      * \param[in] t: time at the end of the time step
      */
-    virtual void updateImposedValues(mfem::Vector&, const real) const = 0;
+    virtual void updateImposedValues(mfem::Vector& u, const real t) const = 0;
     /*!
      * \brief update the values of the imposed degrees of freedom
      * \param[in] du: unknown vector
@@ -39,10 +39,10 @@ namespace mfem_mgis {
      * \param[in] te: time at the end of the time step
      * \param[in] f: multiplicative factor
      */
-    virtual void setImposedValuesIncrements(mfem::Vector&,
-                                            const real,
-                                            const real,
-                                            const real) const = 0;
+    virtual void setImposedValuesIncrements(mfem::Vector& du,
+                                            const real ti,
+                                            const real te,
+                                            const real f) const = 0;
     //! \brief destructor
     virtual ~AbstractDirichletBoundaryCondition();
   };  // end of struct AbstractDirichletBoundaryCondition

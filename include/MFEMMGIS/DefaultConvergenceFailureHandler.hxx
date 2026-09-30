@@ -19,7 +19,7 @@ namespace mfem_mgis {
     DefaultConvergenceFailureHandler() noexcept;
     //
     [[nodiscard]] std::optional<real> getNewTimeIncrement(
-        Context &, const real) const noexcept override;
+        Context& ctx, const real dt) const noexcept override;
     //! \brief destructor
     ~DefaultConvergenceFailureHandler() override;
   };  // end of DefaultConvergenceFailureHandler

@@ -42,10 +42,10 @@ namespace mfem_mgis {
      * \param[in] manager: finite element spaces manager
      * \param[in] params: parameters
      */
-    GridFunctionValuesCurve(Context &,
-                            PhysicalSystem &,
-                            const FiniteElementSpacesManager &,
-                            const Parameters &);
+    GridFunctionValuesCurve(Context &ctx,
+                            PhysicalSystem &ps,
+                            const FiniteElementSpacesManager &manager,
+                            const Parameters &parameters);
     /*!
      * \brief set the grid function to be interpolated (parallel case)
      * \param[in] ctx: execution context
@@ -53,7 +53,7 @@ namespace mfem_mgis {
      * \param[in] fct: grid function
      */
     [[nodiscard]] virtual bool setGridRunction(
-        Context &, std::string_view, const GridFunction<true> &) noexcept;
+        Context &ctx, std::string_view n, const GridFunction<true> &f) noexcept;
     /*!
      * \brief set the grid function to be interpolated (sequential case)
      * \param[in] ctx: execution context
@@ -61,18 +61,21 @@ namespace mfem_mgis {
      * \param[in] fct: grid function
      */
     [[nodiscard]] virtual bool setGridRunction(
-        Context &, std::string_view, const GridFunction<false> &) noexcept;
+        Context &ctx,
+        std::string_view n,
+        const GridFunction<false> &f) noexcept;
     /*!
      * \brief add points ont which the grid function is to be interpolated
      * \param[in] ctx: execution context
      * \param[in] parameter: parameter defining the set of points
      */
-    [[nodiscard]] virtual bool addPoints(Context &, const Parameter &) noexcept;
+    [[nodiscard]] virtual bool addPoints(Context &ctx,
+                                         const Parameter &parameter) noexcept;
     //
     [[nodiscard]] std::vector<std::string> getDescriptions()
         const noexcept override;
     [[nodiscard]] std::optional<std::vector<real>> getValues(
-        Context &ctx, const TimeStepStage) const noexcept override;
+        Context &ctx, const TimeStepStage ts) const noexcept override;
     //! \brief destructor
     ~GridFunctionValuesCurve() noexcept override;
 

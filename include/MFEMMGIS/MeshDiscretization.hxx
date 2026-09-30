@@ -49,7 +49,10 @@ namespace mfem_mgis {
       std::vector<size_type> attributes;
     };
     //! \brief location on which submeshes can be defined
-    enum struct Location { ON_MATERIALS, ON_BOUNDARIES };
+    enum struct Location {
+      ON_MATERIALS,
+      ON_BOUNDARIES
+    };
     /*!
      * \brief an helper structure used to distinguish the identifiers of a
      * single material (associated with a unique attribute) and indentifiers of
@@ -132,17 +135,17 @@ namespace mfem_mgis {
      * - `GeneralVerbosityLevel` (int): with large positive numbers, expect more
      * verbosity
      */
-    MeshDiscretization(mgis::Context&, const Parameters&);
+    MeshDiscretization(mgis::Context& ctx, const Parameters& params);
     /*!
      * \brief constructor
      * \param[in] m: mesh
      */
-    MeshDiscretization(std::shared_ptr<Mesh<true>>);
+    MeshDiscretization(std::shared_ptr<Mesh<true>> m);
     /*!
      * \brief constructor
      * \param[in] m: mesh
      */
-    MeshDiscretization(std::shared_ptr<Mesh<false>>);
+    MeshDiscretization(std::shared_ptr<Mesh<false>> m);
     //! \brief move constructor
     MeshDiscretization(MeshDiscretization&&) noexcept;
     //! \brief copy constructor
@@ -151,12 +154,12 @@ namespace mfem_mgis {
      * \return if the given mesh is managed by this mesh discretization
      * \param[in] m: parallel mesh
      */
-    bool manages(const Mesh<true>&) const noexcept;
+    bool manages(const Mesh<true>& m) const noexcept;
     /*!
      * \return if the given mesh is managed by this mesh discretization
      * \param[in] m: sequential mesh
      */
-    bool manages(const Mesh<false>&) const noexcept;
+    bool manages(const Mesh<false>& m) const noexcept;
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * materials of the main mesh.
@@ -166,7 +169,7 @@ namespace mfem_mgis {
      * \note this methods fails if the given mesh is not managed
      */
     [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
-        Context& ctx, const Mesh<true>&) const noexcept;
+        Context& ctx, const Mesh<true>& m) const noexcept;
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * materials of the main mesh.
@@ -176,7 +179,7 @@ namespace mfem_mgis {
      * \note this methods fails if the given mesh is not managed
      */
     [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
-        Context& ctx, const Mesh<false>&) const noexcept;
+        Context& ctx, const Mesh<false>& m) const noexcept;
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * boundaries of the main mesh.
@@ -186,7 +189,7 @@ namespace mfem_mgis {
      * \note this methods fails if the given mesh is not managed
      */
     [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
-        Context& ctx, const Mesh<true>&) const noexcept;
+        Context& ctx, const Mesh<true>& m) const noexcept;
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * boundaries of the main mesh.
@@ -196,7 +199,7 @@ namespace mfem_mgis {
      * \note this methods fails if the given mesh is not managed
      */
     [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
-        Context& ctx, const Mesh<false>&) const noexcept;
+        Context& ctx, const Mesh<false>& m) const noexcept;
     /*!
      * \return a pointer to the sub mesh associated with the given ids
      * \tparam parallel: whether to get the parallel sub mesh or not
@@ -210,7 +213,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     std::shared_ptr<SubMesh<parallel>> getMutableSubMeshPointer(
-        Context&, const Parameter&, const Location) const noexcept;
+        Context& ctx, const Parameter& p, const Location l) const noexcept;
     /*!
      * \return a pointer to the sub mesh associated with the given ids
      * \tparam parallel: whether to get the parallel sub mesh or not
@@ -224,7 +227,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     std::shared_ptr<SubMesh<parallel>> getSubMeshPointer(
-        Context&, const Parameter&, const Location) noexcept;
+        Context& ctx, const Parameter& p, const Location l) noexcept;
     /*!
      * \return a pointer to the sub mesh associated with the given ids
      * \tparam parallel: whether to get the parallel sub mesh or not
@@ -238,7 +241,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     std::shared_ptr<const SubMesh<parallel>> getSubMeshPointer(
-        Context&, const Parameter&, const Location) const noexcept;
+        Context& ctx, const Parameter& p, const Location l) const noexcept;
     /*!
      * \return the sub mesh associated with the given ids
      * \tparam parallel: whether to get the parallel sub mesh or not
@@ -252,7 +255,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     OptionalReference<SubMesh<parallel>> getMutableSubMeshReference(
-        Context&, const Parameter&, const Location) const noexcept;
+        Context& ctx, const Parameter& p, const Location l) const noexcept;
     /*!
      * \return the sub mesh associated with the given ids
      * \tparam parallel: whether to get the parallel sub mesh or not
@@ -265,9 +268,9 @@ namespace mfem_mgis {
      * parameters which are either string or integers.
      */
     template <bool parallel>
-    OptionalReference<SubMesh<parallel>> getSubMesh(Context&,
-                                                    const Parameter&,
-                                                    const Location) noexcept;
+    OptionalReference<SubMesh<parallel>> getSubMesh(Context& ctx,
+                                                    const Parameter& p,
+                                                    const Location l) noexcept;
     /*!
      * \return the sub mesh associated with the given ids
      * \tparam parallel: whether to get the parallel sub mesh or not
@@ -281,7 +284,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     OptionalReference<const SubMesh<parallel>> getSubMesh(
-        Context&, const Parameter&, const Location) const noexcept;
+        Context& ctx, const Parameter& p, const Location l) const noexcept;
     /*!
      * \return the shared pointer associated with the given mesh, if managed by
      * this mesh discretization
@@ -290,7 +293,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     std::shared_ptr<Mesh<parallel>> getMutableMeshPointer(
-        Context&, const Mesh<parallel>&) const noexcept;
+        Context& ctx, const Mesh<parallel>& m) const noexcept;
     /*!
      * \return the shared pointer associated with the given mesh, if managed by
      * this mesh discretization
@@ -299,7 +302,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     std::shared_ptr<Mesh<parallel>> getMeshPointer(
-        Context&, const Mesh<parallel>&) noexcept;
+        Context& ctx, const Mesh<parallel>& m) noexcept;
     /*!
      * \return the shared pointer associated with the given mesh, if managed by
      * this mesh discretization
@@ -308,7 +311,7 @@ namespace mfem_mgis {
      */
     template <bool parallel>
     std::shared_ptr<const Mesh<parallel>> getMeshPointer(
-        Context&, const Mesh<parallel>&) const noexcept;
+        Context& ctx, const Mesh<parallel>& m) const noexcept;
 #ifdef MFEM_USE_MPI
     /*!
      * \return the location identifier in the main mesh
@@ -325,7 +328,7 @@ namespace mfem_mgis {
      * such ambiguity.
      */
     [[nodiscard]] std::optional<LocationIdentifier> getLocationIdentifier(
-        Context&, const Mesh<true>&, const size_type) const noexcept;
+        Context& ctx, const Mesh<true>& m, const size_type id) const noexcept;
 #endif /* MFEM_USE_MPI */
     /*!
      * \return the location identifier in the main mesh
@@ -342,21 +345,21 @@ namespace mfem_mgis {
      * such ambiguity.
      */
     [[nodiscard]] std::optional<LocationIdentifier> getLocationIdentifier(
-        Context&, const Mesh<false>&, const size_type) const noexcept;
+        Context& ctx, const Mesh<false>& m, const size_type id) const noexcept;
     /*!
      * \brief set material names
      * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
      */
     [[nodiscard]] bool setMaterialsNames(
-        Context&, const std::map<size_type, std::string>&) noexcept;
+        Context& ctx, const std::map<size_type, std::string>& ids) noexcept;
     /*!
      * \brief set material names
      * \param[in, out] ctx: execution context
      * \param[in] ids: mapping between mesh identifiers and names
      */
     [[nodiscard]] bool setBoundariesNames(
-        Context&, const std::map<size_type, std::string>&) noexcept;
+        Context& ctx, const std::map<size_type, std::string>& ids) noexcept;
     /*!
      * \return the name associated with the given identifier, if it is
      * defined. If the identifier exists but has no name, an empty string is
@@ -367,7 +370,7 @@ namespace mfem_mgis {
      * in the mesh
      */
     [[nodiscard]] std::optional<std::string> getLocationName(
-        Context&, const LocationIdentifier&) const noexcept;
+        Context& ctx, const LocationIdentifier& id) const noexcept;
     /*!
      * \return the material name associated with the given identifier, if it is
      * defined. If the identifier exists but has no name, an empty string is
@@ -378,7 +381,7 @@ namespace mfem_mgis {
      * the mesh
      */
     [[nodiscard]] std::optional<std::string> getMaterialName(
-        Context&, const size_type) const noexcept;
+        Context& ctx, const size_type id) const noexcept;
     /*!
      * \return the boundary name associated with the given identifier, if it is
      * defined. If the identifier exists but has no name, an empty string is
@@ -389,19 +392,19 @@ namespace mfem_mgis {
      * the mesh
      */
     [[nodiscard]] std::optional<std::string> getBoundaryName(
-        Context&, const size_type) const noexcept;
+        Context& ctx, const size_type id) const noexcept;
     /*!
      * \return the material identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
-        Context&, const Parameter&) const noexcept;
+        Context& ctx, const Parameter& p) const noexcept;
     /*!
      * \return the boundary identifier by the given parameter.
      * \note The parameter may hold an integer or a string.
      */
     [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
-        Context&, const Parameter&) const noexcept;
+        Context& ctx, const Parameter& p) const noexcept;
     /*!
      * \return the list of materials identifiers described by the given
      * parameter.
@@ -418,7 +421,7 @@ namespace mfem_mgis {
      * of materials by names.
      */
     [[nodiscard]] std::optional<std::vector<size_type>> getMaterialsIdentifiers(
-        Context&, const Parameter&) const noexcept;
+        Context& ctx, const Parameter& p) const noexcept;
     /*!
      * \return the list of boundaries identifiers described by the given
      * parameter.
@@ -435,7 +438,7 @@ namespace mfem_mgis {
      * of boundaries by names.
      */
     [[nodiscard]] std::optional<std::vector<size_type>>
-    getBoundariesIdentifiers(Context&, const Parameter&) const noexcept;
+    getBoundariesIdentifiers(Context& ctx, const Parameter& p) const noexcept;
     /*!
      * \return the mesh
      * \tparam parallel: whether to get the parallel mesh or not
@@ -489,36 +492,36 @@ namespace mfem_mgis {
      * \param[in] n: name of the point
      * \param[in] pt: coordinates of the point
      */
-    [[nodiscard]] bool addPoint(Context&,
-                                std::string_view,
-                                const Point<2>&) noexcept;
+    [[nodiscard]] bool addPoint(Context& ctx,
+                                std::string_view n,
+                                const Point<2>& pt) noexcept;
     /*!
      * \brief add point
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the point
      * \param[in] pt: coordinates of the point
      */
-    [[nodiscard]] bool addPoint(Context&,
-                                std::string_view,
-                                const Point<3>&) noexcept;
+    [[nodiscard]] bool addPoint(Context& ctx,
+                                std::string_view n,
+                                const Point<3>& pt) noexcept;
     /*!
      * \brief add point set
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the point set
      * \param[in] pts: list of points
      */
-    [[nodiscard]] bool addPointsSet(Context&,
-                                    std::string_view,
-                                    const std::vector<Point<2>>&) noexcept;
+    [[nodiscard]] bool addPointsSet(Context& ctx,
+                                    std::string_view n,
+                                    const std::vector<Point<2>>& pts) noexcept;
     /*!
      * \brief add point set
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the point set
      * \param[in] pts: list of points
      */
-    [[nodiscard]] bool addPointsSet(Context&,
-                                    std::string_view,
-                                    const std::vector<Point<3>>&) noexcept;
+    [[nodiscard]] bool addPointsSet(Context& ctx,
+                                    std::string_view n,
+                                    const std::vector<Point<3>>& pts) noexcept;
     /*!
      * \return the point with the given name
      * \tparam N: space dimension (2 or 3)
@@ -528,7 +531,7 @@ namespace mfem_mgis {
     template <size_type N>
     requires((N == 2) || (N == 3))  //
         [[nodiscard]] std::optional<Point<N>> getPoint(
-            Context&, std::string_view) const noexcept;
+            Context& ctx, std::string_view n) const noexcept;
     /*!
      * \return the registered points
      * \tparam N: space dimension (2 or 3)
@@ -538,7 +541,7 @@ namespace mfem_mgis {
     requires((N == 2) || (N == 3))  //
         [[nodiscard]] OptionalReference<
             const std::map<std::string, Point<N>, std::less<>>>  //
-        getPoints(Context&) const noexcept;
+        getPoints(Context& ctx) const noexcept;
     /*!
      * \return the registered points sets
      * \tparam N: space dimension (2 or 3)
@@ -548,7 +551,7 @@ namespace mfem_mgis {
     requires((N == 2) || (N == 3))  //
         [[nodiscard]] OptionalReference<
             const std::map<std::string, std::vector<Point<N>>, std::less<>>>  //
-        getPointsSets(Context&) const noexcept;
+        getPointsSets(Context& ctx) const noexcept;
     /*!
      * \return the points set with the given name
      * \tparam N: space dimension (2 or 3)
@@ -558,7 +561,7 @@ namespace mfem_mgis {
     template <size_type N>
     requires((N == 2) || (N == 3))                                    //
         [[nodiscard]] OptionalReference<const std::vector<Point<N>>>  //
-        getPointsSet(Context&, std::string_view) const noexcept;
+        getPointsSet(Context& ctx, std::string_view n) const noexcept;
 #endif /* MGIS_HAVE_TFEL */
 
     //! \brief destructor
@@ -567,9 +570,9 @@ namespace mfem_mgis {
    protected:
     // friend functions and operators
     friend bool getInformation<MeshDiscretization>(
-        Context&, std::ostream&, const MeshDiscretization&) noexcept;
-    friend bool operator==(const MeshDiscretization&,
-                           const MeshDiscretization&) noexcept;
+        Context& ctx, std::ostream& os, const MeshDiscretization& m) noexcept;
+    friend bool operator==(const MeshDiscretization& lhs,
+                           const MeshDiscretization& rhs) noexcept;
     //! \return a mutable pointer to the underlying parallel mesh
     [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer()
         const noexcept;
@@ -592,9 +595,9 @@ namespace mfem_mgis {
      * \see `MeshDiscretization::getLocationIdentifier` for details
      */
     [[nodiscard]] std::optional<LocationIdentifier>
-    getParallelLocationIdentifier(Context&,
-                                  const Mesh<true>&,
-                                  const size_type) const noexcept;
+    getParallelLocationIdentifier(Context& ctx,
+                                  const Mesh<true>& m,
+                                  const size_type id) const noexcept;
     /*!
      * \return the location identifier in the main mesh
      *
@@ -605,36 +608,36 @@ namespace mfem_mgis {
      * \see `MeshDiscretization::getLocationIdentifier` for details
      */
     [[nodiscard]] std::optional<LocationIdentifier>
-    getSequentialLocationIdentifier(Context&,
-                                    const Mesh<false>&,
-                                    const size_type) const noexcept;
+    getSequentialLocationIdentifier(Context& ctx,
+                                    const Mesh<false>& m,
+                                    const size_type id) const noexcept;
     /*!
      * \return a mutable pointer to the underlying parallel mesh
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] std::shared_ptr<Mesh<true>> getMutableParallelMeshPointer(
-        Context&, const Mesh<true>&) const noexcept;
+        Context& ctx, const Mesh<true>& m) const noexcept;
     /*!
      * \return a mutable pointer to the underlying sequential mesh
      * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      */
     [[nodiscard]] std::shared_ptr<Mesh<false>> getMutableSequentialMeshPointer(
-        Context&, const Mesh<false>&) const noexcept;
+        Context& ctx, const Mesh<false>& m) const noexcept;
     /*!
      * \return a pointer to the underlying parallel mesh
      * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      */
     [[nodiscard]] std::shared_ptr<const Mesh<true>> getParallelMeshPointer(
-        Context&, const Mesh<true>&) const noexcept;
+        Context& ctx, const Mesh<true>& m) const noexcept;
     /*!
      * \return a pointer to the underlying sequential mesh
      * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      */
     [[nodiscard]] std::shared_ptr<const Mesh<false>> getSequentialMeshPointer(
-        Context&, const Mesh<false>&) const noexcept;
+        Context& ctx, const Mesh<false>& m) const noexcept;
     /*!
      * \return the parallel sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
@@ -646,7 +649,7 @@ namespace mfem_mgis {
      * parameters which are either string or integers.
      */
     std::shared_ptr<const SubMesh<true>> getParallelSubMeshPointer(
-        Context&, const Parameter&, const Location) const noexcept;
+        Context& ctx, const Parameter& p, const Location l) const noexcept;
     /*!
      * \return the parallel sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
@@ -658,7 +661,7 @@ namespace mfem_mgis {
      * parameters which are either string or integers.
      */
     std::shared_ptr<SubMesh<true>> getParallelMutableSubMeshPointer(
-        Context&, const Parameter&, const Location) const noexcept;
+        Context& ctx, const Parameter& p, const Location l) const noexcept;
     /*!
      * \return the sequential sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
@@ -670,7 +673,7 @@ namespace mfem_mgis {
      * parameters which are either string or integers.
      */
     std::shared_ptr<const SubMesh<false>> getSequentialSubMeshPointer(
-        Context&, const Parameter&, const Location) const noexcept;
+        Context& ctx, const Parameter& p, const Location l) const noexcept;
     /*!
      * \return the sequential sub mesh associated with the given ids
      * \param[in, out] ctx: execution context
@@ -682,7 +685,7 @@ namespace mfem_mgis {
      * parameters which are either string or integers.
      */
     std::shared_ptr<SubMesh<false>> getSequentialMutableSubMeshPointer(
-        Context&, const Parameter&, const Location) const noexcept;
+        Context& ctx, const Parameter& p, const Location l) const noexcept;
 
 #ifdef MGIS_HAVE_TFEL
     /*!
@@ -691,56 +694,56 @@ namespace mfem_mgis {
      */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, Point<2>, std::less<>>>
-    getPoints2D(Context&) const noexcept;
+    getPoints2D(Context& ctx) const noexcept;
     /*!
      * \return the registred points in 3D
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, Point<3>, std::less<>>>
-    getPoints3D(Context&) const noexcept;
+    getPoints3D(Context& ctx) const noexcept;
     /*!
      * \return the registred points in 2D
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, std::vector<Point<2>>, std::less<>>>
-    getPointsSets2D(Context&) const noexcept;
+    getPointsSets2D(Context& ctx) const noexcept;
     /*!
      * \return the registred points in 3D
      * \param[in, out] ctx: execution context
      */
     [[nodiscard]] OptionalReference<
         const std::map<std::string, std::vector<Point<3>>, std::less<>>>
-    getPointsSets3D(Context&) const noexcept;
+    getPointsSets3D(Context& ctx) const noexcept;
     /*!
      * \return the point with the given name
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the point
      */
     [[nodiscard]] std::optional<Point<2>> getPoint2D(
-        Context&, std::string_view) const noexcept;
+        Context& ctx, std::string_view n) const noexcept;
     /*!
      * \return the point with the given name
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the point
      */
     [[nodiscard]] std::optional<Point<3>> getPoint3D(
-        Context&, std::string_view) const noexcept;
+        Context& ctx, std::string_view n) const noexcept;
     /*!
      * \return the points set with the given name
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the points set
      */
     [[nodiscard]] OptionalReference<const std::vector<Point<2>>> getPointsSet2D(
-        Context&, std::string_view) const noexcept;
+        Context& ctx, std::string_view n) const noexcept;
     /*!
      * \return the point with the given name
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the points set
      */
     [[nodiscard]] OptionalReference<const std::vector<Point<3>>> getPointsSet3D(
-        Context&, std::string_view) const noexcept;
+        Context& ctx, std::string_view n) const noexcept;
 #endif /* MGIS_HAVE_TFEL */
     //! \brief internal structure to implement the pimpl idiom
     struct Implementation;
@@ -778,7 +781,7 @@ namespace mfem_mgis {
    * \param[in] rhs: right hand side
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool operator==(
-      const MeshDiscretization&, const MeshDiscretization&) noexcept;
+      const MeshDiscretization& lhs, const MeshDiscretization& rhs) noexcept;
   /*!
    * \brief compare two mesh discretisations
    *
@@ -789,25 +792,25 @@ namespace mfem_mgis {
    * discretisations.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool operator!=(
-      const MeshDiscretization&, const MeshDiscretization&) noexcept;
+      const MeshDiscretization& lhs, const MeshDiscretization& rhs) noexcept;
   /*!
    * \return the space dimension
    * \param[in] m: mesh discretization
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getSpaceDimension(
-      const MeshDiscretization&) noexcept;
+      const MeshDiscretization& m) noexcept;
   /*!
    * \return the list of materials attributes
    * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
-  getMaterialsAttributes(const MeshDiscretization&) noexcept;
+  getMaterialsAttributes(const MeshDiscretization& m) noexcept;
   /*!
    * \return the list of boundaries attributes
    * \param[in] m: mesh discretisation
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const mfem::Array<size_type>&
-  getBoundariesAttributes(const MeshDiscretization&) noexcept;
+  getBoundariesAttributes(const MeshDiscretization& m) noexcept;
 
   /*!
    * \return the list of materials identifiers described by the given
@@ -828,7 +831,9 @@ namespace mfem_mgis {
    * of materials by names.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
-      attributes::Throwing, const MeshDiscretization&, const Parameter&);
+      attributes::Throwing throwing,
+      const MeshDiscretization& m,
+      const Parameter& p);
   /*!
    * \return the list of boundaries identifiers described by the given
    * parameter.
@@ -848,9 +853,9 @@ namespace mfem_mgis {
    * of boundaries by names.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::vector<size_type>
-  getBoundariesIdentifiers(attributes::Throwing,
-                           const MeshDiscretization&,
-                           const Parameter&);
+  getBoundariesIdentifiers(attributes::Throwing throwing,
+                           const MeshDiscretization& m,
+                           const Parameter& p);
 
   /*!
    * \brief display information about a mesh discretization
@@ -861,7 +866,7 @@ namespace mfem_mgis {
    */
   template <>
   MFEM_MGIS_EXPORT bool getInformation<MeshDiscretization>(
-      Context&, std::ostream&, const MeshDiscretization&) noexcept;
+      Context& ctx, std::ostream& os, const MeshDiscretization& m) noexcept;
 
 #ifdef MFEM_USE_MPI
 
@@ -873,7 +878,7 @@ namespace mfem_mgis {
    * returned.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] MPI_Comm getMPICommunicator(
-      const MeshDiscretization&) noexcept;
+      const MeshDiscretization& m) noexcept;
 
 #endif /* MFEM_USE_MPI */
 
@@ -882,7 +887,7 @@ namespace mfem_mgis {
    * \param[in] m: mesh discretization
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool isMainProcess(
-      const MeshDiscretization&) noexcept;
+      const MeshDiscretization& m) noexcept;
 
   /*!
    * \return if the given location identifier is consistent with the mesh
@@ -898,26 +903,33 @@ namespace mfem_mgis {
    * - if the material identifier (if valid) is not mesh attribute
    * - if the boundary identifier (if valid) is not boundary mesh attribute
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] bool check(Context&,
-                                            const MeshDiscretization&,
-                                            const LocationIdentifier&) noexcept;
+  MFEM_MGIS_EXPORT [[nodiscard]] bool check(
+      Context& ctx,
+      const MeshDiscretization& m,
+      const LocationIdentifier& l) noexcept;
 
 #ifdef MGIS_HAVE_TFEL
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<Point<N>> makePoint(
-          Context&, const MeshDiscretization&, const Parameter&) noexcept;
+          Context& ctx,
+          const MeshDiscretization& m,
+          const Parameter& p) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsSet(
-          Context&, const MeshDiscretization&, const Parameter&) noexcept;
+          Context& ctx,
+          const MeshDiscretization& m,
+          const Parameter& p) noexcept;
 
   template <size_type N>
   requires((N == 2) || (N == 3))  //
       [[nodiscard]] std::optional<std::vector<Point<N>>> makePointsOnCurve(
-          Context&, const MeshDiscretization&, const Parameters&) noexcept;
+          Context& ctx,
+          const MeshDiscretization& m,
+          const Parameters& p) noexcept;
 
   // partial specialisation
   template <>

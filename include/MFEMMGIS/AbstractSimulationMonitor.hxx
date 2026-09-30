@@ -31,9 +31,9 @@ namespace mfem_mgis {
      * \param[in] endOfSimulation: boolean
      * stating if the simulation is over
      */
-    virtual bool execute(Context &,
-                         const SimulationOutput &,
-                         const bool) noexcept = 0;
+    virtual bool execute(Context& ctx,
+                         const SimulationOutput& output,
+                         const bool endOfSimulation) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractSimulationMonitor() noexcept;
   };

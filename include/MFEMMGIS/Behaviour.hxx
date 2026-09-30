@@ -31,10 +31,10 @@ namespace mfem_mgis {
    * \param[in] h: modelling hypothesis
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<Behaviour> load(
-      Context &,
-      const std::string &,
-      const std::string &,
-      const Hypothesis) noexcept;
+      Context& ctx,
+      const std::string& l,
+      const std::string& b,
+      const Hypothesis h) noexcept;
 
 }  // end of namespace mfem_mgis
 

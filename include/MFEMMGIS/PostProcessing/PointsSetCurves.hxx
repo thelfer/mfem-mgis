@@ -38,7 +38,8 @@ namespace mfem_mgis {
      * \param[in] manager: finite element spaces manager
      * \param[in] params: parameters
      */
-    PointsSetCurves(const FiniteElementSpacesManager &, const Parameters &);
+    PointsSetCurves(const FiniteElementSpacesManager& manager,
+                    const Parameters& params);
 #ifdef MFEM_USE_MPI
     /*!
      * \brief add a grid function  (parallel version)
@@ -46,9 +47,9 @@ namespace mfem_mgis {
      * \param[in] n: name of the grid function
      * \param[in] f: grid function
      */
-    [[nodiscard]] bool add(Context &,
-                           std::string_view,
-                           const GridFunction<true> &) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           const GridFunction<true>& f) noexcept;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief add a grid function (sequential version)
@@ -56,27 +57,27 @@ namespace mfem_mgis {
      * \param[in] n: name of the grid function
      * \param[in] f: grid function
      */
-    [[nodiscard]] bool add(Context &,
-                           std::string_view,
-                           const GridFunction<false> &) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           const GridFunction<false>& f) noexcept;
     //! \brief return if the space dimension
     [[nodiscard]] size_type getSpaceDimension() const noexcept;
     //! \brief return if the curvilinear abscissa is calculated
     [[nodiscard]] bool exportCurvilinearAbscissa() const noexcept;
     //! \brief return the curvilinear abscissa
     [[nodiscard]] OptionalReference<const std::vector<real>>
-    getCurvilinearAbscissa(Context &) const noexcept;
+    getCurvilinearAbscissa(Context& ctx) const noexcept;
     //! \brief return if the line curve exports the coordinates
     [[nodiscard]] bool exportCoordinates() const noexcept;
     //! \brief return the coordinates
     [[nodiscard]] std::optional<std::vector<std::vector<real>>> getCoordinates(
-        Context &) const noexcept;
+        Context& ctx) const noexcept;
     //! \brief return the description of the selected evaluators
     [[nodiscard]] std::vector<std::string> getValuesDescription()
         const noexcept;
     //! \brief return the nodal values of the selected evaluators
     [[nodiscard]] std::optional<std::vector<std::vector<real>>> getValues(
-        Context &, const TimeStepStage) const noexcept;
+        Context& ctx, const TimeStepStage ts) const noexcept;
     // \brief destructor
     ~PointsSetCurves() noexcept;
 

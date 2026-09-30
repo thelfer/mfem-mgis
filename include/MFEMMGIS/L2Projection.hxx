@@ -34,8 +34,8 @@ namespace mfem_mgis {
   template <bool parallel>
   [[nodiscard]] std::optional<L2ProjectionResult<parallel>>
   createL2ProjectionResult(
-      Context&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
+      Context& ctx,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) noexcept;
   //
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<L2ProjectionResult<true>>
@@ -55,10 +55,10 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   [[nodiscard]] bool updateL2Projection(
-      Context&,
-      L2ProjectionResult<parallel>&,
-      LinearSolverHandler&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
+      Context& ctx,
+      L2ProjectionResult<parallel>& r,
+      LinearSolverHandler& s,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) noexcept;
   //
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] bool updateL2Projection<true>(
@@ -82,9 +82,9 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   std::optional<L2ProjectionResult<parallel>> computeL2Projection(
-      Context&,
-      LinearSolverHandler&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
+      Context& ctx,
+      LinearSolverHandler& s,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) noexcept;
   //
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<L2ProjectionResult<true>>
@@ -130,11 +130,11 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   [[nodiscard]] bool updateImplicitGradientRegularization(
-      Context&,
-      ImplicitGradientRegularizationResult<parallel>&,
-      LinearSolverHandler&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const real) noexcept;
+      Context& ctx,
+      ImplicitGradientRegularizationResult<parallel>& r,
+      LinearSolverHandler& s,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real l) noexcept;
   //
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] bool
@@ -165,10 +165,10 @@ namespace mfem_mgis {
   template <bool parallel>
   std::optional<ImplicitGradientRegularizationResult<parallel>>
   computeImplicitGradientRegularization(
-      Context&,
-      LinearSolverHandler&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const real) noexcept;
+      Context& ctx,
+      LinearSolverHandler& s,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real l) noexcept;
   //
   template <>
   MFEM_MGIS_EXPORT

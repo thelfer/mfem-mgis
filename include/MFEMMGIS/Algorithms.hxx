@@ -20,16 +20,15 @@ namespace mfem_mgis {
    * \param[in] e: right hand side
    */
   template <size_type N, QPEvaluatorConcept QPEvaluatorType>
-  bool assign(Context&,
-              PartialQuadratureFunction&,
-              QPEvaluatorType) requires(N > 0);
+  bool assign(Context& ctx, PartialQuadratureFunction& lhs, QPEvaluatorType e)
+    requires(N > 0);
   /*!
    * \brief assign the evaluator to a partial quadrature function
    * \param[in] lhs: left hand side
    * \param[in] e: right hand side
    */
   template <QPEvaluatorConcept QPEvaluatorType>
-  bool assign(Context&, PartialQuadratureFunction&, QPEvaluatorType);
+  bool assign(Context& ctx, PartialQuadratureFunction& lhs, QPEvaluatorType e);
 
   /*!
   template <typename ValueType, typename BinaryOperator>

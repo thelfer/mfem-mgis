@@ -28,18 +28,18 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the post-processing
      */
     ParaviewExportResults(mgis::Context& ctx,
-                          NonLinearEvolutionProblemImplementation<parallel>&,
-                          const Parameters&);
+                          NonLinearEvolutionProblemImplementation<parallel>& pb,
+                          const Parameters& params);
     //
     [[nodiscard]] bool executeInitialPostProcessing(
-        mgis::Context&,
-        NonLinearEvolutionProblemImplementation<parallel>&,
-        const real) noexcept override;
+        mgis::Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const real t) noexcept override;
     [[nodiscard]] bool execute(
         mgis::Context& ctx,
-        NonLinearEvolutionProblemImplementation<parallel>&,
-        const real,
-        const real) noexcept override;
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const real t,
+        const real dt) noexcept override;
     //! \brief destructor
     ~ParaviewExportResults() override;
 

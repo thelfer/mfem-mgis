@@ -29,13 +29,13 @@ namespace mfem_mgis {
      * \param[in] r: value
      */
     UniformConstantScalarQPEvaluator(
-        std::shared_ptr<const PartialQuadratureSpace>, const real);
+        std::shared_ptr<const PartialQuadratureSpace> s, const real v);
     //! \brief destructor
     ~UniformConstantScalarQPEvaluator() noexcept override;
 
    protected:
     [[nodiscard]] std::optional<real> getValue(
-        Context&, const real, const real) const noexcept override;
+        Context& ctx, const real t, const real dt) const noexcept override;
 
    private:
     const real value;
@@ -50,9 +50,9 @@ namespace mfem_mgis {
      * \param[in] f: function of time
      * \param[in] ts: time step stage
      */
-    UniformScalarQPEvaluator(std::shared_ptr<const PartialQuadratureSpace>,
-                             std::function<real(const real)>,
-                             const TimeStepStage);
+    UniformScalarQPEvaluator(std::shared_ptr<const PartialQuadratureSpace> s,
+                             std::function<real(const real)> f,
+                             const TimeStepStage ts);
     /*!
      * \brief constructor
      * \param[in] s: partial quadrature space
@@ -60,15 +60,15 @@ namespace mfem_mgis {
      * \param[in] ts: time step stage
      */
     UniformScalarQPEvaluator(
-        std::shared_ptr<const PartialQuadratureSpace>,
-        std::function<std::optional<real>(Context&, const real)>,
-        const TimeStepStage);
+        std::shared_ptr<const PartialQuadratureSpace> s,
+        std::function<std::optional<real>(Context&, const real)> f,
+        const TimeStepStage ts);
     //! \brief destructor
     ~UniformScalarQPEvaluator() noexcept override;
 
    protected:
     [[nodiscard]] std::optional<real> getValue(
-        Context&, const real, const real) const noexcept override;
+        Context& ctx, const real t, const real dt) const noexcept override;
 
    private:
     std::function<std::optional<real>(Context&, const real, const real)> fct;
@@ -90,23 +90,25 @@ namespace mfem_mgis {
      * \param[in] nc: number of components
      * \param[in] f: function
      */
-    StandardQPEvaluator(std::shared_ptr<const PartialQuadratureSpace>,
-                        size_type,
-                        FirstFunctionType);
+    StandardQPEvaluator(std::shared_ptr<const PartialQuadratureSpace> s,
+                        size_type nc,
+                        FirstFunctionType f);
     /*!
      * \brief constructor
      * \param[in] s: partial quadrature space
      * \param[in] nc: number of components
      * \param[in] f: function
      */
-    StandardQPEvaluator(std::shared_ptr<const PartialQuadratureSpace>,
-                        size_type,
-                        SecondFunctionType);
+    StandardQPEvaluator(std::shared_ptr<const PartialQuadratureSpace> s,
+                        size_type nc,
+                        SecondFunctionType f);
     //
     [[nodiscard]] size_type getNumberOfComponents()
         const noexcept override final;
     [[nodiscard]] std::optional<QPEvaluatorResult> evaluate(
-        Context&, const real, const real) const noexcept override final;
+        Context& ctx,
+        const real t,
+        const real dt) const noexcept override final;
     //! \brief destructor
     ~StandardQPEvaluator() noexcept override;
 
@@ -126,11 +128,11 @@ namespace mfem_mgis {
    * \param[in] ts: time step stage
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::shared_ptr<AbstractQPEvaluator>
-  makeGradientEvaluator(Context&,
-                        const Material&,
-                        std::string_view,
-                        const TimeStepStage) noexcept;
+  std::shared_ptr<AbstractQPEvaluator> makeGradientEvaluator(
+      Context& ctx,
+      const Material& m,
+      std::string_view n,
+      const TimeStepStage ts) noexcept;
   /*!
    * \return an evaluator of the thermodynamic force of the given name
    *
@@ -140,11 +142,11 @@ namespace mfem_mgis {
    * \param[in] ts: time step stage
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::shared_ptr<AbstractQPEvaluator>
-  makeThermodynamicForceEvaluator(Context&,
-                                  const Material&,
-                                  std::string_view,
-                                  const TimeStepStage) noexcept;
+  std::shared_ptr<AbstractQPEvaluator> makeThermodynamicForceEvaluator(
+      Context& ctx,
+      const Material& m,
+      std::string_view n,
+      const TimeStepStage ts) noexcept;
   /*!
    * \return an evaluator of the internal state variable of the given name
    *
@@ -154,11 +156,11 @@ namespace mfem_mgis {
    * \param[in] ts: time step stage
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::shared_ptr<AbstractQPEvaluator>
-  makeInternalStateVariableEvaluator(Context&,
-                                     const Material&,
-                                     std::string_view,
-                                     const TimeStepStage) noexcept;
+  std::shared_ptr<AbstractQPEvaluator> makeInternalStateVariableEvaluator(
+      Context& ctx,
+      const Material& m,
+      std::string_view n,
+      const TimeStepStage ts) noexcept;
 
 }  // end of namespace mfem_mgis
 

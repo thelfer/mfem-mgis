@@ -35,8 +35,9 @@ namespace mfem_mgis {
      * \param[in] i: boundary identifier
      */
     ComputeResultantForceOnBoundaryCommon(
-        std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>,
-        const size_type);
+        std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>
+            edofs,
+        const size_type i);
     /*!
      * \brief return a structure which associates the global number of the
      * selected elements to the local indexes of its degrees of freedom sorted
@@ -67,16 +68,17 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the post-processing
      */
     ComputeResultantForceOnBoundary(
-        NonLinearEvolutionProblemImplementation<true>&, const Parameters&);
+        NonLinearEvolutionProblemImplementation<true>& p,
+        const Parameters& params);
     //
     [[nodiscard]] bool executeInitialPostProcessing(
-        Context&,
-        NonLinearEvolutionProblemImplementation<true>&,
-        const real) noexcept override;
-    [[nodiscard]] bool execute(Context&,
-                               NonLinearEvolutionProblemImplementation<true>&,
-                               const real,
-                               const real) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<true>& p,
+        const real t) noexcept override;
+    [[nodiscard]] bool execute(Context& ctx,
+                               NonLinearEvolutionProblemImplementation<true>& p,
+                               const real t,
+                               const real dt) noexcept override;
     //! \brief destructor
     ~ComputeResultantForceOnBoundary() override;
   };  // end of struct ComputeResultantForceOnBoundary
@@ -97,16 +99,18 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the post-processing
      */
     ComputeResultantForceOnBoundary(
-        NonLinearEvolutionProblemImplementation<false>&, const Parameters&);
+        NonLinearEvolutionProblemImplementation<false>& p,
+        const Parameters& params);
     //
     [[nodiscard]] bool executeInitialPostProcessing(
-        Context&,
-        NonLinearEvolutionProblemImplementation<false>&,
-        const real) noexcept override;
-    [[nodiscard]] bool execute(Context&,
-                               NonLinearEvolutionProblemImplementation<false>&,
-                               const real,
-                               const real) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<false>& p,
+        const real t) noexcept override;
+    [[nodiscard]] bool execute(
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<false>& p,
+        const real t,
+        const real dt) noexcept override;
     //! \brief destructor
     ~ComputeResultantForceOnBoundary() override;
   };  // end of struct ComputeResultantForceOnBoundary

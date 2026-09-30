@@ -19,7 +19,11 @@ namespace mfem_mgis {
   template <bool parallel>
   struct NonLinearEvolutionProblemImplementation;
 
-  enum BoundaryConditionType { FIX_XMIN = 0, FIX_YMIN = 1, FIX_ZMIN = 2 };
+  enum BoundaryConditionType {
+    FIX_XMIN = 0,
+    FIX_YMIN = 1,
+    FIX_ZMIN = 2
+  };
 
 #ifdef MFEM_USE_MPI
 
@@ -31,10 +35,10 @@ namespace mfem_mgis {
    * \param[in] corner2: second corner of the computation domain
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
-      mgis::Context&,
-      NonLinearEvolutionProblemImplementation<true>&,
-      const std::span<const real>&,
-      const std::span<const real>&);
+      mgis::Context& ctx,
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const std::span<const real>& corner1,
+      const std::span<const real>& corner2);
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
@@ -44,9 +48,9 @@ namespace mfem_mgis {
    * ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
-      mgis::Context&,
-      NonLinearEvolutionProblemImplementation<true>&,
-      const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
+      mgis::Context& ctx,
+      NonLinearEvolutionProblemImplementation<true>& p,
+      const mfem_mgis::BoundaryConditionType bct = mfem_mgis::FIX_XMIN);
 
 #endif /* MFEM_USE_MPI */
 
@@ -58,10 +62,10 @@ namespace mfem_mgis {
    * \param[in] corner2: second corner of the computation domain
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
-      mgis::Context&,
-      NonLinearEvolutionProblemImplementation<false>&,
-      const std::span<const real>&,
-      const std::span<const real>&);
+      mgis::Context& ctx,
+      NonLinearEvolutionProblemImplementation<false>& p,
+      const std::span<const real>& corner1,
+      const std::span<const real>& corner2);
 
   /*!
    * \brief set the boundary conditions specific to periodic problems
@@ -71,9 +75,9 @@ namespace mfem_mgis {
    * ymin, or zmin
    */
   MFEM_MGIS_EXPORT void setPeriodicBoundaryConditions(
-      mgis::Context&,
-      NonLinearEvolutionProblemImplementation<false>&,
-      const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
+      mgis::Context& ctx,
+      NonLinearEvolutionProblemImplementation<false>& p,
+      const mfem_mgis::BoundaryConditionType bct = mfem_mgis::FIX_XMIN);
 
   /*!
    * \brief compute minimal distance from corners to point
@@ -101,9 +105,9 @@ namespace mfem_mgis {
      */
     PeriodicNonLinearEvolutionProblem(
         mgis::Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization>,
-        const std::span<const real>&,
-        const std::span<const real>&);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const std::span<const real>& corner1,
+        const std::span<const real>& corner2);
 
     /*!
      * \brief constructor with profiling support
@@ -114,8 +118,8 @@ namespace mfem_mgis {
      */
     PeriodicNonLinearEvolutionProblem(
         mgis::Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization>,
-        const mfem_mgis::BoundaryConditionType = mfem_mgis::FIX_XMIN);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const mfem_mgis::BoundaryConditionType bct = mfem_mgis::FIX_XMIN);
     //
     PeriodicNonLinearEvolutionProblem(
         PeriodicNonLinearEvolutionProblem&&) noexcept = default;
@@ -123,32 +127,34 @@ namespace mfem_mgis {
         const PeriodicNonLinearEvolutionProblem&) noexcept = delete;
     // disable adding boundary conditions
     [[nodiscard]] bool addBoundaryCondition(
-        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
+        Context& ctx,
+        std::unique_ptr<AbstractBoundaryCondition> f) noexcept override;
     [[nodiscard]] bool addBoundaryCondition(
-        Context&,
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept override;
+        Context& ctx,
+        std::unique_ptr<AbstractDirichletBoundaryCondition> bc) noexcept
+        override;
     /*!
      * \brief set the evolution of the macroscopic gradients
      * \param[in] e : function
      */
     virtual void setMacroscopicGradientsEvolution(
-        const std::function<std::vector<real>(const real)>&);
+        const std::function<std::vector<real>(const real)>& ev);
     /*!
      * \return the value of the macroscopic gradients at the end of the time
      * step.
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    virtual std::vector<real> getMacroscopicGradients(const real,
-                                                      const real) const;
+    virtual std::vector<real> getMacroscopicGradients(const real t,
+                                                      const real dt) const;
     //! \brief destructor
     ~PeriodicNonLinearEvolutionProblem() override;
 
    protected:
     //
-    [[nodiscard]] bool setup(Context&,
-                             const real,
-                             const real) noexcept override;
+    [[nodiscard]] bool setup(Context& ctx,
+                             const real t,
+                             const real dt) noexcept override;
     //! \brief a function describing the evolution of the macroscopic gradients
     std::function<std::vector<real>(const real)>
         macroscopic_gradients_evolution;

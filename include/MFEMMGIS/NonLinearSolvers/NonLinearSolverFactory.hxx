@@ -32,9 +32,9 @@ namespace mfem_mgis {
      * solver
      */
     [[nodiscard]] virtual std::unique_ptr<AbstractNonLinearSolver> operator()(
-        Context&,
-        NonLinearEvolutionProblemImplementation<true>&,
-        const Parameters&) noexcept = 0;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<true>& p,
+        const Parameters& parameters) noexcept = 0;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief generate a nonlinear solver
@@ -44,9 +44,9 @@ namespace mfem_mgis {
      * solver
      */
     [[nodiscard]] virtual std::unique_ptr<AbstractNonLinearSolver> operator()(
-        Context&,
-        NonLinearEvolutionProblemImplementation<false>&,
-        const Parameters&) noexcept = 0;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<false>& p,
+        const Parameters& parameters) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearSolverGenerator() noexcept;
   };  // end of AbstractNonLinearSolverGenerator
@@ -56,14 +56,14 @@ namespace mfem_mgis {
   struct StandardNonLinearSolverGenerator : AbstractNonLinearSolverGenerator {
 #ifdef MFEM_USE_MPI
     [[nodiscard]] std::unique_ptr<AbstractNonLinearSolver> operator()(
-        Context&,
-        NonLinearEvolutionProblemImplementation<true>&,
-        const Parameters&) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<true>& p,
+        const Parameters& parameters) noexcept override;
 #endif /* MFEM_USE_MPI */
     [[nodiscard]] std::unique_ptr<AbstractNonLinearSolver> operator()(
-        Context&,
-        NonLinearEvolutionProblemImplementation<false>&,
-        const Parameters&) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<false>& p,
+        const Parameters& parameters) noexcept override;
     //! \brief destructor
     ~StandardNonLinearSolverGenerator() noexcept override;
   };  // end of StandardNonLinearSolverGenerator
@@ -84,9 +84,9 @@ namespace mfem_mgis {
      * \param[in] g: generator of the nonlinear solver
      */
     [[nodiscard]] bool add(
-        Context&,
-        std::string_view,
-        std::unique_ptr<AbstractNonLinearSolverGenerator>) noexcept;
+        Context& ctx,
+        std::string_view n,
+        std::unique_ptr<AbstractNonLinearSolverGenerator> g) noexcept;
 #ifdef MFEM_USE_MPI
     /*!
      * \return the requested nonlinear solver
@@ -96,10 +96,10 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the nonlinear solver
      */
     [[nodiscard]] std::unique_ptr<AbstractNonLinearSolver> generate(
-        Context&,
-        std::string_view,
-        NonLinearEvolutionProblemImplementation<true>&,
-        const Parameters&) const noexcept;
+        Context& ctx,
+        std::string_view n,
+        NonLinearEvolutionProblemImplementation<true>& p,
+        const Parameters& parameters) const noexcept;
 #endif /* MFEM_USE_MPI */
     /*!
      * \return the requested nonlinear solver
@@ -109,10 +109,10 @@ namespace mfem_mgis {
      * \param[in] params: parameters passed to the nonlinear solver
      */
     [[nodiscard]] std::unique_ptr<AbstractNonLinearSolver> generate(
-        Context&,
-        std::string_view,
-        NonLinearEvolutionProblemImplementation<false>&,
-        const Parameters&) const noexcept;
+        Context& ctx,
+        std::string_view n,
+        NonLinearEvolutionProblemImplementation<false>& p,
+        const Parameters& parameters) const noexcept;
 
    private:
     //! \brief default destructor

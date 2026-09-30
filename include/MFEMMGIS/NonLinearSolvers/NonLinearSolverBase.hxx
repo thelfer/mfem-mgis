@@ -18,44 +18,44 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT NonLinearSolverBase : public AbstractNonLinearSolver {
 #ifdef MFEM_USE_MPI
     //! \brief default constructor
-    NonLinearSolverBase(NonLinearEvolutionProblemImplementation<true> &);
+    NonLinearSolverBase(NonLinearEvolutionProblemImplementation<true> &p);
 #endif /* MFEM_USE_MPI */
     //! \brief default constructor
-    NonLinearSolverBase(NonLinearEvolutionProblemImplementation<false> &);
+    NonLinearSolverBase(NonLinearEvolutionProblemImplementation<false> &p);
     //
     void addNewUnknownsEstimateActions(
-        std::function<bool(const mfem::Vector &)>) noexcept override final;
+        std::function<bool(const mfem::Vector &)> a) noexcept override final;
     //
     [[nodiscard]] bool setSolverParameters(
-        Context &, const Parameters &) noexcept override;
+        Context &ctx, const Parameters &params) noexcept override;
     [[nodiscard]] bool isLinearSolverFailureDiscarded() const noexcept override;
-    void setLinearSolver(LinearSolver &) noexcept override;
-    [[nodiscard]] bool setReferenceResidualNorm(Context &,
-                                                const real) noexcept override;
+    void setLinearSolver(LinearSolver &s) noexcept override;
+    [[nodiscard]] bool setReferenceResidualNorm(Context &ctx,
+                                                const real v) noexcept override;
     void unsetReferenceResidualNorm() noexcept override;
     [[nodiscard]] real GetInitialNorm() const noexcept override;
-    void setContext(Context &) noexcept override;
+    void setContext(Context &ctx) noexcept override;
     void unsetContext() noexcept override;
     std::vector<Parameter> getIterationsInformation() const noexcept override;
     //! \brief destructor
     ~NonLinearSolverBase() noexcept;
 
    protected:
-    [[noreturn]] void SetPreconditioner(Solver &) override;
-    [[noreturn]] void SetOperator(const mfem::Operator &) override;
+    [[noreturn]] void SetPreconditioner(Solver &s) override;
+    [[noreturn]] void SetOperator(const mfem::Operator &op) override;
     /*!
      * \brief compute the residual
      * \param[in] r: residual
      * \param[in] u: current estimate of the unknowns
      */
-    virtual void computeResidual(mfem::Vector &, const mfem::Vector &) const;
+    virtual void computeResidual(mfem::Vector &r, const mfem::Vector &u) const;
     //! \return the jacobian of the system
-    virtual mfem::Operator &getJacobian(const mfem::Vector &) const;
+    virtual mfem::Operator &getJacobian(const mfem::Vector &u) const;
     /*!
      * \brief method called when a new estimate of the unknowns is available.
      * \param[in] u: new unknown estimate
      */
-    virtual bool processNewUnknownsEstimate(const mfem::Vector &) const;
+    virtual bool processNewUnknownsEstimate(const mfem::Vector &u) const;
     /*!
      * \brief actions performed when a new estimate of the unknowns are
      * available

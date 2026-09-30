@@ -35,7 +35,9 @@ namespace mfem_mgis {
      * \param[in] params: parameters defining the post-processing
      */
     [[nodiscard]] virtual bool addPostProcessing(
-        Context &, std::string_view, const Parameters &) noexcept = 0;
+        Context& ctx,
+        std::string_view n,
+        const Parameters& params) noexcept = 0;
     //! \return the list of available post-processings
     [[nodiscard]] virtual std::vector<std::string> getAvailablePostProcessings()
         const noexcept = 0;

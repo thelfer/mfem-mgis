@@ -31,12 +31,16 @@ namespace mfem_mgis {
      * \param[in] m: partial quadrature space identifiers
      */
     DependenciesManager(
-        const PartialQuadratureSpaceIdentifiersManager &) noexcept;
+        const PartialQuadratureSpaceIdentifiersManager &m) noexcept;
     /*!
      * \brief enumeration of filters usable as argument of the
      * analyseDependencies method
      */
-    enum AnalyseDependenciesFilter { ONLY_REQUIRED, ONLY_OPTIONAL, ALL };
+    enum AnalyseDependenciesFilter {
+      ONLY_REQUIRED,
+      ONLY_OPTIONAL,
+      ALL
+    };
     /*!
      * \brief structure return by the `analyseDependencies` method
      */
@@ -54,17 +58,17 @@ namespace mfem_mgis {
      * \param[in] d: dependency.
      * \param[in] s: stage in the time step
      */
-    static std::string getLocationDescription(const QPDependency &,
-                                              const TimeStepStage) noexcept;
+    static std::string getLocationDescription(const QPDependency &d,
+                                              const TimeStepStage s) noexcept;
     /*!
      * \brief add a new dependency at integration points
      * param[in] ctx: execution context
      * \param[in] s: time step stage
      * \param[in] d: dependency description
      */
-    [[nodiscard]] bool declareDependency(Context &,
-                                         const TimeStepStage,
-                                         const QPDependency &) noexcept;
+    [[nodiscard]] bool declareDependency(Context &ctx,
+                                         const TimeStepStage s,
+                                         const QPDependency &d) noexcept;
     /*!
      * \brief set the provider of the dependency at integration points for the
      * given location with the given name
@@ -80,18 +84,18 @@ namespace mfem_mgis {
      * the dependency does not specify it.
      */
     [[nodiscard]] bool setProvider(
-        Context &,
-        const Provider &,
-        const QPDependency &,
-        std::shared_ptr<const PartialQuadratureSpace>,
-        const size_type,
-        const TimeStepStage) noexcept;
+        Context &ctx,
+        const Provider &pr,
+        const QPDependency &d,
+        std::shared_ptr<const PartialQuadratureSpace> qspace,
+        const size_type nc,
+        const TimeStepStage ts) noexcept;
     /*!
      * \brief analyse dependencies
      * \param[in] f: filter
      */
     [[nodiscard]] DependenciesAnalysisOutput analyseDependencies(
-        const AnalyseDependenciesFilter =
+        const AnalyseDependenciesFilter f =
             AnalyseDependenciesFilter::ONLY_REQUIRED) const noexcept;
     /*!
      * \brief resolve all dependencies
@@ -99,7 +103,7 @@ namespace mfem_mgis {
      * \param[in] f: factory
      */
     [[nodiscard]] bool resolveDependencies(
-        Context &, QPEvaluatorsFactory &) const noexcept;
+        Context &ctx, QPEvaluatorsFactory &f) const noexcept;
 
    private:
     /*!
@@ -110,7 +114,7 @@ namespace mfem_mgis {
      * \param[in] s: time step stage
      */
     std::vector<QPDependency> &getLocalQPDependenciesManager(
-        const size_type, const TimeStepStage) noexcept;
+        const size_type m, const TimeStepStage s) noexcept;
     //! \brief partial quadrature space identifiers
     const PartialQuadratureSpaceIdentifiersManager &qids;
     //! \brief list of registred dependencies at integration points
@@ -124,7 +128,7 @@ namespace mfem_mgis {
    * dependencies analysis
    */
   [[nodiscard]] std::pair<size_type, std::string> getDescription(
-      const DependenciesManager::DependenciesAnalysisOutput &) noexcept;
+      const DependenciesManager::DependenciesAnalysisOutput &a) noexcept;
 
 }  // end of namespace mfem_mgis
 

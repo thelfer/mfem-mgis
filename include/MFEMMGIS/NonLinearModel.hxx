@@ -17,24 +17,25 @@ namespace mfem_mgis {
 
   //! \brief a model based on a nonlinear evolution problem
   struct MFEM_MGIS_EXPORT NonLinearModel : ModelBase {
-    NonLinearModel(Context &, MeshDiscretization &, const Parameters &);
-    NonLinearModel(Context &, std::shared_ptr<NonLinearEvolutionProblem>);
+    NonLinearModel(Context &ctx,
+                   MeshDiscretization &m,
+                   const Parameters &parameters);
+    NonLinearModel(Context &ctx, std::shared_ptr<NonLinearEvolutionProblem> p);
     //
     [[nodiscard]] NonLinearEvolutionProblem &getProblem() noexcept;
     [[nodiscard]] const NonLinearEvolutionProblem &getProblem() const noexcept;
     //
     [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] bool executeInitialPostProcessingTasks(
-        Context &, const real) noexcept override;
+        Context &ctx, const real t) noexcept override;
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept override;
-    [[nodiscard]] bool executePostProcessingTasks(Context &,
-                                                  const TimeStep &,
-                                                  const bool) noexcept override;
+        Context &ctx, const TimeStep &ts) noexcept override;
+    [[nodiscard]] bool executePostProcessingTasks(
+        Context &ctx, const TimeStep &ts, const bool b) noexcept override;
     [[nodiscard]] std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &, const TimeStep &) noexcept override;
-    [[nodiscard]] bool update(Context &) noexcept override;
-    [[nodiscard]] bool revert(Context &) noexcept override;
+    computeNextState(Context &ctx, const TimeStep &ts) noexcept override;
+    [[nodiscard]] bool update(Context &ctx) noexcept override;
+    [[nodiscard]] bool revert(Context &ctx) noexcept override;
     //! \brief destructor
     ~NonLinearModel() noexcept override;
 

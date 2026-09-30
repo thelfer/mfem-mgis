@@ -24,12 +24,12 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT NewtonSolver : public NonLinearSolverBase {
 #ifdef MFEM_USE_MPI
     //! \brief default constructor
-    NewtonSolver(NonLinearEvolutionProblemImplementation<true> &);
+    NewtonSolver(NonLinearEvolutionProblemImplementation<true>& p);
 #endif /* MFEM_USE_MPI */
     //! \brief default constructor
-    NewtonSolver(NonLinearEvolutionProblemImplementation<false> &);
+    NewtonSolver(NonLinearEvolutionProblemImplementation<false>& p);
     //
-    void Mult(const mfem::Vector &, mfem::Vector &) const override;
+    void Mult(const mfem::Vector& b, mfem::Vector& x) const override;
     //! \brief destructor
     ~NewtonSolver() override;
 
@@ -40,9 +40,9 @@ namespace mfem_mgis {
      * \param[in] r: residual
      * \param[in] u: current estimate of the unknowns
      */
-    virtual bool computeNewtonCorrection(mfem::Vector &,
-                                         const mfem::Vector &,
-                                         const mfem::Vector &) const noexcept;
+    virtual bool computeNewtonCorrection(mfem::Vector& c,
+                                         const mfem::Vector& r,
+                                         const mfem::Vector& u) const noexcept;
   };  // end of struct NewtonSolver
 
 }  // end of namespace mfem_mgis

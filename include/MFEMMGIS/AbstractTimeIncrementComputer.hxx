@@ -21,7 +21,7 @@ namespace mfem_mgis {
      * \brief method called before the start of a simulation
      * \param[in] ctx: execution context
      */
-    [[nodiscard]] virtual bool initialize(Context &) noexcept = 0;
+    [[nodiscard]] virtual bool initialize(Context& ctx) noexcept = 0;
     /*!
      * \brief this method is called at the end of a time step,
      * before updating the state of the system.
@@ -31,7 +31,7 @@ namespace mfem_mgis {
      *
      * \param[in] ctx: execution context
      */
-    [[nodiscard]] virtual bool prepareNextTimeStep(Context &) noexcept = 0;
+    [[nodiscard]] virtual bool prepareNextTimeStep(Context& ctx) noexcept = 0;
     /*!
      * \return the next time increment
      * \param[in] ctx: execution context
@@ -39,7 +39,7 @@ namespace mfem_mgis {
      * \param[in] te: end of the temporal sequence
      */
     [[nodiscard]] virtual std::optional<real> getNextTimeIncrement(
-        Context &, const real, const real) const noexcept = 0;
+        Context& ctx, const real t, const real te) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractTimeIncrementComputer();
   };

@@ -41,7 +41,7 @@ namespace mfem_mgis {
      * retrieved from the clock hold by the physical system
      */
     [[nodiscard]] virtual bool executeInitialPostProcessingTasks(
-        Context &, const real) noexcept = 0;
+        Context &ctx, const real t) noexcept = 0;
     /*!
      * \brief execute the post-processing at the end of a time step, after
      * convergence.
@@ -61,7 +61,9 @@ namespace mfem_mgis {
      * post-processing times by default.
      */
     [[nodiscard]] virtual bool executePostProcessingTasks(
-        Context &, const TimeStep &, const bool) noexcept = 0;
+        Context &ctx,
+        const TimeStep &ts,
+        const bool isPostProcessingRequired) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractPostProcessing() noexcept;
   };  // end of  class AbstractPostProcessing

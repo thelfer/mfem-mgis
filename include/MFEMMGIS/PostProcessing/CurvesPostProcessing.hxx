@@ -37,20 +37,24 @@ namespace mfem_mgis {
      * \param[in] ps: physical system
      * \param[in] params: parameters
      */
-    CurvesPostProcessing(Context &, PhysicalSystem &, const Parameters &);
+    CurvesPostProcessing(Context& ctx,
+                         PhysicalSystem& ps,
+                         const Parameters& params);
     //
     [[nodiscard]] std::string getName() const noexcept override;
     [[nodiscard]] bool executeInitialPostProcessingTasks(
-        Context &, const real) noexcept override;
-    [[nodiscard]] bool executePostProcessingTasks(Context &,
-                                                  const TimeStep &,
-                                                  const bool) noexcept override;
+        Context& ctx, const real t) noexcept override;
+    [[nodiscard]] bool executePostProcessingTasks(
+        Context& ctx,
+        const TimeStep& ts,
+        const bool isPostProcessingRequired) noexcept override;
     /*!
      * \brief add a new curve
      * \param[in] ctx: execution context
      * \param[in] c: curve
      */
-    [[nodiscard]] bool add(Context &, std::shared_ptr<AbstractCurve>) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::shared_ptr<AbstractCurve> c) noexcept;
     //     /*!
     //      * \brief add a new curve
     //      * \param[in] ctx: execution context

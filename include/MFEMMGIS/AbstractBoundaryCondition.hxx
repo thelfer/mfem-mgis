@@ -27,7 +27,9 @@ namespace mfem_mgis {
      * step
      */
     [[nodiscard]] virtual bool addNonlinearFormIntegrator(
-        Context&, NonlinearForm<true>&, const mfem::Vector&) noexcept = 0;
+        Context& ctx,
+        NonlinearForm<true>& f,
+        const mfem::Vector& u) noexcept = 0;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief add the nonlinear form integrator describing the
@@ -39,7 +41,9 @@ namespace mfem_mgis {
      * step
      */
     [[nodiscard]] virtual bool addNonlinearFormIntegrator(
-        Context&, NonlinearForm<false>&, const mfem::Vector&) noexcept = 0;
+        Context& ctx,
+        NonlinearForm<false>& f,
+        const mfem::Vector& u) noexcept = 0;
 #ifdef MFEM_USE_MPI
     /*!
      * \brief add the bilinear and linear form integrators
@@ -54,12 +58,12 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     [[nodiscard]] virtual bool addLinearFormIntegrators(
-        Context&,
-        BilinearForm<true>&,
-        LinearForm<true>&,
-        const mfem::Vector&,
-        const real,
-        const real) noexcept = 0;
+        Context& ctx,
+        BilinearForm<true>& a,
+        LinearForm<true>& b,
+        const mfem::Vector& u,
+        const real t,
+        const real dt) noexcept = 0;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief add the linear form integrator describing the
@@ -74,21 +78,21 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     [[nodiscard]] virtual bool addLinearFormIntegrators(
-        Context&,
-        BilinearForm<false>&,
-        LinearForm<false>&,
-        const mfem::Vector&,
-        const real,
-        const real) noexcept = 0;
+        Context& ctx,
+        BilinearForm<false>& a,
+        LinearForm<false>& b,
+        const mfem::Vector& u,
+        const real t,
+        const real dt) noexcept = 0;
     /*!
      * \brief method call at the beginning of each resolution
      * \param[in] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
      */
-    [[nodiscard]] virtual bool setup(Context&,
-                                     const real,
-                                     const real) noexcept = 0;
+    [[nodiscard]] virtual bool setup(Context& ctx,
+                                     const real t,
+                                     const real dt) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractBoundaryCondition();
   };

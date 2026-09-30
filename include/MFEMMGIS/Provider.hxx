@@ -50,10 +50,10 @@ namespace mfem_mgis {
      * \param[in] ts: time step stage
      */
     [[nodiscard]] virtual bool analyseDependency(
-        Context &,
-        DependenciesManager &,
-        const QPDependency &,
-        const TimeStepStage) const noexcept = 0;
+        Context& ctx,
+        DependenciesManager& dm,
+        const QPDependency& d,
+        const TimeStepStage ts) const noexcept = 0;
     /*!
      * \brief resolve the dependency
      *
@@ -71,10 +71,10 @@ namespace mfem_mgis {
      * \param[in] ts: time step stage
      */
     [[nodiscard]] virtual bool resolveDependency(
-        Context &,
-        QPEvaluatorsFactory &,
-        const QPDependency &,
-        const TimeStepStage) const noexcept = 0;
+        Context& ctx,
+        QPEvaluatorsFactory& f,
+        const QPDependency& d,
+        const TimeStepStage ts) const noexcept = 0;
     //! \brief destructor
     virtual ~Provider() noexcept;
 
@@ -86,7 +86,7 @@ namespace mfem_mgis {
      * \param[in] d: dependency
      */
     [[nodiscard]] static bool reportInvalidResolveDependencyCall(
-        Context &, const QPDependency &) noexcept;
+        Context& ctx, const QPDependency& d) noexcept;
   };  // end of Provider
 
 }  // end of namespace mfem_mgis
