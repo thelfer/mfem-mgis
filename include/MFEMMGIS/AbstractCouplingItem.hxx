@@ -89,27 +89,28 @@ namespace mfem_mgis {
         Context& ctx,
         const bool b,
         const Parameters& parameters) const noexcept = 0;
-    //     /*!
-    //      * \brief declare the minimal depencies of the item.
-    //      * \param[in] ctx: execution context
-    //      * \param[in] dm: dependencies manager
+    //     /*
+    //      * \brief declare the minimal dependencies of the item.
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in, out] dm: dependencies manager
+    //      * \return true on success
     //      */
     //     virtual bool declareDependencies(Context &,
     //                                      DependenciesManager &) const
     //                                      noexcept = 0;
-    //     /*!
-    //      * \brief perform initalize tasks before the allocation of the
-    //      resources
-    //      * (indeed this method shall declare all the required resources
-    //      * (formulations, temporary fields) required to perform the
-    //      computations).
-    //      * \param[in] ctx: execution context
-    //      * \param[in] vf: factory of value evaluators
-    //      * \param[in] nf: factory of nodal evaluators
-    //      * \param[in] f: factory of evaluators at integration points
-    //      * \note this method must be called once every dependencies has been
-    //      * resolved. \note this method must be called **before** the
-    //      initialization
+    //     /*
+    //      * \brief perform the initialization tasks before the allocation of
+    //      * the resources. This method shall declare all the resources
+    //      * required by the computations, such as formulations and temporary
+    //      * fields.
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in, out] vf: factory of value evaluators
+    //      * \param[in, out] nf: factory of nodal evaluators
+    //      * \param[in, out] f: factory of evaluators at integration points
+    //      * \return true on success
+    //      * \note this method must be called once all dependencies have been
+    //      * resolved.
+    //      * \note this method must be called **before** the initialization
     //      * of the resources manager of the physical system.
     //      */
     //     virtual bool initializeBeforeResourcesAllocation(

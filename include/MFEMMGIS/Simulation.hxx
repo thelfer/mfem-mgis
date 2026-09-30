@@ -228,12 +228,13 @@ namespace mfem_mgis {
     [[nodiscard]] bool addTimeIncrementComputer(
         Context &ctx,
         const std::shared_ptr<AbstractTimeIncrementComputer> &m) noexcept;
-    //   /*!
+    //   /*
     //    * \brief add a new time increment computer
-    //    * \param[in] ctx: execution context
+    //    * \param[in, out] ctx: execution context
     //    * \param[in] n: name
     //    * \param[in] params: parameters passed to the time increment
-    //    computer
+    //    * computer
+    //    * \return true on success
     //    */
     //   [[nodiscard]] bool addTimeIncrementComputer(Context &,
     //   std::string_view, const Parameters &) noexcept;
@@ -517,9 +518,11 @@ namespace mfem_mgis {
     void completeInitialization();
   };
 
-  // /*!
+  // /*
   //  * \brief find in the given profiling reports the first one with the
-  //  label "simulation::run", if any
+  //  * label "simulation::run", if any
+  //  * \param[in] profilings: profiling reports
+  //  * \return the report found, if any
   //  */
   // MFEMMGIS_EXPORT std::optional<const ResourcesUsageReport *>
   // findSimulationReport(

@@ -56,11 +56,12 @@ namespace mfem_mgis {
      */
     [[nodiscard]] bool add(Context& ctx,
                            std::shared_ptr<AbstractCurve> c) noexcept;
-    //     /*!
+    //     /*
     //      * \brief add a new curve
-    //      * \param[in] ctx: execution context
+    //      * \param[in, out] ctx: execution context
     //      * \param[in] n: name of the curve
     //      * \param[in] params: parameters
+    //      * \return true on success
     //      */
     //     [[nodiscard]] bool add(Context &,
     //                            std::string_view,

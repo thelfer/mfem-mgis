@@ -63,11 +63,12 @@ namespace mfem_mgis {
      */
     [[nodiscard]] bool setCouplingScheme(
         Context& ctx, std::shared_ptr<AbstractCouplingScheme> c) noexcept;
-    //     /*!
+    //     /*
     //      * \brief set the coupling scheme
-    //      * \param[out] ctx: execution contex
-    //      * \param[in]  n: name of the model
-    //      * \param[in]  p: parameters used to initialize the coupling scheme
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in] n: name of the coupling scheme
+    //      * \param[in] p: parameters used to initialize the coupling scheme
+    //      * \return true on success
     //      */
     //     [[nodiscard]] bool setCouplingScheme(Context &,
     //                                          std::string_view,
@@ -82,13 +83,14 @@ namespace mfem_mgis {
      */
     [[nodiscard]] bool setModel(Context& ctx,
                                 std::shared_ptr<AbstractModel> m) noexcept;
-    //     /*!
-    //      * \brief set the unique model. This methods sets a default
-    //      * coupling scheme that only call this model once (per time step).
+    //     /*
+    //      * \brief set the unique model. This method sets a default
+    //      * coupling scheme that calls this model once per time step.
     //      *
-    //      * \param[out] ctx: execution context
-    //      * \param[in]  n: name of the model
-    //      * \param[in]  p: parameters used to initialize the model
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in] n: name of the model
+    //      * \param[in] p: parameters used to initialize the model
+    //      * \return true on success
     //      */
     //     [[nodiscard]] bool setModel(Context &,
     //                                 std::string_view,
