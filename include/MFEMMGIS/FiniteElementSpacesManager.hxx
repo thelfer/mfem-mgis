@@ -15,9 +15,10 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief This class manages similar finite elements spaces (same mesh, same
-   * finite element collection, but different vectorial dimensions), denoted as
-   * siblings.
+   * \brief This class manages similar finite element spaces, denoted as
+   * siblings. They share the same finite element collection and are defined on
+   * the same mesh or on one of its submeshes, but may have different vectorial
+   * dimensions.
    *
    * This class is designed to be lightweight, movable and copyable
    */
@@ -30,7 +31,7 @@ namespace mfem_mgis {
      * \return the list of parameters allowing to build a finite
      * element collection.
      *
-     * Those parameters are used when the mesh discretization is already built;
+     * Those parameters are used when the mesh discretization is already built.
      */
     [[nodiscard]] static std::vector<std::string>
     getFiniteElementCollectionParametersList();
@@ -41,24 +42,24 @@ namespace mfem_mgis {
     [[nodiscard]] static std::vector<std::string> getParametersList();
     /*!
      * \brief constructor from parameters
-     * \param[in] ctx: execution context
-     * \param[in] p: parameters
+     * \param[in, out] ctx: execution context
+     * \param[in] parameters: parameters
      */
     FiniteElementSpacesManager(Context& ctx, const Parameters& parameters);
     /*!
      * \brief constructor from a mesh discretization
-     * \param[in] ctx: execution context
-     * \param[m] mesh discretization
-     * \param[in] p: parameters
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh discretization
+     * \param[in] parameters: parameters
      */
     FiniteElementSpacesManager(Context& ctx,
                                const MeshDiscretization& m,
                                const Parameters& parameters);
     /*!
      * \brief constructor from a mesh discretization
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh discretization
-     * \param[in] fec: finite element collection
+     * \param[in] c: finite element collection
      */
     FiniteElementSpacesManager(
         Context& ctx,
@@ -68,7 +69,7 @@ namespace mfem_mgis {
     FiniteElementSpacesManager(FiniteElementSpacesManager&&) noexcept;
     //! \brief copy constructor
     FiniteElementSpacesManager(const FiniteElementSpacesManager&) noexcept;
-    //! \brief return the mesh discretization
+    //! \return the mesh discretization
     MeshDiscretization getMeshDiscretization() const noexcept;
     //! \return the finite element collection
     [[nodiscard]] const FiniteElementCollection& getFiniteElementCollection()
@@ -85,22 +86,23 @@ namespace mfem_mgis {
       //! \brief location
       MeshDiscretization::Location location;
       /*!
-       * \brief parameter used to identify the materials on which the SubMesh is
-       * defined
+       * \brief parameter used to identify the materials or the boundaries on
+       * which the SubMesh is defined
        *
-       * \see `MeshDescription::getSubMesh` for details
+       * \see `MeshDiscretization::getSubMesh` for details
        */
       Parameter identifiers;
       /*!
        * \brief number of components (vectorial dimension) of the finite
-       * element space (must be greater or equal to 1);
+       * element space (must be greater than or equal to 1).
        */
       size_type number_of_components;
     };  // end of struct GetFiniteElementSpaceOnSubMeshArguments
     /*!
      * \brief create a new finite element space on the whole mesh or reuse an
      * existing one
-     * \param[in] ctx: execution context
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] nc: vectorial dimension
      *
      * \note if a finite element space is created, it is stored internally.
@@ -110,9 +112,12 @@ namespace mfem_mgis {
     getFiniteElementSpace(Context& ctx, const size_type nc) const noexcept;
     /*!
      * \brief create a new finite element space or reuse an existing one
-     * \param[in] ctx: execution context
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh on which the finite element space is defined
      * \param[in] nc: vectorial dimension
+     *
+     * \note the given mesh must be handled by the mesh discretization
      */
     template <bool parallel>
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<parallel>>
@@ -121,15 +126,16 @@ namespace mfem_mgis {
                           const size_type nc) const noexcept;
     /*!
      * \brief create a new finite element space or reuse an existing one
-     * \param[in] ctx: execution context
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] args: arguments defining the finite element space
      *
-     * \note if a the list of materials identifiers contains the whole set of
+     * \note if the list of materials identifiers contains the whole set of
      * material identifiers, the finite element space will be created on the
      * whole mesh and no submesh is created.
      *
      * \note if a sub mesh is created, it is stored internally by the underlying
-     * mesh description.
+     * mesh discretization.
      * \note if a finite element space is created, it is
      * stored internally.
      */
@@ -141,35 +147,41 @@ namespace mfem_mgis {
     /*!
      * \brief assign a suitable nodal finite element space to the underlying
      * mesh
-     * \param[in] ctx: execution context
+     * \return true on success
+     * \param[in, out] ctx: execution context
      *
-     * \note if a scalar finite element space has already been declared, it is
-     * reused.
+     * \note if a finite element space whose vectorial dimension is the space
+     * dimension has already been declared, it is reused.
      */
     [[nodiscard]] bool setNodalFiniteElementSpace(Context& ctx) const noexcept;
     /*!
      * \brief assign a suitable nodal finite element space to the given
      * mesh
-     * \param[in,out] ctx: execution context
+     * \return true on success
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      *
-     * \note if a scalar finite element space has already been declared, it is
-     * reused.
+     * \note the given mesh must be handled by the mesh discretization
+     * \note if a finite element space whose vectorial dimension is the space
+     * dimension has already been declared, it is reused.
      */
     [[nodiscard]] bool setNodalFiniteElementSpace(
         Context& ctx, const Mesh<true>& m) const noexcept;
     /*!
      * \brief assign a suitable nodal finite element space to the given
      * mesh
-     * \param[in,out] ctx: execution context
+     * \return true on success
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      *
-     * \note if a scalar finite element space has already been declared, it is
-     * reused.
+     * \note the given mesh must be handled by the mesh discretization
+     * \note if a finite element space whose vectorial dimension is the space
+     * dimension has already been declared, it is reused.
      */
     [[nodiscard]] bool setNodalFiniteElementSpace(
         Context& ctx, const Mesh<false>& m) const noexcept;
     /*!
+     * \brief check if a finite element space is managed by this manager
      * \return if the given element space is also managed by this finite
      * element space manager
      * \param[in] s: finite element space
@@ -177,6 +189,7 @@ namespace mfem_mgis {
     [[nodiscard]] bool manages(
         const FiniteElementSpace<true>& s) const noexcept;
     /*!
+     * \brief check if a finite element space is managed by this manager
      * \return if the given element space is also managed by this finite
      * element space manager
      * \param[in] s: finite element space
@@ -186,31 +199,39 @@ namespace mfem_mgis {
 
    private:
     /*!
-     * \brief create a parallel finite element space
-     * \param[in] ctx: execution context
+     * \brief create a new parallel finite element space or reuse an existing
+     * one
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] nc: vectorial dimension
      */
     std::shared_ptr<FiniteElementSpace<true>> getParallelFiniteElementSpace(
         Context& ctx, const size_type nc) const noexcept;
     /*!
-     * \brief create a sequential finite element space
-     * \param[in] ctx: execution context
+     * \brief create a new sequential finite element space or reuse an
+     * existing one
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] nc: vectorial dimension
      */
     [[nodiscard]] std::shared_ptr<FiniteElementSpace<false>>
     getSequentialFiniteElementSpace(Context& ctx,
                                     const size_type nc) const noexcept;
     /*!
-     * \brief create a parallel finite element space
-     * \param[in] ctx: execution context
+     * \brief create a new parallel finite element space or reuse an existing
+     * one
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] nc: vectorial dimension
      */
     std::shared_ptr<FiniteElementSpace<true>> getParallelFiniteElementSpace(
         Context& ctx, const Mesh<true>& m, const size_type nc) const noexcept;
     /*!
-     * \brief create a sequential finite element space
-     * \param[in] ctx: execution context
+     * \brief create a new sequential finite element space or reuse an
+     * existing one
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] nc: vectorial dimension
      */
@@ -221,15 +242,16 @@ namespace mfem_mgis {
     /*!
      * \brief create a new parallel finite element space or reuse an existing
      * one
-     * \param[in] ctx: execution context
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] args: arguments defining the finite element space
      *
-     * \note if a the list of materials identifiers contains the whole set of
+     * \note if the list of materials identifiers contains the whole set of
      * material identifiers, the finite element space will be created on the
      * whole mesh and no submesh is created.
      *
      * \note if a sub mesh is created, it is stored internally by the underlying
-     * mesh description.
+     * mesh discretization.
      * \note if a finite element space is created, it is
      * stored internally.
      */
@@ -240,15 +262,16 @@ namespace mfem_mgis {
     /*!
      * \brief create a new sequential finite element space or reuse an existing
      * one
-     * \param[in] ctx: execution context
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] args: arguments defining the finite element space
      *
-     * \note if a the list of materials identifiers contains the whole set of
+     * \note if the list of materials identifiers contains the whole set of
      * material identifiers, the finite element space will be created on the
      * whole mesh and no submesh is created.
      *
      * \note if a sub mesh is created, it is stored internally by the underlying
-     * mesh description.
+     * mesh discretization.
      * \note if a finite element space is created, it is
      * stored internally.
      */

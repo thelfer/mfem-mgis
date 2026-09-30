@@ -90,7 +90,7 @@ namespace mfem_mgis {
       }
     }
     return r;
-  }  // end of getElementsWithNodesOnBoundary
+  }  // end of getElementsDegreesOfFreedomOnBoundary
 
 }  // end of namespace mfem_mgis
 

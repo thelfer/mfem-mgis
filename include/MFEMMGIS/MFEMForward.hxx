@@ -57,27 +57,27 @@ namespace mfem {
 
 namespace mfem_mgis {
 
-  //! brief a simple alias
+  //! \brief a simple alias to the `MFEM` finite element collection class
   using FiniteElementCollection = mfem::FiniteElementCollection;
 
   /*!
    * \brief a simple alias used to select the `MFEM` class handling the mesh
-   * depending if a parallel computation is considered or not.
+   * depending on whether a parallel computation is considered or not.
    * \tparam parallel: flag stating if a parallel computation is considered.
    */
   template <bool parallel>
   using Mesh = std::conditional_t<parallel, mfem::ParMesh, mfem::Mesh>;
   /*!
    * \brief a simple alias used to select the `MFEM` class handling the sub mesh
-   * depending if a parallel computation is considered or not.
+   * depending on whether a parallel computation is considered or not.
    * \tparam parallel: flag stating if a parallel computation is considered.
    */
   template <bool parallel>
   using SubMesh = std::conditional_t<parallel, mfem::ParSubMesh, mfem::SubMesh>;
   /*!
    * \brief a simple alias used to select the `MFEM` class handling the
-   * finite element space depending if a parallel computation is considered or
-   * not.
+   * finite element space depending on whether a parallel computation is
+   * considered or not.
    * \tparam parallel: flag stating if a parallel computation is considered.
    */
   template <bool parallel>
@@ -86,7 +86,8 @@ namespace mfem_mgis {
                                                 mfem::FiniteElementSpace>;
   /*!
    * \brief a simple alias used to select the `MFEM` class representing a
-   * linear form depending if a parallel computation is considered or not.
+   * linear form depending on whether a parallel computation is considered or
+   * not.
    * \tparam parallel: flag stating if a parallel computation is considered.
    */
   template <bool parallel>
@@ -94,7 +95,8 @@ namespace mfem_mgis {
       std::conditional_t<parallel, mfem::ParLinearForm, mfem::LinearForm>;
   /*!
    * \brief a simple alias used to select the `MFEM` class representing a
-   * linear form depending if a parallel computation is considered or not.
+   * bilinear form depending on whether a parallel computation is considered or
+   * not.
    * \tparam parallel: flag stating if a parallel computation is considered.
    */
   template <bool parallel>
@@ -102,20 +104,20 @@ namespace mfem_mgis {
       std::conditional_t<parallel, mfem::ParBilinearForm, mfem::BilinearForm>;
   /*!
    * \brief a simple alias used to select the `MFEM` class representing a
-   * non linear form depending if a parallel computation is considered or
-   * not.
+   * non linear form depending on whether a parallel computation is considered
+   * or not.
    * \tparam parallel: flag stating if a parallel computation is considered.
    */
   template <bool parallel>
   using NonlinearForm =
       std::conditional_t<parallel, mfem::ParNonlinearForm, mfem::NonlinearForm>;
   /*!
-   * \brief a simple alias used to the `MFEM` class representing a
+   * \brief a simple alias to the `MFEM` class representing a
    * linear form integrator.
    */
   using LinearFormIntegrator = mfem::LinearFormIntegrator;
   /*!
-   * \brief a simple alias used to the `MFEM` class representing a
+   * \brief a simple alias to the `MFEM` class representing a
    * bilinear form integrator.
    */
   using BilinearFormIntegrator = mfem::BilinearFormIntegrator;
@@ -126,17 +128,18 @@ namespace mfem_mgis {
   using NonlinearFormIntegrator = mfem::NonlinearFormIntegrator;
   /*!
    * \brief a simple alias used to select the `MFEM` class representing a
-   * grid function depending if a parallel computation is considered or not.
+   * grid function depending on whether a parallel computation is considered
+   * or not.
    * \tparam parallel: flag stating if a parallel computation is considered.
    */
   template <bool parallel>
   using GridFunction =
       std::conditional_t<parallel, mfem::ParGridFunction, mfem::GridFunction>;
-  //! \brief a simple alias
+  //! \brief a simple alias to the `MFEM` base class of linear solvers
   using LinearSolver = mfem::Solver;
-  //! \brief a simple alias
+  //! \brief a simple alias to the `MFEM` base class of iterative solvers
   using IterativeSolver = mfem::IterativeSolver;
-  //! \brief a simple alias
+  //! \brief a simple alias to the `MFEM` base class of preconditioners
   using LinearSolverPreconditioner = mfem::Solver;
   //!
 

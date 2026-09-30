@@ -31,23 +31,23 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT FiniteElementDiscretization : MeshDiscretization {
     //! \brief string associated to the `UnknownsSize` parameter
     static const char* const UnknownsSize;
-    //!
+    //! \brief report that no parallel finite element space is defined
     [[noreturn]] static void reportInvalidParallelFiniteElementSpace();
-    //!
+    //! \brief report that no sequential finite element space is defined
     [[noreturn]] static void reportInvalidSequentialFiniteElementSpace();
-    //!
+    //! \return the list of valid parameters
     static std::vector<std::string> getParametersList();
 
     /*!
      * \brief constructor with profiling support
-     * \param[in, out] ctx: execution context used for profiling
+     * \param[in, out] ctx: execution context
      * \param[in] params: parameters
      */
     FiniteElementDiscretization(Context& ctx, const Parameters& params);
     /*!
      * \brief constructor with profiling support
-     * \param[in, out] ctx: execution context used for profiling
-     * \param[in] manager: finite element spaces manager
+     * \param[in, out] ctx: execution context
+     * \param[in] m: finite element spaces manager
      * \param[in] params: parameters
      */
     FiniteElementDiscretization(Context& ctx,
@@ -55,8 +55,8 @@ namespace mfem_mgis {
                                 const Parameters& params);
     /*!
      * \brief constructor with profiling support
-     * \param[in, out] ctx: execution context used for profiling
-     * \param[in] m: mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh discretization
      * \param[in] params: parameters
      */
     FiniteElementDiscretization(Context& ctx,
@@ -64,7 +64,7 @@ namespace mfem_mgis {
                                 const Parameters& params);
     /*!
      * \brief constructor with profiling support
-     * \param[in, out] ctx: execution context used for profiling
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] params: parameters
      */
@@ -73,7 +73,7 @@ namespace mfem_mgis {
                                 const Parameters& params);
     /*!
      * \brief constructor
-     * \param[in, out] ctx: execution context used for profiling
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] params: parameters
      *
@@ -82,21 +82,21 @@ namespace mfem_mgis {
      * - `FiniteElementFamily` (string): name of the finite element family to be
      * used. Supported families are:
      * - `H1`:
-     * The default value if `H1`.
+     * The default value is `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
-     * - `UnknownsSize` (int): number of components of the unknows
+     * - `UnknownsSize` (int): number of components of the unknowns
      */
     FiniteElementDiscretization(Context& ctx,
                                 std::shared_ptr<Mesh<false>> m,
                                 const Parameters& params);
     /*!
      * \brief constructor
-     * \param[in, out] ctx: execution context used for profiling
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] c: finite element collection
      * \param[in] d: size of the unknowns
      *
-     * \note this methods creates the finite element space.
+     * \note this method creates the finite element space.
      */
     FiniteElementDiscretization(
         Context& ctx,
@@ -105,12 +105,12 @@ namespace mfem_mgis {
         const size_type d);
     /*!
      * \brief constructor
-     * \param[in, out] ctx: execution context used for profiling
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] c: collection
      * \param[in] d: size of the unknowns
      *
-     * \note this methods creates the finite element space.
+     * \note this method creates the finite element space.
      */
     FiniteElementDiscretization(
         Context& ctx,
@@ -118,6 +118,8 @@ namespace mfem_mgis {
         std::shared_ptr<const FiniteElementCollection> c,
         const size_type d);
     /*!
+     * \brief check if a finite element space is managed by the same finite
+     * element spaces manager
      * \return if the given element space is also managed by the finite element
      * space manager
      * \param[in] s: finite element space
@@ -131,7 +133,8 @@ namespace mfem_mgis {
     /*!
      * \brief assign a suitable nodal finite element space to the underlying
      * mesh
-     * \param[in] ctx: execution context
+     * \return true on success
+     * \param[in, out] ctx: execution context
      */
     [[nodiscard]] bool setNodalFiniteElementSpace(Context& ctx) const noexcept;
     //! \return the finite element space
@@ -167,15 +170,17 @@ namespace mfem_mgis {
    private:
     //! \brief manager of the finite element spaces
     FiniteElementSpacesManager fespaces_manager;
-    //! \brief finite element space
 #ifdef MFEM_USE_MPI
+    //! \brief parallel finite element space
     std::shared_ptr<FiniteElementSpace<true>> parallel_fe_space;
 #endif /* MFEM_USE_MPI */
+    //! \brief sequential finite element space
     std::shared_ptr<FiniteElementSpace<false>> sequential_fe_space;
   };  // end of FiniteElementDiscretization
 
   /*!
-   * \return the number of components (vectorial dimension) of the underyling
+   * \brief return the number of components of the unknowns
+   * \return the number of components (vectorial dimension) of the underlying
    * finite element space.
    * \param[in] fed: finite element discretization
    */
@@ -183,7 +188,8 @@ namespace mfem_mgis {
   getNumberOfComponents(const FiniteElementDiscretization& fed) noexcept;
 
   /*!
-   * \return the total number of unknowns of the underyling
+   * \brief return the number of unknowns
+   * \return the total number of unknowns of the underlying
    * finite element space, including those required to handle ghost values or
    * hanging nodes.
    * \param[in] fed: finite element discretization
@@ -192,7 +198,9 @@ namespace mfem_mgis {
   getVSize(const FiniteElementDiscretization& fed) noexcept;
 
   /*!
-   * \brief return the total number of unknowns
+   * \brief return the number of true unknowns
+   * \return the number of unknowns of the underlying finite element space,
+   * excluding those required to handle ghost values or hanging nodes.
    * \param[in] fed: finite element discretization
    */
   MFEM_MGIS_EXPORT size_type
@@ -204,6 +212,7 @@ namespace mfem_mgis {
    * \param[in, out] ctx: execution context
    * \param[out] os: output stream
    * \param[in] fed: finite element discretization
+   * \return true on success
    */
   template <>
   MFEM_MGIS_EXPORT bool getInformation<FiniteElementDiscretization>(
