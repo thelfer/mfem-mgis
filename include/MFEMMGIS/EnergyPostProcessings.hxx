@@ -17,7 +17,7 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief a post-processing which export the stored or dissipated energies of
+   * \brief a post-processing which exports the stored or dissipated energies of
    * a set of materials in a file.
    */
   template <bool parallel>
@@ -33,11 +33,25 @@ namespace mfem_mgis {
         NonLinearEvolutionProblemImplementation<parallel>& p,
         const Parameters& params,
         const std::string_view etype);
-    //
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: initial time
+     * \return true on success
+     */
     [[nodiscard]] bool executeInitialPostProcessing(
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,
         const real t) noexcept override;
+    /*!
+     * \brief execute the post-processing
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return true on success
+     */
     [[nodiscard]] bool execute(
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,
@@ -47,7 +61,12 @@ namespace mfem_mgis {
     ~EnergyPostProcessingBase() override;
 
    protected:
-    //!
+    /*!
+     * \brief compute the energies of the materials
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \return the energies of the materials, empty on failure
+     */
     [[nodiscard]] virtual std::optional<std::vector<real>> computeEnergies(
         Context& ctx,
         const AbstractNonLinearEvolutionProblem& p) const noexcept = 0;
@@ -61,14 +80,17 @@ namespace mfem_mgis {
      * \param[in] etype: type of energy post-processed
      */
     void openFile(const std::string& f, const std::string_view etype);
-    //!
+    /*!
+     * \brief write the energies of the materials in the output file
+     * \param[in] energies: energies of the materials
+     */
     void writeResults(const std::vector<real>& energies);
     //! \brief output file
     std::ofstream out;
   };  // end of struct EnergyPostProcessingBase
 
   /*!
-   * \brief a post-processing which exported the stored energies in a file.
+   * \brief a post-processing which exports the stored energies in a file.
    */
   template <bool parallel>
   struct StoredEnergyPostProcessing final : EnergyPostProcessingBase<parallel> {
@@ -90,7 +112,7 @@ namespace mfem_mgis {
   };  // end of struct StoredEnergyPostProcessing
 
   /*!
-   * \brief a post-processing which exported the stored energies in a file.
+   * \brief a post-processing which exports the dissipated energies in a file.
    */
   template <bool parallel>
   struct DissipatedEnergyPostProcessing final

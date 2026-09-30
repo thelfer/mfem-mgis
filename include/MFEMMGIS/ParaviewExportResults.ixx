@@ -16,6 +16,10 @@
 
 namespace mfem_mgis {
 
+  /*!
+   * \brief print the number of vertices and elements of the mesh
+   * \param[in] mesh: mesh
+   */
   template <typename Mesh>
   void print_mesh_information(Mesh* mesh) {
     using Profiler::Utils::Message;

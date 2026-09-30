@@ -35,10 +35,8 @@ namespace mfem_mgis {
      * variables.
      *
      * \param[in, out] ctx: execution context
-     * \param[in] t: initial time step
-     *
-     * \note if required, the time at the beginning of the time step can be
-     * retrieved from the clock hold by the physical system
+     * \param[in] t: initial time
+     * \return true on success
      */
     [[nodiscard]] virtual bool executeInitialPostProcessingTasks(
         Context &ctx, const real t) noexcept = 0;
@@ -48,17 +46,18 @@ namespace mfem_mgis {
      *
      * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
-     * \param[in] isPostProcessingRequired: boolean stating that if the time at
+     * \param[in] isPostProcessingRequired: boolean stating if the time at
      * the end of the time step is a post-processing time. By default, the end
      * of a temporal sequence is a post-processing time (but the definition of
      * other post-processing times is possible). The implementations shall let
-     * the user choose if the post-processing must executed at every time steps
-     * or only at post-processing times by accepting an `allTimes` parameter.
-     * The default behavior is left to the implementation, but the following
-     * rule of thumb is that a lightweight post-processing shall be excuted by
-     * default at each end of time steps and that an heavy post-processing (in
-     * execution time and/or size of the generated file(s)) shall be executed at
-     * post-processing times by default.
+     * the user choose if the post-processing must be executed at every time
+     * step or only at post-processing times by accepting an `AllTimeSteps`
+     * parameter. The default behavior is left to the implementation, but the
+     * following rule of thumb is that a lightweight post-processing shall be
+     * executed by default at each end of time steps and that a heavy
+     * post-processing (in execution time and/or size of the generated file(s))
+     * shall be executed at post-processing times by default.
+     * \return true on success
      */
     [[nodiscard]] virtual bool executePostProcessingTasks(
         Context &ctx,

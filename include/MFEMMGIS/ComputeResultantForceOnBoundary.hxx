@@ -39,9 +39,8 @@ namespace mfem_mgis {
             edofs,
         const size_type i);
     /*!
-     * \brief return a structure which associates the global number of the
-     * selected elements to the local indexes of its degrees of freedom sorted
-     * by components.
+     * \brief structure which associates the index of the selected elements
+     * to the local indexes of their degrees of freedom sorted by components.
      */
     const std::vector<std::pair<size_type,  // element number
                                 std::vector<std::vector<size_type>>>>
@@ -55,7 +54,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
 
   /*!
-   * \brief partial specialisation of the `ComputeResultantForceOnBoundary`
+   * \brief specialisation of the `ComputeResultantForceOnBoundary`
    * post-processing in parallel
    */
   template <>
@@ -75,6 +74,15 @@ namespace mfem_mgis {
         Context& ctx,
         NonLinearEvolutionProblemImplementation<true>& p,
         const real t) noexcept override;
+    /*!
+     * \brief compute the resultant force on the boundary and write it in the
+     * output file
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return true on success
+     */
     [[nodiscard]] bool execute(Context& ctx,
                                NonLinearEvolutionProblemImplementation<true>& p,
                                const real t,
@@ -86,7 +94,7 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
 
   /*!
-   * \brief partial specialisation of the `ComputeResultantForceOnBoundary`
+   * \brief specialisation of the `ComputeResultantForceOnBoundary`
    * post-processing in sequential
    */
   template <>
@@ -106,6 +114,15 @@ namespace mfem_mgis {
         Context& ctx,
         NonLinearEvolutionProblemImplementation<false>& p,
         const real t) noexcept override;
+    /*!
+     * \brief compute the resultant force on the boundary and write it in the
+     * output file
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return true on success
+     */
     [[nodiscard]] bool execute(
         Context& ctx,
         NonLinearEvolutionProblemImplementation<false>& p,

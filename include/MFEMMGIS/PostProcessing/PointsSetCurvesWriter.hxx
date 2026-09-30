@@ -23,33 +23,34 @@ namespace mfem_mgis {
   struct FiniteElementDiscretization;
 
   /*!
-   * \brief helper class meant to write the results of a curve to
-   * an output file
+   * \brief helper class meant to write the values of grid functions on a
+   * points set to an output file
    */
   struct MFEM_MGIS_EXPORT PointsSetCurvesWriter {
-    //! \return a description of each parameters
+    //! \return a description of each parameter
     [[nodiscard]] static std::map<std::string, std::string>
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
      * \param[in] manager: finite element spaces manager
-     * \param[in] params: parameters
+     * \param[in] parameters: parameters
      */
     PointsSetCurvesWriter(const FiniteElementSpacesManager& manager,
                           const Parameters& parameters);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
-     * \param[in] params: parameters
+     * \param[in] parameters: parameters
      */
     PointsSetCurvesWriter(const FiniteElementDiscretization& fed,
                           const Parameters& parameters);
 #ifdef MFEM_USE_MPI
     /*!
-     * \brief add a grid function  (parallel version)
+     * \brief add a grid function (parallel version)
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the grid function
      * \param[in] f: grid function
+     * \return true on success
      */
     [[nodiscard]] bool add(Context& ctx,
                            std::string_view n,
@@ -60,20 +61,23 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the grid function
      * \param[in] f: grid function
+     * \return true on success
      */
     [[nodiscard]] bool add(Context& ctx,
                            std::string_view n,
                            const GridFunction<false>& f) noexcept;
     /*!
      * \brief write the file headers
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
     bool writeFileHeader(Context& ctx);
     /*!
-     * \brief write the file headers
-     * \param[in] ctx: execution context
+     * \brief write the values
+     * \param[in, out] ctx: execution context
      * \param[in] ts: time step
      * \param[in] tss: time step stage
+     * \return true on success
      */
     bool writeValues(Context& ctx,
                      const TimeStep& ts,
@@ -82,7 +86,7 @@ namespace mfem_mgis {
    private:
     //! \brief underlying finite element space manager
     FiniteElementSpacesManager fespaces_manager;
-    //! \brief list of registred curves packed into a `MultiplePointsSetCurvess`
+    //! \brief points set curves
     PointsSetCurves curves;
     //! \brief output file
     std::ofstream out;

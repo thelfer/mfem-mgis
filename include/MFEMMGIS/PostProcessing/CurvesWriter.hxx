@@ -23,55 +23,58 @@ namespace mfem_mgis {
   struct PhysicalSystem;
 
   /*!
-   * \brief helper class meant to write the results of a curve to
+   * \brief helper class meant to write the results of curves to
    * an output file
    */
   struct MFEM_MGIS_EXPORT CurvesWriter {
-    //! \return a description of each parameters
+    //! \return a description of each parameter
     [[nodiscard]] static std::map<std::string, std::string>
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh discretization
-     * \param[in] params: parameters
+     * \param[in] parameters: parameters
      */
     CurvesWriter(Context& ctx,
                  const MeshDiscretization& m,
                  const Parameters& parameters);
     /*!
      * \brief constructor
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ps: physical system
-     * \param[in] params: parameters
+     * \param[in] parameters: parameters
      */
     CurvesWriter(Context& ctx,
                  const PhysicalSystem& ps,
                  const Parameters& parameters);
     /*!
      * \brief add a new curve
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] c: curve
+     * \return true on success
      */
     [[nodiscard]] bool addCurve(Context& ctx,
                                 std::shared_ptr<const AbstractCurve> c);
     /*!
      * \brief write the file headers
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
     bool writeFileHeader(Context& ctx);
     /*!
-     * \brief write the file headers
-     * \param[in] ctx: execution context
+     * \brief write the values of the curves
+     * \param[in, out] ctx: execution context
      * \param[in] ts: time step
      * \param[in] tss: time step stage
+     * \return true on success
      */
     bool writeValues(Context& ctx,
                      const TimeStep& ts,
                      const TimeStepStage& tss);
 
    private:
-    //! \brief list of registred curves packed into a `MultipleCurves`
+    //! \brief list of registered curves packed into a `MultipleCurves`
     MultipleCurves curves;
     //! \brief output file
     std::ofstream out;

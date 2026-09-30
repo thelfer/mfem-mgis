@@ -19,15 +19,15 @@ namespace mfem_mgis {
 
   //! \brief a base class suitable for most post-processings
   struct MFEM_MGIS_EXPORT PostProcessingBase : public AbstractPostProcessing {
-    //! \return a description of each parameters of this class
+    //! \return a description of each parameter of this class
     static std::map<std::string, std::string>
     getParametersDescription() noexcept;
     /*!
      * \brief constructor
      * \param[in] ps: physical system
-     * \param[in] parameters: parameters
-     * \param[in] defaultAllTimeStepsValue: default value for the `allTimeSteps`
-     * parameter
+     * \param[in] params: parameters
+     * \param[in] defaultAllTimeStepsValue: default value for the
+     * `AllTimeSteps` parameter
      */
     PostProcessingBase(PhysicalSystem &ps,
                        const Parameters &params,
@@ -44,7 +44,7 @@ namespace mfem_mgis {
     PhysicalSystem &physicalSystem;
     /*!
      * \brief boolean stating if the post-processing must be executed at the end
-     * of all time steps or only at time explicitely marked by the user as a
+     * of all time steps or only at times explicitly marked by the user as a
      * *post-processing time*
      */
     const bool allTimeSteps;

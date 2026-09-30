@@ -26,7 +26,7 @@ namespace mfem_mgis {
    * instances of the `AbstractCurve` struct to a file.
    */
   struct MFEM_MGIS_EXPORT CurvesPostProcessing : public PostProcessingBase {
-    //! \return a description of each parameters of this struct
+    //! \return a description of each parameter of this struct
     static std::map<std::string, std::string>
     getParametersDescription() noexcept;
     //! \return a description of the post-processing
@@ -50,8 +50,9 @@ namespace mfem_mgis {
         const bool isPostProcessingRequired) noexcept override;
     /*!
      * \brief add a new curve
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] c: curve
+     * \return true on success
      */
     [[nodiscard]] bool add(Context& ctx,
                            std::shared_ptr<AbstractCurve> c) noexcept;
@@ -64,7 +65,7 @@ namespace mfem_mgis {
     //     [[nodiscard]] bool add(Context &,
     //                            std::string_view,
     //                            const Parameters &) noexcept;
-    // \brief destructor
+    //! \brief destructor
     ~CurvesPostProcessing() noexcept override;
 
    private:

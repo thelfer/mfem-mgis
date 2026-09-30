@@ -17,8 +17,8 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief a post-processing which computes the mean values of each components
-   * of the thermodynamic forces and print them in a file.
+   * \brief a post-processing which computes the mean values of each component
+   * of the thermodynamic forces and prints them in a file.
    */
   template <bool parallel>
   struct MeanThermodynamicForces final
@@ -33,11 +33,25 @@ namespace mfem_mgis {
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,
         const Parameters& params);
-    //
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: initial time
+     * \return true on success
+     */
     [[nodiscard]] bool executeInitialPostProcessing(
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,
         const real t) noexcept override;
+    /*!
+     * \brief execute the post-processing
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return true on success
+     */
     [[nodiscard]] bool execute(
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,
@@ -52,6 +66,7 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] f: file name
+     * \return true on success
      */
     [[nodiscard]] bool openFile(
         Context& ctx,

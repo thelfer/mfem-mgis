@@ -25,7 +25,7 @@ namespace mfem_mgis {
     MultipleCurves();
     /*!
      * \brief constructor
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] parameters: parameters
      */
@@ -34,8 +34,9 @@ namespace mfem_mgis {
                    const Parameters &parameters);
     /*!
      * \brief add a new curve
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] c: curve
+     * \return true on success
      */
     [[nodiscard]] bool addCurve(Context &ctx,
                                 std::shared_ptr<const AbstractCurve> c);
