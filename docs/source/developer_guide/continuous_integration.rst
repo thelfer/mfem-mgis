@@ -56,6 +56,10 @@ Workflows
    * - ``doxygen.yml`` and ``sphinx.yml``
      - pushes and pull requests on ``master``
      - build the documentation, published on pushes
+   * - ``ci.yml``
+     - end of a run of ``cmake.yml`` or ``spack.yml`` on ``master``
+     - succeeds when the last runs of both succeeded, for the ci badge of the
+       README
 
 ``cmake.yml``
 -------------
