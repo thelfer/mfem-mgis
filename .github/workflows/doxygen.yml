@@ -14,6 +14,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  # set to false to report the doxygen warnings without failing
+  FAIL_ON_DOXYGEN_WARNINGS: true
+
 jobs:
 
   doc-html:
@@ -43,9 +47,17 @@ jobs:
             -e "s|@PROJECT_BINARY_DIR@|${{github.workspace}}/build|g" \
             Doxyfile.in > build/Doxyfile
 
+    # fails on any warning, configuration warnings included, unless
+    # FAIL_ON_DOXYGEN_WARNINGS is false
     - name: Generate doxygen
       working-directory: ${{github.workspace}}/build
-      run: doxygen Doxyfile
+      run: |
+        doxygen Doxyfile 2> errors.log || { cat errors.log; exit 1; }
+        cat errors.log doxygen.log > warnings.log
+        if [ -s warnings.log ]; then
+          cat warnings.log
+          if [ "${FAIL_ON_DOXYGEN_WARNINGS}" = true ]; then exit 1; fi
+        fi
 
     - name: Deploy
       if: github.event_name == 'push'
