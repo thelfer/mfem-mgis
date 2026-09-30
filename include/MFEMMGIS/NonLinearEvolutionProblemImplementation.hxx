@@ -206,7 +206,7 @@ namespace mfem_mgis {
       mfem::Vector&,
       NonLinearEvolutionProblemImplementation<parallel>&,
       const std::vector<
-          std::pair<size_type, std::vector<size_type>>>&) noexcept;
+          std::pair<size_type, std::vector<std::vector<size_type>>>>&) noexcept;
 
   /*!
    * \return the integral of the thermodynamic forces at the end of the time
