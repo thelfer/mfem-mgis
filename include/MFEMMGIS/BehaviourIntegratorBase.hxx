@@ -69,25 +69,33 @@ namespace mfem_mgis {
      * gradient, whose only thermodynamic force is the first Piola-Kirchhoff
      * stress and whose only tangent operator block is the derivative of the
      * latter with respect to the former.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      */
     void checkIfAFiniteStrainBehaviourIsDeclared(
         attributes::Throwing throwing) const;
     /*!
      * \brief check if the behaviour has the expected symmetry.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] s: expected symmetry
      */
     void checkBehaviourSymmetry(attributes::Throwing throwing,
                                 const Behaviour::Symmetry s) const;
     /*!
-     * \brief check that the integrator hypothesis is the same than the
+     * \brief check that the integrator hypothesis is the same as the
      * behaviour hypothesis.
-     * \param[in] h: integrator' hypothesis
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
+     * \param[in] h: integrator hypothesis
      */
     void checkHypothesis(attributes::Throwing throwing,
                          const Hypothesis h) const;
     /*!
      * \brief throw an exception stating that the behaviour type is not the
      * expected one.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] e: error message
      */
     [[noreturn]] void throwInvalidBehaviourType(attributes::Throwing throwing,
@@ -95,6 +103,8 @@ namespace mfem_mgis {
     /*!
      * \brief throw an exception stating that the behaviour kinematic is not the
      * expected one.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] e: error message
      */
     [[noreturn]] void throwInvalidBehaviourKinematic(
@@ -102,15 +112,18 @@ namespace mfem_mgis {
     /*!
      * \brief throw an exception stating that the behaviour symmetry is not the
      * expected one.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] e: error message
      */
     [[noreturn]] void throwInvalidBehaviourSymmetry(
         attributes::Throwing throwing, const std::string& e) const;
     /*!
-     * \brief integrate the mechanical behaviour over the time step
-     * If successful, the value of the stress, consistent tangent
-     * operator and internal state variables are updated.
-     * \return true if the integration is successful.
+     * \brief integrate the behaviour over the time step
+     *
+     * If successful, the values of the thermodynamic forces, consistent
+     * tangent operator and internal state variables are updated.
+     * \return true on success
      * \param[in] ip: local integration point index
      * \param[in] it: integration type
      * \note this method shall be called after having set the gradients.
@@ -199,7 +212,7 @@ namespace mfem_mgis {
        * the time step
        */
       std::map<std::string, QPEvaluatorResult> pqfcts_esvs_ets;
-    } wks;
+    } wks;  //!< workspace
     //! \brief time increment for the given time step
     real time_increment;
   };  // end of struct BehaviourIntegratorBase

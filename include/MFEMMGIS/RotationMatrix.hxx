@@ -18,6 +18,7 @@ namespace mfem_mgis {
 
   /*!
    * \brief definition of the rotation matrix in 2D
+   *
    * The rotation matrix is defined by:
    * - a constant matrix, computed once for all
    * - the definition of the first direction of orthotropy
@@ -32,10 +33,11 @@ namespace mfem_mgis {
                    std::shared_ptr<PartialQuadratureFunction>>;
   /*!
    * \brief definition of the rotation matrix in 3D
+   *
    * The rotation matrix is defined by:
    * - a constant matrix, computed once for all
    * - the two directions of orthotropy which can be given either as a
-   * partial function or as a fixed direction.
+   * partial quadrature function or as a fixed direction.
    */
   using RotationMatrix3D = std::variant<std::monostate,
                                         std::array<real, 9u>,

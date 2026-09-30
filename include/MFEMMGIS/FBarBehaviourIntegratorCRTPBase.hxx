@@ -14,14 +14,15 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief a base class of the `FBarBehaviourIntegratorCRTPBase`
-   * class to factorize code by static using the CRTP idiom.
+   * \brief a base class for FBar behaviour integrators, factorizing code by
+   * static polymorphism using the CRTP idiom.
    *
    * This class provides a way to optimise dynamic memory allocations.
    *
    * The `Child` class must provide:
    *
-   * - a static method called `getIntegrationRule`
+   * - a method called `getIntegrationRule`
+   * - a method called `getIntegrationPointWeight`
    * - a method called `updateGradients`
    * - a method called `updateInnerForces`
    * - a method called `updateStiffnessMatrix`
@@ -46,13 +47,15 @@ namespace mfem_mgis {
         std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \brief integrate the mechanical behaviour over the time step
-     * If successful, the value of the stress, consistent tangent
+     *
+     * If successful, the values of the stress, consistent tangent
      * operator and internal state variables are updated.
      *
      * \param[in] e: finite element
-     * \param[in] tr: finite element transformation
+     * \param[in, out] tr: finite element transformation
      * \param[in] u: current estimate of the unknowns
      * \param[in] it: integration type
+     * \return true on success
      */
     bool implementIntegrate(const mfem::FiniteElement& e,
                             mfem::ElementTransformation& tr,
@@ -60,14 +63,14 @@ namespace mfem_mgis {
                             const IntegrationType it);
     /*!
      * \brief compute the contribution of the element to the residual
-     * \param[out] Fe: element stiffness matrix
+     * \param[out] Fe: element contribution to the residual
      * \param[in] e: finite element
-     * \param[in] tr: finite element transformation
+     * \param[in, out] tr: finite element transformation
      * \param[in] u: current estimation of the displacement field
      *
      * \note Thanks to the CRTP idiom, this implementation can call
-     * the `updateGradients` and the `updateInnerForces` methods defined
-     * in the derived class without a virtual call. Those call may
+     * the `updateInnerForces` method defined
+     * in the derived class without a virtual call. This call may
      * even be inlined.
      * \note The implementation of the `updateResidual` in the
      * `Child` class trivially calls this method. This indirection is made to
@@ -83,7 +86,7 @@ namespace mfem_mgis {
      *
      * \param[out] Ke: element stiffness matrix
      * \param[in] e: finite element
-     * \param[in] tr: finite element transformation
+     * \param[in, out] tr: finite element transformation
      * \param[in] u: current estimate of the unknowns
      *
      * \note The implementation of the `updateJacobian` in the
@@ -97,9 +100,9 @@ namespace mfem_mgis {
                                  const mfem::Vector& u);
     /*!
      * \brief compute the contribution of the element to the inner forces
-     * \param[out] Fe: element stiffness matrix
+     * \param[out] Fe: inner forces
      * \param[in] e: finite element
-     * \param[in] tr: finite element transformation
+     * \param[in, out] tr: finite element transformation
      */
     void implementComputeInnerForces(mfem::Vector& Fe,
                                      const mfem::FiniteElement& e,

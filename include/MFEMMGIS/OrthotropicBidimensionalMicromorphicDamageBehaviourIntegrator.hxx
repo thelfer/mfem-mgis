@@ -19,10 +19,10 @@ namespace mfem_mgis {
   struct FiniteElementDiscretization;
 
   /*!
-   * \brief class implementing the a behaviour integrator dedicated to
-   * micromorphic damage in two dimensions (the modelling hypothesis has no
-   * effect on this specific behaviour as out of plane damage gradients are
-   * assumed to be zero).
+   * \brief class implementing a behaviour integrator dedicated to
+   * orthotropic micromorphic damage in two dimensions (the modelling
+   * hypothesis has no effect on this specific behaviour as out of plane
+   * damage gradients are assumed to be zero).
    */
   struct MFEM_MGIS_EXPORT
       OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator
@@ -31,7 +31,7 @@ namespace mfem_mgis {
     using RotationMatrix = std::array<real, 9u>;
     /*!
      * \brief constructor
-     * \param[in] s: quadrature space
+     * \param[in] fed: finite element discretization
      * \param[in] m: material attribute.
      * \param[in] b_ptr: behaviour
      */
@@ -46,6 +46,15 @@ namespace mfem_mgis {
     real getIntegrationPointWeight(
         mfem::ElementTransformation &tr,
         const mfem::IntegrationPoint &ip) const noexcept override;
+    /*!
+     * \brief integrate the behaviour over the time step at the integration
+     * points of the given element
+     * \param[in] e: finite element
+     * \param[in, out] tr: finite element transformation
+     * \param[in] u: nodal values of the micromorphic damage
+     * \param[in] it: integration type
+     * \return true on success
+     */
     bool integrate(const mfem::FiniteElement &e,
                    mfem::ElementTransformation &tr,
                    const mfem::Vector &u,
@@ -56,6 +65,15 @@ namespace mfem_mgis {
                         mfem::ElementTransformation &tr,
                         const mfem::Vector &u) override;
 
+    /*!
+     * \brief compute the contribution of the given element to the jacobian
+     * \param[out] Ke: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in, out] tr: finite element transformation
+     * \param[in] u: current estimate of the unknowns, unused
+     * \note the stored tangent operator blocks are rotated in the global
+     * frame in place.
+     */
     void updateJacobian(mfem::DenseMatrix &Ke,
                         const mfem::FiniteElement &e,
                         mfem::ElementTransformation &tr,
@@ -69,20 +87,23 @@ namespace mfem_mgis {
 
    private:
     /*!
-     * \return the integration rule for the given element and  * element
-     * transformation. \param[in] e: element \param[in] tr: element
+     * \brief select the integration rule for the given element and element
      * transformation
+     * \param[in] e: element
+     * \param[in] t: element transformation
+     * \return the integration rule
      */
     static const mfem::IntegrationRule &selectIntegrationRule(
         const mfem::FiniteElement &e, const mfem::ElementTransformation &t);
     /*!
-     * \brief build the quadrature space for the given  * material
+     * \brief build the quadrature space for the given material
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
+     * \return the partial quadrature space
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &fed, const size_type m);
-    //! \brief the rotation matrix
+    //! \brief unused rotation matrix, see Material::r2D
     RotationMatrix2D rotation_matrix;
 
 #ifndef MFEM_THREAD_SAFE

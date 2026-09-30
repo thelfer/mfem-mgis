@@ -48,6 +48,7 @@ namespace mfem_mgis {
   };  // end of struct MaterialQuantityProviderSearchResult
 
   /*!
+   * \brief check if the search failed
    * \return if the search failed, i.e. if no unique provider was found
    * \param[in] r: result of the search
    */
@@ -61,7 +62,7 @@ namespace mfem_mgis {
    * the given location
    *
    * \return the result of the search. An empty value is returned if an error
-   * occured, in which case the error is reported in the execution context.
+   * occurred, in which case the error is reported in the execution context.
    * Not finding a unique provider is not considered as an error: this
    * information is reported by the status of the result.
    *
@@ -84,7 +85,7 @@ namespace mfem_mgis {
    * thermodynamic force on the given location
    *
    * \return the result of the search. An empty value is returned if an error
-   * occured, in which case the error is reported in the execution context.
+   * occurred, in which case the error is reported in the execution context.
    * Not finding a unique provider is not considered as an error: this
    * information is reported by the status of the result.
    *
@@ -107,7 +108,7 @@ namespace mfem_mgis {
    * state variable on the given location
    *
    * \return the result of the search. An empty value is returned if an error
-   * occured, in which case the error is reported in the execution context.
+   * occurred, in which case the error is reported in the execution context.
    * Not finding a unique provider is not considered as an error: this
    * information is reported by the status of the result.
    *

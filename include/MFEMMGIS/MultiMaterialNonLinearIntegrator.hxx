@@ -26,8 +26,10 @@ namespace mfem_mgis {
   struct AbstractBehaviourIntegrator;
 
   /*!
-   * \brief base class for non linear integrators based on an MGIS' behaviours.
-   * This class manages an mapping associating a material and its identifier
+   * \brief non linear integrator based on MGIS behaviours.
+   *
+   * This class manages a mapping between the material identifiers and the
+   * behaviour integrators.
    */
   struct MFEM_MGIS_EXPORT [[nodiscard]] MultiMaterialNonLinearIntegrator final
       : public NonlinearFormIntegrator {
@@ -42,11 +44,25 @@ namespace mfem_mgis {
         std::shared_ptr<const FiniteElementDiscretization> fed,
         const Hypothesis h);
     // MFEM API
+    /*!
+     * \brief compute the contribution of the given element to the residual
+     * \param[in] e: finite element
+     * \param[in, out] tr: finite element transformation
+     * \param[in] U: current estimate of the unknowns
+     * \param[out] F: element contribution to the residual
+     */
     void AssembleElementVector(const mfem::FiniteElement& e,
                                mfem::ElementTransformation& tr,
                                const mfem::Vector& U,
                                mfem::Vector& F) override;
 
+    /*!
+     * \brief compute the contribution of the given element to the jacobian
+     * \param[in] e: finite element
+     * \param[in, out] tr: finite element transformation
+     * \param[in] U: current estimate of the unknowns
+     * \param[out] K: element stiffness matrix
+     */
     void AssembleElementGrad(const mfem::FiniteElement& e,
                              mfem::ElementTransformation& tr,
                              const mfem::Vector& U,
@@ -55,9 +71,10 @@ namespace mfem_mgis {
      * \brief integrate the behaviour for the current estimate of the unknowns
      * at the end of the time step.
      * \param[in] e: finite element
-     * \param[in] tr: finite element transformation
-     * \param[in] u: current estimate of the unknowns
+     * \param[in, out] tr: finite element transformation
+     * \param[in] U: current estimate of the unknowns
      * \param[in] it: integration type
+     * \return true on success
      */
     [[nodiscard]] bool integrate(const mfem::FiniteElement& e,
                                  mfem::ElementTransformation& tr,
@@ -77,6 +94,7 @@ namespace mfem_mgis {
      *
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
     [[nodiscard]] bool setup(Context& ctx,
                              const real t,
@@ -99,45 +117,50 @@ namespace mfem_mgis {
         const std::string& b,
         const Parameters& params = {}) noexcept;
     /*!
-     * \return the material with the given id
+     * \brief return the material with the given id
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
-     * \param[in] b: behaviour id
+     * \param[in] b: behaviour integrator id
+     * \return the material
      */
     [[nodiscard]] OptionalReference<const Material> getMaterial(
         Context& ctx, const size_type m, const size_type b) const noexcept;
     /*!
-     * \return the material with the given id
+     * \brief return the material with the given id
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
-     * \param[in] b: behaviour id
+     * \param[in] b: behaviour integrator id
+     * \return the material
      */
     [[nodiscard]] OptionalReference<Material> getMaterial(
         Context& ctx, const size_type m, const size_type b) noexcept;
     /*!
-     * \return the number of behaviour integrators associated with the given
-     * material id
+     * \brief return the number of behaviour integrators associated with the
+     * given material id
      *
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
+     * \return the number of behaviour integrators
      */
     [[nodiscard]] std::optional<size_type> getNumberOfBehaviourIntegrators(
         Context& ctx, const size_type m) const noexcept;
     /*!
-     * \return the behaviour integrator with the given material id
+     * \brief return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
-     * \param[in] b: behaviour id
+     * \param[in] b: behaviour integrator id
+     * \return the behaviour integrator
      */
     [[nodiscard]] OptionalReference<const AbstractBehaviourIntegrator>
     getBehaviourIntegrator(Context& ctx,
                            const size_type m,
                            const size_type b) const noexcept;
     /*!
-     * \return the behaviour integrator with the given material id
+     * \brief return the behaviour integrator with the given material id
      * \param[in, out] ctx: execution context
      * \param[in] m: material id
-     * \param[in] b: behaviour id
+     * \param[in] b: behaviour integrator id
+     * \return the behaviour integrator
      */
     [[nodiscard]] OptionalReference<AbstractBehaviourIntegrator>
     getBehaviourIntegrator(Context& ctx,
@@ -160,7 +183,7 @@ namespace mfem_mgis {
      */
     void update();
     /*!
-     * \brief set the macroscropic gradients
+     * \brief set the macroscopic gradients
      * \param[in] g: macroscopic gradients
      */
     void setMacroscopicGradients(std::span<const real> g);
@@ -170,11 +193,12 @@ namespace mfem_mgis {
      */
     std::vector<size_type> getAssignedMaterialsIdentifiers() const;
     /*!
+     * \brief return the linearized operators
      * \return linearized operators
      * \param[in] u: current estimate of the unknowns
-     * \note: those linearized operators used the consistent tangent operators
+     * \note those linearized operators use the consistent tangent operators
      * and thermodynamic forces computed by the integration. The user is
-     * responible for calling the behaviour integration before using those
+     * responsible for calling the behaviour integration before using those
      * operators
      */
     [[nodiscard]] LinearizedOperators getLinearizedOperators(
@@ -183,7 +207,7 @@ namespace mfem_mgis {
     ~MultiMaterialNonLinearIntegrator() override;
 
    protected:
-    //! \brief underlying finite element space
+    //! \brief underlying finite element discretization
     const std::shared_ptr<const FiniteElementDiscretization> fe_discretization;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;

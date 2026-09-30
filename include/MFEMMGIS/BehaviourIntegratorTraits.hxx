@@ -13,19 +13,23 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief a traits class aimed a specializing the
-   * `StandardBehaviourIntegratorCRTPBase` class.
+   * \brief a traits class aimed at specializing the
+   * `StandardBehaviourIntegratorCRTPBase` and
+   * `FBarBehaviourIntegratorCRTPBase` classes.
    */
   template <typename BehaviourIntegrator>
   struct BehaviourIntegratorTraits {
-    //!
+    //! \brief number of components of the unknowns
     static constexpr size_type unknownsSize = 0u;
-    //! \brief
+    //! \brief if the computation of the gradients requires the shape functions
     static constexpr bool gradientsComputationRequiresShapeFunctions = false;
-    //! \brief
+    /*!
+     * \brief if the computation of the gradients requires the derivatives of
+     * the shape functions
+     */
     static constexpr bool
         gradientsComputationRequiresShapeFunctionsDerivatives = false;
-    //! \brief
+    //! \brief if the external state variables are updated from the unknowns
     static constexpr bool updateExternalStateVariablesFromUnknownsValues =
         false;
   };  // end of struct BehaviourIntegratorTraits

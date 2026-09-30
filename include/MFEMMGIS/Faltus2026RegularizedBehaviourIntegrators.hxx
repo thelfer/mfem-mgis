@@ -19,30 +19,41 @@ namespace mfem_mgis {
   // forward declaration
   struct Parameters;
 
+  /*!
+   * \brief select the base class of the regularized behaviour integrator
+   * \tparam H: modelling hypothesis
+   */
   template <Hypothesis H>
   struct Faltus2026RegularizedIsotropicBehaviourIntegratorBaseDispatch;
 
+  //! \brief plane strain specialisation
   template <>
   struct Faltus2026RegularizedIsotropicBehaviourIntegratorBaseDispatch<
       Hypothesis::PLANESTRAIN> {
+    //! \brief base class of the regularized behaviour integrator
     using type =
         IsotropicPlaneStrainStandardFiniteStrainMechanicsBehaviourIntegrator;
   };
 
+  //! \brief plane stress specialisation
   template <>
   struct Faltus2026RegularizedIsotropicBehaviourIntegratorBaseDispatch<
       Hypothesis::PLANESTRESS> {
+    //! \brief base class of the regularized behaviour integrator
     using type =
         IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator;
   };
 
+  //! \brief tridimensional specialisation
   template <>
   struct Faltus2026RegularizedIsotropicBehaviourIntegratorBaseDispatch<
       Hypothesis::TRIDIMENSIONAL> {
+    //! \brief base class of the regularized behaviour integrator
     using type =
         IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator;
   };
 
+  //! \brief base class of the regularized behaviour integrator
   template <Hypothesis H>
   using Faltus2026RegularizedIsotropicBehaviourIntegratorBase =
       typename Faltus2026RegularizedIsotropicBehaviourIntegratorBaseDispatch<
@@ -58,7 +69,7 @@ namespace mfem_mgis {
    *
    * \f[
    * W\left(\underline{F}, \bar{\underline{F}}\right) =
-   * \alpha\,\left(\underline{F}-\bar{\underline{F}}\right)\,\colon\,
+   * \frac{\alpha}{2}\,\left(\underline{F}-\bar{\underline{F}}\right)\,\colon\,
    * \left(\underline{F}-\bar{\underline{F}}\right)
    * \f]
    */
@@ -77,17 +88,34 @@ namespace mfem_mgis {
         const size_type m,
         std::unique_ptr<const Behaviour> b_ptr,
         const Parameters& params);
-    //
+    /*!
+     * \brief compute the contribution of the given element to the residual,
+     * including the regularization term
+     * \param[out] Fe: element contribution to the residual
+     * \param[in] e: finite element
+     * \param[in, out] tr: finite element transformation
+     * \param[in] u: current estimate of the unknowns
+     */
     void updateResidual(mfem::Vector& Fe,
                         const mfem::FiniteElement& e,
                         mfem::ElementTransformation& tr,
                         const mfem::Vector& u) override;
+    /*!
+     * \brief compute the contribution of the given element to the jacobian,
+     * including the regularization term
+     * \param[out] Je: element stiffness matrix
+     * \param[in] e: finite element
+     * \param[in, out] tr: finite element transformation
+     * \param[in] u: current estimate of the unknowns
+     */
     void updateJacobian(mfem::DenseMatrix& Je,
                         const mfem::FiniteElement& e,
                         mfem::ElementTransformation& tr,
                         const mfem::Vector& u) override;
+    //! \return if the current solution is required for assembling the residual
     [[nodiscard]] bool requiresCurrentSolutionForResidualAssembly()
         const noexcept override;
+    //! \return if the current solution is required for assembling the jacobian
     [[nodiscard]] bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept override;
 
@@ -103,6 +131,16 @@ namespace mfem_mgis {
 #endif
   };
 
+  /*!
+   * \brief generate a behaviour integrator with the regularization proposed
+   * by Faltus et al. under the plane strain hypothesis
+   * \param[in, out] ctx: execution context
+   * \param[in] fed: finite element discretization
+   * \param[in] m: material attribute
+   * \param[in] b: behaviour
+   * \param[in] params: parameters defining the penalization coefficient
+   * \return the new behaviour integrator, a null pointer on failure
+   */
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generatePlaneStrainFaltus2026RegularizedMechanicalBehaviourIntegrators(
       Context& ctx,
@@ -111,6 +149,16 @@ namespace mfem_mgis {
       std::unique_ptr<const Behaviour> b,
       const Parameters& params) noexcept;
 
+  /*!
+   * \brief generate a behaviour integrator with the regularization proposed
+   * by Faltus et al. under the plane stress hypothesis
+   * \param[in, out] ctx: execution context
+   * \param[in] fed: finite element discretization
+   * \param[in] m: material attribute
+   * \param[in] b: behaviour
+   * \param[in] params: parameters defining the penalization coefficient
+   * \return the new behaviour integrator, a null pointer on failure
+   */
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generatePlaneStressFaltus2026RegularizedMechanicalBehaviourIntegrators(
       Context& ctx,
@@ -119,6 +167,16 @@ namespace mfem_mgis {
       std::unique_ptr<const Behaviour> b,
       const Parameters& params) noexcept;
 
+  /*!
+   * \brief generate a behaviour integrator with the regularization proposed
+   * by Faltus et al. under the tridimensional hypothesis
+   * \param[in, out] ctx: execution context
+   * \param[in] fed: finite element discretization
+   * \param[in] m: material attribute
+   * \param[in] b: behaviour
+   * \param[in] params: parameters defining the penalization coefficient
+   * \return the new behaviour integrator, a null pointer on failure
+   */
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generateTridimensionalFaltus2026RegularizedMechanicalBehaviourIntegrators(
       Context& ctx,

@@ -19,16 +19,14 @@ namespace mfem_mgis {
   struct FiniteElementDiscretization;
 
   /*!
-   * \brief class implementing the a behaviour integrator dedicated to
-   * micromorphic damage in two dimensions (the modelling hypothesis has no
-   * effect on this specific behaviour as out of plane damage gradients are
-   * assumed to be zero).
+   * \brief class implementing a behaviour integrator dedicated to
+   * micromorphic damage under the tridimensional hypothesis.
    */
   struct MFEM_MGIS_EXPORT TridimensionalMicromorphicDamageBehaviourIntegrator
       : BehaviourIntegratorBase {
     /*!
      * \brief constructor
-     * \param[in] s: quadrature space
+     * \param[in] fed: finite element discretization
      * \param[in] m: material attribute.
      * \param[in] b_ptr: behaviour
      */
@@ -66,16 +64,19 @@ namespace mfem_mgis {
 
    private:
     /*!
-     * \return the integration rule for the given element and  * element
-     * transformation. \param[in] e: element \param[in] tr: element
+     * \brief select the integration rule for the given element and element
      * transformation
+     * \param[in] e: element
+     * \param[in] t: element transformation
+     * \return the integration rule
      */
     static const mfem::IntegrationRule &selectIntegrationRule(
         const mfem::FiniteElement &e, const mfem::ElementTransformation &t);
     /*!
-     * \brief build the quadrature space for the given  * material
+     * \brief build the quadrature space for the given material
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
+     * \return the partial quadrature space
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &fed, const size_type m);

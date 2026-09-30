@@ -18,6 +18,16 @@ namespace mfem_mgis {
   // forward declaration
   struct FiniteElementDiscretization;
 
+  /*!
+   * \brief generate an FBar behaviour integrator under the plane strain
+   * hypothesis
+   * \param[in, out] ctx: execution context
+   * \param[in] fed: finite element discretization
+   * \param[in] m: material attribute
+   * \param[in] b: behaviour
+   * \param[in] params: additional parameters, none expected
+   * \return the new behaviour integrator, a null pointer on failure
+   */
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generatePlaneStrainFBarBehaviourIntegrators(
       Context& ctx,
@@ -26,6 +36,16 @@ namespace mfem_mgis {
       std::unique_ptr<const Behaviour> b,
       const Parameters& params) noexcept;
 
+  /*!
+   * \brief generate an FBar behaviour integrator under the tridimensional
+   * hypothesis
+   * \param[in, out] ctx: execution context
+   * \param[in] fed: finite element discretization
+   * \param[in] m: material attribute
+   * \param[in] b: behaviour
+   * \param[in] params: additional parameters, none expected
+   * \return the new behaviour integrator, a null pointer on failure
+   */
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generateTridimensionalFBarBehaviourIntegrators(
       Context& ctx,

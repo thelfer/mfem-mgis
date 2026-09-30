@@ -26,9 +26,9 @@ namespace mfem_mgis {
    * predeclared generators.
    *
    * \tparam H: modelling hypothesis
-   * \param[in] f: factory
+   * \param[in, out] f: factory
    *
-   * \note this function is meant to be overriden to declare behaviour
+   * \note this function is meant to be specialised to declare behaviour
    * integrators which are only valid for this modelling hypothesis. Behaviour
    * integrators defined for all modelling hypotheses are declared by the
    * `fillWithDefaultBehaviourIntegrators`.
@@ -54,34 +54,38 @@ namespace mfem_mgis {
             const size_type,
             std::unique_ptr<const Behaviour>)>;
     /*!
-     * \return the unique instance of this class for the given hypothesis
-     * \param[in] ctx: execution context
+     * \brief return the unique instance of this class for the given hypothesis
+     * \param[in, out] ctx: execution context
      * \param[in] h: modelling hypothesis
+     * \return the factory associated with the given hypothesis
      */
     static OptionalReference<BehaviourIntegratorFactory> get(
         Context& ctx, const Hypothesis h) noexcept;
     /*!
-     * \return the unique instance of this class for the given hypothesis
+     * \brief return the unique instance of this class for the given hypothesis
      * \param[in] h: modelling hypothesis
+     * \return the factory associated with the given hypothesis
      */
     static BehaviourIntegratorFactory& get(const Hypothesis h);
     /*!
      * \brief register a new behaviour integrator
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name
      * \param[in] g: generator
+     * \return true on success
      */
     [[nodiscard]] bool addGenerator(Context& ctx,
                                     const std::string& n,
                                     const Generator g) noexcept;
     /*!
-     * \return a newly created behaviour integrator
-     * \param[in] ctx: execution context
+     * \brief create a new behaviour integrator
+     * \param[in, out] ctx: execution context
      * \param[in] n: name
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      * \param[in] b: behaviour
      * \param[in] params: additional parameters
+     * \return a newly created behaviour integrator
      */
     [[nodiscard, deprecated]] std::unique_ptr<AbstractBehaviourIntegrator>
     generate(Context& ctx,
@@ -91,11 +95,12 @@ namespace mfem_mgis {
              std::unique_ptr<const Behaviour> b,
              const Parameters& params = Parameters{}) const noexcept;
     /*!
-     * \return a newly created behaviour integrator
+     * \brief create a new behaviour integrator
      * \param[in] n: name
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      * \param[in] b: behaviour
+     * \return a newly created behaviour integrator
      */
     [[nodiscard, deprecated]] std::unique_ptr<AbstractBehaviourIntegrator>
     generate(std::string_view n,
@@ -112,15 +117,15 @@ namespace mfem_mgis {
     BehaviourIntegratorFactory(BehaviourIntegratorFactory&&);
     //! \brief copy constructor
     BehaviourIntegratorFactory(const BehaviourIntegratorFactory&) = delete;
-    //! \brief move assignement
+    //! \brief move assignment
     BehaviourIntegratorFactory& operator=(BehaviourIntegratorFactory&&) =
         delete;
-    //! \brief standard assignement
+    //! \brief standard assignment
     BehaviourIntegratorFactory& operator=(const BehaviourIntegratorFactory&) =
         delete;
     /*!
      * \brief register a new behaviour integrator
-     * \param[in] a: attribute expliciting that this method may abort on error
+     * \param[in] a: attribute stating that this method may abort on error
      * \param[in] n: name
      * \param[in] g: generator
      */
@@ -129,7 +134,7 @@ namespace mfem_mgis {
                       const Generator g);
     /*!
      * \brief register a new behaviour integrator
-     * \param[in] a: attribute expliciting that this method may abort on error
+     * \param[in] a: attribute stating that this method may abort on error
      * \param[in] n: name
      * \param[in] g: generator
      */
@@ -140,9 +145,10 @@ namespace mfem_mgis {
     template <Hypothesis H>
     friend void buildFactory(BehaviourIntegratorFactory& f);
     /*!
-     * \brief an helper function which add the behaviour integrators for the
-     * given hypothesis \tparam H: modelling hypothesis \param[in, out]
-     * factories: list of factories per modelling hypotheses
+     * \brief build the factory associated with the given hypothesis and add
+     * it to the given map
+     * \tparam H: modelling hypothesis
+     * \param[in, out] factories: list of factories per modelling hypotheses
      */
     template <Hypothesis H>
     static void addFactory(
@@ -154,7 +160,7 @@ namespace mfem_mgis {
      */
     static std::map<Hypothesis, std::unique_ptr<BehaviourIntegratorFactory>>
     buildFactories();
-    //! \brief registred generators
+    //! \brief registered generators
     std::map<std::string, Generator, std::less<>> generators;
 
   };  // end of BehaviourIntegratorFactory

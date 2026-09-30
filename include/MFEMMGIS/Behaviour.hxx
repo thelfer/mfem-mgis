@@ -22,13 +22,14 @@ namespace mfem_mgis {
   /*!
    * \brief load a behaviour.
    *
-   * Compared the `mgis::behaviour::load` function, this function
+   * Compared to the `mgis::behaviour::load` function, this function
    * handles specifically the case of finite strain behaviours.
    *
    * \param[in, out] ctx: execution context
    * \param[in] l: library name
    * \param[in] b: behaviour name
    * \param[in] h: modelling hypothesis
+   * \return the loaded behaviour, a null pointer on failure
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<Behaviour> load(
       Context& ctx,

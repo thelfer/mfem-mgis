@@ -16,21 +16,30 @@ namespace mfem_mgis {
   struct TransientHeatTransferBehaviourIntegrator;
 
   /*!
-   * \brief partial specialisation of the `BehaviourIntegratorTraits`
+   * \brief specialisation of the `BehaviourIntegratorTraits`
    * class for the `TransientHeatTransferBehaviourIntegrator`
    * behaviour integrator
    */
   template <>
   struct BehaviourIntegratorTraits<TransientHeatTransferBehaviourIntegrator> {
+    //! \brief number of components of the unknowns
     static constexpr size_type unknownsSize = 1;
+    //! \brief if the computation of the gradients requires the shape functions
     static constexpr bool gradientsComputationRequiresShapeFunctions = true;
+    /*!
+     * \brief if the computation of the gradients requires the derivatives of
+     * the shape functions
+     */
     static constexpr bool
         gradientsComputationRequiresShapeFunctionsDerivatives = false;
+    //! \brief if the external state variables are updated from the unknowns
     static constexpr bool updateExternalStateVariablesFromUnknownsValues =
         false;
   };  // end of struct BehaviourIntegratorTraits<>
 
   /*!
+   * \brief behaviour integrator for the transient term of the heat equation
+   *
    * This behaviour integrator is meant to compute the inner forces associated
    * with the term:
    *
@@ -60,17 +69,37 @@ namespace mfem_mgis {
         const size_type m,
         std::unique_ptr<const Behaviour> b_ptr);
     /*!
+     * \brief get the rotation matrix at the given integration point
      * \return the rotation matrix associated with the given integration
      * point
-     * \param[in] i: integration points
+     * \param[in] i: offset of the integration point
      */
     inline RotationMatrix getRotationMatrix(const size_type i) const;
 
+    /*!
+     * \brief rotate the gradients in the material frame
+     * \param[in, out] g: gradients
+     * \param[in] r: rotation matrix
+     * \note does nothing
+     */
     inline void rotateGradients(std::span<real> g, const RotationMatrix &r);
 
+    /*!
+     * \brief rotate the thermodynamic forces in the global frame
+     * \param[in] s: thermodynamic forces
+     * \param[in] r: rotation matrix
+     * \return the thermodynamic forces in the global frame
+     * \note returns s unchanged
+     */
     inline std::span<const real> rotateThermodynamicForces(
         std::span<const real> s, const RotationMatrix &r);
 
+    /*!
+     * \brief rotate the tangent operator blocks in the global frame
+     * \param[in, out] Kip: tangent operator blocks
+     * \param[in] r: rotation matrix
+     * \note does nothing
+     */
     inline void rotateTangentOperatorBlocks(std::span<real> Kip,
                                             const RotationMatrix &r);
 
@@ -105,44 +134,47 @@ namespace mfem_mgis {
     ~TransientHeatTransferBehaviourIntegrator() override;
 
    protected:
-    //! \brief allow the CRTP base class the protected members
+    //! \brief allow the CRTP base class to access the protected members
     friend struct StandardBehaviourIntegratorCRTPBase<
         TransientHeatTransferBehaviourIntegrator>;
     /*!
-     * \return the integration rule for the given element and  * element
-     * transformation. \param[in] e: element \param[in] tr: element
+     * \brief select the integration rule for the given element and element
      * transformation
+     * \param[in] e: element
+     * \param[in] t: element transformation
+     * \return the integration rule
      */
     static const mfem::IntegrationRule &selectIntegrationRule(
         const mfem::FiniteElement &e, const mfem::ElementTransformation &t);
     /*!
-     * \brief build the quadrature space for the given  * material
+     * \brief build the quadrature space for the given material
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
+     * \return the partial quadrature space
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &fed, const size_type m);
     /*!
-     * \brief update the strain with the contribution of the
-     * given node
-     * \param[in] g: strain
-     * \param[in] u: nodal displacements
+     * \brief update the temperature at the integration point with the
+     * contribution of the given node
+     * \param[in, out] g: temperature
+     * \param[in] T: nodal temperatures
      * \param[in] N: shape functions
-     * \param[in] n: node index
+     * \param[in] ni: node index
      */
     void updateGradients(std::span<real> &g,
                          const mfem::Vector &T,
                          const mfem::Vector &N,
                          const size_type ni) noexcept;
     /*!
-     * \brief update the inner forces of the given node  with
-     * the contribution of the stress of an integration point.
+     * \brief update the inner forces of the given node with
+     * the contribution of the thermodynamic force of an integration point.
      *
-     * \param[out] Fe: inner forces
-     * \param[in] s: stress
+     * \param[in, out] Fe: inner forces
+     * \param[in] s: thermodynamic force
      * \param[in] N: shape functions
      * \param[in] w: weight of the integration point
-     * \param[in] n: node index
+     * \param[in] ni: node index
      */
     void updateInnerForces(mfem::Vector &Fe,
                            const std::span<const real> &s,
@@ -151,14 +183,14 @@ namespace mfem_mgis {
                            const size_type ni) const noexcept;
     /*!
      * \brief update the stiffness matrix of the given node
-     * with the contribution of the consistent tangent operator of  * an
+     * with the contribution of the consistent tangent operator of an
      * integration point.
      *
-     * \param[out] Ke: inner forces
-     * \param[in] Kip: stress
+     * \param[in, out] Ke: stiffness matrix
+     * \param[in] Kip: consistent tangent operator of the integration point
      * \param[in] N: shape functions
      * \param[in] w: weight of the integration point
-     * \param[in] n: node index
+     * \param[in] ni: node index
      */
     void updateStiffnessMatrix(mfem::DenseMatrix &Ke,
                                const std::span<const real> &Kip,
