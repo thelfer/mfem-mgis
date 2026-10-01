@@ -225,6 +225,10 @@ has no effect if it is greater than the
 times marked as <em>explicitly requested by the user</em>.</p>
 <p>See Section <a class="reference internal" href="#simulation-post-processings"><span class="std std-ref">Conditions for post-processings to be executed</span></a> for details.</p>
 </li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">StopOnPostProcessingFailure</span></code>: boolean stating if the
+simulation stops when a post-processing fails. Otherwise, the failure
+is reported as a warning and the simulation goes on. The default value
+of this parameter is <cite>false</cite>.</p></li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">Monitors</span></code>: list of simulation monitors.</p></li>
 </ul>
 </section>
