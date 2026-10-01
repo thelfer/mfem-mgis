@@ -18,7 +18,7 @@ namespace mfem_mgis {
     if (m.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       auto r = b;
-      MPI_Allreduce(MPI_IN_PLACE, &r, 1, MPI_C_BOOL, MPI_LAND,
+      MPI_Allreduce(MPI_IN_PLACE, &r, 1, MPI_CXX_BOOL, MPI_LAND,
                     getMPICommunicator(m));
       return r;
 #else  /* MFEM_USE_MPI */

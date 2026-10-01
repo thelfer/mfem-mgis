@@ -262,7 +262,7 @@ static bool checkResults(const UniaxialTestResults& r,
   const auto& fed =
       m.getPartialQuadratureSpace().getFiniteElementDiscretization();
   if (fed.describesAParallelComputation()) {
-    MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
+    MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_CXX_BOOL, MPI_LAND,
                   mfem_mgis::getMPICommunicator(fed));
   }
 #endif /* MFEM_USE_MPI */
