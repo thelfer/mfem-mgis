@@ -141,7 +141,7 @@ namespace mfem_mgis {
       createSubMesh(Context& ctx,
                     NonLinearEvolutionProblemImplementation<parallel>& p) {
     auto or_raise = ctx.getThrowingFailureHandler();
-    auto fed = p.getFiniteElementDiscretization();
+    auto& fed = p.getFiniteElementDiscretization();
     this->submesh = fed.template getMutableSubMeshPointer<parallel>(
                         ctx, Parameter::from(this->materials_identifiers),
                         MeshDiscretization::Location::ON_MATERIALS) |
