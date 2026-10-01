@@ -154,11 +154,11 @@ namespace mfem_mgis {
      * \param[in] s: partial quadrature space
      * \param[in] n: name of the dependency
      * \param[in] ds: status
+     * \throws std::runtime_error if the partial quadrature space is null
      */
-    QPDependency(
-        std::shared_ptr<const PartialQuadratureSpace> s,
-        std::string_view n,
-        const DependencyStatus ds = DependencyStatus::REQUIRED) noexcept;
+    QPDependency(std::shared_ptr<const PartialQuadratureSpace> s,
+                 std::string_view n,
+                 const DependencyStatus ds = DependencyStatus::REQUIRED);
     /*!
      * \brief constructor
      * \param[in] m: material identifier

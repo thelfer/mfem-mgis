@@ -74,7 +74,7 @@ namespace mfem_mgis {
     const auto oufs = get_if<bool>(ctx, parameters, "UnknownFields", b);
     const auto osvs = get_if<bool>(ctx, parameters, "StateVariables", b);
     const auto odeps = get_if<bool>(ctx, parameters, "Dependencies", b);
-    if (areInvalid(osd, odd, oufs, odeps)) {
+    if (areInvalid(osd, odd, oufs, osvs, odeps)) {
       return {};
     }
     auto d = std::string{};

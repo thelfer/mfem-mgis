@@ -31,7 +31,7 @@ namespace mfem_mgis {
     if (!checkParameters(ctx, parameters, options)) {
       return {};
     }
-    const auto oho = get_if<bool>(ctx, parameters, "helpOptions", false);
+    const auto oho = get_if<bool>(ctx, parameters, "HelpOptions", false);
     if (isInvalid(oho)) {
       return {};
     }

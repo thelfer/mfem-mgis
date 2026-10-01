@@ -77,7 +77,7 @@ namespace mfem_mgis {
     }
     const auto osd = get_if<bool>(ctx, parameters, "ShortDescription", true);
     const auto onps = get_if<bool>(ctx, parameters, "NumericalParameters", b);
-    const auto ocis = get_if<bool>(ctx, parameters, "NumericalParameters", b);
+    const auto ocis = get_if<bool>(ctx, parameters, "CouplingItems", b);
     if (isInvalid(osd) || isInvalid(onps) || isInvalid(ocis)) {
       return {};
     }

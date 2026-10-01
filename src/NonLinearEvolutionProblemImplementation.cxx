@@ -496,8 +496,7 @@ namespace mfem_mgis {
       success = this->mgis_integrator->integrate(e, tr, ue, it);
     }
     success = isTrueOnAllProcesses(*(this->fe_discretization), success);
-    if ((!success) &&
-        (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR)) {
+    if ((success) && (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR)) {
       this->hasStiffnessOperatorsBeenComputed = true;
     }
     this->mgis_integrator->setTimeIncrement(dt);
@@ -721,6 +720,7 @@ namespace mfem_mgis {
       fespace.GetElementVDofs(i, vdofs);
       pu.GetSubVector(vdofs, ue);
       if (!this->mgis_integrator->integrate(e, tr, ue, it)) {
+        this->mgis_integrator->setTimeIncrement(dt);
         return false;
       }
     }

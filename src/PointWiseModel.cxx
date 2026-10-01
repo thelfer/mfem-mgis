@@ -33,11 +33,26 @@ namespace mfem_mgis {
     return descriptions;
   }  // end of getParametersDescription
 
+  /*!
+   * \return the given partial quadrature space
+   * \param[in] s: partial quadrature space
+   * \throws std::runtime_error if the partial quadrature space is null
+   */
+  static const PartialQuadratureSpace& checkPartialQuadratureSpace(
+      const std::shared_ptr<const PartialQuadratureSpace>& s) {
+    if (s.get() == nullptr) {
+      raise("invalid partial quadrature space");
+    }
+    return *s;
+  }  // end of checkPartialQuadratureSpace
+
   PointWiseModel::PointWiseModel(
       Context& ctx,
       std::shared_ptr<const PartialQuadratureSpace> qspace,
       const Parameters& parameters)
-      : ModelBase(ctx, qspace->getFiniteElementDiscretization()),
+      : ModelBase(ctx,
+                  checkPartialQuadratureSpace(qspace)
+                      .getFiniteElementDiscretization()),
         Material(qspace, loadModel(throwing, parameters)) {
     checkParameters(throwing, parameters,
                     PointWiseModel::getParametersDescription());
