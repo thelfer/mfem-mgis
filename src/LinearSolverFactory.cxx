@@ -734,8 +734,8 @@ namespace mfem_mgis {
     try {
       s = g(ctx, fespace, params);
     } catch (std::exception& e) {
-      std::string msg("LinearSolverFactory<false>::generate: ");
-      msg += "error while generating no linear '";
+      std::string msg("LinearSolverFactory<true>::generate: ");
+      msg += "error while generating linear solver '";
       msg += n;
       msg += "'\n";
       msg += e.what();
@@ -794,7 +794,7 @@ namespace mfem_mgis {
       s = g(ctx, fespace, params);
     } catch (std::exception& e) {
       std::string msg("LinearSolverFactory<false>::generate: ");
-      msg += "error while generating no linear '";
+      msg += "error while generating linear solver '";
       msg += n;
       msg += "'\n";
       msg += e.what();
