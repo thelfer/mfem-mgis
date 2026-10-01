@@ -6,9 +6,9 @@
 #ifdef MFEM_USE_MPI
 #include <mpi.h>
 #endif
-#ifdef MFEM_USE_OPENMP
+#ifdef _OPENMP
 #include <omp.h>
-#endif /* MFEM_USE_OPENMP */
+#endif /* _OPENMP */
 
 #include <iomanip>
 #include <numeric>
@@ -102,7 +102,7 @@ namespace mfem_mgis {
         if (mpiSize > 1) {
           return base_name + "." + std::to_string(mpiSize) + ".perf";
         } else {
-          int nthreads = 0;
+          int nthreads = 1;
 #if defined(_OPENMP)
 #pragma omp parallel
           { nthreads = omp_get_num_threads(); }
