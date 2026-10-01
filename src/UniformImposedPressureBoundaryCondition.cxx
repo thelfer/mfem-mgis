@@ -286,7 +286,7 @@ namespace mfem_mgis {
   UniformImposedPressureBoundaryCondition::
       ~UniformImposedPressureBoundaryCondition() {
     if (this->shallFreeIntegrator) {
-      std::free(this->nfi);
+      delete this->nfi;
     }
   }
 

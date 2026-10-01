@@ -269,7 +269,7 @@ namespace mfem_mgis {
 
   UniformHeatSourceBoundaryCondition::~UniformHeatSourceBoundaryCondition() {
     if (this->shallFreeIntegrator) {
-      std::free(this->nfi);
+      delete this->nfi;
     }
   }
 
