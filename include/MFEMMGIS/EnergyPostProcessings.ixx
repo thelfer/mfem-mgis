@@ -93,8 +93,8 @@ namespace mfem_mgis {
     this->out << "# first column: time\n";
     auto c = size_type{2};
     for (const auto &m : this->materials_identifiers) {
-      this->out << "# " << c << "column: " << etype  //
-                << "energy of material (" << m << ")\n";
+      this->out << "# column " << c << ": " << etype  //
+                << " energy of material (" << m << ")\n";
       ++c;
     }
   }  // end of openFile
