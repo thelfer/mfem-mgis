@@ -41,7 +41,7 @@ namespace mfem_mgis {
       }
       if (get<int>(throwing, d) <= 0) {  // this can't throw
         return ctx.registerErrorMessage("parameter '" + k +
-                                        "' is not strictly postive");
+                                        "' is not strictly positive");
       }
       return true;
     };
