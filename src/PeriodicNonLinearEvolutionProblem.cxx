@@ -116,8 +116,11 @@ namespace mfem_mgis {
           curcoord[j] = (nodes)[i * dim + j];
       }
 
-      if (p.getFiniteElementSpace().GetLocalTDofNumber(i) == -1)
-        break;  // ghost dof
+      // ghost dof, owned by another process
+      const auto vdof = bynodes ? i : i * dim;
+      if (p.getFiniteElementSpace().GetLocalTDofNumber(vdof) == -1) {
+        continue;
+      }
 
       if (((bct == FIX_XMIN) && (curcoord[0] < refcoord[0])) ||
           ((bct == FIX_YMIN) && (curcoord[1] < refcoord[1])) ||
