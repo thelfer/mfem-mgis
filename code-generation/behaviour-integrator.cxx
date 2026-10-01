@@ -527,12 +527,14 @@ void generateHeaderFile(std::ostream& os,
   if (fs) {
     os << ", " << fs_base;
   }
-  os << " {\n"
-     << "/*!\n"
-     << " * \\brief a constant value used for the computation of\n"
-     << " * symmetric tensors\n"
-     << " */\n"
-     << "static constexpr const auto icste = real{0.70710678118654752440};\n";
+  os << " {\n";
+  if (d.generator_name == "StandardSmallStrainMechanics") {
+    os << "/*!\n"
+       << " * \\brief a constant value used for the computation of\n"
+       << " * symmetric tensors\n"
+       << " */\n"
+       << "static constexpr const auto icste = real{0.70710678118654752440};\n";
+  }
   if (d.isotropic) {
     os << "//! \\brief a dummy structure\n"
        << "struct RotationMatrix {};\n";

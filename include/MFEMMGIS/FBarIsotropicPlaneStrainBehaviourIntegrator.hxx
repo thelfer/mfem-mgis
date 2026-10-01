@@ -53,11 +53,6 @@ namespace mfem_mgis {
             FBarIsotropicPlaneStrainBehaviourIntegrator,
             Hypothesis::PLANESTRAIN>,
         PlaneStrainStandardFiniteStrainMechanicsBehaviourIntegratorBase {
-    /*!
-     * \brief a constant value used for the computation of
-     * symmetric tensors
-     */
-    static constexpr const auto icste = real{0.70710678118654752440};
     //! \brief a dummy structure
     struct RotationMatrix {};
     /*!
