@@ -56,6 +56,9 @@ namespace mfem_mgis {
       const real t,
       const real dt) noexcept {
     const auto ores = computeMeanThermodynamicForcesValues(ctx, p);
+    if (isInvalid(ores)) {
+      return false;
+    }
     const auto [tf_integrals, volumes] = *ores;
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
