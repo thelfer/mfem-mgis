@@ -287,7 +287,7 @@ namespace mfem_mgis {
    * \param[in] provider: problem used to resolve the dependencies
    * \return true on success
    */
-  [[nodiscard]] bool resolveBehaviourIntegratorsDependencies(
+  MFEM_MGIS_EXPORT [[nodiscard]] bool resolveBehaviourIntegratorsDependencies(
       Context &ctx,
       NonLinearEvolutionProblem &p,
       const NonLinearEvolutionProblem &provider) noexcept;

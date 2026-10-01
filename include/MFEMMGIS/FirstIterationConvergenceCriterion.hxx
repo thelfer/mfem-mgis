@@ -16,7 +16,7 @@ namespace mfem_mgis {
    * \brief a convergence criterion which checks that every coupling item
    * converged at the first iteration.
    */
-  struct FirstIterationConvergenceCriterion
+  struct MFEM_MGIS_EXPORT FirstIterationConvergenceCriterion
       : CouplingSchemeConvergenceCriterionBase {
     //! \return a description of this criterion
     [[nodiscard]] static std::string getDescription() noexcept;
