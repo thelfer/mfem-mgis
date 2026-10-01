@@ -285,7 +285,7 @@ namespace mfem_mgis {
       if (materials_names.find(mids[0]) != materials_names.end()) {
         warning(getDefaultLogStream(), "ignoring attribute set '", n,
                 "' for material (", mids[0],
-                ") which is already names by the user to a material");
+                ") which is already named by the user");
         continue;
       }
       if (!isValidMeshObjectName(n)) {
@@ -319,14 +319,14 @@ namespace mfem_mgis {
         continue;
       }
       if (count(materials_names, n) != 0) {
-        warning(getDefaultLogStream(), "ignoring material attribute set '", n,
+        warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
                 "' which is already associated by the user to a material");
         continue;
       }
       if (boundaries_names.find(bids[0]) != boundaries_names.end()) {
         warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
-                "' for material (", bids[0],
-                ") which is already names by the user to a material");
+                "' for boundary (", bids[0],
+                ") which is already named by the user");
         continue;
       }
       if (!isValidMeshObjectName(n)) {
