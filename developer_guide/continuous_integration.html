@@ -179,7 +179,9 @@ most of the compilations in the caches.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">doxygen.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">sphinx.yml</span></code></p></td>
 <td><p>pushes and pull requests on <code class="docutils literal notranslate"><span class="pre">master</span></code></p></td>
-<td><p>build the documentation, published on pushes</p></td>
+<td><p>build the documentation, published on pushes. <code class="docutils literal notranslate"><span class="pre">doxygen.yml</span></code> fails
+on any warning, unless <code class="docutils literal notranslate"><span class="pre">FAIL_ON_DOXYGEN_WARNINGS</span></code> is set to <code class="docutils literal notranslate"><span class="pre">false</span></code>
+in the workflow</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ci.yml</span></code></p></td>
 <td><p>end of a run of <code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code> or <code class="docutils literal notranslate"><span class="pre">spack.yml</span></code> on <code class="docutils literal notranslate"><span class="pre">master</span></code></p></td>
