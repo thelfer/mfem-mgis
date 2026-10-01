@@ -23,8 +23,9 @@ on the boundary labeled :code:`5`:
 .. code:: c++
 
    problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 5, 0));
+       ctx, std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                problem.getFiniteElementDiscretizationPointer(), 5, 0)) |
+       or_die;
 
 Mechanical boundary conditions
 ==============================
@@ -53,9 +54,11 @@ with time, on the boundary labeled :code:`3`:
 .. code:: c++
    
    problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformImposedPressureBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 3,
-          [](const mfem_mgis::real t) noexcept { return 150e6 * t; }));
+       ctx,
+       std::make_unique<mfem_mgis::UniformImposedPressureBoundaryCondition>(
+           problem.getFiniteElementDiscretizationPointer(), 3,
+           [](const mfem_mgis::real t) noexcept { return 150e6 * t; })) |
+       or_die;
 
 Heat transfer boundary conditions
 =================================
@@ -80,6 +83,7 @@ linearly with time, on the material named :code:`fuel`:
 .. code:: c++
    
    problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformHeatSourceBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), "fuel",
-            [&q](const auto t) { return q * t; }));
+       ctx, std::make_unique<mfem_mgis::UniformHeatSourceBoundaryCondition>(
+                problem.getFiniteElementDiscretizationPointer(), "fuel",
+                [&q](const auto t) { return q * t; })) |
+       or_die;

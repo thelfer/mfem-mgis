@@ -391,7 +391,8 @@ namespace mfem_mgis {
       return {};
     }
     if (!om->b.computesStoredEnergy) {
-      return {};
+      return ctx.registerErrorMessage(
+          "behaviour does not compute the stored energy");
     }
     const auto oe = getStoredEnergy(ctx, *om, s);
     if (isInvalid(oe)) {
@@ -406,10 +407,11 @@ namespace mfem_mgis {
       const Material::StateSelection s) noexcept {
     const auto om = bi.getMaterial(ctx);
     if (isInvalid(om)) {
-      return real{};
+      return {};
     }
     if (!om->b.computesDissipatedEnergy) {
-      return {};
+      return ctx.registerErrorMessage(
+          "behaviour does not compute the dissipated energy");
     }
     const auto oe = getDissipatedEnergy(ctx, *om, s);
     if (isInvalid(oe)) {

@@ -32,7 +32,9 @@ Highlights
   `CatchTimeSection`.
 - Many methods have been deprecated to have a consistent error handling
   scheme based on `MGIS`'s one. As such, many methods and functions now
-  takes and `MGIS`'s :cxx:`Context` as their first argument.
+  take a `MGIS`'s :cxx:`Context` as their first argument. The deprecated
+  methods of :cxx:`AbstractNonLinearEvolutionProblem` have been removed,
+  see the known incompatibilities below.
 - The name of the materials and boundaries are automatically retrieved
   from |MFEM|'s mesh.
 
@@ -45,6 +47,12 @@ Known incompatibilites
   The parameter `DiscardLinearSolverFailure` can be passed to
   `MFEM/MGIS`'s Newton solver to recover the behavior of previous
   versions.
+- The deprecated methods of :cxx:`AbstractNonLinearEvolutionProblem`
+  and of its derived classes which did not take a :cxx:`Context` have
+  been removed, as well as the deprecated functions :cxx:`getGradient`,
+  :cxx:`getThermodynamicForce` and :cxx:`getInternalStateVariable`
+  which did not take a :cxx:`Context`. The overloads taking a
+  :cxx:`Context` as first argument shall be used instead.
 
 New features
 ============
@@ -350,6 +358,7 @@ Issues fixed
 
 - Issue 429: ex1 and ex3 sources shall only live in mm
 - Issue 427: satoh, rve and mox examples are duplicates from mm-examples
+- Issue 404: Remove deprecated methods of `AbstractNonLinearEvolutionProblem`
 - Issue 292: Remove deprecated usage of `getMaterial` in
   `ParaviewExportIntegrationPointResultsAtNodesBase::getPartialQuadratureFunctionViews`
   and `ParaviewExportIntegrationPointResultsAtNodesBase::getResultDescription`

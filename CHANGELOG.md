@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - use std::span instead of mgis::span
 
+### Removed
+
+- deprecated methods of `AbstractNonLinearEvolutionProblem` and deprecated
+  functions `getGradient`, `getThermodynamicForce` and
+  `getInternalStateVariable` which did not take a `Context`
+
 ## [1.0.0] - 2024-08-02
 
 ### Added
