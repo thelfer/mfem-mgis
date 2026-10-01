@@ -286,31 +286,6 @@ namespace mfem_mgis {
         getStateManager(m, s).gradients, m.b.gradients, n, m.b.hypothesis);
   }  // end of getGradient
 
-  PartialQuadratureFunction getGradient(Material &m,
-                                        const std::string_view n,
-                                        const Material::StateSelection s) {
-    auto ctx = Context{};
-    auto or_die = ctx.getFatalFailureHandler();
-    return buildPartialQuadratureFunction(ctx,
-                                          m.getPartialQuadratureSpacePointer(),
-                                          getStateManager(m, s).gradients,
-                                          m.b.gradients, n, m.b.hypothesis) |
-           or_die;
-  }  // end of getGradient
-
-  ImmutablePartialQuadratureFunctionView getGradient(
-      const Material &m,
-      const std::string_view n,
-      const Material::StateSelection s) {
-    auto ctx = Context{};
-    auto or_die = ctx.getFatalFailureHandler();
-    return buildImmutablePartialQuadratureFunctionView(
-               ctx, m.getPartialQuadratureSpacePointer(),
-               getStateManager(m, s).gradients, m.b.gradients, n,
-               m.b.hypothesis) |
-           or_die;
-  }  // end of getGradient
-
   std::optional<PartialQuadratureFunction> getThermodynamicForce(
       Context &ctx,
       Material &m,
@@ -333,30 +308,6 @@ namespace mfem_mgis {
         m.b.hypothesis);
   }  // end of getThermodynamicForce
 
-  PartialQuadratureFunction getThermodynamicForce(
-      Material &m, const std::string_view n, const Material::StateSelection s) {
-    auto ctx = Context{};
-    auto or_die = ctx.getFatalFailureHandler();
-    return buildPartialQuadratureFunction(
-               ctx, m.getPartialQuadratureSpacePointer(),
-               getStateManager(m, s).thermodynamic_forces,
-               m.b.thermodynamic_forces, n, m.b.hypothesis) |
-           or_die;
-  }  // end of getThermodynamicForce
-
-  ImmutablePartialQuadratureFunctionView getThermodynamicForce(
-      const Material &m,
-      const std::string_view n,
-      const Material::StateSelection s) {
-    auto ctx = Context{};
-    auto or_die = ctx.getFatalFailureHandler();
-    return buildImmutablePartialQuadratureFunctionView(
-               ctx, m.getPartialQuadratureSpacePointer(),
-               getStateManager(m, s).thermodynamic_forces,
-               m.b.thermodynamic_forces, n, m.b.hypothesis) |
-           or_die;
-  }  // end of getThermodynamicForce
-
   std::optional<PartialQuadratureFunction> getInternalStateVariable(
       Context &ctx,
       Material &m,
@@ -377,30 +328,6 @@ namespace mfem_mgis {
         ctx, m.getPartialQuadratureSpacePointer(),
         getStateManager(m, s).internal_state_variables, m.b.isvs, n,
         m.b.hypothesis);
-  }  // end of getInternalStateVariable
-
-  PartialQuadratureFunction getInternalStateVariable(
-      Material &m, const std::string_view n, const Material::StateSelection s) {
-    auto ctx = Context{};
-    auto or_die = ctx.getFatalFailureHandler();
-    return buildPartialQuadratureFunction(
-               ctx, m.getPartialQuadratureSpacePointer(),
-               getStateManager(m, s).internal_state_variables, m.b.isvs, n,
-               m.b.hypothesis) |
-           or_die;
-  }  // end of getInternalStateVariable
-
-  ImmutablePartialQuadratureFunctionView getInternalStateVariable(
-      const Material &m,
-      const std::string_view n,
-      const Material::StateSelection s) {
-    auto ctx = Context{};
-    auto or_die = ctx.getFatalFailureHandler();
-    return buildImmutablePartialQuadratureFunctionView(
-               ctx, m.getPartialQuadratureSpacePointer(),
-               getStateManager(m, s).internal_state_variables, m.b.isvs, n,
-               m.b.hypothesis) |
-           or_die;
   }  // end of getInternalStateVariable
 
   std::optional<PartialQuadratureFunction> getStoredEnergy(
