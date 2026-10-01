@@ -86,6 +86,9 @@ namespace mfem_mgis {
     d.insert({"AllowSubStepping",
               "boolean stating if sub stepping in case of convergence failure "
               "is allowed"});
+    d.insert({"StopOnPostProcessingFailure",
+              "boolean stating if the simulation stops when a post-processing "
+              "fails. Otherwise, the failure is reported as a warning"});
     d.insert({"IndependentTemporalSequences",
               "boolean stating if the temporal sequences are independent. "
               "Currently, this boolean only choose if the last time "
@@ -250,6 +253,8 @@ namespace mfem_mgis {
                     Simulation::getParametersDescription());
     this->allowSubstepping =
         get_if<bool>(throwing, parameters, "AllowSubStepping", true);
+    this->stopOnPostProcessingFailure = get_if<bool>(
+        throwing, parameters, "StopOnPostProcessingFailure", false);
     this->independentTemporalSequences = get_if<bool>(
         throwing, parameters, "IndependentTemporalSequences", true);
     if (contains(parameters, "MinimalTimeIncrement")) {
@@ -974,18 +979,28 @@ namespace mfem_mgis {
         }
       }
       // executing post-processing tasks
+      auto postProcessingsSucceeded = true;
       if (isValid(this->nonlinearEvolutionProblem)) {
-        this->nonlinearEvolutionProblem->executePostProcessings(ctx, t,
-                                                                *ote - t);
+        if (!this->nonlinearEvolutionProblem->executePostProcessings(
+                ctx, t, *ote - t)) {
+          postProcessingsSucceeded = false;
+        }
       }
       if (isValid(this->physicalSystem)) {
         if (!this->physicalSystem->executePostProcessingTasks(
                 ctx, ts, explicitMarkedPostProcessingTime)) {
+          postProcessingsSucceeded = false;
+        }
+      }
+      if (!postProcessingsSucceeded) {
+        if (this->stopOnPostProcessingFailure) {
           s = ctx.registerErrorMessage(
               "The post-processing tasks failed for the " +
               getTimeStepDescription());
           return;
         }
+        ctx.warning("The post-processing tasks failed for the ",
+                    getTimeStepDescription(), ": ", ctx.getErrorMessage());
       }
       for (const auto &[n, pt] : this->postProcessingTasks) {
         updateAndSynchronize(invoke(ctx, pt));
