@@ -236,7 +236,7 @@ namespace mfem_mgis {
   }  // end of getMPIrank
 
   int getMPIsize() {
-    int size = 0;
+    int size = 1;
 #ifdef MFEM_USE_MPI
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 #endif /* MFEM_USE_MPI */
