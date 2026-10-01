@@ -353,6 +353,10 @@ namespace mfem_mgis {
       const std::string& l,
       const std::string& b,
       const Parameters& params) noexcept {
+    if ((m == 0) || (m >= this->behaviour_integrators.size())) {
+      return ctx.registerErrorMessage("invalid material index '" +
+                                      std::to_string(m) + "'");
+    }
     const auto of = BehaviourIntegratorFactory::get(ctx, this->hypothesis);
     if (isInvalid(of)) {
       return {};
