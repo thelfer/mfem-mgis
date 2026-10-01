@@ -227,7 +227,8 @@ namespace mfem_mgis {
           const size_type nc,
           std::function<bool(Context&, PartialQuadratureFunction&)> f,
           std::string_view d)
-      : functions(buildPartialQuadratureFunctionsSet(p, mids, nc)),
+      : functions(buildPartialQuadratureFunctionsSet(ctx, p, mids, nc) |
+                  ctx.getThrowingFailureHandler()),
         update_function(f),
         exporter(ctx,
                  p,
@@ -246,16 +247,15 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   template <bool parallel>
-  void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
+  bool ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
       parallel>::execute(Context& ctx,
                          NonLinearEvolutionProblemImplementation<parallel>& p,
                          const real t,
-                         const real dt) {
-    Context local_ctx;
-    if (!this->functions.update(local_ctx, this->update_function)) {
-      raise(ctx.getErrorMessage());
+                         const real dt) noexcept {
+    if (!this->functions.update(ctx, this->update_function)) {
+      return false;
     }
-    this->exporter.execute(ctx, p, t, dt);
+    return this->exporter.execute(ctx, p, t, dt);
   }  // end of execute
 
 #endif /* MGIS_FUNCTION_SUPPORT */

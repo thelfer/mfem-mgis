@@ -425,11 +425,13 @@ namespace mfem_mgis {
      * \param[in] p: non linear evolution problem
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
-    void execute(Context &ctx,
-                 NonLinearEvolutionProblemImplementation<parallel> &p,
-                 const real t,
-                 const real dt) override;
+    [[nodiscard]] bool execute(
+        Context &ctx,
+        NonLinearEvolutionProblemImplementation<parallel> &p,
+        const real t,
+        const real dt) noexcept override;
 
    private:
     //! \brief exported functions
