@@ -107,7 +107,7 @@ namespace mfem_mgis {
                                                      const real v) noexcept {
     if (v <= 0) {
       return ctx.registerErrorMessage(
-          "negative value given for the reference norm of the residual");
+          "non positive value given for the reference norm of the residual");
     }
     this->reference_residual_norm = v;
     return true;
