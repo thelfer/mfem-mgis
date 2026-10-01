@@ -337,11 +337,9 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "behaviour does not compute the stored energy");
     }
-    auto or_die = ctx.getFatalFailureHandler();
     return PartialQuadratureFunction::borrow(
-               ctx, m.getPartialQuadratureSpacePointer(), sm.stored_energies,
-               {.data_begin = 0, .data_size = 1, .data_stride = 1}) |
-           or_die;
+        ctx, m.getPartialQuadratureSpacePointer(), sm.stored_energies,
+        {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getStoredEnergy
 
   std::optional<ImmutablePartialQuadratureFunctionView> getStoredEnergy(
