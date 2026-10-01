@@ -229,9 +229,6 @@ namespace mfem_mgis {
                                const real w,
                                const size_type ni) const noexcept;
 
-    //! \brief unused rotation matrix, see Material::r3D
-    RotationMatrix3D rotation_matrix;
-
     /*!
      * \brief pointer to the external state variable
      * associated with the unknown

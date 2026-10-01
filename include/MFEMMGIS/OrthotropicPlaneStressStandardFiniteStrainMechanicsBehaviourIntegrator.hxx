@@ -159,9 +159,6 @@ namespace mfem_mgis {
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &fed, const size_type m);
 
-    //! \brief unused rotation matrix, see Material::r2D
-    RotationMatrix2D rotation_matrix;
-
   };  // end of struct
       // OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator
 
