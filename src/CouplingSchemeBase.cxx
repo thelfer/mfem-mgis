@@ -269,6 +269,7 @@ namespace mfem_mgis {
   bool CouplingSchemeBase::executePostProcessingTasks(Context &ctx,
                                                       const TimeStep &ts,
                                                       const bool b) noexcept {
+    auto success = true;
     for (const auto &i : this->items) {
       auto cs = update(ctx, *i);
       ctx.log(verboseLevel2, "* calling executePostProcessingTasks for '" +
@@ -278,10 +279,10 @@ namespace mfem_mgis {
       if (!r) {
         ctx.debug("* executePostProcessingTasks failed for '" +
                   getShortDescription(*i) + "'");
-        return false;
+        success = false;
       }
     }
-    return true;
+    return success;
   }  // end of executePostProcessingTasks
 
   bool CouplingSchemeBase::update(Context &ctx) noexcept {
