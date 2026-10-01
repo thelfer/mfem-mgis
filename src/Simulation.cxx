@@ -570,7 +570,7 @@ namespace mfem_mgis {
       updateAndSynchronize(invoke(ctx, t));
       if (!s.shallContinue()) {
         std::ignore =
-            ctx.registerErrorMessage("initialization task '" + n + "'failed");
+            ctx.registerErrorMessage("initialization task '" + n + "' failed");
         return {s, {}};
       }
     }
