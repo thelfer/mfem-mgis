@@ -52,7 +52,7 @@ namespace mfem_mgis {
     QPEvaluatorResult(QPEvaluatorResult&&) noexcept;
     //
     QPEvaluatorResult& operator=(QPEvaluatorResult&&) noexcept = delete;
-    QPEvaluatorResult& operator=(const QPEvaluatorResult&&) = delete;
+    QPEvaluatorResult& operator=(const QPEvaluatorResult&) = delete;
     //! \brief destructor
     ~QPEvaluatorResult() noexcept;
 
