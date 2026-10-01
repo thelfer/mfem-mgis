@@ -65,11 +65,11 @@ namespace mfem_mgis {
     //! \brief move constructor
     ParametersValidator(ParametersValidator&&) noexcept;
     //! \brief copy constructor
-    ParametersValidator(const ParametersValidator&) noexcept;
+    ParametersValidator(const ParametersValidator&);
     //! \brief move assignment
     ParametersValidator& operator=(ParametersValidator&&) noexcept;
     //! \brief Standard assignment
-    ParametersValidator& operator=(const ParametersValidator&) noexcept;
+    ParametersValidator& operator=(const ParametersValidator&);
     /*!
      * \brief add a new allowed key without description.
      * \param[in] k: key

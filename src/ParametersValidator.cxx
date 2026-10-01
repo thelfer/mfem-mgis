@@ -25,12 +25,12 @@ namespace mfem_mgis {
   ParametersValidator::ParametersValidator() noexcept = default;
   ParametersValidator::ParametersValidator(ParametersValidator&&) noexcept =
       default;
-  ParametersValidator::ParametersValidator(
-      const ParametersValidator&) noexcept = default;
+  ParametersValidator::ParametersValidator(const ParametersValidator&) =
+      default;
   ParametersValidator& ParametersValidator::operator=(
       ParametersValidator&&) noexcept = default;
   ParametersValidator& ParametersValidator::operator=(
-      const ParametersValidator&) noexcept = default;
+      const ParametersValidator&) = default;
 
   ParametersValidator& ParametersValidator::addStrictlyPositiveIntegerCheck(
       const std::string& k, const AddArguments& opts) noexcept {

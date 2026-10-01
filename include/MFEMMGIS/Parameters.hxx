@@ -63,11 +63,11 @@ namespace mfem_mgis {
     //! \brief default constructor
     Parameters() noexcept;
     //! \brief copy constructor
-    Parameters(const Parameters&) noexcept;
+    Parameters(const Parameters&);
     //! \brief move constructor
     Parameters(Parameters&&) noexcept;
     //! \brief standard assignment
-    Parameters& operator=(const Parameters&) noexcept;
+    Parameters& operator=(const Parameters&);
     //! \brief move assignment
     Parameters& operator=(Parameters&&) noexcept;
     /*!
