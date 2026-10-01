@@ -524,6 +524,7 @@ namespace mfem_mgis {
       PartialQuadratureFunctionView f,
       const ImmutablePartialQuadratureFunctionView& v) noexcept;
 
+#ifdef MFEM_USE_MPI
   /*!
    * \brief update the partial quadrature function from the given grid function
    * \param[in, out] ctx: execution context
@@ -535,6 +536,7 @@ namespace mfem_mgis {
       Context& ctx,
       PartialQuadratureFunctionView& dest,
       const GridFunction<true>& src) noexcept;
+#endif /* MFEM_USE_MPI */
   /*!
    * \brief update the partial quadrature function from the given grid function
    * \param[in, out] ctx: execution context
