@@ -145,11 +145,11 @@ namespace mfem_mgis {
    * \param[in] ts: time step stage
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::shared_ptr<AbstractQPEvaluator> makeGradientEvaluator(
-      Context& ctx,
-      const Material& m,
-      std::string_view n,
-      const TimeStepStage ts) noexcept;
+  std::shared_ptr<AbstractQPEvaluator>
+  makeGradientEvaluator(Context& ctx,
+                        const Material& m,
+                        std::string_view n,
+                        const TimeStepStage ts) noexcept;
   /*!
    * \brief create an evaluator of a thermodynamic force
    * \return an evaluator of the thermodynamic force of the given name
@@ -160,11 +160,11 @@ namespace mfem_mgis {
    * \param[in] ts: time step stage
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::shared_ptr<AbstractQPEvaluator> makeThermodynamicForceEvaluator(
-      Context& ctx,
-      const Material& m,
-      std::string_view n,
-      const TimeStepStage ts) noexcept;
+  std::shared_ptr<AbstractQPEvaluator>
+  makeThermodynamicForceEvaluator(Context& ctx,
+                                  const Material& m,
+                                  std::string_view n,
+                                  const TimeStepStage ts) noexcept;
   /*!
    * \brief create an evaluator of an internal state variable
    * \return an evaluator of the internal state variable of the given name
@@ -175,11 +175,11 @@ namespace mfem_mgis {
    * \param[in] ts: time step stage
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::shared_ptr<AbstractQPEvaluator> makeInternalStateVariableEvaluator(
-      Context& ctx,
-      const Material& m,
-      std::string_view n,
-      const TimeStepStage ts) noexcept;
+  std::shared_ptr<AbstractQPEvaluator>
+  makeInternalStateVariableEvaluator(Context& ctx,
+                                     const Material& m,
+                                     std::string_view n,
+                                     const TimeStepStage ts) noexcept;
 
 }  // end of namespace mfem_mgis
 

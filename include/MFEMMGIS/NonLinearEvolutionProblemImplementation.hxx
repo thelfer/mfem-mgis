@@ -218,7 +218,7 @@ namespace mfem_mgis {
    * process
    */
   template <bool parallel>
-  bool computeResultantForceOnBoundary(
+  [[nodiscard]] bool computeResultantForceOnBoundary(
       Context& ctx,
       mfem::Vector& F,
       NonLinearEvolutionProblemImplementation<parallel>& p,
@@ -237,7 +237,8 @@ namespace mfem_mgis {
    * process
    */
   template <bool parallel>
-  std::optional<std::pair<std::vector<std::vector<real>>, std::vector<real>>>
+  [[nodiscard]] std::optional<
+      std::pair<std::vector<std::vector<real>>, std::vector<real>>>
   computeMeanThermodynamicForcesValues(
       Context& ctx,
       NonLinearEvolutionProblemImplementation<parallel>& p) noexcept;

@@ -21,7 +21,7 @@ template <typename Exception = std::runtime_error>
 [[noreturn]] void raise();
 
 template <typename Exception = std::runtime_error, typename... Args>
-[[noreturn]] void raise(Args&&...);
+[[noreturn]] void raise(Args &&...);
 
 template <typename Exception>
 void raise() {
@@ -30,12 +30,12 @@ void raise() {
 }  // end of raise
 
 template <typename Exception, typename... Args>
-void raise(Args&&... a) {
+void raise(Args &&...a) {
   Exception e(std::forward<Args...>(a...));
   throw(std::move(e));
 }  // end of raise
 
-std::string makeUpperCase(const std::string& n) {
+std::string makeUpperCase(const std::string &n) {
   std::string s(n);
   std::string::const_iterator p = n.begin();
   std::string::iterator p2 = s.begin();
@@ -47,7 +47,7 @@ std::string makeUpperCase(const std::string& n) {
 
 struct BehaviourIntegratorDescription {
   using BMatrixGenerator = std::pair<bool, GiNaC::matrix> (*)(
-      std::ostream&, const std::string&, const bool);
+      std::ostream &, const std::string &, const bool);
   std::string name;
   std::string hypothesis;
   //! \brief name of the generator
@@ -62,7 +62,7 @@ struct BehaviourIntegratorDescription {
   bool isotropic = true;
 };  // end of struct BehaviourIntegratorDescription
 
-static bool isTwoDimensionalHypothesis(const std::string& h) {
+static bool isTwoDimensionalHypothesis(const std::string &h) {
   if ((h == "Axisymmetrical") || (h == "PlaneStrain") || (h == "PlaneStress") ||
       (h == "GeneralisedPlaneStrain")) {
     return true;
@@ -70,7 +70,7 @@ static bool isTwoDimensionalHypothesis(const std::string& h) {
   return false;
 }  // end of isTwoDimensionalHypothesis
 
-static bool isAxisymmetricalHypothesis(const std::string& h) {
+static bool isAxisymmetricalHypothesis(const std::string &h) {
   if ((h == "Axisymmetrical") ||
       (h == "AxisymmetricalGeneralisedPlaneStrain") ||
       (h == "AxisymmetricalGeneralisedPlaneStress")) {
@@ -80,7 +80,7 @@ static bool isAxisymmetricalHypothesis(const std::string& h) {
 }  // end of isAxisymmetricalHypothesis
 
 //! \return true if the integrator is based on a standard finite strain base
-static bool isFiniteStrainIntegrator(const BehaviourIntegratorDescription& d) {
+static bool isFiniteStrainIntegrator(const BehaviourIntegratorDescription &d) {
   return d.generator_name == "StandardFiniteStrainMechanics";
 }  // end of isFiniteStrainIntegrator
 
@@ -88,7 +88,7 @@ static bool isFiniteStrainIntegrator(const BehaviourIntegratorDescription& d) {
  * \return the modelling hypothesis as in the text of the documentation
  * \param[in] h: modelling hypothesis
  */
-static std::string getHypothesisDescription(const std::string& h) {
+static std::string getHypothesisDescription(const std::string &h) {
   if (h == "PlaneStrain") {
     return "plane strain";
   } else if (h == "PlaneStress") {
@@ -103,7 +103,7 @@ static std::string getHypothesisDescription(const std::string& h) {
  * \return the modelling hypothesis as an enumeration value of MGIS
  * \param[in] h: modelling hypothesis
  */
-static std::string getHypothesisEnumeration(const std::string& h) {
+static std::string getHypothesisEnumeration(const std::string &h) {
   if (h == "PlaneStrain") {
     return "PLANESTRAIN";
   } else if (h == "PlaneStress") {
@@ -120,9 +120,9 @@ static std::string getHypothesisEnumeration(const std::string& h) {
  * \param[in] cn: class name
  * \param[in] a: action performed by the file, `declares` or `implements`
  */
-static void writeFileDescription(std::ostream& os,
-                                 const std::string& cn,
-                                 const std::string& a) {
+static void writeFileDescription(std::ostream &os,
+                                 const std::string &cn,
+                                 const std::string &a) {
   const auto l = " * `" + cn + "` class";
   os << "/*!\n"
      << " * \\file\n"
@@ -136,22 +136,22 @@ static void writeFileDescription(std::ostream& os,
   os << " */\n\n";
 }  // end of writeFileDescription
 
-static void writeHeaderGuardAtBeginnnigOfFile(std::ostream& os,
-                                              const std::string& cn,
-                                              const std::string& ftype) {
+static void writeHeaderGuardAtBeginnnigOfFile(std::ostream &os,
+                                              const std::string &cn,
+                                              const std::string &ftype) {
   os << "#ifndef LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype << '\n'
      << "#define LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype << "\n\n";
 }  // end of writeHeaderGuardAtBeginnnigOfFile
 
-static void writeHeaderGuardAtEndOfFile(std::ostream& os,
-                                        const std::string& cn,
-                                        const std::string& ftype) {
+static void writeHeaderGuardAtEndOfFile(std::ostream &os,
+                                        const std::string &cn,
+                                        const std::string &ftype) {
   os << "#endif /* LIB_MFEM_MGIS_" << makeUpperCase(cn) << "_" << ftype
      << "*/\n";
 }  // end of writeHeaderGuardAtEndOfFile
 
 static std::vector<GiNaC::symbol> makeShapeFunctionDerivatives(
-    std::ostream& os, const std::string& idx, const size_type d, const bool b) {
+    std::ostream &os, const std::string &idx, const size_type d, const bool b) {
   std::vector<GiNaC::symbol> dNs;
   for (size_type i = 0; i != d; ++i) {
     const auto dN = "dN" + idx + "_" + std::to_string(i);
@@ -163,7 +163,7 @@ static std::vector<GiNaC::symbol> makeShapeFunctionDerivatives(
   return dNs;
 }  // end of makeShapeFunctionDerivative
 
-static GiNaC::matrix makeVectorOfSymbols(const std::string& name,
+static GiNaC::matrix makeVectorOfSymbols(const std::string &name,
                                          const size_type s) {
   GiNaC::matrix v(s, 1);
   for (size_type i = 0; i != s; ++i) {
@@ -172,7 +172,7 @@ static GiNaC::matrix makeVectorOfSymbols(const std::string& name,
   return v;
 }
 
-static GiNaC::matrix makeMatrixOfSymbols(const std::string& name,
+static GiNaC::matrix makeMatrixOfSymbols(const std::string &name,
                                          const size_type n,
                                          const size_type m,
                                          const size_type o = 0) {
@@ -186,13 +186,13 @@ static GiNaC::matrix makeMatrixOfSymbols(const std::string& name,
   return v;
 }
 
-std::string getMatrixComponentId(const std::string& n,
+std::string getMatrixComponentId(const std::string &n,
                                  const size_type i,
                                  const size_type j) {
   return n + "_" + std::to_string(i) + "_" + std::to_string(j);
 }
 
-std::string generateUnknownOffset(const std::string& nid, const size_type idx) {
+std::string generateUnknownOffset(const std::string &nid, const size_type idx) {
   if (idx == 0) {
     return nid;
   } else if (idx == 1) {
@@ -201,8 +201,8 @@ std::string generateUnknownOffset(const std::string& nid, const size_type idx) {
   return nid + " + " + std::to_string(idx) + " * nnodes";
 }
 
-void generateUnknownOffsets(std::ostream& os,
-                            const std::string& nid,
+void generateUnknownOffsets(std::ostream &os,
+                            const std::string &nid,
                             const size_type d) {
   if (d == 1) {
     return;
@@ -222,7 +222,7 @@ void generateUnknownOffsets(std::ostream& os,
  * been computed.
  * \return the offset
  */
-std::string getUnknownOffset(const std::string& nid,
+std::string getUnknownOffset(const std::string &nid,
                              const size_type c,
                              const size_type s,
                              const bool b = true) {
@@ -236,9 +236,9 @@ std::string getUnknownOffset(const std::string& nid,
   }
 }
 
-GiNaC::matrix makeVectorOfUnknowns(std::ostream& os,
-                                   const std::string& name,
-                                   const std::string& nid,
+GiNaC::matrix makeVectorOfUnknowns(std::ostream &os,
+                                   const std::string &name,
+                                   const std::string &nid,
                                    const size_type s,
                                    const bool b) {
   GiNaC::matrix v(s, 1);
@@ -251,8 +251,8 @@ GiNaC::matrix makeVectorOfUnknowns(std::ostream& os,
   return v;
 }
 
-void generateUpdateGradient(std::ostream& os,
-                            const BehaviourIntegratorDescription& d) {
+void generateUpdateGradient(std::ostream &os,
+                            const BehaviourIntegratorDescription &d) {
   os << "inline void\n"
      << d.name << "::updateGradients(std::span<real> &g,\n"
      << "const mfem::Vector &u,\n"
@@ -270,8 +270,8 @@ void generateUpdateGradient(std::ostream& os,
   os << "} // end of updateGradients\n\n";
 }
 
-void generateUpdateInnerForces(std::ostream& os,
-                               const BehaviourIntegratorDescription& d) {
+void generateUpdateInnerForces(std::ostream &os,
+                               const BehaviourIntegratorDescription &d) {
   os << "inline void\n"
      << d.name << "::updateInnerForces(mfem::Vector &Fe,\n"
      << "const std::span<const real> &s,\n"
@@ -293,8 +293,8 @@ void generateUpdateInnerForces(std::ostream& os,
   os << "} // end of updateInnerForces\n\n";
 }  // end of generateUpdateInnerForces
 
-void generateUpdateStiffnessMatrix(std::ostream& os,
-                                   const BehaviourIntegratorDescription& d) {
+void generateUpdateStiffnessMatrix(std::ostream &os,
+                                   const BehaviourIntegratorDescription &d) {
   if (d.requires_unknown_value_as_external_state_variable) {
     os << "inline void\n"
        << d.name << "::updateStiffnessMatrix(mfem::DenseMatrix &Ke,\n"
@@ -352,14 +352,14 @@ void generateUpdateStiffnessMatrix(std::ostream& os,
 }  // end of generateUpdateStiffnessMatrix
 
 std::pair<bool, GiNaC::matrix> makePlaneStrainSmallStrainMechanicsBMatrix(
-    std::ostream& os, const std::string& nid, const bool b) {
+    std::ostream &os, const std::string &nid, const bool b) {
   auto B = GiNaC::matrix(4, 2);
   const auto Bn = "B" + nid;
   const auto dN = [&nid](const size_type i) {
     return "dN(n" + nid + ", " + std::to_string(i) + ")";
   };
   const auto generate = [&os, &B, &Bn, &b](const size_type i, const size_type j,
-                                           const std::string& v) {
+                                           const std::string &v) {
     B(i, j) = GiNaC::symbol(getMatrixComponentId(Bn, i, j));
     if (b) {
       os << "const auto " << B(i, j) << " = " << v << ";\n";
@@ -373,19 +373,19 @@ std::pair<bool, GiNaC::matrix> makePlaneStrainSmallStrainMechanicsBMatrix(
 }
 
 std::pair<bool, GiNaC::matrix> makePlaneStressSmallStrainMechanicsBMatrix(
-    std::ostream& os, const std::string& nid, const bool b) {
+    std::ostream &os, const std::string &nid, const bool b) {
   return makePlaneStrainSmallStrainMechanicsBMatrix(os, nid, b);
 }
 
 std::pair<bool, GiNaC::matrix> makeTridimensionalSmallStrainMechanicsBMatrix(
-    std::ostream& os, const std::string& nid, const bool b) {
+    std::ostream &os, const std::string &nid, const bool b) {
   auto B = GiNaC::matrix(6, 3);
   const auto Bn = "B" + nid;
   const auto dN = [&nid](const size_type i) {
     return "dN(n" + nid + ", " + std::to_string(i) + ")";
   };
   const auto generate = [&os, &B, &Bn, &b](const size_type i, const size_type j,
-                                           const std::string& v) {
+                                           const std::string &v) {
     B(i, j) = GiNaC::symbol(getMatrixComponentId(Bn, i, j));
     if (b) {
       os << "const auto " << B(i, j) << " = " << v << ";\n";
@@ -404,7 +404,7 @@ std::pair<bool, GiNaC::matrix> makeTridimensionalSmallStrainMechanicsBMatrix(
 }
 
 std::pair<bool, GiNaC::matrix> makePlaneStrainFiniteStrainMechanicsBMatrix(
-    std::ostream& os, const std::string& idx, const bool b) {
+    std::ostream &os, const std::string &idx, const bool b) {
   const auto d = size_type{2};
   const auto dN = makeShapeFunctionDerivatives(os, idx, d, b);
   auto B = GiNaC::matrix(5, d);
@@ -416,12 +416,12 @@ std::pair<bool, GiNaC::matrix> makePlaneStrainFiniteStrainMechanicsBMatrix(
 }
 
 std::pair<bool, GiNaC::matrix> makePlaneStressFiniteStrainMechanicsBMatrix(
-    std::ostream& os, const std::string& idx, const bool b) {
+    std::ostream &os, const std::string &idx, const bool b) {
   return makePlaneStrainFiniteStrainMechanicsBMatrix(os, idx, b);
 }
 
 std::pair<bool, GiNaC::matrix> makeTridimensionalFiniteStrainMechanicsBMatrix(
-    std::ostream& os, const std::string& idx, const bool b) {
+    std::ostream &os, const std::string &idx, const bool b) {
   const auto d = size_type{3};
   const auto dN = makeShapeFunctionDerivatives(os, idx, d, b);
   auto B = GiNaC::matrix(9, d);
@@ -438,8 +438,8 @@ std::pair<bool, GiNaC::matrix> makeTridimensionalFiniteStrainMechanicsBMatrix(
 }
 
 template <unsigned short dime>
-std::pair<bool, GiNaC::matrix> makeHeatTransferBMatrix(std::ostream& os,
-                                                       const std::string& idx,
+std::pair<bool, GiNaC::matrix> makeHeatTransferBMatrix(std::ostream &os,
+                                                       const std::string &idx,
                                                        const bool b) {
   const auto dN = makeShapeFunctionDerivatives(os, idx, dime, b);
   auto B = GiNaC::matrix(dime, 1);
@@ -449,8 +449,8 @@ std::pair<bool, GiNaC::matrix> makeHeatTransferBMatrix(std::ostream& os,
   return std::make_pair(false, B);
 }
 
-void generateHeaderFile(std::ostream& os,
-                        const BehaviourIntegratorDescription& d) {
+void generateHeaderFile(std::ostream &os,
+                        const BehaviourIntegratorDescription &d) {
   const auto fs = isFiniteStrainIntegrator(d);
   const auto fs_base =
       d.hypothesis + "StandardFiniteStrainMechanicsBehaviourIntegratorBase";
@@ -670,8 +670,7 @@ void generateHeaderFile(std::ostream& os,
      << "protected:\n"
      << "//! \\brief allow the CRTP base class to access the protected "
      << "members\n"
-     << "friend struct StandardBehaviourIntegratorCRTPBase<" << d.name
-     << ">;\n"
+     << "friend struct StandardBehaviourIntegratorCRTPBase<" << d.name << ">;\n"
      << "/*!\n"
      << " * \\brief select the integration rule for the given element and "
      << "element\n"
@@ -776,8 +775,8 @@ void generateHeaderFile(std::ostream& os,
   writeHeaderGuardAtEndOfFile(os, d.name, "HXX");
 }  // end of generateHeaderFile
 
-void generateSourceFile(std::ostream& os,
-                        const BehaviourIntegratorDescription& d) {
+void generateSourceFile(std::ostream &os,
+                        const BehaviourIntegratorDescription &d) {
   const auto [b, B] = d.generator(os, "", false);
   writeFileDescription(os, d.name, "implements");
   os << "#include <algorithm>\n"
@@ -843,7 +842,7 @@ void generateSourceFile(std::ostream& os,
      << "return " << d.name << "::selectIntegrationRule(e, t);\n"
      << "}\n";
   if (d.requires_unknown_value_as_external_state_variable) {
-    const auto& n = d.unknown_name;
+    const auto &n = d.unknown_name;
     os << "\n"
        << "bool " << d.name << "::setup(Context &ctx, const real t, "
        << "const real dt) noexcept {\n"
@@ -880,8 +879,7 @@ void generateSourceFile(std::ostream& os,
          << "this->uesv = std::get<std::vector<real>>(value).data();\n"
          << "} else {\n"
          << "return ctx.registerErrorMessage(\n"
-         << "\"external state variable '" << n
-         << "' shall not be uniform\");\n"
+         << "\"external state variable '" << n << "' shall not be uniform\");\n"
          << "}\n"
          << "}\n"
          << "return true;\n"
@@ -1000,10 +998,10 @@ void generateSourceFile(std::ostream& os,
 }  // end of generateSourceFile
 
 template <typename T>
-T convert(const std::string_view&);
+T convert(const std::string_view &);
 
 template <>
-bool convert(const std::string_view& s) {
+bool convert(const std::string_view &s) {
   if (s == "false") {
     return false;
   }
@@ -1014,7 +1012,7 @@ bool convert(const std::string_view& s) {
 }  // end of convert
 
 template <>
-std::string convert(const std::string_view& s) {
+std::string convert(const std::string_view &s) {
   return std::string{s};
 }  // end of convert
 
@@ -1029,7 +1027,7 @@ struct CommandLineArgumentParser {
    * \param[in] argc: number of command line arguments
    * \param[in] argv: arguments
    */
-  void parse(const int argc, const char* const* const argv);
+  void parse(const int argc, const char *const *const argv);
   /*!
    * \brief add support for a new command line argument without option.
    * \param[in] s: short command line argument name
@@ -1037,16 +1035,16 @@ struct CommandLineArgumentParser {
    * \param[in] c: action associated with the command line argument
    * \return this object
    */
-  CommandLineArgumentParser& registerCommandLineArgument(
-      const char s, const char* const a, const std::function<void()>& c);
+  CommandLineArgumentParser &registerCommandLineArgument(
+      const char s, const char *const a, const std::function<void()> &c);
   /*!
    * \brief add support for a new command line argument without option.
    * \param[in] a: long command line argument name
    * \param[in] c: action associated with the command line argument
    * \return this object
    */
-  CommandLineArgumentParser& registerCommandLineArgument(
-      const char* const a, const std::function<void()>& c);
+  CommandLineArgumentParser &registerCommandLineArgument(
+      const char *const a, const std::function<void()> &c);
   /*!
    * \brief add support for a new command line argument.
    * \param[in] s: short command line argument name
@@ -1054,17 +1052,17 @@ struct CommandLineArgumentParser {
    * \param[in] c: action associated with the command line argument
    * \return this object
    */
-  CommandLineArgumentParser& registerCommandLineArgument(const char s,
-                                                         const char* const a,
-                                                         const CallBack& c);
+  CommandLineArgumentParser &registerCommandLineArgument(const char s,
+                                                         const char *const a,
+                                                         const CallBack &c);
   /*!
    * \brief add support for a new command line argument.
    * \param[in] a: long command line argument name
    * \param[in] c: action associated with the command line argument
    * \return this object
    */
-  CommandLineArgumentParser& registerCommandLineArgument(const char* const a,
-                                                         const CallBack& c);
+  CommandLineArgumentParser &registerCommandLineArgument(const char *const a,
+                                                         const CallBack &c);
   /*!
    * \brief add support for a new command line argument which aims at setting a
    * value.
@@ -1073,8 +1071,8 @@ struct CommandLineArgumentParser {
    * \return this object
    */
   template <typename T>
-  CommandLineArgumentParser& registerCommandLineArgument(T& v,
-                                                         const char* const a);
+  CommandLineArgumentParser &registerCommandLineArgument(T &v,
+                                                         const char *const a);
   /*!
    * \brief add support for a new command line argument which aims at setting a
    * value.
@@ -1084,9 +1082,9 @@ struct CommandLineArgumentParser {
    * \return this object
    */
   template <typename T>
-  CommandLineArgumentParser& registerCommandLineArgument(T& v,
+  CommandLineArgumentParser &registerCommandLineArgument(T &v,
                                                          const char s,
-                                                         const char* const a);
+                                                         const char *const a);
 
  private:
   //! \brief registered call backs associated with short command line arguments
@@ -1097,8 +1095,8 @@ struct CommandLineArgumentParser {
 };
 
 void CommandLineArgumentParser::parse(const int argc,
-                                      const char* const* const argv) {
-  auto is_long_command_line_argument = [](const std::string_view& v) {
+                                      const char *const *const argv) {
+  auto is_long_command_line_argument = [](const std::string_view &v) {
     if (v.size() < 3) {
       return false;
     }
@@ -1149,9 +1147,9 @@ void CommandLineArgumentParser::parse(const int argc,
   }
 }
 
-CommandLineArgumentParser&
+CommandLineArgumentParser &
 CommandLineArgumentParser::registerCommandLineArgument(
-    const char* const a, const std::function<void()>& c) {
+    const char *const a, const std::function<void()> &c) {
   auto action = [n = std::string(a), c](std::string_view o) {
     if (!o.empty()) {
       raise("command line argument '" + n + "' does not accept any option");
@@ -1162,9 +1160,9 @@ CommandLineArgumentParser::registerCommandLineArgument(
   return *this;
 }  // end of registerCommandLineArgument
 
-CommandLineArgumentParser&
+CommandLineArgumentParser &
 CommandLineArgumentParser::registerCommandLineArgument(
-    const char s, const char* const a, const std::function<void()>& c) {
+    const char s, const char *const a, const std::function<void()> &c) {
   auto action = [n = std::string(a), s, c](std::string_view o) {
     if (!o.empty()) {
       raise("command line argument '" + n + "' (" + std::string(1, s) +
@@ -1177,9 +1175,9 @@ CommandLineArgumentParser::registerCommandLineArgument(
   return *this;
 }  // end of registerCommandLineArgument
 
-CommandLineArgumentParser&
-CommandLineArgumentParser::registerCommandLineArgument(const char* const a,
-                                                       const CallBack& c) {
+CommandLineArgumentParser &
+CommandLineArgumentParser::registerCommandLineArgument(const char *const a,
+                                                       const CallBack &c) {
   auto action = [n = std::string(a), c](std::string_view o) {
     if (o.empty()) {
       raise("no option given to the '" + n + "' command line argument");
@@ -1190,10 +1188,10 @@ CommandLineArgumentParser::registerCommandLineArgument(const char* const a,
   return *this;
 }  // end of registerCommandLineArgument
 
-CommandLineArgumentParser&
+CommandLineArgumentParser &
 CommandLineArgumentParser::registerCommandLineArgument(const char s,
-                                                       const char* const a,
-                                                       const CallBack& c) {
+                                                       const char *const a,
+                                                       const CallBack &c) {
   auto action = [n = std::string(a), c](std::string_view o) {
     if (o.empty()) {
       raise("no option given to the '" + n + "' command line argument");
@@ -1206,32 +1204,32 @@ CommandLineArgumentParser::registerCommandLineArgument(const char s,
 }  // end of registerCommandLineArgument
 
 template <typename T>
-CommandLineArgumentParser&
-CommandLineArgumentParser::registerCommandLineArgument(T& v,
+CommandLineArgumentParser &
+CommandLineArgumentParser::registerCommandLineArgument(T &v,
                                                        const char s,
-                                                       const char* const a) {
+                                                       const char *const a) {
   auto action = [&v, this](std::string_view o) { v = convert<T>(o); };
   this->registerCommandLineArgument(s, a, action);
   return *this;
 }  // end of registerCommandLineArgument
 
 template <typename T>
-CommandLineArgumentParser&
-CommandLineArgumentParser::registerCommandLineArgument(T& v,
-                                                       const char* const a) {
+CommandLineArgumentParser &
+CommandLineArgumentParser::registerCommandLineArgument(T &v,
+                                                       const char *const a) {
   auto action = [&v, this](std::string_view s) { v = convert<T>(s); };
   this->registerCommandLineArgument(a, action);
   return *this;
 }  // end of registerCommandLineArgument
 
-int main(const int argc, const char* const* const argv) {
+int main(const int argc, const char *const *const argv) {
   using Generators =
       std::map<std::string, BehaviourIntegratorDescription::BMatrixGenerator,
                std::less<>>;
   std::map<std::string, Generators, std::less<>> generators;
   auto insert = [&generators](
-                    const char* const h, const char* const n,
-                    const BehaviourIntegratorDescription::BMatrixGenerator& g) {
+                    const char *const h, const char *const n,
+                    const BehaviourIntegratorDescription::BMatrixGenerator &g) {
     generators[h].insert({n, g});
   };
   insert("Tridimensional", "StandardFiniteStrainMechanics",

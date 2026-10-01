@@ -583,7 +583,7 @@ namespace mfem_mgis {
    * \param[in] p: non linear problem
    * \param[in] params: parameters
    */
-  MFEM_MGIS_EXPORT std::optional<size_type> getMaterialIdentifier(
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
       Context &ctx,
       const AbstractNonLinearEvolutionProblem &p,
       const Parameters &params) noexcept;
@@ -599,7 +599,7 @@ namespace mfem_mgis {
    * \param[in] p: non linear problem
    * \param[in] params: parameters
    */
-  MFEM_MGIS_EXPORT std::optional<size_type> getBoundaryIdentifier(
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
       Context &ctx,
       const AbstractNonLinearEvolutionProblem &p,
       const Parameters &params) noexcept;
@@ -622,7 +622,7 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    * \param[in] b: allowing missing `Material` or `Materials` parameters
    */
-  MFEM_MGIS_EXPORT std::optional<std::vector<size_type>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<size_type>>
   getMaterialsIdentifiers(Context &ctx,
                           const AbstractNonLinearEvolutionProblem &p,
                           const Parameters &params,
@@ -646,7 +646,7 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    * \param[in] b: allowing missing `Boundary` or `Boundaries` parameters
    */
-  MFEM_MGIS_EXPORT std::optional<std::vector<size_type>>
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::vector<size_type>>
   getBoundariesIdentifiers(Context &ctx,
                            const AbstractNonLinearEvolutionProblem &p,
                            const Parameters &params,
@@ -664,10 +664,10 @@ namespace mfem_mgis {
    * \param[in] p: non linear problem
    * \param[in] params: parameters
    */
-  MFEM_MGIS_EXPORT size_type
-  getMaterialIdentifier(attributes::Throwing throwing,
-                        const AbstractNonLinearEvolutionProblem &p,
-                        const Parameters &params);
+  MFEM_MGIS_EXPORT [[nodiscard]] size_type getMaterialIdentifier(
+      attributes::Throwing throwing,
+      const AbstractNonLinearEvolutionProblem &p,
+      const Parameters &params);
 
   /*!
    * \brief get the boundary identifier from the `Boundary` parameter
@@ -681,10 +681,10 @@ namespace mfem_mgis {
    * \param[in] p: non linear problem
    * \param[in] params: parameters
    */
-  MFEM_MGIS_EXPORT size_type
-  getBoundaryIdentifier(attributes::Throwing throwing,
-                        const AbstractNonLinearEvolutionProblem &p,
-                        const Parameters &params);
+  MFEM_MGIS_EXPORT [[nodiscard]] size_type getBoundaryIdentifier(
+      attributes::Throwing throwing,
+      const AbstractNonLinearEvolutionProblem &p,
+      const Parameters &params);
 
   /*!
    * \brief get the materials identifiers from the parameters
@@ -705,7 +705,7 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    * \param[in] b: allowing missing `Material` or `Materials` parameters
    */
-  MFEM_MGIS_EXPORT std::vector<size_type> getMaterialsIdentifiers(
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
       attributes::Throwing throwing,
       const AbstractNonLinearEvolutionProblem &p,
       const Parameters &params,
@@ -730,11 +730,11 @@ namespace mfem_mgis {
    * \param[in] params: parameters
    * \param[in] b: allowing missing `Boundary` or `Boundaries` parameters
    */
-  MFEM_MGIS_EXPORT std::vector<size_type> getBoundariesIdentifiers(
-      attributes::Throwing throwing,
-      const AbstractNonLinearEvolutionProblem &p,
-      const Parameters &params,
-      const bool b = true);
+  MFEM_MGIS_EXPORT [[nodiscard]] std::vector<size_type>
+  getBoundariesIdentifiers(attributes::Throwing throwing,
+                           const AbstractNonLinearEvolutionProblem &p,
+                           const Parameters &params,
+                           const bool b = true);
 
 #ifdef MFEM_USE_MPI
 

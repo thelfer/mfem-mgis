@@ -390,12 +390,15 @@ namespace mfem_mgis {
     if (isInvalid(om)) {
       return {};
     }
+    if (!om->b.computesStoredEnergy) {
+      return {};
+    }
     const auto oe = getStoredEnergy(ctx, *om, s);
     if (isInvalid(oe)) {
       return {};
     }
     return computeIntegral<real>(bi, *oe);
-  }
+  }  // end of computeStoredEnergy
 
   std::optional<real> computeDissipatedEnergy(
       Context &ctx,
@@ -403,6 +406,9 @@ namespace mfem_mgis {
       const Material::StateSelection s) noexcept {
     const auto om = bi.getMaterial(ctx);
     if (isInvalid(om)) {
+      return real{};
+    }
+    if (!om->b.computesDissipatedEnergy) {
       return {};
     }
     const auto oe = getDissipatedEnergy(ctx, *om, s);
@@ -410,6 +416,6 @@ namespace mfem_mgis {
       return {};
     }
     return computeIntegral<real>(bi, *oe);
-  }
+  }  // end of computeDissipatedEnergy
 
 }  // end of namespace mfem_mgis
