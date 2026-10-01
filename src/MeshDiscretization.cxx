@@ -1887,6 +1887,17 @@ namespace mfem_mgis {
     return this->pimpl->getBoundaryName(ctx, id);
   }  // end of getBoundaryName
 
+  std::optional<std::string> MeshDiscretization::getLocationName(
+      Context& ctx, const LocationIdentifier& id) const noexcept {
+    if (isInvalid(id)) {
+      return ctx.registerErrorMessage("invalid location identifier");
+    }
+    if (id.material_identifier.has_value()) {
+      return this->getMaterialName(ctx, id.material_identifier->id);
+    }
+    return this->getBoundaryName(ctx, id.boundary_identifier->id);
+  }  // end of getLocationName
+
   std::optional<std::vector<size_type>>
   MeshDiscretization::getMaterialsIdentifiers(
       Context& ctx, const Parameter& p) const noexcept {
