@@ -48,7 +48,12 @@ namespace mfem_mgis {
           "PostProcessingFactory<true>::generate: no post-processing called '" +
           std::string{n} + "' declared");
     }
-    return pg->second(ctx, p, params);
+    try {
+      return pg->second(ctx, p, params);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
   }  // end of generate
 
   PostProcessingFactory<true>::PostProcessingFactory() {
@@ -125,7 +130,12 @@ namespace mfem_mgis {
           "'" +
           std::string{n} + "' declared");
     }
-    return pg->second(ctx, p, params);
+    try {
+      return pg->second(ctx, p, params);
+    } catch (...) {
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
+    }
+    return {};
   }  // end of generate
 
   PostProcessingFactory<false>::PostProcessingFactory() {

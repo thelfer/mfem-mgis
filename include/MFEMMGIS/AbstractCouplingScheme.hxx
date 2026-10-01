@@ -25,7 +25,7 @@ namespace mfem_mgis {
   //! \brief interface of all coupling schemes
   struct MFEM_MGIS_EXPORT AbstractCouplingScheme : AbstractCouplingItem {
     //! \return the list of providers handled by the coupling scheme
-    [[nodiscard]] virtual std::vector<const Provider *>
+    [[nodiscard]] virtual std::vector<const Provider*>
     getProviders() noexcept = 0;
     //     /*
     //      * \brief add a new coupling item

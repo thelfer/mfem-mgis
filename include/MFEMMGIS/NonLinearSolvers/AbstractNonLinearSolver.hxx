@@ -34,7 +34,7 @@ namespace mfem_mgis {
     AbstractNonLinearSolver(NonLinearEvolutionProblemImplementation<true>& p);
 #endif /* MFEM_USE_MPI */
     //! \brief constructor
-    AbstractNonLinearSolver(NonLinearEvolutionProblemImplementation<false> &);
+    AbstractNonLinearSolver(NonLinearEvolutionProblemImplementation<false>&);
     /*!
      * \brief set the solver parameters
      * \param[in, out] ctx: execution context
