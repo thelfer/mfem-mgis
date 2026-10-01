@@ -141,7 +141,7 @@ namespace mfem_mgis {
       createSubMesh(Context& ctx,
                     NonLinearEvolutionProblemImplementation<parallel>& p) {
     auto or_raise = ctx.getThrowingFailureHandler();
-    auto fed = p.getFiniteElementDiscretization();
+    auto& fed = p.getFiniteElementDiscretization();
     this->submesh = fed.template getMutableSubMeshPointer<parallel>(
                         ctx, Parameter::from(this->materials_identifiers),
                         MeshDiscretization::Location::ON_MATERIALS) |
@@ -247,16 +247,15 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   template <bool parallel>
-  void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
+  bool ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
       parallel>::execute(Context& ctx,
                          NonLinearEvolutionProblemImplementation<parallel>& p,
                          const real t,
-                         const real dt) {
-    Context local_ctx;
-    if (!this->functions.update(local_ctx, this->update_function)) {
-      raise(ctx.getErrorMessage());
+                         const real dt) noexcept {
+    if (!this->functions.update(ctx, this->update_function)) {
+      return false;
     }
-    this->exporter.execute(ctx, p, t, dt);
+    return this->exporter.execute(ctx, p, t, dt);
   }  // end of execute
 
 #endif /* MGIS_FUNCTION_SUPPORT */

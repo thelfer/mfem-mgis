@@ -87,10 +87,13 @@ namespace mfem_mgis {
      */
     void setStatus(const bool s) noexcept;
     /*!
-     * \brief change the current status. This is equivalent to the assignment
-     * operator and the `setStatus` method
+     * \brief update the current status with the status built from the given
+     * boolean, keeping the worst one
      *
-     * \param[in] s: new status
+     * If `s` is false, the status becomes `unrecoverableError`. Otherwise,
+     * the status is left unchanged.
+     *
+     * \param[in] s: boolean status
      */
     void update(const bool s) noexcept;
     /*!

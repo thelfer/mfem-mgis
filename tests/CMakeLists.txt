@@ -48,6 +48,9 @@ add_simple_tfel_test(TimeDiscretizationTest)
 add_tfel_test_executable(MaximumNumberOfTimeStepsTest)
 add_test(NAME MaximumNumberOfTimeStepsTest COMMAND ./MaximumNumberOfTimeStepsTest
          "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh")
+add_tfel_test_executable(UnreliableResultsTest)
+add_test(NAME UnreliableResultsTest COMMAND ./UnreliableResultsTest
+         "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh")
 add_simple_tfel_test(QPEvaluatorTest)
 
 

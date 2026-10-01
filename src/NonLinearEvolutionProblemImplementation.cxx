@@ -445,12 +445,13 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementation<true>::executePostProcessings(
       Context& ctx, const real t, const real dt) noexcept {
+    auto success = true;
     for (auto& p : this->postprocessings) {
       if (!p->execute(ctx, *this, t, dt)) {
-        return false;
+        success = false;
       }
     }
-    return true;
+    return success;
   }  // end of executePostProcessings
 
   Mesh<true>& NonLinearEvolutionProblemImplementation<true>::getMesh() {
@@ -650,12 +651,13 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementation<false>::executePostProcessings(
       Context& ctx, const real t, const real dt) noexcept {
+    auto success = true;
     for (auto& p : this->postprocessings) {
       if (!p->execute(ctx, *this, t, dt)) {
-        return false;
+        success = false;
       }
     }
-    return true;
+    return success;
   }  // end of executePostProcessings
 
   Mesh<false>&

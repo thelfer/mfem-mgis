@@ -240,16 +240,6 @@ namespace mfem_mgis {
     return e.check(eh);
   }  // end of check
 
-  /*!
-   * \brief allocate the workspace of the evaluator
-   * \param[in, out] e: evaluator
-   */
-  template <size_type GradientsSize>
-  inline void allocateWorkspace(
-      RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) {
-    e.allocateWorkspace();
-  }
-
   template <size_type GradientsSize>
   inline mgis::size_type getNumberOfComponents(
       const RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) noexcept {

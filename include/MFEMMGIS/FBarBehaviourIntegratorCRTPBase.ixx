@@ -125,7 +125,11 @@ namespace mfem_mgis {
       }
       e.CalcPhysDShape(tr, dshape0);
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        child.updateGradients(F0v, u, dshape0, ni);
+        if constexpr (Traits::gradientsComputationRequiresShapeFunctions) {
+          child.updateGradients(F0v, u, shape0, dshape0, ni);
+        } else {
+          child.updateGradients(F0v, u, dshape0, ni);
+        }
       }
     }
     const auto J0 = tfel::math::det(F0);
@@ -315,7 +319,11 @@ namespace mfem_mgis {
       }
       e.CalcPhysDShape(tr, dshape0);
       for (size_type ni = 0; ni != nnodes; ++ni) {
-        child.updateGradients(F0v, u, dshape0, ni);
+        if constexpr (Traits::gradientsComputationRequiresShapeFunctions) {
+          child.updateGradients(F0v, u, shape0, dshape0, ni);
+        } else {
+          child.updateGradients(F0v, u, dshape0, ni);
+        }
       }
     }
     const auto J0 = tfel::math::det(F0);

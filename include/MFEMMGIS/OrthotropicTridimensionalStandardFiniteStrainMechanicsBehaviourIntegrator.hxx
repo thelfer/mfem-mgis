@@ -59,11 +59,6 @@ namespace mfem_mgis {
       : StandardBehaviourIntegratorCRTPBase<
             OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator>,
         TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase {
-    /*!
-     * \brief a constant value used for the computation of
-     * symmetric tensors
-     */
-    static constexpr const auto icste = real{0.70710678118654752440};
 
     //! \brief a simple alias
     using RotationMatrix = std::array<real, 9u>;
@@ -162,9 +157,6 @@ namespace mfem_mgis {
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
         const FiniteElementDiscretization &fed, const size_type m);
-
-    //! \brief unused rotation matrix, see Material::r3D
-    RotationMatrix3D rotation_matrix;
 
   };  // end of struct
       // OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator

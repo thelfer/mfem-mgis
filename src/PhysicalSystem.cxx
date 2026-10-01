@@ -308,6 +308,7 @@ namespace mfem_mgis {
     if (isInvalid(this->coupling_scheme)) {
       return ctx.registerErrorMessage("no coupling scheme defined");
     }
+    auto success = true;
     for (const auto &p : this->post_processings) {
       ctx.log(verboseLevel2,
               "* calling executePostProcessingTasks on post-processing '" +
@@ -316,10 +317,13 @@ namespace mfem_mgis {
       if (!r) {
         ctx.debug("* executePostProcessingTasks failed for post-processing '" +
                   p->getName() + "'");
-        return false;
+        success = false;
       }
     }
-    return this->coupling_scheme->executePostProcessingTasks(ctx, ts, b);
+    if (!this->coupling_scheme->executePostProcessingTasks(ctx, ts, b)) {
+      success = false;
+    }
+    return success;
   }  // end of executePostProcessingTasks
 
   bool PhysicalSystem::update(Context &ctx) noexcept {

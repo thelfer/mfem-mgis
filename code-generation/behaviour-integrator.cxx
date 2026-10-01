@@ -62,14 +62,6 @@ struct BehaviourIntegratorDescription {
   bool isotropic = true;
 };  // end of struct BehaviourIntegratorDescription
 
-static bool isTwoDimensionalHypothesis(const std::string &h) {
-  if ((h == "Axisymmetrical") || (h == "PlaneStrain") || (h == "PlaneStress") ||
-      (h == "GeneralisedPlaneStrain")) {
-    return true;
-  }
-  return false;
-}  // end of isTwoDimensionalHypothesis
-
 static bool isAxisymmetricalHypothesis(const std::string &h) {
   if ((h == "Axisymmetrical") ||
       (h == "AxisymmetricalGeneralisedPlaneStrain") ||
@@ -535,12 +527,14 @@ void generateHeaderFile(std::ostream &os,
   if (fs) {
     os << ", " << fs_base;
   }
-  os << " {\n"
-     << "/*!\n"
-     << " * \\brief a constant value used for the computation of\n"
-     << " * symmetric tensors\n"
-     << " */\n"
-     << "static constexpr const auto icste = real{0.70710678118654752440};\n";
+  os << " {\n";
+  if (d.generator_name == "StandardSmallStrainMechanics") {
+    os << "/*!\n"
+       << " * \\brief a constant value used for the computation of\n"
+       << " * symmetric tensors\n"
+       << " */\n"
+       << "static constexpr const auto icste = real{0.70710678118654752440};\n";
+  }
   if (d.isotropic) {
     os << "//! \\brief a dummy structure\n"
        << "struct RotationMatrix {};\n";
@@ -748,15 +742,6 @@ void generateHeaderFile(std::ostream &os,
        << "                           const size_type ni) const noexcept;\n";
   }
   os << '\n';
-  if (!d.isotropic) {
-    if (isTwoDimensionalHypothesis(d.hypothesis)) {
-      os << "//! \\brief unused rotation matrix, see Material::r2D\n"
-         << "RotationMatrix2D rotation_matrix;\n\n";
-    } else if (d.hypothesis == "Tridimensional") {
-      os << "//! \\brief unused rotation matrix, see Material::r3D\n"
-         << "RotationMatrix3D rotation_matrix;\n\n";
-    }
-  }
   if (d.requires_unknown_value_as_external_state_variable) {
     if (B.cols() == 1) {
       os << "/*!\n"

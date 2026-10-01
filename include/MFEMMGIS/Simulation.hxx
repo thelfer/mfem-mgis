@@ -386,6 +386,11 @@ namespace mfem_mgis {
      */
     bool allowSubstepping = true;
     /*!
+     * \brief boolean stating if the simulation stops when a post-processing
+     * fails. Otherwise, the failure is reported as a warning.
+     */
+    bool stopOnPostProcessingFailure = false;
+    /*!
      * \brief boolean stating if the temporal sequences are independent.
      *
      * Currently, this boolean only chooses if the last time increment of the

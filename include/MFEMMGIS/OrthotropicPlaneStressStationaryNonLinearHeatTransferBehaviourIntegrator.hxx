@@ -54,11 +54,6 @@ namespace mfem_mgis {
           final
       : StandardBehaviourIntegratorCRTPBase<
             OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator> {
-    /*!
-     * \brief a constant value used for the computation of
-     * symmetric tensors
-     */
-    static constexpr const auto icste = real{0.70710678118654752440};
 
     //! \brief a simple alias
     using RotationMatrix = std::array<real, 9u>;
@@ -229,9 +224,6 @@ namespace mfem_mgis {
                                const mfem::DenseMatrix &dN,
                                const real w,
                                const size_type ni) const noexcept;
-
-    //! \brief unused rotation matrix, see Material::r2D
-    RotationMatrix2D rotation_matrix;
 
     /*!
      * \brief pointer to the external state variable

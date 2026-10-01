@@ -153,10 +153,14 @@ namespace mfem_mgis {
       Context &ctx, const TimeStepStage) const noexcept {
     auto oresults = std::optional<std::vector<real>>{};
     if ((this->parallel_fct == nullptr) && (this->sequential_fct == nullptr)) {
-      return oresults;
+      return ctx.registerErrorMessage("no grid function set");
     }
     if (!this->arePointsDefined()) {
-      return oresults;
+#ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
+      return ctx.registerErrorMessage("no points defined");
+#else  /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
+      return ctx.registerErrorMessage("gslib support is required");
+#endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
     }
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
     auto ointerpolator = [this, &ctx] {

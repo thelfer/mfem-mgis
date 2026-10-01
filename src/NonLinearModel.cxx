@@ -83,15 +83,13 @@ namespace mfem_mgis {
   bool NonLinearModel::executePostProcessingTasks(Context &ctx,
                                                   const TimeStep &ts,
                                                   const bool b) noexcept {
-    if (!ModelBase::executePostProcessingTasks(ctx, ts, b)) {
-      return false;
-    }
+    auto success = ModelBase::executePostProcessingTasks(ctx, ts, b);
     if (b) {
       if (!this->problem->executePostProcessings(ctx, ts.begin, ts.dt)) {
-        return false;
+        success = false;
       }
     }
-    return true;
+    return success;
   }
 
   std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
