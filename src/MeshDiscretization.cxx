@@ -2128,13 +2128,24 @@ namespace mfem_mgis {
     }
     if (isValid(l.material_identifier)) {
       const auto& mids = getMaterialsAttributes(m);
-      return mids.Find(l.material_identifier->id) != -1;
+      if (mids.Find(l.material_identifier->id) == -1) {
+        return ctx.registerErrorMessage(
+            "material identifier '" +
+            std::to_string(l.material_identifier->id) +
+            "' is not an attribute of the mesh");
+      }
+      return true;
     }
     ctx.assertOrTerminate(
         isValid(l.boundary_identifier),
         "internal error: isInvalid shall not have returned true");
     const auto& bids = getBoundariesAttributes(m);
-    return bids.Find(l.boundary_identifier->id) != -1;
+    if (bids.Find(l.boundary_identifier->id) == -1) {
+      return ctx.registerErrorMessage(
+          "boundary identifier '" + std::to_string(l.boundary_identifier->id) +
+          "' is not a boundary attribute of the mesh");
+    }
+    return true;
   }  // end of check
 
   std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,
