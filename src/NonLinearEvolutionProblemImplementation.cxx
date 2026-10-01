@@ -720,6 +720,7 @@ namespace mfem_mgis {
       fespace.GetElementVDofs(i, vdofs);
       pu.GetSubVector(vdofs, ue);
       if (!this->mgis_integrator->integrate(e, tr, ue, it)) {
+        this->mgis_integrator->setTimeIncrement(dt);
         return false;
       }
     }
