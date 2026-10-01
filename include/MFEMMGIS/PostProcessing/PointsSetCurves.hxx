@@ -121,7 +121,7 @@ namespace mfem_mgis {
      */
     bool shallExportCurvilinearAbscissa = true;
     //! \brief flag stating if the coordinates along the line can be retrieved
-    bool shallExportCoordinates = false;
+    bool shallExportCoordinates = true;
   };
 
 }  // namespace mfem_mgis

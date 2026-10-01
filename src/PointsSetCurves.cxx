@@ -270,9 +270,6 @@ namespace mfem_mgis {
       if (isInvalid(ovalues)) {
         return {};
       }
-      if (isInvalid(ovalues)) {
-        return {};
-      }
       add(*ovalues);
     }
 #endif /* MFEM_USE_MPI */
