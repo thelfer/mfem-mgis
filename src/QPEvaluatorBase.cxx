@@ -35,7 +35,7 @@ namespace mfem_mgis {
   QPEvaluatorBase::getUniformValue(Context& ctx,
                                    const real,
                                    const real) const noexcept {
-    return ctx.registerErrorMessage("invalid call: evaluator is not valid");
+    return ctx.registerErrorMessage("invalid call: evaluator is not uniform");
   }  // end of getUniformValue
 
   QPEvaluatorBase::~QPEvaluatorBase() noexcept = default;
