@@ -182,9 +182,10 @@ modelling hypothesis (plane strain, plane stress).</p>
 <p>The following snippet assigns the behaviour integrator named
 <code class="docutils literal notranslate"><span class="pre">Mechanics</span></code> to the material named <code class="docutils literal notranslate"><span class="pre">beam</span></code> to the mechanical non
 linear evolution problem named <code class="docutils literal notranslate"><span class="pre">Mechanics</span></code>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="s">"Mechanics"</span><span class="p">,</span><span class="w"> </span><span class="s">"beam"</span><span class="p">,</span>
-<span class="w">                                  </span><span class="s">"src/libBehaviour.so"</span><span class="p">,</span>
-<span class="w">                                  </span><span class="s">"MicromorphicDamageI_SpectralSplit"</span><span class="p">);</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mechanics</span><span class="p">.</span><span class="n">addBehaviourIntegrator</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"Mechanics"</span><span class="p">,</span><span class="w"> </span><span class="s">"beam"</span><span class="p">,</span>
+<span class="w">                                 </span><span class="s">"src/libBehaviour.so"</span><span class="p">,</span>
+<span class="w">                                 </span><span class="s">"MicromorphicDamageI_SpectralSplit"</span><span class="p">)</span><span class="w"> </span><span class="o">|</span>
+<span class="w">    </span><span class="n">or_die</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>The behaviour <code class="docutils literal notranslate"><span class="pre">MicromorphicDamageI_SpectralSplit</span></code> is loaded from a

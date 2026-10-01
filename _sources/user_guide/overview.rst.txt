@@ -82,9 +82,10 @@ linear evolution problem named ``Mechanics``:
 
 .. code:: c++
 
-   mechanics.addBehaviourIntegrator("Mechanics", "beam",
-                                     "src/libBehaviour.so",
-                                     "MicromorphicDamageI_SpectralSplit");
+   mechanics.addBehaviourIntegrator(ctx, "Mechanics", "beam",
+                                    "src/libBehaviour.so",
+                                    "MicromorphicDamageI_SpectralSplit") |
+       or_die;
 
 The behaviour ``MicromorphicDamageI_SpectralSplit`` is loaded from a
 library named ``libBehaviour.so`` which shall have been generated using

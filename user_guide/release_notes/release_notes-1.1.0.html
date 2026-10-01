@@ -167,7 +167,9 @@ create the performance table instead of the previously used
 <cite>CatchTimeSection</cite>.</p></li>
 <li><p>Many methods have been deprecated to have a consistent error handling
 scheme based on <cite>MGIS</cite>’s one. As such, many methods and functions now
-takes and <cite>MGIS</cite>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as their first argument.</p></li>
+take a <cite>MGIS</cite>’s <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as their first argument. The deprecated
+methods of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">AbstractNonLinearEvolutionProblem</span></code> have been removed,
+see the known incompatibilities below.</p></li>
 <li><p>The name of the materials and boundaries are automatically retrieved
 from mfem’s mesh.</p></li>
 </ul>
@@ -181,6 +183,12 @@ methods to test their convergence in mfem’s version prior to 4.10.
 The parameter <cite>DiscardLinearSolverFailure</cite> can be passed to
 <cite>MFEM/MGIS</cite>’s Newton solver to recover the behavior of previous
 versions.</p></li>
+<li><p>The deprecated methods of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">AbstractNonLinearEvolutionProblem</span></code>
+and of its derived classes which did not take a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> have
+been removed, as well as the deprecated functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getGradient</span></code>,
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">getThermodynamicForce</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getInternalStateVariable</span></code>
+which did not take a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code>. The overloads taking a
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as first argument shall be used instead.</p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -456,6 +464,7 @@ material carrying several behaviour integrators.</p>
 <ul class="simple">
 <li><p>Issue 429: ex1 and ex3 sources shall only live in mm</p></li>
 <li><p>Issue 427: satoh, rve and mox examples are duplicates from mm-examples</p></li>
+<li><p>Issue 404: Remove deprecated methods of <cite>AbstractNonLinearEvolutionProblem</cite></p></li>
 <li><p>Issue 292: Remove deprecated usage of <cite>getMaterial</cite> in
 <cite>ParaviewExportIntegrationPointResultsAtNodesBase::getPartialQuadratureFunctionViews</cite>
 and <cite>ParaviewExportIntegrationPointResultsAtNodesBase::getResultDescription</cite></p></li>
