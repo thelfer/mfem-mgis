@@ -203,7 +203,7 @@ namespace mfem_mgis {
     constexpr const auto evaluateShapeFunctionsDerivatives =
         Traits::gradientsComputationRequiresShapeFunctionsDerivatives;
     static_assert(evaluateShapeFunctionsDerivatives,
-                  "the derivatives of the shap functions are required to "
+                  "the derivatives of the shape functions are required to "
                   "compute the inner forces");
     auto &child = static_cast<Child &>(*this);
 #ifdef MFEM_THREAD_SAFE
