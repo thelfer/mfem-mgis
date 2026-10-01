@@ -1859,13 +1859,13 @@ namespace mfem_mgis {
   std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
       Context& ctx, const Mesh<true>& m, const size_type id) const noexcept {
     return this->pimpl->getLocationIdentifier<true>(ctx, m, id);
-  }    // end of getParallelLocationIdentifier
+  }  // end of getLocationIdentifier
 #endif /* MFEM_USE_MPI */
 
   std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
       Context& ctx, const Mesh<false>& m, const size_type id) const noexcept {
     return this->pimpl->getLocationIdentifier<false>(ctx, m, id);
-  }  // end of getSequentialLocationIdentifier
+  }  // end of getLocationIdentifier
 
   bool MeshDiscretization::setMaterialsNames(
       Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
