@@ -453,6 +453,14 @@ namespace mfem_mgis {
     return true;
   }  // end of addGenerator
 
+  void BehaviourIntegratorFactory::addGenerator(attributes::MayAbort,
+                                                std::string_view n,
+                                                const Generator g) {
+    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
+    this->addGenerator(ctx, std::string{n}, g) | or_die;
+  }  // end of addGenerator
+
   void BehaviourIntegratorFactory::addGenerator(
       attributes::MayAbort,
       std::string_view n,
