@@ -292,7 +292,8 @@ namespace mfem_mgis {
             integrators.front()->integrate(
                 e, tr, U,
                 IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),
-            "ERROR Behaviour");
+            "behaviour integration failed on element " << tr.ElementNo
+                                                       << " of material " << m);
       }
       integrators.front()->updateResidual(F, e, tr, U);
       return;
@@ -311,7 +312,8 @@ namespace mfem_mgis {
             bi->integrate(
                 e, tr, U,
                 IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),
-            "ERROR Behaviour");
+            "behaviour integration failed on element " << tr.ElementNo
+                                                       << " of material " << m);
       }
       bi->updateResidual(F_tmp, e, tr, U);
       F += F_tmp;

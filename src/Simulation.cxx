@@ -807,7 +807,8 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage("internal error");
       }
       if (!this->allowSubstepping) {
-        return false;
+        s = ExitStatus::recoverableError;
+        return ctx.registerErrorMessage("sub-stepping is not allowed");
       }
       if ((dte < 0) || (std::fpclassify(dte) == FP_ZERO)) {
         s = ExitStatus::recoverableError;
@@ -960,6 +961,11 @@ namespace mfem_mgis {
         continue;
       }
       // the time step if valid:
+      ++(state.numberOfTimeSteps);
+      if (isValid(this->maximumNumberOfTimeSteps)) {
+        state.maximumNumberOfTimeStepsReached =
+            (state.numberOfTimeSteps >= *(this->maximumNumberOfTimeSteps));
+      }
       // - here we test if we are at the end of the temporal sequence
       state.timeSinceLastPostProcessing += *ote - t;
       stop =
@@ -1052,13 +1058,8 @@ namespace mfem_mgis {
 
   ExitStatus Simulation::simulateOverATimeStep(Context &ctx,
                                                SimulationOutput &output,
-                                               SimulationRunState &state,
+                                               SimulationRunState &,
                                                const TimeStep &ts) noexcept {
-    ++(state.numberOfTimeSteps);
-    if (isValid(this->maximumNumberOfTimeSteps)) {
-      state.maximumNumberOfTimeStepsReached =
-          (state.numberOfTimeSteps >= *(this->maximumNumberOfTimeSteps));
-    }
     //
     auto s = ExitStatus{};
     auto updateAndSynchronize = [this, &s](const auto o) {
