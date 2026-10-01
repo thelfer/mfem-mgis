@@ -488,11 +488,6 @@ namespace mfem_mgis {
      */
     void makeView(PartialQuadratureFunction& f);
     /*!
-     * \brief copy the given function
-     * \param[in] f: function
-     */
-    void copy(const ImmutablePartialQuadratureFunctionView& f);
-    /*!
      * \brief copy values from an immutable view
      * \param[in] v: view
      * \note the execution is aborted if the view is not compatible
