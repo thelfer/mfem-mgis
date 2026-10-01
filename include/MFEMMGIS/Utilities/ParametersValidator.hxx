@@ -151,8 +151,8 @@ namespace mfem_mgis {
     template <typename... Types>
     ParametersValidator& add(const std::string& k,
                              const AddArguments& opts = not_required) noexcept
-      requires((sizeof...(Types) > 0) &&
-               (... && (ParameterValueConcept<std::decay_t<Types>>)));
+        requires((sizeof...(Types) > 0) &&
+                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief check that the data has one of the types given as template
      * arguments
@@ -166,8 +166,8 @@ namespace mfem_mgis {
     ParametersValidator& add(const std::string& k,
                              const std::string& d,
                              const AddArguments& opts = not_required) noexcept
-      requires((sizeof...(Types) > 0) &&
-               (... && (ParameterValueConcept<std::decay_t<Types>>)));
+        requires((sizeof...(Types) > 0) &&
+                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief check that the data has one of the types given as template
      * arguments
@@ -179,8 +179,8 @@ namespace mfem_mgis {
     template <typename... Types>
     ParametersValidator& add(const std::vector<std::string>& keys,
                              const AddArguments& opts = not_required) noexcept
-      requires((sizeof...(Types) > 0) &&
-               (... && (ParameterValueConcept<std::decay_t<Types>>)));
+        requires((sizeof...(Types) > 0) &&
+                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief check that the data has one of the types given as template
      * arguments
@@ -192,8 +192,8 @@ namespace mfem_mgis {
     template <typename... Types>
     ParametersValidator& add(const std::map<std::string, std::string>& m,
                              const AddArguments& opts = not_required) noexcept
-      requires((sizeof...(Types) > 0) &&
-               (... && (ParameterValueConcept<std::decay_t<Types>>)));
+        requires((sizeof...(Types) > 0) &&
+                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief check that the data associated with the given key is a strictly
      * positive integer
@@ -229,8 +229,8 @@ namespace mfem_mgis {
     ParametersValidator& addIncompatibleParametersList(
         const std::vector<std::string>& keys,
         const AddArguments& opts = not_required) noexcept
-      requires((sizeof...(Types) > 0) &&
-               (... && (ParameterValueConcept<std::decay_t<Types>>)));
+        requires((sizeof...(Types) > 0) &&
+                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief declare a list of keys to be incompatible
      * \tparam Types: list of allowed types
@@ -245,8 +245,8 @@ namespace mfem_mgis {
     ParametersValidator& addIncompatibleParametersList(
         const std::map<std::string, std::string>& m,
         const AddArguments& opts = not_required) noexcept
-      requires((sizeof...(Types) > 0) &&
-               (... && (ParameterValueConcept<std::decay_t<Types>>)));
+        requires((sizeof...(Types) > 0) &&
+                 (... && (ParameterValueConcept<std::decay_t<Types>>)));
     /*!
      * \brief declare a list of keys to be incompatible
      * \param[in] keys: keys

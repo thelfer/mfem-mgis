@@ -227,7 +227,8 @@ namespace mfem_mgis {
           const size_type nc,
           std::function<bool(Context&, PartialQuadratureFunction&)> f,
           std::string_view d)
-      : functions(buildPartialQuadratureFunctionsSet(p, mids, nc)),
+      : functions(buildPartialQuadratureFunctionsSet(ctx, p, mids, nc) |
+                  ctx.getThrowingFailureHandler()),
         update_function(f),
         exporter(ctx,
                  p,

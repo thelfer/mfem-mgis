@@ -149,7 +149,8 @@ namespace mfem_mgis {
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::optional<ImmutablePartialQuadratureFunctionView> getGradient(
+  std::optional<ImmutablePartialQuadratureFunctionView>
+  getGradient(
       Context &ctx,
       const Material &m,
       const std::string_view n,
@@ -179,7 +180,8 @@ namespace mfem_mgis {
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::optional<ImmutablePartialQuadratureFunctionView> getThermodynamicForce(
+  std::optional<ImmutablePartialQuadratureFunctionView>
+  getThermodynamicForce(
       Context &ctx,
       const Material &m,
       const std::string_view n,
@@ -234,7 +236,8 @@ namespace mfem_mgis {
    * \param[in] s: state considered
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::optional<ImmutablePartialQuadratureFunctionView> getStoredEnergy(
+  std::optional<ImmutablePartialQuadratureFunctionView>
+  getStoredEnergy(
       Context &ctx,
       const Material &m,
       const Material::StateSelection s = Material::END_OF_TIME_STEP) noexcept;

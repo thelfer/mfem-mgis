@@ -22,8 +22,9 @@ namespace mfem_mgis {
    * \return true on success
    */
   template <size_type N, QPEvaluatorConcept QPEvaluatorType>
-  bool assign(Context& ctx, PartialQuadratureFunction& lhs, QPEvaluatorType e)
-    requires(N > 0);
+  bool assign(Context& ctx,
+              PartialQuadratureFunction& lhs,
+              QPEvaluatorType e) requires(N > 0);
   /*!
    * \brief assign the evaluator to a partial quadrature function
    * \param[in, out] ctx: execution context

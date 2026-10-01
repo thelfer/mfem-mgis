@@ -103,10 +103,10 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     std::vector<std::pair<
         std::string,
-        std::variant<const GridFunction<true> *, const GridFunction<false> *>>>
+        std::variant<const GridFunction<true>*, const GridFunction<false>*>>>
         gridfunctions;
 #else  /* MFEM_USE_MPI */
-    std::vector<std::pair<std::string, const GridFunction<false> *>>
+    std::vector<std::pair<std::string, const GridFunction<false>*>>
         gridfunctions;
 #endif /* MFEM_USE_MPI */
 #ifdef MGIS_HAVE_TFEL

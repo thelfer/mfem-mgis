@@ -75,11 +75,11 @@ namespace mfem_mgis {
    * no provider can be found on a boundary.
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::optional<MaterialQuantityProviderSearchResult> hasGradientProvider(
-      Context& ctx,
-      const AbstractNonLinearEvolutionProblem& p,
-      const LocationIdentifier& l,
-      std::string_view n) noexcept;
+  std::optional<MaterialQuantityProviderSearchResult>
+  hasGradientProvider(Context& ctx,
+                      const AbstractNonLinearEvolutionProblem& p,
+                      const LocationIdentifier& l,
+                      std::string_view n) noexcept;
   /*!
    * \brief search the behaviour integrator providing the given
    * thermodynamic force on the given location

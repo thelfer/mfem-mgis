@@ -124,12 +124,12 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT
   [[nodiscard]]  //
-  std::optional<QPEvaluatorResult> evaluate(
-      Context& ctx,
-      const AbstractQPEvaluator& e,
-      const real t,
-      const real dt,
-      const QPEvaluationOptions& opts = QPEvaluationOptions{}) noexcept;
+  std::optional<QPEvaluatorResult>
+  evaluate(Context& ctx,
+           const AbstractQPEvaluator& e,
+           const real t,
+           const real dt,
+           const QPEvaluationOptions& opts = QPEvaluationOptions{}) noexcept;
 
 }  // end of namespace mfem_mgis
 
