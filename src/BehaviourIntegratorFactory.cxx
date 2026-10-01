@@ -56,7 +56,7 @@ namespace mfem_mgis {
     if (!checkParameters(
             ctx, params,
             std::map<std::string, std::string>{
-                {"Regularization", "Reguralization method (optional)"}})) {
+                {"Regularization", "Regularization method (optional)"}})) {
       return {};
     }
     if (contains(params, "Regularization")) {
@@ -176,7 +176,7 @@ namespace mfem_mgis {
     if (!checkParameters(
             ctx, params,
             std::map<std::string, std::string>{
-                {"Regularization", "Reguralization method (optional)"}})) {
+                {"Regularization", "Regularization method (optional)"}})) {
       return {};
     }
     if (contains(params, "Regularization")) {
@@ -293,7 +293,7 @@ namespace mfem_mgis {
     if (!checkParameters(
             ctx, params,
             std::map<std::string, std::string>{
-                {"Regularization", "Reguralization method (optional)"}})) {
+                {"Regularization", "Regularization method (optional)"}})) {
       return {};
     }
     if (contains(params, "Regularization")) {
