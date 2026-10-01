@@ -58,25 +58,23 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       int rank;
       MPI_Comm_rank(getMPICommunicator(p), &rank);
-      if (rank == 0) {
-        this->out << t + dt;
-      }
       const auto oenergies = this->computeEnergies(ctx, p);
       if (isInvalid(oenergies)) {
         return false;
       }
       if (rank == 0) {
+        this->out << t + dt;
         this->writeResults(*oenergies);
       }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      this->out << t + dt;
       const auto oenergies = this->computeEnergies(ctx, p);
       if (isInvalid(oenergies)) {
         return false;
       }
+      this->out << t + dt;
       this->writeResults(*oenergies);
     }
     return true;
