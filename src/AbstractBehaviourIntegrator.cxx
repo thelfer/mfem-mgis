@@ -1,6 +1,7 @@
 /*!
  * \file   src/AbstractBehaviourIntegrator.cxx
- * \brief
+ * \brief  This file implements the `AbstractBehaviourIntegrator` class and
+ * the `computeMeasure` and `computeIntegral` functions
  * \author Thomas Helfer
  * \date   27/08/2020
  */

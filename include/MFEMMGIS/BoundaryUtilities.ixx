@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/BoundaryUtilities.ixx
- * \brief
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/BoundaryUtilities.hxx`
  * \author Thomas Helfer
  * \date   28/03/2021
  */
@@ -90,7 +91,7 @@ namespace mfem_mgis {
       }
     }
     return r;
-  }  // end of getElementsWithNodesOnBoundary
+  }  // end of getElementsDegreesOfFreedomOnBoundary
 
 }  // end of namespace mfem_mgis
 

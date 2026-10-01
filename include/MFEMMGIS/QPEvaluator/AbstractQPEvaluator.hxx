@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/QPEvaluator/AbstractQPEvaluator.hxx
- * \brief
+ * \brief  This file declares the `AbstractQPEvaluator` class
  * \author Thomas Helfer
  * \date   06/03/2026
  */
@@ -20,26 +20,34 @@ namespace mfem_mgis {
   struct PartialQuadratureSpace;
 
   /*!
-   * \brief structure describing the result of an partial quadrature function
+   * \brief structure describing the result of a partial quadrature function
    * evaluator
    *
    * By essence, a partial quadrature function evaluator may want to return a
    * view to an existing partial quadrature function or create a new one.
    *
    * The functions `fromFunction` and `fromView` were added after
-   * Issue 360 that showed that the direct usage of the constructors class can
+   * Issue 360 that showed that the direct usage of the class constructors can
    * be easily misused due to the implicit conversion of a function into an
    * immutable view, see https://github.com/thelfer/mfem-mgis/pull/361 for
    * details
    */
   struct MFEM_MGIS_EXPORT QPEvaluatorResult
       : ImmutablePartialQuadratureFunctionView {
-    //! \brief build from a function
+    /*!
+     * \brief build from a function
+     * \param[in, out] v: function, moved into the result
+     * \return the result
+     */
     [[nodiscard]] static QPEvaluatorResult fromFunction(
-        PartialQuadratureFunction&&) noexcept;
-    //! \brief build from a view
+        PartialQuadratureFunction&& v) noexcept;
+    /*!
+     * \brief build from a view
+     * \param[in] v: view
+     * \return the result
+     */
     [[nodiscard]] static QPEvaluatorResult fromView(
-        const ImmutablePartialQuadratureFunctionView&) noexcept;
+        const ImmutablePartialQuadratureFunctionView& v) noexcept;
     //! \brief move constructor
     QPEvaluatorResult(QPEvaluatorResult&&) noexcept;
     //
@@ -54,7 +62,7 @@ namespace mfem_mgis {
         const ImmutablePartialQuadratureFunctionView&) noexcept;
     //! \brief constructor from a r-value to a partial quadrature function
     explicit QPEvaluatorResult(PartialQuadratureFunction&&) noexcept;
-    //! \brief internal pointer for memory management, if required
+    //! \brief internal storage for memory management, if required
     std::optional<PartialQuadratureFunction> f;
   };
 
@@ -62,14 +70,18 @@ namespace mfem_mgis {
    * \brief generic interface for partial quadrature function evaluators
    */
   struct MFEM_MGIS_EXPORT AbstractQPEvaluator {
+    //! \return the partial quadrature space
     [[nodiscard]] virtual const PartialQuadratureSpace& getQuadratureSpace()
         const noexcept = 0;
+    //! \return a shared pointer to the partial quadrature space
     [[nodiscard]] virtual std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const noexcept = 0;
     //! \return the number of components
     [[nodiscard]] virtual size_type getNumberOfComponents() const noexcept = 0;
+    //! \return if the evaluator is spatially uniform
     [[nodiscard]] virtual bool isUniform() const noexcept = 0;
     /*!
+     * \brief return the value of a uniform evaluator
      * \return the value of the evaluator
      *
      * \param[in, out] ctx: execution context
@@ -77,8 +89,11 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     [[nodiscard]] virtual std::optional<std::variant<real, std::vector<real>>>
-    getUniformValue(Context& ctx, const real, const real) const noexcept = 0;
+    getUniformValue(Context& ctx,
+                    const real t,
+                    const real dt) const noexcept = 0;
     /*!
+     * \brief evaluate the values at the integration points
      * \return the value of the evaluator
      *
      * \param[in, out] ctx: execution context
@@ -86,13 +101,14 @@ namespace mfem_mgis {
      * \param[in] dt: time increment
      */
     [[nodiscard]] virtual std::optional<QPEvaluatorResult> evaluate(
-        Context&, const real, const real) const noexcept = 0;
+        Context& ctx, const real t, const real dt) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractQPEvaluator() noexcept;
   };  // end of AbstractQPEvaluator
 
   //! \brief options passed to the evaluate function
   struct QPEvaluationOptions {
+    //! \brief if the evaluated values must be stored contiguously
     const bool ensure_contiguous_storage = false;
   };  // end of struct QPEvaluationOptions
 
@@ -104,15 +120,16 @@ namespace mfem_mgis {
    * \param[in] t: time at the beginning of the time step
    * \param[in] dt: time increment
    * \param[in] opts: options
+   * \return the result of the evaluation
    */
   MFEM_MGIS_EXPORT
   [[nodiscard]]  //
-  std::optional<QPEvaluatorResult>
-  evaluate(Context&,
-           const AbstractQPEvaluator&,
-           const real,
-           const real,
-           const QPEvaluationOptions& = QPEvaluationOptions{}) noexcept;
+  std::optional<QPEvaluatorResult> evaluate(
+      Context& ctx,
+      const AbstractQPEvaluator& e,
+      const real t,
+      const real dt,
+      const QPEvaluationOptions& opts = QPEvaluationOptions{}) noexcept;
 
 }  // end of namespace mfem_mgis
 

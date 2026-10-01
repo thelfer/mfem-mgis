@@ -1,6 +1,7 @@
 /*!
  * \file   L2Projection.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/L2Projection.hxx`
  * \author Thomas Helfer
  * \date   14/01/2026
  */

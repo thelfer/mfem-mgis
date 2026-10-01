@@ -1,6 +1,6 @@
 /*!
  * \file   src/UniformHeatSourceBoundaryCondition.cxx
- * \brief
+ * \brief  This file implements the `UniformHeatSourceBoundaryCondition` class
  * \author Thomas Helfer
  * \date   27/09/2024
  */
@@ -24,7 +24,7 @@
 
 namespace mfem_mgis {
 
-  //! \brief nonlinear form implementing a uniform imposed heat source
+  //! \brief base class of the form integrators imposing a uniform heat source
   struct UniformHeatSourceBoundaryCondition::
       UniformHeatSourceFormIntegratorBase {
     //! \brief constructor

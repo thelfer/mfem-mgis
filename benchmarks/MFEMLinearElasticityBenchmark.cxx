@@ -1,3 +1,8 @@
+/*!
+ * \file   benchmarks/MFEMLinearElasticityBenchmark.cxx
+ * \brief  Linear elasticity benchmark using MFEM only
+ */
+
 /// Modified version of the MFEM example 2  ///
 
 #include "mfem.hpp"

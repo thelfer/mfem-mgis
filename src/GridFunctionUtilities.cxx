@@ -1,7 +1,9 @@
 /*!
  * \file   src/GridFunctionUtilities.cxx
- * \brief  Implementation of the functions defined in
- * `MFEMMGIS/GridFunctionUtilities.hxx` \author Thomas Helfer \date   03/09/2026
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/GridFunctionUtilities.hxx`
+ * \author Thomas Helfer
+ * \date   03/09/2026
  */
 
 #include "mfem/fem/gridfunc.hpp"

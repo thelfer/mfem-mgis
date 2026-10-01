@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/Utilities/ParametersValidator.ixx
- * \brief  This files implements the inline methods of the `ParametersValidator`
+ * \brief  This file implements the inline methods of the `ParametersValidator`
  * class
  * \author Thomas Helfer
  * \date   19/09/2026

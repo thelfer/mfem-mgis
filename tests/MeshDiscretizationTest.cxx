@@ -1,6 +1,6 @@
 /*!
  * \file   tests/MeshDiscretizationTest.cxx
- * \brief
+ * \brief  Tests of the `MeshDiscretization` class
  * \author Thomas Helfer
  * \date   14/09/2026
  */

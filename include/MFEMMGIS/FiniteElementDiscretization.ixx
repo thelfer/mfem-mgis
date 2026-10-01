@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/FiniteElementDiscretization.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `FiniteElementDiscretization` class
  * \author Thomas Helfer
  * \date   13/02/2021
  */

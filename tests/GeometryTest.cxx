@@ -1,6 +1,6 @@
 /*!
  * \file   GeometryTest.cxx
- * \brief  Tests of the `GeometryTest` class
+ * \brief  Tests of the `makePointsOnCurve` function
  * \author Thomas Helfer
  * \date   02/09/2026
  */

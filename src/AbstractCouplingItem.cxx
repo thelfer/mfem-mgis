@@ -1,6 +1,6 @@
 /*!
  * \file   src/AbstractCouplingItem.cxx
- * \brief  This file declares the `AbstractCouplingItem` class
+ * \brief  This file implements the `AbstractCouplingItem` class
  * \date   06/12/2022
  */
 

@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/AbstractTimeIncrementComputer.cxx
- * \brief  This class implements the `AbstractTimeIncrementComputer` class
+ * \file   src/AbstractTimeIncrementComputer.cxx
+ * \brief  This file implements the `AbstractTimeIncrementComputer` class
  * \date   04/12/2023
  */
 

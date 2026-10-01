@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/MPI.ixx
- * \brief
+ * \brief  This file implements the template functions declared in `MPI.hxx`
  * \author Thomas Helfer
  * \date   06/02/2026
  */

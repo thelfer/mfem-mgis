@@ -1,6 +1,6 @@
 /*!
  * \file   PointWiseModelTest.cxx
- * \brief
+ * \brief  Tests of a point wise model integrated on a material
  * \author Thomas Helfer
  * \date   26/01/2026
  */

@@ -1,6 +1,7 @@
 /*!
  * \file   src/Behaviour.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/Behaviour.hxx`
  * \author Thomas Helfer
  * \date   13/10/2020
  */

@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx
- * \brief
+ * \brief  This file declares the
+ * `AbstractNonLinearEvolutionProblemPostProcessing` class
  * \author Thomas Helfer
  * \date   08/03/2021
  */
@@ -26,7 +27,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  //! \brief partial specialisation for parallel post-processings
+  //! \brief specialisation for parallel post-processings
   template <>
   struct MFEM_MGIS_EXPORT
       AbstractNonLinearEvolutionProblemPostProcessing<true> {
@@ -36,29 +37,32 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] t: initial time
+     * \return true on success
      */
     [[nodiscard]] virtual bool executeInitialPostProcessing(
-        Context&,
-        NonLinearEvolutionProblemImplementation<true>&,
-        const real) noexcept = 0;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<true>& p,
+        const real t) noexcept = 0;
     /*!
      * \brief execute the post-processing
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
     [[nodiscard]] virtual bool execute(
         mgis::Context& ctx,
-        NonLinearEvolutionProblemImplementation<true>&,
-        const real,
-        const real) noexcept = 0;
+        NonLinearEvolutionProblemImplementation<true>& p,
+        const real t,
+        const real dt) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblemPostProcessing();
   };  // end of struct AbstractNonLinearEvolutionProblemPostProcessing
 
 #endif /* MFEM_USE_MPI */
 
-  //! \brief partial specialisation for sequential post-processings
+  //! \brief specialisation for sequential post-processings
   template <>
   struct MFEM_MGIS_EXPORT
       AbstractNonLinearEvolutionProblemPostProcessing<false> {
@@ -68,23 +72,25 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] t: initial time
+     * \return true on success
      */
     [[nodiscard]] virtual bool executeInitialPostProcessing(
-        Context&,
-        NonLinearEvolutionProblemImplementation<false>&,
-        const real) noexcept = 0;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<false>& p,
+        const real t) noexcept = 0;
     /*!
      * \brief execute the post-processing
      * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
     [[nodiscard]] virtual bool execute(
         mgis::Context& ctx,
-        NonLinearEvolutionProblemImplementation<false>&,
-        const real,
-        const real) noexcept = 0;
+        NonLinearEvolutionProblemImplementation<false>& p,
+        const real t,
+        const real dt) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractNonLinearEvolutionProblemPostProcessing();
   };  // end of struct AbstractNonLinearEvolutionProblemPostProcessing

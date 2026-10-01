@@ -1,3 +1,9 @@
+/*!
+ * \file   src/TransientHeatTransferBehaviourIntegrator.cxx
+ * \brief  This file implements the `TransientHeatTransferBehaviourIntegrator`
+ * class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx"

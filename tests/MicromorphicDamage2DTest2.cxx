@@ -1,6 +1,7 @@
 /*!
- * \file   tests/tests/MicromorphicDamage2DTest2.cxx
- * \brief
+ * \file   tests/MicromorphicDamage2DTest2.cxx
+ * \brief  Tests of the coupling of a mechanical problem and a bidimensional
+ * micromorphic damage problem
  * \author Thomas Helfer
  * \date   07/12/2021
  */

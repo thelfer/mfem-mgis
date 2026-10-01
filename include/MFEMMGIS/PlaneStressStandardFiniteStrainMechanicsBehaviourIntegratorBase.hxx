@@ -1,3 +1,9 @@
+/*!
+ * \file
+ * \brief  This file declares the
+ * `PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase` class
+ */
+
 #ifndef LIB_MFEM_MGIS_PLANESTRESSSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATORBASE_HXX
 #define LIB_MFEM_MGIS_PLANESTRESSSTANDARDFINITESTRAINMECHANICSBEHAVIOURINTEGRATORBASE_HXX
 
@@ -8,70 +14,76 @@
 
 namespace mfem_mgis {
 
+  /*!
+   * \brief base class of the behaviour integrators for finite strain
+   * mechanical behaviours under the plane stress hypothesis
+   */
   struct MFEM_MGIS_EXPORT
       PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase {
    protected:
     /*!
      * \brief update the deformation gradient with the contribution of the
      * given node
-     * \param[in] g: deformation gradient
+     * \param[in, out] g: deformation gradient
      * \param[in] u: nodal displacements
-     * \param[in] dshape: derivatives of the shape function
-     * \param[in] n: node index
+     * \param[in] dN: derivatives of the shape functions
+     * \param[in] ni: node index
      */
-    void updateGradients(std::span<real> &,
-                         const mfem::Vector &,
-                         const mfem::DenseMatrix &,
-                         const size_type) noexcept;
+    void updateGradients(std::span<real>& g,
+                         const mfem::Vector& u,
+                         const mfem::DenseMatrix& dN,
+                         const size_type ni) noexcept;
     /*!
-     * \brief update the inner forces of the given node  with
+     * \brief update the inner forces of the given node with
      * the contribution of the stress of an integration point.
      *
-     * \param[out] Fe: inner forces
+     * \param[in, out] Fe: inner forces
      * \param[in] s: stress
-     * \param[in] dshape: derivatives of the shape function
+     * \param[in] dN: derivatives of the shape functions
      * \param[in] w: weight of the integration point
-     * \param[in] n: node index
+     * \param[in] ni: node index
      */
-    void updateInnerForces(mfem::Vector &,
-                           const std::span<const real> &,
-                           const mfem::DenseMatrix &,
-                           const real,
-                           const size_type) const noexcept;
+    void updateInnerForces(mfem::Vector& Fe,
+                           const std::span<const real>& s,
+                           const mfem::DenseMatrix& dN,
+                           const real w,
+                           const size_type ni) const noexcept;
     /*!
      * \brief update the stiffness matrix of the given node
-     * with the contribution of the consistent tangent operator of  * an
+     * with the contribution of the consistent tangent operator of an
      * integration point.
      *
-     * \param[out] Ke: inner forces
-     * \param[in] Kip: stress
-     * \param[in] dN: derivatives of the shape function
+     * \param[in, out] Ke: stiffness matrix
+     * \param[in] Kip: consistent tangent operator of the integration point
+     * \param[in] dN: derivatives of the shape functions
      * \param[in] w: weight of the integration point
-     * \param[in] n: node index
+     * \param[in] ni: node index
      */
-    void updateStiffnessMatrix(mfem::DenseMatrix &,
-                               const std::span<const real> &,
-                               const mfem::DenseMatrix &,
-                               const real,
-                               const size_type) const noexcept;
+    void updateStiffnessMatrix(mfem::DenseMatrix& Ke,
+                               const std::span<const real>& Kip,
+                               const mfem::DenseMatrix& dN,
+                               const real w,
+                               const size_type ni) const noexcept;
     /*!
      * \brief update the stiffness matrix of the given node
-     * with the contribution of the consistent tangent operator of  * an
+     * with the contribution of the consistent tangent operator of an
      * integration point.
      *
-     * \param[out] Ke: inner forces
-     * \param[in] Kip: stress
-     * \param[in] dN1: derivatives of the shape function
-     * \param[in] dN2: derivatives of the shape function
+     * \param[in, out] Ke: stiffness matrix
+     * \param[in] Kip: consistent tangent operator of the integration point
+     * \param[in] dN1: derivatives of the shape functions, associated with the
+     * rows of the stiffness matrix
+     * \param[in] dN2: derivatives of the shape functions, associated with the
+     * columns of the stiffness matrix
      * \param[in] w: weight of the integration point
-     * \param[in] n: node index
+     * \param[in] ni: node index
      */
-    void updateStiffnessMatrix(mfem::DenseMatrix &,
-                               const std::span<const real> &,
-                               const mfem::DenseMatrix &,
-                               const mfem::DenseMatrix &,
-                               const real,
-                               const size_type) const noexcept;
+    void updateStiffnessMatrix(mfem::DenseMatrix& Ke,
+                               const std::span<const real>& Kip,
+                               const mfem::DenseMatrix& dN1,
+                               const mfem::DenseMatrix& dN2,
+                               const real w,
+                               const size_type ni) const noexcept;
   };  // end of struct
       // PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase
 

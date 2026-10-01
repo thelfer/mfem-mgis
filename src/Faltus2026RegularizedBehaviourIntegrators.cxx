@@ -1,6 +1,7 @@
 /*!
  * \file   Faltus2026RegularizedBehaviourIntegrators.cxx
- * \brief
+ * \brief  This file implements the behaviour integrator generators declared in
+ * `MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.hxx`
  * \author Thomas Helfer
  * \date   17/03/2026
  */

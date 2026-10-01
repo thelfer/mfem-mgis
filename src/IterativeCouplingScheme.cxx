@@ -1,7 +1,7 @@
 /*!
  * \file   src/IterativeCouplingScheme.cxx
- * \brief  This file implements the inline methods of the
- * `IterativeCouplingScheme` class \date   05/12/2022
+ * \brief  This file implements the `IterativeCouplingScheme` class
+ * \date   05/12/2022
  */
 
 #include "MGIS/Profiling.hxx"

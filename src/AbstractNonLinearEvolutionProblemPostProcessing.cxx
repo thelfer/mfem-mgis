@@ -1,6 +1,7 @@
 /*!
  * \file   src/AbstractNonLinearEvolutionProblemPostProcessing.cxx
- * \brief
+ * \brief  This file implements the
+ * `AbstractNonLinearEvolutionProblemPostProcessing` class
  * \author Thomas Helfer
  * \date   08/03/2021
  */

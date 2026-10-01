@@ -1,7 +1,7 @@
 
 /*!
- * \file   include/MFEMMGIS/Config.hxx
- * \brief
+ * \file   include/MFEMMGIS/Config.ixx
+ * \brief  This file implements the inline functions declared in `Config.hxx`
  * \author Thomas Helfer
  * \date   19/06/2018
  */
@@ -28,6 +28,11 @@ namespace mfem_mgis {
     mgis::raise<Exception>(std::forward<Args>(args)...);
   }  // end of raise
 
+  /*!
+   * \brief raise an exception if the argument is `true`.
+   * \tparam Exception: type of the exception to be thrown.
+   * \param[in] c: condition to be checked
+   */
   template <typename Exception>
   void raise_if(const bool c) {
     if (c) {

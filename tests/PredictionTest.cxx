@@ -1,3 +1,9 @@
+/*!
+ * \file   tests/PredictionTest.cxx
+ * \brief  Tests of the prediction of the unknowns at the beginning of a time
+ * step
+ */
+
 #include <cstdlib>
 #include "mfem/linalg/sparsemat.hpp"
 #include "mfem/fem/linearform.hpp"

@@ -1,7 +1,7 @@
 /*!
  * \file
- * MFEMMGIS/PlaneStrainStandardFiniteStrainMechanicsBehaviourIntegratorBase.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `PlaneStrainStandardFiniteStrainMechanicsBehaviourIntegratorBase` class
  * \author Thomas Helfer
  * \date   17/03/2026
  */

@@ -29,42 +29,48 @@ namespace mfem_mgis {
   /*!
    * \brief return the number of components of a parallel grid function
    * \param[in] f: grid function
+   * \return the number of components
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getNumberOfComponents(
-      const GridFunction<true>&) noexcept;
+      const GridFunction<true>& f) noexcept;
 
 #endif /* MFEM_USE_MPI */
 
   /*!
-   * \brief return the number of components of a parallel grid function
+   * \brief return the number of components of a sequential grid function
    * \param[in] f: grid function
+   * \return the number of components
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getNumberOfComponents(
-      const GridFunction<false>&) noexcept;
+      const GridFunction<false>& f) noexcept;
 
   /*!
+   * \brief create a grid function with the given number of components
    * \return a GridFunction with the given number of components, creating a new
    * finite element space if required.
    *
    * In MFEM, a GridFunction has the number of components (VDIM) of the
    * underlying finite element space, which is quite limiting in practice.
    *
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] fed: finite element discretization
    * \param[in] nc: number of components
    *
    */
   template <bool parallel>
   [[nodiscard]] std::unique_ptr<GridFunction<parallel>> makeGridFunction(
-      Context&, const FiniteElementDiscretization&, const size_type) noexcept;
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type nc) noexcept;
 
-  // partial specialisations
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<GridFunction<true>>
   makeGridFunction<true>(Context&,
                          const FiniteElementDiscretization&,
                          const size_type) noexcept;
 
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<GridFunction<false>>
   makeGridFunction<false>(Context&,

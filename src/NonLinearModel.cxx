@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/NonLinearModel.cxx
- * \brief
+ * \file   src/NonLinearModel.cxx
+ * \brief  This file implements the `NonLinearModel` class
  * \author Thomas Helfer
  * \date   05/03/2026
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   src/BehaviourIntegratorBase.cxx
- * \brief
+ * \brief  This file implements the `BehaviourIntegratorBase` class
  * \author Thomas Helfer
  * \date   13/10/2020
  */
@@ -461,7 +461,7 @@ namespace mfem_mgis {
       }
     }
     /*
-     * \brief uniform values are treated immediatly. For spatially variable
+     * \brief uniform values are treated immediately. For spatially variable
      * fields, we return the information needed to evaluate them
      */
     // This lambda function builds an *evaluator*. Its role is to fill up

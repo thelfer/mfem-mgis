@@ -1,6 +1,6 @@
 /*!
  * \file   src/LinearSolverFactory.cxx
- * \brief
+ * \brief  This file implements the `LinearSolverFactory` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

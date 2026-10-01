@@ -66,7 +66,7 @@ struct MaterialQuantityProviderSearchTest final : public tfel::tests::TestCase {
    * Both behaviours define the `Strain` gradient and the `Stress`
    * thermodynamic force.
    *
-   * \param[in] p: non linear evolution problem
+   * \param[in, out] p: non linear evolution problem
    */
   void addBehaviourIntegrators(mfem_mgis::NonLinearEvolutionProblem& p) {
     auto ctx = mfem_mgis::Context{};

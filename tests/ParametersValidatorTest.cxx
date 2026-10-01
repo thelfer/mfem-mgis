@@ -1,6 +1,6 @@
 /*!
  * \file   tests/ParametersValidatorTest.cxx
- * \brief
+ * \brief  Tests of the `ParametersValidator` class
  * \author Thomas Helfer
  * \date   19/09/2026
  */

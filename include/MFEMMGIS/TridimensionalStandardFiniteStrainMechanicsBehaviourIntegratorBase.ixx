@@ -1,7 +1,7 @@
 /*!
  * \file
- * MFEMMGIS/TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `TridimensionalStandardFiniteStrainMechanicsBehaviourIntegratorBase` class
  * \author Thomas Helfer
  * \date   19/03/2026
  */

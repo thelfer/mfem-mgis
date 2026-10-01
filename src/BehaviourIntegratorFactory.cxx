@@ -1,6 +1,6 @@
 /*!
  * \file   src/BehaviourIntegratorFactory.cxx
- * \brief
+ * \brief  This file implements the `BehaviourIntegratorFactory` class
  * \author Thomas Helfer
  * \date   13/10/2020
  */
@@ -41,7 +41,6 @@ namespace mfem_mgis {
    * \brief declare behaviour integrators valid for all modelling hypotheses
    *
    * \tparam H: modelling hypothesis
-   * \param[in,out] f: factory to be filled
    */
   template <Hypothesis H>
   static void fillWithDefaultBehaviourIntegrators(BehaviourIntegratorFactory&) {
@@ -119,7 +118,8 @@ namespace mfem_mgis {
   }  // end of generateTridimensionalMechanicalBehaviourIntegrators
 
   /*!
-   * \brief partial specialisation for the tridimensional case
+   * \brief explicit specialisation for the tridimensional case
+   * \param[in, out] f: factory
    */
   template <>
   void buildFactory<Hypothesis::TRIDIMENSIONAL>(BehaviourIntegratorFactory& f) {
@@ -238,7 +238,8 @@ namespace mfem_mgis {
   }  // end of generatePlaneStrainMechanicalBehaviourIntegrators
 
   /*!
-   * \brief partial specialisation for the tridimensional case
+   * \brief explicit specialisation for the plane strain case
+   * \param[in, out] f: factory
    */
   template <>
   void buildFactory<Hypothesis::PLANESTRAIN>(BehaviourIntegratorFactory& f) {
@@ -344,7 +345,8 @@ namespace mfem_mgis {
   }  // end of generatePlaneStressMechanicalBehaviourIntegrators
 
   /*!
-   * \brief partial specialisation for the tridimensional case
+   * \brief explicit specialisation for the plane stress case
+   * \param[in, out] f: factory
    */
   template <>
   void buildFactory<Hypothesis::PLANESTRESS>(BehaviourIntegratorFactory& f) {

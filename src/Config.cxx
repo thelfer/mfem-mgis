@@ -1,6 +1,6 @@
 /*!
  * \file   src/Config.cxx
- * \brief
+ * \brief  This file implements the functions declared in `MFEMMGIS/Config.hxx`
  * \author Thomas Helfer
  * \date   14/02/2021
  */
@@ -24,33 +24,41 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief structure in charge of freeing ressources on exit.
+   * \brief structure in charge of freeing resources on exit.
    */
   struct MGIS_VISIBILITY_LOCAL Finalizer {
     //! \brief option used to select the PETSc configuration file
     static const char* const petsc_configuration_file_option;
     //! \return the unique instance of this class
     static Finalizer& get();
-    //! \brief initialize the execution of the mfem-mgis
+    /*!
+     * \brief initialize the execution of the mfem-mgis
+     * \param[in] argc: number of arguments
+     * \param[in] argv: arguments
+     */
     void initialize(int&, MainFunctionArguments&);
     //! \return true if PETSc is used
     bool usePETSc() const;
-    //! \brief activate PETSc and provide a configuration file
+    /*!
+     * \brief activate PETSc and provide a configuration file
+     * \param[in] petscrc_file: PETSc configuration file
+     */
     void setPETSc(const char* petscrc_file);
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
-    //! \brief abort the process
+    /*!
+     * \brief abort the process
+     * \param[in] error: exit status
+     */
     [[noreturn]] void abort(int error);
 
    private:
     //! \brief boolean stating if PETSc shall be used
     bool use_petsc = false;
-    //! \brief boolean stating if the finalize method has been called
+    //! \brief boolean stating if MPI has been finalized or aborted
     bool pendingExit = false;
     /*!
      * \brief constructor
-     * \param[in] argc: number of command line arguments
-     * \param[in] argv: command line arguments
      */
     Finalizer();
     //! \brief destructor

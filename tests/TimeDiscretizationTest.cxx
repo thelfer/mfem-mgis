@@ -1,5 +1,6 @@
 /*!
- * \file   tests/TimeDiscretizationTests.cxx
+ * \file   tests/TimeDiscretizationTest.cxx
+ * \brief  This test checks the construction of the times of a simulation
  * \author Thomas Helfer
  * \date   06/04/2023
  */

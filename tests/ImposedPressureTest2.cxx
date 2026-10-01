@@ -1,8 +1,9 @@
 /*!
  * \file   tests/ImposedPressureTest2.cxx
- * \brief  This test tests if the prediction of the solution gives the exact
- * solution for a linear elastic material submited to an external pressure
- * \author Thomas Helfer \date   02/03/2026
+ * \brief  This test checks that the prediction of the solution gives the exact
+ * solution for a linear elastic material submitted to an external pressure
+ * \author Thomas Helfer
+ * \date   02/03/2026
  */
 
 #include <memory>

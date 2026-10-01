@@ -19,7 +19,7 @@
 
 namespace mfem_mgis {
 
-  //! forward declarations
+  // forward declarations
   struct TimeStep;
   struct Parameters;
   struct AbstractCouplingScheme;
@@ -36,150 +36,171 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] m: mesh
      */
-    PhysicalSystem(const MeshDiscretization &) noexcept;
+    PhysicalSystem(const MeshDiscretization& m) noexcept;
     /*!
      * \return a description of the physical system
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] b: boolean being the default value for information requests.
-     * \param[in] parameters: dictionary that allows the parametrize the output.
+     * \param[in] parameters: dictionary used to parametrize the output.
      *
-     * This dictionary is meant to contains boolean values corresponding
+     * This dictionary is meant to contain boolean values corresponding
      * to information requests. The default value of the boolean is given by the
      * `b` parameter.
      */
-    std::optional<std::string> describe(Context &,
-                                        const bool,
-                                        const Parameters &) const noexcept;
+    std::optional<std::string> describe(
+        Context& ctx,
+        const bool b,
+        const Parameters& parameters) const noexcept;
     //! \return the mesh discretization
     MeshDiscretization getMeshDiscretization() const noexcept;
     //! \return if the coupling scheme is defined
     bool isCouplingSchemeDefined() const noexcept;
     /*!
      * \brief set the coupling scheme
-     * \param[out] ctx: execution context.
+     * \param[in, out] ctx: execution context
      * \param[in]  c: coupling scheme.
+     * \return true on success
      */
     [[nodiscard]] bool setCouplingScheme(
-        Context &, std::shared_ptr<AbstractCouplingScheme>) noexcept;
-    //     /*!
+        Context& ctx, std::shared_ptr<AbstractCouplingScheme> c) noexcept;
+    //     /*
     //      * \brief set the coupling scheme
-    //      * \param[out] ctx: execution contex
-    //      * \param[in]  n: name of the model
-    //      * \param[in]  p: parameters used to initialize the coupling scheme
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in] n: name of the coupling scheme
+    //      * \param[in] p: parameters used to initialize the coupling scheme
+    //      * \return true on success
     //      */
     //     [[nodiscard]] bool setCouplingScheme(Context &,
     //                                          std::string_view,
     //                                          const Parameters &) noexcept;
     /*!
-     * \brief set the unique model. This methods sets a default
-     * coupling scheme that only call this model once (per time step).
+     * \brief set the unique model. This method sets a default
+     * coupling scheme that only calls this model once (per time step).
      *
-     * \param[out] ctx: execution context.
+     * \param[in, out] ctx: execution context
      * \param[in]  m: model.
+     * \return true on success
      */
-    [[nodiscard]] bool setModel(Context &,
-                                std::shared_ptr<AbstractModel>) noexcept;
-    //     /*!
-    //      * \brief set the unique model. This methods sets a default
-    //      * coupling scheme that only call this model once (per time step).
+    [[nodiscard]] bool setModel(Context& ctx,
+                                std::shared_ptr<AbstractModel> m) noexcept;
+    //     /*
+    //      * \brief set the unique model. This method sets a default
+    //      * coupling scheme that calls this model once per time step.
     //      *
-    //      * \param[out] ctx: execution context
-    //      * \param[in]  n: name of the model
-    //      * \param[in]  p: parameters used to initialize the model
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in] n: name of the model
+    //      * \param[in] p: parameters used to initialize the model
+    //      * \return true on success
     //      */
     //     [[nodiscard]] bool setModel(Context &,
     //                                 std::string_view,
     //                                 const Parameters &) noexcept;
     /*!
      * \brief add a new post-processing
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] parameters: parameters passed to the post-processing
+     * \return false, this method is not implemented yet
      */
-    [[nodiscard]] bool addPostProcessing(Context &,
-                                         std::string_view,
-                                         const Parameters &) noexcept;
+    [[nodiscard]] bool addPostProcessing(Context& ctx,
+                                         std::string_view n,
+                                         const Parameters& parameters) noexcept;
     /*!
      * \brief add a new post-processing
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] p: post-processing
+     * \return true on success
      */
     [[nodiscard]] bool addPostProcessing(
-        Context &, std::shared_ptr<AbstractPostProcessing>) noexcept;
+        Context& ctx, std::shared_ptr<AbstractPostProcessing> p) noexcept;
     /*!
      * \brief update loadings.
      *
-     * \param[in, out] ctx: execution contex
+     * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
+     * \return true on success
      *
      * \note This method must be called at the beginning of the time step.
+     * \note loadings are not handled yet: this method does nothing.
      */
     [[nodiscard]] bool updateLoadingsAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept;
+        Context& ctx, const TimeStep& ts) noexcept;
     /*!
      * \brief perform initialization tasks.
      *
      * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
+     * \return true on success
      *
      * \note this method shall be called after
      * `updateLoadingsAtTheBeginningOfTheTimeStep`
      * \note this method shall be called before `computeNextState`
      */
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept;
+        Context& ctx, const TimeStep& ts) noexcept;
     /*!
      * \brief This method is called at the beginning of a time step to determine
      * a suitable time increment.
      *
      * \return the next time increment.
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] t: current time in the temporal sequence
      * \param[in] te: end of the temporal sequence
      */
     [[nodiscard]] std::optional<real> getNextTimeIncrement(
-        Context &, const real, const real) const noexcept;
+        Context& ctx, const real t, const real te) const noexcept;
     /*!
      * \brief compute the next state
-     * \param[out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
+     * \return the exit status and, if available, the outputs of the
+     * coupling scheme
      *
-     * \note this method shall be called after `computeNextState`
+     * \note this method shall be called after
+     * `performInitializationTaksAtTheBeginningOfTheTimeStep`
      * \note this method shall be called before `update`
      */
     std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>
-    computeNextState(Context &, const TimeStep &) noexcept;
+    computeNextState(Context& ctx, const TimeStep& ts) noexcept;
     /*!
      * \brief execute post-processings at the beginning of the simulation. For
      * instance, this method may display the initial values of the state
      * variables.
      *
      * \param[in, out] ctx: execution context
-     * \param[in] t: initial time step
+     * \param[in] t: initial time
+     * \return true on success
      */
-    [[nodiscard]] bool executeInitialPostProcessingTasks(Context &,
-                                                         const real) noexcept;
+    [[nodiscard]] bool executeInitialPostProcessingTasks(Context& ctx,
+                                                         const real t) noexcept;
     /*!
      * \brief execute post-processings at the end of a time step, after
      * convergence.
      *
      * \param[in, out] ctx: execution context
      * \param[in] ts: description of the time step
-     * \param[in] b: boolean stating that if the time at the end of the time
+     * \param[in] b: boolean stating if the time at the end of the time
      * step is a post-processing time.
+     * \return true on success
      */
-    [[nodiscard]] bool executePostProcessingTasks(Context &,
-                                                  const TimeStep &,
-                                                  const bool);
+    [[nodiscard]] bool executePostProcessingTasks(Context& ctx,
+                                                  const TimeStep& ts,
+                                                  const bool b);
     /*!
      * \brief update the system
+     *
      * This method shall be called after `computeNextState`
+     *
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
-    [[nodiscard]] bool update(Context &) noexcept;
+    [[nodiscard]] bool update(Context& ctx) noexcept;
     /*!
      * \brief revert the system to its state at the beginning of the time step
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
-    [[nodiscard]] bool revert(Context &) noexcept;
+    [[nodiscard]] bool revert(Context& ctx) noexcept;
     //! \brief destructor
     ~PhysicalSystem() noexcept;
 
@@ -202,13 +223,13 @@ namespace mfem_mgis {
    * returned.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] MPI_Comm getMPICommunicator(
-      const PhysicalSystem &) noexcept;
+      const PhysicalSystem& ps) noexcept;
   /*!
    * \return if the current process is the main one (the process of rank 0)
    * \param[in] ps: physical system
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool isMainProcess(
-      const PhysicalSystem &) noexcept;
+      const PhysicalSystem& ps) noexcept;
 
 #endif /* MFEM_USE_MPI */
 

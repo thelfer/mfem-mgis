@@ -1,6 +1,7 @@
 /*!
  * \file   src/NonLinearEvolutionProblemImplementation.cxx
- * \brief
+ * \brief  This file implements the `NonLinearEvolutionProblemImplementation`
+ * class
  * \author Thomas Helfer
  * \date   11/12/2020
  */
@@ -59,7 +60,7 @@ namespace mfem_mgis {
   struct PredictionResult {
     //! \brief prediction of the opposite of the increment of the unknowns
     std::unique_ptr<mfem_mgis::GridFunction<parallel>> mdu;
-    //! \brief initial residual, if available
+    //! \brief norm of the initial residual
     const real initial_residual_norm;
   };
 

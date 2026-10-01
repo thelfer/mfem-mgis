@@ -1,6 +1,7 @@
 /*!
- * \file   MFEMMGIS/QPEvaluator.ixx
- * \brief
+ * \file   MFEMMGIS/QPEvaluator/QPEvaluator.ixx
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/QPEvaluator/QPEvaluator.hxx`
  * \author Thomas Helfer
  * \date   29/04/2025
  */
@@ -239,6 +240,10 @@ namespace mfem_mgis {
     return e.check(eh);
   }  // end of check
 
+  /*!
+   * \brief allocate the workspace of the evaluator
+   * \param[in, out] e: evaluator
+   */
   template <size_type GradientsSize>
   inline void allocateWorkspace(
       RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) {

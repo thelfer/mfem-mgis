@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/AbstractDirichletBoundaryCondition.hxx
- * \brief
+ * \brief  This file declares the `AbstractDirichletBoundaryCondition` class
  * \author Thomas Helfer
  * \date   18/03/2021
  */
@@ -28,21 +28,22 @@ namespace mfem_mgis {
     virtual std::vector<size_type> getHandledDegreesOfFreedom() const = 0;
     /*!
      * \brief update the values of the imposed degrees of freedom
-     * \param[in] u: unknown vector
+     * \param[in, out] u: unknown vector
      * \param[in] t: time at the end of the time step
      */
-    virtual void updateImposedValues(mfem::Vector&, const real) const = 0;
+    virtual void updateImposedValues(mfem::Vector& u, const real t) const = 0;
     /*!
-     * \brief update the values of the imposed degrees of freedom
-     * \param[in] du: unknown vector
+     * \brief set the increments of the imposed degrees of freedom between
+     * the two given times, multiplied by the given factor
+     * \param[in, out] du: increment of the unknowns
      * \param[in] ti: time at the beginning of the time step
      * \param[in] te: time at the end of the time step
      * \param[in] f: multiplicative factor
      */
-    virtual void setImposedValuesIncrements(mfem::Vector&,
-                                            const real,
-                                            const real,
-                                            const real) const = 0;
+    virtual void setImposedValuesIncrements(mfem::Vector& du,
+                                            const real ti,
+                                            const real te,
+                                            const real f) const = 0;
     //! \brief destructor
     virtual ~AbstractDirichletBoundaryCondition();
   };  // end of struct AbstractDirichletBoundaryCondition

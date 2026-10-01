@@ -1,3 +1,9 @@
+/*!
+ * \file   src/FBarIsotropicPlaneStrainBehaviourIntegrator.cxx
+ * \brief  This file implements the
+ * `FBarIsotropicPlaneStrainBehaviourIntegrator` class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/FBarIsotropicPlaneStrainBehaviourIntegrator.hxx"

@@ -1,6 +1,5 @@
 /*!
  * \file include/MFEMMGIS/BidimensionalMicromorphicDamageBehaviourIntegrator.hxx
- * \brief
  * \author Thomas Helfer
  * \date   07/12/2021
  * \brief header file declaring the
@@ -18,7 +17,7 @@ namespace mfem_mgis {
   struct FiniteElementDiscretization;
 
   /*!
-   * \brief class implementing the a behaviour integrator dedicated to
+   * \brief class implementing a behaviour integrator dedicated to
    * micromorphic damage in two dimensions (the modelling hypothesis has no
    * effect on this specific behaviour as out of plane damage gradients are
    * assumed to be zero).
@@ -27,57 +26,60 @@ namespace mfem_mgis {
       : BehaviourIntegratorBase {
     /*!
      * \brief constructor
-     * \param[in] s: quadrature space
+     * \param[in] fed: finite element discretization
      * \param[in] m: material attribute.
      * \param[in] b_ptr: behaviour
      */
     BidimensionalMicromorphicDamageBehaviourIntegrator(
-        const FiniteElementDiscretization &,
-        const size_type,
-        std::unique_ptr<const Behaviour>);
+        const FiniteElementDiscretization &fed,
+        const size_type m,
+        std::unique_ptr<const Behaviour> b_ptr);
     //
     const mfem::IntegrationRule &getIntegrationRule(
-        const mfem::FiniteElement &,
-        const mfem::ElementTransformation &) const override;
+        const mfem::FiniteElement &e,
+        const mfem::ElementTransformation &tr) const override;
     real getIntegrationPointWeight(
-        mfem::ElementTransformation &,
-        const mfem::IntegrationPoint &) const noexcept override;
-    bool integrate(const mfem::FiniteElement &,
-                   mfem::ElementTransformation &,
-                   const mfem::Vector &,
-                   const IntegrationType) override;
+        mfem::ElementTransformation &tr,
+        const mfem::IntegrationPoint &ip) const noexcept override;
+    bool integrate(const mfem::FiniteElement &e,
+                   mfem::ElementTransformation &tr,
+                   const mfem::Vector &u,
+                   const IntegrationType it) override;
 
-    void updateResidual(mfem::Vector &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateResidual(mfem::Vector &Fe,
+                        const mfem::FiniteElement &e,
+                        mfem::ElementTransformation &tr,
+                        const mfem::Vector &u) override;
 
-    void updateJacobian(mfem::DenseMatrix &,
-                        const mfem::FiniteElement &,
-                        mfem::ElementTransformation &,
-                        const mfem::Vector &) override;
+    void updateJacobian(mfem::DenseMatrix &Ke,
+                        const mfem::FiniteElement &e,
+                        mfem::ElementTransformation &tr,
+                        const mfem::Vector &u) override;
 
-    void computeInnerForces(mfem::Vector &,
-                            const mfem::FiniteElement &,
-                            mfem::ElementTransformation &) override;
+    void computeInnerForces(mfem::Vector &Fe,
+                            const mfem::FiniteElement &e,
+                            mfem::ElementTransformation &tr) override;
     //! \brief destructor
     ~BidimensionalMicromorphicDamageBehaviourIntegrator() override;
 
    private:
     /*!
-     * \return the integration rule for the given element and  * element
-     * transformation. \param[in] e: element \param[in] tr: element
+     * \brief select the integration rule for the given element and element
      * transformation
+     * \param[in] e: element
+     * \param[in] t: element transformation
+     * \return the integration rule
      */
     static const mfem::IntegrationRule &selectIntegrationRule(
-        const mfem::FiniteElement &, const mfem::ElementTransformation &);
+        const mfem::FiniteElement &e, const mfem::ElementTransformation &t);
     /*!
-     * \brief build the quadrature space for the given  * material
+     * \brief build the quadrature space for the given material
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
+     * \return the partial quadrature space
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
-        const FiniteElementDiscretization &, const size_type);
+        const FiniteElementDiscretization &fed, const size_type m);
 
 #ifndef MFEM_THREAD_SAFE
     //! \brief vector used to store the value of the shape functions

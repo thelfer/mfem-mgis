@@ -1,6 +1,6 @@
 /*!
  * \file   StateManagerTest.cxx
- * \brief
+ * \brief  Tests of the `StateManager` class
  * \author Thomas Helfer
  * \date   01/04/2026
  */

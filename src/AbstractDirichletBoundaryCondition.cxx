@@ -1,6 +1,6 @@
 /*!
  * \file   src/AbstractDirichletBoundaryCondition.cxx
- * \brief
+ * \brief  This file implements the `AbstractDirichletBoundaryCondition` class
  * \author Thomas Helfer
  * \date   18/03/2021
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/TimeIncrementComputerBase.hxx
- * \brief  This class declares the `TimeIncrementComputerBase` class
+ * \brief  This file declares the `TimeIncrementComputerBase` class
  * \date   04/12/2023
  */
 
@@ -17,9 +17,18 @@ namespace mfem_mgis {
       : AbstractTimeIncrementComputer {
     //! \brief constructor
     TimeIncrementComputerBase() noexcept;
-    //
-    [[nodiscard]] bool initialize(Context &) noexcept override;
-    [[nodiscard]] bool prepareNextTimeStep(Context &) noexcept override;
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \return true
+     */
+    [[nodiscard]] bool initialize(Context& ctx) noexcept override;
+    /*!
+     * \brief do nothing
+     * \param[in, out] ctx: execution context
+     * \return true
+     */
+    [[nodiscard]] bool prepareNextTimeStep(Context& ctx) noexcept override;
     //! \brief destructor
     ~TimeIncrementComputerBase() noexcept override;
   };

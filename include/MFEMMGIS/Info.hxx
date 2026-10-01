@@ -18,32 +18,38 @@ namespace mfem_mgis {
   /*!
    * \brief print information in the given log stream
    *
-   * \param[out] os: output stream
+   * \param[in, out] ctx: execution context
    * \param[in, out] os: output stream
-   * \param[in, out] t: object for which information are requested
+   * \param[in] t: object for which information is requested
+   * \return true on success
    *
    * \note by default, getInformation does nothing. This function is meant to be
-   * overloaded.
+   * specialized.
    */
   template <typename T>
-  [[nodiscard]] bool getInformation(Context&, std::ostream&, const T&) noexcept;
+  [[nodiscard]] bool getInformation(Context& ctx,
+                                    std::ostream& os,
+                                    const T& t) noexcept;
 
   /*!
-   * \brief print information in the default log stream
+   * \brief print information in the given stream
    *
    * \param[in, out] ctx: execution context
-   * \param[in, out] t: object for which information are requested
+   * \param[in, out] os: output stream
+   * \param[in] t: object for which information is requested
+   * \return true on success
    */
   template <typename T>
-  bool info(Context&, const T&) noexcept;
+  bool info(Context& ctx, std::ostream& os, const T& t) noexcept;
   /*!
-   * \brief print information in the default log stream
+   * \brief print information in the log stream of the execution context
    *
    * \param[in, out] ctx: execution context
-   * \param[in] t: object for which information are requested
+   * \param[in] t: object for which information is requested
+   * \return true on success
    */
   template <typename T>
-  bool info(Context&, const T&) noexcept;
+  bool info(Context& ctx, const T& t) noexcept;
 
 }  // end of namespace mfem_mgis
 

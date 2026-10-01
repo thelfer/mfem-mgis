@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/ExitStatus.ixx
- * \brief
+ * \brief  This file implements the inline methods of the `ExitStatus` class
  * \author Thomas Helfer
  * \date   03/03/2026
  */

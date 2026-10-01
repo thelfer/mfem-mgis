@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/MeshDiscretization.ixx
- * \brief
+ * \brief  This file implements the inline methods of the `MeshDiscretization`
+ * class
  * \author Thomas Helfer
  * \date   06/03/2026
  */
@@ -31,7 +32,7 @@ namespace mfem_mgis {
     } else {
       return this->getMutableSequentialMeshPointer();
     }
-  }  // end of getMeshPointer
+  }  // end of getMutableMeshPointer
 
   template <bool parallel>
   std::shared_ptr<Mesh<parallel>>
@@ -110,13 +111,13 @@ namespace mfem_mgis {
     } else {
       return this->getSequentialMutableSubMeshPointer(ctx, p, l);
     }
-  }  // end of getMutableSubMesh
+  }  // end of getMutableSubMeshPointer
 
   template <bool parallel>
   std::shared_ptr<SubMesh<parallel>> MeshDiscretization::getSubMeshPointer(
       Context& ctx, const Parameter& p, const Location l) noexcept {
     return this->template getMutableSubMeshPointer<parallel>(ctx, p, l);
-  }  // end of getSubMesh
+  }  // end of getSubMeshPointer
 
   template <bool parallel>
   std::shared_ptr<const SubMesh<parallel>>
@@ -128,7 +129,7 @@ namespace mfem_mgis {
     } else {
       return this->getSequentialSubMeshPointer(ctx, p, l);
     }
-  }  // end of getSubMesh
+  }  // end of getSubMeshPointer
 
   template <bool parallel>
   OptionalReference<SubMesh<parallel>> MeshDiscretization::getSubMesh(

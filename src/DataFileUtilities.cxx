@@ -1,5 +1,5 @@
 /*!
- * \file   manta-core/io/data_file_utilities.cpp
+ * \file   src/DataFileUtilities.cxx
  * \brief  This file implements various functions related to data files
  * \author Thomas Helfer
  * \date   27/12/2023

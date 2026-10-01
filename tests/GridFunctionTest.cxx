@@ -1,6 +1,7 @@
 /*!
  * \file   GridFunctionTest.cxx
- * \brief
+ * \brief  Tests of the transfer of values between grid functions and partial
+ * quadrature functions
  * \author Thomas Helfer
  * \date   26/01/2026
  */

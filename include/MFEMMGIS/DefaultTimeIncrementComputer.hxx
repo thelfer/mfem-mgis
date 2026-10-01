@@ -16,9 +16,14 @@ namespace mfem_mgis {
   struct DefaultTimeIncrementComputer : TimeIncrementComputerBase {
     //! \brief constructor
     DefaultTimeIncrementComputer() noexcept;
-    //
+    /*!
+     * \return the time remaining until the end of the temporal sequence
+     * \param[in, out] ctx: execution context
+     * \param[in] t: current time in the temporal sequence
+     * \param[in] te: end of the temporal sequence
+     */
     std::optional<real> getNextTimeIncrement(
-        Context &, const real, const real) const noexcept override;
+        Context& ctx, const real t, const real te) const noexcept override;
     //! \brief destructor
     ~DefaultTimeIncrementComputer() noexcept override;
   };  // end of DefaultTimeIncrementComputer

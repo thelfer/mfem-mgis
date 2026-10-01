@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/TimeStepValidatorBase.hxx
- * \brief  This class declares the `TimeStepValidatorBase` class
+ * \brief  This file declares the `TimeStepValidatorBase` class
  * \date   04/12/2023
  */
 
@@ -17,19 +17,28 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT TimeStepValidatorBase : AbstractTimeStepValidator {
     //! \brief constructor
     TimeStepValidatorBase() noexcept;
-    //
-    void addValidator(const std::string_view,
-                      const ExternalValidator &) noexcept override;
-    void addValidator(const ExternalValidator &) noexcept override;
+    /*!
+     * \brief add an external validator
+     * \param[in] n: name of the external validator
+     * \param[in] v: external validator
+     */
+    void addValidator(const std::string_view n,
+                      const ExternalValidator& v) noexcept override;
+    /*!
+     * \brief add an external validator with a default name
+     * \param[in] v: external validator
+     */
+    void addValidator(const ExternalValidator& v) noexcept override;
     //! \brief destructor
     ~TimeStepValidatorBase() override;
 
    protected:
     /*!
      * \brief call the external validators
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
+     * \return the combined result of the external validators on success
      */
-    std::optional<Result> callExternalValidators(Context &) const noexcept;
+    std::optional<Result> callExternalValidators(Context& ctx) const noexcept;
     //! \brief registered external validators
     std::vector<std::pair<std::string, ExternalValidator>> externalValidators;
   };  // end of struct TimeStepValidatorBase

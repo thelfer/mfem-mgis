@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/DefaultTimeStepValidator.cxx
- * \brief  This class implements the `DefaultTimeStepValidator` class
+ * \file   src/DefaultTimeStepValidator.cxx
+ * \brief  This file implements the `DefaultTimeStepValidator` class
  * \date   04/12/2023
  */
 

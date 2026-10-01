@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/PostProcessingFactory.hxx
- * \brief
+ * \brief  This file declares the `PostProcessingFactory` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */
@@ -25,8 +25,8 @@ namespace mfem_mgis {
   struct AbstractNonLinearEvolutionProblemPostProcessing;
 
   /*!
-   * \brief an abstract factory for behaviour integrators
-   * \tparam parallel: boolean stating if parallel post-processing are
+   * \brief an abstract factory for post-processings
+   * \tparam parallel: boolean stating if parallel post-processings are
    * considered
    */
   template <bool parallel>
@@ -34,10 +34,10 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
-  //! \brief partial specialisation in parallel
+  //! \brief specialisation in parallel
   template <>
   struct MFEM_MGIS_EXPORT PostProcessingFactory<true> {
-    //! a simple alias
+    //! \brief a simple alias
     using Generator = std::function<
         std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>(
             Context&,
@@ -50,36 +50,36 @@ namespace mfem_mgis {
      * \param[in] n: name of the post-processing
      * \param[in] g: generator of the post-processing
      */
-    void add(std::string_view, Generator);
+    void add(std::string_view n, Generator g);
     /*!
      * \return the requested post-processing
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the post-processing
-     * \param[in] p: non linear evolution postprocessing
+     * \param[in] p: non linear evolution problem
      * \param[in] params: parameters passed to the post-processing
      */
     [[nodiscard]] std::unique_ptr<
         AbstractNonLinearEvolutionProblemPostProcessing<true>>
-    generate(Context&,
-             std::string_view,
-             NonLinearEvolutionProblemImplementation<true>&,
-             const Parameters&) const noexcept;
+    generate(Context& ctx,
+             std::string_view n,
+             NonLinearEvolutionProblemImplementation<true>& p,
+             const Parameters& params) const noexcept;
 
    private:
-    //! \brief default destructor
+    //! \brief default constructor
     PostProcessingFactory();
     //! \brief destructor
     ~PostProcessingFactory();
-    //! \brief registred factories
+    //! \brief registered generators
     std::map<std::string, Generator, std::less<>> generators;
   };  // end of struct PostProcessingFactory
 
 #endif /* MFEM_USE_MPI */
 
-  //! \brief partial specialisation in sequential
+  //! \brief specialisation in sequential
   template <>
   struct MFEM_MGIS_EXPORT PostProcessingFactory<false> {
-    //! a simple alias
+    //! \brief a simple alias
     using Generator = std::function<
         std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>(
             Context&,
@@ -92,27 +92,27 @@ namespace mfem_mgis {
      * \param[in] n: name of the post-processing
      * \param[in] g: generator of the post-processing
      */
-    void add(std::string_view, Generator);
+    void add(std::string_view n, Generator g);
     /*!
      * \return the requested post-processing
      * \param[in, out] ctx: execution context
      * \param[in] n: name of the post-processing
-     * \param[in] p: non linear evolution postprocessing
+     * \param[in] p: non linear evolution problem
      * \param[in] params: parameters passed to the post-processing
      */
     [[nodiscard]] std::unique_ptr<
         AbstractNonLinearEvolutionProblemPostProcessing<false>>
-    generate(Context&,
-             std::string_view,
-             NonLinearEvolutionProblemImplementation<false>&,
-             const Parameters&) const noexcept;
+    generate(Context& ctx,
+             std::string_view n,
+             NonLinearEvolutionProblemImplementation<false>& p,
+             const Parameters& params) const noexcept;
 
    private:
-    //! \brief default destructor
+    //! \brief default constructor
     PostProcessingFactory();
     //! \brief destructor
     ~PostProcessingFactory();
-    //! \brief registred factories
+    //! \brief registered generators
     std::map<std::string, Generator, std::less<>> generators;
   };  // end of struct PostProcessingFactory
 

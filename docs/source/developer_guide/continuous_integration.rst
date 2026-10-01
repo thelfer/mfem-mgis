@@ -55,7 +55,9 @@ Workflows
      - empties the two Spack binary caches
    * - ``doxygen.yml`` and ``sphinx.yml``
      - pushes and pull requests on ``master``
-     - build the documentation, published on pushes
+     - build the documentation, published on pushes. ``doxygen.yml`` fails
+       on any warning, unless ``FAIL_ON_DOXYGEN_WARNINGS`` is set to ``false``
+       in the workflow
    * - ``ci.yml``
      - end of a run of ``cmake.yml`` or ``spack.yml`` on ``master``
      - succeeds when the last runs of both succeeded, for the ci badge of the

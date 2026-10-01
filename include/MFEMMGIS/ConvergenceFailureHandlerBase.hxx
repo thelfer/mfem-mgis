@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/ConvergenceFailureHandlerBase.hxx
- * \brief  This class declares the `ConvergenceFailureHandlerBase` class
+ * \brief  This file declares the `ConvergenceFailureHandlerBase` class
  * \date   04/12/2023
  */
 
@@ -12,10 +12,10 @@
 
 namespace mfem_mgis {
 
-  //! \brief a common class for most time step computers
+  //! \brief a common base class for convergence failure handlers
   struct MFEM_MGIS_EXPORT ConvergenceFailureHandlerBase
       : AbstractConvergenceFailureHandler {
-    //!\brief constructor
+    //! \brief constructor
     ConvergenceFailureHandlerBase() noexcept;
     //! \brief destructor
     ~ConvergenceFailureHandlerBase() noexcept override;

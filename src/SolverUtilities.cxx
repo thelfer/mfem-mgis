@@ -1,6 +1,7 @@
 /*!
  * \file   src/SolverUtilities.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/Utilities/SolverUtilities.hxx`
  * \author Thomas Helfer
  * \date   30/03/2021
  */

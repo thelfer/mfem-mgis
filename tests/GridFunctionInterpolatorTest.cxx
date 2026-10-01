@@ -1,6 +1,6 @@
 /*!
  * \file   GridFunctionInterpolatorTest.cxx
- * \brief  Tests of the `GridFunctionInterpolatorTest` class
+ * \brief  Tests of the `GridFunctionInterpolator` class
  * \author Thomas Helfer
  * \date   02/09/2026
  */

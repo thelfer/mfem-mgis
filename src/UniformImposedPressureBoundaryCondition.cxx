@@ -1,6 +1,7 @@
 /*!
  * \file   src/UniformImposedPressureBoundaryCondition.cxx
- * \brief
+ * \brief  This file implements the `UniformImposedPressureBoundaryCondition`
+ * class
  * \author Thomas Helfer
  * \date   27/09/2024
  */
@@ -25,7 +26,7 @@
 
 namespace mfem_mgis {
 
-  //! \brief nonlinear form implementing a uniform imposed pressure
+  //! \brief base class of the form integrators imposing a uniform pressure
   struct UniformImposedPressureBoundaryCondition::
       UniformImposedPressureFormIntegratorBase {
     //! \brief constructor
@@ -87,7 +88,7 @@ namespace mfem_mgis {
 #endif
   };
 
-  //! \brief nonlinear form implementing a uniform imposed pressure
+  //! \brief linear form integrator imposing a uniform pressure
   struct UniformImposedPressureBoundaryCondition::
       UniformImposedPressureLinearFormIntegrator final
       : public LinearFormIntegrator,

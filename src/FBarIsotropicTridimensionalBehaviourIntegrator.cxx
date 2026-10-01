@@ -1,3 +1,9 @@
+/*!
+ * \file   src/FBarIsotropicTridimensionalBehaviourIntegrator.cxx
+ * \brief  This file implements the
+ * `FBarIsotropicTridimensionalBehaviourIntegrator` class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/FBarIsotropicTridimensionalBehaviourIntegrator.hxx"

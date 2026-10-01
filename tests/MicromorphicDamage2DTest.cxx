@@ -1,6 +1,6 @@
 /*!
  * \file   tests/MicromorphicDamage2DTest.cxx
- * \brief
+ * \brief  Tests of the bidimensional micromorphic damage behaviour integrator
  * \author Thomas Helfer
  * \date   07/12/2021
  *
@@ -9,7 +9,7 @@
  * the MiehePhaseFieldDamage behaviour. A specified history function is
  * imposed so that the solution of the phase field equation is:
  * \f[
- * d(x,y) = \sin(4\,\,\pi\,x)/2
+ * d(x,y) = \sin(4\,\pi\,x)/2
  * \f]
  */
 

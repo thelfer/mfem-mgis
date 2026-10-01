@@ -1,3 +1,9 @@
+/*!
+ * \file
+ * \brief  This file implements the
+ * `IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator` class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/IsotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"

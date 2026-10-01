@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/AbstractTimeStepValidator.hxx
- * \brief  This class declares the `AbstractTimeStepValidator` class
+ * \brief  This file declares the `AbstractTimeStepValidator` class
  * \date   04/12/2023
  */
 
@@ -22,7 +22,10 @@ namespace mfem_mgis {
    * the convergence of the coupling scheme.
    */
   struct MFEM_MGIS_EXPORT AbstractTimeStepValidator {
-    //! \brief a simple alias
+    /*!
+     * \brief external validator. It returns a boolean stating if the time
+     * step is valid and a recommended time increment.
+     */
     using ExternalValidator = std::function<std::pair<bool, real>()>;
     //! \brief structure returned by the validate method
     struct [[nodiscard]] Result {
@@ -46,22 +49,20 @@ namespace mfem_mgis {
      * \param[in] n: name of the external validator
      * \param[in] v: external validator
      */
-    virtual void addValidator(std::string_view,
-                              const ExternalValidator &) noexcept = 0;
+    virtual void addValidator(std::string_view n,
+                              const ExternalValidator& v) noexcept = 0;
     /*!
      * \brief add an external validator
      * \param[in] v: external validator
      */
-    virtual void addValidator(const ExternalValidator &) noexcept = 0;
+    virtual void addValidator(const ExternalValidator& v) noexcept = 0;
     /*!
-     * \return a pair on success. The first member states if the time step is
-     * valid. The second member is an estimate of a better time step if the time
-     * step is rejected.
+     * \return the result of the validation on success
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      */
     [[nodiscard]] virtual std::optional<Result> validate(
-        Context &) const noexcept = 0;
+        Context& ctx) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractTimeStepValidator();
   };

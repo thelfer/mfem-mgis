@@ -1,5 +1,5 @@
 /*!
- * \file   GridFunctionOnSubMeshTest.cxx
+ * \file   tests/GridFunctionOnSubMeshTest.cxx
  * \brief  This test checks that a grid function can only be built from partial
  * quadrature functions defined on all the materials or on all the boundaries
  * of its mesh.
@@ -29,7 +29,11 @@ struct {
   int order = 1;
 } parameters;
 
-//! \return the integration rule used by the partial quadrature spaces
+/*!
+ * \return the integration rule used by the partial quadrature spaces
+ * \param[in] e: finite element
+ * \param[in] tr: element transformation
+ */
 static const mfem::IntegrationRule& getIntegrationRule(
     const mfem::FiniteElement& e,
     const mfem::ElementTransformation& tr) noexcept {
@@ -56,7 +60,10 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
   }  // end of execute
 
  private:
-  //! \return a finite element discretization built on the given mesh file
+  /*!
+   * \return a finite element discretization built on the given mesh file
+   * \param[in, out] ctx: execution context
+   */
   static mfem_mgis::FiniteElementDiscretization makeFiniteElementDiscretization(
       mfem_mgis::Context& ctx) {
     return mfem_mgis::FiniteElementDiscretization{

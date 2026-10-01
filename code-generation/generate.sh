@@ -25,7 +25,7 @@ done
 #
 if command -v clang-format &> /dev/null
 then
-  clang-format -i *xx
+  clang-format -i -- *BehaviourIntegrator.hxx *BehaviourIntegrator.cxx
 fi
 # copying files
 mv -- *BehaviourIntegrator.hxx ../include/MFEMMGIS/

@@ -1,6 +1,6 @@
 /*!
- * \file   src/Parameter.cxx
- * \brief
+ * \file   src/Parameters.cxx
+ * \brief  This file implements the `Parameters` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */

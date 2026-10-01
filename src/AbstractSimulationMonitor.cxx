@@ -1,5 +1,5 @@
 /*!
- * \file   MFEMMGIS/AbstractSimulationMonitor.cxx
+ * \file   src/AbstractSimulationMonitor.cxx
  * \brief  This file implements the AbstractSimulationMonitor class
  * \date   11/09/2024
  */

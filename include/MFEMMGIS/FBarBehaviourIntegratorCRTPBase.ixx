@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/FBarBehaviourIntegratorCRTPBase.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `FBarBehaviourIntegratorCRTPBase` class
  * \author Thomas Helfer
  * \date   14/12/2020
  */

@@ -48,6 +48,7 @@ namespace mfem_mgis {
   };  // end of struct MaterialQuantityProviderSearchResult
 
   /*!
+   * \brief check if the search failed
    * \return if the search failed, i.e. if no unique provider was found
    * \param[in] r: result of the search
    */
@@ -61,7 +62,7 @@ namespace mfem_mgis {
    * the given location
    *
    * \return the result of the search. An empty value is returned if an error
-   * occured, in which case the error is reported in the execution context.
+   * occurred, in which case the error is reported in the execution context.
    * Not finding a unique provider is not considered as an error: this
    * information is reported by the status of the result.
    *
@@ -74,17 +75,17 @@ namespace mfem_mgis {
    * no provider can be found on a boundary.
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
-  std::optional<MaterialQuantityProviderSearchResult>
-  hasGradientProvider(Context&,
-                      const AbstractNonLinearEvolutionProblem&,
-                      const LocationIdentifier&,
-                      std::string_view) noexcept;
+  std::optional<MaterialQuantityProviderSearchResult> hasGradientProvider(
+      Context& ctx,
+      const AbstractNonLinearEvolutionProblem& p,
+      const LocationIdentifier& l,
+      std::string_view n) noexcept;
   /*!
    * \brief search the behaviour integrator providing the given
    * thermodynamic force on the given location
    *
    * \return the result of the search. An empty value is returned if an error
-   * occured, in which case the error is reported in the execution context.
+   * occurred, in which case the error is reported in the execution context.
    * Not finding a unique provider is not considered as an error: this
    * information is reported by the status of the result.
    *
@@ -98,16 +99,16 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
   std::optional<MaterialQuantityProviderSearchResult>
-  hasThermodynamicForceProvider(Context&,
-                                const AbstractNonLinearEvolutionProblem&,
-                                const LocationIdentifier&,
-                                std::string_view) noexcept;
+  hasThermodynamicForceProvider(Context& ctx,
+                                const AbstractNonLinearEvolutionProblem& p,
+                                const LocationIdentifier& l,
+                                std::string_view n) noexcept;
   /*!
    * \brief search the behaviour integrator providing the given internal
    * state variable on the given location
    *
    * \return the result of the search. An empty value is returned if an error
-   * occured, in which case the error is reported in the execution context.
+   * occurred, in which case the error is reported in the execution context.
    * Not finding a unique provider is not considered as an error: this
    * information is reported by the status of the result.
    *
@@ -121,10 +122,10 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]]  //
   std::optional<MaterialQuantityProviderSearchResult>
-  hasInternalStateVariableProvider(Context&,
-                                   const AbstractNonLinearEvolutionProblem&,
-                                   const LocationIdentifier&,
-                                   std::string_view) noexcept;
+  hasInternalStateVariableProvider(Context& ctx,
+                                   const AbstractNonLinearEvolutionProblem& p,
+                                   const LocationIdentifier& l,
+                                   std::string_view n) noexcept;
 
 }  // end of namespace mfem_mgis
 

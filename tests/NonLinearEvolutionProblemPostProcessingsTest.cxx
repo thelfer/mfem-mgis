@@ -38,7 +38,7 @@ struct TestPostProcessing final
     : mfem_mgis::AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
   /*!
    * \brief constructor
-   * \param[in] ts: recorded times
+   * \param[in] ts: vector in which the times are recorded
    * \param[in] b: boolean stating if the initial post-processing succeeds
    */
   TestPostProcessing(std::vector<mfem_mgis::real>& ts, const bool b)

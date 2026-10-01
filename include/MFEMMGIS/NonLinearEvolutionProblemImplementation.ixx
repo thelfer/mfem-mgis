@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementation.ixx
- * \brief
+ * \brief  This file implements the `computeResultantForceOnBoundary` and
+ * `computeMeanThermodynamicForcesValues` functions
  * \author Thomas Helfer
  * \date   28/03/2021
  */

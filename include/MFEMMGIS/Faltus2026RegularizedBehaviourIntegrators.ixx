@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.ixx
- * \brief
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.hxx`
  * \author Thomas Helfer
  * \date   19/03/2026
  */

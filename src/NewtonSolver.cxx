@@ -1,6 +1,6 @@
 /*!
  * \file   src/NewtonSolver.cxx
- * \brief
+ * \brief  This file implements the `NewtonSolver` class
  * \author Thomas Helfer
  * \date   29/03/2021
  */

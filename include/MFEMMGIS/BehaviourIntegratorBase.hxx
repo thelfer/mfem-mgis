@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/BehaviourIntegratorBase.hxx
- * \brief
+ * \brief  This file declares the `BehaviourIntegratorBase` class
  * \author Thomas Helfer
  * \date   27/08/2020
  */
@@ -26,32 +26,32 @@ namespace mfem_mgis {
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const noexcept override;
     [[nodiscard]] real getTimeIncrement() const noexcept override;
-    void setTimeIncrement(const real) override;
-    [[nodiscard]] bool setup(Context&,
-                             const real,
-                             const real) noexcept override;
-    [[nodiscard]] bool cleanup(Context&) noexcept override;
+    void setTimeIncrement(const real dt) override;
+    [[nodiscard]] bool setup(Context& ctx,
+                             const real t,
+                             const real dt) noexcept override;
+    [[nodiscard]] bool cleanup(Context& ctx) noexcept override;
     void revert() override;
     void update() override;
     [[nodiscard]] bool hasMaterial() const noexcept override;
-    OptionalReference<Material> getMaterial(Context&) noexcept override;
+    OptionalReference<Material> getMaterial(Context& ctx) noexcept override;
     OptionalReference<const Material> getMaterial(
-        Context&) const noexcept override;
-    void setMacroscopicGradients(std::span<const real>) override;
+        Context& ctx) const noexcept override;
+    void setMacroscopicGradients(std::span<const real> g) override;
     [[nodiscard]] bool requiresCurrentSolutionForResidualAssembly()
         const noexcept override;
     [[nodiscard]] bool requiresCurrentSolutionForJacobianAssembly()
         const noexcept override;
     [[nodiscard]] bool setMaterialProperty(
-        Context&,
-        std::string_view,
-        std::shared_ptr<const AbstractQPEvaluator>,
-        const TimeStepStage) noexcept override;
+        Context& ctx,
+        std::string_view name,
+        std::shared_ptr<const AbstractQPEvaluator> e,
+        const TimeStepStage ts) noexcept override;
     [[nodiscard]] bool setExternalStateVariable(
-        Context&,
-        std::string_view,
-        std::shared_ptr<const AbstractQPEvaluator>,
-        const TimeStepStage) noexcept override;
+        Context& ctx,
+        std::string_view name,
+        std::shared_ptr<const AbstractQPEvaluator> e,
+        const TimeStepStage ts) noexcept override;
     //! \brief destructor
     ~BehaviourIntegratorBase() override;
 
@@ -61,60 +61,75 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space
      * \param[in] b_ptr: behaviour
      */
-    BehaviourIntegratorBase(std::shared_ptr<const PartialQuadratureSpace>,
-                            std::unique_ptr<const Behaviour>);
+    BehaviourIntegratorBase(std::shared_ptr<const PartialQuadratureSpace> s,
+                            std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \brief check that the behaviour is a standard finite strain behaviour
      * or a general behaviour whose only gradient is the deformation
      * gradient, whose only thermodynamic force is the first Piola-Kirchhoff
      * stress and whose only tangent operator block is the derivative of the
      * latter with respect to the former.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      */
-    void checkIfAFiniteStrainBehaviourIsDeclared(attributes::Throwing) const;
+    void checkIfAFiniteStrainBehaviourIsDeclared(
+        attributes::Throwing throwing) const;
     /*!
      * \brief check if the behaviour has the expected symmetry.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] s: expected symmetry
      */
-    void checkBehaviourSymmetry(attributes::Throwing,
-                                const Behaviour::Symmetry) const;
+    void checkBehaviourSymmetry(attributes::Throwing throwing,
+                                const Behaviour::Symmetry s) const;
     /*!
-     * \brief check that the integrator hypothesis is the same than the
+     * \brief check that the integrator hypothesis is the same as the
      * behaviour hypothesis.
-     * \param[in] h: integrator' hypothesis
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
+     * \param[in] h: integrator hypothesis
      */
-    void checkHypothesis(attributes::Throwing, const Hypothesis) const;
+    void checkHypothesis(attributes::Throwing throwing,
+                         const Hypothesis h) const;
     /*!
      * \brief throw an exception stating that the behaviour type is not the
      * expected one.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] e: error message
      */
-    [[noreturn]] void throwInvalidBehaviourType(attributes::Throwing,
-                                                const std::string&) const;
+    [[noreturn]] void throwInvalidBehaviourType(attributes::Throwing throwing,
+                                                const std::string& e) const;
     /*!
      * \brief throw an exception stating that the behaviour kinematic is not the
      * expected one.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] e: error message
      */
-    [[noreturn]] void throwInvalidBehaviourKinematic(attributes::Throwing,
-                                                     const std::string&) const;
+    [[noreturn]] void throwInvalidBehaviourKinematic(
+        attributes::Throwing throwing, const std::string& e) const;
     /*!
      * \brief throw an exception stating that the behaviour symmetry is not the
      * expected one.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
      * \param[in] e: error message
      */
-    [[noreturn]] void throwInvalidBehaviourSymmetry(attributes::Throwing,
-                                                    const std::string&) const;
+    [[noreturn]] void throwInvalidBehaviourSymmetry(
+        attributes::Throwing throwing, const std::string& e) const;
     /*!
-     * \brief integrate the mechanical behaviour over the time step
-     * If successful, the value of the stress, consistent tangent
-     * operator and internal state variables are updated.
-     * \return true if the integration is successful.
+     * \brief integrate the behaviour over the time step
+     *
+     * If successful, the values of the thermodynamic forces, consistent
+     * tangent operator and internal state variables are updated.
+     * \return true on success
      * \param[in] ip: local integration point index
      * \param[in] it: integration type
      * \note this method shall be called after having set the gradients.
      */
-    virtual bool performsLocalBehaviourIntegration(const size_type,
-                                                   const IntegrationType);
+    virtual bool performsLocalBehaviourIntegration(const size_type ip,
+                                                   const IntegrationType it);
     /*!
      * \brief evaluators of the material properties at the beginning of the
      * time step.
@@ -197,7 +212,7 @@ namespace mfem_mgis {
        * the time step
        */
       std::map<std::string, QPEvaluatorResult> pqfcts_esvs_ets;
-    } wks;
+    } wks;  //!< workspace
     //! \brief time increment for the given time step
     real time_increment;
   };  // end of struct BehaviourIntegratorBase

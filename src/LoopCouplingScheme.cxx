@@ -1,7 +1,7 @@
 /*!
  * \file   src/LoopCouplingScheme.cxx
- * \brief  This file implements the inline methods of the `LoopCouplingScheme`
- * class \date   05/12/2022
+ * \brief  This file implements the `LoopCouplingScheme` class
+ * \date   05/12/2022
  */
 
 #include "MGIS/Profiling.hxx"

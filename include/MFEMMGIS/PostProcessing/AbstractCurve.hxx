@@ -22,13 +22,13 @@ namespace mfem_mgis {
   /*!
    * \brief base struct for curves
    *
-   * A curve is defined as an abstraction to get compute a set of values
+   * A curve is defined as an abstraction to compute a set of values
    * for the post-processing of a simulation, such as:
    *
    * - the value of a nodal field at a given point
    * - the integral value of a field on integration points
    * - the mean value of a field on integration points
-   * - the value of an uniform evaluator
+   * - the value of a uniform evaluator
    * - etc...
    *
    * Most curves imply a reduction across MPI processes.
@@ -39,13 +39,14 @@ namespace mfem_mgis {
         const noexcept = 0;
     /*!
      * \brief return the values of the curve at the given time
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ts: time step stage
+     * \return the values of the curve
      *
      * \note all MPI processes are synchronized after this call
      */
     [[nodiscard]] virtual std::optional<std::vector<real>> getValues(
-        Context &, const TimeStepStage) const noexcept = 0;
+        Context& ctx, const TimeStepStage ts) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractCurve() noexcept;
   };  // end of AbstractCurve

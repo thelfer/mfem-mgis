@@ -30,133 +30,127 @@ namespace mfem_mgis {
   struct FiniteElementDiscretization;
 
   /*!
-   * \brief structure in charge of interpolateing values at
+   * \brief structure in charge of interpolating values at
    * given points, mostly for post-processing purposes.
    *
-   * This structure uses features provided by the gslib libray and MFEM shall be
-   * built around it.
+   * This structure uses features provided by the gslib library and MFEM shall
+   * be built with it.
    */
   struct MFEM_MGIS_EXPORT GridFunctionInterpolator {
     /*!
-     * \brief default constructor from a finite element discretization
+     * \brief constructor from a finite element spaces manager
      * \param[in] m: finite element spaces manager
+     */
+    explicit GridFunctionInterpolator(
+        const FiniteElementSpacesManager& m) noexcept;
+    /*!
+     * \brief constructor from a set of 2D points
      *
-     * \note this constructor is provided for simplying the declaration
+     * \param[in, out] ctx: execution context
+     * \param[in] m: finite element spaces manager
+     * \param[in] pts: points to be added
+     */
+    GridFunctionInterpolator(Context& ctx,
+                             const FiniteElementSpacesManager& m,
+                             const std::vector<Point<2>>& pts);
+    /*!
+     * \brief constructor from a set of 3D points
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] m: finite element spaces manager
+     * \param[in] pts: points to be added
+     */
+    GridFunctionInterpolator(Context& ctx,
+                             const FiniteElementSpacesManager& m,
+                             const std::vector<Point<3>>& pts);
+    /*!
+     * \brief constructor from a finite element discretization
+     * \param[in] fed: finite element discretization
+     *
+     * \note this constructor is provided for simplifying the declaration
      * of an interpolator as only the underlying finite element spaces manager
      * is required
      */
     explicit GridFunctionInterpolator(
-        const FiniteElementSpacesManager&) noexcept;
+        const FiniteElementDiscretization& fed) noexcept;
     /*!
      * \brief constructor from a set of 2D points
      *
-     * \param[in] ctx: execution context
-     * \param[in] m: finite element spaces manager
+     * \param[in, out] ctx: execution context
+     * \param[in] fed: finite element discretization
      * \param[in] pts: points to be added
      *
-     * \note this constructor is provided for simplying the declaration
+     * \note this constructor is provided for simplifying the declaration
      * of an interpolator as only the underlying finite element spaces manager
      * is required
      */
-    GridFunctionInterpolator(Context&,
-                             const FiniteElementSpacesManager&,
-                             const std::vector<Point<2>>&);
+    GridFunctionInterpolator(Context& ctx,
+                             const FiniteElementDiscretization& fed,
+                             const std::vector<Point<2>>& pts);
     /*!
      * \brief constructor from a set of 3D points
      *
-     * \param[in] ctx: execution context
-     * \param[in] m: finite element spaces manager
-     * \param[in] pts: points to be added
-     *
-     * \note this constructor is provided for simplying the declaration
-     * of an interpolator as only the underlying finite element spaces manager
-     * is required
-     */
-    GridFunctionInterpolator(Context&,
-                             const FiniteElementSpacesManager&,
-                             const std::vector<Point<3>>&);
-    /*!
-     * \brief default constructor from a finite element discretization
-     * \param[in] fed: finite element discretization
-     *
-     * \note this constructor is provided for simplying the declaration
-     * of an interpolator as only the underlying finite element spaces manager
-     * is required
-     */
-    explicit GridFunctionInterpolator(
-        const FiniteElementDiscretization&) noexcept;
-    /*!
-     * \brief constructor from a set of 2D points
-     *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] pts: points to be added
      *
-     * \note this constructor is provided for simplying the declaration
+     * \note this constructor is provided for simplifying the declaration
      * of an interpolator as only the underlying finite element spaces manager
      * is required
      */
-    GridFunctionInterpolator(Context&,
-                             const FiniteElementDiscretization&,
-                             const std::vector<Point<2>>&);
-    /*!
-     * \brief constructor from a set of 3D points
-     *
-     * \param[in] ctx: execution context
-     * \param[in] fed: finite element discretization
-     * \param[in] pts: points to be added
-     *
-     * \note this constructor is provided for simplying the declaration
-     * of an interpolator as only the underlying finite element spaces manager
-     * is required
-     */
-    GridFunctionInterpolator(Context&,
-                             const FiniteElementDiscretization&,
-                             const std::vector<Point<3>>&);
+    GridFunctionInterpolator(Context& ctx,
+                             const FiniteElementDiscretization& fed,
+                             const std::vector<Point<3>>& pts);
     /*!
      * \brief add the given 2D points to the list of points to be post-processed
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] pts: points to be added
+     * \return true on success
      */
-    [[nodiscard]] bool addPoints(Context&,
-                                 const std::vector<Point<2>>&) noexcept;
+    [[nodiscard]] bool addPoints(Context& ctx,
+                                 const std::vector<Point<2>>& pts) noexcept;
     /*!
      * \brief add the given 3D points to the list of points to be post-processed
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] pts: points to be added
+     * \return true on success
      */
-    [[nodiscard]] bool addPoints(Context&,
-                                 const std::vector<Point<3>>&) noexcept;
+    [[nodiscard]] bool addPoints(Context& ctx,
+                                 const std::vector<Point<3>>& pts) noexcept;
 #ifdef MFEM_USE_MPI
     /*!
      * \brief interpolate the given grid function at the previously defined
      * points
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] f: function to be interpolated
+     * \return the interpolated values, one row per point and one column per
+     * component
      *
-     * \note points are searched each time since the we have to call
+     * \note points are searched each time since we have to call
      * `SetNodalFESpace` on the underlying mesh and that this mesh may also be
-     * used to build order finite element spaces.
+     * used to build other finite element spaces.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
-        Context&, const GridFunction<true>&) noexcept;
+        Context& ctx, const GridFunction<true>& f) noexcept;
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief interpolate the given grid function at the previously defined
      * points
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] f: function to be interpolated
+     * \return the interpolated values, one row per point and one column per
+     * component
      *
-     * \note points are searched each time since the we have to call
+     * \note points are searched each time since we have to call
      * `SetNodalFESpace` on the underlying mesh and that this mesh may also be
-     * used to build order finite element spaces.
+     * used to build other finite element spaces.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
-        Context&, const GridFunction<false>&) noexcept;
+        Context& ctx, const GridFunction<false>& f) noexcept;
 
     //! \brief destructor
     ~GridFunctionInterpolator();

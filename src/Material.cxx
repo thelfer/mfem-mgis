@@ -1,6 +1,6 @@
 /*!
  * \file   src/Material.cxx
- * \brief
+ * \brief  This file implements the `Material` class
  * \author Thomas Helfer
  * \date   26/08/2020
  */

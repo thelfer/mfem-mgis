@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/EnergyPostProcessings.ixx
- * \brief
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/EnergyPostProcessings.hxx`
  * \author Thomas Helfer
  * \date   14/12/2021
  */

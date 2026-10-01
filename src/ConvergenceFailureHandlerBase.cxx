@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/ConvergenceFailureHandlerBase.cxx
- * \brief  This class implements the `ConvergenceFailureHandlerBase` class
+ * \file   src/ConvergenceFailureHandlerBase.cxx
+ * \brief  This file implements the `ConvergenceFailureHandlerBase` class
  * \date   04/12/2023
  */
 
