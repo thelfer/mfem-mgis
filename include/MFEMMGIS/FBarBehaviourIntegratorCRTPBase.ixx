@@ -101,8 +101,8 @@ namespace mfem_mgis {
       shape0.SetSize(e.GetDof());
       shape.SetSize(e.GetDof());
     }
-    dshape0.setSize(e.GetDof(), e.GetDim());
-    dshape.setSize(e.GetDof(), e.GetDim());
+    dshape0.SetSize(e.GetDof(), e.GetDim());
+    dshape.SetSize(e.GetDof(), e.GetDim());
 #else
     if constexpr (evaluateShapeFunctions) {
       this->shape0.SetSize(e.GetDof());
@@ -212,7 +212,7 @@ namespace mfem_mgis {
     if constexpr (evaluateShapeFunctions) {
       shape.SetSize(e.GetDof());
     }
-    dshape.setSize(e.GetDof(), e.GetDim());
+    dshape.SetSize(e.GetDof(), e.GetDim());
 #else
     if constexpr (evaluateShapeFunctions) {
       this->shape.SetSize(e.GetDof());

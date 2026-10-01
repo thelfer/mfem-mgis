@@ -66,8 +66,8 @@ namespace mfem_mgis {
     ();
 #ifdef MFEM_THREAD_SAFE
     mfem::DenseMatrix dshape, dshape0;
-    dshape.setSize(e.GetDof(), e.GetDim());
-    dshape0.setSize(e.GetDof(), e.GetDim());
+    dshape.SetSize(e.GetDof(), e.GetDim());
+    dshape0.SetSize(e.GetDof(), e.GetDim());
 #else
     this->dshape0.SetSize(e.GetDof(), e.GetDim());
     // this->dshape is updated by
@@ -139,8 +139,8 @@ namespace mfem_mgis {
     ();
 #ifdef MFEM_THREAD_SAFE
     mfem::DenseMatrix dshape, dshape0;
-    dshape.setSize(e.GetDof(), e.GetDim());
-    dshape0.setSize(e.GetDof(), e.GetDim());
+    dshape.SetSize(e.GetDof(), e.GetDim());
+    dshape0.SetSize(e.GetDof(), e.GetDim());
 #else
     this->dshape0.SetSize(e.GetDof(), e.GetDim());
     // this->dshape is updated by
