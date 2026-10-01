@@ -96,7 +96,8 @@ namespace mfem_mgis {
         }
         ++a;
         if (a == argv + argc) {
-          mgis::raise("initialize: option values missing for --use-petsc");
+          mgis::raise(
+              "initialize: no value given to --petsc-configuration-file");
         }
         petscrc_file = *a;
       }
