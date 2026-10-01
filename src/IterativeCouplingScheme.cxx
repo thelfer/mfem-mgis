@@ -205,8 +205,8 @@ namespace mfem_mgis {
     }
     ctx.log(verboseLevel2,
             "* iterative coupling scheme '" + this->getName() +
-                "'did no converge after " +
-                std::to_string(this->maximum_number_of_iterations + 1) +
+                "' did not converge after " +
+                std::to_string(this->maximum_number_of_iterations) +
                 " iterations");
     //     if ((this->printResourcesUsage_) ||  //
     //         (ctx.getVerbosityLevel() >= VerbosityLevel::verboseDebug)) {
