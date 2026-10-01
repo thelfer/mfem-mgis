@@ -13,7 +13,6 @@
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/Utilities/Buffer.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
-#include "MFEMMGIS/PartialQuadratureSpace.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 
 namespace mfem_mgis {

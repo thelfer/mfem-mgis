@@ -186,7 +186,7 @@ namespace mfem_mgis {
       const auto gsize = sm.gradients_stride;
       if (GradientsSize != gsize) {
         return ctx.registerErrorMessage(
-            "inconsistent number of components of the thermodynamic forces");
+            "inconsistent number of components of the gradients");
       }
     }
     return true;

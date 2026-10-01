@@ -36,8 +36,6 @@ namespace mfem_mgis {
       return MPI_SHORT;
     } else if constexpr (std::same_as<T, unsigned short>) {
       return MPI_UNSIGNED_SHORT;
-    } else if constexpr (std::same_as<T, int>) {
-      return MPI_INT;
     } else if constexpr (std::same_as<T, unsigned int>) {
       return MPI_UNSIGNED;
     } else if constexpr (std::same_as<T, long>) {

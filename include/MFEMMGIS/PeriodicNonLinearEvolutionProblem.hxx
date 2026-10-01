@@ -94,13 +94,13 @@ namespace mfem_mgis {
    * \param[in] corner2: second corner of the computation domain
    * \return the squared distance
    */
-  real getNodesDistance(const mfem::GridFunction& nodes,
-                        const bool reorder_space,
-                        const size_t dim,
-                        const int index,
-                        const int size,
-                        const std::span<const real>& corner1,
-                        const std::span<const real>& corner2);
+  MFEM_MGIS_EXPORT real getNodesDistance(const mfem::GridFunction& nodes,
+                                         const bool reorder_space,
+                                         const size_t dim,
+                                         const int index,
+                                         const int size,
+                                         const std::span<const real>& corner1,
+                                         const std::span<const real>& corner2);
 
   /*!
    * \brief a base class handling the evolution of the macroscopic gradients

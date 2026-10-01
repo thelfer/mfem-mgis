@@ -138,6 +138,9 @@ namespace mfem_mgis {
         auto ptr = make_shared<FiniteElementSpace<true>>(
             ctx, this->mesh.getMutableMeshPointer<true>().get(),
             this->fec.get(), nc);
+        if (isInvalid(ptr)) {
+          return {};
+        }
         this->parallel_fespaces.insert({nc, ptr});
         return ptr;
 #else
@@ -156,6 +159,9 @@ namespace mfem_mgis {
         auto ptr = make_shared<FiniteElementSpace<false>>(
             ctx, this->mesh.getMutableMeshPointer<false>().get(),
             this->fec.get(), nc);
+        if (isInvalid(ptr)) {
+          return {};
+        }
         this->sequential_fespaces.insert({nc, ptr});
         return ptr;
       }

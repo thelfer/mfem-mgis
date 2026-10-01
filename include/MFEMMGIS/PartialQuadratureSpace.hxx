@@ -216,7 +216,7 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
     //! \brief underlying parallel finite element space
     const FiniteElementSpace<true> *const parallel_fespace = nullptr;
-#endif MFEM_USE_MPI
+#endif /* MFEM_USE_MPI */
     //! \brief underlying sequential finite element space
     const FiniteElementSpace<false> *const sequential_fespace = nullptr;
     /*!

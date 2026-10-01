@@ -488,11 +488,6 @@ namespace mfem_mgis {
      */
     void makeView(PartialQuadratureFunction& f);
     /*!
-     * \brief copy the given function
-     * \param[in] f: function
-     */
-    void copy(const ImmutablePartialQuadratureFunctionView& f);
-    /*!
      * \brief copy values from an immutable view
      * \param[in] v: view
      * \note the execution is aborted if the view is not compatible
@@ -524,6 +519,7 @@ namespace mfem_mgis {
       PartialQuadratureFunctionView f,
       const ImmutablePartialQuadratureFunctionView& v) noexcept;
 
+#ifdef MFEM_USE_MPI
   /*!
    * \brief update the partial quadrature function from the given grid function
    * \param[in, out] ctx: execution context
@@ -535,6 +531,7 @@ namespace mfem_mgis {
       Context& ctx,
       PartialQuadratureFunctionView& dest,
       const GridFunction<true>& src) noexcept;
+#endif /* MFEM_USE_MPI */
   /*!
    * \brief update the partial quadrature function from the given grid function
    * \param[in, out] ctx: execution context

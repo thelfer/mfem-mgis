@@ -18,7 +18,7 @@
 namespace mfem_mgis {
 
   template <bool parallel>
-  static std::vector<size_type> buildDegreesOfFredomList(
+  static std::vector<size_type> buildDegreesOfFreedomList(
       FiniteElementDiscretization& fed,
       const std::vector<size_type>& bids,
       const size_type c) {
@@ -33,29 +33,29 @@ namespace mfem_mgis {
     fed.getFiniteElementSpace<parallel>().GetEssentialTrueDofs(
         boundaries_markers, tmp, c);
     return std::vector<size_type>(tmp.GetData(), tmp.GetData() + tmp.Size());
-  }  // end of buildDegreesOfFredomList
+  }  // end of buildDegreesOfFreedomList
 
-  static std::vector<size_type> buildDegreesOfFredomListDispatch(
+  static std::vector<size_type> buildDegreesOfFreedomListDispatch(
       FiniteElementDiscretization& fed,
       const std::vector<size_type>& bids,
       const size_type c) {
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      return buildDegreesOfFredomList<true>(fed, bids, c);
+      return buildDegreesOfFreedomList<true>(fed, bids, c);
 #else
       raise(
           "DirichletBoundaryConditionBase::DirichletBoundaryConditionBase: "
           "unsupported parallel computations");
 #endif
     }
-    return buildDegreesOfFredomList<false>(fed, bids, c);
-  }  // end of buildDegreesOfFredomListDispatch
+    return buildDegreesOfFreedomList<false>(fed, bids, c);
+  }  // end of buildDegreesOfFreedomListDispatch
 
   DirichletBoundaryConditionBase::DirichletBoundaryConditionBase(
       FiniteElementDiscretization& fed,
       const std::vector<size_type>& bid,
       const size_type c)
-      : dofs(buildDegreesOfFredomListDispatch(fed, bid, c)) {
+      : dofs(buildDegreesOfFreedomListDispatch(fed, bid, c)) {
   }  // end of DirichletBoundaryConditionBase::DirichletBoundaryConditionBase
 
   std::vector<size_type>

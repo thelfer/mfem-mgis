@@ -169,6 +169,8 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif(MFEM_USE_MPI)
   endfunction()
 
+  add_imposed_pressure_test(IsotropicLinearElasticity)
+
   # ImposedPressureTest2 executable
   add_test_executable(ImposedPressureTest2)
 
@@ -456,6 +458,8 @@ if(MFEM_MGIS_HAVE_TFEL)
                                      "--parallel" "1")
     endif(MFEM_USE_MPI)
   endfunction()
+
+  add_point_wise_model_test()
 
   # PointWiseModelTest-2 executable
   add_test_executable(PointWiseModelTest-2)

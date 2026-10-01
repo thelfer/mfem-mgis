@@ -4,8 +4,8 @@
  * \date   12/12/2022
  */
 
-#ifndef LIB_MFEM_MGIS_PROFILER_HXX
-#define LIB_MFEM_MGIS_PROFILER_HXX
+#ifndef LIB_MFEM_MGIS_PROVIDER_HXX
+#define LIB_MFEM_MGIS_PROVIDER_HXX
 
 #include <string>
 #include "MFEMMGIS/Config.hxx"
@@ -94,4 +94,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#endif /* LIB_MFEM_MGIS_PROFILER_HXX */
+#endif /* LIB_MFEM_MGIS_PROVIDER_HXX */

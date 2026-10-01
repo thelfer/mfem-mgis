@@ -5,6 +5,7 @@
  * \date   10/03/2021
  */
 
+#include <array>
 #include "MGIS/Raise.hxx"
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
@@ -21,7 +22,7 @@ namespace mfem_mgis {
                         const int size,
                         const std::span<const real>& corner1,
                         const std::span<const real>& corner2) {
-    real coord[dim];  // coordinates of a node
+    auto coord = std::array<real, 3>{};  // coordinates of a node
     real dist = 0.;
     for (int j = 0; j < dim; ++j) {
       if (reorder_space)
@@ -98,8 +99,8 @@ namespace mfem_mgis {
     const auto size = nodes.Size() / dim;
 
     // Initialize reference values to largest possible numbers
-    real refcoord[dim];
-    int id_unk[dim];
+    auto refcoord = std::array<real, 3>{};
+    auto id_unk = std::array<int, 3>{};
     for (int j = 0; j < dim; ++j) {
       refcoord[j] = std::numeric_limits<double>::max();
       id_unk[j] = -1;
@@ -107,7 +108,7 @@ namespace mfem_mgis {
     // Traversal of all dofs to detect which one is minimal in X, Y or Z
     // direction depending on the `bct` variable.
     for (int i = 0; i < size; ++i) {
-      real curcoord[dim];
+      auto curcoord = std::array<real, 3>{};
       for (int j = 0; j < dim; ++j) {
         if (bynodes)
           curcoord[j] = (nodes)[j * size + i];
@@ -229,8 +230,8 @@ namespace mfem_mgis {
     const auto size = nodes.Size() / dim;
 
     // Initialize reference values to largest possible numbers
-    real refcoord[dim];
-    int id_unk[dim];
+    auto refcoord = std::array<real, 3>{};
+    auto id_unk = std::array<int, 3>{};
     for (int j = 0; j < dim; ++j) {
       refcoord[j] = std::numeric_limits<double>::max();
       id_unk[j] = -1;
@@ -239,7 +240,7 @@ namespace mfem_mgis {
     // Traversal of all dofs to detect which one is minimal in X, Y or Z
     // direction depending on the `bct` variable.
     for (int i = 0; i < size; ++i) {
-      real curcoord[dim];
+      auto curcoord = std::array<real, 3>{};
       for (int j = 0; j < dim; ++j) {
         if (bynodes)
           curcoord[j] = (nodes)[j * size + i];

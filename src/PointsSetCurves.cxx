@@ -147,10 +147,8 @@ namespace mfem_mgis {
   }  // end of exportCoordinates
 
   size_type PointsSetCurves::getSpaceDimension() const noexcept {
-    if (std::holds_alternative<std::vector<Point<2>>>(points)) {
-      return 2;
-    }
-    return 3;
+    return ::mfem_mgis::getSpaceDimension(
+        this->fespaces_manager.getMeshDiscretization());
   }  // end of getSpaceDimension
 
   std::optional<std::vector<std::vector<real>>> PointsSetCurves::getCoordinates(

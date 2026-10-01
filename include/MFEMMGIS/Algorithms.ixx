@@ -19,9 +19,9 @@ namespace mfem_mgis {
       return false;
     }
     raise_if(f.getNumberOfComponents() != N,
-             "assign: invalid number of components for the left hand size");
+             "assign: invalid number of components for the left hand side");
     raise_if(e.getNumberOfComponents() != N,
-             "assign: invalid number of components for the right hand size");
+             "assign: invalid number of components for the right hand side");
     //
     if (!e.check(ctx)) {
       return false;
@@ -46,10 +46,10 @@ namespace mfem_mgis {
   template <QPEvaluatorConcept QPEvaluatorType>
   bool assign(Context& ctx, PartialQuadratureFunction& f, QPEvaluatorType e) {
     raise_if(&f.getPartialQuadratureSpace() != &e.getPartialQuadratureSpace(),
-             "assign: unmatched number of components for the left hand size "
+             "assign: unmatched quadrature spaces for the left hand side "
              "and the right hand side");
     raise_if(f.getNumberOfComponents() != e.getNumberOfComponents(),
-             "assign: unmatched number of components for the left hand size "
+             "assign: unmatched number of components for the left hand side "
              "and the right hand side");
     //
     if (!e.check(ctx)) {

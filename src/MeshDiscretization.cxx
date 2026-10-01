@@ -285,7 +285,7 @@ namespace mfem_mgis {
       if (materials_names.find(mids[0]) != materials_names.end()) {
         warning(getDefaultLogStream(), "ignoring attribute set '", n,
                 "' for material (", mids[0],
-                ") which is already names by the user to a material");
+                ") which is already named by the user");
         continue;
       }
       if (!isValidMeshObjectName(n)) {
@@ -319,14 +319,14 @@ namespace mfem_mgis {
         continue;
       }
       if (count(materials_names, n) != 0) {
-        warning(getDefaultLogStream(), "ignoring material attribute set '", n,
+        warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
                 "' which is already associated by the user to a material");
         continue;
       }
       if (boundaries_names.find(bids[0]) != boundaries_names.end()) {
         warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
-                "' for material (", bids[0],
-                ") which is already names by the user to a material");
+                "' for boundary (", bids[0],
+                ") which is already named by the user");
         continue;
       }
       if (!isValidMeshObjectName(n)) {
@@ -1626,7 +1626,7 @@ namespace mfem_mgis {
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
       if (d != 2) {
-        return ctx.registerErrorMessage("can't return a 2D point from a " +
+        return ctx.registerErrorMessage("can't return a 2D points set from a " +
                                         std::to_string(d) + "D mesh");
       }
       const auto p = this->pointsSets2D.find(n);
@@ -1647,7 +1647,7 @@ namespace mfem_mgis {
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
       if (d != 3) {
-        return ctx.registerErrorMessage("can't return a 3D point from a " +
+        return ctx.registerErrorMessage("can't return a 3D points set from a " +
                                         std::to_string(d) + "D mesh");
       }
       const auto p = this->pointsSets3D.find(n);
@@ -1859,13 +1859,13 @@ namespace mfem_mgis {
   std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
       Context& ctx, const Mesh<true>& m, const size_type id) const noexcept {
     return this->pimpl->getLocationIdentifier<true>(ctx, m, id);
-  }    // end of getParallelLocationIdentifier
+  }  // end of getLocationIdentifier
 #endif /* MFEM_USE_MPI */
 
   std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
       Context& ctx, const Mesh<false>& m, const size_type id) const noexcept {
     return this->pimpl->getLocationIdentifier<false>(ctx, m, id);
-  }  // end of getSequentialLocationIdentifier
+  }  // end of getLocationIdentifier
 
   bool MeshDiscretization::setMaterialsNames(
       Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
@@ -1886,6 +1886,17 @@ namespace mfem_mgis {
       Context& ctx, const size_type id) const noexcept {
     return this->pimpl->getBoundaryName(ctx, id);
   }  // end of getBoundaryName
+
+  std::optional<std::string> MeshDiscretization::getLocationName(
+      Context& ctx, const LocationIdentifier& id) const noexcept {
+    if (isInvalid(id)) {
+      return ctx.registerErrorMessage("invalid location identifier");
+    }
+    if (id.material_identifier.has_value()) {
+      return this->getMaterialName(ctx, id.material_identifier->id);
+    }
+    return this->getBoundaryName(ctx, id.boundary_identifier->id);
+  }  // end of getLocationName
 
   std::optional<std::vector<size_type>>
   MeshDiscretization::getMaterialsIdentifiers(
@@ -2117,13 +2128,24 @@ namespace mfem_mgis {
     }
     if (isValid(l.material_identifier)) {
       const auto& mids = getMaterialsAttributes(m);
-      return mids.Find(l.material_identifier->id) != -1;
+      if (mids.Find(l.material_identifier->id) == -1) {
+        return ctx.registerErrorMessage(
+            "material identifier '" +
+            std::to_string(l.material_identifier->id) +
+            "' is not an attribute of the mesh");
+      }
+      return true;
     }
     ctx.assertOrTerminate(
         isValid(l.boundary_identifier),
         "internal error: isInvalid shall not have returned true");
     const auto& bids = getBoundariesAttributes(m);
-    return bids.Find(l.boundary_identifier->id) != -1;
+    if (bids.Find(l.boundary_identifier->id) == -1) {
+      return ctx.registerErrorMessage(
+          "boundary identifier '" + std::to_string(l.boundary_identifier->id) +
+          "' is not a boundary attribute of the mesh");
+    }
+    return true;
   }  // end of check
 
   std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,

@@ -80,7 +80,7 @@ namespace mfem_mgis {
      * \param[in] p: post-processing
      * \return true on success
      */
-    virtual bool addPostProcessing(
+    [[nodiscard]] virtual bool addPostProcessing(
         Context& ctx,
         std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>
             p) noexcept;

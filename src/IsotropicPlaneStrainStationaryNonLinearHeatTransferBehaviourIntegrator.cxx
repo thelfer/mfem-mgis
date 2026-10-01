@@ -69,8 +69,6 @@ namespace mfem_mgis {
     const auto &pev = this->s1.external_state_variables.find("Temperature");
     if (pev == this->s1.external_state_variables.end()) {
       return ctx.registerErrorMessage(
-          "IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrat"
-          "or::setup: "
           "external state variable 'Temperature' is not defined");
     }
     if (std::holds_alternative<std::monostate>(pev->second)) {

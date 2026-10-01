@@ -652,34 +652,6 @@ namespace mfem_mgis {
     [[nodiscard]] std::shared_ptr<const Mesh<false>> getSequentialMeshPointer()
         const noexcept;
     /*!
-     * \brief convert an attribute of a managed mesh to a location identifier
-     * \return the location identifier in the main mesh
-     *
-     * \param[in, out] ctx: execution context
-     * \param[in] m: mesh
-     * \param[in] id: attribute in the mesh
-     *
-     * \see `MeshDiscretization::getLocationIdentifier` for details
-     */
-    [[nodiscard]] std::optional<LocationIdentifier>
-    getParallelLocationIdentifier(Context& ctx,
-                                  const Mesh<true>& m,
-                                  const size_type id) const noexcept;
-    /*!
-     * \brief convert an attribute of a managed mesh to a location identifier
-     * \return the location identifier in the main mesh
-     *
-     * \param[in, out] ctx: execution context
-     * \param[in] m: mesh
-     * \param[in] id: attribute in the mesh
-     *
-     * \see `MeshDiscretization::getLocationIdentifier` for details
-     */
-    [[nodiscard]] std::optional<LocationIdentifier>
-    getSequentialLocationIdentifier(Context& ctx,
-                                    const Mesh<false>& m,
-                                    const size_type id) const noexcept;
-    /*!
      * \brief get the shared pointer associated with a managed mesh
      * \return a mutable pointer to the given parallel mesh, if managed by
      * this mesh discretization

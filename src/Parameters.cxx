@@ -47,11 +47,11 @@ namespace mfem_mgis {
 
   Parameters::Parameters() noexcept = default;
 
-  Parameters::Parameters(const Parameters&) noexcept = default;
+  Parameters::Parameters(const Parameters&) = default;
 
   Parameters::Parameters(Parameters&&) noexcept = default;
 
-  Parameters& Parameters::operator=(const Parameters&) noexcept = default;
+  Parameters& Parameters::operator=(const Parameters&) = default;
 
   Parameters& Parameters::operator=(Parameters&&) noexcept = default;
 

@@ -41,7 +41,7 @@ namespace mfem_mgis {
     PartialQuadratureSpaceIdentifiersManager& operator=(
         PartialQuadratureSpaceIdentifiersManager&&) = delete;
     PartialQuadratureSpaceIdentifiersManager& operator=(
-        const PartialQuadratureSpaceIdentifiersManager&&) = delete;
+        const PartialQuadratureSpaceIdentifiersManager&) = delete;
     /*!
      * \brief return the identifier of a partial quadrature space
      * \return the identifier associated with the given partial quadrature

@@ -123,8 +123,6 @@ namespace mfem_mgis::unit_tests {
     auto& f = LinearSolverFactory<parallel>::getFactory();
     // preconditionner hypreBoomerAMG
     const auto options = mfem_mgis::Parameters{{"VerbosityLevel", 0}};
-    const auto amg =
-        mfem_mgis::Parameters{{"Name", "HypreBoomerAMG"}, {"Options", options}};
     const auto ilu = mfem_mgis::Parameters{
         {"Name", "HypreILU"},
         {"Options", mfem_mgis::Parameters{{"HypreILULevelOfFill", 1}}}};
@@ -132,8 +130,6 @@ namespace mfem_mgis::unit_tests {
         mfem_mgis::Parameters{{"Name", "HypreDiagScale"}, {"Options", options}};
     const auto parasail =
         mfem_mgis::Parameters{{"Name", "HypreParaSails"}, {"Options", options}};
-    const auto euclid =
-        mfem_mgis::Parameters{{"Name", "HypreEuclid"}, {"Options", options}};
 
     bool is_default_test_case = parameters.linearsolver == 0;
 #ifndef MFEM_USE_SUITESPARSE
@@ -148,19 +144,11 @@ namespace mfem_mgis::unit_tests {
         (parameters.parallel == 0 && parameters.linearsolver > 3);
     // default solver
     if (is_default_test_case) {
-      if constexpr (parallel) {
-        return f.generate(ctx, "CGSolver", fespace,
-                          {{"VerbosityLevel", 1},
-                           {"AbsoluteTolerance", 1e-12},
-                           {"RelativeTolerance", 1e-12},
-                           {"MaximumNumberOfIterations", 5000}});
-      } else {
-        return f.generate(ctx, "CGSolver", fespace,
-                          {{"VerbosityLevel", 1},
-                           {"AbsoluteTolerance", 1e-12},
-                           {"RelativeTolerance", 1e-12},
-                           {"MaximumNumberOfIterations", 5000}});
-      }
+      return f.generate(ctx, "CGSolver", fespace,
+                        {{"VerbosityLevel", 1},
+                         {"AbsoluteTolerance", 1e-12},
+                         {"RelativeTolerance", 1e-12},
+                         {"MaximumNumberOfIterations", 5000}});
     } else if (parameters.linearsolver == 1) {
       return f.generate(ctx, "GMRESSolver", fespace,
                         {{"VerbosityLevel", 1},
@@ -342,7 +330,7 @@ namespace mfem_mgis::unit_tests {
     const auto& fed =
         m.getPartialQuadratureSpace().getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
-      MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
+      MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_CXX_BOOL, MPI_LAND,
                     getMPICommunicator(fed));
     }
 #endif /* MFEM_USE_MPI */
@@ -394,7 +382,7 @@ namespace mfem_mgis::unit_tests {
 
       // timers are not used here
       const auto step_name = "step" + std::to_string(i);
-      std::cout << step_name << std::endl;
+      mfem_mgis::getOutputStream() << step_name << std::endl;
       // CatchTimeSection(step_name);
       {
         // CatchNestedTimeSection("solve");

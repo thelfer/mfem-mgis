@@ -10,7 +10,7 @@
 
 #ifdef MFEM_USE_PETSC
 #include "mfem/linalg/petsc.hpp"
-#endif MFEM_USE_PETSC
+#endif /* MFEM_USE_PETSC */
 #include "mfem/linalg/sparsemat.hpp"
 #include "mfem/fem/linearform.hpp"
 #include "mfem/fem/bilinearform.hpp"

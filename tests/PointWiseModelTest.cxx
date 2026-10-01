@@ -59,7 +59,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
                                   mgis::behaviour::Hypothesis::PLANESTRAIN);
   if (isInvalid(omodel)) {
     std::cerr << ctx.getErrorMessage() << '\n';
-    return EXIT_FAILURE;
+    return false;
   }
   auto m = Material(qspace, make_unique<Behaviour>(ctx, *omodel) | or_die);
   mgis::behaviour::setExternalStateVariable(ctx, m.s0, "Temperature", 893.15) |

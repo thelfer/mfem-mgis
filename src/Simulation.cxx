@@ -570,7 +570,7 @@ namespace mfem_mgis {
       updateAndSynchronize(invoke(ctx, t));
       if (!s.shallContinue()) {
         std::ignore =
-            ctx.registerErrorMessage("initialization task '" + n + "'failed");
+            ctx.registerErrorMessage("initialization task '" + n + "' failed");
         return {s, {}};
       }
     }
@@ -982,7 +982,7 @@ namespace mfem_mgis {
         if (!this->physicalSystem->executePostProcessingTasks(
                 ctx, ts, explicitMarkedPostProcessingTime)) {
           s = ctx.registerErrorMessage(
-              "The time step validator failed for the " +
+              "The post-processing tasks failed for the " +
               getTimeStepDescription());
           return;
         }

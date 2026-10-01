@@ -6,6 +6,7 @@
 #ifndef LIB_MFEMMGIS_PROFILER_HXX
 #define LIB_MFEMMGIS_PROFILER_HXX
 
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <mfem.hpp>

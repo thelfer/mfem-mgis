@@ -197,4 +197,4 @@ namespace mgis::internal {
 
 #include "MFEMMGIS/ExitStatus.ixx"
 
-#endif LIB_MFEM_MGIS_EXIT_STATUS_HXX
+#endif /* LIB_MFEM_MGIS_EXIT_STATUS_HXX */

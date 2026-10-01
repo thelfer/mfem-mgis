@@ -18,7 +18,6 @@ namespace mfem_mgis {
             m,
             extract(
                 throwing, parameters, ModelBase::getParametersDescription())),
-        // IL MANQUAIT LE CONTEXTE ICI :
         problem(std::make_shared<NonLinearEvolutionProblem>(
             ctx,
             m,

@@ -57,7 +57,7 @@ template <bool parallel>
       u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR, {});
 #ifdef MFEM_USE_MPI
   if constexpr (parallel) {
-    MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
+    MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_CXX_BOOL, MPI_LAND,
                   fespace.GetComm());
   }
 #endif /* MFEM_USE_MPI */
