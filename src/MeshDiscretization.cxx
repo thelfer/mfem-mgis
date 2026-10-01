@@ -1626,7 +1626,7 @@ namespace mfem_mgis {
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
       if (d != 2) {
-        return ctx.registerErrorMessage("can't return a 2D point from a " +
+        return ctx.registerErrorMessage("can't return a 2D points set from a " +
                                         std::to_string(d) + "D mesh");
       }
       const auto p = this->pointsSets2D.find(n);
@@ -1647,7 +1647,7 @@ namespace mfem_mgis {
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
       if (d != 3) {
-        return ctx.registerErrorMessage("can't return a 3D point from a " +
+        return ctx.registerErrorMessage("can't return a 3D points set from a " +
                                         std::to_string(d) + "D mesh");
       }
       const auto p = this->pointsSets3D.find(n);
