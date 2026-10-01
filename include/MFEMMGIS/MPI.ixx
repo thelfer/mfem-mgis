@@ -17,6 +17,4 @@ namespace mfem_mgis {
 
 }  // end of namespace mfem_mgis
 
-#include "MFEMMGIS/MPI.ixx"
-
 #endif /* LIB_MFEM_MGIS_MPI_IXX */
