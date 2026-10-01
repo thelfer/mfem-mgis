@@ -88,7 +88,7 @@ namespace mfem_mgis {
   }  // end of SetOperator
 
   void NonLinearSolverBase::SetPreconditioner(Solver &) {
-    raise("NonLinearSolverBase::SetOperator: invalid call");
+    raise("NonLinearSolverBase::SetPreconditioner: invalid call");
   }  // end of SetPreconditioner
 
   void NonLinearSolverBase::setLinearSolver(LinearSolver &s) noexcept {
