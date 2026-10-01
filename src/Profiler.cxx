@@ -312,7 +312,11 @@ namespace mfem_mgis {
       void writeFile(const mgis::Context& ctx, std::string a_name) {
         if (!ctx.isProfilingEnabled()) return;
 
-        std::ofstream myFile(a_name, std::ofstream::out);
+        // only the master process writes the file
+        std::ofstream myFile;
+        if (Utils::is_master()) {
+          myFile.open(a_name, std::ofstream::out);
+        }
         const auto& root = ctx.getProfilingResultTree();
         auto rootTime = Utils::reduce_max(root.time_in_seconds);
 
