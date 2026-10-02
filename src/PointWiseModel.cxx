@@ -83,7 +83,7 @@ namespace mfem_mgis {
       s.update(ExitStatus::recoverableError);
     }
 #ifdef MFEM_USE_MPI
-    const auto fed =
+    const auto& fed =
         this->getPartialQuadratureSpace().getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
       s.synchronize(getMPICommunicator(fed));
