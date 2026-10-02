@@ -77,14 +77,26 @@ namespace mfem_mgis {
             mgis::behaviour::IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR,
         .compute_speed_of_sound = false};  // end of BehaviourIntegrationOptions
     const auto r = mgis::behaviour::integrate(*this, opts, ts.dt);
-    if (!((r.exit_status == 1) || (r.exit_status == 0))) {
-      if (!r.error_message.empty()) {
-        std::ignore = ctx.registerErrorMessage(r.error_message);
-      }
-      return {ExitStatus::recoverableError, {}};
-    }
     if (r.exit_status == 0) {
       s.update(ExitStatus::unreliableResults);
+    } else if (r.exit_status != 1) {
+      s.update(ExitStatus::recoverableError);
+    }
+#ifdef MFEM_USE_MPI
+    const auto fed =
+        this->getPartialQuadratureSpace().getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+      s.synchronize(getMPICommunicator(fed));
+    }
+#endif /* MFEM_USE_MPI */
+    if (!s.shallContinue()) {
+      if (!r.error_message.empty()) {
+        std::ignore = ctx.registerErrorMessage(r.error_message);
+      } else {
+        std::ignore =
+            ctx.registerErrorMessage("point wise model integration failed");
+      }
+      return {ExitStatus::recoverableError, {}};
     }
     return {s, ooutput};
   }  // end of computeNextState

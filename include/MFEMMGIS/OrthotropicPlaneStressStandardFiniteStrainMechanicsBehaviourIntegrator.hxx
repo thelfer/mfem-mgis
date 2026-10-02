@@ -56,7 +56,6 @@ namespace mfem_mgis {
       : StandardBehaviourIntegratorCRTPBase<
             OrthotropicPlaneStressStandardFiniteStrainMechanicsBehaviourIntegrator>,
         PlaneStressStandardFiniteStrainMechanicsBehaviourIntegratorBase {
-
     //! \brief a simple alias
     using RotationMatrix = std::array<real, 9u>;
     /*!
