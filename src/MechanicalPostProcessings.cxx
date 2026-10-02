@@ -344,6 +344,25 @@ namespace mfem_mgis {
     return s1;
   }
 
+  /*!
+   * \brief evaluator returning the rotation matrix as a `tmatrix`
+   *
+   * `RotationMatrixEvaluator` returns the rotation matrix by value: applying
+   * the `as_tmatrix` modifier to it would create a view on a temporary.
+   */
+  struct RotationMatrixAsTMatrixEvaluator : RotationMatrixEvaluator {
+    using RotationMatrixEvaluator::RotationMatrixEvaluator;
+    tfel::math::tmatrix<3u, 3u, real> operator()(const size_type i) const {
+      const auto r = RotationMatrixEvaluator::operator()(i);
+      auto R = tfel::math::tmatrix<3u, 3u, real>{};
+      std::copy(r.begin(), r.end(), R.begin());
+      return R;
+    }
+  };
+
+  static_assert(
+      mgis::function::EvaluatorConcept<RotationMatrixAsTMatrixEvaluator>);
+
   template <unsigned short N>
   static bool computeSmallStrainStressInGlobalFrame_impl(
       Context& ctx,
@@ -357,13 +376,12 @@ namespace mfem_mgis {
           "computeStressInGlobalFrame: invalid quadrature function size");
     }
     const auto osig = getThermodynamicForce(ctx, m, "Stress", s);
-    const auto oR = construct<RotationMatrixEvaluator>(ctx, m);
+    const auto oR = construct<RotationMatrixAsTMatrixEvaluator>(ctx, m);
     if (!areValid(osig, oR)) {
       return {};
     }
     auto sview = rsig | as_stensor<N>;
-    const auto ok = *osig | as_stensor<N> |
-                    rotate_backwards(*oR | as_tmatrix<3, 3>) | sview;
+    const auto ok = *osig | as_stensor<N> | rotate_backwards(*oR) | sview;
     if (!ok) {
       return ctx.registerErrorMessage(
           "computeStressInGlobalFrame: computation of the "
@@ -386,13 +404,12 @@ namespace mfem_mgis {
     }
     const auto opk1 =
         getThermodynamicForce(ctx, m, "FirstPiolaKirchhoffStress", s);
-    const auto oR = construct<RotationMatrixEvaluator>(ctx, m);
+    const auto oR = construct<RotationMatrixAsTMatrixEvaluator>(ctx, m);
     if (!areValid(opk1, oR)) {
       return {};
     }
     auto rpk1_view = rpk1 | as_tensor<N>;
-    const auto ok = *opk1 | as_tensor<N> |
-                    rotate_backwards(*oR | as_tmatrix<3, 3>) | rpk1_view;
+    const auto ok = *opk1 | as_tensor<N> | rotate_backwards(*oR) | rpk1_view;
     if (!ok) {
       return ctx.registerErrorMessage(
           "computeStressInGlobalFrame: computation of the "
@@ -491,14 +508,14 @@ namespace mfem_mgis {
     const auto oF = getGradient(ctx, m, "DeformationGradient", s);
     const auto opk1 =
         getThermodynamicForce(ctx, m, "FirstPiolaKirchhoffStress", s);
-    const auto oR = construct<RotationMatrixEvaluator>(ctx, m);
+    const auto oR = construct<RotationMatrixAsTMatrixEvaluator>(ctx, m);
     if (!areValid(oF, opk1, oR)) {
       return {};
     }
     auto sview = sig | as_stensor<N>;
     const auto ok = *opk1 | as_tensor<N> |  //
                     from_pk1_to_cauchy(*oF | as_tensor<N>) |
-                    rotate_backwards(*oR | as_tmatrix<3, 3>) | sview;
+                    rotate_backwards(*oR) | sview;
     if (!ok) {
       return ctx.registerErrorMessage(
           "computeCauchyStressInGlobalFrame: computation of the Cauchy "
