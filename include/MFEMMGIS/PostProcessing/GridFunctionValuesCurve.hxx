@@ -9,12 +9,12 @@
 
 #include <map>
 #include <string>
+#include <optional>
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
-#include <optional>
 #include "MFEMMGIS/Geometry.hxx"
 #include "MFEMMGIS/GridFunctionInterpolator.hxx"
 #endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
