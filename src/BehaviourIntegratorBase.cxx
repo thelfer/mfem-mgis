@@ -24,6 +24,28 @@ namespace mfem_mgis {
            "': " + e;
   }  // end of prependBehaviourDescriptionToErrorMessage
 
+  //! \return a textual representation of a list of sizes
+  [[nodiscard]] static std::string toString(
+      const std::vector<size_type>& sizes) {
+    auto r = std::string{};
+    for (const auto s : sizes) {
+      r += r.empty() ? "" : ", ";
+      r += std::to_string(s);
+    }
+    return "(" + r + ")";
+  }  // end of toString
+
+  //! \return a textual representation of a list of sizes of tangent blocks
+  [[nodiscard]] static std::string toString(
+      const std::vector<std::pair<size_type, size_type>>& sizes) {
+    auto r = std::string{};
+    for (const auto& [s1, s2] : sizes) {
+      r += r.empty() ? "" : ", ";
+      r += std::to_string(s1) + "x" + std::to_string(s2);
+    }
+    return "(" + r + ")";
+  }  // end of toString
+
   BehaviourIntegratorBase::BehaviourIntegratorBase(
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::unique_ptr<const Behaviour> b_ptr)
@@ -106,6 +128,47 @@ namespace mfem_mgis {
           "both being non symmetric tensors");
     }
   }  // end of checkIfAFiniteStrainBehaviourIsDeclared
+
+  void BehaviourIntegratorBase::checkBehaviourVariablesSizes(
+      attributes::Throwing,
+      const std::vector<size_type>& gradients,
+      const std::vector<size_type>& thermodynamic_forces,
+      const std::vector<std::pair<size_type, size_type>>& blocks) const {
+    const auto h = this->b.hypothesis;
+    auto get_size = [h](const mgis::behaviour::Variable& v) {
+      return static_cast<size_type>(getVariableSize(v, h));
+    };
+    auto gsizes = std::vector<size_type>{};
+    for (const auto& g : this->b.gradients) {
+      gsizes.push_back(get_size(g));
+    }
+    if (gsizes != gradients) {
+      this->throwInvalidBehaviourType(
+          throwing, "the sizes of the gradients " + toString(gsizes) +
+                        " do not match the expected ones " +
+                        toString(gradients));
+    }
+    auto fsizes = std::vector<size_type>{};
+    for (const auto& f : this->b.thermodynamic_forces) {
+      fsizes.push_back(get_size(f));
+    }
+    if (fsizes != thermodynamic_forces) {
+      this->throwInvalidBehaviourType(
+          throwing, "the sizes of the thermodynamic forces " +
+                        toString(fsizes) + " do not match the expected ones " +
+                        toString(thermodynamic_forces));
+    }
+    auto bsizes = std::vector<std::pair<size_type, size_type>>{};
+    for (const auto& [v1, v2] : this->b.to_blocks) {
+      bsizes.emplace_back(get_size(v1), get_size(v2));
+    }
+    if (bsizes != blocks) {
+      this->throwInvalidBehaviourType(
+          throwing, "the sizes of the tangent operator blocks " +
+                        toString(bsizes) + " do not match the expected ones " +
+                        toString(blocks));
+    }
+  }  // end of checkBehaviourVariablesSizes
 
   void BehaviourIntegratorBase::checkBehaviourSymmetry(
       attributes::Throwing, const Behaviour::Symmetry s) const {

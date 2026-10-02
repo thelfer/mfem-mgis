@@ -11,6 +11,8 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 #include "MFEMMGIS/QPEvaluator/AbstractQPEvaluator.hxx"
@@ -74,6 +76,23 @@ namespace mfem_mgis {
      */
     void checkIfAFiniteStrainBehaviourIsDeclared(
         attributes::Throwing throwing) const;
+    /*!
+     * \brief check the sizes of the gradients, of the thermodynamic forces
+     * and of the tangent operator blocks declared by the behaviour, in this
+     * order.
+     * \param[in] throwing: dummy attribute to indicate that this function may
+     * throw an exception
+     * \param[in] gradients: expected sizes of the gradients
+     * \param[in] thermodynamic_forces: expected sizes of the thermodynamic
+     * forces
+     * \param[in] blocks: expected sizes of the two variables of each tangent
+     * operator block
+     */
+    void checkBehaviourVariablesSizes(
+        attributes::Throwing throwing,
+        const std::vector<size_type>& gradients,
+        const std::vector<size_type>& thermodynamic_forces,
+        const std::vector<std::pair<size_type, size_type>>& blocks) const;
     /*!
      * \brief check if the behaviour has the expected symmetry.
      * \param[in] throwing: dummy attribute to indicate that this function may

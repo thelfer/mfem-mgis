@@ -807,8 +807,14 @@ void generateSourceFile(std::ostream &os,
     os << "this->checkBehaviourSymmetry(throwing, Behaviour::ORTHOTROPIC);\n";
   }
   os << "this->checkHypothesis(throwing, Hypothesis::"
-     << getHypothesisEnumeration(d.hypothesis) << ");\n"
-     << "}  // end of " << d.name << '\n'
+     << getHypothesisEnumeration(d.hypothesis) << ");\n";
+  if (d.generator_name == "StandardSmallStrainMechanics") {
+    // sizes of the strain, of the stress and of the tangent operator block
+    const auto n = B.rows();
+    os << "this->checkBehaviourVariablesSizes(throwing, {" << n << "}, {" << n
+       << "}, {{" << n << ", " << n << "}});\n";
+  }
+  os << "}  // end of " << d.name << '\n'
      << '\n'
      << "real " << d.name << "::getIntegrationPointWeight"
      << "(mfem::ElementTransformation &tr,\n"
