@@ -94,6 +94,12 @@ namespace mfem_mgis {
     { l.GetMaxIter() } -> std::same_as<int>;
   };
 
+  void clearHypreErrors() noexcept {
+#ifdef MFEM_USE_MPI
+    HYPRE_ClearAllErrors();
+#endif /* MFEM_USE_MPI */
+  }  // end of clearHypreErrors
+
   bool hasConverged(const LinearSolver& ls) noexcept {
     if (const auto* isolver = dynamic_cast<const IterativeSolver*>(&ls);
         isolver != nullptr) {

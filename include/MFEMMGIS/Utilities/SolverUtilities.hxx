@@ -87,6 +87,15 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_PETSC */
 
   /*!
+   * \brief clear the errors raised by hypre during the last linear solve
+   *
+   * The Krylov solvers of hypre raise `HYPRE_ERROR_CONV` when they reach their
+   * maximum number of iterations and MFEM does not clear it: the next hypre
+   * solver driven by MFEM would then abort. This function does nothing
+   * without MPI.
+   */
+  MFEM_MGIS_EXPORT void clearHypreErrors() noexcept;
+  /*!
    * \brief check if the linear solver has converged
    * \param[in] ls: linear solver
    * \return if the linear solver has converged

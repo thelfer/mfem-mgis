@@ -208,6 +208,7 @@ namespace mfem_mgis {
     }();
     ls.SetOperator(A);
     ls.Mult(B, X);
+    clearHypreErrors();
     // check for convergence
     if ((!discardLinearSolverFailure) && (!hasConverged(ls))) {
       return ctx.registerErrorMessage("linear solver did not converge");
