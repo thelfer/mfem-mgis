@@ -128,6 +128,8 @@ Include headers in the following order:</p>
 <li><p>Third-party library headers (e.g., MFEM, MGIS)</p></li>
 <li><p>Project headers</p></li>
 </ul>
+<p>Standard library headers come first, even when they are only needed in a
+conditional block.</p>
 </li>
 <li><p><strong>Namespaces</strong>: All code must be in the <code class="docutils literal notranslate"><span class="pre">mfem_mgis</span></code> namespace or a nested namespace.</p></li>
 <li><p><strong>Doxygen Comments</strong>: All public classes, methods, and functions must have Doxygen comments.

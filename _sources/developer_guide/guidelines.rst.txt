@@ -33,6 +33,9 @@ General Rules
    - Third-party library headers (e.g., MFEM, MGIS)
    - Project headers
 
+   Standard library headers come first, even when they are only needed in a
+   conditional block.
+
 5. **Namespaces**: All code must be in the ``mfem_mgis`` namespace or a nested namespace.
 
 6. **Doxygen Comments**: All public classes, methods, and functions must have Doxygen comments.
