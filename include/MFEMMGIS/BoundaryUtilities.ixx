@@ -73,7 +73,7 @@ namespace mfem_mgis {
         auto& edofs = elts_dofs[c];
         for (auto j = 0; j != nnodes; ++j) {
           const auto d = element_dofs[c * nnodes + j];
-          if (boundary_dofs[d >= 0 ? d : -1 - d] != 0) {
+          if (boundary_dofs[mfem::FiniteElementSpace::DecodeDof(d)] != 0) {
             edofs.push_back(j);
           }
         }
