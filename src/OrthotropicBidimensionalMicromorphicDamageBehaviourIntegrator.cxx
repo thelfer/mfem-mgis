@@ -43,6 +43,8 @@ namespace mfem_mgis {
       : BehaviourIntegratorBase(buildQuadratureSpace(fed, m),
                                 std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ORTHOTROPIC);
+    this->checkBehaviourVariablesSizes(throwing, {1, 2}, {1, 2},
+                                       {{1, 1}, {2, 2}});
   }  // end of OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator
 
   real OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::

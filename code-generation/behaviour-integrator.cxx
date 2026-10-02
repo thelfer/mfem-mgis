@@ -808,11 +808,16 @@ void generateSourceFile(std::ostream &os,
   }
   os << "this->checkHypothesis(throwing, Hypothesis::"
      << getHypothesisEnumeration(d.hypothesis) << ");\n";
-  if (d.generator_name == "StandardSmallStrainMechanics") {
-    // sizes of the strain, of the stress and of the tangent operator block
+  if (!isFiniteStrainIntegrator(d)) {
+    // sizes of the gradient, of the thermodynamic force and of the tangent
+    // operator blocks
     const auto n = B.rows();
     os << "this->checkBehaviourVariablesSizes(throwing, {" << n << "}, {" << n
-       << "}, {{" << n << ", " << n << "}});\n";
+       << "}, {{" << n << ", " << n << "}";
+    if (d.generator_name == "StationaryNonLinearHeatTransfer") {
+      os << ", {" << n << ", 1}";
+    }
+    os << "});\n";
   }
   os << "}  // end of " << d.name << '\n'
      << '\n'

@@ -41,6 +41,8 @@ namespace mfem_mgis {
                                 std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
     this->checkHypothesis(throwing, Hypothesis::TRIDIMENSIONAL);
+    this->checkBehaviourVariablesSizes(throwing, {1, 3}, {1, 3},
+                                       {{1, 1}, {3, 3}});
   }  // end of TridimensionalMicromorphicDamageBehaviourIntegrator
 
   real TridimensionalMicromorphicDamageBehaviourIntegrator::

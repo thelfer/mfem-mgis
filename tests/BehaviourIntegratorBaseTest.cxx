@@ -26,6 +26,7 @@
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
 #include "MFEMMGIS/IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 #include "MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx"
 
 struct {
@@ -72,6 +73,7 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
         ctx, getFiniteElementDiscretizationParameters(1));
     TFEL_TESTS_ASSERT(isValid(ofed2));
     this->test3(*ofed2);
+    this->test5(*ofed2);
     return this->result;
   }
 
@@ -161,6 +163,25 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
         load(opts, parameters.library, "SaintVenantKirchhoffElasticity", h);
     TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b2),
                               "the sizes of the gradients (9)"));
+  }
+  /*!
+   * \brief a stationary heat transfer integrator requires a behaviour whose
+   * gradient, thermodynamic force and tangent operator blocks have the
+   * expected sizes
+   * \param[in] fed: finite element discretization
+   */
+  void test5(const mfem_mgis::FiniteElementDiscretization& fed) {
+    using namespace mgis::behaviour;
+    using Integrator = mfem_mgis::
+        IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator;
+    const auto h = Hypothesis::TRIDIMENSIONAL;
+    const auto b1 =
+        load(parameters.library, "StationaryNonLinearHeatTransfer", h);
+    TFEL_TESTS_CHECK(getConstructionError<Integrator>(fed, b1).empty());
+    // mechanical behaviour
+    const auto b2 = load(parameters.library, "IsotropicLinearElasticity", h);
+    TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b2),
+                              "the sizes of the gradients (6)"));
   }
   /*!
    * \return if the string s contains the string s2
