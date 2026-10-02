@@ -129,9 +129,9 @@ namespace mfem_mgis {
      * \return the interpolated values, one row per point and one column per
      * component
      *
-     * \note points are searched each time since we have to call
-     * `SetNodalFESpace` on the underlying mesh and that this mesh may also be
-     * used to build other finite element spaces.
+     * \note points are searched each time. The underlying mesh is given
+     * nodes of order 1 if it has none (`EnsureNodes`), which keeps its geometry
+     * and the integration rules of the behaviour integrators.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
         Context& ctx, const GridFunction<true>& f) noexcept;
@@ -145,9 +145,9 @@ namespace mfem_mgis {
      * \return the interpolated values, one row per point and one column per
      * component
      *
-     * \note points are searched each time since we have to call
-     * `SetNodalFESpace` on the underlying mesh and that this mesh may also be
-     * used to build other finite element spaces.
+     * \note points are searched each time. The underlying mesh is given
+     * nodes of order 1 if it has none (`EnsureNodes`), which keeps its geometry
+     * and the integration rules of the behaviour integrators.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
         Context& ctx, const GridFunction<false>& f) noexcept;

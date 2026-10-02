@@ -68,9 +68,10 @@ namespace mfem_mgis::internals {
           std::to_string(N) + "'");
     }
     //
-    if (!fespaces_manager.setNodalFiniteElementSpace(ctx, *m_ptr)) {
-      return {};
-    }
+    // FindPointsGSLIB needs the nodes of the mesh. EnsureNodes keeps the
+    // existing nodes or adds nodes of order 1 to a straight mesh: the geometry
+    // and the integration rules of the behaviour integrators are unchanged.
+    m_ptr->EnsureNodes();
     //
     auto finder = mfem::FindPointsGSLIB{};
     finder.Setup(*m_ptr);

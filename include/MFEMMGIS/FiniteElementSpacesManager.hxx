@@ -145,42 +145,6 @@ namespace mfem_mgis {
         Context& ctx,
         const GetFiniteElementSpaceOnSubMeshArguments& args) const noexcept;
     /*!
-     * \brief assign a suitable nodal finite element space to the underlying
-     * mesh
-     * \return true on success
-     * \param[in, out] ctx: execution context
-     *
-     * \note if a finite element space whose vectorial dimension is the space
-     * dimension has already been declared, it is reused.
-     */
-    [[nodiscard]] bool setNodalFiniteElementSpace(Context& ctx) const noexcept;
-    /*!
-     * \brief assign a suitable nodal finite element space to the given
-     * mesh
-     * \return true on success
-     * \param[in, out] ctx: execution context
-     * \param[in] m: mesh
-     *
-     * \note the given mesh must be handled by the mesh discretization
-     * \note if a finite element space whose vectorial dimension is the space
-     * dimension has already been declared, it is reused.
-     */
-    [[nodiscard]] bool setNodalFiniteElementSpace(
-        Context& ctx, const Mesh<true>& m) const noexcept;
-    /*!
-     * \brief assign a suitable nodal finite element space to the given
-     * mesh
-     * \return true on success
-     * \param[in, out] ctx: execution context
-     * \param[in] m: mesh
-     *
-     * \note the given mesh must be handled by the mesh discretization
-     * \note if a finite element space whose vectorial dimension is the space
-     * dimension has already been declared, it is reused.
-     */
-    [[nodiscard]] bool setNodalFiniteElementSpace(
-        Context& ctx, const Mesh<false>& m) const noexcept;
-    /*!
      * \brief check if a finite element space is managed by this manager
      * \return if the given element space is also managed by this finite
      * element space manager
