@@ -77,22 +77,32 @@ namespace mfem_mgis {
     void checkIfAFiniteStrainBehaviourIsDeclared(
         attributes::Throwing throwing) const;
     /*!
+     * \brief structure used to describe the expected sizes of the variables
+     * of the behaviour
+     *
+     * \see `checkBehaviourVariablesSizes` for details
+     */
+    struct CheckBehaviourVariablesSizesArguments {
+      //! \brief expected sizes of the gradients
+      std::vector<size_type> gradients_sizes;
+      //! \brief expected sizes of the thermodynamic forces
+      std::vector<size_type> thermodynamic_forces_sizes;
+      //! \brief expected sizes of the two variables of each tangent operator
+      //! block
+      std::vector<std::pair<size_type, size_type>>
+          tangent_operator_blocks_sizes;
+    };  // end of struct CheckBehaviourVariablesSizesArguments
+    /*!
      * \brief check the sizes of the gradients, of the thermodynamic forces
      * and of the tangent operator blocks declared by the behaviour, in this
      * order.
      * \param[in] throwing: dummy attribute to indicate that this function may
      * throw an exception
-     * \param[in] gradients: expected sizes of the gradients
-     * \param[in] thermodynamic_forces: expected sizes of the thermodynamic
-     * forces
-     * \param[in] blocks: expected sizes of the two variables of each tangent
-     * operator block
+     * \param[in] args: expected sizes
      */
     void checkBehaviourVariablesSizes(
         attributes::Throwing throwing,
-        const std::vector<size_type>& gradients,
-        const std::vector<size_type>& thermodynamic_forces,
-        const std::vector<std::pair<size_type, size_type>>& blocks) const;
+        const CheckBehaviourVariablesSizesArguments& args) const;
     /*!
      * \brief check if the behaviour has the expected symmetry.
      * \param[in] throwing: dummy attribute to indicate that this function may

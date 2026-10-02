@@ -25,7 +25,7 @@ namespace mfem_mgis {
   }  // end of prependBehaviourDescriptionToErrorMessage
 
   //! \return a textual representation of a list of sizes
-  [[nodiscard]] static std::string toString(
+  [[nodiscard]] static std::string convertSizesToString(
       const std::vector<size_type>& sizes) {
     auto r = std::string{};
     for (const auto s : sizes) {
@@ -33,10 +33,10 @@ namespace mfem_mgis {
       r += std::to_string(s);
     }
     return "(" + r + ")";
-  }  // end of toString
+  }  // end of convertSizesToString
 
   //! \return a textual representation of a list of sizes of tangent blocks
-  [[nodiscard]] static std::string toString(
+  [[nodiscard]] static std::string convertSizesOfTangentOperatorBlocksToString(
       const std::vector<std::pair<size_type, size_type>>& sizes) {
     auto r = std::string{};
     for (const auto& [s1, s2] : sizes) {
@@ -44,7 +44,7 @@ namespace mfem_mgis {
       r += std::to_string(s1) + "x" + std::to_string(s2);
     }
     return "(" + r + ")";
-  }  // end of toString
+  }  // end of convertSizesOfTangentOperatorBlocksToString
 
   BehaviourIntegratorBase::BehaviourIntegratorBase(
       std::shared_ptr<const PartialQuadratureSpace> s,
@@ -131,9 +131,7 @@ namespace mfem_mgis {
 
   void BehaviourIntegratorBase::checkBehaviourVariablesSizes(
       attributes::Throwing,
-      const std::vector<size_type>& gradients,
-      const std::vector<size_type>& thermodynamic_forces,
-      const std::vector<std::pair<size_type, size_type>>& blocks) const {
+      const CheckBehaviourVariablesSizesArguments& args) const {
     const auto h = this->b.hypothesis;
     auto get_size = [h](const mgis::behaviour::Variable& v) {
       return static_cast<size_type>(getVariableSize(v, h));
@@ -142,31 +140,35 @@ namespace mfem_mgis {
     for (const auto& g : this->b.gradients) {
       gsizes.push_back(get_size(g));
     }
-    if (gsizes != gradients) {
+    if (gsizes != args.gradients_sizes) {
       this->throwInvalidBehaviourType(
-          throwing, "the sizes of the gradients " + toString(gsizes) +
+          throwing, "the sizes of the gradients " +
+                        convertSizesToString(gsizes) +
                         " do not match the expected ones " +
-                        toString(gradients));
+                        convertSizesToString(args.gradients_sizes));
     }
     auto fsizes = std::vector<size_type>{};
     for (const auto& f : this->b.thermodynamic_forces) {
       fsizes.push_back(get_size(f));
     }
-    if (fsizes != thermodynamic_forces) {
+    if (fsizes != args.thermodynamic_forces_sizes) {
       this->throwInvalidBehaviourType(
           throwing, "the sizes of the thermodynamic forces " +
-                        toString(fsizes) + " do not match the expected ones " +
-                        toString(thermodynamic_forces));
+                        convertSizesToString(fsizes) +
+                        " do not match the expected ones " +
+                        convertSizesToString(args.thermodynamic_forces_sizes));
     }
     auto bsizes = std::vector<std::pair<size_type, size_type>>{};
     for (const auto& [v1, v2] : this->b.to_blocks) {
       bsizes.emplace_back(get_size(v1), get_size(v2));
     }
-    if (bsizes != blocks) {
+    if (bsizes != args.tangent_operator_blocks_sizes) {
       this->throwInvalidBehaviourType(
           throwing, "the sizes of the tangent operator blocks " +
-                        toString(bsizes) + " do not match the expected ones " +
-                        toString(blocks));
+                        convertSizesOfTangentOperatorBlocksToString(bsizes) +
+                        " do not match the expected ones " +
+                        convertSizesOfTangentOperatorBlocksToString(
+                            args.tangent_operator_blocks_sizes));
     }
   }  // end of checkBehaviourVariablesSizes
 

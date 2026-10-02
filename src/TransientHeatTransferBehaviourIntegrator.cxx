@@ -37,7 +37,10 @@ namespace mfem_mgis {
             TransientHeatTransferBehaviourIntegrator>(
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
-    this->checkBehaviourVariablesSizes(throwing, {1}, {1}, {{1, 1}});
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {1},
+                   .thermodynamic_forces_sizes = {1},
+                   .tangent_operator_blocks_sizes = {{1, 1}}});
   }  // end of
      // TransientHeatTransferBehaviourIntegrator
 

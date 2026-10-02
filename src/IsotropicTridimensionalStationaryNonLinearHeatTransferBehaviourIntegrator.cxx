@@ -41,7 +41,10 @@ namespace mfem_mgis {
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
     this->checkHypothesis(throwing, Hypothesis::TRIDIMENSIONAL);
-    this->checkBehaviourVariablesSizes(throwing, {3}, {3}, {{3, 3}, {3, 1}});
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {3},
+                   .thermodynamic_forces_sizes = {3},
+                   .tangent_operator_blocks_sizes = {{3, 3}, {3, 1}}});
   }  // end of
      // IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator
 
