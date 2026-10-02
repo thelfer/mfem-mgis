@@ -14,7 +14,9 @@
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
+#include <optional>
 #include "MFEMMGIS/Geometry.hxx"
+#include "MFEMMGIS/GridFunctionInterpolator.hxx"
 #endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
 #include "MFEMMGIS/PostProcessing/AbstractCurve.hxx"
 
@@ -100,6 +102,8 @@ namespace mfem_mgis {
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
     //! \brief list of points
     std::variant<std::vector<Point<2>>, std::vector<Point<3>>> points;
+    //! \brief interpolator, built at the first call to `getValues`
+    mutable std::optional<GridFunctionInterpolator> interpolator;
 #endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
     //! \brief name of the grid function
     std::string name;

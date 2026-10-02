@@ -89,12 +89,14 @@ namespace mfem_mgis {
         return {};
       }
       this->points = *opoints;
+      this->interpolator.reset();
     } else if (d == 3) {
       const auto opoints = makePointsSet<3>(ctx, parameter);
       if (isInvalid(opoints)) {
         return {};
       }
       this->points = *opoints;
+      this->interpolator.reset();
     } else {
       return ctx.registerErrorMessage("unsupported space dimension");
     }
@@ -163,24 +165,27 @@ namespace mfem_mgis {
 #endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
     }
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
-    auto ointerpolator = [this, &ctx] {
-      if (std::holds_alternative<std::vector<Point<2>>>(this->points)) {
+    if (!this->interpolator.has_value()) {
+      auto ointerpolator = [this, &ctx] {
+        if (std::holds_alternative<std::vector<Point<2>>>(this->points)) {
+          return construct<GridFunctionInterpolator>(
+              ctx, this->fespaces_manager,
+              std::get<std::vector<Point<2>>>(this->points));
+        }
         return construct<GridFunctionInterpolator>(
             ctx, this->fespaces_manager,
-            std::get<std::vector<Point<2>>>(this->points));
+            std::get<std::vector<Point<3>>>(this->points));
+      }();
+      if (isInvalid(ointerpolator)) {
+        return oresults;
       }
-      return construct<GridFunctionInterpolator>(
-          ctx, this->fespaces_manager,
-          std::get<std::vector<Point<3>>>(this->points));
-    }();
-    if (isInvalid(ointerpolator)) {
-      return oresults;
+      this->interpolator.emplace(std::move(*ointerpolator));
     }
-    const auto ovalues = [this, &ctx, &ointerpolator] {
+    const auto ovalues = [this, &ctx] {
       if (this->parallel_fct != nullptr) {
-        return ointerpolator->interpolate(ctx, *(this->parallel_fct));
+        return this->interpolator->interpolate(ctx, *(this->parallel_fct));
       }
-      return ointerpolator->interpolate(ctx, *(this->sequential_fct));
+      return this->interpolator->interpolate(ctx, *(this->sequential_fct));
     }();
     if (isInvalid(ovalues)) {
       return oresults;
