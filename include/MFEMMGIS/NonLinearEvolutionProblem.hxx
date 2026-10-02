@@ -346,6 +346,8 @@ namespace mfem_mgis {
    * these degrees of freedom, grouped by component.
    * \param[in] p: non linear evolution problem
    * \param[in] bid: boundary identifier
+   * \note in parallel, all processes must call this function: the degrees of
+   * freedom of the boundary are synchronized between them.
    */
   MFEM_MGIS_EXPORT
   [[nodiscard]] std::vector<

@@ -40,6 +40,20 @@ namespace mfem_mgis {
    * \tparam parallel: boolean stating if the computation is done in parallel.
    * \param[in] p: non linear evolution problem
    * \param[in] bid: boundary identifier
+   * \note all the elements having a degree of freedom on the boundary are
+   * needed, even those touching it only by an edge or a vertex: the inner
+   * force at a node is the sum of the contributions of all the elements
+   * sharing this node.
+   * \note in parallel, MFEM gives a boundary element only to the process
+   * owning the adjacent element. A process may thus own an element touching
+   * the boundary without owning any boundary element. The degrees of freedom
+   * of the boundary are therefore marked by `GetEssentialVDofs`, which
+   * synchronizes the markers between the processes sharing them, as MFEM does
+   * for essential boundary conditions. This function is thus collective: all
+   * processes must call it.
+   * \note the local indexes follow `GetElementVDofs`, which groups the degrees
+   * of freedom of an element by component whatever the ordering of the space
+   * (`byNODES` or `byVDIM`).
    */
   template <bool parallel>
   std::vector<std::pair<size_type,                  //< element number
