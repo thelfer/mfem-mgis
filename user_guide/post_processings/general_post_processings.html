@@ -59,6 +59,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#compute-mean-thermodynamic-forces">Compute Mean Thermodynamic Forces</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#compute-stored-energy">Compute Stored Energy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#compute-dissipated-energy">Compute dissipated Energy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#materials-with-several-behaviour-integrators">Materials with several behaviour integrators</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mechanical_postprocessings.html">Mechanical post-processings</a></li>
@@ -113,6 +114,7 @@ MFEM-MGIS.</p>
 <li><p><a class="reference internal" href="#compute-mean-thermodynamic-forces" id="id3">Compute Mean Thermodynamic Forces</a></p></li>
 <li><p><a class="reference internal" href="#compute-stored-energy" id="id4">Compute Stored Energy</a></p></li>
 <li><p><a class="reference internal" href="#compute-dissipated-energy" id="id5">Compute dissipated Energy</a></p></li>
+<li><p><a class="reference internal" href="#materials-with-several-behaviour-integrators" id="id6">Materials with several behaviour integrators</a></p></li>
 </ul>
 </nav>
 <div class="admonition warning">
@@ -288,6 +290,25 @@ plot "res-mfem-mgis.txt" u 1:2 w l title "mfem-mgis"
 <p><strong>Example:</strong></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"DissipatedEnergy"</span><span class="p">,</span>
 <span class="w">                          </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"dissipated_energy.txt"</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span>
+<span class="w">    </span><span class="n">or_die</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="materials-with-several-behaviour-integrators">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Materials with several behaviour integrators</a><a class="headerlink" href="#materials-with-several-behaviour-integrators" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ComputeResultantForceOnBoundary</span></code>, <code class="docutils literal notranslate"><span class="pre">MeanThermodynamicForces</span></code>,
+<code class="docutils literal notranslate"><span class="pre">StoredEnergy</span></code> and <code class="docutils literal notranslate"><span class="pre">DissipatedEnergy</span></code> post-processings accept an optional
+<code class="docutils literal notranslate"><span class="pre">BehaviourIntegrator</span></code> parameter. It selects the behaviour integrators of each
+material:</p>
+<ul class="simple">
+<li><p>an integer: the behaviour integrator of this index in each material,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;All&quot;</span></code>: all the behaviour integrators, whose contributions are summed.</p></li>
+</ul>
+<p>Without this parameter, each material must have a single behaviour integrator.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span><span class="p">.</span><span class="n">addPostProcessing</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"StoredEnergy"</span><span class="p">,</span>
+<span class="w">                          </span><span class="p">{{</span><span class="s">"OutputFileName"</span><span class="p">,</span><span class="w"> </span><span class="s">"energy.txt"</span><span class="p">},</span>
+<span class="w">                           </span><span class="p">{</span><span class="s">"BehaviourIntegrator"</span><span class="p">,</span><span class="w"> </span><span class="s">"All"</span><span class="p">}})</span><span class="w"> </span><span class="o">|</span>
 <span class="w">    </span><span class="n">or_die</span><span class="p">;</span>
 </pre></div>
 </div>
