@@ -22,7 +22,7 @@ namespace mfem_mgis {
 
   // forward declarations
   struct PhysicalSystem;
-  struct AbstractNonLinearEvolutionProblem;
+  struct NonLinearEvolutionProblem;
   struct AbstractSimulationMonitor;
   struct AbstractConvergenceFailureHandler;
   struct AbstractTimeIncrementComputer;
@@ -127,9 +127,8 @@ namespace mfem_mgis {
      * - `TimeStepValidator`: strategy used to validate the time step.
      */
     Simulation(Context &ctx,
-               AbstractNonLinearEvolutionProblem &p,
+               NonLinearEvolutionProblem &p,
                const Parameters &parameters);
-
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context
@@ -137,9 +136,8 @@ namespace mfem_mgis {
      * \param[in] times: description of the temporal sequences
      */
     Simulation(Context &ctx,
-               AbstractNonLinearEvolutionProblem &p,
+               NonLinearEvolutionProblem &p,
                const TimesDescription &times);
-
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context
@@ -147,9 +145,8 @@ namespace mfem_mgis {
      * \param[in] times: list of times
      */
     Simulation(Context &ctx,
-               AbstractNonLinearEvolutionProblem &p,
+               NonLinearEvolutionProblem &p,
                const std::initializer_list<real> &times);
-
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context
@@ -165,7 +162,6 @@ namespace mfem_mgis {
      * - `TimeStepValidator`: strategy used to validate the time step.
      */
     Simulation(Context &ctx, PhysicalSystem &ps, const Parameters &parameters);
-
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context
@@ -370,8 +366,7 @@ namespace mfem_mgis {
     //! \brief the physical system
     OptionalReference<PhysicalSystem> physicalSystem;
     //! \brief evolution problem solved
-    OptionalReference<AbstractNonLinearEvolutionProblem>
-        nonlinearEvolutionProblem;
+    OptionalReference<NonLinearEvolutionProblem> nonlinearEvolutionProblem;
     //! \brief the list of temporal sequences
     TimesDescription timesDescription;
     //! \brief initialization tasks
