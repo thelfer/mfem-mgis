@@ -123,16 +123,24 @@ namespace mfem_mgis {
     auto energies = std::vector<real>{};
     energies.reserve(this->materials_identifiers.size());
     for (const auto &m : this->materials_identifiers) {
-#pragma message("FIXME: invalid if multiple behaviour integrators is defined")
-      const auto obi = p.getBehaviourIntegrator(ctx, m, 0);
-      if (isInvalid(obi)) {
-        return {};
+      // sum of the energies of the behaviour integrators of the material
+      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, m);
+      if ((isInvalid(onbis)) || (*onbis == 0)) {
+        return ctx.registerErrorMessage("invalid behaviour integrator");
       }
-      const auto oe = computeStoredEnergy(ctx, *obi);
-      if (isInvalid(oe)) {
-        return {};
+      auto energy = real{};
+      for (size_type b = 0; b != *onbis; ++b) {
+        const auto obi = p.getBehaviourIntegrator(ctx, m, b);
+        if (isInvalid(obi)) {
+          return {};
+        }
+        const auto oe = computeStoredEnergy(ctx, *obi);
+        if (isInvalid(oe)) {
+          return {};
+        }
+        energy += *oe;
       }
-      energies.push_back(*oe);
+      energies.push_back(energy);
     }
     return energies;
   }  // end of computeEnergies
@@ -154,16 +162,24 @@ namespace mfem_mgis {
     auto energies = std::vector<real>{};
     energies.reserve(this->materials_identifiers.size());
     for (const auto &m : this->materials_identifiers) {
-#pragma message("FIXME: invalid if multiple behaviour integrators is defined")
-      const auto obi = p.getBehaviourIntegrator(ctx, m, 0);
-      if (isInvalid(obi)) {
-        return {};
+      // sum of the energies of the behaviour integrators of the material
+      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, m);
+      if ((isInvalid(onbis)) || (*onbis == 0)) {
+        return ctx.registerErrorMessage("invalid behaviour integrator");
       }
-      const auto oe = computeDissipatedEnergy(ctx, *obi);
-      if (isInvalid(oe)) {
-        return {};
+      auto energy = real{};
+      for (size_type b = 0; b != *onbis; ++b) {
+        const auto obi = p.getBehaviourIntegrator(ctx, m, b);
+        if (isInvalid(obi)) {
+          return {};
+        }
+        const auto oe = computeDissipatedEnergy(ctx, *obi);
+        if (isInvalid(oe)) {
+          return {};
+        }
+        energy += *oe;
       }
-      energies.push_back(*oe);
+      energies.push_back(energy);
     }
     return energies;
   }  // end of computeEnergies

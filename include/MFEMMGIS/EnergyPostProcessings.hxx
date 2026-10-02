@@ -67,6 +67,8 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \return the energies of the materials, empty on failure
+     * \note the energy of a material is the sum of the energies of its
+     * behaviour integrators
      */
     [[nodiscard]] virtual std::optional<std::vector<real>> computeEnergies(
         Context& ctx,

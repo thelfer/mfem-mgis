@@ -216,6 +216,8 @@ namespace mfem_mgis {
    *
    * \note in parallel, the resultant is only the contribution of the given
    * process
+   * \note the inner forces of all the behaviour integrators of a material are
+   * summed, as in the residual
    */
   template <bool parallel>
   [[nodiscard]] bool computeResultantForceOnBoundary(
@@ -235,6 +237,8 @@ namespace mfem_mgis {
    * \param[in] p: non linear evolution problem
    * \note in parallel, the returned value is only the contribution of the given
    * process
+   * \note the thermodynamic forces of all the behaviour integrators of a
+   * material are summed, as in the residual. They must be the same.
    */
   template <bool parallel>
   [[nodiscard]] std::optional<
