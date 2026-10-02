@@ -40,6 +40,10 @@ namespace mfem_mgis {
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
     this->checkHypothesis(throwing, Hypothesis::PLANESTRESS);
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {4},
+                   .thermodynamic_forces_sizes = {4},
+                   .tangent_operator_blocks_sizes = {{4, 4}}});
   }  // end of
      // IsotropicPlaneStressStandardSmallStrainMechanicsBehaviourIntegrator
 

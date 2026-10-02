@@ -22,7 +22,6 @@ Key Methods
 - ``getFiniteElementCollection()``: Returns the underlying finite element collection.
 - ``getFiniteElementSpacesManager()``: Returns the manager for finite element spaces.
 - ``getVSize()`` / ``getTrueVSize()``: Returns the total number of unknowns.
-- ``setNodalFiniteElementSpace()``: Assigns a suitable nodal finite element space to the underlying mesh.
 
 Usage Example
 -------------

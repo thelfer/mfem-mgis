@@ -732,6 +732,12 @@ if(MFEM_MGIS_HAVE_TFEL)
         "$<TARGET_FILE:BehaviourTest>")
   endif()
 
+  # HypreBoomerAMGTest executable
+  if(MFEM_USE_MPI)
+    add_test_executable(HypreBoomerAMGTest)
+    add_test(NAME HypreBoomerAMGTestP COMMAND mpirun -n 2 ./HypreBoomerAMGTest)
+  endif(MFEM_USE_MPI)
+
 endif(MFEM_MGIS_HAVE_TFEL)
 
 # Install the example 1, based on UniaxialTensileTest

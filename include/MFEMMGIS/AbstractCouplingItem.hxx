@@ -152,6 +152,10 @@ namespace mfem_mgis {
      * return uniform information for items having the same role (i.e. coupling,
      * models, etc...)
      *
+     * \note in parallel, each item must return the same exit status on all
+     * processes, since the coupling schemes decide from it whether to call the
+     * next items.
+     *
      * For couplings, we expect the following information:
      *
      * - `NumberOfIterations` (integer): the number of iterations up to

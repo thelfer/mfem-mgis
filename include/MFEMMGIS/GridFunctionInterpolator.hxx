@@ -16,6 +16,8 @@
 #error "TFEL support in MGIS is not enabled"
 #endif
 
+#include <map>
+#include <memory>
 #include <vector>
 #include <optional>
 #include "TFEL/Math/matrix.hxx"
@@ -23,6 +25,11 @@
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/Geometry.hxx"
 #include "MFEMMGIS/FiniteElementSpacesManager.hxx"
+
+namespace mfem {
+  // forward declaration
+  class FindPointsGSLIB;
+}  // end of namespace mfem
 
 namespace mfem_mgis {
 
@@ -129,9 +136,10 @@ namespace mfem_mgis {
      * \return the interpolated values, one row per point and one column per
      * component
      *
-     * \note points are searched each time since we have to call
-     * `SetNodalFESpace` on the underlying mesh and that this mesh may also be
-     * used to build other finite element spaces.
+     * \note the points are searched at the first interpolation on a given
+     * mesh, and again after a call to `addPoints`. The underlying mesh is given
+     * nodes of order 1 if it has none (`EnsureNodes`), which keeps its geometry
+     * and the integration rules of the behaviour integrators.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
         Context& ctx, const GridFunction<true>& f) noexcept;
@@ -145,9 +153,10 @@ namespace mfem_mgis {
      * \return the interpolated values, one row per point and one column per
      * component
      *
-     * \note points are searched each time since we have to call
-     * `SetNodalFESpace` on the underlying mesh and that this mesh may also be
-     * used to build other finite element spaces.
+     * \note the points are searched at the first interpolation on a given
+     * mesh, and again after a call to `addPoints`. The underlying mesh is given
+     * nodes of order 1 if it has none (`EnsureNodes`), which keeps its geometry
+     * and the integration rules of the behaviour integrators.
      */
     [[nodiscard]] std::optional<tfel::math::matrix<real>> interpolate(
         Context& ctx, const GridFunction<false>& f) noexcept;
@@ -160,7 +169,8 @@ namespace mfem_mgis {
     FiniteElementSpacesManager fespaces_manager;
     //! \brief list of points stored byVDIM (XYXY... in 2D, XYZXYZ.. in 3D)
     std::vector<real> points;
-    //!
+    //! \brief objects locating the points, one per mesh
+    std::map<const mfem::Mesh*, std::shared_ptr<mfem::FindPointsGSLIB>> finders;
   };  // end of struct GridFunctionInterpolator
 
 }  // end of namespace mfem_mgis

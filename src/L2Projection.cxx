@@ -22,6 +22,7 @@
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
+#include "MFEMMGIS/Utilities/SolverUtilities.hxx"
 #include "MFEMMGIS/L2Projection.hxx"
 
 namespace mfem_mgis {
@@ -93,6 +94,10 @@ namespace mfem_mgis {
     auto ids = std::vector<size_type>();
     ids.reserve(fcts.size());
     for (const auto& f : fcts) {
+      if (f.getNumberOfComponents() != fcts.front().getNumberOfComponents()) {
+        return ctx.registerErrorMessage(
+            "functions with different numbers of components given");
+      }
       const auto& qspace = f.getPartialQuadratureSpace();
       const auto& fed = qspace.getFiniteElementDiscretization();
       if (!checkConsistency(ctx, fed0, fed)) {
@@ -576,6 +581,7 @@ namespace mfem_mgis {
       a.FormLinearSystem(boundary_dofs, *x, b, A, X, B);
       l.linear_solver->SetOperator(A);
       l.linear_solver->Mult(B, X);
+      clearHypreErrors();
       auto* const isolver =
           dynamic_cast<IterativeSolver*>(l.linear_solver.get());
       if (isolver != nullptr) {

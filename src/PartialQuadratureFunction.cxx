@@ -811,6 +811,10 @@ namespace mfem_mgis {
     // locations on which the functions are defined
     auto locations = std::set<LocationIdentifier>{};
     for (const auto& f : fcts) {
+      if (f.getNumberOfComponents() != fcts.front().getNumberOfComponents()) {
+        return ctx.registerErrorMessage(
+            "functions with different numbers of components given");
+      }
       const auto& qspace = f.getPartialQuadratureSpace();
       const auto& fed = qspace.getFiniteElementDiscretization();
       const auto omesh = qspace.template getMesh<parallel>(ctx);
