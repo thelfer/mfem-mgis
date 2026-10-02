@@ -23,7 +23,6 @@ Key Methods
 - ``getFiniteElementCollection()``: Returns the underlying finite element collection.
 - ``getMeshDiscretization()``: Returns the associated mesh discretization.
 - ``manages()``: Checks if a given finite element space is managed by this manager.
-- ``setNodalFiniteElementSpace()``: Assigns a suitable nodal finite element space to the underlying mesh.
 
 Usage Example
 -------------
