@@ -36,6 +36,23 @@ namespace mfem_mgis {
     return (dist);
   }
 
+  /*!
+   * \return the threshold on the squared distance to a corner, relative to
+   * the size of the cell, so that it does not depend on the unit of the mesh
+   * \param[in] dim: space dimension
+   * \param[in] corner1: first corner of the cell
+   * \param[in] corner2: second corner of the cell
+   */
+  static real getCornerDistanceThreshold(const size_t dim,
+                                         const std::span<const real>& corner1,
+                                         const std::span<const real>& corner2) {
+    auto l2 = real{};
+    for (size_t j = 0; j < dim; ++j) {
+      l2 += (corner2[j] - corner1[j]) * (corner2[j] - corner1[j]);
+    }
+    return 1.e-12 * l2;
+  }
+
 #ifdef MFEM_USE_MPI
 
   void setPeriodicBoundaryConditions(
@@ -56,11 +73,12 @@ namespace mfem_mgis {
     const auto size = nodes.Size() / dim;
 
     // Traversal of all dofs to detect which one is the corner
+    const auto eps = getCornerDistanceThreshold(dim, corner1, corner2);
     for (int i = 0; i < size; ++i) {
       real dist =
           getNodesDistance(nodes, bynodes, dim, i, size, corner1, corner2);
       // If distance is close to zero, we have our reference point
-      if (dist < 1.e-12) {
+      if (dist < eps) {
         for (int j = 0; j < dim; ++j) {
           int id_unk;
           if (bynodes) {
@@ -192,11 +210,12 @@ namespace mfem_mgis {
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
     // Traversal of all dofs to detect which one is the corner
+    const auto eps = getCornerDistanceThreshold(dim, corner1, corner2);
     for (int i = 0; i < size; ++i) {
       real dist =
           getNodesDistance(nodes, bynodes, dim, i, size, corner1, corner2);
       // If distance is close to zero, we have our reference point
-      if (dist < 1.e-12) {
+      if (dist < eps) {
         for (int j = 0; j < dim; ++j) {
           int id_unk;
           if (bynodes) {
