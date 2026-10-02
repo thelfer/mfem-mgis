@@ -93,6 +93,10 @@ namespace mfem_mgis {
     auto ids = std::vector<size_type>();
     ids.reserve(fcts.size());
     for (const auto& f : fcts) {
+      if (f.getNumberOfComponents() != fcts.front().getNumberOfComponents()) {
+        return ctx.registerErrorMessage(
+            "functions with different numbers of components given");
+      }
       const auto& qspace = f.getPartialQuadratureSpace();
       const auto& fed = qspace.getFiniteElementDiscretization();
       if (!checkConsistency(ctx, fed0, fed)) {
