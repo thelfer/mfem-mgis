@@ -41,6 +41,10 @@ namespace mfem_mgis {
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ORTHOTROPIC);
     this->checkHypothesis(throwing, Hypothesis::PLANESTRAIN);
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {2},
+                   .thermodynamic_forces_sizes = {2},
+                   .tangent_operator_blocks_sizes = {{2, 2}, {2, 1}}});
   }  // end of
      // OrthotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator
 

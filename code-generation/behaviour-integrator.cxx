@@ -807,8 +807,21 @@ void generateSourceFile(std::ostream &os,
     os << "this->checkBehaviourSymmetry(throwing, Behaviour::ORTHOTROPIC);\n";
   }
   os << "this->checkHypothesis(throwing, Hypothesis::"
-     << getHypothesisEnumeration(d.hypothesis) << ");\n"
-     << "}  // end of " << d.name << '\n'
+     << getHypothesisEnumeration(d.hypothesis) << ");\n";
+  if (!isFiniteStrainIntegrator(d)) {
+    // sizes of the gradient, of the thermodynamic force and of the tangent
+    // operator blocks
+    const auto n = B.rows();
+    os << "this->checkBehaviourVariablesSizes(throwing, "
+       << "{.gradients_sizes = {" << n << "}, "
+       << ".thermodynamic_forces_sizes = {" << n << "}, "
+       << ".tangent_operator_blocks_sizes = {{" << n << ", " << n << "}";
+    if (d.generator_name == "StationaryNonLinearHeatTransfer") {
+      os << ", {" << n << ", 1}";
+    }
+    os << "}});\n";
+  }
+  os << "}  // end of " << d.name << '\n'
      << '\n'
      << "real " << d.name << "::getIntegrationPointWeight"
      << "(mfem::ElementTransformation &tr,\n"
