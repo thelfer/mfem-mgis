@@ -607,6 +607,8 @@ namespace mfem_mgis {
       // if the simulation failed, t shall be equal to the the time at the
       // beginning of the failed time step
       auto t = real{*p_bts};
+      // duration of the temporal sequence, used to detect its end
+      const auto sdt = *p_ets - *p_bts;
       this->simulateOverATemporalSequence(ctx, s, output, state, t, pdt, *p_bts,
                                           *p_ets, std::next(p_ets) == pe);
       updateAndSynchronize(s);
@@ -626,8 +628,9 @@ namespace mfem_mgis {
       // on success, pdt shall have a value, so the next test is paranoïac
       ctx.assertOrTerminate(isValid(pdt),
                             "the last time increment has not been updated");
+      // same criterion as in simulateOverATemporalSequence
       const auto completed = std::abs(*p_ets - t) <
-                             10 * (*pdt) * std::numeric_limits<real>::epsilon();
+                             sdt * 10 * std::numeric_limits<real>::epsilon();
       if (completed) {
         p_bts = this->timesDescription.erase(p_bts);
         p_ets = std::next(p_bts);
