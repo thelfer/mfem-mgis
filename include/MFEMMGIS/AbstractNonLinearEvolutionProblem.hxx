@@ -12,6 +12,8 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <utility>
+#include <optional>
 #include <functional>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/TimeStepStage.hxx"
@@ -653,6 +655,57 @@ namespace mfem_mgis {
                            const bool b = true) noexcept;
 
   /*!
+   * \brief behaviour integrators of each material used by a post-processing
+   *
+   * By default, each material must have a single behaviour integrator.
+   *
+   * \see `getBehaviourIntegratorsSelection` for details
+   */
+  struct BehaviourIntegratorsSelection {
+    //! \brief index of the behaviour integrator used in each material
+    std::optional<size_type> index = std::nullopt;
+    //! \brief if true, all the behaviour integrators are used
+    bool all = false;
+  };  // end of struct BehaviourIntegratorsSelection
+
+  /*!
+   * \brief get the behaviour integrators of each material used by a
+   * post-processing from the `BehaviourIntegrator` parameter
+   * \return the selection of the behaviour integrators
+   *
+   * The `BehaviourIntegrator` parameter must be either:
+   *
+   * - an integer: the index of the behaviour integrator in each material,
+   * - the string `All`: all the behaviour integrators of each material, whose
+   *   contributions are summed.
+   *
+   * Without this parameter, each material must have a single behaviour
+   * integrator.
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in] params: parameters
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<BehaviourIntegratorsSelection>
+  getBehaviourIntegratorsSelection(Context &ctx,
+                                   const Parameters &params) noexcept;
+
+  /*!
+   * \brief get the selected behaviour integrators of a material
+   * \return the index of the first selected behaviour integrator and the
+   * index past the last one
+   * \param[in, out] ctx: execution context
+   * \param[in] p: non linear problem
+   * \param[in] m: material identifier
+   * \param[in] s: selection of the behaviour integrators
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<std::pair<size_type, size_type>>
+  getSelectedBehaviourIntegrators(
+      Context &ctx,
+      const AbstractNonLinearEvolutionProblem &p,
+      const size_type m,
+      const BehaviourIntegratorsSelection &s) noexcept;
+
+  /*!
    * \brief get the material identifier from the `Material` parameter
    * \return the material identifier from the parameters from the `Material`
    * parameter.
@@ -735,6 +788,20 @@ namespace mfem_mgis {
                            const AbstractNonLinearEvolutionProblem &p,
                            const Parameters &params,
                            const bool b = true);
+
+  /*!
+   * \brief get the behaviour integrators of each material used by a
+   * post-processing from the `BehaviourIntegrator` parameter
+   * \return the selection of the behaviour integrators
+   * \param[in] throwing: dummy attribute to indicate that this function may
+   * throw an exception
+   * \param[in] params: parameters
+   *
+   * \see the version of this function taking an execution context for details
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] BehaviourIntegratorsSelection
+  getBehaviourIntegratorsSelection(attributes::Throwing throwing,
+                                   const Parameters &params);
 
 #ifdef MFEM_USE_MPI
 

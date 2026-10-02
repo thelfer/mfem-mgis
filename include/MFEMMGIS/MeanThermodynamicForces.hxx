@@ -12,6 +12,7 @@
 #include <vector>
 #include <fstream>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 
 namespace mfem_mgis {
@@ -81,6 +82,8 @@ namespace mfem_mgis {
      */
     void writeResults(const std::vector<real>& tf_integral, const real v);
 
+    //! \brief selection of the behaviour integrators of each material
+    const BehaviourIntegratorsSelection behaviour_integrators;
     //! \brief output file
     std::ofstream out;
   };  // end of struct MeanThermodynamicForces

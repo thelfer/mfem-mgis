@@ -212,12 +212,12 @@ namespace mfem_mgis {
    * \param[in] elements: a structure which gives for each element having at
    * least one node on the boundary the list of the nodes of this element on the
    * boundary.
+   * \param[in] selection: selection of the behaviour integrators of each
+   * material, whose inner forces are summed
    * \return true on success
    *
    * \note in parallel, the resultant is only the contribution of the given
    * process
-   * \note the inner forces of all the behaviour integrators of a material are
-   * summed, as in the residual
    */
   template <bool parallel>
   [[nodiscard]] bool computeResultantForceOnBoundary(
@@ -225,8 +225,8 @@ namespace mfem_mgis {
       mfem::Vector& F,
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const std::vector<
-          std::pair<size_type, std::vector<std::vector<size_type>>>>&
-          elements) noexcept;
+          std::pair<size_type, std::vector<std::vector<size_type>>>>& elements,
+      const BehaviourIntegratorsSelection& selection = {}) noexcept;
 
   /*!
    * \brief compute the integral of the thermodynamic forces and the volume of
@@ -235,17 +235,19 @@ namespace mfem_mgis {
    * step and the volume of each material.
    * \param[in, out] ctx: execution context
    * \param[in] p: non linear evolution problem
+   * \param[in] selection: selection of the behaviour integrators of each
+   * material, whose thermodynamic forces are summed. The selected behaviour
+   * integrators of a material must have the same thermodynamic forces.
    * \note in parallel, the returned value is only the contribution of the given
    * process
-   * \note the thermodynamic forces of all the behaviour integrators of a
-   * material are summed, as in the residual. They must be the same.
    */
   template <bool parallel>
   [[nodiscard]] std::optional<
       std::pair<std::vector<std::vector<real>>, std::vector<real>>>
   computeMeanThermodynamicForcesValues(
       Context& ctx,
-      NonLinearEvolutionProblemImplementation<parallel>& p) noexcept;
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const BehaviourIntegratorsSelection& selection = {}) noexcept;
 
 }  // end of namespace mfem_mgis
 

@@ -46,25 +46,32 @@ namespace mfem_mgis {
       mfem::Vector& F,
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const std::vector<
-          std::pair<size_type, std::vector<std::vector<size_type>>>>&
-          elements) noexcept {
+          std::pair<size_type, std::vector<std::vector<size_type>>>>& elements,
+      const BehaviourIntegratorsSelection& selection) noexcept {
     auto& fed = p.getFiniteElementDiscretization();
     auto& fes = fed.template getFiniteElementSpace<parallel>();
     const auto nc = fes.GetVDim();
     mfem::Vector elt_forces;
     F.SetSize(nc);
     F = real{0};
+    // the selection is checked for all the materials, so that all the
+    // processes report the same errors
+    for (const auto& m : p.getAssignedMaterialsIdentifiers()) {
+      if (isInvalid(getSelectedBehaviourIntegrators(ctx, p, m, selection))) {
+        return false;
+      }
+    }
     for (const auto& e : elements) {
       const auto& fe = *(fes.GetFE(e.first));
       auto& tr = *(fes.GetElementTransformation(e.first));
       const auto nnodes = fe.GetDof();
-      // the inner forces of all the behaviour integrators of the material are
-      // summed, as in the residual
-      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, tr.Attribute);
-      if ((isInvalid(onbis)) || (*onbis == 0)) {
-        return ctx.registerErrorMessage("invalid behaviour integrator");
+      // inner forces of the selected behaviour integrators
+      const auto obis =
+          getSelectedBehaviourIntegrators(ctx, p, tr.Attribute, selection);
+      if (isInvalid(obis)) {
+        return false;
       }
-      for (size_type b = 0; b != *onbis; ++b) {
+      for (auto b = obis->first; b != obis->second; ++b) {
         const auto obi = p.getBehaviourIntegrator(ctx, tr.Attribute, b);
         if (isInvalid(obi)) {
           return ctx.registerErrorMessage("invalid behaviour integrator");
@@ -85,12 +92,18 @@ namespace mfem_mgis {
   std::optional<std::pair<std::vector<std::vector<real>>, std::vector<real>>>
   computeMeanThermodynamicForcesValues(
       Context& ctx,
-      NonLinearEvolutionProblemImplementation<parallel>& p) noexcept {
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const BehaviourIntegratorsSelection& selection) noexcept {
     auto nmax = p.getFiniteElementSpace().GetMesh()->attributes.Max() + 1;
     std::vector<std::vector<mfem_mgis::real>> stress_integrals(nmax);
     const auto& mis = p.getAssignedMaterialsIdentifiers();
     for (const auto& mi : mis) {
-      const auto obi = p.getBehaviourIntegrator(ctx, mi, 0);
+      const auto obis = getSelectedBehaviourIntegrators(ctx, p, mi, selection);
+      if (isInvalid(obis)) {
+        return {};
+      }
+      const auto [first, last] = *obis;
+      const auto obi = p.getBehaviourIntegrator(ctx, mi, first);
       if (isInvalid(obi)) {
         return {};
       }
@@ -98,13 +111,9 @@ namespace mfem_mgis {
       if (isInvalid(om)) {
         return {};
       }
-      // the thermodynamic forces of all the behaviour integrators of the
-      // material are summed, as in the residual: they must be the same
-      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, mi);
-      if (isInvalid(onbis)) {
-        return {};
-      }
-      for (size_type b = 1; b < *onbis; ++b) {
+      // the thermodynamic forces of the selected behaviour integrators are
+      // summed: they must be the same
+      for (auto b = first + 1; b != last; ++b) {
         const auto obi2 = p.getBehaviourIntegrator(ctx, mi, b);
         if (isInvalid(obi2)) {
           return {};
@@ -115,7 +124,7 @@ namespace mfem_mgis {
         }
         if (!internals::haveSameThermodynamicForces(*om, *om2)) {
           return ctx.registerErrorMessage(
-              "computeMeanThermodynamicForcesValues: the behaviour "
+              "computeMeanThermodynamicForcesValues: the selected behaviour "
               "integrators of material '" +
               std::to_string(mi) +
               "' do not have the same thermodynamic forces");
@@ -131,13 +140,14 @@ namespace mfem_mgis {
     for (mfem_mgis::size_type i = 0; i < fes.GetNE(); i++) {
       auto& e = *(fes.GetFE(i));
       auto& tr = *(fes.GetElementTransformation(i));
-      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, tr.Attribute);
-      if ((isInvalid(onbis)) || (*onbis == 0)) {
-        return ctx.registerErrorMessage("invalid behaviour integrator");
+      const auto obis =
+          getSelectedBehaviourIntegrators(ctx, p, tr.Attribute, selection);
+      if (isInvalid(obis)) {
+        return {};
       }
       auto& s = stress_integrals[tr.Attribute];
       auto& v = volumes[tr.Attribute];
-      for (size_type b = 0; b != *onbis; ++b) {
+      for (auto b = obis->first; b != obis->second; ++b) {
         const auto obi = p.getBehaviourIntegrator(ctx, tr.Attribute, b);
         if (isInvalid(obi)) {
           return {};
@@ -171,8 +181,8 @@ namespace mfem_mgis {
               s[k] += w * thf[k];
             }
           }
-          // the volume is only accumulated with the first behaviour integrator
-          if (b == 0) {
+          // the volume is computed with the first selected behaviour integrator
+          if (b == obis->first) {
             v += w;
           }
         }

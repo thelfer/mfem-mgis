@@ -20,9 +20,12 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const Parameters &params,
       const std::string_view etype)
-      : materials_identifiers(getMaterialsIdentifiers(throwing, p, params)) {
-    checkParameters(throwing, params,
-                    {"OutputFileName", "Material", "Materials"});
+      : materials_identifiers(getMaterialsIdentifiers(throwing, p, params)),
+        behaviour_integrators(
+            getBehaviourIntegratorsSelection(throwing, params)) {
+    checkParameters(
+        throwing, params,
+        {"OutputFileName", "Material", "Materials", "BehaviourIntegrator"});
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
@@ -123,13 +126,14 @@ namespace mfem_mgis {
     auto energies = std::vector<real>{};
     energies.reserve(this->materials_identifiers.size());
     for (const auto &m : this->materials_identifiers) {
-      // sum of the energies of the behaviour integrators of the material
-      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, m);
-      if ((isInvalid(onbis)) || (*onbis == 0)) {
-        return ctx.registerErrorMessage("invalid behaviour integrator");
+      // sum of the energies of the selected behaviour integrators
+      const auto obis = getSelectedBehaviourIntegrators(
+          ctx, p, m, this->behaviour_integrators);
+      if (isInvalid(obis)) {
+        return {};
       }
       auto energy = real{};
-      for (size_type b = 0; b != *onbis; ++b) {
+      for (auto b = obis->first; b != obis->second; ++b) {
         const auto obi = p.getBehaviourIntegrator(ctx, m, b);
         if (isInvalid(obi)) {
           return {};
@@ -162,13 +166,14 @@ namespace mfem_mgis {
     auto energies = std::vector<real>{};
     energies.reserve(this->materials_identifiers.size());
     for (const auto &m : this->materials_identifiers) {
-      // sum of the energies of the behaviour integrators of the material
-      const auto onbis = p.getNumberOfBehaviourIntegrators(ctx, m);
-      if ((isInvalid(onbis)) || (*onbis == 0)) {
-        return ctx.registerErrorMessage("invalid behaviour integrator");
+      // sum of the energies of the selected behaviour integrators
+      const auto obis = getSelectedBehaviourIntegrators(
+          ctx, p, m, this->behaviour_integrators);
+      if (isInvalid(obis)) {
+        return {};
       }
       auto energy = real{};
-      for (size_type b = 0; b != *onbis; ++b) {
+      for (auto b = obis->first; b != obis->second; ++b) {
         const auto obi = p.getBehaviourIntegrator(ctx, m, b);
         if (isInvalid(obi)) {
           return {};

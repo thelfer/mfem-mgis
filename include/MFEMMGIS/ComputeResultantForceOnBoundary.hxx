@@ -8,6 +8,7 @@
 #ifndef LIB_COMPUTERESULTANTFORCEONBOUNDARY_HXX
 #define LIB_COMPUTERESULTANTFORCEONBOUNDARY_HXX
 
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 
 namespace mfem_mgis {
@@ -33,11 +34,13 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] edofs: elements degrees of freedom
      * \param[in] i: boundary identifier
+     * \param[in] s: selection of the behaviour integrators of each material
      */
     ComputeResultantForceOnBoundaryCommon(
         std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>
             edofs,
-        const size_type i);
+        const size_type i,
+        const BehaviourIntegratorsSelection& s);
     /*!
      * \brief structure which associates the index of the selected elements
      * to the local indexes of their degrees of freedom sorted by components.
@@ -47,6 +50,8 @@ namespace mfem_mgis {
         elts_dofs;
     //! \brief boundary identifier
     const size_type bid;
+    //! \brief selection of the behaviour integrators of each material
+    const BehaviourIntegratorsSelection behaviour_integrators;
     //! \brief output file
     std::ofstream out;
   };  // end of struct ComputeResultantForceOnBoundaryCommon

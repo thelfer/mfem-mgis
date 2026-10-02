@@ -19,8 +19,12 @@ namespace mfem_mgis {
   MeanThermodynamicForces<parallel>::MeanThermodynamicForces(
       Context &ctx,
       NonLinearEvolutionProblemImplementation<parallel> &p,
-      const Parameters &params) {
-    checkParameters(throwing, params, {"OutputFileName"});
+      const Parameters &params)
+      : behaviour_integrators(
+            getBehaviourIntegratorsSelection(throwing, params)) {
+    checkParameters(throwing, params,
+                    std::vector<std::string>{"OutputFileName",
+                                             "BehaviourIntegrator"});
     auto or_raise = ctx.getThrowingFailureHandler();
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
@@ -55,7 +59,8 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const real t,
       const real dt) noexcept {
-    const auto ores = computeMeanThermodynamicForcesValues(ctx, p);
+    const auto ores = computeMeanThermodynamicForcesValues(
+        ctx, p, this->behaviour_integrators);
     if (isInvalid(ores)) {
       return false;
     }
@@ -108,7 +113,12 @@ namespace mfem_mgis {
     out << "# first column: time\n";
     auto c = mfem_mgis::size_type{2};
     for (const auto &mi : p.getAssignedMaterialsIdentifiers()) {
-      const auto obi = p.getBehaviourIntegrator(ctx, mi, 0);
+      const auto obis = getSelectedBehaviourIntegrators(
+          ctx, p, mi, this->behaviour_integrators);
+      if (isInvalid(obis)) {
+        return {};
+      }
+      const auto obi = p.getBehaviourIntegrator(ctx, mi, obis->first);
       if (isInvalid(obi)) {
         return {};
       }

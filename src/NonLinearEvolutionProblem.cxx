@@ -490,19 +490,19 @@ namespace mfem_mgis {
       mfem::Vector& F,
       NonLinearEvolutionProblem& p,
       const std::vector<
-          std::pair<size_type, std::vector<std::vector<size_type>>>>&
-          elts_dofs) noexcept {
+          std::pair<size_type, std::vector<std::vector<size_type>>>>& elts_dofs,
+      const BehaviourIntegratorsSelection& selection) noexcept {
     auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       return computeResultantForceOnBoundary(
-          ctx, F, p.getImplementation<true>(), elts_dofs);
+          ctx, F, p.getImplementation<true>(), elts_dofs, selection);
 #else
       reportUnsupportedParallelComputations();
 #endif
     }
     return computeResultantForceOnBoundary(ctx, F, p.getImplementation<false>(),
-                                           elts_dofs);
+                                           elts_dofs, selection);
   }  // end of computeResultantForceOnBoundary
 
   [[nodiscard]] static std::optional<bool>

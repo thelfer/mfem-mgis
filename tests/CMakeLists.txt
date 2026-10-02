@@ -340,6 +340,28 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_behaviour_integrator_base_test()
 
+  # BehaviourIntegratorsSelectionTest executable
+  add_test_executable(BehaviourIntegratorsSelectionTest)
+
+  # Helper function for BehaviourIntegratorsSelectionTest
+  function(add_behaviour_integrators_selection_test)
+    set(test "BehaviourIntegratorsSelectionTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh"
+               "--library" "$<TARGET_FILE:BehaviourTest>"
+               "--behaviour" "SaintVenantKirchhoffElasticityV2")
+    add_test(NAME ${test} COMMAND ./BehaviourIntegratorsSelectionTest ${params}
+                                  "--parallel" "0")
+    set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+    if(MFEM_USE_MPI)
+      add_test(NAME ${test}P
+               COMMAND mpirun -n 2 ./BehaviourIntegratorsSelectionTest ${params}
+                       "--parallel" "1")
+      set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_behaviour_integrators_selection_test()
+
   # StateManagerTest executable
   add_tfel_test_executable(StateManagerTest)
 

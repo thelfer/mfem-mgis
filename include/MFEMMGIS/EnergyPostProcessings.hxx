@@ -13,6 +13,7 @@
 #include <vector>
 #include <fstream>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 
 namespace mfem_mgis {
@@ -67,14 +68,14 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] p: non linear evolution problem
      * \return the energies of the materials, empty on failure
-     * \note the energy of a material is the sum of the energies of its
-     * behaviour integrators
      */
     [[nodiscard]] virtual std::optional<std::vector<real>> computeEnergies(
         Context& ctx,
         const AbstractNonLinearEvolutionProblem& p) const noexcept = 0;
     //! \brief materials
     std::vector<size_type> materials_identifiers;
+    //! \brief selection of the behaviour integrators of each material
+    const BehaviourIntegratorsSelection behaviour_integrators;
 
    private:
     /*!
