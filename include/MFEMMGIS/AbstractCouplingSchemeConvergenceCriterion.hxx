@@ -33,6 +33,10 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] o: output of all items of the
      * coupling scheme
+     *
+     * \note in parallel, the returned value must be the same on all
+     * processes, since the coupling scheme decides from it whether to iterate
+     * again.
      */
     virtual std::optional<bool> check(
         Context& ctx, const ComputeNextStateOutput& o) const noexcept = 0;
