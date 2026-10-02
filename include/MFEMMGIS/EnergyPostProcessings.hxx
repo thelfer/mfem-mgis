@@ -13,6 +13,7 @@
 #include <vector>
 #include <fstream>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 
 namespace mfem_mgis {
@@ -73,6 +74,8 @@ namespace mfem_mgis {
         const AbstractNonLinearEvolutionProblem& p) const noexcept = 0;
     //! \brief materials
     std::vector<size_type> materials_identifiers;
+    //! \brief selection of the behaviour integrators of each material
+    const BehaviourIntegratorsSelection behaviour_integrators;
 
    private:
     /*!

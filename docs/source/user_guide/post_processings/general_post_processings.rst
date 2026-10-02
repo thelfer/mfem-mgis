@@ -190,3 +190,25 @@ Compute dissipated Energy
                             {{"OutputFileName", "dissipated_energy.txt"}}) |
       or_die;
 
+
+Materials with several behaviour integrators
+============================================
+
+The ``ComputeResultantForceOnBoundary``, ``MeanThermodynamicForces``,
+``StoredEnergy`` and ``DissipatedEnergy`` post-processings accept an optional
+``BehaviourIntegrator`` parameter. It selects the behaviour integrators of each
+material:
+
+- an integer: the behaviour integrator of this index in each material,
+- ``"All"``: all the behaviour integrators, whose contributions are summed.
+
+Without this parameter, each material must have a single behaviour integrator.
+
+**Example:**
+
+.. code-block:: cpp
+
+  problem.addPostProcessing(ctx, "StoredEnergy",
+                            {{"OutputFileName", "energy.txt"},
+                             {"BehaviourIntegrator", "All"}}) |
+      or_die;

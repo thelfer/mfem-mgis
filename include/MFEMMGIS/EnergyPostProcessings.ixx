@@ -20,9 +20,12 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const Parameters &params,
       const std::string_view etype)
-      : materials_identifiers(getMaterialsIdentifiers(throwing, p, params)) {
-    checkParameters(throwing, params,
-                    {"OutputFileName", "Material", "Materials"});
+      : materials_identifiers(getMaterialsIdentifiers(throwing, p, params)),
+        behaviour_integrators(
+            getBehaviourIntegratorsSelection(throwing, params)) {
+    checkParameters(
+        throwing, params,
+        {"OutputFileName", "Material", "Materials", "BehaviourIntegrator"});
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
@@ -123,16 +126,25 @@ namespace mfem_mgis {
     auto energies = std::vector<real>{};
     energies.reserve(this->materials_identifiers.size());
     for (const auto &m : this->materials_identifiers) {
-#pragma message("FIXME: invalid if multiple behaviour integrators is defined")
-      const auto obi = p.getBehaviourIntegrator(ctx, m, 0);
-      if (isInvalid(obi)) {
+      // sum of the energies of the selected behaviour integrators
+      const auto obis = getSelectedBehaviourIntegrators(
+          ctx, p, m, this->behaviour_integrators);
+      if (isInvalid(obis)) {
         return {};
       }
-      const auto oe = computeStoredEnergy(ctx, *obi);
-      if (isInvalid(oe)) {
-        return {};
+      auto energy = real{};
+      for (auto b = obis->first; b != obis->second; ++b) {
+        const auto obi = p.getBehaviourIntegrator(ctx, m, b);
+        if (isInvalid(obi)) {
+          return {};
+        }
+        const auto oe = computeStoredEnergy(ctx, *obi);
+        if (isInvalid(oe)) {
+          return {};
+        }
+        energy += *oe;
       }
-      energies.push_back(*oe);
+      energies.push_back(energy);
     }
     return energies;
   }  // end of computeEnergies
@@ -154,16 +166,25 @@ namespace mfem_mgis {
     auto energies = std::vector<real>{};
     energies.reserve(this->materials_identifiers.size());
     for (const auto &m : this->materials_identifiers) {
-#pragma message("FIXME: invalid if multiple behaviour integrators is defined")
-      const auto obi = p.getBehaviourIntegrator(ctx, m, 0);
-      if (isInvalid(obi)) {
+      // sum of the energies of the selected behaviour integrators
+      const auto obis = getSelectedBehaviourIntegrators(
+          ctx, p, m, this->behaviour_integrators);
+      if (isInvalid(obis)) {
         return {};
       }
-      const auto oe = computeDissipatedEnergy(ctx, *obi);
-      if (isInvalid(oe)) {
-        return {};
+      auto energy = real{};
+      for (auto b = obis->first; b != obis->second; ++b) {
+        const auto obi = p.getBehaviourIntegrator(ctx, m, b);
+        if (isInvalid(obi)) {
+          return {};
+        }
+        const auto oe = computeDissipatedEnergy(ctx, *obi);
+        if (isInvalid(oe)) {
+          return {};
+        }
+        energy += *oe;
       }
-      energies.push_back(*oe);
+      energies.push_back(energy);
     }
     return energies;
   }  // end of computeEnergies

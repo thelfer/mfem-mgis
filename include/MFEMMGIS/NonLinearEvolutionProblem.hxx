@@ -363,6 +363,8 @@ namespace mfem_mgis {
    * \param[in] elts_dofs: a structure which gives for each element having at
    * least one node on the boundary the list of the nodes of this element on the
    * boundary.
+   * \param[in] selection: selection of the behaviour integrators of each
+   * material, whose inner forces are summed
    * \return true on success
    *
    * \note in parallel, the resultant is only the contribution of the given
@@ -374,7 +376,8 @@ namespace mfem_mgis {
       NonLinearEvolutionProblem &p,
       const std::vector<
           std::pair<size_type, std::vector<std::vector<size_type>>>>
-          &elts_dofs) noexcept;
+          &elts_dofs,
+      const BehaviourIntegratorsSelection &selection = {}) noexcept;
 
 }  // end of namespace mfem_mgis
 

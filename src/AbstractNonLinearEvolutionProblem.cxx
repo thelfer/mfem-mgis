@@ -102,6 +102,76 @@ namespace mfem_mgis {
     return p.getBoundariesIdentifiers(ctx, ".+");
   }  // end of getBoundariesIdentifiers
 
+  std::optional<BehaviourIntegratorsSelection> getBehaviourIntegratorsSelection(
+      Context &ctx, const Parameters &params) noexcept {
+    if (!contains(params, "BehaviourIntegrator")) {
+      return BehaviourIntegratorsSelection{};
+    }
+    const auto ob = get(ctx, params, "BehaviourIntegrator");
+    if (isInvalid(ob)) {
+      return {};
+    }
+    if (is<int>(*ob)) {
+      const auto oi = get<int>(ctx, *ob);
+      if (isInvalid(oi)) {
+        return {};
+      }
+      if (*oi < 0) {
+        return ctx.registerErrorMessage(
+            "getBehaviourIntegratorsSelection: negative index of behaviour "
+            "integrator");
+      }
+      return BehaviourIntegratorsSelection{.index = *oi};
+    }
+    if (is<std::string>(*ob)) {
+      const auto os = get<std::string>(ctx, *ob);
+      if (isValid(os) && (*os == "All")) {
+        return BehaviourIntegratorsSelection{.all = true};
+      }
+    }
+    return ctx.registerErrorMessage(
+        "getBehaviourIntegratorsSelection: the `BehaviourIntegrator` parameter "
+        "must be an integer or the string `All`");
+  }  // end of getBehaviourIntegratorsSelection
+
+  std::optional<std::pair<size_type, size_type>>
+  getSelectedBehaviourIntegrators(
+      Context &ctx,
+      const AbstractNonLinearEvolutionProblem &p,
+      const size_type m,
+      const BehaviourIntegratorsSelection &s) noexcept {
+    const auto on = p.getNumberOfBehaviourIntegrators(ctx, m);
+    if (isInvalid(on)) {
+      return {};
+    }
+    if (*on == 0) {
+      return ctx.registerErrorMessage(
+          "getSelectedBehaviourIntegrators: no behaviour integrator defined "
+          "for material '" +
+          std::to_string(m) + "'");
+    }
+    if (s.all) {
+      return std::pair<size_type, size_type>{0, *on};
+    }
+    if (s.index.has_value()) {
+      if (*(s.index) >= *on) {
+        return ctx.registerErrorMessage(
+            "getSelectedBehaviourIntegrators: no behaviour integrator of index "
+            "'" +
+            std::to_string(*(s.index)) + "' for material '" +
+            std::to_string(m) + "'");
+      }
+      return std::pair<size_type, size_type>{*(s.index), *(s.index) + 1};
+    }
+    if (*on != 1) {
+      return ctx.registerErrorMessage(
+          "getSelectedBehaviourIntegrators: material '" + std::to_string(m) +
+          "' has several behaviour integrators, the `BehaviourIntegrator` "
+          "parameter must be given");
+    }
+    return std::pair<size_type, size_type>{0, 1};
+  }  // end of getSelectedBehaviourIntegrators
+
   size_type getMaterialIdentifier(attributes::Throwing,
                                   const AbstractNonLinearEvolutionProblem &p,
                                   const Parameters &params) {
@@ -137,6 +207,13 @@ namespace mfem_mgis {
     auto or_raise = ctx.getThrowingFailureHandler();
     return getBoundariesIdentifiers(ctx, p, params, b) | or_raise;
   }  // end of getBoundariesIdentifiers
+
+  BehaviourIntegratorsSelection getBehaviourIntegratorsSelection(
+      attributes::Throwing, const Parameters &params) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    return getBehaviourIntegratorsSelection(ctx, params) | or_raise;
+  }  // end of getBehaviourIntegratorsSelection
 
 #ifdef MFEM_USE_MPI
 
