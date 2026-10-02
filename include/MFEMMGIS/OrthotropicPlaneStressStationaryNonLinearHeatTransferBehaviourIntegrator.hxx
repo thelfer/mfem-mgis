@@ -54,7 +54,6 @@ namespace mfem_mgis {
           final
       : StandardBehaviourIntegratorCRTPBase<
             OrthotropicPlaneStressStationaryNonLinearHeatTransferBehaviourIntegrator> {
-
     //! \brief a simple alias
     using RotationMatrix = std::array<real, 9u>;
     /*!
