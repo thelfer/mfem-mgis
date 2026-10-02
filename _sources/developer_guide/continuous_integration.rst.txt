@@ -61,7 +61,7 @@ Workflows
    * - ``ci.yml``
      - end of a run of ``cmake.yml`` or ``spack.yml`` on ``master``
      - succeeds when the last runs of both succeeded, for the ci badge of the
-       README
+       README. Cancelled runs are ignored.
 
 ``cmake.yml``
 -------------
