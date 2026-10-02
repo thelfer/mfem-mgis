@@ -252,82 +252,6 @@ namespace mfem_mgis {
       return p->second;
     }  // end of getFiniteElementSpace
 
-    /*!
-     * \brief assign a suitable nodal finite element space to the underlying
-     * mesh
-     * \return true on success
-     * \param[in, out] ctx: execution context
-     *
-     * \note if a finite element space whose vectorial dimension is the space
-     * dimension has already been declared, it is reused.
-     */
-    [[nodiscard]] bool setNodalFiniteElementSpace(Context& ctx) noexcept {
-      if (this->mesh.describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-        return this->template setNodalFiniteElementSpace<true>(
-            ctx, *(this->mesh.getMutableMeshPointer<true>()));
-#else
-        reportUnsupportedParallelComputations();
-#endif
-      } else {
-        return this->template setNodalFiniteElementSpace<false>(
-            ctx, *(this->mesh.getMutableMeshPointer<false>()));
-      }
-    }  // end of setNodalFiniteElementSpace
-
-    /*!
-     * \brief assign a suitable nodal finite element space to the given
-     * mesh
-     * \return true on success
-     * \param[in, out] ctx: execution context
-     * \param[in] m: mesh
-     *
-     * \note the given mesh must be handled by the mesh discretization
-     * \note if a finite element space whose vectorial dimension is the space
-     * dimension has already been declared, it is reused.
-     */
-    template <bool parallel>
-    [[nodiscard]] bool setNodalFiniteElementSpace(
-        Context& ctx, const Mesh<parallel>& m) noexcept {
-      const auto d = getSpaceDimension(this->mesh);
-      auto mptr = this->mesh.template getMutableMeshPointer<parallel>(ctx, m);
-      if (isInvalid(mptr)) {
-        return false;
-      }
-      if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-        auto ptr = this->getFiniteElementSpace<true>(ctx, m, d);
-        if (isInvalid(ptr)) {
-          return false;
-        }
-        const auto* const nodes = m.GetNodes();
-        if (nodes == nullptr) {
-          mptr->SetNodalFESpace(ptr.get());
-        } else {
-          // nodes is a pointer to a grid function, even in parallel
-          if (nodes->FESpace() != ptr.get()) {
-            mptr->SetNodalFESpace(ptr.get());
-          }
-        }
-#else
-        reportUnsupportedParallelComputations();
-#endif
-      } else {
-        auto ptr = this->getFiniteElementSpace<false>(ctx, m, d);
-        if (isInvalid(ptr)) {
-          return false;
-        }
-        const auto* const nodes = m.GetNodes();
-        if (nodes == nullptr) {
-          mptr->SetNodalFESpace(ptr.get());
-        } else {
-          if (nodes->FESpace() != ptr.get()) {
-            mptr->SetNodalFESpace(ptr.get());
-          }
-        }
-      }
-      return true;
-    }
     //! \return the finite element collection
     [[nodiscard]] const FiniteElementCollection& getFiniteElementCollection()
         const noexcept {
@@ -511,21 +435,6 @@ namespace mfem_mgis {
       const noexcept {
     return this->pimpl->getMeshDiscretization();
   }  // end of getMeshDiscretization
-
-  bool FiniteElementSpacesManager::setNodalFiniteElementSpace(
-      Context& ctx) const noexcept {
-    return this->pimpl->setNodalFiniteElementSpace(ctx);
-  }  // end of setNodalFiniteElementSpace
-
-  bool FiniteElementSpacesManager::setNodalFiniteElementSpace(
-      Context& ctx, const Mesh<true>& m) const noexcept {
-    return this->pimpl->setNodalFiniteElementSpace<true>(ctx, m);
-  }  // end of setNodalFiniteElementSpace
-
-  bool FiniteElementSpacesManager::setNodalFiniteElementSpace(
-      Context& ctx, const Mesh<false>& m) const noexcept {
-    return this->pimpl->setNodalFiniteElementSpace<false>(ctx, m);
-  }  // end of setNodalFiniteElementSpace
 
   std::shared_ptr<FiniteElementSpace<true>>
   FiniteElementSpacesManager::getParallelFiniteElementSpace(

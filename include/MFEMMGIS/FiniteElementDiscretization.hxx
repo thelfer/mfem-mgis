@@ -130,13 +130,6 @@ namespace mfem_mgis {
     //! \return the underlying finite element space manager
     [[nodiscard]] FiniteElementSpacesManager getFiniteElementSpacesManager()
         const noexcept;
-    /*!
-     * \brief assign a suitable nodal finite element space to the underlying
-     * mesh
-     * \return true on success
-     * \param[in, out] ctx: execution context
-     */
-    [[nodiscard]] bool setNodalFiniteElementSpace(Context& ctx) const noexcept;
     //! \return the finite element space
     template <bool parallel>
     [[nodiscard]] FiniteElementSpace<parallel>& getFiniteElementSpace();
