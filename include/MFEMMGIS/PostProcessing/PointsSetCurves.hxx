@@ -20,6 +20,9 @@
 #include "MFEMMGIS/Geometry.hxx"
 #endif /* MGIS_HAVE_TFEL */
 #include "MFEMMGIS/FiniteElementSpacesManager.hxx"
+#ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
+#include "MFEMMGIS/GridFunctionInterpolator.hxx"
+#endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
 
 namespace mfem_mgis {
 
@@ -113,6 +116,10 @@ namespace mfem_mgis {
     //! \brief points set
     std::variant<std::vector<Point<2>>, std::vector<Point<3>>> points;
 #endif /* MGIS_HAVE_TFEL */
+#ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
+    //! \brief interpolator, built at the first call to `getValues`
+    mutable std::optional<GridFunctionInterpolator> interpolator;
+#endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
     //! \brief curvilinear abscissae along the line
     std::vector<real> curvilinearAbscissae;
     /*!
