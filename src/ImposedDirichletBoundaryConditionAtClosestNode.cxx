@@ -1,6 +1,7 @@
 /*!
  * \file   src/ImposedDirichletBoundaryConditionAtClosestNode.cxx
- * \brief
+ * \brief  This file implements the
+ * `ImposedDirichletBoundaryConditionAtClosestNode` class
  * \author Thomas Helfer
  * \date   31/03/2022
  */

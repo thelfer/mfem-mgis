@@ -1,6 +1,6 @@
 /*!
  * \file   src/LinearSolverFactory.cxx
- * \brief
+ * \brief  This file implements the `LinearSolverFactory` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */
@@ -22,6 +22,44 @@
 #include "MFEMMGIS/Utilities/SolverUtilities.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
+
+#ifdef MFEM_USE_MPI
+
+namespace mfem_mgis::internals {
+
+  /*!
+   * \brief BoomerAMG preconditioner for a system of equations
+   *
+   * For unknowns ordered by nodes, `HypreBoomerAMG::SetSystemsOptions` gives
+   * hypre the component of each unknown. This description depends on the size
+   * of the operator and is lost by `HypreBoomerAMG::SetOperator`, so the
+   * systems options are set again for each new operator.
+   */
+  struct SystemHypreBoomerAMG final : public mfem::HypreBoomerAMG {
+    /*!
+     * \brief constructor
+     * \param[in] s: finite element space
+     */
+    explicit SystemHypreBoomerAMG(const FiniteElementSpace<true>& s)
+        : number_of_components(s.GetVDim()),
+          ordered_by_nodes(s.GetOrdering() == mfem::Ordering::byNODES) {}
+    //! \brief set the operator and the systems options
+    void SetOperator(const mfem::Operator& op) override {
+      mfem::HypreBoomerAMG::SetOperator(op);
+      this->SetSystemsOptions(this->number_of_components,
+                              this->ordered_by_nodes);
+    }
+
+   private:
+    //! \brief number of components of the unknowns
+    const int number_of_components;
+    //! \brief if the unknowns are ordered by nodes
+    const bool ordered_by_nodes;
+  };  // end of struct SystemHypreBoomerAMG
+
+}  // end of namespace mfem_mgis::internals
+
+#endif /* MFEM_USE_MPI */
 
 namespace mfem_mgis {
 
@@ -48,15 +86,16 @@ namespace mfem_mgis {
           amg->SetElasticityOptions(&fespace);
         } else {
           // the elasticity version of BoomerAMG requires Ordering::byVDIM
-          warning(ctx.log(),
-                  "setLinearSolverParameters: strategy 'Elasticity' of "
-                  "preconditioner HypreBoomerAMG requires unknowns ordered by "
-                  "vector dimension, using strategy 'System' instead");
-          amg->SetSystemsOptions(fespace.GetVDim(), true);
+          if (fespace.GetMyRank() == 0) {
+            warning(ctx.log(),
+                    "setLinearSolverParameters: strategy 'Elasticity' of "
+                    "preconditioner HypreBoomerAMG requires unknowns ordered "
+                    "by vector dimension, using strategy 'System' instead");
+          }
+          amg = std::make_unique<internals::SystemHypreBoomerAMG>(fespace);
         }
       } else if (*ostrategy == "System") {
-        const auto o = fespace.GetOrdering();
-        amg->SetSystemsOptions(fespace.GetVDim(), o == mfem::Ordering::byNODES);
+        amg = std::make_unique<internals::SystemHypreBoomerAMG>(fespace);
       } else if (*ostrategy != "None") {
         return ctx.registerErrorMessage(
             "setLinearSolverParameters: "
@@ -64,11 +103,10 @@ namespace mfem_mgis {
             *ostrategy + "' for preconditioner HypreBoomerAMG");
       }
     } else {
-      // without the `Strategy` option, the preconditioner is a scalar AMG
-      // whatever the number of components.
+      // without the `Strategy` option, a system AMG is used for vector
+      // unknowns
       if (fespace.GetVDim() > 1) {
-        const auto o = fespace.GetOrdering();
-        amg->SetSystemsOptions(fespace.GetVDim(), o == mfem::Ordering::byNODES);
+        amg = std::make_unique<internals::SystemHypreBoomerAMG>(fespace);
       }
     }
     if (contains(opts, Problem::SolverVerbosityLevel)) {
@@ -734,8 +772,8 @@ namespace mfem_mgis {
     try {
       s = g(ctx, fespace, params);
     } catch (std::exception& e) {
-      std::string msg("LinearSolverFactory<false>::generate: ");
-      msg += "error while generating no linear '";
+      std::string msg("LinearSolverFactory<true>::generate: ");
+      msg += "error while generating linear solver '";
       msg += n;
       msg += "'\n";
       msg += e.what();
@@ -794,7 +832,7 @@ namespace mfem_mgis {
       s = g(ctx, fespace, params);
     } catch (std::exception& e) {
       std::string msg("LinearSolverFactory<false>::generate: ");
-      msg += "error while generating no linear '";
+      msg += "error while generating linear solver '";
       msg += n;
       msg += "'\n";
       msg += e.what();

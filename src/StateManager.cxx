@@ -21,7 +21,7 @@ namespace mfem_mgis {
     if (m.find(n) != m.end()) {
       return ctx.registerErrorMessage("a partial quadrature function named '" +
                                       std::string{n} +
-                                      "' has already been registred");
+                                      "' has already been registered");
     }
     m.insert({std::string{n}, f});
     return true;
@@ -34,7 +34,7 @@ namespace mfem_mgis {
     const auto p = m.find(n);
     if (p == m.end()) {
       auto msg = std::string{"no partial quadrature function named '" +
-                             std::string{n} + "' registred"};
+                             std::string{n} + "' registered"};
       if (!m.empty()) {
         msg += ". The following partial quadrature functions are declared:";
         for (const auto& [name, f] : m) {

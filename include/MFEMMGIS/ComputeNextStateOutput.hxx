@@ -15,7 +15,7 @@ namespace mfem_mgis {
   /*!
    * \brief a structure returned by the computeNextState method.
    *
-   * This is structure is mostly a wrapper around the `Parameters`
+   * This structure is mostly a wrapper around the `Parameters`
    * class.
    *
    * Coupling items are free to populate this structure
@@ -24,11 +24,17 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT ComputeNextStateOutput : public Parameters {
     using Parameters::Parameters;
     using Parameters::operator=;
+    //! \brief default constructor
     ComputeNextStateOutput() noexcept;
+    //! \brief move constructor
     ComputeNextStateOutput(ComputeNextStateOutput &&) noexcept;
+    //! \brief copy constructor
     ComputeNextStateOutput(const ComputeNextStateOutput &) noexcept;
+    //! \brief move assignment
     ComputeNextStateOutput &operator=(ComputeNextStateOutput &&) noexcept;
+    //! \brief copy assignment
     ComputeNextStateOutput &operator=(const ComputeNextStateOutput &) noexcept;
+    //! \brief destructor
     ~ComputeNextStateOutput() noexcept;
   };  // end of ComputeNextStateOutput
 

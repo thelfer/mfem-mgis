@@ -1,6 +1,6 @@
 /*!
  * \file   src/ComputeResultantForceOnBoundary.cxx
- * \brief
+ * \brief  This file implements the `ComputeResultantForceOnBoundary` class
  * \author Thomas Helfer
  * \date   28/03/2021
  */
@@ -38,9 +38,12 @@ namespace mfem_mgis {
   ComputeResultantForceOnBoundaryCommon::ComputeResultantForceOnBoundaryCommon(
       std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>
           edofs,
-      const size_type i)
+      const size_type i,
+      const BehaviourIntegratorsSelection& s)
       : elts_dofs(std::move(edofs)),
-        bid(i) {}  // end of ComputeResultantForceOnBoundaryCommon
+        bid(i),
+        behaviour_integrators(s) {
+  }  // end of ComputeResultantForceOnBoundaryCommon
 
 #ifdef MFEM_USE_MPI
 
@@ -50,9 +53,11 @@ namespace mfem_mgis {
       : ComputeResultantForceOnBoundaryCommon(
             getElementsDegreesOfFreedomOnBoundary<true>(
                 p, getBoundaryIdentifier(throwing, p, params)),
-            getBoundaryIdentifier(throwing, p, params)) {
+            getBoundaryIdentifier(throwing, p, params),
+            getBehaviourIntegratorsSelection(throwing, params)) {
     checkParameters(throwing, params,
-                    std::vector<std::string>{"Boundary", "OutputFileName"});
+                    std::vector<std::string>{"Boundary", "OutputFileName",
+                                             "BehaviourIntegrator"});
     int rank;
     MPI_Comm_rank(getMPICommunicator(p), &rank);
     if (rank == 0) {
@@ -75,12 +80,15 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   bool ComputeResultantForceOnBoundary<true>::execute(
-      Context&,
+      Context& ctx,
       NonLinearEvolutionProblemImplementation<true>& p,
       const real t,
       const real dt) noexcept {
     mfem::Vector F;
-    computeResultantForceOnBoundary(F, p, this->elts_dofs);
+    if (!computeResultantForceOnBoundary(ctx, F, p, this->elts_dofs,
+                                         this->behaviour_integrators)) {
+      return false;
+    }
     //
     int rank;
     MPI_Comm_rank(getMPICommunicator(p), &rank);
@@ -105,9 +113,11 @@ namespace mfem_mgis {
       : ComputeResultantForceOnBoundaryCommon(
             getElementsDegreesOfFreedomOnBoundary<false>(
                 p, getBoundaryIdentifier(throwing, p, params)),
-            getBoundaryIdentifier(throwing, p, params)) {
+            getBoundaryIdentifier(throwing, p, params),
+            getBehaviourIntegratorsSelection(throwing, params)) {
     checkParameters(throwing, params,
-                    std::vector<std::string>{"Boundary", "OutputFileName"});
+                    std::vector<std::string>{"Boundary", "OutputFileName",
+                                             "BehaviourIntegrator"});
     const auto& f = get<std::string>(throwing, params, "OutputFileName");
     this->out.open(f);
     if (!this->out) {
@@ -126,12 +136,15 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   bool ComputeResultantForceOnBoundary<false>::execute(
-      Context&,
+      Context& ctx,
       NonLinearEvolutionProblemImplementation<false>& p,
       const real t,
       const real dt) noexcept {
     mfem::Vector F;
-    computeResultantForceOnBoundary(F, p, this->elts_dofs);
+    if (!computeResultantForceOnBoundary(ctx, F, p, this->elts_dofs,
+                                         this->behaviour_integrators)) {
+      return false;
+    }
     writeResultantForce(this->out, F, t + dt);
     return true;
   }  // end of execute

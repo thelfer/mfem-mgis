@@ -1,6 +1,7 @@
 /*!
  * \file   tests/StationaryNonLinearHeatTransferTest.cxx
- * \brief
+ * \brief  Tests of the tridimensional stationary non linear heat transfer
+ * behaviour integrator
  * \author Thomas Helfer
  * \date   14/12/2020
  */
@@ -21,6 +22,7 @@
 
 int main(int argc, char** argv) {
   auto ctx = mgis::Context{};
+  auto or_die = ctx.getFatalFailureHandler();
   auto parameters = mfem_mgis::unit_tests::TestParameters{};
   // options treatment
   mfem_mgis::initialize(argc, argv);
@@ -43,12 +45,17 @@ int main(int argc, char** argv) {
     problem.getUnknowns(mfem_mgis::bts) = 293.15;
     problem.getUnknowns(mfem_mgis::ets) = 293.15;
     // materials
-    problem.addBehaviourIntegrator("StationaryNonLinearHeatTransfer", 1,
-                                   parameters.library, parameters.behaviour);
-    auto& m1 = problem.getMaterial(1);
+    problem.addBehaviourIntegrator(ctx, "StationaryNonLinearHeatTransfer", 1,
+                                   parameters.library, parameters.behaviour) |
+        or_die;
+    auto& m1 = problem.getMaterial(ctx, 1, 0) | or_die;
     auto T = std::vector<mfem_mgis::real>(m1.n, 293.15);
-    mgis::behaviour::setExternalStateVariable(m1.s0, "Temperature", T);
-    mgis::behaviour::setExternalStateVariable(m1.s1, "Temperature", T);
+    mgis::behaviour::setExternalStateVariable(ctx, m1.s0, "Temperature",
+                                              std::span<::mfem_mgis::real>(T)) |
+        or_die;
+    mgis::behaviour::setExternalStateVariable(ctx, m1.s1, "Temperature",
+                                              std::span<::mfem_mgis::real>(T)) |
+        or_die;
     if (m1.b.symmetry == mgis::behaviour::Behaviour::ORTHOTROPIC) {
       std::array<mfem_mgis::real, 9u> r = {0, 1, 0,  //
                                            1, 0, 0,  //
@@ -74,28 +81,35 @@ int main(int argc, char** argv) {
     //    $EndPhysicalNames
     // Only the index is used in this C++ code for manipulating related dof.
     problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 5, 0,
-            [](const auto) noexcept { return 293.15; }));
+        ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                 ctx, problem.getFiniteElementDiscretizationPointer(), 5, 0,
+                 [](const auto) noexcept { return 293.15; }) |
+                 or_die) |
+        or_die;
     problem.addBoundaryCondition(
-        std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-            problem.getFiniteElementDiscretizationPointer(), 3, 0,
-            [](const auto t) noexcept {
-              return 293.15 + (893.15 - 293.15) * t;
-            }));
+        ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                 ctx, problem.getFiniteElementDiscretizationPointer(), 3, 0,
+                 [](const auto t) noexcept {
+                   return 293.15 + (893.15 - 293.15) * t;
+                 }) |
+                 or_die) |
+        or_die;
     // set the solver parameters
-    mfem_mgis::unit_tests::setLinearSolver(problem, parameters);
-    problem.setSolverParameters({{"VerbosityLevel", 0},
-                                 {"RelativeTolerance", 1e-12},
-                                 {"AbsoluteTolerance", 0.},
-                                 {"MaximumNumberOfIterations", 10}});
+    mfem_mgis::unit_tests::setLinearSolver(mfem_mgis::may_abort, ctx, problem,
+                                           parameters);
+    problem.setSolverParameters(ctx, {{"VerbosityLevel", 0},
+                                      {"RelativeTolerance", 1e-12},
+                                      {"AbsoluteTolerance", 0.},
+                                      {"MaximumNumberOfIterations", 10}}) |
+        or_die;
     // vtk export
     problem.addPostProcessing(
-        "ParaviewExportResults",
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "StationaryNonLinearHeatTransferTestOutput-" +
-                                std::string(parameters.behaviour)}});
+                                std::string(parameters.behaviour)}}) |
+        or_die;
     // solving the problem in 100 time steps
-    auto r = mfem_mgis::unit_tests::solve(problem, parameters, 0, 1, 100);
+    auto r = mfem_mgis::unit_tests::solve(ctx, problem, parameters, 0, 1, 100);
     // save the results curve
     mfem_mgis::unit_tests::saveResults(
         "StationaryNonLinearHeatTransferTestOutput-" +

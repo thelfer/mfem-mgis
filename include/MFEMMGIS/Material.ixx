@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/Material.ixx
- * \brief
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/Material.hxx`
  * \author Thomas Helfer
  * \date   03/03/2021
  */

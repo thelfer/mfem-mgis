@@ -1,5 +1,5 @@
 /*!
- * \file   manta/physical_system/physical_system.cpp
+ * \file   src/PhysicalSystem.cxx
  * \brief  This file implements the `PhysicalSystem` class
  * \date   05/12/2022
  */
@@ -31,7 +31,7 @@ namespace mfem_mgis {
     if (!checkParameters(ctx, parameters, options)) {
       return {};
     }
-    const auto oho = get_if<bool>(ctx, parameters, "helpOptions", false);
+    const auto oho = get_if<bool>(ctx, parameters, "HelpOptions", false);
     if (isInvalid(oho)) {
       return {};
     }
@@ -290,13 +290,15 @@ namespace mfem_mgis {
           verboseLevel2,
           "* calling executeInitialPostProcessingTasks on post-processing '" +
               p->getName() + "'");
-      auto r = p->executeInitialPostProcessingTasks(ctx, t);
-      if (!r) {
-        ctx.debug(
-            "* executeInitialPostProcessingTasks failed for post-processing "
-            "'" +
-            p->getName() + "'");
-        return false;
+      if (!p->hasExecuteInitialPostProcessingTasksAlreadyBeenCalled()) {
+        auto r = p->executeInitialPostProcessingTasks(ctx, t);
+        if (!r) {
+          ctx.debug(
+              "* executeInitialPostProcessingTasks failed for post-processing "
+              "'" +
+              p->getName() + "'");
+          return false;
+        }
       }
     }
     return this->coupling_scheme->executeInitialPostProcessingTasks(ctx, t);
@@ -308,18 +310,25 @@ namespace mfem_mgis {
     if (isInvalid(this->coupling_scheme)) {
       return ctx.registerErrorMessage("no coupling scheme defined");
     }
+    auto success = true;
     for (const auto &p : this->post_processings) {
       ctx.log(verboseLevel2,
               "* calling executePostProcessingTasks on post-processing '" +
                   p->getName() + "'");
-      auto r = p->executePostProcessingTasks(ctx, ts, b);
-      if (!r) {
-        ctx.debug("* executePostProcessingTasks failed for post-processing '" +
-                  p->getName() + "'");
-        return false;
+      if (!p->hasExecuteInitialPostProcessingTasksAlreadyBeenCalled()) {
+        auto r = p->executePostProcessingTasks(ctx, ts, b);
+        if (!r) {
+          ctx.debug(
+              "* executePostProcessingTasks failed for post-processing '" +
+              p->getName() + "'");
+          success = false;
+        }
       }
     }
-    return this->coupling_scheme->executePostProcessingTasks(ctx, ts, b);
+    if (!this->coupling_scheme->executePostProcessingTasks(ctx, ts, b)) {
+      success = false;
+    }
+    return success;
   }  // end of executePostProcessingTasks
 
   bool PhysicalSystem::update(Context &ctx) noexcept {

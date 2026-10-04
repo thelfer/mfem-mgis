@@ -33,109 +33,114 @@ namespace mfem_mgis {
      * \brief constructor from a mesh discretization
      * \param[in] m: mesh discretization
      */
-    StateManager(const MeshDiscretization&) noexcept;
+    StateManager(const MeshDiscretization& m) noexcept;
     /*!
      * \brief register a partial quadrature function
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the partial quadrature function
      * \param[in] f: partial quadrature function
      * \param[in] ts: time step stage
+     * \return true on success
      *
-     * \note the callee is responsible for keeping the view alive
+     * \note the caller is responsible for keeping the viewed function alive
      */
-    [[nodiscard]] bool add(Context&,
-                           std::string_view,
-                           ImmutablePartialQuadratureFunctionView,
-                           const TimeStepStage) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           ImmutablePartialQuadratureFunctionView f,
+                           const TimeStepStage ts) noexcept;
     /*!
      * \brief register a partial quadrature function
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the partial quadrature function
      * \param[in] f: partial quadrature function
      * \param[in] ts: time step stage
+     * \return true on success
      *
      * \note the shared pointer is stored internally
      */
-    [[nodiscard]] bool add(Context&,
-                           std::string_view,
-                           const std::shared_ptr<PartialQuadratureFunction>&,
-                           const TimeStepStage) noexcept;
+    [[nodiscard]] bool add(Context& ctx,
+                           std::string_view n,
+                           const std::shared_ptr<PartialQuadratureFunction>& f,
+                           const TimeStepStage ts) noexcept;
     /*!
      * \return if a partial quadrature function with the given name has been
-     * registred
+     * registered
      *
-     * \param[in] ctx: execution context
-     * \param[in] s: partial quadrature space
-     * \param[in] f: function name
+     * \param[in, out] ctx: execution context
+     * \param[in] qspace: partial quadrature space
+     * \param[in] n: function name
      * \param[in] ts: time step stage
      */
     [[nodiscard]] std::optional<bool> contains(
-        Context&,
-        const std::shared_ptr<const PartialQuadratureSpace>&,
-        std::string_view,
-        const TimeStepStage) const noexcept;
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& qspace,
+        std::string_view n,
+        const TimeStepStage ts) const noexcept;
     /*!
-     * \return the registred partial quadrature function
+     * \return the registered partial quadrature function
      *
-     * \param[in] ctx: execution context
-     * \param[in] s: partial quadrature space
-     * \param[in] f: function name
+     * \param[in, out] ctx: execution context
+     * \param[in] qspace: partial quadrature space
+     * \param[in] n: function name
      * \param[in] ts: time step stage
      */
     [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView> get(
-        Context&,
-        const std::shared_ptr<const PartialQuadratureSpace>&,
-        std::string_view,
-        const TimeStepStage) const noexcept;
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& qspace,
+        std::string_view n,
+        const TimeStepStage ts) const noexcept;
 
     //! \brief destructor
     ~StateManager() noexcept;
 
    private:
-    //
+    //! \brief partial quadrature functions registered on a quadrature space
     struct PartialQuadratureFunctionManager {
       /*!
-       * \return the registred partial quadrature function
+       * \brief register a partial quadrature function
        *
-       * \param[in] ctx: execution context
+       * \param[in, out] ctx: execution context
        * \param[in] n: partial quadrature function name
        * \param[in] f: partial quadrature function
        * \param[in] ts: time step stage
+       * \return true on success
        */
-      [[nodiscard]] bool add(Context&,
-                             std::string_view,
-                             ImmutablePartialQuadratureFunctionView,
-                             const TimeStepStage) noexcept;
+      [[nodiscard]] bool add(Context& ctx,
+                             std::string_view n,
+                             ImmutablePartialQuadratureFunctionView f,
+                             const TimeStepStage ts) noexcept;
       /*!
        * \return if a partial quadrature function with the given name has been
-       * registred
+       * registered
        *
-       * \param[in] f: function name
+       * \param[in] n: function name
        * \param[in] ts: time step stage
        */
-      [[nodiscard]] bool contains(std::string_view,
-                                  const TimeStepStage) const noexcept;
+      [[nodiscard]] bool contains(std::string_view n,
+                                  const TimeStepStage ts) const noexcept;
       /*!
-       * \return the registred partial quadrature function
+       * \return the registered partial quadrature function
        *
-       * \param[in] ctx: execution context
-       * \param[in] f: function name
+       * \param[in, out] ctx: execution context
+       * \param[in] n: function name
        * \param[in] ts: time step stage
        */
       [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView> get(
-          Context&, std::string_view, const TimeStepStage) const noexcept;
+          Context& ctx,
+          std::string_view n,
+          const TimeStepStage ts) const noexcept;
 
      protected:
       /*!
-       * \brief registred partial quadrature functions at the beginning of the
+       * \brief registered partial quadrature functions at the beginning of the
        * time step
        */
       std::map<std::string, ImmutablePartialQuadratureFunctionView, std::less<>>
           qfunctions_bts;
       /*!
-       * \brief registred partial quadrature functions at the end of the
+       * \brief registered partial quadrature functions at the end of the
        * time step
        */
       std::map<std::string, ImmutablePartialQuadratureFunctionView, std::less<>>
@@ -148,7 +153,7 @@ namespace mfem_mgis {
     std::map<std::pair<size_type, size_type>,
              std::unique_ptr<PartialQuadratureFunctionManager>>
         qfunctions;
-    //
+    //! \brief functions kept alive by the state manager
     std::vector<std::shared_ptr<PartialQuadratureFunction>> qfunctions_pointers;
   };  // end of StateManager
 
@@ -157,14 +162,15 @@ namespace mfem_mgis {
    * behaviour integrators of a nonlinear evolution problem in the given state
    * manager
    *
-   * \param[in] ctx: execution context
-   * \param[in] sm: state manager
+   * \param[in, out] ctx: execution context
+   * \param[in, out] s: state manager
    * \param[in] p: nonlinear evolution problem
+   * \return true on success
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool addPartialQuadratureFunctions(
-      Context&,
-      StateManager&,
-      const AbstractNonLinearEvolutionProblem&) noexcept;
+      Context& ctx,
+      StateManager& s,
+      const AbstractNonLinearEvolutionProblem& p) noexcept;
 
 }  // end of namespace mfem_mgis
 

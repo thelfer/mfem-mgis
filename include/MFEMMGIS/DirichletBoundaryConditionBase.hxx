@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/DirichletBoundaryConditionBase.hxx
- * \brief
+ * \brief  This file declares the `DirichletBoundaryConditionBase` class
  * \author Thomas Helfer
  * \date   18/03/2021
  */
@@ -23,13 +23,13 @@ namespace mfem_mgis {
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
-     * \param[in] bids: ids of the boundary
-     * \param[in] c: component of the unknows treated by this boundary
+     * \param[in] bid: ids of the boundary
+     * \param[in] c: component of the unknowns treated by this boundary
      * condition.
      */
-    DirichletBoundaryConditionBase(FiniteElementDiscretization&,
-                                   const std::vector<size_type>&,
-                                   const size_type);
+    DirichletBoundaryConditionBase(FiniteElementDiscretization& fed,
+                                   const std::vector<size_type>& bid,
+                                   const size_type c);
     //
     std::vector<size_type> getHandledDegreesOfFreedom() const override;
     //! \brief destructor

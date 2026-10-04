@@ -1,6 +1,7 @@
 /*!
  * \file   MGISForward.hxx
- * \brief
+ * \brief  This file forward declares the `Behaviour` class of MGIS and
+ * declares the `Hypothesis` alias
  * \author Thomas Helfer
  * \date   26/08/2020
  */
@@ -22,7 +23,7 @@ namespace mgis {
 
 namespace mfem_mgis {
 
-  //! \brief a simple alias
+  //! \brief a simple alias to the `MGIS` enumeration of modelling hypotheses
   using Hypothesis = mgis::behaviour::Hypothesis;
 
 }  // end of namespace mfem_mgis

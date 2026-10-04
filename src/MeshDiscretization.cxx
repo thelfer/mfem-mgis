@@ -1,6 +1,6 @@
 /*!
  * \file   src/MeshDiscretization.cxx
- * \brief
+ * \brief  This file implements the `MeshDiscretization` class
  * \author Thomas Helfer
  * \date 16/12/2020
  */
@@ -26,7 +26,11 @@
 
 namespace mfem_mgis {
 
-  //! \brief remove extra spaces on the right
+  /*!
+   * \brief remove extra spaces on the right
+   * \param[in] s: string
+   * \return the trimmed string
+   */
   [[nodiscard]] static std::string trim_right(const std::string& s) noexcept {
     auto r = std::string{s};
     r.erase(std::find_if(r.rbegin(), r.rend(),
@@ -43,6 +47,7 @@ namespace mfem_mgis {
   /*!
    * \brief Extract the file extension
    * \param[in] s: string corresponding to a file name
+   * \return the file extension, an empty string if none
    */
   static std::string getFileExt(const std::string& s) {
     size_t i = s.rfind('.', s.length());
@@ -57,7 +62,11 @@ namespace mfem_mgis {
 
   /*!
    * \brief load a mesh (sequential)
-   * \param[in] s: string corresponding to a file name
+   * \param[in, out] ctx: execution context
+   * \param[in] mesh_name: mesh file name
+   * \param[in] generate_edges: if non zero, edges are generated
+   * \param[in] refine: if non zero, the mesh is prepared for refinement
+   * \return the mesh
    *
    * \note MED format is handled in addition to standard MFEM
    * input formats.
@@ -276,7 +285,7 @@ namespace mfem_mgis {
       if (materials_names.find(mids[0]) != materials_names.end()) {
         warning(getDefaultLogStream(), "ignoring attribute set '", n,
                 "' for material (", mids[0],
-                ") which is already names by the user to a material");
+                ") which is already named by the user");
         continue;
       }
       if (!isValidMeshObjectName(n)) {
@@ -310,14 +319,14 @@ namespace mfem_mgis {
         continue;
       }
       if (count(materials_names, n) != 0) {
-        warning(getDefaultLogStream(), "ignoring material attribute set '", n,
+        warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
                 "' which is already associated by the user to a material");
         continue;
       }
       if (boundaries_names.find(bids[0]) != boundaries_names.end()) {
         warning(getDefaultLogStream(), "ignoring boundary attribute set '", n,
-                "' for material (", bids[0],
-                ") which is already names by the user to a material");
+                "' for boundary (", bids[0],
+                ") which is already named by the user");
         continue;
       }
       if (!isValidMeshObjectName(n)) {
@@ -530,7 +539,6 @@ namespace mfem_mgis {
 #ifdef MGIS_HAVE_TFEL
     /*!
      * \brief add points from parameters
-     * \param[in] throwing: throwing attributes
      * \param[in, out] m: mesh discretization implementation
      * \param[in] parameters: parameters containing point definitions
      */
@@ -556,7 +564,6 @@ namespace mfem_mgis {
 
     /*!
      * \brief add points sets from parameters
-     * \param[in] throwing: throwing attributes
      * \param[in, out] m: mesh discretization implementation
      * \param[in] parameters: parameters containing points set definitions
      */
@@ -731,7 +738,6 @@ namespace mfem_mgis {
 
     /*!
      * \brief constructor (not supported in sequential mode)
-     * \param[in] m: parallel mesh (not used)
      */
     Implementation(std::shared_ptr<Mesh<true>>) {
       reportUnsupportedParallelComputations();
@@ -817,10 +823,10 @@ namespace mfem_mgis {
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * materials of the main mesh.
-     * \param[in, out]  ctx: execution context
-     * \param[in]  m: mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
      *
-     * \note this methods fails if the given mesh is not managed
+     * \note this method fails if the given mesh is not managed
      */
     [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
         Context& ctx, const Mesh<true>& m) const noexcept {
@@ -849,10 +855,10 @@ namespace mfem_mgis {
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * materials of the main mesh.
-     * \param[in, out]  ctx: execution context
-     * \param[in]  m: mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
      *
-     * \note this methods fails if the given mesh is not managed
+     * \note this method fails if the given mesh is not managed
      */
     [[nodiscard]] std::optional<bool> isDefinedOnMaterials(
         Context& ctx, const Mesh<false>& m) const noexcept {
@@ -877,10 +883,10 @@ namespace mfem_mgis {
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * boundaries of the main mesh.
-     * \param[in, out]  ctx: execution context
-     * \param[in]  m: mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
      *
-     * \note this methods fails if the given mesh is not managed
+     * \note this method fails if the given mesh is not managed
      */
     [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
         Context& ctx, const Mesh<true>& m) const noexcept {
@@ -909,10 +915,10 @@ namespace mfem_mgis {
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * boundaries of the main mesh.
-     * \param[in, out]  ctx: execution context
-     * \param[in]  m: mesh
+     * \param[in, out] ctx: execution context
+     * \param[in] m: mesh
      *
-     * \note this methods fails if the given mesh is not managed
+     * \note this method fails if the given mesh is not managed
      */
     [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
         Context& ctx, const Mesh<false>& m) const noexcept {
@@ -1275,9 +1281,9 @@ namespace mfem_mgis {
      * \note The parameter may hold:
      * - an integer
      * - a string
-     * - a vector of parameters which must be either strings and integers.
+     * - a vector of parameters which must be either strings or integers.
      * Integers are directly interpreted as materials identifiers.
-     * Strings are interpreted as regular expressions which allows the selection
+     * Strings are interpreted as regular expressions which allow the selection
      * of materials by names.
      */
     [[nodiscard]] std::optional<std::vector<size_type>> getMaterialsIdentifiers(
@@ -1296,9 +1302,9 @@ namespace mfem_mgis {
      * \note The parameter may hold:
      * - an integer
      * - a string
-     * - a vector of parameters which must be either strings and integers.
+     * - a vector of parameters which must be either strings or integers.
      * Integers are directly interpreted as boundaries identifiers.
-     * Strings are interpreted as regular expressions which allows the selection
+     * Strings are interpreted as regular expressions which allow the selection
      * of boundaries by names.
      */
     [[nodiscard]] std::optional<std::vector<size_type>>
@@ -1309,7 +1315,7 @@ namespace mfem_mgis {
     }  // end of getBoundariesIdentifiers
 
     /*!
-     * \brief return the material identifier by the given parameter.
+     * \brief return the material identifier described by the given parameter.
      * \param[in, out] ctx: execution context
      * \param[in] p: parameter
      * \return the material identifier
@@ -1343,7 +1349,7 @@ namespace mfem_mgis {
     }  // end of getMaterialIdentifier
 
     /*!
-     * \brief return the boundary identifier by the given parameter.
+     * \brief return the boundary identifier described by the given parameter.
      * \param[in, out] ctx: execution context
      * \param[in] p: parameter
      * \return the boundary identifier
@@ -1620,7 +1626,7 @@ namespace mfem_mgis {
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
       if (d != 2) {
-        return ctx.registerErrorMessage("can't return a 2D point from a " +
+        return ctx.registerErrorMessage("can't return a 2D points set from a " +
                                         std::to_string(d) + "D mesh");
       }
       const auto p = this->pointsSets2D.find(n);
@@ -1641,7 +1647,7 @@ namespace mfem_mgis {
         Context& ctx, std::string_view n) const noexcept {
       const auto d = getSpaceDimension(*this);
       if (d != 3) {
-        return ctx.registerErrorMessage("can't return a 3D point from a " +
+        return ctx.registerErrorMessage("can't return a 3D points set from a " +
                                         std::to_string(d) + "D mesh");
       }
       const auto p = this->pointsSets3D.find(n);
@@ -1698,10 +1704,10 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     //! \brief sequential mesh
     std::shared_ptr<Mesh<false>> sequential_mesh;
-    //! \brief parallel submeshes on materials
+    //! \brief sequential submeshes on materials
     std::map<AttributesList, std::shared_ptr<SubMesh<false>>>
         sequential_submeshes;
-    //! \brief parallel submeshes on boundaries
+    //! \brief sequential submeshes on boundaries
     std::map<AttributesList, std::shared_ptr<SubMesh<false>>>
         sequential_submeshes_on_boundaries;
     //! \brief mapping between materials identifiers and names
@@ -1853,13 +1859,13 @@ namespace mfem_mgis {
   std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
       Context& ctx, const Mesh<true>& m, const size_type id) const noexcept {
     return this->pimpl->getLocationIdentifier<true>(ctx, m, id);
-  }    // end of getParallelLocationIdentifier
+  }    // end of getLocationIdentifier
 #endif /* MFEM_USE_MPI */
 
   std::optional<LocationIdentifier> MeshDiscretization::getLocationIdentifier(
       Context& ctx, const Mesh<false>& m, const size_type id) const noexcept {
     return this->pimpl->getLocationIdentifier<false>(ctx, m, id);
-  }  // end of getSequentialLocationIdentifier
+  }  // end of getLocationIdentifier
 
   bool MeshDiscretization::setMaterialsNames(
       Context& ctx, const std::map<size_type, std::string>& ids) noexcept {
@@ -1880,6 +1886,17 @@ namespace mfem_mgis {
       Context& ctx, const size_type id) const noexcept {
     return this->pimpl->getBoundaryName(ctx, id);
   }  // end of getBoundaryName
+
+  std::optional<std::string> MeshDiscretization::getLocationName(
+      Context& ctx, const LocationIdentifier& id) const noexcept {
+    if (isInvalid(id)) {
+      return ctx.registerErrorMessage("invalid location identifier");
+    }
+    if (id.material_identifier.has_value()) {
+      return this->getMaterialName(ctx, id.material_identifier->id);
+    }
+    return this->getBoundaryName(ctx, id.boundary_identifier->id);
+  }  // end of getLocationName
 
   std::optional<std::vector<size_type>>
   MeshDiscretization::getMaterialsIdentifiers(
@@ -2111,13 +2128,24 @@ namespace mfem_mgis {
     }
     if (isValid(l.material_identifier)) {
       const auto& mids = getMaterialsAttributes(m);
-      return mids.Find(l.material_identifier->id) != -1;
+      if (mids.Find(l.material_identifier->id) == -1) {
+        return ctx.registerErrorMessage(
+            "material identifier '" +
+            std::to_string(l.material_identifier->id) +
+            "' is not an attribute of the mesh");
+      }
+      return true;
     }
     ctx.assertOrTerminate(
         isValid(l.boundary_identifier),
         "internal error: isInvalid shall not have returned true");
     const auto& bids = getBoundariesAttributes(m);
-    return bids.Find(l.boundary_identifier->id) != -1;
+    if (bids.Find(l.boundary_identifier->id) == -1) {
+      return ctx.registerErrorMessage(
+          "boundary identifier '" + std::to_string(l.boundary_identifier->id) +
+          "' is not a boundary attribute of the mesh");
+    }
+    return true;
   }  // end of check
 
   std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,

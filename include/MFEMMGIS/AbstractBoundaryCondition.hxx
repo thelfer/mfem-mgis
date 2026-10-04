@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/AbstractBoundaryCondition.hxx
- * \brief
+ * \brief  This file declares the `AbstractBoundaryCondition` class
  * \author Thomas Helfer
  * \date   27/09/2024
  */
@@ -18,77 +18,84 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT AbstractBoundaryCondition {
 #ifdef MFEM_USE_MPI
     /*!
-     * \brief add the nonlinear form integrator describing the
-     * the boundary condition
+     * \brief add the nonlinear form integrator describing the boundary
+     * condition
      *
-     * \param[in] ctx: execution context
-     * \param[in] f: form
+     * \param[in, out] ctx: execution context
+     * \param[in, out] f: form
      * \param[in] u: current estimate of the solution at the end of the time
      * step
+     * \return true on success
      */
     [[nodiscard]] virtual bool addNonlinearFormIntegrator(
-        Context&, NonlinearForm<true>&, const mfem::Vector&) noexcept = 0;
+        Context& ctx,
+        NonlinearForm<true>& f,
+        const mfem::Vector& u) noexcept = 0;
 #endif /* MFEM_USE_MPI */
     /*!
-     * \brief add the nonlinear form integrator describing the
-     * the boundary condition
+     * \brief add the nonlinear form integrator describing the boundary
+     * condition
      *
-     * \param[in] ctx: execution context
-     * \param[in] f: form
+     * \param[in, out] ctx: execution context
+     * \param[in, out] f: form
      * \param[in] u: current estimate of the solution at the end of the time
      * step
+     * \return true on success
      */
     [[nodiscard]] virtual bool addNonlinearFormIntegrator(
-        Context&, NonlinearForm<false>&, const mfem::Vector&) noexcept = 0;
+        Context& ctx,
+        NonlinearForm<false>& f,
+        const mfem::Vector& u) noexcept = 0;
 #ifdef MFEM_USE_MPI
     /*!
      * \brief add the bilinear and linear form integrators
      * describing the boundary condition
      *
-     * \param[in] ctx: execution context
-     * \param[in] a: form computing the jacobian matrix
-     * \param[in] b: form computing the right hand side
-     * \param[in] u: current estimate of the solution at the end of the time
-     * step
+     * \param[in, out] ctx: execution context
+     * \param[in, out] a: form computing the jacobian matrix
+     * \param[in, out] b: form computing the right hand side
+     * \param[in] u: solution at the beginning of the time step
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
     [[nodiscard]] virtual bool addLinearFormIntegrators(
-        Context&,
-        BilinearForm<true>&,
-        LinearForm<true>&,
-        const mfem::Vector&,
-        const real,
-        const real) noexcept = 0;
+        Context& ctx,
+        BilinearForm<true>& a,
+        LinearForm<true>& b,
+        const mfem::Vector& u,
+        const real t,
+        const real dt) noexcept = 0;
 #endif /* MFEM_USE_MPI */
     /*!
-     * \brief add the linear form integrator describing the
-     * the boundary condition
+     * \brief add the bilinear and linear form integrators
+     * describing the boundary condition
      *
-     * \param[in] ctx: execution context
-     * \param[in] a: form computing the jacobian matrix
-     * \param[in] b: form computing the right hand side
-     * \param[in] u: current estimate of the solution at the end of the time
-     * step
+     * \param[in, out] ctx: execution context
+     * \param[in, out] a: form computing the jacobian matrix
+     * \param[in, out] b: form computing the right hand side
+     * \param[in] u: solution at the beginning of the time step
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
     [[nodiscard]] virtual bool addLinearFormIntegrators(
-        Context&,
-        BilinearForm<false>&,
-        LinearForm<false>&,
-        const mfem::Vector&,
-        const real,
-        const real) noexcept = 0;
+        Context& ctx,
+        BilinearForm<false>& a,
+        LinearForm<false>& b,
+        const mfem::Vector& u,
+        const real t,
+        const real dt) noexcept = 0;
     /*!
-     * \brief method call at the beginning of each resolution
-     * \param[in] ctx: execution context
+     * \brief method called at the beginning of each resolution
+     * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
-    [[nodiscard]] virtual bool setup(Context&,
-                                     const real,
-                                     const real) noexcept = 0;
+    [[nodiscard]] virtual bool setup(Context& ctx,
+                                     const real t,
+                                     const real dt) noexcept = 0;
     //! \brief destructor
     virtual ~AbstractBoundaryCondition();
   };

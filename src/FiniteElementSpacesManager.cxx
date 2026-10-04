@@ -63,7 +63,7 @@ namespace mfem_mgis {
   struct FiniteElementSpacesManager::Implementation {
     /*!
      * \brief constructor from parameters
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] parameters: parameters
      */
     Implementation(Context& ctx, const Parameters& parameters)
@@ -92,8 +92,9 @@ namespace mfem_mgis {
           buildFiniteElementCollection(throwing, this->mesh, parameters);
     }  // end of Implementation
     /*!
-     * \brief constructor from a parallel mesh
-     * \param[in] m: mesh
+     * \brief constructor from a mesh discretization and a finite element
+     * collection
+     * \param[in] m: mesh discretization
      * \param[in] c: finite element collection
      */
     Implementation(const MeshDiscretization& m,
@@ -109,7 +110,8 @@ namespace mfem_mgis {
     }
     /*!
      * \brief create a new finite element space or reuse an existing one
-     * \param[in] ctx: execution context
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] nc: vectorial dimension
      *
      * \note if a finite element space is created, it is stored internally.
@@ -136,6 +138,9 @@ namespace mfem_mgis {
         auto ptr = make_shared<FiniteElementSpace<true>>(
             ctx, this->mesh.getMutableMeshPointer<true>().get(),
             this->fec.get(), nc);
+        if (isInvalid(ptr)) {
+          return {};
+        }
         this->parallel_fespaces.insert({nc, ptr});
         return ptr;
 #else
@@ -154,17 +159,20 @@ namespace mfem_mgis {
         auto ptr = make_shared<FiniteElementSpace<false>>(
             ctx, this->mesh.getMutableMeshPointer<false>().get(),
             this->fec.get(), nc);
+        if (isInvalid(ptr)) {
+          return {};
+        }
         this->sequential_fespaces.insert({nc, ptr});
         return ptr;
       }
     }  // end of getFiniteElementSpace
     /*!
-     * \brief create a new parallel finite element space or reuse an existing
-     * one
-     * \param[in] ctx: execution context
+     * \brief create a new finite element space or reuse an existing one
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] args: arguments defining the finite element space
      *
-     * \note if a the list of materials identifiers contains the whole set of
+     * \note if the list of materials identifiers contains the whole set of
      * material identifiers, the finite element space will be created on the
      * whole mesh and no submesh is created.
      *
@@ -206,18 +214,14 @@ namespace mfem_mgis {
       return this->template getFiniteElementSpace<parallel>(ctx, *os, nc);
     }  // end of getFiniteElementSpace
     /*!
-     * \brief create a new parallel finite element space or reuse an existing
-     * one
-     * \param[in] ctx: execution context
+     * \brief create a new finite element space on the given mesh or reuse an
+     * existing one
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
      * \param[in] m: mesh
      * \param[in] nc: number of components
      *
-     * \note if a the list of materials identifiers contains the whole set of
-     * material identifiers, the finite element space will be created on the
-     * whole mesh and no submesh is created.
-     *
-     * \note if a sub mesh is created, it is stored internally by the underlying
-     * mesh description.
+     * \note the given mesh must be handled by the mesh discretization
      * \note if a finite element space is created, it is
      * stored internally.
      */
@@ -248,78 +252,6 @@ namespace mfem_mgis {
       return p->second;
     }  // end of getFiniteElementSpace
 
-    /*!
-     * \brief set of the nodal finite element space to the underlying mesh
-     * \param[in] ctx: execution context
-     *
-     * \note if a scalar finite element space has already been declared, it is
-     * reused.
-     */
-    [[nodiscard]] bool setNodalFiniteElementSpace(Context& ctx) noexcept {
-      if (this->mesh.describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-        return this->template setNodalFiniteElementSpace<true>(
-            ctx, *(this->mesh.getMutableMeshPointer<true>()));
-#else
-        reportUnsupportedParallelComputations();
-#endif
-      } else {
-        return this->template setNodalFiniteElementSpace<false>(
-            ctx, *(this->mesh.getMutableMeshPointer<false>()));
-      }
-    }  // end of setNodalFiniteElementSpace
-
-    /*!
-     * \brief set of the nodal finite element space to the underlying mesh
-     * \param[in] ctx: execution context
-     * \param[in] m: mesh
-     *
-     * \note the given mesh must be handled by the mesh discretization
-     * \note if a scalar finite element space has already been declared, it is
-     * reused.
-     */
-    template <bool parallel>
-    [[nodiscard]] bool setNodalFiniteElementSpace(
-        Context& ctx, const Mesh<parallel>& m) noexcept {
-      const auto d = getSpaceDimension(this->mesh);
-      auto mptr = this->mesh.template getMutableMeshPointer<parallel>(ctx, m);
-      if (isInvalid(mptr)) {
-        return false;
-      }
-      if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-        auto ptr = this->getFiniteElementSpace<true>(ctx, m, d);
-        if (isInvalid(ptr)) {
-          return false;
-        }
-        const auto* const nodes = m.GetNodes();
-        if (nodes == nullptr) {
-          mptr->SetNodalFESpace(ptr.get());
-        } else {
-          // nodes is a pointer to a grid function, even in parallel
-          if (nodes->FESpace() != ptr.get()) {
-            mptr->SetNodalFESpace(ptr.get());
-          }
-        }
-#else
-        reportUnsupportedParallelComputations();
-#endif
-      } else {
-        auto ptr = this->getFiniteElementSpace<false>(ctx, m, d);
-        if (isInvalid(ptr)) {
-          return false;
-        }
-        const auto* const nodes = m.GetNodes();
-        if (nodes == nullptr) {
-          mptr->SetNodalFESpace(ptr.get());
-        } else {
-          if (nodes->FESpace() != ptr.get()) {
-            mptr->SetNodalFESpace(ptr.get());
-          }
-        }
-      }
-      return true;
-    }
     //! \return the finite element collection
     [[nodiscard]] const FiniteElementCollection& getFiniteElementCollection()
         const noexcept {
@@ -503,21 +435,6 @@ namespace mfem_mgis {
       const noexcept {
     return this->pimpl->getMeshDiscretization();
   }  // end of getMeshDiscretization
-
-  bool FiniteElementSpacesManager::setNodalFiniteElementSpace(
-      Context& ctx) const noexcept {
-    return this->pimpl->setNodalFiniteElementSpace(ctx);
-  }  // end of setNodalFiniteElementSpace
-
-  bool FiniteElementSpacesManager::setNodalFiniteElementSpace(
-      Context& ctx, const Mesh<true>& m) const noexcept {
-    return this->pimpl->setNodalFiniteElementSpace<true>(ctx, m);
-  }  // end of setNodalFiniteElementSpace
-
-  bool FiniteElementSpacesManager::setNodalFiniteElementSpace(
-      Context& ctx, const Mesh<false>& m) const noexcept {
-    return this->pimpl->setNodalFiniteElementSpace<false>(ctx, m);
-  }  // end of setNodalFiniteElementSpace
 
   std::shared_ptr<FiniteElementSpace<true>>
   FiniteElementSpacesManager::getParallelFiniteElementSpace(

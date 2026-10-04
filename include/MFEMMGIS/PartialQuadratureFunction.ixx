@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/PartialQuadratureFunction.ixx
- * \brief
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/PartialQuadratureFunction.hxx`
  * \author Thomas Helfer
  * \date   10/03/2021
  */

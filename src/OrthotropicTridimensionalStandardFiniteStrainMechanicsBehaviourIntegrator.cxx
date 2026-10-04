@@ -1,3 +1,10 @@
+/*!
+ * \file
+ * \brief  This file implements the
+ * `OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator`
+ * class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/OrthotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"

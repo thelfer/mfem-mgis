@@ -1,6 +1,7 @@
 /*!
  * \file   TridimensionalMicromorphicDamageBehaviourIntegrator.cxx
- * \brief
+ * \brief  This file implements the
+ * `TridimensionalMicromorphicDamageBehaviourIntegrator` class
  * \author Thomas Helfer
  * \date   31/03/2023
  */
@@ -40,6 +41,10 @@ namespace mfem_mgis {
                                 std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
     this->checkHypothesis(throwing, Hypothesis::TRIDIMENSIONAL);
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {1, 3},
+                   .thermodynamic_forces_sizes = {1, 3},
+                   .tangent_operator_blocks_sizes = {{1, 1}, {3, 3}}});
   }  // end of TridimensionalMicromorphicDamageBehaviourIntegrator
 
   real TridimensionalMicromorphicDamageBehaviourIntegrator::

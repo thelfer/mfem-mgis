@@ -13,7 +13,7 @@
 
 namespace mfem_mgis {
 
-  //! \brief a base class for most coupling schemes
+  //! \brief a base class for most convergence criteria of coupling schemes
   struct MFEM_MGIS_EXPORT CouplingSchemeConvergenceCriterionBase
       : AbstractCouplingSchemeConvergenceCriterion {
     //! \brief constructor

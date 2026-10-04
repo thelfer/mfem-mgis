@@ -1,6 +1,6 @@
 /*!
  * \file   src/PartialQuadratureFunctionsSet.cxx
- * \brief
+ * \brief  This file implements the `PartialQuadratureFunctionsSet` class
  * \author Thomas Helfer
  * \date   02/06/2025
  */
@@ -12,6 +12,7 @@ namespace mfem_mgis {
 
   static std::vector<std::shared_ptr<PartialQuadratureFunction>>
   buildPartialQuadratureFunctionsSet(
+      attributes::Throwing,
       const std::vector<std::shared_ptr<const PartialQuadratureSpace>>& qspaces,
       const mfem_mgis::size_type n) {
     auto functions = std::vector<std::shared_ptr<PartialQuadratureFunction>>{};
@@ -27,7 +28,7 @@ namespace mfem_mgis {
       const std::vector<std::shared_ptr<const PartialQuadratureSpace>>& qspaces,
       const mfem_mgis::size_type n)
       : PartialQuadratureFunctionsSet(
-            buildPartialQuadratureFunctionsSet(qspaces, n)) {}
+            buildPartialQuadratureFunctionsSet(throwing, qspaces, n)) {}
 
   PartialQuadratureFunctionsSet::PartialQuadratureFunctionsSet(
       const std::vector<std::shared_ptr<PartialQuadratureFunction>>& functions)

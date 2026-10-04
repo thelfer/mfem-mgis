@@ -1,6 +1,6 @@
 /*!
  * \file   src/FiniteElementDiscretization.cxx
- * \brief
+ * \brief  This file implements the `FiniteElementDiscretization` class
  * \author Thomas Helfer
  * \date 16/12/2020
  */
@@ -27,7 +27,7 @@ namespace mfem_mgis {
 
   const char* const FiniteElementDiscretization::UnknownsSize = "UnknownsSize";
 
-  //! list of valid parametres when the mesh is alredy built
+  //! \return list of valid parameters when the mesh is already built
   [[nodiscard]] static std::vector<std::string>
   getFiniteElementDiscretizationParametersList() {
     auto d =
@@ -169,11 +169,6 @@ namespace mfem_mgis {
   FiniteElementDiscretization::getFiniteElementSpacesManager() const noexcept {
     return this->fespaces_manager;
   }  // end of getFiniteElementSpacesManager
-
-  bool FiniteElementDiscretization::setNodalFiniteElementSpace(
-      Context& ctx) const noexcept {
-    return this->fespaces_manager.setNodalFiniteElementSpace(ctx);
-  }  // end of setNodalFiniteElementSpace
 
   const FiniteElementCollection&
   FiniteElementDiscretization::getFiniteElementCollection() const noexcept {

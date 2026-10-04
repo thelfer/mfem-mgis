@@ -13,10 +13,10 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief a convergence criterion which checks that every coupling items
+   * \brief a convergence criterion which checks that every coupling item
    * converged at the first iteration.
    */
-  struct FirstIterationConvergenceCriterion
+  struct MFEM_MGIS_EXPORT FirstIterationConvergenceCriterion
       : CouplingSchemeConvergenceCriterionBase {
     //! \return a description of this criterion
     [[nodiscard]] static std::string getDescription() noexcept;
@@ -25,12 +25,35 @@ namespace mfem_mgis {
     getParametersDescription() noexcept;
     //! \brief constructor
     FirstIterationConvergenceCriterion();
+    /*!
+     * \brief method called at the beginning of a time step. Does nothing.
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: description of the time step
+     * \return true on success
+     */
     [[nodiscard]] bool performInitializationTaksAtTheBeginningOfTheTimeStep(
-        Context &, const TimeStep &) noexcept override;
+        Context& ctx, const TimeStep& ts) noexcept override;
+    /*!
+     * \brief check that the solvers of all items, including those of nested
+     * coupling schemes, performed no iteration.
+     * \return if the criterion is satisfied, empty on failure
+     * \param[in, out] ctx: execution context
+     * \param[in] o: output of all items of the coupling scheme
+     */
     [[nodiscard]] std::optional<bool> check(
-        Context &, const ComputeNextStateOutput &) const noexcept override;
-    [[nodiscard]] bool update(Context &) noexcept override;
-    [[nodiscard]] bool revert(Context &) noexcept override;
+        Context& ctx, const ComputeNextStateOutput& o) const noexcept override;
+    /*!
+     * \brief update the state of the criterion. Does nothing.
+     * \param[in, out] ctx: execution context
+     * \return true on success
+     */
+    [[nodiscard]] bool update(Context& ctx) noexcept override;
+    /*!
+     * \brief revert the state of the criterion. Does nothing.
+     * \param[in, out] ctx: execution context
+     * \return true on success
+     */
+    [[nodiscard]] bool revert(Context& ctx) noexcept override;
     //! \brief destructor
     ~FirstIterationConvergenceCriterion() noexcept override;
   };

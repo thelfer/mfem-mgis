@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/L2Projection.hxx
- * \brief
+ * \brief  This file declares the L2 projection and the implicit gradient
+ * regularization of partial quadrature functions
  * \author Thomas Helfer
  * \date   14/01/2026
  */
@@ -20,6 +21,7 @@ namespace mfem_mgis {
   struct LinearSolverHandler;
   struct ImmutablePartialQuadratureFunctionView;
 
+  //! \brief result of an L2 projection
   template <bool parallel>
   struct L2ProjectionResult {
     /*!
@@ -31,17 +33,24 @@ namespace mfem_mgis {
     std::unique_ptr<GridFunction<parallel>> result;
   };
 
+  /*!
+   * \brief allocate the L2 projection of the given functions
+   * \param[in, out] ctx: execution context
+   * \param[in] fcts: functions to be projected
+   * \return the allocated result
+   */
   template <bool parallel>
   [[nodiscard]] std::optional<L2ProjectionResult<parallel>>
   createL2ProjectionResult(
-      Context&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
-  //
+      Context& ctx,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) noexcept;
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<L2ProjectionResult<true>>
   createL2ProjectionResult(
       Context&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<L2ProjectionResult<false>>
   createL2ProjectionResult(
@@ -51,21 +60,26 @@ namespace mfem_mgis {
    * \brief update the L2 projection of the given partial quadrature fields
    * on nodes.
    *
+   * \param[in, out] ctx: execution context
+   * \param[in, out] r: result of the projection
+   * \param[in, out] s: linear solver handler
    * \param[in] fcts: functions to be projected
+   * \return true on success
    */
   template <bool parallel>
   [[nodiscard]] bool updateL2Projection(
-      Context&,
-      L2ProjectionResult<parallel>&,
-      LinearSolverHandler&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
-  //
+      Context& ctx,
+      L2ProjectionResult<parallel>& r,
+      LinearSolverHandler& s,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) noexcept;
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] bool updateL2Projection<true>(
       Context&,
       L2ProjectionResult<true>&,
       LinearSolverHandler&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] bool updateL2Projection<false>(
       Context&,
@@ -78,20 +92,24 @@ namespace mfem_mgis {
    * This function first calls `createL2ProjectionResult` and then
    * `updateL2Projection`.
    *
+   * \param[in, out] ctx: execution context
+   * \param[in, out] s: linear solver handler
    * \param[in] fcts: functions to be projected
+   * \return the result of the projection
    */
   template <bool parallel>
   std::optional<L2ProjectionResult<parallel>> computeL2Projection(
-      Context&,
-      LinearSolverHandler&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
-  //
+      Context& ctx,
+      LinearSolverHandler& s,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) noexcept;
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<L2ProjectionResult<true>>
   computeL2Projection<true>(
       Context&,
       LinearSolverHandler&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<L2ProjectionResult<false>>
   computeL2Projection<false>(
@@ -117,25 +135,27 @@ namespace mfem_mgis {
    *
    * where \f$l\f$ is a characteristic length.
    *
-   * See Peerling et al. for details.
+   * See Peerlings et al. for details.
    *
    * Peerlings, R.H.J., de Borst, R., Brekelmans, W.A.M. and de Vree, J.H.P.
    * (1996). Gradient-Enhanced Damage for Quasi-brittle Materials, International
-   * Journal for Numerical Methods in Engineering, 39: 3391 3403.
+   * Journal for Numerical Methods in Engineering, 39: 3391-3403.
    *
-   * \param[in] ctx: execution context
-   * \param[in] l: linear solver handler
-   * \param[in] fcts: functions to be reguarlized
+   * \param[in, out] ctx: execution context
+   * \param[in, out] r: result of the regularization
+   * \param[in, out] s: linear solver handler
+   * \param[in] fcts: functions to be regularized
    * \param[in] l: characteristic length
+   * \return true on success
    */
   template <bool parallel>
   [[nodiscard]] bool updateImplicitGradientRegularization(
-      Context&,
-      ImplicitGradientRegularizationResult<parallel>&,
-      LinearSolverHandler&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const real) noexcept;
-  //
+      Context& ctx,
+      ImplicitGradientRegularizationResult<parallel>& r,
+      LinearSolverHandler& s,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real l) noexcept;
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] bool
   updateImplicitGradientRegularization<true>(
@@ -144,6 +164,7 @@ namespace mfem_mgis {
       LinearSolverHandler&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
       const real) noexcept;
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] bool
   updateImplicitGradientRegularization<false>(
@@ -157,19 +178,20 @@ namespace mfem_mgis {
    * quadrature fields on nodes. This function first calls
    * `createL2ProjectionResult` and then `updateImplicitGradientRegularization`.
    *
-   * \param[in] ctx: execution context
-   * \param[in] l: linear solver handler
-   * \param[in] fcts: functions to be reguarlized
+   * \param[in, out] ctx: execution context
+   * \param[in, out] s: linear solver handler
+   * \param[in] fcts: functions to be regularized
    * \param[in] l: characteristic length
+   * \return the result of the regularization
    */
   template <bool parallel>
   std::optional<ImplicitGradientRegularizationResult<parallel>>
   computeImplicitGradientRegularization(
-      Context&,
-      LinearSolverHandler&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const real) noexcept;
-  //
+      Context& ctx,
+      LinearSolverHandler& s,
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+      const real l) noexcept;
+  //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT
       [[nodiscard]] std::optional<ImplicitGradientRegularizationResult<true>>
@@ -178,6 +200,7 @@ namespace mfem_mgis {
           LinearSolverHandler&,
           const std::vector<ImmutablePartialQuadratureFunctionView>&,
           const real) noexcept;
+  //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT
       [[nodiscard]] std::optional<ImplicitGradientRegularizationResult<false>>

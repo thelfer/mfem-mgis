@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/NonLinearModel.cxx
- * \brief
+ * \file   src/NonLinearModel.cxx
+ * \brief  This file implements the `NonLinearModel` class
  * \author Thomas Helfer
  * \date   05/03/2026
  */
@@ -18,7 +18,6 @@ namespace mfem_mgis {
             m,
             extract(
                 throwing, parameters, ModelBase::getParametersDescription())),
-        // IL MANQUAIT LE CONTEXTE ICI :
         problem(std::make_shared<NonLinearEvolutionProblem>(
             ctx,
             m,
@@ -31,16 +30,23 @@ namespace mfem_mgis {
     checkParameters(throwing, parameters, valid_parameters);
   }
 
-  NonLinearModel::NonLinearModel(Context &ctx,
-                                 std::shared_ptr<NonLinearEvolutionProblem> p)
-      : ModelBase(ctx,
-                  p->getFiniteElementDiscretization()),  // <--- IL MANQUAIT LE
-                                                         // CONTEXTE ICI
-        problem(p) {
+  /*!
+   * \return the given problem
+   * \param[in] p: non linear evolution problem
+   * \throws std::runtime_error if the problem is null
+   */
+  static NonLinearEvolutionProblem &checkProblem(
+      const std::shared_ptr<NonLinearEvolutionProblem> &p) {
     if (p.get() == nullptr) {
       raise("invalid problem");
     }
-  }  // end of NonLinearModel
+    return *p;
+  }  // end of checkProblem
+
+  NonLinearModel::NonLinearModel(Context &ctx,
+                                 std::shared_ptr<NonLinearEvolutionProblem> p)
+      : ModelBase(ctx, checkProblem(p).getFiniteElementDiscretization()),
+        problem(p) {}  // end of NonLinearModel
 
   NonLinearEvolutionProblem &NonLinearModel::getProblem() noexcept {
     return *(this->problem);
@@ -77,15 +83,13 @@ namespace mfem_mgis {
   bool NonLinearModel::executePostProcessingTasks(Context &ctx,
                                                   const TimeStep &ts,
                                                   const bool b) noexcept {
-    if (!ModelBase::executePostProcessingTasks(ctx, ts, b)) {
-      return false;
-    }
+    auto success = ModelBase::executePostProcessingTasks(ctx, ts, b);
     if (b) {
       if (!this->problem->executePostProcessings(ctx, ts.begin, ts.dt)) {
-        return false;
+        success = false;
       }
     }
-    return true;
+    return success;
   }
 
   std::pair<ExitStatus, std::optional<ComputeNextStateOutput>>

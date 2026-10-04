@@ -1,6 +1,6 @@
 /*!
  * \file   src/MultiMaterialNonLinearIntegrator.cxx
- * \brief
+ * \brief  This file implements the `MultiMaterialNonLinearIntegrator` class
  * \author Thomas Helfer
  * \date   8/06/2020
  */
@@ -23,7 +23,7 @@ namespace mfem_mgis {
 
   /*!
    * \brief a simple test
-   * \param[in] i: pointer to behaviour integrator
+   * \param[in] bis: behaviour integrators per material
    * \param[in] n: name of the calling method
    * \param[in] m: material id
    */
@@ -292,7 +292,8 @@ namespace mfem_mgis {
             integrators.front()->integrate(
                 e, tr, U,
                 IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),
-            "ERROR Behaviour");
+            "behaviour integration failed on element " << tr.ElementNo
+                                                       << " of material " << m);
       }
       integrators.front()->updateResidual(F, e, tr, U);
       return;
@@ -311,7 +312,8 @@ namespace mfem_mgis {
             bi->integrate(
                 e, tr, U,
                 IntegrationType::INTEGRATION_CONSISTENT_TANGENT_OPERATOR),
-            "ERROR Behaviour");
+            "behaviour integration failed on element " << tr.ElementNo
+                                                       << " of material " << m);
       }
       bi->updateResidual(F_tmp, e, tr, U);
       F += F_tmp;
@@ -353,6 +355,10 @@ namespace mfem_mgis {
       const std::string& l,
       const std::string& b,
       const Parameters& params) noexcept {
+    if ((m == 0) || (m >= this->behaviour_integrators.size())) {
+      return ctx.registerErrorMessage("invalid material index '" +
+                                      std::to_string(m) + "'");
+    }
     const auto of = BehaviourIntegratorFactory::get(ctx, this->hypothesis);
     if (isInvalid(of)) {
       return {};
@@ -370,16 +376,6 @@ namespace mfem_mgis {
     }
     bis.push_back(std::move(bi));
     return s;
-  }  // end of addBehaviourIntegrator
-
-  size_type MultiMaterialNonLinearIntegrator::addBehaviourIntegrator(
-      const std::string& n,
-      const size_type m,
-      const std::string& l,
-      const std::string& b) {
-    auto ctx = Context{};
-    auto or_raise = ctx.getThrowingFailureHandler();
-    return this->addBehaviourIntegrator(ctx, n, m, l, b) | or_raise;
   }  // end of addBehaviourIntegrator
 
   OptionalReference<const Material>
@@ -448,38 +444,6 @@ namespace mfem_mgis {
                                       std::to_string(b) + "'");
     }
     return {bis.at(b).get()};
-  }  // end of getBehaviourIntegrator
-
-  const Material& MultiMaterialNonLinearIntegrator::getMaterial(
-      const size_type m) const {
-    checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
-                                          "getMaterial", m);
-    const auto& bis = this->behaviour_integrators[m];
-    return bis.front()->getMaterial();
-  }  // end of getMaterial
-
-  Material& MultiMaterialNonLinearIntegrator::getMaterial(const size_type m) {
-    checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
-                                          "getMaterial", m);
-    const auto& bis = this->behaviour_integrators[m];
-    return bis.front()->getMaterial();
-  }  // end of getMaterial
-
-  const AbstractBehaviourIntegrator&
-  MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(
-      const size_type m) const {
-    checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
-                                          "getBehaviourIntegrator", m);
-    const auto& bis = this->behaviour_integrators[m];
-    return *(bis.front());
-  }  // end of getBehaviourIntegrator
-
-  AbstractBehaviourIntegrator&
-  MultiMaterialNonLinearIntegrator::getBehaviourIntegrator(const size_type m) {
-    checkIfBehaviourIntegratorsAreDefined(this->behaviour_integrators,
-                                          "getBehaviourIntegrator", m);
-    const auto& bis = this->behaviour_integrators[m];
-    return *(bis.front());
   }  // end of getBehaviourIntegrator
 
   real MultiMaterialNonLinearIntegrator::getTimeIncrement() const noexcept {

@@ -1,6 +1,6 @@
 /*!
  * \file   src/PostProcessingFactory.cxx
- * \brief
+ * \brief  This file implements the `PostProcessingFactory` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */
@@ -49,69 +49,50 @@ namespace mfem_mgis {
           std::string{n} + "' declared");
     }
     try {
-      return pg->second(p, params);
+      return pg->second(ctx, p, params);
     } catch (...) {
-      std::ignore = mgis::registerExceptionInErrorBacktrace(ctx);
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
     return {};
   }  // end of generate
 
-  std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>
-  PostProcessingFactory<true>::generate(
-      std::string_view n,
-      NonLinearEvolutionProblemImplementation<true>& p,
-      const Parameters& params) const {
-    const auto pg = this->generators.find(n);
-    if (pg == this->generators.end()) {
-      std::string msg("PostProcessingFactory<true>::generate: ");
-      msg += "no post-processing called '";
-      msg += n;
-      msg += "' declared";
-      raise(msg);
-    }
-    const auto& g = pg->second;
-    return g(p, params);
-  }  // end of generate
-
   PostProcessingFactory<true>::PostProcessingFactory() {
     this->add("ParaviewExportResults",
-              [](NonLinearEvolutionProblemImplementation<true>& p,
-                 const Parameters& params) {
-                auto ctx = Context{};
-                return std::make_unique<ParaviewExportResults<true>>(ctx, p,
-                                                                     params);
+              [](Context& ctx, NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) noexcept {
+                return make_unique<ParaviewExportResults<true>>(ctx, p, params);
               });
     this->add(
         "ParaviewExportIntegrationPointResultsAtNodes",
-        [](NonLinearEvolutionProblemImplementation<true>& p,
-           const Parameters& params) {
-          auto ctx = Context{};
-          return std::make_unique<
+        [](Context& ctx, NonLinearEvolutionProblemImplementation<true>& p,
+           const Parameters& params) noexcept {
+          return make_unique<
               ParaviewExportIntegrationPointResultsAtNodesImplementation<true>>(
               ctx, p, params);
         });
     this->add("ComputeResultantForceOnBoundary",
-              [](NonLinearEvolutionProblemImplementation<true>& p,
-                 const Parameters& params) {
-                return std::make_unique<ComputeResultantForceOnBoundary<true>>(
-                    p, params);
+              [](Context& ctx, NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) noexcept {
+                return make_unique<ComputeResultantForceOnBoundary<true>>(
+                    ctx, p, params);
               });
     this->add("MeanThermodynamicForces",
-              [](NonLinearEvolutionProblemImplementation<true>& p,
-                 const Parameters& params) {
-                return std::make_unique<MeanThermodynamicForces<true>>(p,
-                                                                       params);
+              [](Context& ctx, NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) noexcept {
+                return make_unique<MeanThermodynamicForces<true>>(ctx, p,
+                                                                  params);
               });
-    this->add(
-        "StoredEnergy", [](NonLinearEvolutionProblemImplementation<true>& p,
-                           const Parameters& params) {
-          return std::make_unique<StoredEnergyPostProcessing<true>>(p, params);
-        });
+    this->add("StoredEnergy",
+              [](Context& ctx, NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) noexcept {
+                return make_unique<StoredEnergyPostProcessing<true>>(ctx, p,
+                                                                     params);
+              });
     this->add("DissipatedEnergy",
-              [](NonLinearEvolutionProblemImplementation<true>& p,
-                 const Parameters& params) {
-                return std::make_unique<DissipatedEnergyPostProcessing<true>>(
-                    p, params);
+              [](Context& ctx, NonLinearEvolutionProblemImplementation<true>& p,
+                 const Parameters& params) noexcept {
+                return make_unique<DissipatedEnergyPostProcessing<true>>(
+                    ctx, p, params);
               });
   }  // end of PostProcessingFactory
 
@@ -150,69 +131,54 @@ namespace mfem_mgis {
           std::string{n} + "' declared");
     }
     try {
-      return pg->second(p, params);
+      return pg->second(ctx, p, params);
     } catch (...) {
-      std::ignore = mgis::registerExceptionInErrorBacktrace(ctx);
+      std::ignore = registerExceptionInErrorBacktrace(ctx);
     }
     return {};
   }  // end of generate
 
-  std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>
-  PostProcessingFactory<false>::generate(
-      std::string_view n,
-      NonLinearEvolutionProblemImplementation<false>& p,
-      const Parameters& params) const {
-    const auto pg = this->generators.find(n);
-    if (pg == this->generators.end()) {
-      std::string msg("PostProcessingFactory<false>::generate: ");
-      msg += "no post-processing called '";
-      msg += n;
-      msg += "' declared";
-      raise(msg);
-    }
-    const auto& g = pg->second;
-    return g(p, params);
-  }  // end of generate
-
   PostProcessingFactory<false>::PostProcessingFactory() {
-    this->add("ParaviewExportResults",
-              [](NonLinearEvolutionProblemImplementation<false>& p,
-                 const Parameters& params) {
-                auto ctx = Context{};
-                return std::make_unique<ParaviewExportResults<false>>(ctx, p,
-                                                                      params);
-              });
-    this->add("ParaviewExportIntegrationPointResultsAtNodes",
-              [](NonLinearEvolutionProblemImplementation<false>& p,
-                 const Parameters& params) {
-                auto ctx = Context{};
-                return std::make_unique<
-                    ParaviewExportIntegrationPointResultsAtNodesImplementation<
-                        false>>(ctx, p, params);
-              });
-    this->add("ComputeResultantForceOnBoundary",
-              [](NonLinearEvolutionProblemImplementation<false>& p,
-                 const Parameters& params) {
-                return std::make_unique<ComputeResultantForceOnBoundary<false>>(
-                    p, params);
-              });
-    this->add("MeanThermodynamicForces",
-              [](NonLinearEvolutionProblemImplementation<false>& p,
-                 const Parameters& params) {
-                return std::make_unique<MeanThermodynamicForces<false>>(p,
-                                                                        params);
-              });
     this->add(
-        "StoredEnergy", [](NonLinearEvolutionProblemImplementation<false>& p,
-                           const Parameters& params) {
-          return std::make_unique<StoredEnergyPostProcessing<false>>(p, params);
+        "ParaviewExportResults",
+        [](Context& ctx, NonLinearEvolutionProblemImplementation<false>& p,
+           const Parameters& params) noexcept {
+          return make_unique<ParaviewExportResults<false>>(ctx, p, params);
         });
-    this->add("DissipatedEnergy",
-              [](NonLinearEvolutionProblemImplementation<false>& p,
-                 const Parameters& params) {
-                return std::make_unique<DissipatedEnergyPostProcessing<false>>(
-                    p, params);
-              });
+    this->add(
+        "ParaviewExportIntegrationPointResultsAtNodes",
+        [](Context& ctx, NonLinearEvolutionProblemImplementation<false>& p,
+           const Parameters& params) noexcept {
+          return make_unique<
+              ParaviewExportIntegrationPointResultsAtNodesImplementation<
+                  false>>(ctx, p, params);
+        });
+    this->add(
+        "ComputeResultantForceOnBoundary",
+        [](Context& ctx, NonLinearEvolutionProblemImplementation<false>& p,
+           const Parameters& params) noexcept {
+          return make_unique<ComputeResultantForceOnBoundary<false>>(ctx, p,
+                                                                     params);
+        });
+    this->add(
+        "MeanThermodynamicForces",
+        [](Context& ctx, NonLinearEvolutionProblemImplementation<false>& p,
+           const Parameters& params) noexcept {
+          return make_unique<MeanThermodynamicForces<false>>(ctx, p, params);
+        });
+    this->add(
+        "StoredEnergy",
+        [](Context& ctx, NonLinearEvolutionProblemImplementation<false>& p,
+           const Parameters& params) noexcept {
+          return make_unique<StoredEnergyPostProcessing<false>>(ctx, p, params);
+        });
+    this->add(
+        "DissipatedEnergy",
+        [](Context& ctx, NonLinearEvolutionProblemImplementation<false>& p,
+           const Parameters& params) noexcept {
+          return make_unique<DissipatedEnergyPostProcessing<false>>(ctx, p,
+                                                                    params);
+        });
   }  // end of PostProcessingFactory
 
   PostProcessingFactory<false>::~PostProcessingFactory() = default;

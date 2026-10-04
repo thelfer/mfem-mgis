@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/MPI.hxx
- * \brief
+ * \brief  This file declares some MPI utilities
  * \author Thomas Helfer
  * \date   06/02/2026
  */
@@ -17,6 +17,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
+  //! \brief MPI data type associated with the type T
   template <typename T>
   inline const auto mpi_type = []() {
     if constexpr (std::is_enum_v<T>) {
@@ -35,8 +36,6 @@ namespace mfem_mgis {
       return MPI_SHORT;
     } else if constexpr (std::same_as<T, unsigned short>) {
       return MPI_UNSIGNED_SHORT;
-    } else if constexpr (std::same_as<T, int>) {
-      return MPI_INT;
     } else if constexpr (std::same_as<T, unsigned int>) {
       return MPI_UNSIGNED;
     } else if constexpr (std::same_as<T, long>) {
@@ -84,23 +83,25 @@ namespace mfem_mgis {
    *
    * \param[in] m: mesh discretization
    * \param[in] b: boolean value in the current process
+   * \return true if the value is true on all processes
    *
    * \note if the computations are sequential, no MPI call is made
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool isTrueOnAllProcesses(
-      const MeshDiscretization&, const bool) noexcept;
+      const MeshDiscretization& m, const bool b) noexcept;
 
   /*!
-   * \brief a simple reduction for boolean values
+   * \brief check the validity of a value on all processes
+   * \return if the given value is valid on all processes
    *
    * \param[in] m: mesh discretization
-   * \param[in] b: boolean value in the current process
+   * \param[in] v: value in the current process
    *
    * \note if the computations are sequential, no MPI call is made
    */
   template <typename T>
-  [[nodiscard]] bool isValidOnAllProcesses(const MeshDiscretization&,
-                                           const T&) noexcept;
+  [[nodiscard]] bool isValidOnAllProcesses(const MeshDiscretization& m,
+                                           const T& v) noexcept;
 
 }  // end of namespace mfem_mgis
 

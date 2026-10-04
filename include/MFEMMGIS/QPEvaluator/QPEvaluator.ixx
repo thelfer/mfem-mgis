@@ -1,6 +1,7 @@
 /*!
- * \file   MFEMMGIS/QPEvaluator.ixx
- * \brief
+ * \file   MFEMMGIS/QPEvaluator/QPEvaluator.ixx
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/QPEvaluator/QPEvaluator.hxx`
  * \author Thomas Helfer
  * \date   29/04/2025
  */
@@ -185,7 +186,7 @@ namespace mfem_mgis {
       const auto gsize = sm.gradients_stride;
       if (GradientsSize != gsize) {
         return ctx.registerErrorMessage(
-            "inconsistent number of components of the thermodynamic forces");
+            "inconsistent number of components of the gradients");
       }
     }
     return true;
@@ -238,12 +239,6 @@ namespace mfem_mgis {
              const RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) {
     return e.check(eh);
   }  // end of check
-
-  template <size_type GradientsSize>
-  inline void allocateWorkspace(
-      RotatedGradientsMatrixQPEvaluator<GradientsSize>& e) {
-    e.allocateWorkspace();
-  }
 
   template <size_type GradientsSize>
   inline mgis::size_type getNumberOfComponents(

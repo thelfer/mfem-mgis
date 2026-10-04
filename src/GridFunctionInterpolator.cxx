@@ -18,6 +18,10 @@
 
 namespace mfem_mgis::internals {
 
+  //! \brief objects locating the points, one per mesh
+  using PointsFinders =
+      std::map<const mfem::Mesh*, std::shared_ptr<mfem::FindPointsGSLIB>>;
+
   template <size_type N>
   requires((N == 2) || (N == 3)) static void addPoints_impl(
       std::vector<real>& points, const std::vector<Point<N>>& pts) noexcept {
@@ -37,6 +41,7 @@ namespace mfem_mgis::internals {
   requires((N == 2) || (N == 3))
       [[nodiscard]] static std::optional<tfel::math::matrix<real>>  //
       interpolate_impl(Context& ctx,
+                       PointsFinders& finders,
                        const FiniteElementSpacesManager& fespaces_manager,
                        const GridFunction<parallel>& f,
                        std::vector<real>& points) {
@@ -67,22 +72,27 @@ namespace mfem_mgis::internals {
           " can't be interpolation of points of dimension '" +
           std::to_string(N) + "'");
     }
-    //
-    if (!fespaces_manager.setNodalFiniteElementSpace(ctx, *m_ptr)) {
-      return {};
-    }
-    //
-    auto finder = mfem::FindPointsGSLIB{};
-    finder.Setup(*m_ptr);
-    finder.SetDefaultInterpolationValue(std::numeric_limits<real>::quiet_NaN());
-    //
-    auto pts =
-        mfem::Vector{points.data(), static_cast<size_type>(points.size())};
-    finder.FindPoints(pts, mfem::Ordering::byVDIM);
-    for (const auto& c : finder.GetCode()) {
-      if (c == 2) {
-        return ctx.registerErrorMessage("some points were not found");
+    // the points are searched once per mesh
+    auto& finder = finders[m];
+    if (finder == nullptr) {
+      // FindPointsGSLIB needs the nodes of the mesh. EnsureNodes keeps the
+      // existing nodes or adds nodes of order 1 to a straight mesh: the
+      // geometry and the integration rules of the behaviour integrators are
+      // unchanged.
+      m_ptr->EnsureNodes();
+      auto new_finder = std::make_shared<mfem::FindPointsGSLIB>();
+      new_finder->Setup(*m_ptr);
+      new_finder->SetDefaultInterpolationValue(
+          std::numeric_limits<real>::quiet_NaN());
+      auto pts =
+          mfem::Vector{points.data(), static_cast<size_type>(points.size())};
+      new_finder->FindPoints(pts, mfem::Ordering::byVDIM);
+      for (const auto& c : new_finder->GetCode()) {
+        if (c == 2) {
+          return ctx.registerErrorMessage("some points were not found");
+        }
       }
+      finder = std::move(new_finder);
     }
     const auto npoints = static_cast<size_type>(points.size() / N);
     auto result = std::optional<tfel::math::matrix<real>>{};
@@ -98,7 +108,7 @@ namespace mfem_mgis::internals {
     }
     auto interpolated_values = mfem::Vector(
         data, static_cast<size_type>(npoints * fespace->GetVDim()));
-    finder.Interpolate(f, interpolated_values);
+    finder->Interpolate(f, interpolated_values);
     if (fespace->GetOrdering() == mfem::Ordering::byNODES) {
       for (size_type i = 0; i != npoints; ++i) {
         for (size_type j = 0; j != fespace->GetVDim(); ++j) {
@@ -165,6 +175,7 @@ namespace mfem_mgis {
                                       std::to_string(d) + "D mesh");
     }
     internals::addPoints_impl<2>(this->points, pts);
+    this->finders.clear();
     return true;
   }  // end of GridFunctionInterpolator::addPoints
 
@@ -177,6 +188,7 @@ namespace mfem_mgis {
                                       std::to_string(d) + "D mesh");
     }
     internals::addPoints_impl<3>(this->points, pts);
+    this->finders.clear();
     return true;
   }  // end of GridFunctionInterpolator::addPoints
 
@@ -192,11 +204,11 @@ namespace mfem_mgis {
     const auto d =
         getSpaceDimension(this->fespaces_manager.getMeshDiscretization());
     if (d == 2) {
-      return internals::interpolate_impl<true, 2>(ctx, this->fespaces_manager,
-                                                  f, this->points);
+      return internals::interpolate_impl<true, 2>(
+          ctx, this->finders, this->fespaces_manager, f, this->points);
     }
-    return internals::interpolate_impl<true, 3>(ctx, this->fespaces_manager, f,
-                                                this->points);
+    return internals::interpolate_impl<true, 3>(
+        ctx, this->finders, this->fespaces_manager, f, this->points);
   }    // end of interpolate
 #endif /* MFEM_USE_MPI */
 
@@ -211,11 +223,11 @@ namespace mfem_mgis {
     const auto d =
         getSpaceDimension(this->fespaces_manager.getMeshDiscretization());
     if (d == 2) {
-      return internals::interpolate_impl<false, 2>(ctx, this->fespaces_manager,
-                                                   f, this->points);
+      return internals::interpolate_impl<false, 2>(
+          ctx, this->finders, this->fespaces_manager, f, this->points);
     }
-    return internals::interpolate_impl<false, 3>(ctx, this->fespaces_manager, f,
-                                                 this->points);
+    return internals::interpolate_impl<false, 3>(
+        ctx, this->finders, this->fespaces_manager, f, this->points);
   }  // end of interpolate
 
   GridFunctionInterpolator::~GridFunctionInterpolator() = default;

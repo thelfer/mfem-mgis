@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/MeanThermodynamicForces.hxx
- * \brief
+ * \brief  This file declares the `MeanThermodynamicForces` class
  * \author Thomas Helfer, Hugo Copin
  * \date   08/04/2021
  */
@@ -12,45 +12,56 @@
 #include <vector>
 #include <fstream>
 #include "MFEMMGIS/Config.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
+#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/PostProcessing/NonLinearEvolutionProblemPostProcessingBase.hxx"
 
 namespace mfem_mgis {
 
   /*!
-   * \brief a post-processing which computes the mean values of each components
-   * of the thermodynamic forces and print them in a file.
+   * \brief a post-processing which computes the mean values of each component
+   * of the thermodynamic forces and prints them in a file.
    */
   template <bool parallel>
   struct MeanThermodynamicForces final
-      : public AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
+      : public NonLinearEvolutionProblemPostProcessingBase<parallel> {
     /*!
      * \brief constructor
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] params: parameters passed to the post-processing
      */
-    MeanThermodynamicForces(NonLinearEvolutionProblemImplementation<parallel>&,
-                            const Parameters&);
-    //
-    [[nodiscard]] bool executeInitialPostProcessing(
-        Context&,
-        NonLinearEvolutionProblemImplementation<parallel>&,
-        const real) noexcept override;
+    MeanThermodynamicForces(
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const Parameters& params);
+    /*!
+     * \brief execute the post-processing
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return true on success
+     */
     [[nodiscard]] bool execute(
-        Context&,
-        NonLinearEvolutionProblemImplementation<parallel>&,
-        const real,
-        const real) noexcept override;
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const real t,
+        const real dt) noexcept override;
     //! \brief destructor
     ~MeanThermodynamicForces() override;
 
    private:
     /*!
      * \brief open the output file and write the header
+     * \param[in, out] ctx: execution context
      * \param[in] p: non linear problem
      * \param[in] f: file name
+     * \return true on success
      */
-    void openFile(NonLinearEvolutionProblemImplementation<parallel>&,
-                  const std::string&);
+    [[nodiscard]] bool openFile(
+        Context& ctx,
+        NonLinearEvolutionProblemImplementation<parallel>& p,
+        const std::string& f) noexcept;
     /*!
      * \brief write the mean of the value of the thermodynamic forces of a
      * material to the output file.
@@ -58,8 +69,10 @@ namespace mfem_mgis {
      * material.
      * \param[in] v: volume of the material
      */
-    void writeResults(const std::vector<real>&, const real);
+    void writeResults(const std::vector<real>& tf_integral, const real v);
 
+    //! \brief selection of the behaviour integrators of each material
+    const BehaviourIntegratorsSelection behaviour_integrators;
     //! \brief output file
     std::ofstream out;
   };  // end of struct MeanThermodynamicForces

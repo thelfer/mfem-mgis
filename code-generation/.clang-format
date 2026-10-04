@@ -1,0 +1,3 @@
+BasedOnStyle: InheritParentConfig
+DerivePointerAlignment: false
+PointerAlignment: Right

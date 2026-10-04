@@ -60,7 +60,7 @@ MUMPS Solver
 
 .. code-block:: cpp
   
-  problem.setLinearSolver("MUMPSSolver", {{"Symmetric", true}})
+  problem.setLinearSolver(ctx, "MUMPSSolver", {{"Symmetric", true}}) | or_die;
 
 UMFPack Solver
 ^^^^^^^^^^^^^^
@@ -77,7 +77,7 @@ UMFPack Solver
 
 .. code-block:: cpp
 
-  problem.setLinearSolver("UMFPackSolver", {})
+  problem.setLinearSolver(ctx, "UMFPackSolver", {}) | or_die;
 
 .. note::
 
@@ -124,11 +124,12 @@ Conjugate Gradient
 
 .. code-block:: cpp
 
-  problem.setLinearSolver("CGSolver", {{"VerbosityLevel", 1},
-            {"AbsoluteTolerance", 1e-12},
-            {"RelativeTolerance", 1e-12},
-            {"MaximumNumberOfIterations", 5000}
-            })
+  problem.setLinearSolver(ctx, "CGSolver",
+                          {{"VerbosityLevel", 1},
+                           {"AbsoluteTolerance", 1e-12},
+                           {"RelativeTolerance", 1e-12},
+                           {"MaximumNumberOfIterations", 5000}}) |
+      or_die;
 
 
 Generalized Minimal Residual (GMRES)
@@ -156,11 +157,12 @@ Generalized Minimal Residual (GMRES)
 
 .. code-block:: cpp
 
-  problem.setLinearSolver("GMRESSolver",
-          {{"VerbosityLevel", 1},
-          {"AbsoluteTolerance", 1e-12},
-          {"RelativeTolerance", 1e-12},
-          {"MaximumNumberOfIterations", 100000}});
+  problem.setLinearSolver(ctx, "GMRESSolver",
+                          {{"VerbosityLevel", 1},
+                           {"AbsoluteTolerance", 1e-12},
+                           {"RelativeTolerance", 1e-12},
+                           {"MaximumNumberOfIterations", 100000}}) |
+      or_die;
 
 
 Biconjugate Gradient Stabilized (BiCGSTAB)
@@ -188,11 +190,12 @@ Biconjugate Gradient Stabilized (BiCGSTAB)
 
 .. code-block:: cpp
 
-  problem.setLinearSolver("BiCGSTABSolver",
-          {{"VerbosityLevel", 1},
-          {"AbsoluteTolerance", 1e-12},
-          {"RelativeTolerance", 1e-12},
-          {"MaximumNumberOfIterations", 1000}});
+  problem.setLinearSolver(ctx, "BiCGSTABSolver",
+                          {{"VerbosityLevel", 1},
+                           {"AbsoluteTolerance", 1e-12},
+                           {"RelativeTolerance", 1e-12},
+                           {"MaximumNumberOfIterations", 1000}}) |
+      or_die;
 
 
 Minimal Residual (MINRES)
@@ -220,11 +223,12 @@ Minimal Residual (MINRES)
 
 .. code-block:: cpp
 
-  problem.setLinearSolver("MINRESSolver",
-          {{"VerbosityLevel", 1},
-          {"AbsoluteTolerance", 1e-12},
-          {"RelativeTolerance", 1e-12},
-          {"MaximumNumberOfIterations", 1000}});
+  problem.setLinearSolver(ctx, "MINRESSolver",
+                          {{"VerbosityLevel", 1},
+                           {"AbsoluteTolerance", 1e-12},
+                           {"RelativeTolerance", 1e-12},
+                           {"MaximumNumberOfIterations", 1000}}) |
+      or_die;
 
 Stationary Linear Iteration (SLI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -251,11 +255,12 @@ Stationary Linear Iteration (SLI)
 
 .. code-block:: cpp
 
-  problem.setLinearSolver("SLISolver",
-          {{"VerbosityLevel", 1},
-          {"AbsoluteTolerance", 1e-12},
-          {"RelativeTolerance", 1e-12},
-          {"MaximumNumberOfIterations", 1000}});
+  problem.setLinearSolver(ctx, "SLISolver",
+                          {{"VerbosityLevel", 1},
+                           {"AbsoluteTolerance", 1e-12},
+                           {"RelativeTolerance", 1e-12},
+                           {"MaximumNumberOfIterations", 1000}}) |
+      or_die;
 
 Preconditioned Conjugate Gradient (HyprePCG)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -285,10 +290,12 @@ Preconditioned Conjugate Gradient (HyprePCG)
 
 .. code-block:: cpp
 
-    problem.setLinearSolver("HyprePCG", {{"VerbosityLevel", 1},
-          {"Tolerance", 1e-12},
-          {"Preconditioner", diagscale},
-          {"MaximumNumberOfIterations", 5000}});
+    problem.setLinearSolver(ctx, "HyprePCG",
+                            {{"VerbosityLevel", 1},
+                             {"Tolerance", 1e-12},
+                             {"Preconditioner", diagscale},
+                             {"MaximumNumberOfIterations", 5000}}) |
+        or_die;
 
 .. note::
   
@@ -323,10 +330,12 @@ Generalized Minimal Residual (HypreGMRES)
 
 .. code-block:: cpp
 
-   problem.setLinearSolver("HypreGMRES", {{"VerbosityLevel", 1},
-          {"Tolerance", 1e-12},
-          {"Preconditioner", parasail},
-          {"MaximumNumberOfIterations", 5000}});
+   problem.setLinearSolver(ctx, "HypreGMRES",
+                           {{"VerbosityLevel", 1},
+                            {"Tolerance", 1e-12},
+                            {"Preconditioner", parasail},
+                            {"MaximumNumberOfIterations", 5000}}) |
+       or_die;
 
 .. note::
   
@@ -362,10 +371,12 @@ Flexible GMRES (HypreFGMRES)
 
 .. code-block:: cpp
 
-  problem.setLinearSolver("HypreFGMRES", {{"VerbosityLevel", 1},
-          {"Tolerance", 1e-12},
-          {"Preconditioner", ilu},
-          {"MaximumNumberOfIterations", 5000}});
+  problem.setLinearSolver(ctx, "HypreFGMRES",
+                          {{"VerbosityLevel", 1},
+                           {"Tolerance", 1e-12},
+                           {"Preconditioner", ilu},
+                           {"MaximumNumberOfIterations", 5000}}) |
+      or_die;
 
 
 .. note::
@@ -591,8 +602,10 @@ This is how to apply a dirichlet boundary condition to several boundaries.
   for (const auto boundary : {"left", "right"}) {
     for (const auto dof : {0, 1}) {
       problem.addBoundaryCondition(
-          std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-              problem.getFiniteElementDiscretizationPointer(), boundary, dof));
+          ctx, std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+                   problem.getFiniteElementDiscretizationPointer(), boundary,
+                   dof)) |
+          or_die;
     }
   }
 

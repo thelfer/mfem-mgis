@@ -1,6 +1,6 @@
 /*!
- * \file   MFEMMGIS/TimeIncrementComputerBase.cxx
- * \brief  This class implements the `TimeIncrementComputerBase` class
+ * \file   src/TimeIncrementComputerBase.cxx
+ * \brief  This file implements the `TimeIncrementComputerBase` class
  * \date   04/12/2023
  */
 

@@ -1,0 +1,33 @@
+# Documented in docs/source/developer_guide/continuous_integration.rst
+name: ci
+
+# The status of this workflow is the ci badge of the README: it succeeds when the
+# last runs of cmake.yml and spack.yml on master both succeeded. Cancelled runs,
+# replaced by the run of a newer commit, are ignored
+on:
+  workflow_run:
+    workflows: ["Build with Cmake and Run Examples", "Spack"]
+    types: [completed]
+    branches: [master]
+
+permissions:
+  actions: read
+
+jobs:
+  status:
+    name: tests and spack both passing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the last runs of cmake.yml and spack.yml on master
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=0
+          for workflow in cmake.yml spack.yml; do
+            conclusion=$(gh run list -R ${{ github.repository }} -w $workflow -b master \
+                           --status completed -L 20 --json conclusion \
+                           -q 'map(select(.conclusion != "cancelled"))[0].conclusion')
+            echo "$workflow: $conclusion"
+            [ "$conclusion" = success ] || status=1
+          done
+          exit $status

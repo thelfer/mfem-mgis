@@ -48,6 +48,9 @@ add_simple_tfel_test(TimeDiscretizationTest)
 add_tfel_test_executable(MaximumNumberOfTimeStepsTest)
 add_test(NAME MaximumNumberOfTimeStepsTest COMMAND ./MaximumNumberOfTimeStepsTest
          "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh")
+add_tfel_test_executable(UnreliableResultsTest)
+add_test(NAME UnreliableResultsTest COMMAND ./UnreliableResultsTest
+         "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh")
 add_simple_tfel_test(QPEvaluatorTest)
 
 
@@ -55,9 +58,9 @@ if(MFEM_MGIS_HAVE_TFEL)
   # Compile MFront behaviours library
   mfront_behaviours_check_library(
     BehaviourTest
-    Elasticity
+    IsotropicLinearElasticity
     OrthotropicElasticity
-    Plasticity
+    IsotropicLinearHardeningPlasticity
     Mazars
     SaintVenantKirchhoffElasticity
     SaintVenantKirchhoffElasticityV2
@@ -65,22 +68,15 @@ if(MFEM_MGIS_HAVE_TFEL)
     MicromorphicDamageI_SpectralSplit
     MicromorphicDamageII
     StationaryNonLinearHeatTransfer
-    ImplicitNortonThreshold
-    ElasticitySatohTest
     UO2Shrinkage_RAPHAEL2008)
 
-  # SatohTest with MPI support
-  set(SatohTestParameters "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube2d.msh"
-                          "--library" "$<TARGET_FILE:BehaviourTest>")
-  add_mpi_test(SatohTest SatohTestParameters)
+  # TwoLayerCube executable
+  add_test_executable(TwoLayerCube)
 
-  # PeriodicTest executable
-  add_test_executable(PeriodicTest)
-
-  # Helper function for PeriodicTest cases
-  function(add_periodic_test ncase nsolver)
-    set(test "PeriodicTest-${ncase}-${nsolver}")
-    set(PeriodicTestParameters
+  # Helper function for TwoLayerCube cases
+  function(add_two_layer_cube_test ncase solver)
+    set(test "TwoLayerCube-${ncase}-${solver}")
+    set(TwoLayerCubeParameters
         "--mesh"
         "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh"
         "--library"
@@ -88,23 +84,29 @@ if(MFEM_MGIS_HAVE_TFEL)
         "--test-case"
         "${ncase}"
         "--linearsolver"
-        "${nsolver}")
-    if("1" STREQUAL ${nsolver} OR "0" STREQUAL ${nsolver})
-      add_test(NAME ${test} COMMAND ./PeriodicTest ${PeriodicTestParameters}
-                                    "--parallel" "0")
+        "${solver}")
+    if(solver STREQUAL "CGSolver" OR solver STREQUAL "GMRESSolver")
+      add_test(NAME ${test} COMMAND ./TwoLayerCube ${TwoLayerCubeParameters}
+                                    "--no-parallel")
       set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
     endif()
     if(MFEM_USE_MPI)
-      add_test(NAME ${test}P COMMAND mpirun -n 2 ./PeriodicTest
-                                     ${PeriodicTestParameters} "--parallel" "1")
+      add_test(NAME ${test}P COMMAND mpirun -n 2 ./TwoLayerCube
+                                     ${TwoLayerCubeParameters} "--parallel"
+                                     "--refinement" "1")
       set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
     endif(MFEM_USE_MPI)
   endfunction()
 
-  # Generate all PeriodicTest cases (6x6 matrix)
+  # Generate all TwoLayerCube cases. The hypre solvers and MUMPS are only
+  # tested in parallel.
+  set(TwoLayerCubeSolvers CGSolver GMRESSolver HypreFGMRES HyprePCG HypreGMRES)
+  if(MFEM_USE_MUMPS)
+    list(APPEND TwoLayerCubeSolvers MUMPSSolver)
+  endif(MFEM_USE_MUMPS)
   foreach(ncase RANGE 0 5)
-    foreach(nsolver RANGE 0 5)
-      add_periodic_test(${ncase} ${nsolver})
+    foreach(solver IN LISTS TwoLayerCubeSolvers)
+      add_two_layer_cube_test(${ncase} ${solver})
     endforeach()
   endforeach()
 
@@ -127,18 +129,19 @@ if(MFEM_MGIS_HAVE_TFEL)
         "${internal_state_variable}")
     add_test(NAME ${test}
              COMMAND ./UniaxialTensileTest ${UniaxialTensileTestParameters}
-                     "--parallel" "0")
+                     "--no-parallel")
     if(MFEM_USE_MPI)
       add_test(NAME ${test}P
                COMMAND mpirun -n 2 ./UniaxialTensileTest
-                       ${UniaxialTensileTestParameters} "--parallel" "1")
+                       ${UniaxialTensileTestParameters} "--parallel")
     endif(MFEM_USE_MPI)
     set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
   endfunction()
 
   # UniaxialTensileTest cases
   add_uniaxial_tensile_test(OrthotropicElasticity EquivalentStrain)
-  add_uniaxial_tensile_test(Plasticity EquivalentPlasticStrain)
+  add_uniaxial_tensile_test(IsotropicLinearHardeningPlasticity
+                            EquivalentPlasticStrain)
   add_uniaxial_tensile_test(Mazars Damage)
   add_uniaxial_tensile_test(SaintVenantKirchhoffElasticity EquivalentStrain)
 
@@ -169,6 +172,8 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif(MFEM_USE_MPI)
   endfunction()
 
+  add_imposed_pressure_test(IsotropicLinearElasticity)
+
   # ImposedPressureTest2 executable
   add_test_executable(ImposedPressureTest2)
 
@@ -196,7 +201,7 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif(MFEM_USE_MPI)
   endfunction()
 
-  add_imposed_pressure_test2(Elasticity)
+  add_imposed_pressure_test2(IsotropicLinearElasticity)
 
   # PartialQuadratureSpaceTest executable
   add_tfel_test_executable(PartialQuadratureSpaceTest)
@@ -335,6 +340,28 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_behaviour_integrator_base_test()
 
+  # BehaviourIntegratorsSelectionTest executable
+  add_test_executable(BehaviourIntegratorsSelectionTest)
+
+  # Helper function for BehaviourIntegratorsSelectionTest
+  function(add_behaviour_integrators_selection_test)
+    set(test "BehaviourIntegratorsSelectionTest")
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh"
+               "--library" "$<TARGET_FILE:BehaviourTest>"
+               "--behaviour" "SaintVenantKirchhoffElasticityV2")
+    add_test(NAME ${test} COMMAND ./BehaviourIntegratorsSelectionTest ${params}
+                                  "--parallel" "0")
+    set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+    if(MFEM_USE_MPI)
+      add_test(NAME ${test}P
+               COMMAND mpirun -n 2 ./BehaviourIntegratorsSelectionTest ${params}
+                       "--parallel" "1")
+      set_property(TEST ${test}P PROPERTY DEPENDS BehaviourTest)
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_behaviour_integrators_selection_test()
+
   # StateManagerTest executable
   add_tfel_test_executable(StateManagerTest)
 
@@ -456,6 +483,8 @@ if(MFEM_MGIS_HAVE_TFEL)
                                      "--parallel" "1")
     endif(MFEM_USE_MPI)
   endfunction()
+
+  add_point_wise_model_test()
 
   # PointWiseModelTest-2 executable
   add_test_executable(PointWiseModelTest-2)
@@ -703,67 +732,32 @@ if(MFEM_MGIS_HAVE_TFEL)
         "$<TARGET_FILE:BehaviourTest>")
   endif()
 
-  # RVE examples
-
+  # HypreBoomerAMGTest executable
   if(MFEM_USE_MPI)
-    set(RVEParameters
-        "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube_2mat_per.mesh" "--library"
-        "$<TARGET_FILE:BehaviourTest>" "--post-processing" "1")
-    add_mpi_test(RveNonLinearElastic RVEParameters)
-    add_mpi_test(RveNonLinearElasticV2 RVEParameters)
-    set(MixedOxideFuelsParameters
-        "--mesh"
-        "${CMAKE_CURRENT_SOURCE_DIR}/inclusion.msh"
-        "--order"
-        "1"
-        "--library"
-        "$<TARGET_FILE:BehaviourTest>"
-        "--post-processing"
-        "1")
-    add_mpi_test(MixedOxideFuels MixedOxideFuelsParameters)
-  endif()
+    add_test_executable(HypreBoomerAMGTest)
+    add_test(NAME HypreBoomerAMGTestP COMMAND mpirun -n 2 ./HypreBoomerAMGTest)
+  endif(MFEM_USE_MPI)
 
 endif(MFEM_MGIS_HAVE_TFEL)
 
-# Configure and export example 1 This example is based on UniaxialTensileTest
-# from the unit tests
+# Install the example 1, based on UniaxialTensileTest
 
 set(EX1_DIR "share/mfem-mgis/examples/ex1")
-install(FILES Plasticity.mfront cube.mesh DESTINATION ${EX1_DIR})
+install(FILES UniaxialTensileTest.cxx IsotropicLinearHardeningPlasticity.mfront
+              cube.mesh references/IsotropicLinearHardeningPlasticity.ref
+        DESTINATION ${EX1_DIR})
 
 install(
   FILES ex1CMakeLists.txt
   DESTINATION ${EX1_DIR}
   RENAME CMakeLists.txt)
 
-install(
-  FILES ex1Makefile
-  DESTINATION ${EX1_DIR}
-  RENAME Makefile)
-
-set(UTILITY_FILE
-    ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/UnitTestingUtilities.hxx
-)
-add_custom_command(
-  OUTPUT ${UTILITY_FILE}
-  COMMAND ${PROJECT_SOURCE_DIR}/tests/sed_utility.sh
-          ${PROJECT_SOURCE_DIR}/tests/UnitTestingUtilities.hxx ${UTILITY_FILE}
-  DEPENDS ${PROJECT_SOURCE_DIR}/tests/sed_utility.sh
-          ${PROJECT_SOURCE_DIR}/tests/UnitTestingUtilities.hxx
-  COMMENT "seding the UnitTestingUtilities.hxx")
-
-add_custom_target(generate-ex1 ALL DEPENDS ${UTILITY_FILE})
-
-install(FILES ${UTILITY_FILE}
-              ${PROJECT_SOURCE_DIR}/tests/UniaxialTensileTest.cxx
-        DESTINATION ${EX1_DIR})
-
-set(EX2_DIR "share/mfem-mgis/examples/ex2")
-install(FILES PeriodicTest.cxx Elasticity.mfront cube_2mat_per.mesh
-              ${UTILITY_FILE}
-        DESTINATION ${EX2_DIR})
+set(EX3_DIR "share/mfem-mgis/examples/ex3")
+install(FILES TwoLayerCube.cxx IsotropicLinearElasticity.mfront
+              cube_2mat_per.mesh Box.med Box.per
+        DESTINATION ${EX3_DIR})
 
 install(
-  FILES ex2CMakeLists.txt
-  DESTINATION ${EX2_DIR}
+  FILES ex3CMakeLists.txt
+  DESTINATION ${EX3_DIR}
   RENAME CMakeLists.txt)

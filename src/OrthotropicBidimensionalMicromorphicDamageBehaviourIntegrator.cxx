@@ -1,6 +1,7 @@
 /*!
  * \file   OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.cxx
- * \brief
+ * \brief  This file implements the
+ * `OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator` class
  * \author Thomas Helfer
  * \date   07/12/2021
  */
@@ -9,6 +10,7 @@
 #include "mfem/fem/eltrans.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
+#include "MFEMMGIS/IntegrationType.hxx"
 #include "MFEMMGIS/OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator.hxx"
 
 namespace mfem_mgis {
@@ -41,6 +43,10 @@ namespace mfem_mgis {
       : BehaviourIntegratorBase(buildQuadratureSpace(fed, m),
                                 std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ORTHOTROPIC);
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {1, 2},
+                   .thermodynamic_forces_sizes = {1, 2},
+                   .tangent_operator_blocks_sizes = {{1, 1}, {2, 2}}});
   }  // end of OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator
 
   real OrthotropicBidimensionalMicromorphicDamageBehaviourIntegrator::
@@ -102,6 +108,13 @@ namespace mfem_mgis {
       this->b.rotate_gradients_ptr(g.data(), g.data(), r.data());
       if (!this->performsLocalBehaviourIntegration(o, it)) {
         return false;
+      }
+      // rotate the tangent operator blocks once, as in
+      // StandardBehaviourIntegratorCRTPBase
+      if (it != IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR) {
+        const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
+        this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
+                                                   r.data());
       }
     }
     return true;
@@ -185,10 +198,8 @@ namespace mfem_mgis {
       const auto w = this->getIntegrationPointWeight(tr, ip);
       // offset of the integration point
       const auto o = eoffset + i;
+      // the tangent operator blocks were rotated by integrate
       const auto Kip = this->K.subspan(o * (this->K_stride), this->K_stride);
-      const auto r = this->get_rotation_fct_ptr(this->r2D, this->r3D, o);
-      this->b.rotate_tangent_operator_blocks_ptr(Kip.data(), Kip.data(),
-                                                 r.data());
       // assembly of the stiffness matrix
       for (size_type ni = 0; ni != nnodes; ++ni) {
         // Kip contains:

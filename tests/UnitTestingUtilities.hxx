@@ -1,6 +1,6 @@
 /*!
  * \file   UnitTestingUtilities.hxx
- * \brief
+ * \brief  This file declares some utilities shared by the unit tests
  * \author Thomas Helfer
  * \date   08/04/2021
  */
@@ -19,17 +19,28 @@
 
 namespace mfem_mgis::unit_tests {
 
+  //! \brief parameters of the unit tests
   struct TestParameters {
+    //! \brief mesh file
     const char* mesh_file = nullptr;
+    //! \brief name of the behaviour
     const char* behaviour = nullptr;
+    //! \brief material library
     const char* library = nullptr;
-    const char* reference_file = nullptr;
+    //! \brief reference file, no comparison if empty. Not null, since
+    //! mfem::OptionsParser::PrintUsage stops at the first null string
+    const char* reference_file = "";
+    //! \brief name of the internal state variable to be post-processed
     const char* isv_name = nullptr;
+    //! \brief identifier of the linear solver
     int linearsolver = 0;
+    //! \brief finite element order
     int order = 1;
+    //! \brief serial if 0, parallel if 1
     int parallel = 0;
   };  // end of struct TestParameters
 
+  //! \brief results of a uniaxial test
   struct UniaxialTestResults {
     /*!
      * \brief values of the first component of the gradients in the material
@@ -50,6 +61,14 @@ namespace mfem_mgis::unit_tests {
     std::vector<mfem_mgis::real> v;
   };  // end of struct UniaxialTestResults
 
+  /*!
+   * \brief parse the command line options. Exits after printing the usage if
+   * help is requested. Aborts if the mesh, the library or the behaviour is
+   * missing.
+   * \param[in, out] params: test parameters
+   * \param[in] argc: number of arguments
+   * \param[in] argv: arguments
+   */
   [[maybe_unused]] static void parseCommandLineOptions(TestParameters& params,
                                                        int argc,
                                                        char** argv) {
@@ -63,14 +82,20 @@ namespace mfem_mgis::unit_tests {
                    "Internal variable name to be post-processed.");
     args.AddOption(&params.library, "-l", "--library", "Material library.");
     args.AddOption(&params.linearsolver, "-ls", "--linearsolver",
-                   "identifier of the linear solver: 0 -> CG, 1 -> GMRES, 2 -> "
-                   "UMFPack (serial), 3-> MUMPS(serial), 2 -> HypreFGMRES "
-                   "(//), 3 -> HyprePCG (//), 4 -> HypreGMRES (//)");
+                   "identifier of the linear solver. Serial: 0 -> CG, "
+                   "1 -> GMRES, 2 -> UMFPack. Parallel: 0 -> CG, 1 -> GMRES, "
+                   "2 -> HypreFGMRES, 3 -> MUMPS (HyprePCG without MUMPS), "
+                   "4 -> HypreGMRES");
     args.AddOption(&params.order, "-o", "--order",
                    "Finite element order (polynomial degree).");
     args.AddOption(&params.parallel, "-p", "--parallel",
                    "choose between serial (-p 0) and parallel (-p 1)");
     args.Parse();
+    if (args.Help()) {
+      args.PrintUsage(mfem_mgis::getOutputStream());
+      mfem_mgis::finalize();
+      std::exit(EXIT_SUCCESS);
+    }
     if ((!args.Good()) || (params.mesh_file == nullptr) ||
         (params.library == nullptr) || (params.behaviour == nullptr)) {
       args.PrintUsage(mfem_mgis::getOutputStream());
@@ -79,6 +104,17 @@ namespace mfem_mgis::unit_tests {
     // args.PrintOptions(mfem_mgis::getOutputStream());
   }  // end of parseCommandLineOptions
 
+  /*!
+   * \brief create the linear solver selected by the `linearsolver` test
+   * parameter. In sequential, unsupported choices fall back to the conjugate
+   * gradient.
+   * \tparam parallel: boolean stating if the computation is parallel
+   * \tparam TestParametersT: type of the test parameters
+   * \param[in, out] ctx: execution context
+   * \param[in] fespace: finite element space
+   * \param[in] parameters: test parameters
+   * \return the linear solver, invalid on failure
+   */
   template <bool parallel, typename TestParametersT>
   static mfem_mgis::LinearSolverHandler getLinearSolver(
       mfem_mgis::Context& ctx,
@@ -87,8 +123,6 @@ namespace mfem_mgis::unit_tests {
     auto& f = LinearSolverFactory<parallel>::getFactory();
     // preconditionner hypreBoomerAMG
     const auto options = mfem_mgis::Parameters{{"VerbosityLevel", 0}};
-    const auto amg =
-        mfem_mgis::Parameters{{"Name", "HypreBoomerAMG"}, {"Options", options}};
     const auto ilu = mfem_mgis::Parameters{
         {"Name", "HypreILU"},
         {"Options", mfem_mgis::Parameters{{"HypreILULevelOfFill", 1}}}};
@@ -96,8 +130,6 @@ namespace mfem_mgis::unit_tests {
         mfem_mgis::Parameters{{"Name", "HypreDiagScale"}, {"Options", options}};
     const auto parasail =
         mfem_mgis::Parameters{{"Name", "HypreParaSails"}, {"Options", options}};
-    const auto euclid =
-        mfem_mgis::Parameters{{"Name", "HypreEuclid"}, {"Options", options}};
 
     bool is_default_test_case = parameters.linearsolver == 0;
 #ifndef MFEM_USE_SUITESPARSE
@@ -112,19 +144,11 @@ namespace mfem_mgis::unit_tests {
         (parameters.parallel == 0 && parameters.linearsolver > 3);
     // default solver
     if (is_default_test_case) {
-      if constexpr (parallel) {
-        return f.generate(ctx, "CGSolver", fespace,
-                          {{"VerbosityLevel", 1},
-                           {"AbsoluteTolerance", 1e-12},
-                           {"RelativeTolerance", 1e-12},
-                           {"MaximumNumberOfIterations", 5000}});
-      } else {
-        return f.generate(ctx, "CGSolver", fespace,
-                          {{"VerbosityLevel", 1},
-                           {"AbsoluteTolerance", 1e-12},
-                           {"RelativeTolerance", 1e-12},
-                           {"MaximumNumberOfIterations", 5000}});
-      }
+      return f.generate(ctx, "CGSolver", fespace,
+                        {{"VerbosityLevel", 1},
+                         {"AbsoluteTolerance", 1e-12},
+                         {"RelativeTolerance", 1e-12},
+                         {"MaximumNumberOfIterations", 5000}});
     } else if (parameters.linearsolver == 1) {
       return f.generate(ctx, "GMRESSolver", fespace,
                         {{"VerbosityLevel", 1},
@@ -166,11 +190,21 @@ namespace mfem_mgis::unit_tests {
     return ctx.registerErrorMessage("unsupported linear solver");
   }  // end of getLinearSolver
 
+  /*!
+   * \brief set the linear solver of the problem. Aborts on failure.
+   * \tparam TestParametersT: type of the test parameters
+   * \param[in] a: attribute stating that this function may abort on error
+   * \param[in, out] ctx: execution context
+   * \param[in, out] problem: non linear evolution problem
+   * \param[in] parameters: test parameters
+   */
   template <typename TestParametersT>
   [[maybe_unused]] static void setLinearSolver(
+      [[maybe_unused]] attributes::MayAbort a,
+      Context& ctx,
       mfem_mgis::NonLinearEvolutionProblem& problem,
       const TestParametersT& parameters) {
-    auto ctx = Context{};
+    auto or_die = ctx.getFatalFailureHandler();
     auto s = [&] {
       if (parameters.parallel == 1) {
 #ifdef MFEM_USE_MPI
@@ -185,16 +219,18 @@ namespace mfem_mgis::unit_tests {
                           .getFiniteElementSpace<false>();
       return getLinearSolver<false>(ctx, fespace, parameters);
     }();
-    if (isInvalid(s)) {
-      mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
-      mfem_mgis::abort(EXIT_FAILURE);
-    }
-    if (!problem.setLinearSolver(ctx, std::move(s))) {
-      mfem_mgis::getErrorStream() << ctx.getErrorMessage() << '\n';
-      mfem_mgis::abort(EXIT_FAILURE);
-    }
+    problem.setLinearSolver(ctx, std::move(s)) | or_die;
   }  // end of setLinearSolver
 
+  /*!
+   * \brief append the values at the first integration point of the given
+   * state to the results. Does nothing if the material has no integration
+   * point.
+   * \param[in, out] r: results
+   * \param[in] m: material
+   * \param[in] s: material state
+   * \param[in] parameters: test parameters
+   */
   [[maybe_unused]] static void extractResults(
       UniaxialTestResults& r,
       const mfem_mgis::Material& m,
@@ -214,6 +250,12 @@ namespace mfem_mgis::unit_tests {
     }
   }  // end of extractResults
 
+  /*!
+   * \brief append the values at the beginning of the time step to the results
+   * \param[in, out] r: results
+   * \param[in] m: material
+   * \param[in] parameters: test parameters
+   */
   [[maybe_unused]] static void extractInitialResults(
       UniaxialTestResults& r,
       const mfem_mgis::Material& m,
@@ -221,6 +263,12 @@ namespace mfem_mgis::unit_tests {
     extractResults(r, m, m.s0, parameters);
   }  // end of extractInitialResults
 
+  /*!
+   * \brief append the values at the end of the time step to the results
+   * \param[in, out] r: results
+   * \param[in] m: material
+   * \param[in] parameters: test parameters
+   */
   [[maybe_unused]] static void extractResults(
       UniaxialTestResults& r,
       const mfem_mgis::Material& m,
@@ -228,6 +276,16 @@ namespace mfem_mgis::unit_tests {
     extractResults(r, m, m.s1, parameters);
   }  // end of extractResults
 
+  /*!
+   * \brief compare the results to the reference file, if any
+   * \param[in] r: results
+   * \param[in] m: material
+   * \param[in] parameters: test parameters
+   * \param[in] eeps: tolerance on the second component of the gradients and
+   * on the internal state variable
+   * \param[in] seps: tolerance on the thermodynamic forces
+   * \return true if the results match the reference values on all processes
+   */
   [[maybe_unused]] static bool checkResults(UniaxialTestResults& r,
                                             const mfem_mgis::Material& m,
                                             const TestParameters& parameters,
@@ -235,7 +293,8 @@ namespace mfem_mgis::unit_tests {
                                             const real seps) {
     // comparison to reference results
     bool success = true;
-    if ((m.n != 0) && (parameters.reference_file != nullptr)) {
+    if ((m.n != 0) && (parameters.reference_file != nullptr) &&
+        (parameters.reference_file[0] != '\0')) {
       std::ifstream in(parameters.reference_file);
       if (in) {
         auto check = [&success](const auto cv,  // computed value
@@ -260,19 +319,29 @@ namespace mfem_mgis::unit_tests {
           check(r.tf0[i], tf0_ref, seps, "invalid thermodynamic force value");
           check(r.v[i], v_ref, eeps, "invalid internal state variable");
         }
+      } else {
+        mfem_mgis::getErrorStream()
+            << "test failed (unable to open the reference file '"
+            << parameters.reference_file << "')\n";
+        success = false;
       }
     }  // end of if (m1.n != 0)
 #ifdef MFEM_USE_MPI
     const auto& fed =
         m.getPartialQuadratureSpace().getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
-      MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
+      MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_CXX_BOOL, MPI_LAND,
                     getMPICommunicator(fed));
     }
 #endif /* MFEM_USE_MPI */
     return success;
   }  // end of checkResults
 
+  /*!
+   * \brief save the results in a file
+   * \param[in] f: file name
+   * \param[in] r: results
+   */
   [[maybe_unused]] static void saveResults(const std::string& f,
                                            const UniaxialTestResults& r) {
     std::ofstream out(f);
@@ -283,41 +352,49 @@ namespace mfem_mgis::unit_tests {
     }
   }
 
+  /*!
+   * \brief solve the problem with a constant time step and extract the results
+   * of material 1. Aborts on failure.
+   * \param[in, out] ctx: execution context
+   * \param[in, out] problem: non linear evolution problem
+   * \param[in] parameters: test parameters
+   * \param[in] t0: initial time
+   * \param[in] t1: final time
+   * \param[in] nsteps: number of time steps
+   * \return the results
+   */
   [[maybe_unused]] static UniaxialTestResults solve(
+      Context& ctx,
       mfem_mgis::NonLinearEvolutionProblem& problem,
       const TestParameters& parameters,
       const mfem_mgis::real t0,
       const mfem_mgis::real t1,
       const mfem_mgis::size_type nsteps) {
-    const auto& m1 = problem.getMaterial(1);
+    auto or_die = ctx.getFatalFailureHandler();
+    const auto& m1 = problem.getMaterial(ctx, 1, 0) | or_die;
     const auto dt = (t1 - t0) / nsteps;
     auto r = mfem_mgis::unit_tests::UniaxialTestResults{};
     extractInitialResults(r, m1, parameters);
     // loop over time step
     auto t = t0;
-    auto ctx = Context{};
     for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
       // resolution
 
       // timers are not used here
       const auto step_name = "step" + std::to_string(i);
-      std::cout << step_name << std::endl;
+      mfem_mgis::getOutputStream() << step_name << std::endl;
       // CatchTimeSection(step_name);
       {
         // CatchNestedTimeSection("solve");
-        if (!problem.solve(ctx, t, dt)) {
-          mfem_mgis::abort("non convergence");
-        }
+        problem.solve(ctx, t, dt) | or_die;
       }
       {
         // CatchNestedTimeSection("post_processing_timer");
-        problem.executePostProcessings(ctx, t, dt);
+        problem.executePostProcessings(ctx, t, dt) | or_die;
       }
       {
         // CatchNestedTimeSection("update");
-        if (!problem.update(ctx)) {
-          mfem_mgis::abort("updating failed");
-        }
+        problem.update(ctx) | or_die;
       }
       t += dt;
       extractResults(r, m1, parameters);

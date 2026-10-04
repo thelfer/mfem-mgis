@@ -1,6 +1,7 @@
 /*!
  * \file   src/SolverUtilities.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/Utilities/SolverUtilities.hxx`
  * \author Thomas Helfer
  * \date   30/03/2021
  */
@@ -92,6 +93,12 @@ namespace mfem_mgis {
   inline constexpr auto hasGetMaxIter = requires(const SolverType& l) {
     { l.GetMaxIter() } -> std::same_as<int>;
   };
+
+  void clearHypreErrors() noexcept {
+#ifdef MFEM_USE_MPI
+    HYPRE_ClearAllErrors();
+#endif /* MFEM_USE_MPI */
+  }  // end of clearHypreErrors
 
   bool hasConverged(const LinearSolver& ls) noexcept {
     if (const auto* isolver = dynamic_cast<const IterativeSolver*>(&ls);

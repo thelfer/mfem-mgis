@@ -27,8 +27,9 @@ evolution problem for visualization in :code:`paraview`:
 
 .. code-block:: cpp
 
-  problem.addPostProcessing("ParaviewExportResults",
-                            {{"OutputFileName", "SatohTestOutput"}});
+  problem.addPostProcessing(ctx, "ParaviewExportResults",
+                            {{"OutputFileName", "SatohTestOutput"}}) |
+      or_die;
 
 **Results**
 
@@ -40,29 +41,38 @@ It is also possible to extract only portions of the mesh by defining either the 
 
 .. code-block:: cpp
 
-    std::vector<mfem_mgis::Parameter> materials{"Attr1","Attr2"};
-    std::vector<mfem_mgis::Parameter> bdrs{"left","right"};
-    /** You can not define Materials and Boundaries in a single post processing */
-    problem.addPostProcessing("ParaviewExportResults",
+    std::vector<mfem_mgis::Parameter> materials{"Attr1", "Attr2"};
+    std::vector<mfem_mgis::Parameter> bdrs{"left", "right"};
+    /** You can not define Materials and Boundaries in a single post processing
+     */
+    problem.addPostProcessing(
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
-        {"Materials", materials},
-        {"OutputFieldName", "Displacement"},
-        {"Verbosity", 1}});
-    problem.addPostProcessing("ParaviewExportResults",
+         {"Materials", materials},
+         {"OutputFieldName", "Displacement"},
+         {"Verbosity", 1}}) |
+        or_die;
+    problem.addPostProcessing(
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
-        {"OutputFieldName", "Displacement"},
-        {"Material", "Attr1"},
-        {"Verbosity", 1}});
-    problem.addPostProcessing("ParaviewExportResults",
+         {"OutputFieldName", "Displacement"},
+         {"Material", "Attr1"},
+         {"Verbosity", 1}}) |
+        or_die;
+    problem.addPostProcessing(
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
-        {"OutputFieldName", "Displacement"},
-        {"Material", "Attr2"},
-        {"Verbosity", 1}});
-    problem.addPostProcessing("ParaviewExportResults",
+         {"OutputFieldName", "Displacement"},
+         {"Material", "Attr2"},
+         {"Verbosity", 1}}) |
+        or_die;
+    problem.addPostProcessing(
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Boundaries"},
-        {"OutputFieldName", "Displacement"},
-        {"Boundaries", bdrs},
-        {"Verbosity", 1}});
+         {"OutputFieldName", "Displacement"},
+         {"Boundaries", bdrs},
+         {"Verbosity", 1}}) |
+        or_die;
 
 .. note::
 
@@ -104,10 +114,11 @@ Export Integration Point Results At Nodes
   auto results = std::vector<mfem_mgis::Parameter>{
       "Stress", "ImposedTemperature", "HydrostaticPressure"};
   problem.addPostProcessing(
-      "ParaviewExportIntegrationPointResultsAtNodes",
+      ctx, "ParaviewExportIntegrationPointResultsAtNodes",
       {{"OutputFileName", "SatohTestIntegrationPointOutput"},
        {"Materials", {"plate"}},
-       {"Results", results}});
+       {"Results", results}}) |
+      or_die;
 
 The optional ``ExecuteInitialPostProcessing`` boolean parameter (``true`` by
 default) states if the results are exported at the initial time of the
@@ -125,21 +136,25 @@ simulation.
 Compute Mean Thermodynamic Forces
 =================================
 
- The `Compute Mean Thermodynamic Forces` post-processing step calculates the average stress over selected regions of the mesh. 
+This post-processing computes the mean value of each component of the
+thermodynamic forces in each material. For a mechanical behaviour, the
+thermodynamic forces are the stresses.
 
 - Key: ``MeanThermodynamicForces``
 
-**Example: print the average stress of one inclusion into a matrix (RVE)**
+**Example:**
 
 .. code-block:: cpp
 
-  p.addPostProcessing(
-      "MeanThermodynamicForces",
-      {{"OutputFileName", "avgStress"}});
+  problem.addPostProcessing(ctx, "MeanThermodynamicForces",
+                            {{"OutputFileName", "avgStress"}}) |
+      or_die;
 
 **Results**
 
-We display the average stress SZZ over the RVE (composed of 83% matrix and 17% inclusion), we process the avgstress file and then plot the result: 
+These results come from the example :doc:`../../commented_examples/rve_mox`.
+Its RVE contains 83 % of matrix and 17 % of inclusion. These commands compute
+the average stress SZZ over the RVE and plot it:
 
 .. code-block:: text
 
@@ -158,9 +173,9 @@ Compute Stored Energy
 
 .. code-block:: cpp
 
-  p.addPostProcessing(
-      "StoredEnergy",
-      {{"OutputFileName", "energy.txt"}});
+  problem.addPostProcessing(ctx, "StoredEnergy",
+                            {{"OutputFileName", "energy.txt"}}) |
+      or_die;
 
 Compute dissipated Energy
 =========================
@@ -171,7 +186,29 @@ Compute dissipated Energy
 
 .. code-block:: cpp
 
-  p.addPostProcessing(
-      "DissipatedEnergy",
-      {{"OutputFileName", "dissiped_energy.txt"}});
+  problem.addPostProcessing(ctx, "DissipatedEnergy",
+                            {{"OutputFileName", "dissipated_energy.txt"}}) |
+      or_die;
 
+
+Materials with several behaviour integrators
+============================================
+
+The ``ComputeResultantForceOnBoundary``, ``MeanThermodynamicForces``,
+``StoredEnergy`` and ``DissipatedEnergy`` post-processings accept an optional
+``BehaviourIntegrator`` parameter. It selects the behaviour integrators of each
+material:
+
+- an integer: the behaviour integrator of this index in each material,
+- ``"All"``: all the behaviour integrators, whose contributions are summed.
+
+Without this parameter, each material must have a single behaviour integrator.
+
+**Example:**
+
+.. code-block:: cpp
+
+  problem.addPostProcessing(ctx, "StoredEnergy",
+                            {{"OutputFileName", "energy.txt"},
+                             {"BehaviourIntegrator", "All"}}) |
+      or_die;

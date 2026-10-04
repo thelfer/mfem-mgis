@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementation.ixx
- * \brief
+ * \brief  This file implements the `computeResultantForceOnBoundary` and
+ * `computeMeanThermodynamicForcesValues` functions
  * \author Thomas Helfer
  * \date   28/03/2021
  */
@@ -12,47 +13,124 @@
 #include "MFEMMGIS/AbstractBehaviourIntegrator.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
+namespace mfem_mgis::internals {
+
+  /*!
+   * \return if two materials have the same thermodynamic forces
+   * \param[in] m1: first material
+   * \param[in] m2: second material
+   */
+  inline bool haveSameThermodynamicForces(const Material& m1,
+                                          const Material& m2) noexcept {
+    const auto& tfs1 = m1.b.thermodynamic_forces;
+    const auto& tfs2 = m2.b.thermodynamic_forces;
+    if (tfs1.size() != tfs2.size()) {
+      return false;
+    }
+    for (std::size_t i = 0; i != tfs1.size(); ++i) {
+      if ((tfs1[i].name != tfs2[i].name) || (tfs1[i].type != tfs2[i].type)) {
+        return false;
+      }
+    }
+    return m1.s1.thermodynamic_forces_stride ==
+           m2.s1.thermodynamic_forces_stride;
+  }  // end of haveSameThermodynamicForces
+
+}  // end of namespace mfem_mgis::internals
+
 namespace mfem_mgis {
 
   template <bool parallel>
-  void computeResultantForceOnBoundary(
+  bool computeResultantForceOnBoundary(
+      Context& ctx,
       mfem::Vector& F,
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const std::vector<
-          std::pair<size_type, std::vector<std::vector<size_type>>>>&
-          elements) {
+          std::pair<size_type, std::vector<std::vector<size_type>>>>& elements,
+      const BehaviourIntegratorsSelection& selection) noexcept {
     auto& fed = p.getFiniteElementDiscretization();
     auto& fes = fed.template getFiniteElementSpace<parallel>();
     const auto nc = fes.GetVDim();
     mfem::Vector elt_forces;
     F.SetSize(nc);
     F = real{0};
+    // the selection is checked for all the materials, so that all the
+    // processes report the same errors
+    for (const auto& m : p.getAssignedMaterialsIdentifiers()) {
+      if (isInvalid(getSelectedBehaviourIntegrators(ctx, p, m, selection))) {
+        return false;
+      }
+    }
     for (const auto& e : elements) {
       const auto& fe = *(fes.GetFE(e.first));
       auto& tr = *(fes.GetElementTransformation(e.first));
       const auto nnodes = fe.GetDof();
-      // compute the inner forces
-      auto& bi = p.getBehaviourIntegrator(tr.Attribute);
-      bi.computeInnerForces(elt_forces, fe, tr);
-      for (size_type c = 0; c != nc; ++c) {
-        const auto* const Fe = elt_forces.GetData() + c * nnodes;
-        for (const auto& i : e.second[c]) {
-          F[c] += Fe[i];
+      // inner forces of the selected behaviour integrators
+      const auto obis =
+          getSelectedBehaviourIntegrators(ctx, p, tr.Attribute, selection);
+      if (isInvalid(obis)) {
+        return false;
+      }
+      for (auto b = obis->first; b != obis->second; ++b) {
+        const auto obi = p.getBehaviourIntegrator(ctx, tr.Attribute, b);
+        if (isInvalid(obi)) {
+          return ctx.registerErrorMessage("invalid behaviour integrator");
+        }
+        obi->computeInnerForces(elt_forces, fe, tr);
+        for (size_type c = 0; c != nc; ++c) {
+          const auto* const Fe = elt_forces.GetData() + c * nnodes;
+          for (const auto& i : e.second[c]) {
+            F[c] += Fe[i];
+          }
         }
       }
     }
+    return true;
   }  // end of computeResultantForceOnBoundary
 
   template <bool parallel>
-  std::pair<std::vector<std::vector<real>>, std::vector<real>>
+  std::optional<std::pair<std::vector<std::vector<real>>, std::vector<real>>>
   computeMeanThermodynamicForcesValues(
-      NonLinearEvolutionProblemImplementation<parallel>& p) {
+      Context& ctx,
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const BehaviourIntegratorsSelection& selection) noexcept {
     auto nmax = p.getFiniteElementSpace().GetMesh()->attributes.Max() + 1;
     std::vector<std::vector<mfem_mgis::real>> stress_integrals(nmax);
     const auto& mis = p.getAssignedMaterialsIdentifiers();
     for (const auto& mi : mis) {
-      const auto& bi = p.getBehaviourIntegrator(mi);
-      const auto& s1 = bi.getMaterial().s1;
+      const auto obis = getSelectedBehaviourIntegrators(ctx, p, mi, selection);
+      if (isInvalid(obis)) {
+        return {};
+      }
+      const auto [first, last] = *obis;
+      const auto obi = p.getBehaviourIntegrator(ctx, mi, first);
+      if (isInvalid(obi)) {
+        return {};
+      }
+      const auto om = obi->getMaterial(ctx);
+      if (isInvalid(om)) {
+        return {};
+      }
+      // the thermodynamic forces of the selected behaviour integrators are
+      // summed: they must be the same
+      for (auto b = first + 1; b != last; ++b) {
+        const auto obi2 = p.getBehaviourIntegrator(ctx, mi, b);
+        if (isInvalid(obi2)) {
+          return {};
+        }
+        const auto om2 = obi2->getMaterial(ctx);
+        if (isInvalid(om2)) {
+          return {};
+        }
+        if (!internals::haveSameThermodynamicForces(*om, *om2)) {
+          return ctx.registerErrorMessage(
+              "computeMeanThermodynamicForcesValues: the selected behaviour "
+              "integrators of material '" +
+              std::to_string(mi) +
+              "' do not have the same thermodynamic forces");
+        }
+      }
+      const auto& s1 = om->s1;
       const auto thsize = s1.thermodynamic_forces_stride;
       stress_integrals[mi].resize(thsize, mfem_mgis::real(0));
     }
@@ -62,39 +140,56 @@ namespace mfem_mgis {
     for (mfem_mgis::size_type i = 0; i < fes.GetNE(); i++) {
       auto& e = *(fes.GetFE(i));
       auto& tr = *(fes.GetElementTransformation(i));
-      const auto& bi = p.getBehaviourIntegrator(tr.Attribute);
-      const auto& ir = bi.getIntegrationRule(e, tr);
-      const auto& m = bi.getMaterial();
-      const auto& s1 = bi.getMaterial().s1;
-      const auto& qspace = m.getPartialQuadratureSpace();
-      const auto thsize =
-          static_cast<mfem_mgis::size_type>(s1.thermodynamic_forces_stride);
+      const auto obis =
+          getSelectedBehaviourIntegrators(ctx, p, tr.Attribute, selection);
+      if (isInvalid(obis)) {
+        return {};
+      }
       auto& s = stress_integrals[tr.Attribute];
       auto& v = volumes[tr.Attribute];
-      const auto eoffset = qspace.getOffset(tr.ElementNo);
-      for (mfem_mgis::size_type j = 0; j < ir.GetNPoints(); j++) {
-        const auto o = eoffset + j;
-        const auto& ip = ir.IntPoint(j);
-        tr.SetIntPoint(&ip);
-        const auto thf = s1.thermodynamic_forces.subspan(o * thsize, thsize);
-        const auto w = bi.getIntegrationPointWeight(tr, ip);
-        if (m.b.symmetry == mgis::behaviour::Behaviour::ORTHOTROPIC) {
-          const auto r = m.getRotationMatrixAtIntegrationPoint(o);
-          std::vector<real> rthf(thf.begin(), thf.end());
-          m.b.rotate_thermodynamic_forces_ptr(rthf.data(), rthf.data(),
-                                              r.data());
-          for (mfem_mgis::size_type k = 0; k != thsize; ++k) {
-            s[k] += w * rthf[k];
+      for (auto b = obis->first; b != obis->second; ++b) {
+        const auto obi = p.getBehaviourIntegrator(ctx, tr.Attribute, b);
+        if (isInvalid(obi)) {
+          return {};
+        }
+        const auto& ir = obi->getIntegrationRule(e, tr);
+        const auto& om = obi->getMaterial(ctx);
+        if (isInvalid(om)) {
+          return {};
+        }
+        const auto& s1 = om->s1;
+        const auto& qspace = om->getPartialQuadratureSpace();
+        const auto thsize =
+            static_cast<mfem_mgis::size_type>(s1.thermodynamic_forces_stride);
+        const auto eoffset = qspace.getOffset(tr.ElementNo);
+        for (mfem_mgis::size_type j = 0; j < ir.GetNPoints(); j++) {
+          const auto o = eoffset + j;
+          const auto& ip = ir.IntPoint(j);
+          tr.SetIntPoint(&ip);
+          const auto thf = s1.thermodynamic_forces.subspan(o * thsize, thsize);
+          const auto w = obi->getIntegrationPointWeight(tr, ip);
+          if (om->b.symmetry == mgis::behaviour::Behaviour::ORTHOTROPIC) {
+            const auto r = om->getRotationMatrixAtIntegrationPoint(o);
+            std::vector<real> rthf(thf.begin(), thf.end());
+            om->b.rotate_thermodynamic_forces_ptr(rthf.data(), rthf.data(),
+                                                  r.data());
+            for (mfem_mgis::size_type k = 0; k != thsize; ++k) {
+              s[k] += w * rthf[k];
+            }
+          } else {
+            for (mfem_mgis::size_type k = 0; k != thsize; ++k) {
+              s[k] += w * thf[k];
+            }
           }
-        } else {
-          for (mfem_mgis::size_type k = 0; k != thsize; ++k) {
-            s[k] += w * thf[k];
+          // the volume is computed with the first selected behaviour integrator
+          if (b == obis->first) {
+            v += w;
           }
         }
-        v += w;
       }
     }
-    return {std::move(stress_integrals), std::move(volumes)};
+    return std::pair<std::vector<std::vector<real>>, std::vector<real>>{
+        std::move(stress_integrals), std::move(volumes)};
   }  // end of computeMeanThermodynamicForcesValues
 
 }  // end of namespace mfem_mgis

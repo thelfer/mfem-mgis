@@ -14,20 +14,20 @@ namespace mfem_mgis::internal {
 
   //   /*!
   //    * \brief a generator for evaluators based on a field on integration
-  //    points.
+  //    * points
   //    */
   //   class NonUniformQPEvaluatorGenerator final
   //       : public AbstractQPEvaluatorGenerator {
   //    public:
   //     /*!
   //      * \brief constructor
-  //      * \param[in] qid: quadrature
-  //      * \param[in] f: reference to the integration point field.
+  //      * \param[in] qid: quadrature identification
+  //      * \param[in] f: integration point field
   //      */
   //     NonUniformQPEvaluatorGenerator(const QuadId qid, const ConstIPFieldView
   //     &f)
-  //         : ipfield_(f), quadId_(qid) {}  // end of
-  //         NonUniformQPEvaluatorGenerator
+  //         : ipfield_(f),
+  //           quadId_(qid) {}  // end of NonUniformQPEvaluatorGenerator
   //     //
   //     [[nodiscard]] size_type getNumRows() const override {
   //       return this->ipfield_.getNumRows();
@@ -50,7 +50,8 @@ namespace mfem_mgis::internal {
   //             "inconsistent mesh set or quadrature id");
   //       }
   //       // we can't use MANTA_MAKE_SHARED_AS here because constructor is
-  //       private if ((this->ipfield_.getNumRows() == 1) &&
+  //       // private
+  //       if ((this->ipfield_.getNumRows() == 1) &&
   //           (this->ipfield_.getNumCols() == 1)) {
   //         try {
   //           return std::shared_ptr<AbstractQPEvaluator>(
@@ -84,22 +85,21 @@ namespace mfem_mgis::internal {
   //     const QuadId quadId_;
   //   };  // end of NonUniformQPEvaluatorGenerator
   //
+  //   //! \brief class generating a scalar evaluator from a unary function
   //   class ScalarQPEvaluatorsUnaryFunctionGenerator final
   //       : public AbstractQPEvaluatorGenerator {
   //    public:
   //     /*!
   //      * \brief constructor
-  //      * \param[in] m: mesh set
-  //      * \param[in] qid: quadrature identification
   //      * \param[in] f: function
-  //      * \param[in] a: name of evaluator used as the first argument of the
+  //      * \param[in] a: name of the evaluator used as the argument of the
   //      * function
   //      */
   //     ScalarQPEvaluatorsUnaryFunctionGenerator(
   //         const std::function<Real(const Real)> &f, const std::string &a)
   //         : function_(f),
-  //           argument_(a) {}  // end of
-  //           ScalarQPEvaluatorsUnaryFunctionGenerator
+  //           argument_(a) {
+  //     }  // end of ScalarQPEvaluatorsUnaryFunctionGenerator
   //     //
   //     [[nodiscard]] size_type getNumRows() const override { return 1u; }
   //     [[nodiscard]] size_type getNumCols() const override { return 1u; }
@@ -134,17 +134,16 @@ namespace mfem_mgis::internal {
   //     std::string argument_;
   //   };  // end of ScalarQPEvaluatorsUnaryFunctionGenerator
   //
+  //   //! \brief class generating a scalar evaluator from a binary function
   //   class ScalarQPEvaluatorsBinaryFunctionGenerator final
   //       : public AbstractQPEvaluatorGenerator {
   //    public:
   //     /*!
   //      * \brief constructor
-  //      * \param[in] m: mesh set
-  //      * \param[in] qid: quadrature identification
   //      * \param[in] f: function
-  //      * \param[in] a1: name of evaluator used as the first argument of the
-  //      * function \param[in] a1: name of evaluator used as the second
-  //      argument of
+  //      * \param[in] a1: name of the evaluator used as the first argument of
+  //      * the function
+  //      * \param[in] a2: name of the evaluator used as the second argument of
   //      * the function
   //      */
   //     ScalarQPEvaluatorsBinaryFunctionGenerator(
@@ -198,13 +197,13 @@ namespace mfem_mgis::internal {
   //     std::string secondArgument_;
   //   };  // end of ScalarQPEvaluatorsBinaryFunctionGenerator
   //
-  //   //! \brief class generating an uniform evaluator
+  //   //! \brief class generating a uniform evaluator
   //   class UniformQPEvaluatorGenerator final
   //       : public AbstractQPEvaluatorGenerator {
   //    public:
   //     /*!
   //      * \brief constructor
-  //      * \param[in] v: value of the evaluator.
+  //      * \param[in] v: value of the evaluator
   //      */
   //     UniformQPEvaluatorGenerator(const ConstMatrixRef<dynamic, dynamic> &v)
   //         : value_(v) {}  // end of UniformQPEvaluatorGenerator
@@ -904,7 +903,7 @@ namespace mfem_mgis {
   //       if (std::find_if(p, pe, [&dn](const auto &d2) {
   //             return d2.getName() == dn;
   //           }) != pe) {
-  //         ctx.registerErrorMessage("cyclic dependency detected for evalutor
+  //         ctx.registerErrorMessage("cyclic dependency detected for evaluator
   //         '" +
   //                                  n + "'");
   //         r.setStatus(AdvancedExitStatus::unrecoverableError);
@@ -952,7 +951,7 @@ namespace mfem_mgis {
   //     const auto &m4 =
   //         this->getGeneratorsContainer_(TimeStepStage::endOfTimeStep);
   //     if ((m3.contains(&m)) || (m4.contains(&m))) {
-  //       // check already performend
+  //       // check already performed
   //       return ExitStatus::success;
   //     }
   //     if (&(this->resourcesManager_) != &(m.getResourcesManager())) {

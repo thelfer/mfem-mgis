@@ -3,10 +3,11 @@ Representative Volume Element of Combustible Mixed Oxides for Nuclear Applicatio
 
 .. contents::
 
-This simulation represents an RVE of MOx (Mixed Oxide) material under
-uniform macroscopic deformation. The aim of this simulation is to
-reproduce and compare the results obtained by (Fauque et al., 2021;
-Masson et al., 2020) who used an FFT method. (source code: ex7)
+website: https://github.com/latug0/mfem-mgis-examples/tree/master/ex7
+
+This example models a Representative Volume Element of a mixed oxide fuel
+under a uniform macroscopic strain. Its results are compared to the ones of
+Fauque et al. 2021 and Masson et al. 2020, who used an FFT method.
 
 Problem solved
 --------------
@@ -15,23 +16,23 @@ Problem solved
 
         Problem : RVE MOx 2 phases with elasto-viscoplastic behavior laws
 
-        Parameters : 
+        Parameters :
 
         start time = 0
         end time = 5s
         number of time step = 40
 
-        Imposed strain tensor : 
+        Imposed strain tensor :
                 [ -a/2 ,   0  ,  0 ]
-        eps  =  [   0  , -a/2 ,  0 ] 
+        eps  =  [   0  , -a/2 ,  0 ] * t
                 [   0  ,   0  ,  a ]
-        with a = 0.012
+        with a = 0.012 s^-1
 
         Solver : HypreGMRES
         Preconditioner : HypreBoomerAMG
 
         Moduli and Norton behavior law parameters :
-        [ parameters       , inclusions   , matrix ]
+        [ parameters       , matrix   , inclusions ]
         [ Young Modulus    , 8.182e9  , 2*8.182e9  ];
         [ Poisson Ratio    , 0.364    , 0.364      ];
         [ Stress Threshold , 100.0e6  , 100.0e12   ];
@@ -42,132 +43,160 @@ Problem solved
         - Family H1
         - Order 2
 
+The matrix is the material 1 of the meshes. The inclusions are the
+material 2. Their stress threshold is high enough for them to remain elastic.
+
 .. figure:: img/mox-order2.png
     :alt: Illustration of a RVE with 634 spheres after 5 seconds.
 
     Illustration of a RVE with 634 spheres after 5 seconds.
 
-How to run the simulation "RVE MOX"
------------------------------------
-
 Build the mesh
 --------------
 
-The mesh is generated with MEROPE and GMSH through the following steps:
+Two meshes are provided in the ``mesh`` directory:
 
--  First step, use MEROPE to generate a ``.geo`` file using the RSA
-   algorithm. Scripts are in directory ``script_merope``. Command line:
+- ``OneSphere.msh`` is the default mesh. Its spherical inclusion fills 17 % of
+  the volume. Its elements are quadratic tetrahedra.
+- ``inclusion.msh`` contains one inclusion, which fills 11 % of the volume.
+  Its elements are linear tetrahedra.
+
+The meshes are generated with MEROPE and GMSH. MEROPE first generates a
+``.geo`` file with the RSA algorithm. Its scripts are in the
+``script_merope`` directory:
 
 .. code:: bash
 
-    # generate .geo file with MEROPE
     python3 script_17percent_minimal.py
 
--  Second step, use GMSH to mesh the geometry. Files ``.geo`` are in the
-   directory ``file_geo``. Command line:
+GMSH then meshes the geometry. The ``.geo`` files are in the ``file_geo``
+directory:
 
 .. code:: bash
 
-    # generate the .msh file with GMSH
-    gmsh -3 OneSphere.geo 
+    gmsh -3 OneSphere.geo
 
 Run the simulation
 ------------------
 
-Run a minimal version of the simulation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to run the simulation in sequential computing mode, use the
-command line:
+This command runs the default simulation from the build directory:
 
 .. code:: bash
 
-    # run the simulation by specifying the mesh with --mesh option
-    ./mox2 --mesh OneSphere.msh
-
-With ``MPI`` + ``Petsc``:
-
-.. code:: bash
-
-   mpirun -n 2 mox2 -m mesh/OneSphere.msh -o 1 --use-petsc true --petsc-configuration-file petscrc 
+    ./mox2 --mesh mesh/OneSphere.msh
 
 Available options
 ~~~~~~~~~~~~~~~~~
 
-To customize the simulation, several options are available, as detailed
-below.
++--------------------------------------+-----------------------------------+--------------------+
+| Command line                         | Description                       | Default            |
++======================================+===================================+====================+
+| ``--mesh`` or ``-m``                 | Mesh file                         | mesh/OneSphere.msh |
++--------------------------------------+-----------------------------------+--------------------+
+| ``--refinement`` or ``-r``           | Number of uniform refinements of  | 0                  |
+|                                      | the mesh                          |                    |
++--------------------------------------+-----------------------------------+--------------------+
+| ``--nbsteps`` or ``-ns``             | Number of time steps. The end     | 40                 |
+|                                      | time is 5 s.                      |                    |
++--------------------------------------+-----------------------------------+--------------------+
+| ``--order`` or ``-o``                | Finite element order              | 2                  |
++--------------------------------------+-----------------------------------+--------------------+
+| ``--verbosity-level`` or ``-v``      | Verbosity level of the linear     | 0                  |
+|                                      | solvers                           |                    |
++--------------------------------------+-----------------------------------+--------------------+
+| ``--post-processing`` or ``-pp``,    | Export or not the results to      | export             |
+| ``--no-post-processing`` or          | Paraview                          |                    |
+| ``-no-pp``                           |                                   |                    |
++--------------------------------------+-----------------------------------+--------------------+
+| ``--reference-file`` or ``-rf``      | Reference values of the mean      | no comparison      |
+|                                      | stresses in each material         |                    |
++--------------------------------------+-----------------------------------+--------------------+
+| ``--use-petsc`` and                  | Use PETSc with the given          | no PETSc           |
+| ``--petsc-configuration-file``       | configuration file. It requires   |                    |
+|                                      | MFEM built with PETSc.            |                    |
++--------------------------------------+-----------------------------------+--------------------+
 
-+----------------------------+--------------------------------------------+
-| Command line               | Description                                |
-+============================+============================================+
-| --mesh or -m               | Specify the mesh ".msh" used (default =    |
-|                            | inclusion.msh)                             |
-+----------------------------+--------------------------------------------+
-| --refinement or -r         | Refinement level of the mesh (default = 0) |
-+----------------------------+--------------------------------------------+
-| --order or -o              | Finite element order (polynomial degree)   |
-|                            | (default = 2)                              |
-+----------------------------+--------------------------------------------+
-| --verbosity-level or -v    | Choose the verbosity level (default = 0)   |
-+----------------------------+--------------------------------------------+
-| --post-processing or -p    | Run post processing step (default = 1)     |
-+----------------------------+--------------------------------------------+
-| --use-petsc                | Activate PETSc if PETSc is available       |
-+----------------------------+--------------------------------------------+
-| --petsc-configuration-file | Name of the Petsc source file              |
-+----------------------------+--------------------------------------------+
-
-Example of customized simulation:
+Examples with other options:
 
 .. code:: bash
 
-    # run the simulation in sequential computing mode with various options
-    ./mox2 -r 2 -o 3 --mesh OneSphere.msh
+    ./mox2 -r 2 -o 3 --mesh mesh/OneSphere.msh
+    mpirun -n 2 ./mox2 --use-petsc --petsc-configuration-file petscrc
 
 Parallel computing mode
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The simulation can be run in parallel computing mode by using the
-command:
+The mesh with 634 spheres is not provided. These commands generate it and
+run the simulation in parallel:
 
 .. code:: bash
 
-    # run the simulation by specifying the mesh with --mesh option
-    mpirun -n 12 ./mox2 --mesh 634Spheres.msh
+    gmsh -3 file_geo/634Spheres.geo
+    mpirun -n 12 ./mox2 --mesh file_geo/634Spheres.msh
 
-Simulation can be run on supercomputers. The command depends on the
-server manager. For example, on Topaze, a CCRT-hosted supercomputer
-co-designed by Atos and CEA, the commands are :
+On Topaze, a supercomputer of the CCRT, the commands are:
 
 .. code:: bash
 
-    ccc_mprun -n 8 -c 1 -p milan ./mox2 -r 0 -o 3 --mesh OneSphere.msh
-    ccc_mprun -n 2048 -c 1 -p milan ./mox2 -r 2 -o 1 --mesh 634Sphere.msh
+    ccc_mprun -n 8 -c 1 -p milan ./mox2 -r 0 -o 3 --mesh mesh/OneSphere.msh
+    ccc_mprun -n 2048 -c 1 -p milan ./mox2 -r 2 -o 1 --mesh file_geo/634Spheres.msh
+
+Test
+~~~~
+
+The test ``mox2`` runs the default simulation. It compares the mean stresses
+in each material to the reference values computed with the same number of
+time steps:
+
+- 40 time steps and ``OneSphere-avgStress-40steps.ref`` in the full test mode.
+- 5 time steps and ``OneSphere-avgStress-5steps.ref`` in the restricted test
+  mode. The average stress SZZ then differs by less than 9 % from the one
+  computed with 40 time steps.
+
+The test ``mox2-petsc`` does the same with PETSc. It requires MFEM built with
+PETSc.
 
 Post-processing of simulation data
 ----------------------------------
 
-The aim of this exercise is to reproduce the simulation results of
-(Fauque et al., 2021; Masson et al., 2020). To this end, the average
-stresses in the z-axis direction (SZZ) will be analyzed. The reference
-values, obtained by (Fauque et al., 2021; Masson et al., 2020), can be
-found in the directory ``results``, file res-fft.txt (Average stress
-versus time).
+The average stress SZZ is compared to the FFT results of Fauque et al. 2021
+and Masson et al. 2020. These reference values are in ``results/res-fft.txt``.
 
-Extract simulation data from MMM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``MeanThermodynamicForces`` post-processing writes the file ``avgStress``.
+It gives the mean stresses in each material as a function of time. The
+results of mfem-mgis are in the ``results`` directory:
 
-The avgStress post-processing file generated by MMM contains average
-stress values as a function of time, by material phase. MMM simulation
-data are available: ``results/res-mfem-mgis-onesphere-o3.txt`` and
-``results/res-mfem-mgis-634sphere-o2.txt``.
+- ``res-mfem-mgis.txt`` gives the average stress SZZ over the RVE of
+  ``OneSphere.msh`` at order 3. It is obtained with the awk command below.
+- ``res-mfem-mgis-634spheres-o2.txt`` is the ``avgStress`` file of the RVE
+  with 634 spheres at order 2.
 
-For example, the average stress SZZ over the RVE (composed of 83% matrix
-and 17% inclusion) can be calculated with the awk command under unix:
+The RVE of ``OneSphere.msh`` contains 83 % of matrix and 17 % of inclusion.
+This awk command computes its average stress SZZ:
 
 .. code:: bash
 
     awk '{if(NR>13) print $1 " " 0.83*$4+0.17*$10}' avgStress > res-mfem-mgis.txt
+
+The average stress SZZ at the end of the simulation, at t = 5 s, is:
+
++------------------------------------------------------------+----------------+
+| Simulation                                                 | SZZ in MPa     |
++============================================================+================+
+| FFT, ``res-fft.txt``                                       | 93.05          |
++------------------------------------------------------------+----------------+
+| ``OneSphere.msh`` at order 3, ``res-mfem-mgis.txt``        | 94.63          |
++------------------------------------------------------------+----------------+
+| ``OneSphere.msh`` at order 2, default                      | 99.87          |
++------------------------------------------------------------+----------------+
+| ``OneSphere.msh`` at order 1                               | 140.0          |
++------------------------------------------------------------+----------------+
+| 634 spheres at order 2, ``res-mfem-mgis-634spheres-o2.txt``| 101.6          |
++------------------------------------------------------------+----------------+
+
+At order 1, the average stress is overestimated once the matrix flows. This
+is consistent with the volumetric locking of linear tetrahedra, since the
+viscoplastic flow is isochoric.
 
 Display results with gnuplot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

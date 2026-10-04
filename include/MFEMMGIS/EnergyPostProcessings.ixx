@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/EnergyPostProcessings.ixx
- * \brief
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/EnergyPostProcessings.hxx`
  * \author Thomas Helfer
  * \date   14/12/2021
  */
@@ -19,9 +20,12 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const Parameters &params,
       const std::string_view etype)
-      : materials_identifiers(getMaterialsIdentifiers(throwing, p, params)) {
-    checkParameters(throwing, params,
-                    {"OutputFileName", "Material", "Materials"});
+      : materials_identifiers(getMaterialsIdentifiers(throwing, p, params)),
+        behaviour_integrators(
+            getBehaviourIntegratorsSelection(throwing, params)) {
+    checkParameters(
+        throwing, params,
+        {"OutputFileName", "Material", "Materials", "BehaviourIntegrator"});
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
@@ -40,16 +44,8 @@ namespace mfem_mgis {
   }  // end of EnergyPostProcessingBase
 
   template <bool parallel>
-  bool EnergyPostProcessingBase<parallel>::executeInitialPostProcessing(
-      Context &,
-      NonLinearEvolutionProblemImplementation<parallel> &,
-      const real) noexcept {
-    return true;
-  }  // end of executeInitialPostProcessing
-
-  template <bool parallel>
   bool EnergyPostProcessingBase<parallel>::execute(
-      Context &,
+      Context &ctx,
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const real t,
       const real dt) noexcept {
@@ -57,20 +53,24 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       int rank;
       MPI_Comm_rank(getMPICommunicator(p), &rank);
+      const auto oenergies = this->computeEnergies(ctx, p);
+      if (isInvalid(oenergies)) {
+        return false;
+      }
       if (rank == 0) {
         this->out << t + dt;
-      }
-      const auto energies = this->computeEnergies(p);
-      if (rank == 0) {
-        this->writeResults(energies);
+        this->writeResults(*oenergies);
       }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
+      const auto oenergies = this->computeEnergies(ctx, p);
+      if (isInvalid(oenergies)) {
+        return false;
+      }
       this->out << t + dt;
-      const auto energies = this->computeEnergies(p);
-      this->writeResults(energies);
+      this->writeResults(*oenergies);
     }
     return true;
   }  // end of EnergyPostProcessingBase
@@ -86,8 +86,8 @@ namespace mfem_mgis {
     this->out << "# first column: time\n";
     auto c = size_type{2};
     for (const auto &m : this->materials_identifiers) {
-      this->out << "# " << c << "column: " << etype  //
-                << "energy of material (" << m << ")\n";
+      this->out << "# column " << c << ": " << etype  //
+                << " energy of material (" << m << ")\n";
       ++c;
     }
   }  // end of openFile
@@ -112,12 +112,31 @@ namespace mfem_mgis {
   }  // end of StoredEnergyPostProcessing
 
   template <bool parallel>
-  std::vector<real> StoredEnergyPostProcessing<parallel>::computeEnergies(
-      const AbstractNonLinearEvolutionProblem &p) const {
+  std::optional<std::vector<real>>
+  StoredEnergyPostProcessing<parallel>::computeEnergies(
+      Context &ctx, const AbstractNonLinearEvolutionProblem &p) const noexcept {
     auto energies = std::vector<real>{};
     energies.reserve(this->materials_identifiers.size());
     for (const auto &m : this->materials_identifiers) {
-      energies.push_back(computeStoredEnergy(p.getBehaviourIntegrator(m)));
+      // sum of the energies of the selected behaviour integrators
+      const auto obis = getSelectedBehaviourIntegrators(
+          ctx, p, m, this->behaviour_integrators);
+      if (isInvalid(obis)) {
+        return {};
+      }
+      auto energy = real{};
+      for (auto b = obis->first; b != obis->second; ++b) {
+        const auto obi = p.getBehaviourIntegrator(ctx, m, b);
+        if (isInvalid(obi)) {
+          return {};
+        }
+        const auto oe = computeStoredEnergy(ctx, *obi);
+        if (isInvalid(oe)) {
+          return {};
+        }
+        energy += *oe;
+      }
+      energies.push_back(energy);
     }
     return energies;
   }  // end of computeEnergies
@@ -133,12 +152,31 @@ namespace mfem_mgis {
   }  // end of DissipatedEnergyPostProcessing
 
   template <bool parallel>
-  std::vector<real> DissipatedEnergyPostProcessing<parallel>::computeEnergies(
-      const AbstractNonLinearEvolutionProblem &p) const {
+  std::optional<std::vector<real>>
+  DissipatedEnergyPostProcessing<parallel>::computeEnergies(
+      Context &ctx, const AbstractNonLinearEvolutionProblem &p) const noexcept {
     auto energies = std::vector<real>{};
     energies.reserve(this->materials_identifiers.size());
     for (const auto &m : this->materials_identifiers) {
-      energies.push_back(computeDissipatedEnergy(p.getBehaviourIntegrator(m)));
+      // sum of the energies of the selected behaviour integrators
+      const auto obis = getSelectedBehaviourIntegrators(
+          ctx, p, m, this->behaviour_integrators);
+      if (isInvalid(obis)) {
+        return {};
+      }
+      auto energy = real{};
+      for (auto b = obis->first; b != obis->second; ++b) {
+        const auto obi = p.getBehaviourIntegrator(ctx, m, b);
+        if (isInvalid(obi)) {
+          return {};
+        }
+        const auto oe = computeDissipatedEnergy(ctx, *obi);
+        if (isInvalid(oe)) {
+          return {};
+        }
+        energy += *oe;
+      }
+      energies.push_back(energy);
     }
     return energies;
   }  // end of computeEnergies

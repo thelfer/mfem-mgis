@@ -1,6 +1,7 @@
 /*!
- * \file   MFEMMGIS/Algorithm.ixx
- * \brief
+ * \file   MFEMMGIS/Algorithms.ixx
+ * \brief  This file implements the template functions declared in
+ * `MFEMMGIS/Algorithms.hxx`
  * \author Thomas Helfer
  * \date   29/04/2025
  */
@@ -10,17 +11,19 @@
 
 namespace mfem_mgis {
 
-  template <size_type N, QPEvaluatorConcept EvaluatorType>
+  template <size_type N, QPEvaluatorConcept QPEvaluatorType>
   bool assign(Context& ctx,
               PartialQuadratureFunction& f,
-              EvaluatorType e) requires(N > 0) {
-    if (!checkMatchingQuadratureSpaces(f, e)) {
-      return false;
+              QPEvaluatorType e) requires(N > 0) {
+    if (&f.getPartialQuadratureSpace() != &getSpace(e)) {
+      return ctx.registerErrorMessage(
+          "assign: unmatched quadrature spaces for the left hand side "
+          "and the right hand side");
     }
     raise_if(f.getNumberOfComponents() != N,
-             "assign: invalid number of components for the left hand size");
+             "assign: invalid number of components for the left hand side");
     raise_if(e.getNumberOfComponents() != N,
-             "assign: invalid number of components for the right hand size");
+             "assign: invalid number of components for the right hand side");
     //
     if (!e.check(ctx)) {
       return false;
@@ -42,13 +45,13 @@ namespace mfem_mgis {
     return true;
   }  // end of assign
 
-  template <QPEvaluatorConcept EvaluatorType>
-  bool assign(Context& ctx, PartialQuadratureFunction& f, EvaluatorType e) {
+  template <QPEvaluatorConcept QPEvaluatorType>
+  bool assign(Context& ctx, PartialQuadratureFunction& f, QPEvaluatorType e) {
     raise_if(&f.getPartialQuadratureSpace() != &e.getPartialQuadratureSpace(),
-             "assign: unmatched number of components for the left hand size "
+             "assign: unmatched quadrature spaces for the left hand side "
              "and the right hand side");
     raise_if(f.getNumberOfComponents() != e.getNumberOfComponents(),
-             "assign: unmatched number of components for the left hand size "
+             "assign: unmatched number of components for the left hand side "
              "and the right hand side");
     //
     if (!e.check(ctx)) {
@@ -58,7 +61,7 @@ namespace mfem_mgis {
     const auto& qspace = f.getPartialQuadratureSpace();
     const auto ne = qspace.getNumberOfIntegrationPoints();
     if (f.isScalar()) {
-      using result_type = std::invoke_result_t<EvaluatorType, size_type>;
+      using result_type = std::invoke_result_t<QPEvaluatorType, size_type>;
       if constexpr (std::same_as<std::decay_t<result_type>, real>) {
         for (size_type i = 0; i != ne; ++i) {
           auto& lhs_value = f.getIntegrationPointValue(i);

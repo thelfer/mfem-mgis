@@ -1,5 +1,5 @@
 /*!
- * \file   MFEMMGIS/PostProcessing/GridFunctionValuesCurves.hxx
+ * \file   MFEMMGIS/PostProcessing/GridFunctionValuesCurve.hxx
  * \brief  This file declares the `GridFunctionValuesCurve` class.
  * \date   29/09/2023
  */
@@ -9,12 +9,14 @@
 
 #include <map>
 #include <string>
+#include <optional>
 #include <string_view>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MFEMForward.hxx"
 #include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
 #include "MFEMMGIS/Geometry.hxx"
+#include "MFEMMGIS/GridFunctionInterpolator.hxx"
 #endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
 #include "MFEMMGIS/PostProcessing/AbstractCurve.hxx"
 
@@ -30,49 +32,63 @@ namespace mfem_mgis {
    * This class is mostly a wrapper around the GridFunctionInterpolator class
    */
   struct MFEM_MGIS_EXPORT GridFunctionValuesCurve : public AbstractCurve {
-    //! \return a description of each parameters
+    //! \return a description of each parameter
     [[nodiscard]] static std::map<std::string, std::string>
     getParametersDescription() noexcept;
     //! \return a description of the curve
     [[nodiscard]] static std::string getDescription() noexcept;
     /*!
      * \brief constructor
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] ps: physical system
      * \param[in] manager: finite element spaces manager
-     * \param[in] params: parameters
+     * \param[in] parameters: parameters
      */
-    GridFunctionValuesCurve(Context &,
-                            PhysicalSystem &,
-                            const FiniteElementSpacesManager &,
-                            const Parameters &);
+    GridFunctionValuesCurve(Context &ctx,
+                            PhysicalSystem &ps,
+                            const FiniteElementSpacesManager &manager,
+                            const Parameters &parameters);
     /*!
      * \brief set the grid function to be interpolated (parallel case)
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the grid function
-     * \param[in] fct: grid function
+     * \param[in] f: grid function
+     * \return true on success
      */
     [[nodiscard]] virtual bool setGridRunction(
-        Context &, std::string_view, const GridFunction<true> &) noexcept;
+        Context &ctx, std::string_view n, const GridFunction<true> &f) noexcept;
     /*!
      * \brief set the grid function to be interpolated (sequential case)
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the grid function
-     * \param[in] fct: grid function
+     * \param[in] f: grid function
+     * \return true on success
      */
     [[nodiscard]] virtual bool setGridRunction(
-        Context &, std::string_view, const GridFunction<false> &) noexcept;
+        Context &ctx,
+        std::string_view n,
+        const GridFunction<false> &f) noexcept;
     /*!
-     * \brief add points ont which the grid function is to be interpolated
-     * \param[in] ctx: execution context
+     * \brief set the points on which the grid function is to be interpolated
+     * \param[in, out] ctx: execution context
      * \param[in] parameter: parameter defining the set of points
+     * \return true on success
+     *
+     * \note previously defined points are replaced
      */
-    [[nodiscard]] virtual bool addPoints(Context &, const Parameter &) noexcept;
+    [[nodiscard]] virtual bool addPoints(Context &ctx,
+                                         const Parameter &parameter) noexcept;
     //
     [[nodiscard]] std::vector<std::string> getDescriptions()
         const noexcept override;
+    /*!
+     * \brief interpolate the grid function at the points
+     * \param[in, out] ctx: execution context
+     * \param[in] ts: time step stage, ignored
+     * \return the values of the grid function at the points
+     */
     [[nodiscard]] std::optional<std::vector<real>> getValues(
-        Context &ctx, const TimeStepStage) const noexcept override;
+        Context &ctx, const TimeStepStage ts) const noexcept override;
     //! \brief destructor
     ~GridFunctionValuesCurve() noexcept override;
 
@@ -86,6 +102,8 @@ namespace mfem_mgis {
 #ifdef MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR
     //! \brief list of points
     std::variant<std::vector<Point<2>>, std::vector<Point<3>>> points;
+    //! \brief interpolator, built at the first call to `getValues`
+    mutable std::optional<GridFunctionInterpolator> interpolator;
 #endif /* MFEMMGIS_HAVE_GSLIBGRIDFUNCTIONINTERPOLATOR */
     //! \brief name of the grid function
     std::string name;

@@ -1,6 +1,6 @@
 /*!
  * \file   src/AbstractNonLinearSolver.cxx
- * \brief
+ * \brief  This file implements the `AbstractNonLinearSolver` class
  * \author Thomas Helfer
  * \date   20/09/2026
  */

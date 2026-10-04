@@ -1,6 +1,6 @@
 /*!
  * \file   src/BehaviourIntegratorBase.cxx
- * \brief
+ * \brief  This file implements the `BehaviourIntegratorBase` class
  * \author Thomas Helfer
  * \date   13/10/2020
  */
@@ -23,6 +23,28 @@ namespace mfem_mgis {
            "' implemented by '" + b.function + "' in library '" + b.library +
            "': " + e;
   }  // end of prependBehaviourDescriptionToErrorMessage
+
+  //! \return a textual representation of a list of sizes
+  [[nodiscard]] static std::string convertSizesToString(
+      const std::vector<size_type>& sizes) {
+    auto r = std::string{};
+    for (const auto s : sizes) {
+      r += r.empty() ? "" : ", ";
+      r += std::to_string(s);
+    }
+    return "(" + r + ")";
+  }  // end of convertSizesToString
+
+  //! \return a textual representation of a list of sizes of tangent blocks
+  [[nodiscard]] static std::string convertSizesOfTangentOperatorBlocksToString(
+      const std::vector<std::pair<size_type, size_type>>& sizes) {
+    auto r = std::string{};
+    for (const auto& [s1, s2] : sizes) {
+      r += r.empty() ? "" : ", ";
+      r += std::to_string(s1) + "x" + std::to_string(s2);
+    }
+    return "(" + r + ")";
+  }  // end of convertSizesOfTangentOperatorBlocksToString
 
   BehaviourIntegratorBase::BehaviourIntegratorBase(
       std::shared_ptr<const PartialQuadratureSpace> s,
@@ -106,6 +128,49 @@ namespace mfem_mgis {
           "both being non symmetric tensors");
     }
   }  // end of checkIfAFiniteStrainBehaviourIsDeclared
+
+  void BehaviourIntegratorBase::checkBehaviourVariablesSizes(
+      attributes::Throwing,
+      const CheckBehaviourVariablesSizesArguments& args) const {
+    const auto h = this->b.hypothesis;
+    auto get_size = [h](const mgis::behaviour::Variable& v) {
+      return static_cast<size_type>(getVariableSize(v, h));
+    };
+    auto gsizes = std::vector<size_type>{};
+    for (const auto& g : this->b.gradients) {
+      gsizes.push_back(get_size(g));
+    }
+    if (gsizes != args.gradients_sizes) {
+      this->throwInvalidBehaviourType(
+          throwing, "the sizes of the gradients " +
+                        convertSizesToString(gsizes) +
+                        " do not match the expected ones " +
+                        convertSizesToString(args.gradients_sizes));
+    }
+    auto fsizes = std::vector<size_type>{};
+    for (const auto& f : this->b.thermodynamic_forces) {
+      fsizes.push_back(get_size(f));
+    }
+    if (fsizes != args.thermodynamic_forces_sizes) {
+      this->throwInvalidBehaviourType(
+          throwing, "the sizes of the thermodynamic forces " +
+                        convertSizesToString(fsizes) +
+                        " do not match the expected ones " +
+                        convertSizesToString(args.thermodynamic_forces_sizes));
+    }
+    auto bsizes = std::vector<std::pair<size_type, size_type>>{};
+    for (const auto& [v1, v2] : this->b.to_blocks) {
+      bsizes.emplace_back(get_size(v1), get_size(v2));
+    }
+    if (bsizes != args.tangent_operator_blocks_sizes) {
+      this->throwInvalidBehaviourType(
+          throwing, "the sizes of the tangent operator blocks " +
+                        convertSizesOfTangentOperatorBlocksToString(bsizes) +
+                        " do not match the expected ones " +
+                        convertSizesOfTangentOperatorBlocksToString(
+                            args.tangent_operator_blocks_sizes));
+    }
+  }  // end of checkBehaviourVariablesSizes
 
   void BehaviourIntegratorBase::checkBehaviourSymmetry(
       attributes::Throwing, const Behaviour::Symmetry s) const {
@@ -269,7 +334,7 @@ namespace mfem_mgis {
 
   const PartialQuadratureSpace&
   BehaviourIntegratorBase::getPartialQuadratureSpace() const noexcept {
-    return this->getMaterial().getPartialQuadratureSpace();
+    return static_cast<const Material*>(this)->getPartialQuadratureSpace();
   }  // end of getPartialQuadratureSpace
 
   real BehaviourIntegratorBase::getTimeIncrement() const noexcept {
@@ -290,14 +355,6 @@ namespace mfem_mgis {
   OptionalReference<const Material> BehaviourIntegratorBase::getMaterial(
       Context&) const noexcept {
     return OptionalReference<const Material>{this};
-  }  // end of getMaterial
-
-  Material& BehaviourIntegratorBase::getMaterial() {
-    return *this;
-  }  // end of getMaterial
-
-  const Material& BehaviourIntegratorBase::getMaterial() const {
-    return *this;
   }  // end of getMaterial
 
   bool BehaviourIntegratorBase::setup(Context& ctx,
@@ -469,7 +526,7 @@ namespace mfem_mgis {
       }
     }
     /*
-     * \brief uniform values are treated immediatly. For spatially variable
+     * \brief uniform values are treated immediately. For spatially variable
      * fields, we return the information needed to evaluate them
      */
     // This lambda function builds an *evaluator*. Its role is to fill up
@@ -483,7 +540,7 @@ namespace mfem_mgis {
             const std::vector<mgis::behaviour::Variable>& ds)
         -> std::optional<
             std::vector<std::tuple<size_type, size_type, const real*>>> {
-      const auto h = this->getMaterial().b.hypothesis;
+      const auto h = this->b.hypothesis;
       if (v.size() != mgis::behaviour::getArraySize(ds, h)) {
         return ctx.registerErrorMessage("integrate: ill allocated memory");
       }

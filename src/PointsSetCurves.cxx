@@ -82,7 +82,7 @@ namespace mfem_mgis {
     if (!this->fespaces_manager.manages(*(f.ParFESpace()))) {
       return ctx.registerErrorMessage(
           "the given grid function is defined on a finite element space which "
-          "is not managed by the finite element spaces manager of which the "
+          "is not managed by the finite element spaces manager on which the "
           "points set curves is built");
     }
     for (const auto &[nf, vf] : this->gridfunctions) {
@@ -108,7 +108,7 @@ namespace mfem_mgis {
     if (!this->fespaces_manager.manages(*(f.FESpace()))) {
       return ctx.registerErrorMessage(
           "the given grid function is defined on a finite element space which "
-          "is not managed by the finite element spaces manager of which the "
+          "is not managed by the finite element spaces manager on which the "
           "points set curves is built");
     }
     for (const auto &[nf, vf] : this->gridfunctions) {
@@ -147,10 +147,8 @@ namespace mfem_mgis {
   }  // end of exportCoordinates
 
   size_type PointsSetCurves::getSpaceDimension() const noexcept {
-    if (std::holds_alternative<std::vector<Point<2>>>(points)) {
-      return 2;
-    }
-    return 3;
+    return ::mfem_mgis::getSpaceDimension(
+        this->fespaces_manager.getMeshDiscretization());
   }  // end of getSpaceDimension
 
   std::optional<std::vector<std::vector<real>>> PointsSetCurves::getCoordinates(
@@ -239,26 +237,30 @@ namespace mfem_mgis {
       }
     };
     //
-    auto interpolator = GridFunctionInterpolator(this->fespaces_manager);
-    if (std::holds_alternative<std::vector<Point<2>>>(points)) {
-      const auto &pts = std::get<std::vector<Point<2>>>(points);
-      if (!interpolator.addPoints(ctx, pts)) {
-        return {};
+    if (!this->interpolator.has_value()) {
+      auto new_interpolator = GridFunctionInterpolator(this->fespaces_manager);
+      if (std::holds_alternative<std::vector<Point<2>>>(points)) {
+        const auto &pts = std::get<std::vector<Point<2>>>(points);
+        if (!new_interpolator.addPoints(ctx, pts)) {
+          return {};
+        }
+      } else {
+        const auto &pts = std::get<std::vector<Point<3>>>(points);
+        if (!new_interpolator.addPoints(ctx, pts)) {
+          return {};
+        }
       }
-    } else {
-      const auto &pts = std::get<std::vector<Point<3>>>(points);
-      if (!interpolator.addPoints(ctx, pts)) {
-        return {};
-      }
+      this->interpolator.emplace(std::move(new_interpolator));
     }
+    auto &gf_interpolator = *(this->interpolator);
 #ifdef MFEM_USE_MPI
     for (const auto &[n, f] : this->gridfunctions) {
-      const auto ovalues = [&ctx, &f, &interpolator] {
+      const auto ovalues = [&ctx, &f, &gf_interpolator] {
         if (std::holds_alternative<const GridFunction<false> *>(f)) {
-          return interpolator.interpolate(
+          return gf_interpolator.interpolate(
               ctx, *(std::get<const GridFunction<false> *>(f)));
         }
-        return interpolator.interpolate(
+        return gf_interpolator.interpolate(
             ctx, *(std::get<const GridFunction<true> *>(f)));
       }();
       if (isInvalid(ovalues)) {
@@ -268,10 +270,7 @@ namespace mfem_mgis {
     }
 #else  /* MFEM_USE_MPI */
     for (const auto &[n, f] : this->gridfunctions) {
-      const auto ovalues = interpolator.interpolate(ctx, *f);
-      if (isInvalid(ovalues)) {
-        return {};
-      }
+      const auto ovalues = gf_interpolator.interpolate(ctx, *f);
       if (isInvalid(ovalues)) {
         return {};
       }

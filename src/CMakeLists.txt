@@ -36,6 +36,7 @@ list(APPEND MFEMMGIS_SOURCES
   UniformImposedPressureBoundaryCondition.cxx
   ImposedDirichletBoundaryConditionAtClosestNode.cxx
   AbstractNonLinearEvolutionProblemPostProcessing.cxx
+  NonLinearEvolutionProblemPostProcessingBase.cxx
   PostProcessingFactory.cxx
   ParaviewExportIntegrationPointResultsAtNodes.cxx
   ComputeResultantForceOnBoundary.cxx

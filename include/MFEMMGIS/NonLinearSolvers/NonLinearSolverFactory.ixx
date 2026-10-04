@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/NonLinearSolvers/NonLinearSolverFactory.ixx
- * \brief
+ * \brief  This file implements the methods of the
+ * `StandardNonLinearSolverGenerator` class
  * \author th202608
  * \date   20/09/2026
  */

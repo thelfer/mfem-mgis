@@ -1,7 +1,7 @@
 
 /*!
  * \file   src/TimeStepValidatorBase.cxx
- * \brief  This class implements the `TimeStepValidatorBase` class
+ * \brief  This file implements the `TimeStepValidatorBase` class
  * \date   04/12/2023
  */
 
@@ -29,7 +29,7 @@ namespace mfem_mgis {
   TimeStepValidatorBase::callExternalValidators(Context &ctx) const noexcept {
     auto r = Result{};
     for (const auto &[n, v] : this->externalValidators) {
-      const auto r2 = [&ctx, &v]() -> std::optional<std::pair<bool, double>> {
+      const auto r2 = [&ctx, &v]() -> std::optional<std::pair<bool, real>> {
         try {
           return std::invoke(v);
         } catch (...) {

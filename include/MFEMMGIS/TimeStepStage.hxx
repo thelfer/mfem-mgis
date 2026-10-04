@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/TimeStepStage.hxx
- * \brief
+ * \brief  This file imports the `TimeStepStage` enumeration from MGIS
  * \author Thomas Helfer
  * \date   24/01/2026
  */

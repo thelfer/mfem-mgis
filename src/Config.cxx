@@ -1,6 +1,6 @@
 /*!
  * \file   src/Config.cxx
- * \brief
+ * \brief  This file implements the functions declared in `MFEMMGIS/Config.hxx`
  * \author Thomas Helfer
  * \date   14/02/2021
  */
@@ -9,6 +9,7 @@
 #include <iostream>
 #ifdef MFEM_USE_MPI
 #include "mpi.h"
+#include "mfem/linalg/hypre.hpp"
 #endif /* MFEM_USE_MPI */
 #include "mfem/general/error.hpp"
 #include "mfem/general/optparser.hpp"
@@ -23,33 +24,41 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief structure in charge of freeing ressources on exit.
+   * \brief structure in charge of freeing resources on exit.
    */
   struct MGIS_VISIBILITY_LOCAL Finalizer {
     //! \brief option used to select the PETSc configuration file
     static const char* const petsc_configuration_file_option;
     //! \return the unique instance of this class
     static Finalizer& get();
-    //! \brief initialize the execution of the mfem-mgis
+    /*!
+     * \brief initialize the execution of the mfem-mgis
+     * \param[in] argc: number of arguments
+     * \param[in] argv: arguments
+     */
     void initialize(int&, MainFunctionArguments&);
     //! \return true if PETSc is used
     bool usePETSc() const;
-    //! \brief activate PETSc and provide a configuration file
+    /*!
+     * \brief activate PETSc and provide a configuration file
+     * \param[in] petscrc_file: PETSc configuration file
+     */
     void setPETSc(const char* petscrc_file);
     //! \brief finalize the execution of the mfem-mgis
     void finalize();
-    //! \brief abort the process
+    /*!
+     * \brief abort the process
+     * \param[in] error: exit status
+     */
     [[noreturn]] void abort(int error);
 
    private:
     //! \brief boolean stating if PETSc shall be used
     bool use_petsc = false;
-    //! \brief boolean stating if the finalize method has been called
+    //! \brief boolean stating if MPI has been finalized or aborted
     bool pendingExit = false;
     /*!
      * \brief constructor
-     * \param[in] argc: number of command line arguments
-     * \param[in] argv: command line arguments
      */
     Finalizer();
     //! \brief destructor
@@ -87,7 +96,8 @@ namespace mfem_mgis {
         }
         ++a;
         if (a == argv + argc) {
-          mgis::raise("initialize: option values missing for --use-petsc");
+          mgis::raise(
+              "initialize: no value given to --petsc-configuration-file");
         }
         petscrc_file = *a;
       }
@@ -120,6 +130,7 @@ namespace mfem_mgis {
         mfem::MFEMFinalizePetsc();
       }
 #endif /* MFEM_USE_PETSC */
+      mfem::Hypre::Finalize();
       MPI_Finalize();
       this->pendingExit = true;
 #endif /* MFEM_USE_MPI */
@@ -127,6 +138,9 @@ namespace mfem_mgis {
   }  // end of finalize
 
   [[noreturn]] void Finalizer::abort(int error) {
+    // MPI_Abort does not flush the output streams
+    mfem_mgis::getOutputStream().flush();
+    mfem_mgis::getErrorStream().flush();
     if (!this->pendingExit) {
 #ifdef MFEM_USE_MPI
       MPI_Abort(MPI_COMM_WORLD, error);
@@ -162,6 +176,7 @@ namespace mfem_mgis {
     if (first) {
       mgis::setDefaultLogStream(mfem_mgis::getOutputStream());
       MPI_Init(&argc, &argv);
+      mfem::Hypre::Init();
       if (getMPIrank() != 0) {
         mfem::out.Disable();
         mfem::err.Disable();
@@ -221,7 +236,7 @@ namespace mfem_mgis {
   }  // end of getMPIrank
 
   int getMPIsize() {
-    int size = 0;
+    int size = 1;
 #ifdef MFEM_USE_MPI
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 #endif /* MFEM_USE_MPI */

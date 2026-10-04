@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'The MFEM MGIS project'
-copyright = '2021-2024, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez'
+copyright = '2021-2026, Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez'
 author = 'Thomas Helfer, Guillaume Latu, Raphaël Prat, Maxence Wangermez'
 
 # -- General configuration ---------------------------------------------------

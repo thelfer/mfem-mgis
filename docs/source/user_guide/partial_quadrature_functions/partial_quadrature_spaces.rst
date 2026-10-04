@@ -37,6 +37,6 @@ Example of usage
 
 .. code:: c++
 
-   const auto& qspace =
-      problem.getBehaviourIntegrator(1).getPartialQuadratureSpace();
+   auto& bi = problem.getBehaviourIntegrator(ctx, 1, 0) | or_die;
+   const auto& qspace = bi.getPartialQuadratureSpace();
    const auto success = mfem_mgis::info(ctx, std::cout, qspace);

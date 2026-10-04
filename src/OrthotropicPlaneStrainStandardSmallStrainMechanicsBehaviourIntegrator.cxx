@@ -1,3 +1,9 @@
+/*!
+ * \file
+ * \brief  This file implements the
+ * `OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator` class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
@@ -34,6 +40,10 @@ namespace mfem_mgis {
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ORTHOTROPIC);
     this->checkHypothesis(throwing, Hypothesis::PLANESTRAIN);
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {4},
+                   .thermodynamic_forces_sizes = {4},
+                   .tangent_operator_blocks_sizes = {{4, 4}}});
   }  // end of
      // OrthotropicPlaneStrainStandardSmallStrainMechanicsBehaviourIntegrator
 

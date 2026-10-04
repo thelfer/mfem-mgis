@@ -1,3 +1,10 @@
+/*!
+ * \file
+ * \brief  This file implements the
+ * `IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator`
+ * class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
@@ -34,6 +41,10 @@ namespace mfem_mgis {
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
     this->checkHypothesis(throwing, Hypothesis::TRIDIMENSIONAL);
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {6},
+                   .thermodynamic_forces_sizes = {6},
+                   .tangent_operator_blocks_sizes = {{6, 6}}});
   }  // end of
      // IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator
 

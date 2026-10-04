@@ -1,6 +1,6 @@
 /*!
  * \file   tests/ParametersValidatorTest.cxx
- * \brief
+ * \brief  Tests of the `ParametersValidator` class
  * \author Thomas Helfer
  * \date   19/09/2026
  */
@@ -100,12 +100,12 @@ struct ParametersValidatorTest final : public tfel::tests::TestCase {
     auto d4 = Parameters{{"a", -12}};
     TFEL_TESTS_CHECK(!validator.validate(ctx, d4));
     TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
-                           "parameter 'a' is not strictly postive");
+                           "parameter 'a' is not strictly positive");
     // a is a null
     auto d5 = Parameters{{"a", 0}};
     TFEL_TESTS_CHECK(!validator.validate(ctx, d5));
     TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
-                           "parameter 'a' is not strictly postive");
+                           "parameter 'a' is not strictly positive");
   }
   void test4() {
     using namespace mfem_mgis;

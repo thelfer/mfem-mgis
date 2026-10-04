@@ -17,11 +17,11 @@ namespace mfem_mgis {
   /*!
    * \brief an abstract class for models
    *
-   * Most models are built on balance equation
-   * (heat transfer, mechanics, diffusion, etc..) which requires to solve
+   * Most models are built on balance equations
+   * (heat transfer, mechanics, diffusion, etc..) which require to solve
    * partial differential equations (PDEs).
    *
-   * Models may also defines internal state variables which are generally
+   * Models may also define internal state variables which are generally
    * defined at integration points.
    *
    * Unknown fields and internal state variables are generally sufficient to
@@ -30,12 +30,15 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT AbstractModel : AbstractCouplingItem, Provider {
     /*!
      * \brief add a new post-processing
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name of the post-processing
      * \param[in] params: parameters defining the post-processing
+     * \return true on success
      */
     [[nodiscard]] virtual bool addPostProcessing(
-        Context &, std::string_view, const Parameters &) noexcept = 0;
+        Context& ctx,
+        std::string_view n,
+        const Parameters& params) noexcept = 0;
     //! \return the list of available post-processings
     [[nodiscard]] virtual std::vector<std::string> getAvailablePostProcessings()
         const noexcept = 0;

@@ -18,9 +18,10 @@
 #include "TFEL/Tests/TestManager.hxx"
 #include "mfem/general/optparser.hpp"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/PostProcessing/NonLinearEvolutionProblemPostProcessingBase.hxx"
+
 
 struct {
   const char* mesh_file = nullptr;
@@ -35,10 +36,10 @@ struct {
  */
 template <bool parallel>
 struct TestPostProcessing final
-    : mfem_mgis::AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
+    : mfem_mgis::NonLinearEvolutionProblemPostProcessingBase<parallel> {
   /*!
    * \brief constructor
-   * \param[in] ts: recorded times
+   * \param[in] ts: vector in which the times are recorded
    * \param[in] b: boolean stating if the initial post-processing succeeds
    */
   TestPostProcessing(std::vector<mfem_mgis::real>& ts, const bool b)
@@ -46,8 +47,11 @@ struct TestPostProcessing final
   //
   bool executeInitialPostProcessing(
       mfem_mgis::Context& ctx,
-      mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>&,
+      mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& i,
       const mfem_mgis::real t) noexcept override {
+    if(!mfem_mgis::NonLinearEvolutionProblemPostProcessingBase<parallel>::executeInitialPostProcessing(ctx, i, t)){
+      return false;
+    }
     if (!this->success) {
       return ctx.registerErrorMessage("initial post-processing failed");
     }
@@ -119,7 +123,7 @@ struct NonLinearEvolutionProblemPostProcessingsTest final
     TFEL_TESTS_CHECK(!oproblem->executeInitialPostProcessings(ctx, 3));
     TFEL_TESTS_CHECK(ctx.getRawErrorMessage() ==
                      "initial post-processing failed");
-    TFEL_TESTS_CHECK((times == std::vector<real>{1, 3, 3}));
+    TFEL_TESTS_CHECK((times == std::vector<real>{1, 3}));
     TFEL_TESTS_CHECK(times2.empty());
   }
 };

@@ -1,3 +1,10 @@
+/*!
+ * \file
+ * \brief  This file implements the
+ * `IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator`
+ * class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
@@ -34,6 +41,10 @@ namespace mfem_mgis {
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
     this->checkHypothesis(throwing, Hypothesis::PLANESTRAIN);
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {2},
+                   .thermodynamic_forces_sizes = {2},
+                   .tangent_operator_blocks_sizes = {{2, 2}, {2, 1}}});
   }  // end of
      // IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrator
 
@@ -62,8 +73,6 @@ namespace mfem_mgis {
     const auto &pev = this->s1.external_state_variables.find("Temperature");
     if (pev == this->s1.external_state_variables.end()) {
       return ctx.registerErrorMessage(
-          "IsotropicPlaneStrainStationaryNonLinearHeatTransferBehaviourIntegrat"
-          "or::setup: "
           "external state variable 'Temperature' is not defined");
     }
     if (std::holds_alternative<std::monostate>(pev->second)) {

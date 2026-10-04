@@ -1,6 +1,7 @@
 /*!
- * \file   tests/tests/MicromorphicDamage2DTest2.cxx
- * \brief
+ * \file   tests/MicromorphicDamage2DTest2.cxx
+ * \brief  Tests of the coupling of a mechanical problem and a bidimensional
+ * micromorphic damage problem
  * \author Thomas Helfer
  * \date   07/12/2021
  */
@@ -23,66 +24,88 @@ buildMechanicalProblem(
     mgis::Context& ctx,
     const mfem_mgis::unit_tests::TestParameters& test_parameters,
     const mfem_mgis::Parameters& common_problem_parameters) {
+  auto or_die = ctx.getFatalFailureHandler();
   constexpr auto E = mfem_mgis::real{200};
   constexpr auto nu = mfem_mgis::real{0.};
   constexpr auto umax = mfem_mgis::real{0.2};
   auto lparameters = common_problem_parameters;
   lparameters.insert(mfem_mgis::throwing, {{"UnknownsSize", 2}});
   auto problem =
-      std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(ctx, lparameters);
-  problem->addBehaviourIntegrator("Mechanics", "beam", test_parameters.library,
-                                  "MicromorphicDamageI_SpectralSplit");
-  auto& m = problem->getMaterial("beam");
+      make_shared<mfem_mgis::NonLinearEvolutionProblem>(ctx, lparameters) |
+      or_die;
+  problem->addBehaviourIntegrator(ctx, "Mechanics", "beam",
+                                  test_parameters.library,
+                                  "MicromorphicDamageI_SpectralSplit") |
+      or_die;
+  auto& m = problem->getMaterial(ctx, "beam", 0) | or_die;
   // material properties
   for (const auto& mp : std::map<std::string, double>{{"YoungModulus", E},
                                                       {"PoissonRatio", nu}}) {
-    mgis::behaviour::setMaterialProperty(m.s0, mp.first, mp.second);
-    mgis::behaviour::setMaterialProperty(m.s1, mp.first, mp.second);
+    mgis::behaviour::setMaterialProperty(ctx, m.s0, mp.first, mp.second) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s1, mp.first, mp.second) |
+        or_die;
   }
   // defining the external state variables
   for (const auto& ev :
        std::map<std::string, double>{{"Temperature", 293.15}, {"Damage", 0}}) {
-    mgis::behaviour::setExternalStateVariable(m.s0, ev.first, ev.second);
-    mgis::behaviour::setExternalStateVariable(m.s1, ev.first, ev.second);
+    mgis::behaviour::setExternalStateVariable(ctx, m.s0, ev.first, ev.second) |
+        or_die;
+    mgis::behaviour::setExternalStateVariable(ctx, m.s1, ev.first, ev.second) |
+        or_die;
   }
   // boundary conditions
   problem->addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "left", 0));
+      ctx,
+      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          ctx, problem->getFiniteElementDiscretizationPointer(), "left", 0)) |
+      or_die;
   problem->addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "upper", 1));
+      ctx,
+      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          ctx, problem->getFiniteElementDiscretizationPointer(), "upper", 1)) |
+      or_die;
   problem->addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "lower", 1));
+      ctx,
+      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          ctx, problem->getFiniteElementDiscretizationPointer(), "lower", 1)) |
+      or_die;
   problem->addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "right", 0,
-          [](const mfem_mgis::real t) noexcept { return umax * t; }));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem->getFiniteElementDiscretizationPointer(), "right",
+               0, [](const mfem_mgis::real t) noexcept { return umax * t; }) |
+               or_die) |
+      or_die;
   // linear solver, convergence critera
-  mfem_mgis::unit_tests::setLinearSolver(*problem, test_parameters);
-  problem->setSolverParameters({{"VerbosityLevel", 0},
-                                {"RelativeTolerance", 1e-4},
-                                {"AbsoluteTolerance", 0},
-                                {"MaximumNumberOfIterations", 10}});
+  mfem_mgis::unit_tests::setLinearSolver(mfem_mgis::may_abort, ctx, *problem,
+                                         test_parameters);
+  problem->setSolverParameters(ctx, {{"VerbosityLevel", 0},
+                                     {"RelativeTolerance", 1e-4},
+                                     {"AbsoluteTolerance", 0},
+                                     {"MaximumNumberOfIterations", 10}}) |
+      or_die;
   // post-processings
   problem->addPostProcessing(
-      "ParaviewExportResults",
+      ctx, "ParaviewExportResults",
       {{"OutputFileName",
-        "MicromorphicDamage2D2TestOutput-MicromorphicDamageI_SpectralSplit"}});
-  problem->addPostProcessing("ComputeResultantForceOnBoundary",
-                             {{"Boundary", "right"},
-                              {"OutputFileName",
-                               "MicromorphicDamage2D2TestOutput-"
-                               "MicromorphicDamageI_SpectralSplit-force.txt"}});
+        "MicromorphicDamage2D2TestOutput-MicromorphicDamageI_SpectralSplit"}}) |
+      or_die;
   problem->addPostProcessing(
-      "ParaviewExportIntegrationPointResultsAtNodes",
+      ctx, "ComputeResultantForceOnBoundary",
+      {{"Boundary", "right"},
+       {"OutputFileName",
+        "MicromorphicDamage2D2TestOutput-"
+        "MicromorphicDamageI_SpectralSplit-force.txt"}}) |
+      or_die;
+  problem->addPostProcessing(
+      ctx, "ParaviewExportIntegrationPointResultsAtNodes",
       {{"OutputFileName",
         "MicromorphicDamage2D2TestIntegrationPointOutput"
         "-MicromorphicDamageI_SpectralSplit"},
        {"Materials", "beam"},
        {"Results",
-        std::vector<mfem_mgis::Parameter>{{"EnergyReleaseRate", "Stress"}}}});
+        std::vector<mfem_mgis::Parameter>{{"EnergyReleaseRate", "Stress"}}}}) |
+      or_die;
   return problem;
 }
 
@@ -91,6 +114,7 @@ buildMicromorphicProblem(
     mgis::Context& ctx,
     const mfem_mgis::unit_tests::TestParameters& test_parameters,
     const mfem_mgis::Parameters& common_problem_parameters) {
+  auto or_die = ctx.getFatalFailureHandler();
   constexpr auto Gc = mfem_mgis::real{1};
   constexpr auto l0 = mfem_mgis::real{0.1};
   constexpr auto beta = mfem_mgis::real{300};
@@ -98,45 +122,60 @@ buildMicromorphicProblem(
   lparameters.insert(mfem_mgis::throwing, {{"UnknownsSize", 1}});
   auto problem =
       std::make_shared<mfem_mgis::NonLinearEvolutionProblem>(ctx, lparameters);
-  problem->addBehaviourIntegrator("MicromorphicDamage", "beam",
+  problem->addBehaviourIntegrator(ctx, "MicromorphicDamage", "beam",
                                   test_parameters.library,
-                                  test_parameters.behaviour);
-  auto& m = problem->getMaterial("beam");
+                                  test_parameters.behaviour) |
+      or_die;
+  auto& m = problem->getMaterial(ctx, "beam", 0) | or_die;
   // material properties
   for (const auto& mp :
        std::map<std::string, double>{{"FractureEnergy", Gc},
                                      {"CharacteristicLength", l0},
                                      {"PenalisationFactor", beta}}) {
-    mgis::behaviour::setMaterialProperty(m.s0, mp.first, mp.second);
-    mgis::behaviour::setMaterialProperty(m.s1, mp.first, mp.second);
+    mgis::behaviour::setMaterialProperty(ctx, m.s0, mp.first, mp.second) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s1, mp.first, mp.second) |
+        or_die;
   }
   // defining the external state variables
   for (const auto& ev : std::map<std::string, double>{
            {"Temperature", 293.15}, {"EnergyReleaseRate", 0}}) {
-    mgis::behaviour::setExternalStateVariable(m.s0, ev.first, ev.second);
-    mgis::behaviour::setExternalStateVariable(m.s1, ev.first, ev.second);
+    mgis::behaviour::setExternalStateVariable(ctx, m.s0, ev.first, ev.second) |
+        or_die;
+    mgis::behaviour::setExternalStateVariable(ctx, m.s1, ev.first, ev.second) |
+        or_die;
   }
   // linear solver, convergence critera
-  mfem_mgis::unit_tests::setLinearSolver(*problem, test_parameters);
-  problem->setSolverParameters({{"VerbosityLevel", 0},
-                                {"RelativeTolerance", 1e-6},
-                                {"AbsoluteTolerance", 0},
-                                {"MaximumNumberOfIterations", 50}});
+  mfem_mgis::unit_tests::setLinearSolver(mfem_mgis::may_abort, ctx, *problem,
+                                         test_parameters);
+  problem->setSolverParameters(ctx, {{"VerbosityLevel", 0},
+                                     {"RelativeTolerance", 1e-6},
+                                     {"AbsoluteTolerance", 0},
+                                     {"MaximumNumberOfIterations", 50}}) |
+      or_die;
   // boundary conditions
   problem->addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "left", 0));
+      ctx,
+      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          ctx, problem->getFiniteElementDiscretizationPointer(), "left", 0) |
+          or_die) |
+      or_die;
   problem->addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem->getFiniteElementDiscretizationPointer(), "right", 0));
+      ctx,
+      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+          ctx, problem->getFiniteElementDiscretizationPointer(), "right", 0) |
+          or_die) |
+      or_die;
   // post-processings
   problem->addPostProcessing(
-      "ParaviewExportIntegrationPointResultsAtNodes",
+      ctx, "ParaviewExportIntegrationPointResultsAtNodes",
       {{"OutputFileName", "MicromorphicDamage2D2TestIntegrationPointOutput-" +
                               std::string(test_parameters.behaviour)},
        {"Materials", "beam"},
-       {"Results", std::vector<mfem_mgis::Parameter>{
-                       "Damage", "EnergyReleaseRateValue"}}});
+       {"Results",
+        std::vector<mfem_mgis::Parameter>{"Damage",
+                                          "EnergyReleaseRateValue"}}}) |
+      or_die;
   return problem;
 }
 
@@ -176,22 +215,22 @@ int main(int argc, char** argv) {
   auto t = mfem_mgis::real{0};
   // quadrature functions used to transfer information from one problem to the
   // other
-  mfem_mgis::PartialQuadratureFunction Y(
-      micromorphic_problem->getMaterial("beam")
-          .getPartialQuadratureSpacePointer(),
-      1u);
-  mfem_mgis::PartialQuadratureFunction d(
-      micromorphic_problem->getMaterial("beam")
-          .getPartialQuadratureSpacePointer(),
-      1u);
+  auto& m1 = micromorphic_problem->getMaterial(ctx, "beam", 0) | or_die;
+  mfem_mgis::PartialQuadratureFunction Y(m1.getPartialQuadratureSpacePointer(),
+                                         1u);
+  mfem_mgis::PartialQuadratureFunction d(m1.getPartialQuadratureSpacePointer(),
+                                         1u);
   // using external storage allows to directly modify the values of the
   // quadrature functions Y and d
+  auto& m2 = mechanical_problem->getMaterial(ctx, "beam", 0) | or_die;
   mgis::behaviour::setExternalStateVariable(
-      mechanical_problem->getMaterial("beam").s1, "Damage", d.getValues(),
-      mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE);
+      ctx, m2.s1, "Damage", d.getValues(),
+      mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE) |
+      or_die;
   mgis::behaviour::setExternalStateVariable(
-      micromorphic_problem->getMaterial("beam").s1, "EnergyReleaseRate",
-      Y.getValues(), mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE);
+      ctx, m1.s1, "EnergyReleaseRate", Y.getValues(),
+      mgis::behaviour::MaterialStateManager::EXTERNAL_STORAGE) |
+      or_die;
   // resolution
   for (mfem_mgis::size_type i = 0; i != nsteps; ++i) {
     auto converged = false;
@@ -205,42 +244,42 @@ int main(int argc, char** argv) {
       std::cout << "time step " << i  //
                 << ", alternate minimisation iteration, " << iter << '\n';
       if (iter == 0) {
-        mechanical_problem->setSolverParameters({{"AbsoluteTolerance", 1e-10}});
+        mechanical_problem->setSolverParameters(
+            ctx, {{"AbsoluteTolerance", 1e-10}}) |
+            or_die;
         micromorphic_problem->setSolverParameters(
-            {{"AbsoluteTolerance", 1e-10}});
+            ctx, {{"AbsoluteTolerance", 1e-10}}) |
+            or_die;
       } else {
         mechanical_problem->setSolverParameters(
-            {{"AbsoluteTolerance",
-              mechanical_problem_initial_residual * 1e-6}});
+            ctx, {{"AbsoluteTolerance",
+                   mechanical_problem_initial_residual * 1e-6}}) |
+            or_die;
         micromorphic_problem->setSolverParameters(
-            {{"AbsoluteTolerance",
-              micromorphic_problem_initial_residual * 1e-6}});
+            ctx, {{"AbsoluteTolerance",
+                   micromorphic_problem_initial_residual * 1e-6}}) |
+            or_die;
       }
       // solving the mechanical problem
       auto mechanical_output = mechanical_problem->solve(ctx, t, dt);
       if (!mechanical_output.status) {
-        mfem_mgis::raise("non convergence of the mechanical problem");
+        mfem_mgis::abort("non convergence of the mechanical problem");
       }
       // passing the energy release rate to the micromorphic problem
       ::mfem_mgis::assign_values(
           ctx, Y,
-          mfem_mgis::getInternalStateVariable(
-              static_cast<const ::mfem_mgis::Material&>(
-                  mechanical_problem->getMaterial("beam")),
-              "EnergyReleaseRate")) |
+          mfem_mgis::getInternalStateVariable(ctx, m2, "EnergyReleaseRate") |
+              or_die) |
           or_die;
       // solving the micromorphic problem
       auto micromorphic_output = micromorphic_problem->solve(ctx, t, dt);
       if (!micromorphic_output.status) {
-        mfem_mgis::raise("non convergence of the micromorphic problem");
+        mfem_mgis::abort("non convergence of the micromorphic problem");
       }
       // passing the damage to the mechanical problem
       ::mfem_mgis::assign_values(
           ctx, d,
-          mfem_mgis::getInternalStateVariable(
-              static_cast<const ::mfem_mgis::Material&>(
-                  micromorphic_problem->getMaterial("beam")),
-              "Damage")) |
+          mfem_mgis::getInternalStateVariable(ctx, m1, "Damage") | or_die) |
           or_die;
       if (iter == 0) {
         mechanical_problem_initial_residual =
@@ -254,17 +293,13 @@ int main(int argc, char** argv) {
       ++iter;
       // check convergence
       if ((iter == iter_max) && (!converged)) {
-        mfem_mgis::raise("non convergence of the fixed-point problem");
+        mfem_mgis::abort("non convergence of the fixed-point problem");
       }
     }
-    mechanical_problem->executePostProcessings(ctx, t, dt);
-    micromorphic_problem->executePostProcessings(ctx, t, dt);
-    if (!mechanical_problem->update(ctx)) {
-      mfem_mgis::raise("updating the mechanical problem failed");
-    }
-    if (!micromorphic_problem->update(ctx)) {
-      mfem_mgis::raise("updating the micromorphic problem failed");
-    }
+    mechanical_problem->executePostProcessings(ctx, t, dt) | or_die;
+    micromorphic_problem->executePostProcessings(ctx, t, dt) | or_die;
+    mechanical_problem->update(ctx) | or_die;
+    micromorphic_problem->update(ctx) | or_die;
     t += dt;
   }
   return EXIT_SUCCESS;

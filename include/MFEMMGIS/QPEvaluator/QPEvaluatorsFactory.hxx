@@ -20,16 +20,18 @@
 namespace mfem_mgis {
 
   /*!
-   * This class is an abstract factory for quadrature point evaluators
-   * evaluators, i.e. which provides methods to:
+   * \brief abstract factory for quadrature point evaluators
    *
-   * 1. registrer generators of quadrature point evaluators stored by name,
+   * This class is an abstract factory for quadrature point evaluators,
+   * i.e. which provides methods to:
+   *
+   * 1. register generators of quadrature point evaluators stored by name,
    * material identifier and equivalent partial quadrature space.
    * 2. handle the generation of evaluators.
    */
   struct MFEM_MGIS_EXPORT QPEvaluatorsFactory {
     /*!
-     * \brief structure return by the `analyseDependencies` method
+     * \brief structure returned by the `analyseDependencies` method
      */
     struct LocalDependenciesAnalysisOutput {
       //! \brief missing dependencies
@@ -38,40 +40,43 @@ namespace mfem_mgis {
     //! \brief a simple alias
     using Generator = std::shared_ptr<AbstractQPEvaluatorGenerator>;
     /*!
+     * \brief describe a location
      * \return a description of the given location usable in an error message
-     * \param[in] m: mesh set on which the evaluator is defined.
-     * \param[in] qid: quadrature id for which the evaluator is defined.
+     * \param[in] qspace: partial quadrature space on which the evaluator is
+     * defined.
      * \param[in] s: stage in the time step
      */
     static std::string getLocationDescription(
-        const std::shared_ptr<const PartialQuadratureSpace>,
-        const TimeStepStage) noexcept;
+        const std::shared_ptr<const PartialQuadratureSpace> qspace,
+        const TimeStepStage s) noexcept;
     //! \brief default constructor
     QPEvaluatorsFactory() noexcept;
-    // disabling default constructors and assignement operators
+    // disabling copy and move constructors and assignment operators
     QPEvaluatorsFactory(QPEvaluatorsFactory &&) = delete;
     QPEvaluatorsFactory(const QPEvaluatorsFactory &) = delete;
     QPEvaluatorsFactory &operator=(QPEvaluatorsFactory &&) = delete;
     QPEvaluatorsFactory &operator=(const QPEvaluatorsFactory &) = delete;
     /*!
+     * \brief check if a generator has been declared
      * \return if a generator associated with the given partial quadrature
-     * space, quadrature id and time set stage has been declared.
+     * space, time step stage and name has been declared.
      *
      * \param[in] qspace: partial quadrature space
      * \param[in] s: stage in the time step
      * \param[in] n: name of the evaluator
      */
     [[nodiscard]] bool containsGenerator(
-        const std::shared_ptr<const PartialQuadratureSpace>,
-        const TimeStepStage,
-        const std::string &) const noexcept;
-    //     /*!
+        const std::shared_ptr<const PartialQuadratureSpace> qspace,
+        const TimeStepStage s,
+        const std::string &n) const noexcept;
+    //     /*
     //      * \brief register a new evaluator generator
-    //      * \param[in] ctx: execution context.
+    //      * \param[in, out] ctx: execution context
     //      * \param[in] qspace: partial quadrature space
     //      * \param[in] s: stage in the time step
     //      * \param[in] n: name of the evaluator
     //      * \param[in] g: generator
+    //      * \return true on success
     //      */
     //     [[nodiscard]] bool registerGenerator(
     //         Context &,
@@ -79,97 +84,74 @@ namespace mfem_mgis {
     //         const TimeStepStage,
     //         const std::string &,
     //         const Generator &) noexcept;
-    //     /*!
-    //      * \brief generate an evaluator on the given mesh set and quadrature
-    //      id.
-    //      *
-    //      * \param[in] ctx: execution context.
+    //     /*
+    //      * \brief generate an evaluator on the given partial quadrature space
+    //      * \param[in, out] ctx: execution context
     //      * \param[in] qspace: partial quadrature space
     //      * \param[in] s: stage in the time step
     //      * \param[in] d: description of the evaluator
-    //      *
-    //      * \return a shared pointer to the evaluator. If the evaluation
-    //      failed, the
-    //      * shared pointer is empty.
+    //      * \return the evaluator, a null pointer on failure
     //      */
     //     [[nodiscard]] std::shared_ptr<AbstractQPEvaluator> generate(
     //         Context &,
     //         const std::shared_ptr<const PartialQuadratureSpace>,
     //         const TimeStepStage,
     //         const QPEvaluatorDescription &) const noexcept;
-    //     /*!
-    //      * \brief generate an evaluator on the given mesh set and quadrature
-    //      id.
-    //      *
-    //      * \param[in] ctx: execution context.
+    //     /*
+    //      * \brief generate an evaluator on the given partial quadrature space
+    //      * \param[in, out] ctx: execution context
     //      * \param[in] qspace: partial quadrature space
     //      * \param[in] s: stage in the time step
     //      * \param[in] n: name of the evaluator
-    //      *
-    //      * \return a shared pointer to the evaluator. If the evaluation
-    //      failed, the
-    //      * shared pointer is empty.
+    //      * \return the evaluator, a null pointer on failure
     //      */
     //     [[nodiscard]] std::shared_ptr<AbstractQPEvaluator> generate(
     //         Context &,
     //         const std::shared_ptr<const PartialQuadratureSpace>,
     //         const TimeStepStage,
     //         const std::string &) const noexcept;
-    //     /*!
-    //      * \brief generate an evaluator on the given mesh set and quadrature
-    //      id.
-    //      *
-    //      * \param[in] ctx: execution context.
-    //      * \param[in] m: mesh set on which the evaluator is defined.
+    //     /*
+    //      * \brief generate an evaluator on the given mesh set
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in] m: mesh set on which the evaluator is defined
     //      * \param[in] s: stage in the time step
     //      * \param[in] d: description of the evaluator
+    //      * \return the evaluator, a null pointer on failure
     //      *
-    //      * \return a shared pointer to the evaluator. If the evaluation
-    //      failed, the
-    //      * shared pointer is empty.
-    //      *
-    //      * \note the quadrature is unspecified. This call can only work if
-    //      the
-    //      * evaluator is avaiable for only one quadrature.
+    //      * \note the quadrature is unspecified. This call only works if the
+    //      * evaluator is available for only one quadrature.
     //      */
     //     [[nodiscard]] std::shared_ptr<AbstractQPEvaluator> generate(
     //         Context &,
     //         const size_type,
     //         const TimeStepStage,
     //         const QPEvaluatorDescription &) const noexcept;
-    //     /*!
-    //      * \brief generate an evaluator on the given mesh set and quadrature
-    //      id.
-    //      * param[in] ctx: execution context.
-    //      * \param[in] m: mesh set on which the evaluator is defined.
+    //     /*
+    //      * \brief generate an evaluator on the given mesh set
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in] m: mesh set on which the evaluator is defined
     //      * \param[in] s: stage in the time step
     //      * \param[in] n: name of the evaluator
+    //      * \return the evaluator, a null pointer on failure
     //      *
-    //      * \return a shared pointer to the evaluator. If the evaluation
-    //      failed, the
-    //      * shared pointer is empty.
-    //      *
-    //      * \note the quadrature is unspecified. This call can only work if
-    //      the
-    //      * evaluator is avaiable for only one quadrature.
+    //      * \note the quadrature is unspecified. This call only works if the
+    //      * evaluator is available for only one quadrature.
     //      */
     //     [[nodiscard]] std::shared_ptr<AbstractQPEvaluator> generate(
     //         Context &,
     //         const size_type,
     //         const TimeStepStage,
     //         const std::string &) const noexcept;
-    //     /*!
-    //      * \brief generate a set of evaluators on the given mesh set and
-    //      quadrature
-    //      * id.
-    //      * \param[in] ctx: execution context.
-    //      * \param[in] m: mesh set on which the evaluator is defined.
+    //     /*
+    //      * \brief generate a set of evaluators on the given mesh set
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in] m: mesh set on which the evaluators are defined
     //      * \param[in] s: stage in the time step
-    //      * \param[in] descriptions: description of the evaluators
+    //      * \param[in] descriptions: descriptions of the evaluators
+    //      * \return the evaluators and their offsets, nothing on failure
     //      *
-    //      * \note the quadrature is unspecified. This call can only work if
-    //      the
-    //      * evaluator for each mesh set is avaiable for only one quadrature.
+    //      * \note the quadrature is unspecified. This call only works if each
+    //      * evaluator is available for only one quadrature.
     //      */
     //     [[nodiscard]] std::optional<
     //         std::vector<std::pair<size_type,
@@ -178,18 +160,16 @@ namespace mfem_mgis {
     //              const size_type,
     //              const TimeStepStage,
     //              const std::vector<QPEvaluatorDescription> &) const noexcept;
-    //     /*!
-    //      * \brief generate a set of evaluators on the given mesh set and
-    //      quadrature
-    //      * id.
-    //      * \param[in] ctx: execution context.
-    //      * \param[in] m: mesh set on which the evaluator is defined.
+    //     /*
+    //      * \brief generate a set of evaluators on the given mesh set
+    //      * \param[in, out] ctx: execution context
+    //      * \param[in] m: mesh set on which the evaluators are defined
     //      * \param[in] s: stage in the time step
     //      * \param[in] names: names of the evaluators
+    //      * \return the evaluators and their offsets, nothing on failure
     //      *
-    //      * \note the quadrature is unspecified. This call can only work if
-    //      the
-    //      * evaluator for each mesh set is avaialble for only one quadrature.
+    //      * \note the quadrature is unspecified. This call only works if each
+    //      * evaluator is available for only one quadrature.
     //      */
     //     [[nodiscard]] std::optional<
     //         std::vector<std::pair<size_type,
@@ -215,24 +195,27 @@ namespace mfem_mgis {
      * \return generators associated with the given stage in the time step
      * \param[in] s: stage in the time step
      */
-    GeneratorsContainer &getGeneratorsContainer(const TimeStepStage) noexcept;
+    GeneratorsContainer &getGeneratorsContainer(const TimeStepStage s) noexcept;
     /*!
-     * \return fields associated with the given stage in the time step
+     * \return generators associated with the given stage in the time step
      * \param[in] s: stage in the time step
      */
     const GeneratorsContainer &getGeneratorsContainer(
-        const TimeStepStage) const noexcept;
+        const TimeStepStage s) const noexcept;
     /*!
      * \return the list of registered generators for the given time step stage
      * \param[in] s: stage in the time step
      */
     [[nodiscard]] std::string getRegisteredGeneratorsList(
-        const TimeStepStage) const noexcept;
-    //     /*!
+        const TimeStepStage s) const noexcept;
+    //     /*
     //      * \brief check if the dependencies of the given evaluator are met
+    //      * \param[in, out] ctx: execution context
     //      * \param[in] m: registered generators
     //      * \param[in] n: name of the evaluator
-    //      * \param[in] previous_dependencies: list of the previous iterations
+    //      * \param[in] previous_dependencies: evaluators already visited,
+    //      * used to detect cycles
+    //      * \return the missing dependencies
     //      */
     //     LocalDependenciesAnalysisOutput analyseDependencies(
     //         Context &,
@@ -240,13 +223,13 @@ namespace mfem_mgis {
     //         const std::string &n,
     //         const std::vector<QPEvaluatorDescription> &) const noexcept;
     /*!
-     * \brief list of registered generators computing values of the beginning of
-     * the time step, sorted by mesh sets, quadrature id's and name
+     * \brief list of registered generators computing values at the beginning of
+     * the time step, sorted by location, partial quadrature space and name
      */
     GeneratorsContainer generatorsAtTheBeginningOfTheTimeStep;
     /*!
-     * \brief list of registered generators computing values of the end of the
-     * time step, sorted by mesh sets, quadrature id's and name
+     * \brief list of registered generators computing values at the end of the
+     * time step, sorted by location, partial quadrature space and name
      */
     GeneratorsContainer generatorsAtTheEndOfTheTimeStep;
   };

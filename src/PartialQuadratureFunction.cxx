@@ -1,6 +1,6 @@
 /*!
  * \file   src/PartialQuadratureFunction.cxx
- * \brief
+ * \brief  This file implements the `PartialQuadratureFunction` class
  * \author Thomas Helfer
  * \date   8/06/2020
  */
@@ -406,6 +406,7 @@ namespace mfem_mgis {
    */
   struct PartialQuadratureFunctionsCoefficientBase {
     /*!
+     * \brief constructor
      * \param[in] s: finite element space of the grid function
      * \param[in] fcts: functions
      */
@@ -458,7 +459,7 @@ namespace mfem_mgis {
      * \brief evaluate the local projection of a function
      * \param[out] values: values of the projection at the given point
      * \param[in] f: function
-     * \param[in] tr: transformation of the element of the grid function
+     * \param[in, out] tr: transformation of the element of the grid function
      * \param[in] ip: point at which the projection is evaluated
      * \param[in] n: number of the element in the mesh of the quadrature space
      */
@@ -486,7 +487,7 @@ namespace mfem_mgis {
      * projection of a function
      * \param[in] f: function
      * \param[in] fe: finite element of the grid function
-     * \param[in] tr: transformation of the element of the grid function
+     * \param[in, out] tr: transformation of the element of the grid function
      * \param[in] n: number of the element in the mesh of the quadrature space
      */
     void computeNodalValues(const ImmutablePartialQuadratureFunctionView& f,
@@ -793,6 +794,7 @@ namespace mfem_mgis {
    * \param[in, out] ctx: execution context
    * \param[in] fcts: functions
    * \param[in] mesh: mesh of the grid function
+   * \return true on success
    *
    * \note the elements on which no function is defined would contribute to
    * the nodal averages with null values.
@@ -809,6 +811,10 @@ namespace mfem_mgis {
     // locations on which the functions are defined
     auto locations = std::set<LocationIdentifier>{};
     for (const auto& f : fcts) {
+      if (f.getNumberOfComponents() != fcts.front().getNumberOfComponents()) {
+        return ctx.registerErrorMessage(
+            "functions with different numbers of components given");
+      }
       const auto& qspace = f.getPartialQuadratureSpace();
       const auto& fed = qspace.getFiniteElementDiscretization();
       const auto omesh = qspace.template getMesh<parallel>(ctx);

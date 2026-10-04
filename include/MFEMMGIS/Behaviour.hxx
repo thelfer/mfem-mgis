@@ -1,6 +1,6 @@
 /*!
  * \file   include/MFEMMGIS/Behaviour.hxx
- * \brief
+ * \brief  This file declares the `Behaviour` alias and the `load` function
  * \author Thomas Helfer
  * \date   26/08/2020
  */
@@ -22,31 +22,20 @@ namespace mfem_mgis {
   /*!
    * \brief load a behaviour.
    *
-   * Compared the `mgis::behaviour::load` function, this function
+   * Compared to the `mgis::behaviour::load` function, this function
    * handles specifically the case of finite strain behaviours.
    *
    * \param[in, out] ctx: execution context
    * \param[in] l: library name
    * \param[in] b: behaviour name
    * \param[in] h: modelling hypothesis
+   * \return the loaded behaviour, a null pointer on failure
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<Behaviour> load(
-      Context &,
-      const std::string &,
-      const std::string &,
-      const Hypothesis) noexcept;
-  /*!
-   * \brief load a behaviour.
-   *
-   * Compared the `mgis::behaviour::load` function, this function
-   * handles specifically the case of finite strain behaviours.
-   *
-   * \param[in] l: library name
-   * \param[in] b: behaviour name
-   * \param[in] h: modelling hypothesis
-   */
-  MFEM_MGIS_EXPORT [[nodiscard, deprecated]] std::unique_ptr<Behaviour> load(
-      const std::string &, const std::string &, const Hypothesis);
+      Context& ctx,
+      const std::string& l,
+      const std::string& b,
+      const Hypothesis h) noexcept;
 
 }  // end of namespace mfem_mgis
 

@@ -1,3 +1,9 @@
+/*!
+ * \file   tests/PredictionTest.cxx
+ * \brief  Tests of the prediction of the unknowns at the beginning of a time
+ * step
+ */
+
 #include <cstdlib>
 #include "mfem/linalg/sparsemat.hpp"
 #include "mfem/fem/linearform.hpp"
@@ -51,7 +57,7 @@ template <bool parallel>
       u0, mfem_mgis::IntegrationType::PREDICTION_ELASTIC_OPERATOR, {});
 #ifdef MFEM_USE_MPI
   if constexpr (parallel) {
-    MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_C_BOOL, MPI_LAND,
+    MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_CXX_BOOL, MPI_LAND,
                   fespace.GetComm());
   }
 #endif /* MFEM_USE_MPI */
@@ -167,36 +173,55 @@ int main(int argc, char *argv[]) {
   args.PrintOptions(mfem_mgis::getOutputStream());
   //
   auto ctx = mfem_mgis::Context{};
-  LocalNonLinearEvolutionProblem problem(
-      ctx, {{"MeshFileName", mesh_file},
-            {"FiniteElementFamily", "H1"},
-            {"FiniteElementOrder", order},
-            {"UnknownsSize", 3},
-            {"NumberOfUniformRefinements", 2},  // faster for testing
-            //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
-            {"Hypothesis", "Tridimensional"},
-            {"Parallel", bool(parallel)}});
+  auto or_die = ctx.getFatalFailureHandler();
+  auto problem =
+      mfem_mgis::construct<LocalNonLinearEvolutionProblem>(
+          ctx,
+          mfem_mgis::Parameters{
+              {"MeshFileName", mesh_file},
+              {"FiniteElementFamily", "H1"},
+              {"FiniteElementOrder", order},
+              {"UnknownsSize", 3},
+              {"NumberOfUniformRefinements", 2},  // faster for testing
+              //{"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
+              {"Hypothesis", "Tridimensional"},
+              {"Parallel", bool(parallel)}}) |
+      or_die;
   //
-  problem.addBehaviourIntegrator("Mechanics", 1, library, "Elasticity");
-  auto &m1 = problem.getMaterial(1);
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 1, library,
+                                 "IsotropicLinearElasticity") |
+      or_die;
+  auto &m1 = problem.getMaterial(ctx, 1, 0) | or_die;
   for (auto *ps : {&m1.s0, &m1.s1}) {
-    mgis::behaviour::setMaterialProperty(*ps, "FirstLameCoefficient", 100e9);
-    mgis::behaviour::setMaterialProperty(*ps, "ShearModulus", 75e9);
-    mgis::behaviour::setExternalStateVariable(*ps, "Temperature", 293.15);
+    mgis::behaviour::setMaterialProperty(ctx, *ps, "FirstLameCoefficient",
+                                         100e9) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, *ps, "ShearModulus", 75e9) |
+        or_die;
+    mgis::behaviour::setExternalStateVariable(ctx, *ps, "Temperature", 293.15) |
+        or_die;
   }
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 1, 1));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 1) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 2, 2));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 2) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 5, 0));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 5, 0) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 3, 0,
-          [](const auto t) noexcept { return 3e-2 * t; }));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 3, 0,
+               [](const auto t) noexcept { return 3e-2 * t; }) |
+               or_die) |
+      or_die;
   //
   if (parallel) {
 #ifdef MFEM_USE_MPI

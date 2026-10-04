@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/ExitStatus.ixx
- * \brief
+ * \brief  This file implements the inline methods of the `ExitStatus` class
  * \author Thomas Helfer
  * \date   03/03/2026
  */
@@ -26,7 +26,7 @@ namespace mfem_mgis {
   }
 
   inline void ExitStatus::update(const bool s) noexcept {
-    this->operator=(ExitStatus(s));
+    this->update(ExitStatus(s));
   }
 
   inline bool ExitStatus::shallContinue() const noexcept {

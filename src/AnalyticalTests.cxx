@@ -1,6 +1,7 @@
 /*!
  * \file   src/AnalyticalTests.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/AnalyticalTests.hxx`
  * \author Thomas Helfer
  * \date   25/03/2021
  */
@@ -21,7 +22,7 @@ namespace mfem_mgis {
     mfem_mgis::GridFunction<parallel> x(&problem.getFiniteElementSpace());
     const auto dim = problem.getFiniteElementSpace().GetVDim();
     // recover the solution as a grid function
-    auto &u1 = problem.getUnknownsAtEndOfTheTimeStep();
+    auto &u1 = problem.getUnknowns(ets);
     x.MakeTRef(&problem.getFiniteElementSpace(), u1, 0);
     x.SetFromTrueVector();
     // comparison to analytical solution

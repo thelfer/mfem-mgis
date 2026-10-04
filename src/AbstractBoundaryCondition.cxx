@@ -1,6 +1,6 @@
 /*!
  * \file   src/AbstractBoundaryCondition.cxx
- * \brief
+ * \brief  This file implements the `AbstractBoundaryCondition` class
  * \author Thomas Helfer
  * \date   27/09/2024
  */

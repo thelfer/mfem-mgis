@@ -1,6 +1,7 @@
 /*!
  * \file   src/MaterialQuantityProviderSearch.cxx
- * \brief
+ * \brief  This file implements the functions declared in
+ * `MFEMMGIS/MaterialQuantityProviderSearch.hxx`
  * \date   23/09/2026
  */
 
@@ -21,6 +22,7 @@ namespace mfem_mgis {
    * \param[in] n: name of the quantity
    * \param[in] get_variables: function returning the list of variables of a
    * material in which the quantity is searched
+   * \return the result of the search, an empty value on failure
    */
   template <typename VariablesGetter>
   [[nodiscard]] static std::optional<MaterialQuantityProviderSearchResult>

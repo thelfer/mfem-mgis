@@ -1,6 +1,6 @@
 /*!
  * \file   NonLinearSolverFactory.cxx
- * \brief
+ * \brief  This file implements the `NonLinearSolverFactory` class
  * \author Thomas Helfer
  * \date   20/09/2026
  */

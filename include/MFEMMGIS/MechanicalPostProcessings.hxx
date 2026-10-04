@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/MechanicalPostProcessings.hxx
- * \brief
+ * \brief  This file declares functions computing stress based quantities at
+ * integration points
  * \author Thomas Helfer
  * \date   22/05/2025
  */
@@ -25,15 +26,15 @@ namespace mfem_mgis {
    * strain behaviours.
    *
    * \return the von Mises stress
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   [[nodiscard]] MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeVonMisesEquivalentStress(Context&,
-                                  const Material&,
-                                  const Material::StateSelection);
+  computeVonMisesEquivalentStress(Context& ctx,
+                                  const Material& m,
+                                  const Material::StateSelection s);
   /*!
    * \brief compute the von Mises equivalent stress.
    *
@@ -42,55 +43,56 @@ namespace mfem_mgis {
    * \note This function currently does not work in plane stress for finite
    * strain behaviours.
    *
-   * \return the von Mises stress
-   * \param[in] ctx: execution context
+   * \return true on success
+   * \param[in, out] ctx: execution context
+   * \param[out] seq: von Mises equivalent stress
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   [[nodiscard]] MFEM_MGIS_EXPORT bool computeVonMisesEquivalentStress(
-      Context&,
-      PartialQuadratureFunction&,
-      const Material&,
-      const Material::StateSelection);
+      Context& ctx,
+      PartialQuadratureFunction& seq,
+      const Material& m,
+      const Material::StateSelection s);
 
   /*!
    * \brief compute the eigen values of the stress.
    *
    * \note For finite strain behaviours, the eigen values of the
-   * Cauchy stress is returned.
+   * Cauchy stress are returned.
    * \note This function currently does not work in plane stress for finite
    * strain behaviours.
    *
    * \return the eigen values of the stress
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeEigenStresses(Context&,
-                       const Material&,
-                       const Material::StateSelection);
+  computeEigenStresses(Context& ctx,
+                       const Material& m,
+                       const Material::StateSelection s);
   /*!
    * \brief compute the eigen values of the stress.
    *
    * \note For finite strain behaviours, the eigen values of the
-   * Cauchy stress is returned.
+   * Cauchy stress are returned.
    * \note This function currently does not work in plane stress for finite
    * strain behaviours.
    *
-   * \return the eigen values of the stress
-   * \param[in] ctx: execution context
-   * \param[in] svp: eigen values of the stress
+   * \return true on success
+   * \param[in, out] ctx: execution context
+   * \param[out] svp: eigen values of the stress
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
-  MFEM_MGIS_EXPORT bool computeEigenStresses(Context&,
-                                             PartialQuadratureFunction&,
-                                             const Material&,
-                                             const Material::StateSelection);
+  MFEM_MGIS_EXPORT bool computeEigenStresses(Context& ctx,
+                                             PartialQuadratureFunction& svp,
+                                             const Material& m,
+                                             const Material::StateSelection s);
 
   /*!
    * \brief compute the first (maximum) eigen value of the stress.
@@ -100,16 +102,16 @@ namespace mfem_mgis {
    * \note This function currently does not work in plane stress for finite
    * strain behaviours.
    *
-   * \return the eigen values of the stress
-   * \param[in] ctx: execution context
+   * \return the first eigen value of the stress
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeFirstEigenStress(Context&,
-                          const Material&,
-                          const Material::StateSelection);
+  computeFirstEigenStress(Context& ctx,
+                          const Material& m,
+                          const Material::StateSelection s);
   /*!
    * \brief compute the first (maximum) eigen value of the stress.
    *
@@ -118,83 +120,91 @@ namespace mfem_mgis {
    * \note This function currently does not work in plane stress for finite
    * strain behaviours.
    *
-   * \return the eigen values of the stress
-   * \param[in] ctx: execution context
+   * \return true on success
+   * \param[in, out] ctx: execution context
+   * \param[out] s1: first eigen value of the stress
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
-  MFEM_MGIS_EXPORT bool computeFirstEigenStress(Context&,
-                                                PartialQuadratureFunction&,
-                                                const Material&,
-                                                const Material::StateSelection);
+  MFEM_MGIS_EXPORT bool computeFirstEigenStress(
+      Context& ctx,
+      PartialQuadratureFunction& s1,
+      const Material& m,
+      const Material::StateSelection s);
   /*!
    * \brief compute the stress in the global frame.
    *
    * \note For finite strain behaviours, the first Piola-Kirchhoff stress
    * tensor is returned.
+   * \note This function is only valid for orthotropic behaviours.
    *
    * \return the stress in the global frame
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeStressInGlobalFrame(Context&,
-                             const Material&,
-                             const Material::StateSelection);
+  computeStressInGlobalFrame(Context& ctx,
+                             const Material& m,
+                             const Material::StateSelection s);
   /*!
    * \brief compute the stress in the global frame.
    *
    * \note For finite strain behaviours, the first Piola-Kirchhoff stress
    * tensor is returned.
+   * \note This function is only valid for orthotropic behaviours.
    *
-   * \return the stress in the global frame
-   * \param[in] ctx: execution context
+   * \return true on success
+   * \param[in, out] ctx: execution context
+   * \param[out] rstress: stress in the global frame
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   MFEM_MGIS_EXPORT bool computeStressInGlobalFrame(
-      Context&,
-      PartialQuadratureFunction&,
-      const Material&,
-      const Material::StateSelection);
+      Context& ctx,
+      PartialQuadratureFunction& rstress,
+      const Material& m,
+      const Material::StateSelection s);
 
   /*!
    * \brief compute the Cauchy stress in the global frame.
    *
    * \note This function is only valid for finite strain behaviours
    * \note This function currently does not work in plane stress.
+   * \note This function is only valid for orthotropic behaviours.
    *
    * \return the Cauchy stress in the global frame
-   * \param[in] ctx: execution context
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction>
-  computeCauchyStressInGlobalFrame(Context&,
-                                   const Material&,
-                                   const Material::StateSelection);
+  computeCauchyStressInGlobalFrame(Context& ctx,
+                                   const Material& m,
+                                   const Material::StateSelection s);
   /*!
    * \brief compute the Cauchy stress in the global frame.
    *
    * \note This function is only valid for finite strain behaviours
    * \note This function currently does not work in plane stress.
+   * \note This function is only valid for orthotropic behaviours.
    *
-   * \return the Cauchy stress in the global frame
-   * \param[in] ctx: execution context
+   * \return true on success
+   * \param[in, out] ctx: execution context
+   * \param[out] sig: Cauchy stress in the global frame
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   MFEM_MGIS_EXPORT bool computeCauchyStressInGlobalFrame(
-      Context&,
-      PartialQuadratureFunction&,
-      const Material&,
-      const Material::StateSelection);
+      Context& ctx,
+      PartialQuadratureFunction& sig,
+      const Material& m,
+      const Material::StateSelection s);
 
   /*!
    * \brief compute the Cauchy stress.
@@ -202,30 +212,31 @@ namespace mfem_mgis {
    * \note This function is only valid for finite strain behaviours
    * \note This function currently does not work in plane stress.
    *
-   * \return the Cauchy stress in the global frame
-   * \param[in] ctx: execution context
+   * \return the Cauchy stress
+   * \param[in, out] ctx: execution context
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
   MFEM_MGIS_EXPORT std::optional<PartialQuadratureFunction> computeCauchyStress(
-      Context&, const Material&, const Material::StateSelection);
+      Context& ctx, const Material& m, const Material::StateSelection s);
   /*!
    * \brief compute the Cauchy stress.
    *
    * \note This function is only valid for finite strain behaviours
    * \note This function currently does not work in plane stress.
    *
-   * \return the Cauchy stress in the global frame
-   * \param[in] ctx: execution context
+   * \return true on success
+   * \param[in, out] ctx: execution context
+   * \param[out] sig: Cauchy stress
    * \param[in] m: material
-   * \param[in] s: selection of the state considered (beginnig of time step, end
-   * of time step)
+   * \param[in] s: selection of the state considered (beginning of time step,
+   * end of time step)
    */
-  MFEM_MGIS_EXPORT bool computeCauchyStress(Context&,
-                                            PartialQuadratureFunction&,
-                                            const Material&,
-                                            const Material::StateSelection);
+  MFEM_MGIS_EXPORT bool computeCauchyStress(Context& ctx,
+                                            PartialQuadratureFunction& sig,
+                                            const Material& m,
+                                            const Material::StateSelection s);
 
 #endif /* MGIS_FUNCTION_SUPPORT */
 

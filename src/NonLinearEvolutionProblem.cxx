@@ -1,6 +1,6 @@
 /*!
  * \file   src/NonLinearEvolutionProblem.cxx
- * \brief
+ * \brief  This file implements the `NonLinearEvolutionProblem` class
  * \author Thomas Helfer
  * \date   23/03/2021
  */
@@ -166,25 +166,6 @@ namespace mfem_mgis {
     return this->pimpl->getFiniteElementDiscretizationPointer();
   }  // end of getFiniteElementDiscretizationPointer
 
-  mfem::Vector&
-  NonLinearEvolutionProblem::getUnknownsAtBeginningOfTheTimeStep() {
-    return this->pimpl->getUnknownsAtBeginningOfTheTimeStep();
-  }  // end of getUnknownsAtBeginningOfTheTimeStep
-
-  const mfem::Vector&
-  NonLinearEvolutionProblem::getUnknownsAtBeginningOfTheTimeStep() const {
-    return this->pimpl->getUnknownsAtBeginningOfTheTimeStep();
-  }  // end of getUnknownsAtBeginningOfTheTimeStep
-
-  mfem::Vector& NonLinearEvolutionProblem::getUnknownsAtEndOfTheTimeStep() {
-    return this->pimpl->getUnknownsAtEndOfTheTimeStep();
-  }  // end of getUnknownsAtEndOfTheTimeStep
-
-  const mfem::Vector& NonLinearEvolutionProblem::getUnknownsAtEndOfTheTimeStep()
-      const {
-    return this->pimpl->getUnknownsAtEndOfTheTimeStep();
-  }  // end of getUnknownsAtEndOfTheTimeStep
-
   mfem::Vector& NonLinearEvolutionProblem::getUnknowns(
       const TimeStepStage ts) noexcept {
     return this->pimpl->getUnknowns(ts);
@@ -198,11 +179,6 @@ namespace mfem_mgis {
   bool NonLinearEvolutionProblem::setSolverParameters(
       Context& ctx, const Parameters& params) noexcept {
     return this->pimpl->setSolverParameters(ctx, params);
-  }  // end of setSolverParameters
-
-  void NonLinearEvolutionProblem::setSolverParameters(
-      const Parameters& params) {
-    this->pimpl->setSolverParameters(params);
   }  // end of setSolverParameters
 
   bool NonLinearEvolutionProblem::setLinearSolver(
@@ -219,11 +195,6 @@ namespace mfem_mgis {
   bool NonLinearEvolutionProblem::setLinearSolver(
       Context& ctx, std::string_view n, const Parameters& params) noexcept {
     return this->pimpl->setLinearSolver(ctx, n, params);
-  }  // end of setLinearSolver
-
-  void NonLinearEvolutionProblem::setLinearSolver(std::string_view n,
-                                                  const Parameters& params) {
-    this->pimpl->setLinearSolver(n, params);
   }  // end of setLinearSolver
 
   void NonLinearEvolutionProblem::setPredictionPolicy(
@@ -282,16 +253,6 @@ namespace mfem_mgis {
     return this->pimpl->setBoundariesNames(ctx, ids);
   }  // end of setBoundariesNames
 
-  void NonLinearEvolutionProblem::setMaterialsNames(
-      const std::map<size_type, std::string>& ids) {
-    this->pimpl->setMaterialsNames(ids);
-  }
-
-  void NonLinearEvolutionProblem::setBoundariesNames(
-      const std::map<size_type, std::string>& ids) {
-    this->pimpl->setBoundariesNames(ids);
-  }
-
   std::optional<size_type> NonLinearEvolutionProblem::getMaterialIdentifier(
       Context& ctx, const Parameter& m) const noexcept {
     return this->pimpl->getMaterialIdentifier(ctx, m);
@@ -314,35 +275,10 @@ namespace mfem_mgis {
     return this->pimpl->getBoundariesIdentifiers(ctx, b);
   }
 
-  size_type NonLinearEvolutionProblem::getMaterialIdentifier(
-      const Parameter& p) const {
-    return this->pimpl->getMaterialIdentifier(p);
-  }  // end of getMaterialIdentifier
-
-  size_type NonLinearEvolutionProblem::getBoundaryIdentifier(
-      const Parameter& p) const {
-    return this->pimpl->getBoundaryIdentifier(p);
-  }  // end of getBoundariesIdentifier
-
-  std::vector<size_type> NonLinearEvolutionProblem::getMaterialsIdentifiers(
-      const Parameter& p) const {
-    return this->pimpl->getMaterialsIdentifiers(p);
-  }  // end of getMaterialsIdentifiers
-
-  std::vector<size_type> NonLinearEvolutionProblem::getBoundariesIdentifiers(
-      const Parameter& p) const {
-    return this->pimpl->getBoundariesIdentifiers(p);
-  }  // end of getBoundariesIdentifiers
-
   std::vector<size_type>
   NonLinearEvolutionProblem::getAssignedMaterialsIdentifiers() const noexcept {
     return this->pimpl->getAssignedMaterialsIdentifiers();
   }  // end of getAssignedMaterialsIdentifiers
-
-  void NonLinearEvolutionProblem::addBoundaryCondition(
-      std::unique_ptr<AbstractBoundaryCondition> f) {
-    this->pimpl->addBoundaryCondition(std::move(f));
-  }  // end of addBoundaryCondition
 
   bool NonLinearEvolutionProblem::addBoundaryCondition(
       Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
@@ -355,30 +291,25 @@ namespace mfem_mgis {
     return this->pimpl->addBoundaryCondition(ctx, std::move(bc));
   }  // end of NonLinearEvolutionProblem::addBoundaryCondition
 
-  void NonLinearEvolutionProblem::addBoundaryCondition(
-      std::unique_ptr<AbstractDirichletBoundaryCondition> bc) {
-    this->pimpl->addBoundaryCondition(std::move(bc));
-  }  // end of NonLinearEvolutionProblem::addBoundaryCondition
-
-  void NonLinearEvolutionProblem::addUniformDirichletBoundaryCondition(
-      const Parameters& params) {
-    this->addBoundaryCondition(
-        std::make_unique<UniformDirichletBoundaryCondition>(*this, params));
+  bool NonLinearEvolutionProblem::addUniformDirichletBoundaryCondition(
+      Context& ctx, const Parameters& params) noexcept {
+    auto ptr =
+        make_unique<UniformDirichletBoundaryCondition>(ctx, *this, params);
+    if (isInvalid(ptr)) {
+      return false;
+    }
+    return this->addBoundaryCondition(ctx, std::move(ptr));
   }  // end of addUniformBoundaryCondition
 
-  void NonLinearEvolutionProblem::addPostProcessing(
-      const std::function<void(const real, const real)>& p) {
-    this->pimpl->addPostProcessing(p);
+  bool NonLinearEvolutionProblem::addPostProcessing(
+      Context& ctx,
+      const std::function<void(const real, const real)>& p) noexcept {
+    return this->pimpl->addPostProcessing(ctx, p);
   }  // end of addPostProcessing
 
   bool NonLinearEvolutionProblem::addPostProcessing(
       Context& ctx, std::string_view n, const Parameters& p) noexcept {
     return this->pimpl->addPostProcessing(ctx, n, p);
-  }  // end of addPostProcessing
-
-  void NonLinearEvolutionProblem::addPostProcessing(std::string_view n,
-                                                    const Parameters& p) {
-    this->pimpl->addPostProcessing(n, p);
   }  // end of addPostProcessing
 
   bool NonLinearEvolutionProblem::executeInitialPostProcessings(
@@ -412,14 +343,6 @@ namespace mfem_mgis {
     return this->pimpl->addBehaviourIntegrator(ctx, n, m, l, b, params);
   }  // end of addBehaviourIntegrator
 
-  std::map<size_type, size_type>
-  NonLinearEvolutionProblem::addBehaviourIntegrator(const std::string& n,
-                                                    const Parameter& m,
-                                                    const std::string& l,
-                                                    const std::string& b) {
-    return this->pimpl->addBehaviourIntegrator(n, m, l, b);
-  }  // end of addBehaviourIntegrator
-
   OptionalReference<const Material> NonLinearEvolutionProblem::getMaterial(
       Context& ctx, const Parameter& m, size_type b) const noexcept {
     return this->pimpl->getMaterial(ctx, m, b);
@@ -447,25 +370,6 @@ namespace mfem_mgis {
                                                     const Parameter& m,
                                                     size_type b) noexcept {
     return this->pimpl->getBehaviourIntegrator(ctx, m, b);
-  }  // end of getBehaviourIntegrator
-
-  const Material& NonLinearEvolutionProblem::getMaterial(
-      const Parameter& m) const {
-    return this->pimpl->getMaterial(m);
-  }  // end of getMaterial
-
-  Material& NonLinearEvolutionProblem::getMaterial(const Parameter& m) {
-    return this->pimpl->getMaterial(m);
-  }  // end of getMaterial
-
-  const AbstractBehaviourIntegrator&
-  NonLinearEvolutionProblem::getBehaviourIntegrator(const size_type m) const {
-    return this->pimpl->getBehaviourIntegrator(m);
-  }  // end of getBehaviourIntegrator
-
-  AbstractBehaviourIntegrator&
-  NonLinearEvolutionProblem::getBehaviourIntegrator(const size_type m) {
-    return this->pimpl->getBehaviourIntegrator(m);
   }  // end of getBehaviourIntegrator
 
   bool NonLinearEvolutionProblem::update(Context& ctx) noexcept {
@@ -581,24 +485,24 @@ namespace mfem_mgis {
                                                  bid);
   }  // end of getElementsDegreesOfFreedomOnBoundary
 
-  void computeResultantForceOnBoundary(
+  bool computeResultantForceOnBoundary(
+      Context& ctx,
       mfem::Vector& F,
       NonLinearEvolutionProblem& p,
       const std::vector<
-          std::pair<size_type, std::vector<std::vector<size_type>>>>&
-          elts_dofs) {
+          std::pair<size_type, std::vector<std::vector<size_type>>>>& elts_dofs,
+      const BehaviourIntegratorsSelection& selection) noexcept {
     auto& fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      computeResultantForceOnBoundary(F, p.getImplementation<true>(),
-                                      elts_dofs);
+      return computeResultantForceOnBoundary(
+          ctx, F, p.getImplementation<true>(), elts_dofs, selection);
 #else
       reportUnsupportedParallelComputations();
 #endif
-    } else {
-      computeResultantForceOnBoundary(F, p.getImplementation<false>(),
-                                      elts_dofs);
     }
+    return computeResultantForceOnBoundary(ctx, F, p.getImplementation<false>(),
+                                           elts_dofs, selection);
   }  // end of computeResultantForceOnBoundary
 
   [[nodiscard]] static std::optional<bool>

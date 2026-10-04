@@ -1,7 +1,8 @@
 /*!
  * \file   tests/BehaviourIntegratorBaseTest.cxx
  * \brief  This test checks that the behaviour integrators reject behaviours
- * whose type, kinematic, symmetry or hypothesis are not the expected ones.
+ * whose type, stress measure, symmetry or hypothesis are not the expected
+ * ones.
  * \date   24/09/2026
  */
 
@@ -25,6 +26,7 @@
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator.hxx"
 #include "MFEMMGIS/IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator.hxx"
+#include "MFEMMGIS/IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator.hxx"
 #include "MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx"
 
 struct {
@@ -65,11 +67,13 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(isValid(ofed));
     this->test1(*ofed);
     this->test2(*ofed);
+    this->test4(*ofed);
     // scalar unknowns for the heat transfer integrator
     const auto ofed2 = construct<FiniteElementDiscretization>(
         ctx, getFiniteElementDiscretizationParameters(1));
     TFEL_TESTS_ASSERT(isValid(ofed2));
     this->test3(*ofed2);
+    this->test5(*ofed2);
     return this->result;
   }
 
@@ -87,7 +91,10 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
             {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
             {"Parallel", bool(parameters.parallel)}};
   }
-  //! \brief a finite strain integrator requires a PK1 behaviour
+  /*!
+   * \brief a finite strain integrator requires a PK1 behaviour
+   * \param[in] fed: finite element discretization
+   */
   void test1(const mfem_mgis::FiniteElementDiscretization& fed) {
     using namespace mgis::behaviour;
     using Integrator = mfem_mgis::
@@ -106,22 +113,28 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
         load(opts, parameters.library, "SaintVenantKirchhoffElasticity", h);
     TFEL_TESTS_CHECK(getConstructionError<Integrator>(fed, b2).empty());
     // small strain behaviour
-    const auto b3 = load(parameters.library, "Elasticity", h);
+    const auto b3 = load(parameters.library, "IsotropicLinearElasticity", h);
     TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b3),
                               "invalid behaviour type"));
   }
-  //! \brief the hypothesis of the behaviour must match the integrator one
+  /*!
+   * \brief the hypothesis of the behaviour must match the integrator one
+   * \param[in] fed: finite element discretization
+   */
   void test2(const mfem_mgis::FiniteElementDiscretization& fed) {
     using namespace mgis::behaviour;
     using Integrator = mfem_mgis::
         IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator;
-    const auto b =
-        load(parameters.library, "Elasticity", Hypothesis::PLANESTRAIN);
+    const auto b = load(parameters.library, "IsotropicLinearElasticity",
+                        Hypothesis::PLANESTRAIN);
     TFEL_TESTS_CHECK(
         contains(getConstructionError<Integrator>(fed, b), "does not match"));
   }
-  //! \brief the transient heat transfer integrator requires an isotropic
-  //! behaviour
+  /*!
+   * \brief the transient heat transfer integrator requires an isotropic
+   * behaviour
+   * \param[in] fed: finite element discretization
+   */
   void test3(const mfem_mgis::FiniteElementDiscretization& fed) {
     using namespace mgis::behaviour;
     using Integrator = mfem_mgis::TransientHeatTransferBehaviourIntegrator;
@@ -130,7 +143,51 @@ struct BehaviourIntegratorBaseTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b),
                               "invalid behaviour symmetry"));
   }
-  //! \return if the string s contains the string s2
+  /*!
+   * \brief a small strain integrator requires a behaviour whose gradient,
+   * thermodynamic force and tangent operator block have the expected sizes
+   * \param[in] fed: finite element discretization
+   */
+  void test4(const mfem_mgis::FiniteElementDiscretization& fed) {
+    using namespace mgis::behaviour;
+    using Integrator = mfem_mgis::
+        IsotropicTridimensionalStandardSmallStrainMechanicsBehaviourIntegrator;
+    const auto h = Hypothesis::TRIDIMENSIONAL;
+    const auto b1 = load(parameters.library, "IsotropicLinearElasticity", h);
+    TFEL_TESTS_CHECK(getConstructionError<Integrator>(fed, b1).empty());
+    // finite strain behaviour
+    auto opts = FiniteStrainBehaviourOptions{};
+    opts.stress_measure = FiniteStrainBehaviourOptions::PK1;
+    opts.tangent_operator = FiniteStrainBehaviourOptions::DPK1_DF;
+    const auto b2 =
+        load(opts, parameters.library, "SaintVenantKirchhoffElasticity", h);
+    TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b2),
+                              "the sizes of the gradients (9)"));
+  }
+  /*!
+   * \brief a stationary heat transfer integrator requires a behaviour whose
+   * gradient, thermodynamic force and tangent operator blocks have the
+   * expected sizes
+   * \param[in] fed: finite element discretization
+   */
+  void test5(const mfem_mgis::FiniteElementDiscretization& fed) {
+    using namespace mgis::behaviour;
+    using Integrator = mfem_mgis::
+        IsotropicTridimensionalStationaryNonLinearHeatTransferBehaviourIntegrator;
+    const auto h = Hypothesis::TRIDIMENSIONAL;
+    const auto b1 =
+        load(parameters.library, "StationaryNonLinearHeatTransfer", h);
+    TFEL_TESTS_CHECK(getConstructionError<Integrator>(fed, b1).empty());
+    // mechanical behaviour
+    const auto b2 = load(parameters.library, "IsotropicLinearElasticity", h);
+    TFEL_TESTS_CHECK(contains(getConstructionError<Integrator>(fed, b2),
+                              "the sizes of the gradients (6)"));
+  }
+  /*!
+   * \return if the string s contains the string s2
+   * \param[in] s: string
+   * \param[in] s2: searched string
+   */
   static bool contains(const std::string& s, std::string_view s2) {
     return s.find(s2) != std::string::npos;
   }

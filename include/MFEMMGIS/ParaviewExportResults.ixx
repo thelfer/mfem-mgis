@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/ParaviewExportResults.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `ParaviewExportResults` class
  * \author Thomas Helfer
  * \date   24/03/2021
  */
@@ -16,6 +17,10 @@
 
 namespace mfem_mgis {
 
+  /*!
+   * \brief print the number of vertices and elements of the mesh
+   * \param[in] mesh: mesh
+   */
   template <typename Mesh>
   void print_mesh_information(Mesh* mesh) {
     using Profiler::Utils::Message;

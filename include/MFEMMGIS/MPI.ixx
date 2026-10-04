@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/MPI.ixx
- * \brief
+ * \brief  This file implements the template functions declared in `MPI.hxx`
  * \author Thomas Helfer
  * \date   06/02/2026
  */
@@ -16,7 +16,5 @@ namespace mfem_mgis {
   }  // end of isValidOnAllProcesses
 
 }  // end of namespace mfem_mgis
-
-#include "MFEMMGIS/MPI.ixx"
 
 #endif /* LIB_MFEM_MGIS_MPI_IXX */

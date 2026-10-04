@@ -1,10 +1,11 @@
 /*!
  * \file   src/PeriodicNonLinearEvolutionProblem.cxx
- * \brief
+ * \brief  This file implements the `PeriodicNonLinearEvolutionProblem` class
  * \author Thomas Helfer
  * \date   10/03/2021
  */
 
+#include <array>
 #include "MGIS/Raise.hxx"
 #include "MGIS/Profiling.hxx"
 #include "MFEMMGIS/Profiler.hxx"
@@ -21,7 +22,7 @@ namespace mfem_mgis {
                         const int size,
                         const std::span<const real>& corner1,
                         const std::span<const real>& corner2) {
-    real coord[dim];  // coordinates of a node
+    auto coord = std::array<real, 3>{};  // coordinates of a node
     real dist = 0.;
     for (int j = 0; j < dim; ++j) {
       if (reorder_space)
@@ -33,6 +34,23 @@ namespace mfem_mgis {
       dist += std::min(dist1, dist2);
     }
     return (dist);
+  }
+
+  /*!
+   * \return the threshold on the squared distance to a corner, relative to
+   * the size of the cell, so that it does not depend on the unit of the mesh
+   * \param[in] dim: space dimension
+   * \param[in] corner1: first corner of the cell
+   * \param[in] corner2: second corner of the cell
+   */
+  static real getCornerDistanceThreshold(const size_t dim,
+                                         const std::span<const real>& corner1,
+                                         const std::span<const real>& corner2) {
+    auto l2 = real{};
+    for (size_t j = 0; j < dim; ++j) {
+      l2 += (corner2[j] - corner1[j]) * (corner2[j] - corner1[j]);
+    }
+    return 1.e-12 * l2;
   }
 
 #ifdef MFEM_USE_MPI
@@ -55,11 +73,12 @@ namespace mfem_mgis {
     const auto size = nodes.Size() / dim;
 
     // Traversal of all dofs to detect which one is the corner
+    const auto eps = getCornerDistanceThreshold(dim, corner1, corner2);
     for (int i = 0; i < size; ++i) {
       real dist =
           getNodesDistance(nodes, bynodes, dim, i, size, corner1, corner2);
       // If distance is close to zero, we have our reference point
-      if (dist < 1.e-12) {
+      if (dist < eps) {
         for (int j = 0; j < dim; ++j) {
           int id_unk;
           if (bynodes) {
@@ -98,8 +117,8 @@ namespace mfem_mgis {
     const auto size = nodes.Size() / dim;
 
     // Initialize reference values to largest possible numbers
-    real refcoord[dim];
-    int id_unk[dim];
+    auto refcoord = std::array<real, 3>{};
+    auto id_unk = std::array<int, 3>{};
     for (int j = 0; j < dim; ++j) {
       refcoord[j] = std::numeric_limits<double>::max();
       id_unk[j] = -1;
@@ -107,7 +126,7 @@ namespace mfem_mgis {
     // Traversal of all dofs to detect which one is minimal in X, Y or Z
     // direction depending on the `bct` variable.
     for (int i = 0; i < size; ++i) {
-      real curcoord[dim];
+      auto curcoord = std::array<real, 3>{};
       for (int j = 0; j < dim; ++j) {
         if (bynodes)
           curcoord[j] = (nodes)[j * size + i];
@@ -115,8 +134,11 @@ namespace mfem_mgis {
           curcoord[j] = (nodes)[i * dim + j];
       }
 
-      if (p.getFiniteElementSpace().GetLocalTDofNumber(i) == -1)
-        break;  // ghost dof
+      // ghost dof, owned by another process
+      const auto vdof = bynodes ? i : i * dim;
+      if (p.getFiniteElementSpace().GetLocalTDofNumber(vdof) == -1) {
+        continue;
+      }
 
       if (((bct == FIX_XMIN) && (curcoord[0] < refcoord[0])) ||
           ((bct == FIX_YMIN) && (curcoord[1] < refcoord[1])) ||
@@ -188,11 +210,12 @@ namespace mfem_mgis {
     mesh->GetNodes(nodes);
     const auto size = nodes.Size() / dim;
     // Traversal of all dofs to detect which one is the corner
+    const auto eps = getCornerDistanceThreshold(dim, corner1, corner2);
     for (int i = 0; i < size; ++i) {
       real dist =
           getNodesDistance(nodes, bynodes, dim, i, size, corner1, corner2);
       // If distance is close to zero, we have our reference point
-      if (dist < 1.e-12) {
+      if (dist < eps) {
         for (int j = 0; j < dim; ++j) {
           int id_unk;
           if (bynodes) {
@@ -229,8 +252,8 @@ namespace mfem_mgis {
     const auto size = nodes.Size() / dim;
 
     // Initialize reference values to largest possible numbers
-    real refcoord[dim];
-    int id_unk[dim];
+    auto refcoord = std::array<real, 3>{};
+    auto id_unk = std::array<int, 3>{};
     for (int j = 0; j < dim; ++j) {
       refcoord[j] = std::numeric_limits<double>::max();
       id_unk[j] = -1;
@@ -239,7 +262,7 @@ namespace mfem_mgis {
     // Traversal of all dofs to detect which one is minimal in X, Y or Z
     // direction depending on the `bct` variable.
     for (int i = 0; i < size; ++i) {
-      real curcoord[dim];
+      auto curcoord = std::array<real, 3>{};
       for (int j = 0; j < dim; ++j) {
         if (bynodes)
           curcoord[j] = (nodes)[j * size + i];
@@ -311,11 +334,6 @@ namespace mfem_mgis {
     }
   }  // end of PeriodicNonLinearEvolutionProblem
 
-  void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
-      std::unique_ptr<AbstractBoundaryCondition> f) {
-    NonLinearEvolutionProblem::addBoundaryCondition(std::move(f));
-  }  // end of addBoundaryCondition
-
   bool PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
       Context& ctx, std::unique_ptr<AbstractBoundaryCondition> f) noexcept {
     return NonLinearEvolutionProblem::addBoundaryCondition(ctx, std::move(f));
@@ -325,13 +343,6 @@ namespace mfem_mgis {
       Context& ctx,
       std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept {
     return ctx.registerErrorMessage(
-        "PeriodicNonLinearEvolutionProblem::addBoundaryCondition: "
-        "invalid call");
-  }  // end of addBoundaryCondition
-
-  void PeriodicNonLinearEvolutionProblem::addBoundaryCondition(
-      std::unique_ptr<AbstractDirichletBoundaryCondition>) {
-    raise(
         "PeriodicNonLinearEvolutionProblem::addBoundaryCondition: "
         "invalid call");
   }  // end of addBoundaryCondition

@@ -33,11 +33,26 @@ namespace mfem_mgis {
     return descriptions;
   }  // end of getParametersDescription
 
+  /*!
+   * \return the given partial quadrature space
+   * \param[in] s: partial quadrature space
+   * \throws std::runtime_error if the partial quadrature space is null
+   */
+  static const PartialQuadratureSpace& checkPartialQuadratureSpace(
+      const std::shared_ptr<const PartialQuadratureSpace>& s) {
+    if (s.get() == nullptr) {
+      raise("invalid partial quadrature space");
+    }
+    return *s;
+  }  // end of checkPartialQuadratureSpace
+
   PointWiseModel::PointWiseModel(
       Context& ctx,
       std::shared_ptr<const PartialQuadratureSpace> qspace,
       const Parameters& parameters)
-      : ModelBase(ctx, qspace->getFiniteElementDiscretization()),
+      : ModelBase(ctx,
+                  checkPartialQuadratureSpace(qspace)
+                      .getFiniteElementDiscretization()),
         Material(qspace, loadModel(throwing, parameters)) {
     checkParameters(throwing, parameters,
                     PointWiseModel::getParametersDescription());
@@ -62,14 +77,26 @@ namespace mfem_mgis {
             mgis::behaviour::IntegrationType::INTEGRATION_NO_TANGENT_OPERATOR,
         .compute_speed_of_sound = false};  // end of BehaviourIntegrationOptions
     const auto r = mgis::behaviour::integrate(*this, opts, ts.dt);
-    if (!((r.exit_status == 1) || (r.exit_status == 0))) {
-      if (!r.error_message.empty()) {
-        std::ignore = ctx.registerErrorMessage(r.error_message);
-      }
-      return {ExitStatus::recoverableError, {}};
-    }
     if (r.exit_status == 0) {
       s.update(ExitStatus::unreliableResults);
+    } else if (r.exit_status != 1) {
+      s.update(ExitStatus::recoverableError);
+    }
+#ifdef MFEM_USE_MPI
+    const auto& fed =
+        this->getPartialQuadratureSpace().getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+      s.synchronize(getMPICommunicator(fed));
+    }
+#endif /* MFEM_USE_MPI */
+    if (!s.shallContinue()) {
+      if (!r.error_message.empty()) {
+        std::ignore = ctx.registerErrorMessage(r.error_message);
+      } else {
+        std::ignore =
+            ctx.registerErrorMessage("point wise model integration failed");
+      }
+      return {ExitStatus::recoverableError, {}};
     }
     return {s, ooutput};
   }  // end of computeNextState

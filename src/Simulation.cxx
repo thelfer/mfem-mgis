@@ -10,7 +10,7 @@
 #include "MFEMMGIS/TimeStep.hxx"
 #include "MFEMMGIS/PhysicalSystem.hxx"
 #include "MFEMMGIS/AbstractSimulationMonitor.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/DefaultTimeStepValidator.hxx"
 #include "MFEMMGIS/DefaultTimeIncrementComputer.hxx"
 #include "MFEMMGIS/DefaultConvergenceFailureHandler.hxx"
@@ -86,6 +86,9 @@ namespace mfem_mgis {
     d.insert({"AllowSubStepping",
               "boolean stating if sub stepping in case of convergence failure "
               "is allowed"});
+    d.insert({"StopOnPostProcessingFailure",
+              "boolean stating if the simulation stops when a post-processing "
+              "fails. Otherwise, the failure is reported as a warning"});
     d.insert({"IndependentTemporalSequences",
               "boolean stating if the temporal sequences are independent. "
               "Currently, this boolean only choose if the last time "
@@ -194,7 +197,7 @@ namespace mfem_mgis {
   }
 
   Simulation::Simulation(Context &ctx,
-                         AbstractNonLinearEvolutionProblem &p,
+                         NonLinearEvolutionProblem &p,
                          const Parameters &parameters)
       : nonlinearEvolutionProblem(&p),
         timesDescription(::mfem_mgis::getTimes(throwing, parameters)),
@@ -204,7 +207,7 @@ namespace mfem_mgis {
   }  // end of Simulation
 
   Simulation::Simulation(Context &,
-                         AbstractNonLinearEvolutionProblem &p,
+                         NonLinearEvolutionProblem &p,
                          const TimesDescription &times)
       : nonlinearEvolutionProblem(&p),
         timesDescription(times),
@@ -213,7 +216,7 @@ namespace mfem_mgis {
   }  // end of Simulation
 
   Simulation::Simulation(Context &,
-                         AbstractNonLinearEvolutionProblem &p,
+                         NonLinearEvolutionProblem &p,
                          const std::initializer_list<real> &times)
       : nonlinearEvolutionProblem(&p),
         timesDescription(times),
@@ -250,6 +253,8 @@ namespace mfem_mgis {
                     Simulation::getParametersDescription());
     this->allowSubstepping =
         get_if<bool>(throwing, parameters, "AllowSubStepping", true);
+    this->stopOnPostProcessingFailure = get_if<bool>(
+        throwing, parameters, "StopOnPostProcessingFailure", false);
     this->independentTemporalSequences = get_if<bool>(
         throwing, parameters, "IndependentTemporalSequences", true);
     if (contains(parameters, "MinimalTimeIncrement")) {
@@ -570,7 +575,7 @@ namespace mfem_mgis {
       updateAndSynchronize(invoke(ctx, t));
       if (!s.shallContinue()) {
         std::ignore =
-            ctx.registerErrorMessage("initialization task '" + n + "'failed");
+            ctx.registerErrorMessage("initialization task '" + n + "' failed");
         return {s, {}};
       }
     }
@@ -602,6 +607,8 @@ namespace mfem_mgis {
       // if the simulation failed, t shall be equal to the the time at the
       // beginning of the failed time step
       auto t = real{*p_bts};
+      // duration of the temporal sequence, used to detect its end
+      const auto sdt = *p_ets - *p_bts;
       this->simulateOverATemporalSequence(ctx, s, output, state, t, pdt, *p_bts,
                                           *p_ets, std::next(p_ets) == pe);
       updateAndSynchronize(s);
@@ -621,8 +628,9 @@ namespace mfem_mgis {
       // on success, pdt shall have a value, so the next test is paranoïac
       ctx.assertOrTerminate(isValid(pdt),
                             "the last time increment has not been updated");
+      // same criterion as in simulateOverATemporalSequence
       const auto completed = std::abs(*p_ets - t) <
-                             10 * (*pdt) * std::numeric_limits<real>::epsilon();
+                             sdt * 10 * std::numeric_limits<real>::epsilon();
       if (completed) {
         p_bts = this->timesDescription.erase(p_bts);
         p_ets = std::next(p_bts);
@@ -802,7 +810,8 @@ namespace mfem_mgis {
         return ctx.registerErrorMessage("internal error");
       }
       if (!this->allowSubstepping) {
-        return false;
+        s = ExitStatus::recoverableError;
+        return ctx.registerErrorMessage("sub-stepping is not allowed");
       }
       if ((dte < 0) || (std::fpclassify(dte) == FP_ZERO)) {
         s = ExitStatus::recoverableError;
@@ -955,6 +964,11 @@ namespace mfem_mgis {
         continue;
       }
       // the time step if valid:
+      ++(state.numberOfTimeSteps);
+      if (isValid(this->maximumNumberOfTimeSteps)) {
+        state.maximumNumberOfTimeStepsReached =
+            (state.numberOfTimeSteps >= *(this->maximumNumberOfTimeSteps));
+      }
       // - here we test if we are at the end of the temporal sequence
       state.timeSinceLastPostProcessing += *ote - t;
       stop =
@@ -974,18 +988,28 @@ namespace mfem_mgis {
         }
       }
       // executing post-processing tasks
+      auto postProcessingsSucceeded = true;
       if (isValid(this->nonlinearEvolutionProblem)) {
-        this->nonlinearEvolutionProblem->executePostProcessings(ctx, t,
-                                                                *ote - t);
+        if (!this->nonlinearEvolutionProblem->executePostProcessings(
+                ctx, t, *ote - t)) {
+          postProcessingsSucceeded = false;
+        }
       }
       if (isValid(this->physicalSystem)) {
         if (!this->physicalSystem->executePostProcessingTasks(
                 ctx, ts, explicitMarkedPostProcessingTime)) {
+          postProcessingsSucceeded = false;
+        }
+      }
+      if (!postProcessingsSucceeded) {
+        if (this->stopOnPostProcessingFailure) {
           s = ctx.registerErrorMessage(
-              "The time step validator failed for the " +
+              "The post-processing tasks failed for the " +
               getTimeStepDescription());
           return;
         }
+        ctx.warning("The post-processing tasks failed for the ",
+                    getTimeStepDescription(), ": ", ctx.getErrorMessage());
       }
       for (const auto &[n, pt] : this->postProcessingTasks) {
         updateAndSynchronize(invoke(ctx, pt));
@@ -1037,13 +1061,8 @@ namespace mfem_mgis {
 
   ExitStatus Simulation::simulateOverATimeStep(Context &ctx,
                                                SimulationOutput &output,
-                                               SimulationRunState &state,
+                                               SimulationRunState &,
                                                const TimeStep &ts) noexcept {
-    ++(state.numberOfTimeSteps);
-    if (isValid(this->maximumNumberOfTimeSteps)) {
-      state.maximumNumberOfTimeStepsReached =
-          (state.numberOfTimeSteps >= *(this->maximumNumberOfTimeSteps));
-    }
     //
     auto s = ExitStatus{};
     auto updateAndSynchronize = [this, &s](const auto o) {

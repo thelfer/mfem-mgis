@@ -1,7 +1,7 @@
-
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementationBase.hxx
- * \brief
+ * \brief  This file declares the `NonLinearEvolutionProblemImplementationBase`
+ * class
  * \author Thomas Helfer
  * \date   15/02/2021
  */
@@ -36,7 +36,7 @@ namespace mfem_mgis {
   /*!
    * \brief class for solving non linear evolution problems.
    *
-   * By default, we use of the `MultiMaterialNonLinearIntegrator` class to
+   * By default, we use the `MultiMaterialNonLinearIntegrator` class to
    * compute the inner forces contributions to the residual.
    */
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementationBase
@@ -46,47 +46,53 @@ namespace mfem_mgis {
     //! \brief name of the parameter used to select a nonlinear solver
     static const char* const NonLinearSolver;
     /*!
-     * \brief name of the parameter used to activate/desactivate
-     * this use of the `MultiMaterialNonLinearIntegrator` class
+     * \brief name of the parameter used to activate or deactivate
+     * the use of the `MultiMaterialNonLinearIntegrator` class
      */
     static const char* const UseMultiMaterialNonLinearIntegrator;
     //! \return the list of valid parameters
     static std::vector<std::string> getParametersList();
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblemImplementationBase(
         Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization>,
-        const Hypothesis,
-        const Parameters&);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const Hypothesis h,
+        const Parameters& p);
     /*!
-     * \brief set the macroscropic gradients
+     * \brief set the macroscopic gradients
      * \param[in] g: macroscopic gradients
      */
-    virtual void setMacroscopicGradients(const std::vector<real>&);
+    virtual void setMacroscopicGradients(const std::vector<real>& g);
     /*!
      * \brief set the linear solver
+     * \param[in, out] ctx: execution context
      * \param[in] s: linear solver
+     * \return true on success
      */
     [[nodiscard]] virtual bool updateLinearSolver(
-        Context&, std::unique_ptr<LinearSolver>) noexcept;
+        Context& ctx, std::unique_ptr<LinearSolver> s) noexcept;
     /*!
      * \brief set the linear solver
+     * \param[in, out] ctx: execution context
      * \param[in] s: linear solver
      * \param[in] p: linear solver preconditioner
+     * \return true on success
      */
     [[nodiscard]] virtual bool updateLinearSolver(
-        Context&,
-        std::unique_ptr<LinearSolver>,
-        std::unique_ptr<LinearSolverPreconditioner>) noexcept;
+        Context& ctx,
+        std::unique_ptr<LinearSolver> s,
+        std::unique_ptr<LinearSolverPreconditioner> p) noexcept;
     /*!
      * \brief set the linear solver
+     * \param[in, out] ctx: execution context
      * \param[in] s: linear solver handler
+     * \return true on success
      */
     [[nodiscard]] virtual bool updateLinearSolver(
         Context& ctx, LinearSolverHandler s) noexcept;
@@ -95,13 +101,16 @@ namespace mfem_mgis {
      *
      * This method must be called before `solve`: this is not done automatically
      * as this is the case for `NonLinearEvolutionProblem::solve`. This is
-     * mostly motivated by unit testing, see `PeriodicTest` for an example.
+     * mostly motivated by unit testing, see `PredictionTest` for an example.
      *
      * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return true on success
      */
-    [[nodiscard]] virtual bool setup(Context&, const real, const real) noexcept;
+    [[nodiscard]] virtual bool setup(Context& ctx,
+                                     const real t,
+                                     const real dt) noexcept;
     //
     [[nodiscard]] FiniteElementDiscretization&
     getFiniteElementDiscretization() noexcept override;
@@ -110,99 +119,86 @@ namespace mfem_mgis {
     [[nodiscard]] std::shared_ptr<FiniteElementDiscretization>
     getFiniteElementDiscretizationPointer() noexcept override;
     [[nodiscard]] bool setMaterialsNames(
-        Context&, const std::map<size_type, std::string>&) noexcept override;
+        Context& ctx,
+        const std::map<size_type, std::string>& ids) noexcept override;
     [[nodiscard]] bool setBoundariesNames(
-        Context&, const std::map<size_type, std::string>&) noexcept override;
-    mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() override;
-    const mfem::Vector& getUnknownsAtBeginningOfTheTimeStep() const override;
-    mfem::Vector& getUnknownsAtEndOfTheTimeStep() override;
-    const mfem::Vector& getUnknownsAtEndOfTheTimeStep() const override;
+        Context& ctx,
+        const std::map<size_type, std::string>& ids) noexcept override;
     [[nodiscard]] mfem::Vector& getUnknowns(
-        const TimeStepStage) noexcept override;
+        const TimeStepStage ts) noexcept override;
     [[nodiscard]] const mfem::Vector& getUnknowns(
-        const TimeStepStage) const noexcept override;
+        const TimeStepStage ts) const noexcept override;
+    /*!
+     * \return the list of material identifiers for which a behaviour
+     * integrator has been defined, empty if the multi material support is
+     * disabled.
+     */
     [[nodiscard]] std::vector<size_type> getAssignedMaterialsIdentifiers()
         const noexcept override;
     [[nodiscard]] std::optional<size_type> getMaterialIdentifier(
-        Context&, const Parameter&) const noexcept override;
+        Context& ctx, const Parameter& m) const noexcept override;
     [[nodiscard]] std::optional<size_type> getBoundaryIdentifier(
-        Context&, const Parameter&) const noexcept override;
+        Context& ctx, const Parameter& m) const noexcept override;
     [[nodiscard]] std::optional<std::vector<size_type>> getMaterialsIdentifiers(
-        Context&, const Parameter&) const noexcept override;
+        Context& ctx, const Parameter& m) const noexcept override;
     [[nodiscard]] std::optional<std::vector<size_type>>
-    getBoundariesIdentifiers(Context&,
-                             const Parameter&) const noexcept override;
+    getBoundariesIdentifiers(Context& ctx,
+                             const Parameter& m) const noexcept override;
     OptionalReference<const Material> getMaterial(
-        Context&, const Parameter&, const size_type) const noexcept override;
-    OptionalReference<Material> getMaterial(Context&,
-                                            const Parameter&,
-                                            const size_type) noexcept override;
+        Context& ctx,
+        const Parameter& m,
+        const size_type b) const noexcept override;
+    OptionalReference<Material> getMaterial(
+        Context& ctx, const Parameter& m, const size_type b) noexcept override;
     [[nodiscard]] std::optional<size_type> getNumberOfBehaviourIntegrators(
-        Context&, const Parameter&) const noexcept override;
+        Context& ctx, const Parameter& m) const noexcept override;
     OptionalReference<const AbstractBehaviourIntegrator> getBehaviourIntegrator(
-        Context&, const Parameter&, const size_type) const noexcept override;
+        Context& ctx,
+        const Parameter& m,
+        const size_type b) const noexcept override;
     OptionalReference<AbstractBehaviourIntegrator> getBehaviourIntegrator(
-        Context&, const Parameter&, const size_type) noexcept override;
+        Context& ctx, const Parameter& m, const size_type b) noexcept override;
     std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
-        Context&,
-        const std::string&,
-        const Parameter&,
-        const std::string&,
-        const std::string&) noexcept override;
+        Context& ctx,
+        const std::string& n,
+        const Parameter& m,
+        const std::string& l,
+        const std::string& b) noexcept override;
     std::optional<std::map<size_type, size_type>> addBehaviourIntegrator(
-        Context&,
-        const std::string&,
-        const Parameter&,
-        const std::string&,
-        const std::string&,
-        const Parameters&) noexcept override;
+        Context& ctx,
+        const std::string& n,
+        const Parameter& m,
+        const std::string& l,
+        const std::string& b,
+        const Parameters& params) noexcept override;
     [[nodiscard]] std::vector<size_type> getEssentialDegreesOfFreedom()
         const override;
     [[nodiscard]] bool areStiffnessOperatorsFromLastIterationAvailable()
         const noexcept override;
     [[nodiscard]] std::optional<LinearizedOperators> getLinearizedOperators(
-        Context&, const mfem::Vector&) noexcept override;
+        Context& ctx, const mfem::Vector& U) noexcept override;
     [[nodiscard]] const std::vector<
         std::unique_ptr<AbstractDirichletBoundaryCondition>>&
     getDirichletBoundaryConditions() const noexcept override;
     [[nodiscard]] const std::vector<std::unique_ptr<AbstractBoundaryCondition>>&
     getBoundaryConditions() const noexcept override;
-    void setPredictionPolicy(const PredictionPolicy&) noexcept override;
-    [[nodiscard]] bool setSolverParameters(Context&,
-                                           const Parameters&) noexcept override;
+    void setPredictionPolicy(const PredictionPolicy& p) noexcept override;
+    [[nodiscard]] bool setSolverParameters(
+        Context& ctx, const Parameters& params) noexcept override;
     [[nodiscard]] PredictionPolicy getPredictionPolicy()
         const noexcept override;
-    [[nodiscard]] NonLinearResolutionOutput solve(Context&,
-                                                  const real,
-                                                  const real) noexcept override;
-    [[nodiscard]] bool revert(Context&) noexcept override;
-    [[nodiscard]] bool update(Context&) noexcept override;
-    //
-    [[deprecated]] void setMaterialsNames(
-        const std::map<size_type, std::string>&) override;
-    [[deprecated]] void setBoundariesNames(
-        const std::map<size_type, std::string>&) override;
-    [[deprecated, nodiscard]] size_type getMaterialIdentifier(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] size_type getBoundaryIdentifier(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] std::vector<size_type> getMaterialsIdentifiers(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] std::vector<size_type> getBoundariesIdentifiers(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] const Material& getMaterial(
-        const Parameter&) const override;
-    [[deprecated, nodiscard]] Material& getMaterial(const Parameter&) override;
-    [[deprecated, nodiscard]] const AbstractBehaviourIntegrator&
-    getBehaviourIntegrator(const size_type) const override;
-    [[deprecated, nodiscard]] AbstractBehaviourIntegrator&
-    getBehaviourIntegrator(const size_type) override;
-    [[deprecated]] void setSolverParameters(const Parameters&) override;
-    [[deprecated]] std::map<size_type, size_type> addBehaviourIntegrator(
-        const std::string&,
-        const Parameter&,
-        const std::string&,
-        const std::string&) override;
+    /*!
+     * \brief solve the non linear problem over the given time step
+     * \param[in, out] ctx: execution context
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return the output of the non linear resolution
+     * \note `setup` must be called before
+     */
+    [[nodiscard]] NonLinearResolutionOutput solve(
+        Context& ctx, const real t, const real dt) noexcept override;
+    [[nodiscard]] bool revert(Context& ctx) noexcept override;
+    [[nodiscard]] bool update(Context& ctx) noexcept override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementationBase() override;
 
@@ -215,34 +211,35 @@ namespace mfem_mgis {
      * \note copy is required to create a mutable mfem::Array
      */
     virtual void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-        std::vector<size_type>) = 0;
+        std::vector<size_type> dofs) = 0;
     /*!
-     * \brief set the time time increment
+     * \brief set the time increment
      * \param[in] dt: time increment
      */
-    virtual void setTimeIncrement(const real);
+    virtual void setTimeIncrement(const real dt);
     /*!
-     * \brief compute prediction
-     * \param[in] ctx: execution context
+     * \brief compute a prediction of the unknowns at the end of the time step
+     * \param[in, out] ctx: execution context
      * \param[in] t: time at the beginning of the time step
      * \param[in] dt: time increment
+     * \return the norm of the initial residual
      */
     [[nodiscard]] virtual std::optional<real> computePrediction(
-        Context&, const real, const real) noexcept = 0;
+        Context& ctx, const real t, const real dt) noexcept = 0;
     //! \brief underlying finite element discretization
     const std::shared_ptr<FiniteElementDiscretization> fe_discretization;
-    //! \brief list of boundary conditions
+    //! \brief list of Dirichlet boundary conditions
     std::vector<std::unique_ptr<AbstractDirichletBoundaryCondition>>
         dirichlet_boundary_conditions;
     /*!
-     * \brief a boolean value to specifiy if the initialization phase is still
+     * \brief a boolean value to specify if the initialization phase is still
      * open.
      *
      * This initialization phase ends at the first call to the `setup` method,
-     * i.e. at the first call of the `solve` method.
+     * i.e. at the first call of the `NonLinearEvolutionProblem::solve` method.
      */
     bool initialization_phase = true;
-    //! \brief
+    //! \brief if the stiffness operators of the last iteration are available
     bool hasStiffnessOperatorsBeenComputed = false;
     //! \brief unknowns at the beginning of the time step
     mfem::Vector u0;
@@ -263,7 +260,7 @@ namespace mfem_mgis {
      * The memory associated with this pointer must be released in derived class
      */
     MultiMaterialNonLinearIntegrator* const mgis_integrator = nullptr;
-    //! \brief registred boundary conditions
+    //! \brief registered boundary conditions
     std::vector<std::unique_ptr<AbstractBoundaryCondition>> boundary_conditions;
     //! \brief prediction policy
     PredictionPolicy prediction_policy;

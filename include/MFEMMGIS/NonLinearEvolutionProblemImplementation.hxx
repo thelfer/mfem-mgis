@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx
- * \brief
+ * \brief  This file declares the `NonLinearEvolutionProblemImplementation`
+ * class
  * \author Thomas Helfer
  * \date 11/12/2020
  */
@@ -32,6 +33,7 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
 
+  //! \brief parallel specialisation
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementation<true>
       : public NonLinearEvolutionProblemImplementationBase,
@@ -40,16 +42,16 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
-     * \param[in,out] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblemImplementation(
         Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization>,
-        const Hypothesis,
-        const Parameters&);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const Hypothesis h,
+        const Parameters& p);
     //! \return the mesh
     [[nodiscard]] Mesh<true>& getMesh();
     //! \return the mesh
@@ -58,67 +60,61 @@ namespace mfem_mgis {
     [[nodiscard]] FiniteElementSpace<true>& getFiniteElementSpace();
     //! \return the finite element space
     [[nodiscard]] const FiniteElementSpace<true>& getFiniteElementSpace() const;
-    //
-    void Mult(const mfem::Vector&, mfem::Vector&) const override;
+    /*!
+     * \brief compute the residual
+     * \param[in] u: current estimate of the unknowns
+     * \param[out] r: residual
+     */
+    void Mult(const mfem::Vector& u, mfem::Vector& r) const override;
     //
     [[nodiscard]] bool addBoundaryCondition(
-        Context&,
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept override;
+        Context& ctx,
+        std::unique_ptr<AbstractDirichletBoundaryCondition> bc) noexcept
+        override;
     [[nodiscard]] bool addBoundaryCondition(
-        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
+        Context& ctx,
+        std::unique_ptr<AbstractBoundaryCondition> f) noexcept override;
     /*!
      * \brief add a new post-processing
      * \param[in, out] ctx: execution context
      * \param[in] p: post-processing
+     * \return true on success
      */
-    virtual bool addPostProcessing(
-        Context&,
-        std::unique_ptr<
-            AbstractNonLinearEvolutionProblemPostProcessing<true>>) noexcept;
+    [[nodiscard]] virtual bool addPostProcessing(
+        Context& ctx,
+        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>
+            p) noexcept;
     //
-    [[nodiscard]] bool integrate(const mfem::Vector&,
-                                 const IntegrationType,
-                                 const std::optional<real>) override;
-    [[nodiscard]] bool setLinearSolver(Context&,
-                                       LinearSolverHandler) noexcept override;
-    [[nodiscard]] bool setLinearSolver(Context&,
-                                       std::string_view,
-                                       const Parameters&) noexcept override;
-    void addPostProcessing(
-        const std::function<void(const real, const real)>&) override;
-    [[nodiscard]] bool addPostProcessing(Context&,
-                                         std::string_view,
-                                         const Parameters&) noexcept override;
+    [[nodiscard]] bool integrate(const mfem::Vector& u,
+                                 const IntegrationType it,
+                                 const std::optional<real> odt) override;
+    [[nodiscard]] bool setLinearSolver(Context& ctx,
+                                       LinearSolverHandler s) noexcept override;
+    [[nodiscard]] bool setLinearSolver(
+        Context& ctx,
+        std::string_view n,
+        const Parameters& params) noexcept override;
+    [[nodiscard]] bool addPostProcessing(
+        Context& ctx,
+        const std::function<void(const real, const real)>& p) noexcept override;
+    [[nodiscard]] bool addPostProcessing(Context& ctx,
+                                         std::string_view n,
+                                         const Parameters& p) noexcept override;
     [[nodiscard]] bool executeInitialPostProcessings(
-        Context&, const real) noexcept override;
+        Context& ctx, const real t) noexcept override;
     [[nodiscard]] bool executePostProcessings(Context&,
-                                              const real,
-                                              const real) noexcept override;
-    [[deprecated]] void setLinearSolver(std::string_view,
-                                        const Parameters&) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
-    [[deprecated]] void addPostProcessing(std::string_view,
-                                          const Parameters&) override;
-    /*!
-     * \brief add a new post-processing
-     * \param[in, out] ctx: execution context
-     * \param[in] p: post-processing
-     */
-    [[deprecated]] virtual void addPostProcessing(
-        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>);
+                                              const real t,
+                                              const real dt) noexcept override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
    protected:
     //
     [[nodiscard]] std::optional<real> computePrediction(
-        Context&, const real, const real) noexcept override;
+        Context& ctx, const real t, const real dt) noexcept override;
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-        std::vector<size_type>) override;
-    //! \brief registred post-processings
+        std::vector<size_type> dofs) override;
+    //! \brief registered post-processings
     std::vector<
         std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<true>>>
         postprocessings;
@@ -126,6 +122,7 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
+  //! \brief sequential specialisation
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemImplementation<false>
       : public NonLinearEvolutionProblemImplementationBase,
@@ -134,15 +131,16 @@ namespace mfem_mgis {
     using Hypothesis = mgis::behaviour::Hypothesis;
     /*!
      * \brief constructor
+     * \param[in, out] ctx: execution context
      * \param[in] fed: finite element discretization
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblemImplementation(
         Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization>,
-        const Hypothesis,
-        const Parameters&);
+        std::shared_ptr<FiniteElementDiscretization> fed,
+        const Hypothesis h,
+        const Parameters& p);
     //! \return the mesh
     [[nodiscard]] Mesh<false>& getMesh() noexcept;
     //! \return the mesh
@@ -154,97 +152,102 @@ namespace mfem_mgis {
         const noexcept;
     //
     [[nodiscard]] bool addBoundaryCondition(
-        Context&,
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) noexcept override;
+        Context& ctx,
+        std::unique_ptr<AbstractDirichletBoundaryCondition> bc) noexcept
+        override;
     [[nodiscard]] bool addBoundaryCondition(
-        Context&, std::unique_ptr<AbstractBoundaryCondition>) noexcept override;
+        Context& ctx,
+        std::unique_ptr<AbstractBoundaryCondition> f) noexcept override;
     /*!
      * \brief add a new post-processing
      * \param[in, out] ctx: execution context
      * \param[in] p: post-processing
+     * \return true on success
      */
     [[nodiscard]] virtual bool addPostProcessing(
-        Context&,
-        std::unique_ptr<
-            AbstractNonLinearEvolutionProblemPostProcessing<false>>) noexcept;
+        Context& ctx,
+        std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>
+            p) noexcept;
     //
-    [[nodiscard]] bool setLinearSolver(Context&,
-                                       LinearSolverHandler) noexcept override;
-    [[nodiscard]] bool setLinearSolver(Context&,
-                                       std::string_view,
-                                       const Parameters&) noexcept override;
-    [[nodiscard]] bool integrate(const mfem::Vector&,
-                                 const IntegrationType,
-                                 const std::optional<real>) override;
-    void addPostProcessing(
-        const std::function<void(const real, const real)>&) override;
-    [[nodiscard]] bool addPostProcessing(Context&,
-                                         std::string_view,
-                                         const Parameters&) noexcept override;
+    [[nodiscard]] bool setLinearSolver(Context& ctx,
+                                       LinearSolverHandler s) noexcept override;
+    [[nodiscard]] bool setLinearSolver(
+        Context& ctx,
+        std::string_view n,
+        const Parameters& params) noexcept override;
+    [[nodiscard]] bool integrate(const mfem::Vector& u,
+                                 const IntegrationType it,
+                                 const std::optional<real> odt) override;
+    [[nodiscard]] bool addPostProcessing(
+        Context& ctx,
+        const std::function<void(const real, const real)>& p) noexcept override;
+    [[nodiscard]] bool addPostProcessing(Context& ctx,
+                                         std::string_view n,
+                                         const Parameters& p) noexcept override;
     [[nodiscard]] bool executeInitialPostProcessings(
-        Context&, const real) noexcept override;
+        Context& ctx, const real t) noexcept override;
     [[nodiscard]] bool executePostProcessings(Context&,
-                                              const real,
-                                              const real) noexcept override;
-    //
-    [[deprecated]] void setLinearSolver(std::string_view,
-                                        const Parameters&) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractDirichletBoundaryCondition>) override;
-    [[deprecated]] void addBoundaryCondition(
-        std::unique_ptr<AbstractBoundaryCondition>) override;
-    [[deprecated]] void addPostProcessing(std::string_view,
-                                          const Parameters&) override;
-    /*!
-     * \brief add a new post-processing
-     * \param[in] p: post-processing
-     */
-    [[deprecated]] virtual void addPostProcessing(
-        std::unique_ptr<
-            AbstractNonLinearEvolutionProblemPostProcessing<false>>);
+                                              const real t,
+                                              const real dt) noexcept override;
     //! \brief destructor
     ~NonLinearEvolutionProblemImplementation() override;
 
    protected:
     //
     [[nodiscard]] std::optional<real> computePrediction(
-        Context&, const real, const real) noexcept override;
+        Context& ctx, const real t, const real dt) noexcept override;
     void markDegreesOfFreedomHandledByDirichletBoundaryConditions(
-        std::vector<size_type>) override;
-    //! \brief registred post-processings
+        std::vector<size_type> dofs) override;
+    //! \brief registered post-processings
     std::vector<
         std::unique_ptr<AbstractNonLinearEvolutionProblemPostProcessing<false>>>
         postprocessings;
   };  // end of struct NonLinearEvolutionProblemImplementation
 
   /*!
-   * \brief return the resultant of the inner forces on the given boundary
+   * \brief compute the resultant of the inner forces on the given boundary
+   * \param[in, out] ctx: execution context
    * \param[out] F: resultant
    * \param[in] p: non linear evolution problem
-   * \param[in] elements: a structure which gives for each element having a
+   * \param[in] elements: a structure which gives for each element having at
    * least one node on the boundary the list of the nodes of this element on the
    * boundary.
+   * \param[in] selection: selection of the behaviour integrators of each
+   * material, whose inner forces are summed
+   * \return true on success
    *
    * \note in parallel, the resultant is only the contribution of the given
    * process
    */
   template <bool parallel>
-  void computeResultantForceOnBoundary(
-      mfem::Vector&,
-      NonLinearEvolutionProblemImplementation<parallel>&,
-      const std::vector<std::pair<size_type, std::vector<size_type>>>&);
+  [[nodiscard]] bool computeResultantForceOnBoundary(
+      Context& ctx,
+      mfem::Vector& F,
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const std::vector<
+          std::pair<size_type, std::vector<std::vector<size_type>>>>& elements,
+      const BehaviourIntegratorsSelection& selection = {}) noexcept;
 
   /*!
+   * \brief compute the integral of the thermodynamic forces and the volume of
+   * each material
    * \return the integral of the thermodynamic forces at the end of the time
    * step and the volume of each material.
+   * \param[in, out] ctx: execution context
    * \param[in] p: non linear evolution problem
+   * \param[in] selection: selection of the behaviour integrators of each
+   * material, whose thermodynamic forces are summed. The selected behaviour
+   * integrators of a material must have the same thermodynamic forces.
    * \note in parallel, the returned value is only the contribution of the given
    * process
    */
   template <bool parallel>
-  std::pair<std::vector<std::vector<real>>, std::vector<real>>
+  [[nodiscard]] std::optional<
+      std::pair<std::vector<std::vector<real>>, std::vector<real>>>
   computeMeanThermodynamicForcesValues(
-      NonLinearEvolutionProblemImplementation<parallel>&);
+      Context& ctx,
+      NonLinearEvolutionProblemImplementation<parallel>& p,
+      const BehaviourIntegratorsSelection& selection = {}) noexcept;
 
 }  // end of namespace mfem_mgis
 

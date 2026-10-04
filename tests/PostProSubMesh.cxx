@@ -1,3 +1,8 @@
+/*!
+ * \file   tests/PostProSubMesh.cxx
+ * \brief  Tests of the post-processings defined on submeshes
+ */
+
 #include <memory>
 #include <cstdlib>
 #include <iostream>
@@ -22,7 +27,7 @@
 
 struct TestParameters {
   const char* mesh_file = "data/beam-tet.mesh";
-  const char* behaviour = "Elasticity";
+  const char* behaviour = "IsotropicLinearElasticity";
   const char* library = "src/libBehaviour.so";
   int order = 1;
   int refinement = 3;
@@ -62,6 +67,7 @@ int main(int argc, char* argv[]) {
   mfem_mgis::initialize(argc, argv);
 
   auto ctx = mgis::Context{};
+  auto or_die = ctx.getFatalFailureHandler();
 
   // get parameters
   TestParameters p;
@@ -82,53 +88,79 @@ int main(int argc, char* argv[]) {
       {"Hypothesis", "Tridimensional"},
       {"Parallel", true}};
 
-  mfem_mgis::NonLinearEvolutionProblem problem(ctx, fed);
+  auto problem =
+      mfem_mgis::construct<mfem_mgis::NonLinearEvolutionProblem>(ctx, fed) |
+      or_die;
 
   // set material properties
-  problem.addBehaviourIntegrator("Mechanics", 1, p.library, p.behaviour);
-  problem.addBehaviourIntegrator("Mechanics", 2, p.library, p.behaviour);
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 1, p.library, p.behaviour) |
+      or_die;
+  problem.addBehaviourIntegrator(ctx, "Mechanics", 2, p.library, p.behaviour) |
+      or_die;
 
-  auto& m1 = problem.getMaterial(1);
-  auto& m2 = problem.getMaterial(2);
+  auto& m1 = problem.getMaterial(ctx, 1, 0) | or_die;
+  auto& m2 = problem.getMaterial(ctx, 2, 0) | or_die;
 
   // setting the material properties
-  auto set_properties = [](auto& m, const double l, const double mu) {
-    mgis::behaviour::setMaterialProperty(m.s0, "FirstLameCoefficient", l);
-    mgis::behaviour::setMaterialProperty(m.s0, "ShearModulus", mu);
-    mgis::behaviour::setMaterialProperty(m.s1, "FirstLameCoefficient", l);
-    mgis::behaviour::setMaterialProperty(m.s1, "ShearModulus", mu);
-    mgis::behaviour::setExternalStateVariable(m.s0, "Temperature", 293.15);
-    mgis::behaviour::setExternalStateVariable(m.s1, "Temperature", 293.15);
+  auto set_properties = [&ctx, &or_die](auto& m, const double l,
+                                        const double mu) {
+    mgis::behaviour::setMaterialProperty(ctx, m.s0, "FirstLameCoefficient", l) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s0, "ShearModulus", mu) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s1, "FirstLameCoefficient", l) |
+        or_die;
+    mgis::behaviour::setMaterialProperty(ctx, m.s1, "ShearModulus", mu) |
+        or_die;
+    mgis::behaviour::setExternalStateVariable(ctx, m.s0, "Temperature",
+                                              293.15) |
+        or_die;
+    mgis::behaviour::setExternalStateVariable(ctx, m.s1, "Temperature",
+                                              293.15) |
+        or_die;
   };
   set_properties(m1, 50, 50);
   set_properties(m2, 1, 1);
 
   /** Setting Boundaries Conditions */
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 1, 0));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 0) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 1, 1));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 1) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 1, 2));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 2) |
+               or_die) |
+      or_die;
 
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 2, 0));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 0) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 2, 1));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 1) |
+               or_die) |
+      or_die;
   problem.addBoundaryCondition(
-      std::make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          problem.getFiniteElementDiscretizationPointer(), 2, 2,
-          []([[maybe_unused]] const auto t) noexcept { return -1; }));
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 2,
+               []([[maybe_unused]] const auto t) noexcept { return -1; }) |
+               or_die) |
+      or_die;
 
-  problem.setSolverParameters({{"VerbosityLevel", 1},
-                               {"RelativeTolerance", 1e-6},
-                               {"AbsoluteTolerance", 0.},
-                               {"MaximumNumberOfIterations", 6}});
+  problem.setSolverParameters(ctx, {{"VerbosityLevel", 1},
+                                    {"RelativeTolerance", 1e-6},
+                                    {"AbsoluteTolerance", 0.},
+                                    {"MaximumNumberOfIterations", 6}}) |
+      or_die;
 
   constexpr int defaultMaxNumOfIt = 50000;  // MaximumNumberOfIterations
   auto solverParameters = mfem_mgis::Parameters{};
@@ -149,7 +181,7 @@ int main(int argc, char* argv[]) {
       mfem_mgis::Parameters{{"Preconditioner", preconditionner}});
 
   // solver HyprePCG
-  problem.setLinearSolver("HyprePCG", solverParameters);
+  problem.setLinearSolver(ctx, "HyprePCG", solverParameters) | or_die;
 
   /** Define your post processings here */
   {
@@ -158,29 +190,33 @@ int main(int argc, char* argv[]) {
     /** You can not define Materials and Boundaries in a single post processing
      */
     problem.addPostProcessing(
-        "ParaviewExportResults",
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/AllMesh"},
          {"Materials", materials},
          {"OutputFieldName", "Displacement"},
-         {"Verbosity", 1}});
+         {"Verbosity", 1}}) |
+        or_die;
     problem.addPostProcessing(
-        "ParaviewExportResults",
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute1"},
          {"OutputFieldName", "Displacement"},
          {"Material", "Attr1"},
-         {"Verbosity", 1}});
+         {"Verbosity", 1}}) |
+        or_die;
     problem.addPostProcessing(
-        "ParaviewExportResults",
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Attribute2"},
          {"OutputFieldName", "Displacement"},
          {"Material", "Attr2"},
-         {"Verbosity", 1}});
+         {"Verbosity", 1}}) |
+        or_die;
     problem.addPostProcessing(
-        "ParaviewExportResults",
+        ctx, "ParaviewExportResults",
         {{"OutputFileName", "TestPPSubMeshOutputDir/Boundaries"},
          {"OutputFieldName", "Displacement"},
          {"Boundaries", bdrs},
-         {"Verbosity", 1}});
+         {"Verbosity", 1}}) |
+        or_die;
   }
 
   /** time increment */
@@ -193,12 +229,10 @@ int main(int argc, char* argv[]) {
   time += dt;
 
   /** Do not forget to update your problem at each timestep */
-  if (!problem.update(ctx)) {
-    mfem_mgis::Profiler::Utils::Message("INFO: UPDATE FAILED");
-  }
+  problem.update(ctx) | or_die;
 
   /** Run post processings previously defined */
-  problem.executePostProcessings(ctx, time, dt);
+  problem.executePostProcessings(ctx, time, dt) | or_die;
 
   mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return 0;

@@ -1,6 +1,6 @@
 /*!
  * \file   tests/L2ProjectionTest.cxx
- * \brief
+ * \brief  Tests of the L2 projection
  * \author Thomas Helfer
  * \date   20/01/2026
  */

@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/Algorithms.hxx
- * \brief
+ * \brief  This file declares algorithms acting on partial quadrature functions
  * \author Thomas Helfer
  * \date   23/04/2025
  */
@@ -16,22 +16,26 @@ namespace mfem_mgis {
 
   /*!
    * \brief assign the evaluator to a partial quadrature function
-   * \param[in] lhs: left hand side
+   * \param[in, out] ctx: execution context
+   * \param[out] lhs: left hand side
    * \param[in] e: right hand side
+   * \return true on success
    */
   template <size_type N, QPEvaluatorConcept QPEvaluatorType>
-  bool assign(Context&,
-              PartialQuadratureFunction&,
-              QPEvaluatorType) requires(N > 0);
+  bool assign(Context& ctx,
+              PartialQuadratureFunction& lhs,
+              QPEvaluatorType e) requires(N > 0);
   /*!
    * \brief assign the evaluator to a partial quadrature function
-   * \param[in] lhs: left hand side
+   * \param[in, out] ctx: execution context
+   * \param[out] lhs: left hand side
    * \param[in] e: right hand side
+   * \return true on success
    */
   template <QPEvaluatorConcept QPEvaluatorType>
-  bool assign(Context&, PartialQuadratureFunction&, QPEvaluatorType);
+  bool assign(Context& ctx, PartialQuadratureFunction& lhs, QPEvaluatorType e);
 
-  /*!
+  /*
   template <typename ValueType, typename BinaryOperator>
   ValueType reduce(ImmutablePartialQuadratureFunctionView f,
                    const ValueType init,

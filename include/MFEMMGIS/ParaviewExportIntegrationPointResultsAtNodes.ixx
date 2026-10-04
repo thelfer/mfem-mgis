@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.ixx
- * \brief
+ * \brief  This file implements the class templates declared in
+ * `MFEMMGIS/ParaviewExportIntegrationPointResultsAtNodes.hxx`
  * \author Thomas Helfer
  * \date   18/08/2021
  */
@@ -140,7 +141,7 @@ namespace mfem_mgis {
       createSubMesh(Context& ctx,
                     NonLinearEvolutionProblemImplementation<parallel>& p) {
     auto or_raise = ctx.getThrowingFailureHandler();
-    auto fed = p.getFiniteElementDiscretization();
+    auto& fed = p.getFiniteElementDiscretization();
     this->submesh = fed.template getMutableSubMeshPointer<parallel>(
                         ctx, Parameter::from(this->materials_identifiers),
                         MeshDiscretization::Location::ON_MATERIALS) |
@@ -153,6 +154,10 @@ namespace mfem_mgis {
           Context& ctx,
           NonLinearEvolutionProblemImplementation<parallel>& p,
           const real t) noexcept {
+    if (!NonLinearEvolutionProblemPostProcessingBase<
+            parallel>::executeInitialPostProcessing(ctx, p, t)) {
+      return false;
+    }  // end of executeInitialPostProcessing
     if (this->shallExecuteInitialPostProcessing) {
       if (!this->exportResults(ctx, p, t, bts)) {
         return false;
@@ -226,7 +231,8 @@ namespace mfem_mgis {
           const size_type nc,
           std::function<bool(Context&, PartialQuadratureFunction&)> f,
           std::string_view d)
-      : functions(buildPartialQuadratureFunctionsSet(p, mids, nc)),
+      : functions(buildPartialQuadratureFunctionsSet(ctx, p, mids, nc) |
+                  ctx.getThrowingFailureHandler()),
         update_function(f),
         exporter(ctx,
                  p,
@@ -245,16 +251,15 @@ namespace mfem_mgis {
   }  // end of executeInitialPostProcessing
 
   template <bool parallel>
-  void ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
+  bool ParaviewExportIntegrationPointPostProcessingsResultsAtNodes<
       parallel>::execute(Context& ctx,
                          NonLinearEvolutionProblemImplementation<parallel>& p,
                          const real t,
-                         const real dt) {
-    Context local_ctx;
-    if (!this->functions.update(local_ctx, this->update_function)) {
-      raise(ctx.getErrorMessage());
+                         const real dt) noexcept {
+    if (!this->functions.update(ctx, this->update_function)) {
+      return false;
     }
-    this->exporter.execute(ctx, p, t, dt);
+    return this->exporter.execute(ctx, p, t, dt);
   }  // end of execute
 
 #endif /* MGIS_FUNCTION_SUPPORT */

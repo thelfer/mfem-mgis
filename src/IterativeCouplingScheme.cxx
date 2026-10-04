@@ -1,7 +1,7 @@
 /*!
  * \file   src/IterativeCouplingScheme.cxx
- * \brief  This file implements the inline methods of the
- * `IterativeCouplingScheme` class \date   05/12/2022
+ * \brief  This file implements the `IterativeCouplingScheme` class
+ * \date   05/12/2022
  */
 
 #include "MGIS/Profiling.hxx"
@@ -77,7 +77,7 @@ namespace mfem_mgis {
     }
     const auto osd = get_if<bool>(ctx, parameters, "ShortDescription", true);
     const auto onps = get_if<bool>(ctx, parameters, "NumericalParameters", b);
-    const auto ocis = get_if<bool>(ctx, parameters, "NumericalParameters", b);
+    const auto ocis = get_if<bool>(ctx, parameters, "CouplingItems", b);
     if (isInvalid(osd) || isInvalid(onps) || isInvalid(ocis)) {
       return {};
     }
@@ -205,8 +205,8 @@ namespace mfem_mgis {
     }
     ctx.log(verboseLevel2,
             "* iterative coupling scheme '" + this->getName() +
-                "'did no converge after " +
-                std::to_string(this->maximum_number_of_iterations + 1) +
+                "' did not converge after " +
+                std::to_string(this->maximum_number_of_iterations) +
                 " iterations");
     //     if ((this->printResourcesUsage_) ||  //
     //         (ctx.getVerbosityLevel() >= VerbosityLevel::verboseDebug)) {

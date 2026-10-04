@@ -18,7 +18,7 @@
 namespace mfem_mgis {
 
   /*!
-   * \brief a class aiming at assigning an unique identifier to
+   * \brief a class aiming at assigning a unique identifier to
    * a set of equivalent partial quadrature spaces.
    *
    * In short, two partial quadrature spaces are equivalent if they define the
@@ -31,7 +31,7 @@ namespace mfem_mgis {
      * \param[in] m: mesh discretization
      */
     PartialQuadratureSpaceIdentifiersManager(
-        const MeshDiscretization&) noexcept;
+        const MeshDiscretization& m) noexcept;
     //
     PartialQuadratureSpaceIdentifiersManager() = delete;
     PartialQuadratureSpaceIdentifiersManager(
@@ -41,8 +41,9 @@ namespace mfem_mgis {
     PartialQuadratureSpaceIdentifiersManager& operator=(
         PartialQuadratureSpaceIdentifiersManager&&) = delete;
     PartialQuadratureSpaceIdentifiersManager& operator=(
-        const PartialQuadratureSpaceIdentifiersManager&&) = delete;
+        const PartialQuadratureSpaceIdentifiersManager&) = delete;
     /*!
+     * \brief return the identifier of a partial quadrature space
      * \return the identifier associated with the given partial quadrature
      * space.
      *
@@ -52,20 +53,22 @@ namespace mfem_mgis {
      * \note This identifier may be used for distinct material identifiers.
      */
     [[nodiscard]] std::optional<size_type> getIdentifier(
-        Context&,
-        const std::shared_ptr<const PartialQuadratureSpace>&) const noexcept;
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& s) const noexcept;
     /*!
      * \brief return if two partial quadrature spaces are equivalent
      *
      * \param[in] qspace1: first partial quadrature space
      * \param[in] qspace2: second partial quadrature space
+     * \return if the two spaces are equivalent
      *
      * \note if quadrature spaces are defined on two distinct mesh
      * discretizations, this method returns false
      */
     [[nodiscard]] bool areEquivalent(
-        const std::shared_ptr<const PartialQuadratureSpace>&,
-        const std::shared_ptr<const PartialQuadratureSpace>&) const noexcept;
+        const std::shared_ptr<const PartialQuadratureSpace>& qspace1,
+        const std::shared_ptr<const PartialQuadratureSpace>& qspace2)
+        const noexcept;
     //! \brief destructor
     ~PartialQuadratureSpaceIdentifiersManager() noexcept;
 

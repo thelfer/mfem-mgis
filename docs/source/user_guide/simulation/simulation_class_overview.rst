@@ -114,6 +114,10 @@ Main parameters
   times marked as *explicitly requested by the user*.
 
   See Section :ref:`simulation_post_processings` for details.
+- :param:`StopOnPostProcessingFailure`: boolean stating if the
+  simulation stops when a post-processing fails. Otherwise, the failure
+  is reported as a warning and the simulation goes on. The default value
+  of this parameter is `false`.
 
 - :param:`Monitors`: list of simulation monitors.
 

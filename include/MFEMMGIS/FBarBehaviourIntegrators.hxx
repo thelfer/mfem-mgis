@@ -1,6 +1,7 @@
 /*!
  * \file MFEMMGIS/FBarBehaviourIntegrators.hxx
- * \brief
+ * \brief  This file declares the functions generating the FBar behaviour
+ * integrators
  * \author Thomas Helfer
  * \date   22/03/2026
  */
@@ -18,21 +19,41 @@ namespace mfem_mgis {
   // forward declaration
   struct FiniteElementDiscretization;
 
+  /*!
+   * \brief generate an FBar behaviour integrator under the plane strain
+   * hypothesis
+   * \param[in, out] ctx: execution context
+   * \param[in] fed: finite element discretization
+   * \param[in] m: material attribute
+   * \param[in] b: behaviour
+   * \param[in] params: additional parameters, none expected
+   * \return the new behaviour integrator, a null pointer on failure
+   */
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generatePlaneStrainFBarBehaviourIntegrators(
-      Context &,
-      const FiniteElementDiscretization &,
-      const size_type,
-      std::unique_ptr<const Behaviour>,
-      const Parameters &) noexcept;
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) noexcept;
 
+  /*!
+   * \brief generate an FBar behaviour integrator under the tridimensional
+   * hypothesis
+   * \param[in, out] ctx: execution context
+   * \param[in] fed: finite element discretization
+   * \param[in] m: material attribute
+   * \param[in] b: behaviour
+   * \param[in] params: additional parameters, none expected
+   * \return the new behaviour integrator, a null pointer on failure
+   */
   [[nodiscard]] std::unique_ptr<AbstractBehaviourIntegrator>
   generateTridimensionalFBarBehaviourIntegrators(
-      Context &,
-      const FiniteElementDiscretization &,
-      const size_type,
-      std::unique_ptr<const Behaviour>,
-      const Parameters &) noexcept;
+      Context& ctx,
+      const FiniteElementDiscretization& fed,
+      const size_type m,
+      std::unique_ptr<const Behaviour> b,
+      const Parameters& params) noexcept;
 
 }  // end of namespace mfem_mgis
 

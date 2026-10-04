@@ -1,6 +1,6 @@
 /*!
  * \file   MFEMMGIS/AbstractConvergenceFailureHandler.hxx
- * \brief  This class declares the `AbstractConvergenceFailureHandler` class
+ * \brief  This file declares the `AbstractConvergenceFailureHandler` class
  * \date   04/12/2023
  */
 
@@ -18,12 +18,13 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT AbstractConvergenceFailureHandler {
     /*!
-     * \return a new time increment on case of convergence failure
-     * \param[in] ctx: execution context
-     * \param[in] dt: current time incremnent
+     * \brief compute a new time increment after a convergence failure
+     * \return the new time increment, empty on failure
+     * \param[in, out] ctx: execution context
+     * \param[in] dt: current time increment
      */
     virtual std::optional<real> getNewTimeIncrement(
-        Context &, const real) const noexcept = 0;
+        Context& ctx, const real dt) const noexcept = 0;
     //! \brief destructor
     virtual ~AbstractConvergenceFailureHandler();
   };

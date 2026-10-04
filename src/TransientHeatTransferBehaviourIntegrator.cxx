@@ -1,3 +1,9 @@
+/*!
+ * \file   src/TransientHeatTransferBehaviourIntegrator.cxx
+ * \brief  This file implements the `TransientHeatTransferBehaviourIntegrator`
+ * class
+ */
+
 #include <algorithm>
 #include "MGIS/Behaviour/Behaviour.hxx"
 #include "MFEMMGIS/TransientHeatTransferBehaviourIntegrator.hxx"
@@ -31,6 +37,10 @@ namespace mfem_mgis {
             TransientHeatTransferBehaviourIntegrator>(
             buildQuadratureSpace(fed, m), std::move(b_ptr)) {
     this->checkBehaviourSymmetry(throwing, Behaviour::ISOTROPIC);
+    this->checkBehaviourVariablesSizes(
+        throwing, {.gradients_sizes = {1},
+                   .thermodynamic_forces_sizes = {1},
+                   .tangent_operator_blocks_sizes = {{1, 1}}});
   }  // end of
      // TransientHeatTransferBehaviourIntegrator
 

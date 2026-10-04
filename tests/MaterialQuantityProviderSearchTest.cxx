@@ -57,19 +57,21 @@ struct MaterialQuantityProviderSearchTest final : public tfel::tests::TestCase {
   /*!
    * \brief add two behaviour integrators on the material `1`:
    *
-   * - the first one, based on the `Elasticity` behaviour, has no internal
-   *   state variable.
-   * - the second one, based on the `Plasticity` behaviour, has two internal
-   *   state variables: `ElasticStrain` and `EquivalentPlasticStrain`.
+   * - the first one, based on the `IsotropicLinearElasticity` behaviour, has
+   *   no internal state variable.
+   * - the second one, based on the `IsotropicLinearHardeningPlasticity`
+   *   behaviour, has two internal state variables: `ElasticStrain` and
+   *   `EquivalentPlasticStrain`.
    *
    * Both behaviours define the `Strain` gradient and the `Stress`
    * thermodynamic force.
    *
-   * \param[in] p: non linear evolution problem
+   * \param[in, out] p: non linear evolution problem
    */
   void addBehaviourIntegrators(mfem_mgis::NonLinearEvolutionProblem& p) {
     auto ctx = mfem_mgis::Context{};
-    for (const auto& b : {"Elasticity", "Plasticity"}) {
+    for (const auto& b :
+         {"IsotropicLinearElasticity", "IsotropicLinearHardeningPlasticity"}) {
       TFEL_TESTS_ASSERT(mfem_mgis::isValid(p.addBehaviourIntegrator(
           ctx, "Mechanics", 1, parameters.library, b)));
     }

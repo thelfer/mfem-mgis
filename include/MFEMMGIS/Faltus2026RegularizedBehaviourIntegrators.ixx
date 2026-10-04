@@ -1,6 +1,7 @@
 /*!
  * \file   MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.ixx
- * \brief
+ * \brief  This file implements the inline functions declared in
+ * `MFEMMGIS/Faltus2026RegularizedBehaviourIntegrators.hxx`
  * \author Thomas Helfer
  * \date   19/03/2026
  */
@@ -65,8 +66,8 @@ namespace mfem_mgis {
     ();
 #ifdef MFEM_THREAD_SAFE
     mfem::DenseMatrix dshape, dshape0;
-    dshape.setSize(e.GetDof(), e.GetDim());
-    dshape0.setSize(e.GetDof(), e.GetDim());
+    dshape.SetSize(e.GetDof(), e.GetDim());
+    dshape0.SetSize(e.GetDof(), e.GetDim());
 #else
     this->dshape0.SetSize(e.GetDof(), e.GetDim());
     // this->dshape is updated by
@@ -138,8 +139,8 @@ namespace mfem_mgis {
     ();
 #ifdef MFEM_THREAD_SAFE
     mfem::DenseMatrix dshape, dshape0;
-    dshape.setSize(e.GetDof(), e.GetDim());
-    dshape0.setSize(e.GetDof(), e.GetDim());
+    dshape.SetSize(e.GetDof(), e.GetDim());
+    dshape0.SetSize(e.GetDof(), e.GetDim());
 #else
     this->dshape0.SetSize(e.GetDof(), e.GetDim());
     // this->dshape is updated by

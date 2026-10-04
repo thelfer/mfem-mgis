@@ -1,6 +1,7 @@
 /*!
  * \file   include/MFEMMGIS/MeanThermodynamicForces.ixx
- * \brief
+ * \brief  This file implements the inline methods of the
+ * `MeanThermodynamicForces` class
  * \author Thomas Helfer, Hugo Copin
  * \date   08/04/2021
  */
@@ -16,40 +17,46 @@ namespace mfem_mgis {
 
   template <bool parallel>
   MeanThermodynamicForces<parallel>::MeanThermodynamicForces(
+      Context &ctx,
       NonLinearEvolutionProblemImplementation<parallel> &p,
-      const Parameters &params) {
-    checkParameters(throwing, params, {"OutputFileName"});
+      const Parameters &params)
+      : behaviour_integrators(
+            getBehaviourIntegratorsSelection(throwing, params)) {
+    checkParameters(throwing, params,
+                    std::vector<std::string>{"OutputFileName",
+                                             "BehaviourIntegrator"});
+    auto or_raise = ctx.getThrowingFailureHandler();
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
       MPI_Comm_rank(getMPICommunicator(p), &rank);
       if (rank == 0) {
-        this->openFile(p, get<std::string>(throwing, params, "OutputFileName"));
+        this->openFile(ctx, p,
+                       get<std::string>(throwing, params, "OutputFileName")) |
+            or_raise;
       }
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      this->openFile(p, get<std::string>(throwing, params, "OutputFileName"));
+      this->openFile(ctx, p,
+                     get<std::string>(throwing, params, "OutputFileName")) |
+          or_raise;
     }
   }  // end of MeanThermodynamicForces
 
   template <bool parallel>
-  bool MeanThermodynamicForces<parallel>::executeInitialPostProcessing(
-      Context &,
-      NonLinearEvolutionProblemImplementation<parallel> &,
-      const real) noexcept {
-    return true;
-  }  // end of executeInitialPostProcessing
-
-  template <bool parallel>
   bool MeanThermodynamicForces<parallel>::execute(
-      Context &,
+      Context &ctx,
       NonLinearEvolutionProblemImplementation<parallel> &p,
       const real t,
       const real dt) noexcept {
-    const auto [tf_integrals, volumes] =
-        computeMeanThermodynamicForcesValues(p);
+    const auto ores = computeMeanThermodynamicForcesValues(
+        ctx, p, this->behaviour_integrators);
+    if (isInvalid(ores)) {
+      return false;
+    }
+    const auto [tf_integrals, volumes] = *ores;
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI
       int rank;
@@ -86,19 +93,32 @@ namespace mfem_mgis {
   }  // end of MeanThermodynamicForces
 
   template <bool parallel>
-  void MeanThermodynamicForces<parallel>::openFile(
+  bool MeanThermodynamicForces<parallel>::openFile(
+      Context &ctx,
       NonLinearEvolutionProblemImplementation<parallel> &p,
-      const std::string &f) {
+      const std::string &f) noexcept {
     this->out.open(f);
     if (!this->out) {
-      raise("MeanThermodynamicForces::openFile: unable to open file '" + f +
-            "'");
+      return ctx.registerErrorMessage(
+          "MeanThermodynamicForces::openFile: unable to open file '" + f + "'");
     }
     out << "# first column: time\n";
     auto c = mfem_mgis::size_type{2};
     for (const auto &mi : p.getAssignedMaterialsIdentifiers()) {
-      const auto &bi = p.getBehaviourIntegrator(mi);
-      const auto &s1 = bi.getMaterial().s1;
+      const auto obis = getSelectedBehaviourIntegrators(
+          ctx, p, mi, this->behaviour_integrators);
+      if (isInvalid(obis)) {
+        return {};
+      }
+      const auto obi = p.getBehaviourIntegrator(ctx, mi, obis->first);
+      if (isInvalid(obi)) {
+        return {};
+      }
+      const auto om = obi->getMaterial(ctx);
+      if (isInvalid(om)) {
+        return {};
+      }
+      const auto &s1 = om->s1;
       const auto thsize =
           static_cast<mfem_mgis::size_type>(s1.thermodynamic_forces_stride);
       for (mfem_mgis::size_type k = 0; k != thsize; ++k, ++c) {
@@ -107,6 +127,7 @@ namespace mfem_mgis {
             << '\n';
       }
     }
+    return true;
   }
 
   template <bool parallel>

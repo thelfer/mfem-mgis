@@ -1,5 +1,6 @@
 /*!
- * \file   tests/TimeDiscretizationTests.cxx
+ * \file   tests/TimeDiscretizationTest.cxx
+ * \brief  This test checks the construction of the times of a simulation
  * \author Thomas Helfer
  * \date   06/04/2023
  */
@@ -88,10 +89,10 @@ struct TimeDiscretizationTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(isValid(td4));
     const auto times = std::vector<real>(td4->cbegin(), td4->cend());
     TFEL_TESTS_ASSERT(times.size() == 4);
-    TFEL_TESTS_CHECK(std::abs(times[0] < 0) < 1e-14);
-    TFEL_TESTS_CHECK(std::abs(times[1] < 1) < 1e-14);
-    TFEL_TESTS_CHECK(std::abs(times[2] < 2) < 1e-14);
-    TFEL_TESTS_CHECK(std::abs(times[3] < 5) < 1e-14);
+    TFEL_TESTS_CHECK(std::abs(times[0] - 0) < 1e-14);
+    TFEL_TESTS_CHECK(std::abs(times[1] - 1) < 1e-14);
+    TFEL_TESTS_CHECK(std::abs(times[2] - 2) < 1e-14);
+    TFEL_TESTS_CHECK(std::abs(times[3] - 5) < 1e-14);
   }
 };
 

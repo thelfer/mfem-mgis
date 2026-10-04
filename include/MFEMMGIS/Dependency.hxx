@@ -15,52 +15,61 @@ namespace mfem_mgis {
   // forward declaration
   struct PartialQuadratureSpace;
 
-  //! \brief a class describing a dependency at integration points
+  //! \brief a base class describing a dependency
   struct MFEM_MGIS_EXPORT DependencyBase {
-    //! \brief enumeration stating if the
-    enum DependencyStatus { REQUIRED, OPTIONAL };
+    //! \brief enumeration stating if the dependency is required or optional
+    enum DependencyStatus {
+      REQUIRED,  //!< the dependency is required
+      OPTIONAL   //!< the dependency is optional
+    };
     //! \returns the name of the dependency
     [[nodiscard]] const std::string &getName() const noexcept;
     //! \return a string representation of the specifications
     [[nodiscard]] std::string getSpecificationsAsString() const noexcept;
-    //! \return if the size have been specified
+    //! \return if the number of components has been specified
     [[nodiscard]] bool hasConcreteSpecifications() const noexcept;
     /*!
      * \brief check that this dependency is consistent with the given
      * specifications.
      *
-     * \note if one of the dependency's specification is not
-     * still optional, the specification is matched. If the specification has a
-     * value, its value must match with the given value.
+     * \note a specification of the dependency which is not defined yet
+     * is matched. If the specification has a value, its value must match with
+     * the given value.
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] nc: number of components
+     * \return true on success
      */
-    [[nodiscard]] bool matchesSpecifications(Context &,
-                                             const size_type) const noexcept;
+    [[nodiscard]] bool matchesSpecifications(Context &ctx,
+                                             const size_type nc) const noexcept;
     /*!
      * \brief check that this dependency is consistent with the given
      * specifications.
      *
-     * \note this methods assumes that
-     * `hasConcreteSpecifications` returns true
+     * \note this method reports an error if
+     * `hasConcreteSpecifications` returns false
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] nc: number of components
+     * \return true on success
      */
-    [[nodiscard]] bool checkSpecifications(Context &,
-                                           const size_type) const noexcept;
+    [[nodiscard]] bool checkSpecifications(Context &ctx,
+                                           const size_type nc) const noexcept;
     /*!
      * \brief set the provider of the dependency
-     * param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] p: provider
+     * \return true on success
      */
-    [[nodiscard]] bool setProvider(Context &, const Provider &) noexcept;
-    //! \return if a this dependency has a provider
+    [[nodiscard]] bool setProvider(Context &ctx, const Provider &p) noexcept;
+    //! \return if this dependency has a provider
     [[nodiscard]] bool hasProvider() const noexcept;
-    //! \return the provider of the dependency
+    /*!
+     * \return the provider of the dependency
+     * \param[in, out] ctx: execution context
+     */
     [[nodiscard]] OptionalReference<const Provider> getProvider(
-        Context &) const noexcept;
+        Context &ctx) const noexcept;
     //! \return if the dependency is required
     [[nodiscard]] bool isRequired() const noexcept;
     //! \return if the dependency is optional
@@ -74,7 +83,7 @@ namespace mfem_mgis {
      * \param[in] n: name
      * \param[in] s: status
      */
-    DependencyBase(std::string_view, const DependencyStatus) noexcept;
+    DependencyBase(std::string_view n, const DependencyStatus s) noexcept;
     //! \brief copy constructor
     DependencyBase(const DependencyBase &) noexcept;
     //! \brief move constructor
@@ -87,30 +96,34 @@ namespace mfem_mgis {
      * \brief check that this dependency is consistent with other dependency and
      * update specifications (size) if the other dependency is more specific.
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] d: dependency
+     * \return true on success
      */
-    [[nodiscard]] bool checkAndUpdate(Context &,
-                                      const DependencyBase &) noexcept;
+    [[nodiscard]] bool checkAndUpdate(Context &ctx,
+                                      const DependencyBase &d) noexcept;
     /*!
      * \brief check that this dependency is consistent with the given
      * specifications and eventually update the specifications.
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] n: name
      * \param[in] nc: number of components
+     * \return true on success
      */
-    [[nodiscard]] bool checkAndUpdate(Context &,
-                                      std::string_view,
-                                      const size_type) noexcept;
+    [[nodiscard]] bool checkAndUpdate(Context &ctx,
+                                      std::string_view n,
+                                      const size_type nc) noexcept;
     /*!
      * \brief check that this dependency is consistent with the given
      * specifications and eventually update the specifications.
      *
-     * \param[in] ctx: execution context
-     * \param[in] n: number of components
+     * \param[in, out] ctx: execution context
+     * \param[in] nc: number of components
+     * \return true on success
      */
-    [[nodiscard]] bool checkAndUpdate(Context &, const size_type) noexcept;
+    [[nodiscard]] bool checkAndUpdate(Context &ctx,
+                                      const size_type nc) noexcept;
     //! \brief destructor
     virtual ~DependencyBase() noexcept;
     //! \brief dependency status
@@ -129,30 +142,33 @@ namespace mfem_mgis {
      * \brief report that the given provider requires the quadrature space to be
      * defined.
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] d: dependency
      * \param[in] n: name of the provider
+     * \return false
      */
     [[nodiscard]] static bool reportProviderRequiresQuadratureIdToBeDefined(
-        Context &, const QPDependency &, const std::string &) noexcept;
+        Context &ctx, const QPDependency &d, const std::string &n) noexcept;
     /*!
      * \brief constructor
      * \param[in] s: partial quadrature space
      * \param[in] n: name of the dependency
      * \param[in] ds: status
+     * \throws std::runtime_error if the partial quadrature space is null
      */
-    QPDependency(std::shared_ptr<const PartialQuadratureSpace>,
-                 std::string_view,
-                 const DependencyStatus = DependencyStatus::REQUIRED) noexcept;
+    QPDependency(std::shared_ptr<const PartialQuadratureSpace> s,
+                 std::string_view n,
+                 const DependencyStatus ds = DependencyStatus::REQUIRED);
     /*!
      * \brief constructor
      * \param[in] m: material identifier
      * \param[in] n: name of the dependency
      * \param[in] s: status
      */
-    QPDependency(const size_type,
-                 std::string_view,
-                 const DependencyStatus = DependencyStatus::REQUIRED) noexcept;
+    QPDependency(
+        const size_type m,
+        std::string_view n,
+        const DependencyStatus s = DependencyStatus::REQUIRED) noexcept;
     //! \brief copy constructor
     QPDependency(const QPDependency &) noexcept;
     //! \brief move constructor
@@ -166,17 +182,19 @@ namespace mfem_mgis {
     [[nodiscard]] std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const noexcept;
     /*!
-     * \brief set the quadrature id
-     * \param[in] ctx: execution context
-     * \param[in] qspace: partial quadrature space
+     * \brief set the partial quadrature space
+     * \param[in, out] ctx: execution context
+     * \param[in] s: partial quadrature space
+     * \return true on success
      */
     [[nodiscard]] bool setPartialQuadratureSpace(
-        Context &, std::shared_ptr<const PartialQuadratureSpace>) noexcept;
+        Context &ctx, std::shared_ptr<const PartialQuadratureSpace> s) noexcept;
     /*!
      * \brief set this dependency as duplicate
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
+     * \return true on success
      */
-    [[nodiscard]] bool setDuplicate(Context &) noexcept;
+    [[nodiscard]] bool setDuplicate(Context &ctx) noexcept;
     //! \return if this dependency is the duplicate of another one
     [[nodiscard]] bool isDuplicate() const noexcept;
     /*!
@@ -184,19 +202,23 @@ namespace mfem_mgis {
      * specification (number of components) and update specifications if
      * required.
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] nc: number of components
+     * \return true on success
      */
-    [[nodiscard]] bool checkAndUpdate(Context &, const size_type) noexcept;
+    [[nodiscard]] bool checkAndUpdate(Context &ctx,
+                                      const size_type nc) noexcept;
     /*!
      * \brief check that this dependency is consistent with other dependency
      * and update specifications (number of components) if the other
      * dependency is more specific.
      *
-     * \param[in] ctx: execution context
+     * \param[in, out] ctx: execution context
      * \param[in] d: dependency
+     * \return true on success
      */
-    [[nodiscard]] bool checkAndUpdate(Context &, const QPDependency &) noexcept;
+    [[nodiscard]] bool checkAndUpdate(Context &ctx,
+                                      const QPDependency &d) noexcept;
     //
     [[nodiscard]] std::string getDescription() const noexcept override;
     //! \brief destructor

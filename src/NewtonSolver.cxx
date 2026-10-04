@@ -1,6 +1,6 @@
 /*!
  * \file   src/NewtonSolver.cxx
- * \brief
+ * \brief  This file implements the `NewtonSolver` class
  * \author Thomas Helfer
  * \date   29/03/2021
  */
@@ -251,6 +251,7 @@ namespace mfem_mgis {
               : mgis::ProfilingSection{};
       this->prec->Mult(r, c);  // c = [DF(x_i)]^{-1} [F(x_i)-b]
     }
+    clearHypreErrors();
     if (this->discardLinearSolverFailure) {
       return true;
     }
