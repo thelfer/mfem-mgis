@@ -14,11 +14,19 @@
 
 namespace mfem_mgis {
 
+  /*!
+   * \brief base class for most post-processings
+   * of nonlinear evolution problems
+   *
+   * This class is mostly meant to ensure that `executeInitialPostProcessing` is
+   * only called once.
+   */
   template <bool parallel>
   struct NonLinearEvolutionProblemPostProcessingBase;
 
 #ifdef MFEM_USE_MPI
 
+  //! \brief partial specialization for parallel computations
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemPostProcessingBase<true>
       : AbstractNonLinearEvolutionProblemPostProcessing<true> {
@@ -38,6 +46,7 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
+  //! \brief partial specialization for sequential computations
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemPostProcessingBase<false>
       : AbstractNonLinearEvolutionProblemPostProcessing<false> {
