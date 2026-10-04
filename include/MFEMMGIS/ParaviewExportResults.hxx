@@ -11,7 +11,7 @@
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
+#include "MFEMMGIS/PostProcessing/NonLinearEvolutionProblemPostProcessingBase.hxx"
 
 namespace mfem_mgis {
 
@@ -20,7 +20,7 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   struct ParaviewExportResults final
-      : public AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
+      : public NonLinearEvolutionProblemPostProcessingBase<parallel> {
     /*!
      * \brief constructor
      * \param[in, out] ctx: execution context

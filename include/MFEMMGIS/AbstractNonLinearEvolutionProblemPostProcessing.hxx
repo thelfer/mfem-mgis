@@ -31,6 +31,9 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT
       AbstractNonLinearEvolutionProblemPostProcessing<true> {
+    //! \return the `executeInitialPostProcessing` has already been called
+    [[nodiscard]] virtual bool
+    hasExecuteInitialPostProcessingAlreadyBeenCalled() const noexcept = 0;
     /*!
      * \brief execute the post-processing at the initial time of the
      * simulation
@@ -66,6 +69,9 @@ namespace mfem_mgis {
   template <>
   struct MFEM_MGIS_EXPORT
       AbstractNonLinearEvolutionProblemPostProcessing<false> {
+    //! \return the `executeInitialPostProcessing` has already been called
+    [[nodiscard]] virtual bool
+    hasExecuteInitialPostProcessingAlreadyBeenCalled() const noexcept = 0;
     /*!
      * \brief execute the post-processing at the initial time of the
      * simulation

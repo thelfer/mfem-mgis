@@ -18,7 +18,7 @@
 #include "mfem/fem/datacollection.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/Parameters.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
+#include "MFEMMGIS/PostProcessing/NonLinearEvolutionProblemPostProcessingBase.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
@@ -136,7 +136,7 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   struct ParaviewExportIntegrationPointResultsAtNodesImplementation final
-      : public AbstractNonLinearEvolutionProblemPostProcessing<parallel>,
+      : public NonLinearEvolutionProblemPostProcessingBase<parallel>,
         public ParaviewExportIntegrationPointResultsAtNodesBase {
     /*!
      * \brief constructor
@@ -179,25 +179,11 @@ namespace mfem_mgis {
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
         const ParaviewExportIntegrationPointResultsAtNodesImplementation &) =
         delete;
-    /*!
-     * \brief execute the post-processing at the initial time
-     * \param[in, out] ctx: execution context
-     * \param[in] p: non linear evolution problem
-     * \param[in] t: initial time
-     * \return true on success
-     */
+    //
     [[nodiscard]] bool executeInitialPostProcessing(
         Context &ctx,
         NonLinearEvolutionProblemImplementation<parallel> &p,
         const real t) noexcept override;
-    /*!
-     * \brief execute the post-processing
-     * \param[in, out] ctx: execution context
-     * \param[in] p: non linear evolution problem
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     * \return true on success
-     */
     [[nodiscard]] bool execute(
         Context &ctx,
         NonLinearEvolutionProblemImplementation<parallel> &p,

@@ -26,7 +26,6 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
 #include "MFEMMGIS/IntegrationType.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
 #include "MFEMMGIS/PostProcessingFactory.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 #include "MFEMMGIS/AbstractDirichletBoundaryCondition.hxx"
@@ -35,6 +34,7 @@
 #include "MFEMMGIS/Utilities/SolverUtilities.hxx"
 #include "MFEMMGIS/NonLinearSolvers/NewtonSolver.hxx"
 #include "MFEMMGIS/NonLinearSolvers/NonLinearSolverFactory.hxx"
+#include "MFEMMGIS/PostProcessing/NonLinearEvolutionProblemPostProcessingBase.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblemImplementation.hxx"
 
 namespace mfem_mgis {
@@ -227,7 +227,7 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   struct StdFunctionPostProcessing final
-      : AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
+      : NonLinearEvolutionProblemPostProcessingBase<parallel> {
     /*!
      * \brief constructor
      * \param[in] fct: function executing the postprocessing
@@ -240,12 +240,6 @@ namespace mfem_mgis {
       }
     }  // end of StdFunctionPostProcessing
     //
-    [[nodiscard]] bool executeInitialPostProcessing(
-        Context&,
-        NonLinearEvolutionProblemImplementation<parallel>&,
-        const real) noexcept override {
-      return true;
-    }  // end of executeInitialPostProcessing
     [[nodiscard]] bool execute(
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,
@@ -437,8 +431,10 @@ namespace mfem_mgis {
   NonLinearEvolutionProblemImplementation<true>::executeInitialPostProcessings(
       Context& ctx, const real t) noexcept {
     for (auto& p : this->postprocessings) {
-      if (!p->executeInitialPostProcessing(ctx, *this, t)) {
-        return false;
+      if (!p->hasExecuteInitialPostProcessingAlreadyBeenCalled()) {
+        if (!p->executeInitialPostProcessing(ctx, *this, t)) {
+          return false;
+        }
       }
     }
     return true;
@@ -643,8 +639,10 @@ namespace mfem_mgis {
   NonLinearEvolutionProblemImplementation<false>::executeInitialPostProcessings(
       Context& ctx, const real t) noexcept {
     for (auto& p : this->postprocessings) {
-      if (!p->executeInitialPostProcessing(ctx, *this, t)) {
-        return false;
+      if (!p->hasExecuteInitialPostProcessingAlreadyBeenCalled()) {
+        if (!p->executeInitialPostProcessing(ctx, *this, t)) {
+          return false;
+        }
       }
     }
     return true;

@@ -14,7 +14,7 @@
 #include <fstream>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
+#include "MFEMMGIS/PostProcessing/NonLinearEvolutionProblemPostProcessingBase.hxx"
 
 namespace mfem_mgis {
 
@@ -24,7 +24,7 @@ namespace mfem_mgis {
    */
   template <bool parallel>
   struct EnergyPostProcessingBase
-      : public AbstractNonLinearEvolutionProblemPostProcessing<parallel> {
+      : public NonLinearEvolutionProblemPostProcessingBase<parallel> {
     /*!
      * \brief constructor
      * \param[in] p: non linear problem
@@ -35,25 +35,7 @@ namespace mfem_mgis {
         NonLinearEvolutionProblemImplementation<parallel>& p,
         const Parameters& params,
         const std::string_view etype);
-    /*!
-     * \brief do nothing
-     * \param[in, out] ctx: execution context
-     * \param[in] p: non linear evolution problem
-     * \param[in] t: initial time
-     * \return true on success
-     */
-    [[nodiscard]] bool executeInitialPostProcessing(
-        Context& ctx,
-        NonLinearEvolutionProblemImplementation<parallel>& p,
-        const real t) noexcept override;
-    /*!
-     * \brief execute the post-processing
-     * \param[in, out] ctx: execution context
-     * \param[in] p: non linear evolution problem
-     * \param[in] t: time at the beginning of the time step
-     * \param[in] dt: time increment
-     * \return true on success
-     */
+    //
     [[nodiscard]] bool execute(
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,

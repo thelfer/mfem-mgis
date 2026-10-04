@@ -10,7 +10,7 @@
 #include "MFEMMGIS/TimeStep.hxx"
 #include "MFEMMGIS/PhysicalSystem.hxx"
 #include "MFEMMGIS/AbstractSimulationMonitor.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
+#include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/DefaultTimeStepValidator.hxx"
 #include "MFEMMGIS/DefaultTimeIncrementComputer.hxx"
 #include "MFEMMGIS/DefaultConvergenceFailureHandler.hxx"
@@ -197,7 +197,7 @@ namespace mfem_mgis {
   }
 
   Simulation::Simulation(Context &ctx,
-                         AbstractNonLinearEvolutionProblem &p,
+                         NonLinearEvolutionProblem &p,
                          const Parameters &parameters)
       : nonlinearEvolutionProblem(&p),
         timesDescription(::mfem_mgis::getTimes(throwing, parameters)),
@@ -207,7 +207,7 @@ namespace mfem_mgis {
   }  // end of Simulation
 
   Simulation::Simulation(Context &,
-                         AbstractNonLinearEvolutionProblem &p,
+                         NonLinearEvolutionProblem &p,
                          const TimesDescription &times)
       : nonlinearEvolutionProblem(&p),
         timesDescription(times),
@@ -216,7 +216,7 @@ namespace mfem_mgis {
   }  // end of Simulation
 
   Simulation::Simulation(Context &,
-                         AbstractNonLinearEvolutionProblem &p,
+                         NonLinearEvolutionProblem &p,
                          const std::initializer_list<real> &times)
       : nonlinearEvolutionProblem(&p),
         timesDescription(times),

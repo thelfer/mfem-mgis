@@ -29,6 +29,9 @@ namespace mfem_mgis {
     //! \return the underlying physical system
     [[nodiscard]] virtual const PhysicalSystem &getPhysicalSystem()
         const noexcept = 0;
+    //! \return the `executeInitialPostProcessing` has already been called
+    [[nodiscard]] virtual bool
+    hasExecuteInitialPostProcessingTasksAlreadyBeenCalled() const noexcept = 0;
     /*!
      * \brief execute the post-processing at the beginning of the simulation.
      * For instance, this method may display the initial values of the state

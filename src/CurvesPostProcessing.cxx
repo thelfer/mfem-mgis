@@ -52,6 +52,12 @@ namespace mfem_mgis {
 
   bool CurvesPostProcessing::executeInitialPostProcessingTasks(
       Context &ctx, const real t) noexcept {
+    if (this->hasExecuteInitialPostProcessingTasksAlreadyBeenCalled()) {
+      return true;
+    }
+    if (!PostProcessingBase::executeInitialPostProcessingTasks(ctx, t)) {
+      return false;
+    }
     if (!this->writer.writeFileHeader(ctx)) {
       return false;
     }
