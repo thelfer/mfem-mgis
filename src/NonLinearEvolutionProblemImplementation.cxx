@@ -213,7 +213,11 @@ namespace mfem_mgis {
     if ((!discardLinearSolverFailure) && (!hasConverged(ls))) {
       return ctx.registerErrorMessage("linear solver did not converge");
     }
-    //
+    // an iterative linear solver only approximates the imposed increments,
+    // which are known exactly
+    for (const auto i : essential_dofs) {
+      X[i] = mdu_values[i];
+    }
     a.RecoverFEMSolution(X, b, *mdu);
     //
     return PredictionResult<parallel>{.mdu = std::move(mdu),
