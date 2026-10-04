@@ -179,11 +179,26 @@ namespace mfem_mgis {
     ParaviewExportIntegrationPointResultsAtNodesImplementation(
         const ParaviewExportIntegrationPointResultsAtNodesImplementation &) =
         delete;
-    //
+    /*!
+     * \brief execute the post-processing at the initial time of the
+     * simulation
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: initial time
+     * \return true on success
+     */
     [[nodiscard]] bool executeInitialPostProcessing(
         Context &ctx,
         NonLinearEvolutionProblemImplementation<parallel> &p,
         const real t) noexcept override;
+    /*!
+     * \brief execute the post-processing
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return true on success
+     */
     [[nodiscard]] bool execute(
         Context &ctx,
         NonLinearEvolutionProblemImplementation<parallel> &p,

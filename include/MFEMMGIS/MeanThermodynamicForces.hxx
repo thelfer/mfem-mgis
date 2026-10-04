@@ -34,7 +34,14 @@ namespace mfem_mgis {
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,
         const Parameters& params);
-    //
+    /*!
+     * \brief execute the post-processing
+     * \param[in, out] ctx: execution context
+     * \param[in] p: non linear evolution problem
+     * \param[in] t: time at the beginning of the time step
+     * \param[in] dt: time increment
+     * \return true on success
+     */
     [[nodiscard]] bool execute(
         Context& ctx,
         NonLinearEvolutionProblemImplementation<parallel>& p,
