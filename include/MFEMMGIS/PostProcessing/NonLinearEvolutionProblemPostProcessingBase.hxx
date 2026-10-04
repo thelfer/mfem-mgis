@@ -17,6 +17,8 @@ namespace mfem_mgis {
   template <bool parallel>
   struct NonLinearEvolutionProblemPostProcessingBase;
 
+#ifdef MFEM_USE_MPI
+
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemPostProcessingBase<true>
       : AbstractNonLinearEvolutionProblemPostProcessing<true> {
@@ -33,6 +35,8 @@ namespace mfem_mgis {
      */
     bool executeInitialPostProcessingAlreadyCalled = false;
   };  // end of NonLinearEvolutionProblemPostProcessingBase
+
+#endif /* MFEM_USE_MPI */
 
   template <>
   struct MFEM_MGIS_EXPORT NonLinearEvolutionProblemPostProcessingBase<false>
