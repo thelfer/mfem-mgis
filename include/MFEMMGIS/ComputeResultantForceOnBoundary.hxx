@@ -9,7 +9,7 @@
 #define LIB_COMPUTERESULTANTFORCEONBOUNDARY_HXX
 
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
-#include "MFEMMGIS/AbstractNonLinearEvolutionProblemPostProcessing.hxx"
+#include "MFEMMGIS/PostProcessing/NonLinearEvolutionProblemPostProcessingBase.hxx"
 
 namespace mfem_mgis {
 
@@ -64,7 +64,7 @@ namespace mfem_mgis {
    */
   template <>
   struct MFEM_MGIS_EXPORT ComputeResultantForceOnBoundary<true> final
-      : public AbstractNonLinearEvolutionProblemPostProcessing<true>,
+      : public NonLinearEvolutionProblemPostProcessingBase<true>,
         protected ComputeResultantForceOnBoundaryCommon {
     /*!
      * \brief constructor
@@ -104,7 +104,7 @@ namespace mfem_mgis {
    */
   template <>
   struct MFEM_MGIS_EXPORT ComputeResultantForceOnBoundary<false> final
-      : public AbstractNonLinearEvolutionProblemPostProcessing<false>,
+      : public NonLinearEvolutionProblemPostProcessingBase<false>,
         protected ComputeResultantForceOnBoundaryCommon {
     /*!
      * \brief constructor

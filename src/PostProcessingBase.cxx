@@ -33,6 +33,18 @@ namespace mfem_mgis {
     return this->physicalSystem;
   }
 
+  bool
+  PostProcessingBase::hasExecuteInitialPostProcessingTasksAlreadyBeenCalled()
+      const noexcept {
+    return this->executeInitialPostProcessingAlreadyBeenCalled;
+  }
+
+  bool PostProcessingBase::executeInitialPostProcessingTasks(
+      Context &, const real) noexcept {
+    this->executeInitialPostProcessingAlreadyBeenCalled = true;
+    return true;
+  }  // end of executeInitialPostProcessingTasks
+
   PostProcessingBase::~PostProcessingBase() noexcept = default;
 
 }  // namespace mfem_mgis

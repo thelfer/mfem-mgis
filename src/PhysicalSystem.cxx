@@ -290,13 +290,15 @@ namespace mfem_mgis {
           verboseLevel2,
           "* calling executeInitialPostProcessingTasks on post-processing '" +
               p->getName() + "'");
-      auto r = p->executeInitialPostProcessingTasks(ctx, t);
-      if (!r) {
-        ctx.debug(
-            "* executeInitialPostProcessingTasks failed for post-processing "
-            "'" +
-            p->getName() + "'");
-        return false;
+      if (!p->hasExecuteInitialPostProcessingTasksAlreadyBeenCalled()) {
+        auto r = p->executeInitialPostProcessingTasks(ctx, t);
+        if (!r) {
+          ctx.debug(
+              "* executeInitialPostProcessingTasks failed for post-processing "
+              "'" +
+              p->getName() + "'");
+          return false;
+        }
       }
     }
     return this->coupling_scheme->executeInitialPostProcessingTasks(ctx, t);
@@ -313,11 +315,14 @@ namespace mfem_mgis {
       ctx.log(verboseLevel2,
               "* calling executePostProcessingTasks on post-processing '" +
                   p->getName() + "'");
-      auto r = p->executePostProcessingTasks(ctx, ts, b);
-      if (!r) {
-        ctx.debug("* executePostProcessingTasks failed for post-processing '" +
-                  p->getName() + "'");
-        success = false;
+      if (!p->hasExecuteInitialPostProcessingTasksAlreadyBeenCalled()) {
+        auto r = p->executePostProcessingTasks(ctx, ts, b);
+        if (!r) {
+          ctx.debug(
+              "* executePostProcessingTasks failed for post-processing '" +
+              p->getName() + "'");
+          success = false;
+        }
       }
     }
     if (!this->coupling_scheme->executePostProcessingTasks(ctx, ts, b)) {

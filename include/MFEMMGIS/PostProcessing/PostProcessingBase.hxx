@@ -36,6 +36,10 @@ namespace mfem_mgis {
     [[nodiscard]] PhysicalSystem &getPhysicalSystem() noexcept override;
     [[nodiscard]] const PhysicalSystem &getPhysicalSystem()
         const noexcept override;
+    [[nodiscard]] bool hasExecuteInitialPostProcessingTasksAlreadyBeenCalled()
+        const noexcept override;
+    [[nodiscard]] bool executeInitialPostProcessingTasks(
+        Context &ctx, const real t) noexcept override;
     //! \brief destructor
     ~PostProcessingBase() noexcept override;
 
@@ -48,6 +52,10 @@ namespace mfem_mgis {
      * *post-processing time*
      */
     const bool allTimeSteps;
+
+   private:
+    //! boolean stating if executeInitialPostProcessing has already been called
+    bool executeInitialPostProcessingAlreadyBeenCalled = false;
   };  // end of PostProcessingBase
 
 }  // end of namespace mfem_mgis
