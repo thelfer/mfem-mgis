@@ -2148,6 +2148,16 @@ namespace mfem_mgis {
     return true;
   }  // end of check
 
+  std::string getLocationDescription(const LocationIdentifier& l) {
+    if (isInvalid(l)) {
+      mfem_mgis::abort("invalid location identifier");
+    }
+    if (isValid(l.material_identifier)) {
+      return "material '" + std::to_string(l.material_identifier->id) + "'";
+    }
+    return "boundary '" + std::to_string(l.boundary_identifier->id) + "'";
+  }  // end of getLocationDescription
+
   std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,
                                                  const MeshDiscretization& m,
                                                  const Parameter& p) {

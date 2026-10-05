@@ -840,6 +840,17 @@ namespace mfem_mgis {
     return b1 || b2;
   }  // end of isInvalid
   /*!
+   * \return a description of the location
+   * \param[in] l: location identifier
+   *
+   * Examples of the return values are:
+   *
+   * - material '1'
+   * - bounadary '1'
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::string getLocationDescription(
+      const LocationIdentifier&);
+  /*!
    * \brief compare two mesh discretisations to see if they point to the same
    * underlying implementation
    *

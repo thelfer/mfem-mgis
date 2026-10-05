@@ -44,34 +44,13 @@ namespace mfem_mgis {
     return ng;
   }  // end of buildPartialQuadratureSpaceOffsets
 
-  void PartialQuadratureSpace::treatInvalidElementIndex(const size_type id,
+  void PartialQuadratureSpace::treatInvalidElementIndex(const LocationIdentifier l,
                                                         const size_type i) {
-    mgis::raise(
+    mfem_mgis::abort(
         "PartialQuadratureSpace::getOffset: "
         "invalid element index '" +
-        std::to_string(i) + "' for material '" + std::to_string(id) + "'");
+        std::to_string(i) + "' for " + getLocationDescription(l));
   }  // end of treatInvalidElementIndex
-
-  PartialQuadratureSpace::PartialQuadratureSpace(
-      const FiniteElementDiscretization& fed,
-      const size_type m,
-      const std::function<const mfem::IntegrationRule&(
-          const mfem::FiniteElement&, const mfem::ElementTransformation&)>& irs)
-      : fe_discretization(fed),
-#ifdef MFEM_USE_MPI
-        parallel_fespace(fed.describesAParallelComputation()
-                             ? &(fed.getFiniteElementSpace<true>())
-                             : nullptr),
-        sequential_fespace(!fed.describesAParallelComputation()
-                               ? &(fed.getFiniteElementSpace<false>())
-                               : nullptr),
-#else  /* MFEM_USE_MPI */
-        sequential_fespace(&(fed.getFiniteElementSpace<false>())),
-#endif /* MFEM_USE_MPI */
-        integration_rule_selector(irs),
-        id(m) {
-    this->initialize(throwing);
-  }  // end of PartialQuadratureSpace
 
 #ifdef MFEM_USE_MPI
   [[nodiscard]] static const FiniteElementSpace<true>*
@@ -158,7 +137,7 @@ namespace mfem_mgis {
             initializeSequentialFiniteElementSpace(throwing, fed, l)),
 #endif /* MFEM_USE_MPI */
         integration_rule_selector(irs),
-        id(getIdentifier(throwing, l)) {
+        location(l) {
     this->initialize(throwing);
   }  // end of PartialQuadratureSpace
 

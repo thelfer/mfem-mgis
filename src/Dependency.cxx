@@ -135,18 +135,19 @@ namespace mfem_mgis {
 
   bool QPDependency::reportProviderRequiresQuadratureIdToBeDefined(
       Context &ctx, const QPDependency &d, const std::string &n) noexcept {
-    return ctx.registerErrorMessage("the provider '" + n +
-                                    "' can only provide the dependency "
-                                    "on integration points '" +
-                                    d.getName() + "' on material '" +
-                                    std::to_string(d.getMaterialIdentifier()) +
-                                    "' if the quadradure is defined.");
+    return ctx.registerErrorMessage(
+        "the provider '" + n +
+        "' can only provide the dependency "
+        "on integration points '" +
+        d.getName() + "' on " +
+        getLocationDescription(d.getLocation()) +
+        " if the quadradure is defined.");
   }  // end of reportProviderRequiresQuadratureIdToBeDefined
 
-  QPDependency::QPDependency(const size_type m,
+  QPDependency::QPDependency(const LocationIdentifier l,
                              std::string_view n,
                              const DependencyStatus s) noexcept
-      : DependencyBase(n, s), material_identifier(m) {}  // end of QPDependency
+      : DependencyBase(n, s), location(l) {}  // end of QPDependency
 
   /*!
    * \return the given partial quadrature space
@@ -165,16 +166,16 @@ namespace mfem_mgis {
                              std::string_view n,
                              const DependencyStatus ds)
       : DependencyBase(n, ds),
-        material_identifier(checkPartialQuadratureSpace(s).getId()),
+        location(checkPartialQuadratureSpace(s).getLocation()),
         qspace(s) {}  // end of QPDependency
 
   QPDependency::QPDependency(const QPDependency &) noexcept = default;
 
   QPDependency::QPDependency(QPDependency &&) noexcept = default;
 
-  size_type QPDependency::getMaterialIdentifier() const noexcept {
-    return this->material_identifier;
-  }  // end of getMaterialIdentifier
+  size_type QPDependency::getLocation() const noexcept {
+    return this->location;
+  }  // end of getLocationIdentifier
 
   OptionalReference<const PartialQuadratureSpace>
   QPDependency::getPartialQuadratureSpace() const noexcept {
@@ -218,11 +219,11 @@ namespace mfem_mgis {
   std::string QPDependency::getDescription() const noexcept {
     const auto d = [this] {
       if (this->isRequired()) {
-        return "required dependency '" + this->getName() + "' on material '" +
-               std::to_string(this->material_identifier) + "'";
+        return "required dependency '" + this->getName() + "' on " +
+               getLocationDescription(d.getLocation());
       }
-      return "optional dependency '" + this->getName() + "' on material '" +
-             std::to_string(this->material_identifier) + "'";
+      return "optional dependency '" + this->getName() + "' on " +
+             getLocationDescription(d.getLocation());
     }();
     if (isValid(this->qspace)) {
       return d + " for specified quadrature space";

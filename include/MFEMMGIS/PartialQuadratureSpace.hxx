@@ -34,31 +34,17 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT PartialQuadratureSpace {
     /*!
      * \brief throw an exception in case of invalid element index
-     * \param[in] id: material identifier
+     * \param[in] l: location
      * \param[in] i: element number
      */
-    [[noreturn]] static void treatInvalidElementIndex(const size_type id,
+    [[noreturn]] static void treatInvalidElementIndex(const LocationIdentifier l,
                                                       const size_type i);
-    /*!
-     * \brief constructor
-     * \param[in] fed: finite element discretization.
-     * \param[in] m: material attribute.
-     * \param[in] irs: function returning the integration rule for the
-     * considered finite element.
-     */
-    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
-                           const size_type m,
-                           const std::function<const mfem::IntegrationRule &(
-                               const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &irs);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
      * \param[in] l: location identifier
      * \param[in] irs: function returning the integration rule for the
      * considered finite element.
-     *
-     * If the identifier is on the boundary a new submesh may be created.
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &fed,
                            const LocationIdentifier &l,
@@ -176,7 +162,7 @@ namespace mfem_mgis {
      */
     [[nodiscard]] size_type getOffset(const size_type i) const;
     //! \return the material or boundary identifier
-    [[nodiscard]] size_type getId() const noexcept;
+    [[nodiscard]] LocationIdentifier getLocation() const noexcept;
     //! \brief destructor
     ~PartialQuadratureSpace();
 
@@ -234,8 +220,8 @@ namespace mfem_mgis {
     std::unordered_map<size_type,  // element number (global numbering)
                        size_type>  // number of quadrature points
         number_of_quadrature_points;
-    //! \brief material or boundary identifier
-    size_type id;
+    //! \brief location in the main mesh
+    LocationIdentifier location;
     //! \brief number of integration points
     size_type ng;
   };  // end of struct PartialQuadratureSpace
