@@ -174,6 +174,23 @@ if(MFEM_MGIS_HAVE_TFEL)
 
   add_imposed_pressure_test(IsotropicLinearElasticity)
 
+  # FiniteElementSpaceOrderingTest executable
+  add_test_executable(FiniteElementSpaceOrderingTest)
+  set(FiniteElementSpaceOrderingTestParameters
+      "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+      "--library" "$<TARGET_FILE:BehaviourTest>")
+  add_test(NAME FiniteElementSpaceOrderingTest
+           COMMAND ./FiniteElementSpaceOrderingTest
+                   ${FiniteElementSpaceOrderingTestParameters} "--parallel" "0")
+  set_property(TEST FiniteElementSpaceOrderingTest PROPERTY DEPENDS BehaviourTest)
+  if(MFEM_USE_MPI)
+    add_test(NAME FiniteElementSpaceOrderingTestP
+             COMMAND mpirun -n 2 ./FiniteElementSpaceOrderingTest
+                     ${FiniteElementSpaceOrderingTestParameters} "--parallel" "1")
+    set_property(TEST FiniteElementSpaceOrderingTestP
+                 PROPERTY DEPENDS BehaviourTest)
+  endif(MFEM_USE_MPI)
+
   # ImposedPressureTest2 executable
   add_test_executable(ImposedPressureTest2)
 
