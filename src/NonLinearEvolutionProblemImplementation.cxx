@@ -199,11 +199,19 @@ namespace mfem_mgis {
     }
     //
     a.FormLinearSystem(edofs_list, *mdu, b, A, X, B);
-    const auto norm = [&B, &fespace] {
+    // the essential degrees of freedom are excluded from the norm: the
+    // residual of the non linear solver is null for them, and their values in
+    // B depend on the diagonal policy (the diagonal of the stiffness in
+    // sequential, one in parallel)
+    const auto norm = [&B, &fespace, &essential_dofs] {
+      auto r = B;
+      for (const auto i : essential_dofs) {
+        r[i] = real{0};
+      }
       if constexpr (parallel) {
-        return std::sqrt(mfem::InnerProduct(fespace.GetComm(), B, B));
+        return std::sqrt(mfem::InnerProduct(fespace.GetComm(), r, r));
       } else {
-        return std::sqrt(mfem::InnerProduct(B, B));
+        return std::sqrt(mfem::InnerProduct(r, r));
       }
     }();
     ls.SetOperator(A);
