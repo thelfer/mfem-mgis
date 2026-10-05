@@ -84,6 +84,8 @@ namespace mfem_mgis {
      * - `H1`:
      * The default value is `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `FiniteElementSpaceOrdering` (string): ordering of the degrees of
+     * freedom, `byNODES` (default) or `byVDIM`.
      * - `UnknownsSize` (int): number of components of the unknowns
      */
     FiniteElementDiscretization(Context& ctx,

@@ -49,6 +49,8 @@ namespace mfem_mgis {
      * - `FiniteElementFamily` (string): name of the finite element family to be
      *   used. The default value is `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `FiniteElementSpaceOrdering` (string): ordering of the degrees of
+     *   freedom, `byNODES` (default) or `byVDIM`.
      * - `Hypothesis` (string): modelling hypothesis
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
@@ -67,6 +69,8 @@ namespace mfem_mgis {
      * - `FiniteElementFamily` (string): name of the finite element family to be
      *   used. The default value is `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `FiniteElementSpaceOrdering` (string): ordering of the degrees of
+     *   freedom, `byNODES` (default) or `byVDIM`.
      * - `Hypothesis` (string): modelling hypothesis
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
@@ -88,6 +92,8 @@ namespace mfem_mgis {
      * - `FiniteElementFamily` (string): name of the finite element family to be
      *   used. The default value is `H1`.
      * - `FiniteElementOrder` (int): order of the polynomial approximation.
+     * - `FiniteElementSpaceOrdering` (string): ordering of the degrees of
+     *   freedom, `byNODES` (default) or `byVDIM`.
      * - `UseMultiMaterialNonLinearIntegrator` (boolean): if false, do not
      *   add the `MultiMaterialNonLinearIntegrator`. True by default.
      */

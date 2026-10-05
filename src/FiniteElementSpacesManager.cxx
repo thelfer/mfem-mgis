@@ -22,11 +22,14 @@ namespace mfem_mgis {
       "FiniteElementFamily";
   const char* const FiniteElementSpacesManager::FiniteElementOrder =
       "FiniteElementOrder";
+  const char* const FiniteElementSpacesManager::FiniteElementSpaceOrdering =
+      "FiniteElementSpaceOrdering";
 
   std::vector<std::string>
   FiniteElementSpacesManager::getFiniteElementCollectionParametersList() {
     return {FiniteElementSpacesManager::FiniteElementFamily,
-            FiniteElementSpacesManager::FiniteElementOrder};
+            FiniteElementSpacesManager::FiniteElementOrder,
+            FiniteElementSpacesManager::FiniteElementSpaceOrdering};
   }  // end of getFiniteElementCollectionParametersList
 
   std::vector<std::string> FiniteElementSpacesManager::getParametersList() {
@@ -60,6 +63,27 @@ namespace mfem_mgis {
                                                    getSpaceDimension(m));
   }  // end of buildFiniteElementCollectionAndSpace
 
+  /*!
+   * \return the ordering of the degrees of freedom of the finite element spaces
+   * \param[in] params: parameters
+   */
+  [[nodiscard]] static mfem::Ordering::Type getFiniteElementSpaceOrdering(
+      attributes::Throwing, const Parameters& params) {
+    const auto ordering = get_if<std::string>(
+        throwing, params,
+        FiniteElementSpacesManager::FiniteElementSpaceOrdering, "byNODES");
+    if (ordering == "byNODES") {
+      return mfem::Ordering::byNODES;
+    }
+    if (ordering != "byVDIM") {
+      raise(
+          "FiniteElementSpacesManager::FiniteElementSpacesManager: "
+          "invalid finite element space ordering '" +
+          ordering + "' (expected 'byNODES' or 'byVDIM')");
+    }
+    return mfem::Ordering::byVDIM;
+  }  // end of getFiniteElementSpaceOrdering
+
   struct FiniteElementSpacesManager::Implementation {
     /*!
      * \brief constructor from parameters
@@ -77,6 +101,7 @@ namespace mfem_mgis {
       this->fec = buildFiniteElementCollection(
           throwing, this->mesh,
           remove(parameters, MeshDiscretization::getParametersList()));
+      this->ordering = getFiniteElementSpaceOrdering(throwing, parameters);
     }  // end of Implementation
     /*!
      * \brief constructor from a mesh discretization
@@ -90,6 +115,7 @@ namespace mfem_mgis {
                           getFiniteElementCollectionParametersList());
       this->fec =
           buildFiniteElementCollection(throwing, this->mesh, parameters);
+      this->ordering = getFiniteElementSpaceOrdering(throwing, parameters);
     }  // end of Implementation
     /*!
      * \brief constructor from a mesh discretization and a finite element
@@ -137,7 +163,7 @@ namespace mfem_mgis {
         }
         auto ptr = make_shared<FiniteElementSpace<true>>(
             ctx, this->mesh.getMutableMeshPointer<true>().get(),
-            this->fec.get(), nc);
+            this->fec.get(), nc, this->ordering);
         if (isInvalid(ptr)) {
           return {};
         }
@@ -158,7 +184,7 @@ namespace mfem_mgis {
         }
         auto ptr = make_shared<FiniteElementSpace<false>>(
             ctx, this->mesh.getMutableMeshPointer<false>().get(),
-            this->fec.get(), nc);
+            this->fec.get(), nc, this->ordering);
         if (isInvalid(ptr)) {
           return {};
         }
@@ -242,7 +268,7 @@ namespace mfem_mgis {
       auto p = omanager->find(nc);
       if (p == omanager->end()) {
         auto ptr = make_shared<FiniteElementSpace<parallel>>(
-            ctx, mptr.get(), this->fec.get(), nc);
+            ctx, mptr.get(), this->fec.get(), nc, this->ordering);
         if (isInvalid(ptr)) {
           return {};
         }
@@ -393,6 +419,8 @@ namespace mfem_mgis {
     MeshDiscretization mesh;
     //! \brief finite element collection
     std::shared_ptr<const FiniteElementCollection> fec;
+    //! \brief ordering of the degrees of freedom of the finite element spaces
+    mfem::Ordering::Type ordering = mfem::Ordering::byNODES;
     //! \brief parallel finite element spaces
 #ifdef MFEM_USE_MPI
     std::map<size_type, std::shared_ptr<FiniteElementSpace<true>>>
