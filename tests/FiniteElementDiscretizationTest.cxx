@@ -228,6 +228,11 @@ struct FiniteElementDiscretizationTest final : public tfel::tests::TestCase {
         dict{{"FiniteElementOrder", 1},
              {"FiniteElementSpaceOrdering", "byComponents"}});
     TFEL_TESTS_CHECK(isInvalid(om4));
+    TFEL_TESTS_CHECK_EQUAL(
+        ctx.getRawErrorMessage(),
+        "FiniteElementSpacesManager::FiniteElementSpacesManager: invalid "
+        "finite element space ordering 'byComponents' (expected 'byNODES' or "
+        "'byVDIM')");
   }  // end of test4
   //
   template <bool parallel>

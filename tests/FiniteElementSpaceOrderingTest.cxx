@@ -19,7 +19,6 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <algorithm>
 #include "mfem/general/optparser.hpp"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
