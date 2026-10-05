@@ -90,9 +90,9 @@ namespace mfem_mgis {
             warning(ctx.log(),
                     "setLinearSolverParameters: strategy 'Elasticity' of "
                     "preconditioner HypreBoomerAMG requires unknowns ordered "
-                    "by vector dimension (parameter "
-                    "'FiniteElementSpaceOrdering' set to 'byVDIM'), using "
-                    "strategy 'System' instead");
+                    "by vector dimension (i.e. the parameter "
+                    "'FiniteElementSpaceOrdering' must be set to 'byVDIM'), "
+                    "using strategy 'System' instead");
           }
           amg = std::make_unique<internals::SystemHypreBoomerAMG>(fespace);
         }

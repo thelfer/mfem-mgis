@@ -23,7 +23,7 @@
  * \param[in] B: right hand side
  * \param[in] amg: options of the BoomerAMG preconditioner
  */
-static int solve(mfem::ParFiniteElementSpace& fespace,
+static int solve(mfem_mgis::FiniteElementSpace<true>& fespace,
                  mfem::HypreParMatrix& A,
                  const mfem::Vector& B,
                  const mfem_mgis::Parameters& amg) {
@@ -75,23 +75,23 @@ struct NumbersOfIterations {
  * \param[in] ordering: ordering of the unknowns
  */
 static NumbersOfIterations getNumbersOfIterations(
-    mfem::ParMesh& pmesh, const mfem::Ordering::Type ordering) {
+    mfem_mgis::Mesh<true>& pmesh, const mfem::Ordering::Type ordering) {
   auto fec = mfem::H1_FECollection(1, 3);
-  auto fespace = mfem::ParFiniteElementSpace(&pmesh, &fec, 3, ordering);
+  auto fespace = mfem_mgis::FiniteElementSpace<true>(&pmesh, &fec, 3, ordering);
   // linear elasticity, clamped on the face x = 0
   auto lambda = mfem::ConstantCoefficient(1.5);
   auto mu = mfem::ConstantCoefficient(1);
-  auto a = mfem::ParBilinearForm(&fespace);
+  auto a = mfem_mgis::BilinearForm<true>(&fespace);
   a.AddDomainIntegrator(new mfem::ElasticityIntegrator(lambda, mu));
   a.Assemble();
   auto f = mfem::Vector(3);
   f = 0.0;
   f(2) = -1;
   auto fc = mfem::VectorConstantCoefficient(f);
-  auto b = mfem::ParLinearForm(&fespace);
+  auto b = mfem_mgis::LinearForm<true>(&fespace);
   b.AddDomainIntegrator(new mfem::VectorDomainLFIntegrator(fc));
   b.Assemble();
-  auto x = mfem::ParGridFunction(&fespace);
+  auto x = mfem_mgis::GridFunction<true>(&fespace);
   x = 0.0;
   auto boundaries = mfem::Array<int>(pmesh.bdr_attributes.Max());
   boundaries = 0;
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
   // strategy matter
   auto smesh =
       mfem::Mesh::MakeCartesian3D(32, 4, 4, mfem::Element::HEXAHEDRON, 8, 1, 1);
-  auto pmesh = mfem::ParMesh(MPI_COMM_WORLD, smesh);
+  auto pmesh = mfem_mgis::Mesh<true>(MPI_COMM_WORLD, smesh);
   // a system AMG must take clearly fewer iterations than a scalar AMG
   auto check = [](const NumbersOfIterations& r) {
     return (r.scalar > 0) && (r.by_default > 0) && (r.system > 0) &&

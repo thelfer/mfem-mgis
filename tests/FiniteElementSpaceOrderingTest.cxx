@@ -22,6 +22,7 @@
 #include "mfem/general/optparser.hpp"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Material.hxx"
 #include "MFEMMGIS/UniformImposedPressureBoundaryCondition.hxx"
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
@@ -36,7 +37,7 @@ struct TestParameters {
 struct Results {
   //! \brief thermodynamic forces at the integration points
   std::vector<mfem_mgis::real> thermodynamic_forces;
-  //! \brief resultant force on the clamped face
+  //! \brief resultant force on the clamped face, only read by the main process
   std::array<mfem_mgis::real, 3> resultant_force = {0, 0, 0};
 };
 
@@ -83,27 +84,23 @@ static std::array<mfem_mgis::real, 3> readResultantForce(const std::string& f) {
 /*!
  * \return the results obtained with the given ordering
  * \param[in, out] ctx: execution context
+ * \param[in] mesh: mesh discretization
  * \param[in] p: test parameters
  * \param[in] ordering: ordering of the degrees of freedom
  */
 static Results solve(mfem_mgis::Context& ctx,
+                     mfem_mgis::MeshDiscretization& mesh,
                      const TestParameters& p,
                      const std::string& ordering) {
   auto or_die = ctx.getFatalFailureHandler();
   auto problem =
       mfem_mgis::construct<mfem_mgis::NonLinearEvolutionProblem>(
-          ctx,
-          mfem_mgis::Parameters{
-              {"MeshFileName", p.mesh_file},
-              {"FiniteElementFamily", "H1"},
-              {"FiniteElementOrder", 2},
-              {"FiniteElementSpaceOrdering", ordering},
-              {"UnknownsSize", 3},
-              {"NumberOfUniformRefinements", 2},
-              {"Materials", mfem_mgis::Parameters{{"Cube", 1}}},
-              {"Boundaries", mfem_mgis::Parameters{{"Xmax", 3}, {"Xmin", 5}}},
-              {"Hypothesis", "Tridimensional"},
-              {"Parallel", bool(p.parallel)}}) |
+          ctx, mesh,
+          mfem_mgis::Parameters{{"FiniteElementFamily", "H1"},
+                                {"FiniteElementOrder", 2},
+                                {"FiniteElementSpaceOrdering", ordering},
+                                {"UnknownsSize", 3},
+                                {"Hypothesis", "Tridimensional"}}) |
       or_die;
   // material
   problem.addBehaviourIntegrator(ctx, "Mechanics", "Cube", p.library,
@@ -155,13 +152,10 @@ static Results solve(mfem_mgis::Context& ctx,
   auto r = Results{};
   r.thermodynamic_forces.assign(m.s1.thermodynamic_forces.begin(),
                                 m.s1.thermodynamic_forces.end());
-#ifdef MFEM_USE_MPI
-  // the file is written by the first process
-  if (p.parallel) {
-    MPI_Barrier(mfem_mgis::getMPICommunicator(problem));
+  // the file is written by the main process
+  if (mfem_mgis::isMainProcess(mesh)) {
+    r.resultant_force = readResultantForce(f);
   }
-#endif /* MFEM_USE_MPI */
-  r.resultant_force = readResultantForce(f);
   return r;
 }
 
@@ -169,8 +163,20 @@ int main(int argc, char** argv) {
   auto ctx = mfem_mgis::Context{};
   mfem_mgis::initialize(argc, argv);
   const auto p = parseCommandLineOptions(argc, argv);
-  const auto r1 = solve(ctx, p, "byNODES");
-  const auto r2 = solve(ctx, p, "byVDIM");
+  auto or_die = ctx.getFatalFailureHandler();
+  // both problems are built on the same mesh
+  auto mesh =
+      mfem_mgis::construct<mfem_mgis::MeshDiscretization>(
+          ctx,
+          mfem_mgis::Parameters{
+              {"MeshFileName", p.mesh_file},
+              {"NumberOfUniformRefinements", 2},
+              {"Materials", mfem_mgis::Parameters{{"Cube", 1}}},
+              {"Boundaries", mfem_mgis::Parameters{{"Xmax", 3}, {"Xmin", 5}}},
+              {"Parallel", bool(p.parallel)}}) |
+      or_die;
+  const auto r1 = solve(ctx, mesh, p, "byNODES");
+  const auto r2 = solve(ctx, mesh, p, "byVDIM");
   // absolute tolerance on the stresses and on the resultant force (the area
   // of the loaded face is 1)
   constexpr auto eps = 1e-8 * pressure;
@@ -192,24 +198,21 @@ int main(int argc, char** argv) {
     mfem_mgis::getErrorStream() << "unmatched number of integration points\n";
   }
   // the resultant force balances the pressure in both cases
-  const auto expected = std::array<mfem_mgis::real, 3>{pressure, 0, 0};
-  for (const auto& [n, F] : {std::pair{"byNODES", r1.resultant_force},
-                             std::pair{"byVDIM", r2.resultant_force}}) {
-    for (std::size_t i = 0; i != 3; ++i) {
-      if (std::abs(std::abs(F[i]) - expected[i]) > eps) {
-        mfem_mgis::getErrorStream()
-            << "invalid resultant force (" << n << "), component " << i << ": "
-            << F[i] << '\n';
-        success = false;
+  if (mfem_mgis::isMainProcess(mesh)) {
+    const auto expected = std::array<mfem_mgis::real, 3>{pressure, 0, 0};
+    for (const auto& [n, F] : {std::pair{"byNODES", r1.resultant_force},
+                               std::pair{"byVDIM", r2.resultant_force}}) {
+      for (std::size_t i = 0; i != 3; ++i) {
+        if (std::abs(std::abs(F[i]) - expected[i]) > eps) {
+          mfem_mgis::getErrorStream()
+              << "invalid resultant force (" << n << "), component " << i
+              << ": " << F[i] << '\n';
+          success = false;
+        }
       }
     }
   }
-#ifdef MFEM_USE_MPI
-  if (p.parallel) {
-    MPI_Allreduce(MPI_IN_PLACE, &success, 1, MPI_CXX_BOOL, MPI_LAND,
-                  MPI_COMM_WORLD);
-  }
-#endif /* MFEM_USE_MPI */
+  success = mfem_mgis::isTrueOnAllProcesses(mesh, success);
   mfem_mgis::Profiler::OutputManager::printTimeTable(ctx);
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
