@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- `FiniteElementSpaceOrdering` parameter, to order the degrees of freedom by
+  vector dimension (`byVDIM`) instead of by nodes (`byNODES`, the default). The
+  `Elasticity` strategy of the `HypreBoomerAMG` preconditioner requires
+  `byVDIM`.
+
 ### Changed
 
 - use std::span instead of mgis::span
