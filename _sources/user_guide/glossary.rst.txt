@@ -398,6 +398,7 @@ Algebraic MultiGrid (AMG)
 | Key                | Description                                                                                                   |
 +====================+===============================================================================================================+
 | ``Strategy``       | Propose strategies that can lead to improve convergence and scalability, [Elasticity, System, None]. [string] |
+|                    | ``Elasticity`` requires the ``FiniteElementSpaceOrdering`` parameter set to ``byVDIM``.                       |
 +--------------------+---------------------------------------------------------------------------------------------------------------+
 | ``VerbosityLevel`` | Define the verbosity of the solver. [int: 0,1]                                                                |
 +--------------------+---------------------------------------------------------------------------------------------------------------+
@@ -537,6 +538,8 @@ PeriodicNonLinearEvolutionProblem
 | MeshFileName               | Path to the mesh file [string]                           |
 +----------------------------+----------------------------------------------------------+
 | FiniteElementOrder         | Finite Element Order, >= 1 [int]                         |
++----------------------------+----------------------------------------------------------+
+| FiniteElementSpaceOrdering | Ordering of the dofs: byNODES (default), byVDIM [string] |
 +----------------------------+----------------------------------------------------------+
 | UnknownsSize               | Number of unknowns, >=1 [int]                            |
 +----------------------------+----------------------------------------------------------+

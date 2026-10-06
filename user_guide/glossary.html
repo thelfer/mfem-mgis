@@ -628,7 +628,8 @@ version.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Strategy</span></code></p></td>
-<td><p>Propose strategies that can lead to improve convergence and scalability, [Elasticity, System, None]. [string]</p></td>
+<td><p>Propose strategies that can lead to improve convergence and scalability, [Elasticity, System, None]. [string]
+<code class="docutils literal notranslate"><span class="pre">Elasticity</span></code> requires the <code class="docutils literal notranslate"><span class="pre">FiniteElementSpaceOrdering</span></code> parameter set to <code class="docutils literal notranslate"><span class="pre">byVDIM</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
 <td><p>Define the verbosity of the solver. [int: 0,1]</p></td>
@@ -795,13 +796,16 @@ version.</p>
 <tr class="row-even"><td><p>FiniteElementOrder</p></td>
 <td><p>Finite Element Order, &gt;= 1 [int]</p></td>
 </tr>
-<tr class="row-odd"><td><p>UnknownsSize</p></td>
+<tr class="row-odd"><td><p>FiniteElementSpaceOrdering</p></td>
+<td><p>Ordering of the dofs: byNODES (default), byVDIM [string]</p></td>
+</tr>
+<tr class="row-even"><td><p>UnknownsSize</p></td>
 <td><p>Number of unknowns, &gt;=1 [int]</p></td>
 </tr>
-<tr class="row-even"><td><p>NumberOfUniformRefinements</p></td>
+<tr class="row-odd"><td><p>NumberOfUniformRefinements</p></td>
 <td><p>Number of times the mesh is uniformly refined, &gt;= 0 [int]</p></td>
 </tr>
-<tr class="row-odd"><td><p>Parallel</p></td>
+<tr class="row-even"><td><p>Parallel</p></td>
 <td><p>Run parallel execution [bool]</p></td>
 </tr>
 </tbody>
