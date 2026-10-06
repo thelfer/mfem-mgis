@@ -65,6 +65,7 @@ Parameters
 - ``MeshFileName`` (string): Path to the mesh file.
 - ``FiniteElementFamily`` (string): Name of the finite element family (e.g., ``H1``).
 - ``FiniteElementOrder`` (int): Order of the polynomial approximation.
+- ``FiniteElementSpaceOrdering`` (string): Ordering of the degrees of freedom, ``byNODES`` (all the values of the first component, then all the values of the second component, etc., default) or ``byVDIM`` (all the components of the first node, then all the components of the second node, etc.). The ``Elasticity`` strategy of the ``HypreBoomerAMG`` preconditioner requires ``byVDIM``.
 - ``NumberOfUniformRefinements`` (int): Number of uniform refinements to apply to the mesh.
 - ``Materials`` (dictionary): Mapping between material names and their identifiers.
 - ``Boundaries`` (dictionary): Mapping between boundary names and their identifiers.
