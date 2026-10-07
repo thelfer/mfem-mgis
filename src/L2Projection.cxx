@@ -108,7 +108,13 @@ namespace mfem_mgis {
             "quadrature functions defined on materials and on boundaries can "
             "not be mixed");
       }
-      const auto id = qspace.getId();
+      const auto id = [&qspace] {
+        const auto l = qspace.getLocation();
+        if (isValid(l.material_identifier)) {
+          return l.material_identifier->id;
+        }
+        return l.boundary_identifier->id;
+      }();
       if ((!on_boundaries) && (elts_attributes.Find(id) == -1)) {
         return ctx.registerErrorMessage("material id '" + std::to_string(id) +
                                         "' is not a element attribute");
@@ -203,7 +209,13 @@ namespace mfem_mgis {
     auto ids = std::set<size_type>{};
     for (const auto& f : fcts) {
       const auto& qspace = f.getPartialQuadratureSpace();
-      const auto id = qspace.getId();
+      const auto id = [&qspace] {
+        const auto l = qspace.getLocation();
+        if (isValid(l.material_identifier)) {
+          return l.material_identifier->id;
+        }
+        return l.boundary_identifier->id;
+      }();
       if (!ids.insert(id).second) {
         return ctx.registerErrorMessage(
             "multiple quadrature functions defined on '" +
@@ -265,10 +277,16 @@ namespace mfem_mgis {
           std::unordered_map<size_type,
                              ImmutablePartialQuadratureFunctionView>{};
       for (const auto& f : fcts) {
-        const auto mid = f.getPartialQuadratureSpace().getId();
-        if (!functions.insert({mid, f}).second) {
-          raise("multiple functions defined for material '" +
-                std::to_string(mid) + "'");
+        const auto id = [&f] {
+          const auto l = f.getPartialQuadratureSpace().getLocation();
+          if (isValid(l.material_identifier)) {
+            return l.material_identifier->id;
+          }
+          return l.boundary_identifier->id;
+        }();
+        if (!functions.insert({id, f}).second) {
+          raise("multiple functions defined for material or boundary '" +
+                std::to_string(id) + "'");
         }
       }
       return functions;
@@ -471,7 +489,14 @@ namespace mfem_mgis {
       const auto found = [&id, &fcts] {
         for (const auto& f : fcts) {
           const auto& qspace = f.getPartialQuadratureSpace();
-          if (id == qspace.getId()) {
+          const auto fid = [&qspace] {
+            const auto ql = qspace.getLocation();
+            if (isValid(ql.material_identifier)) {
+              return ql.material_identifier->id;
+            }
+            return ql.boundary_identifier->id;
+          }();
+          if (id == fid) {
             return true;
           }
         }
@@ -479,7 +504,7 @@ namespace mfem_mgis {
       }();
       if (!found) {
         return ctx.registerErrorMessage(
-            "no partial quadrature function defined on material id '" +
+            "no partial quadrature function defined on material or boundary '" +
             std::to_string(id) + "'");
       }
     }

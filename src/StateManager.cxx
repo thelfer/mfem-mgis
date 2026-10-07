@@ -81,11 +81,11 @@ namespace mfem_mgis {
     if (isInvalid(oqid)) {
       return false;
     }
-    const auto id = std::make_pair(qspace->getId(), *oqid);
-    auto p = this->qfunctions.find(id);
+    const auto l = std::make_pair(qspace->getLocation(), *oqid);
+    auto p = this->qfunctions.find(l);
     if (p == this->qfunctions.end()) {
       auto ptr = std::make_unique<PartialQuadratureFunctionManager>();
-      p = this->qfunctions.insert({id, std::move(ptr)}).first;
+      p = this->qfunctions.insert({l, std::move(ptr)}).first;
     }
     return p->second->add(ctx, n, f, ts);
   }  // end of add
@@ -100,7 +100,7 @@ namespace mfem_mgis {
     if (isInvalid(oqid)) {
       return {};
     }
-    const auto id = std::make_pair(qspace->getId(), *oqid);
+    const auto id = std::make_pair(qspace->getLocation(), *oqid);
     auto p = this->qfunctions.find(id);
     if (p == this->qfunctions.end()) {
       return false;
@@ -118,12 +118,12 @@ namespace mfem_mgis {
     if (isInvalid(oqid)) {
       return {};
     }
-    const auto id = std::make_pair(qspace->getId(), *oqid);
+    const auto id = std::make_pair(qspace->getLocation(), *oqid);
     auto p = this->qfunctions.find(id);
     if (p == this->qfunctions.end()) {
-      return ctx.registerErrorMessage("no partial function named '" +
-                                      std::string{n} + "' on material '" +
-                                      std::to_string(qspace->getId()) + "'");
+      return ctx.registerErrorMessage(
+          "no partial function named '" + std::string{n} + "' on " +
+          getLocationDescription(qspace->getLocation()));
     }
     return p->second->get(ctx, n, ts);
   }  // end of get

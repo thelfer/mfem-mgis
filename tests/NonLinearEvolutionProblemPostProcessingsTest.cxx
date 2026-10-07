@@ -22,7 +22,6 @@
 #include "MFEMMGIS/NonLinearEvolutionProblem.hxx"
 #include "MFEMMGIS/PostProcessing/NonLinearEvolutionProblemPostProcessingBase.hxx"
 
-
 struct {
   const char* mesh_file = nullptr;
   int parallel = 0;
@@ -49,7 +48,8 @@ struct TestPostProcessing final
       mfem_mgis::Context& ctx,
       mfem_mgis::NonLinearEvolutionProblemImplementation<parallel>& i,
       const mfem_mgis::real t) noexcept override {
-    if(!mfem_mgis::NonLinearEvolutionProblemPostProcessingBase<parallel>::executeInitialPostProcessing(ctx, i, t)){
+    if (!mfem_mgis::NonLinearEvolutionProblemPostProcessingBase<
+            parallel>::executeInitialPostProcessing(ctx, i, t)) {
       return false;
     }
     if (!this->success) {

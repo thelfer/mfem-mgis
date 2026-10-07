@@ -100,16 +100,27 @@ namespace mfem_mgis {
      * scheme.
      */
     struct LocationIdentifier {
-      //! \brief identifier associated with a material
-      std::optional<MaterialIdentifier> material_identifier;
-      //! \brief identifier associated with a boundary
-      std::optional<BoundaryIdentifier> boundary_identifier;
+      LocationIdentifier(const MaterialIdentifier& m) noexcept
+          : material_identifier(m) {}  // end of LocationIdentifier
+      LocationIdentifier(const BoundaryIdentifier& b) noexcept
+          : boundary_identifier(b) {}  // end of LocationIdentifier
+      LocationIdentifier() noexcept = default;
+      LocationIdentifier(LocationIdentifier&&) noexcept = default;
+      LocationIdentifier(const LocationIdentifier&) noexcept = default;
+      LocationIdentifier& operator=(LocationIdentifier&&) noexcept = delete;
+      LocationIdentifier& operator=(const LocationIdentifier&) noexcept =
+          delete;
+      ~LocationIdentifier() = default;
       /*!
        * \brief comparison operator
        * \return the ordering of the two identifiers
        */
       constexpr auto operator<=>(const LocationIdentifier&) const noexcept =
           default;
+      //! \brief identifier associated with a material
+      const std::optional<MaterialIdentifier> material_identifier;
+      //! \brief identifier associated with a boundary
+      const std::optional<BoundaryIdentifier> boundary_identifier;
     };  // end of LocationIdentifier
     //! \brief string associated to the `Parallel` parameter
     static const char* const Parallel;

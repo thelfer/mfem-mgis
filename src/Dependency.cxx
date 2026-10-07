@@ -135,13 +135,12 @@ namespace mfem_mgis {
 
   bool QPDependency::reportProviderRequiresQuadratureIdToBeDefined(
       Context &ctx, const QPDependency &d, const std::string &n) noexcept {
-    return ctx.registerErrorMessage(
-        "the provider '" + n +
-        "' can only provide the dependency "
-        "on integration points '" +
-        d.getName() + "' on " +
-        getLocationDescription(d.getLocation()) +
-        " if the quadradure is defined.");
+    return ctx.registerErrorMessage("the provider '" + n +
+                                    "' can only provide the dependency "
+                                    "on integration points '" +
+                                    d.getName() + "' on " +
+                                    getLocationDescription(d.getLocation()) +
+                                    " if the quadradure is defined.");
   }  // end of reportProviderRequiresQuadratureIdToBeDefined
 
   QPDependency::QPDependency(const LocationIdentifier l,
@@ -173,7 +172,7 @@ namespace mfem_mgis {
 
   QPDependency::QPDependency(QPDependency &&) noexcept = default;
 
-  size_type QPDependency::getLocation() const noexcept {
+  LocationIdentifier QPDependency::getLocation() const noexcept {
     return this->location;
   }  // end of getLocationIdentifier
 
@@ -192,7 +191,7 @@ namespace mfem_mgis {
     if (s.get() == nullptr) {
       return ctx.registerErrorMessage("invalid partial quadrature space");
     }
-    if (s->getId() != this->material_identifier) {
+    if (s->getLocation() != this->location) {
       return ctx.registerErrorMessage("inconsistent material identifier");
     }
     if (isValid(this->qspace)) {
@@ -220,10 +219,10 @@ namespace mfem_mgis {
     const auto d = [this] {
       if (this->isRequired()) {
         return "required dependency '" + this->getName() + "' on " +
-               getLocationDescription(d.getLocation());
+               getLocationDescription(this->getLocation());
       }
       return "optional dependency '" + this->getName() + "' on " +
-             getLocationDescription(d.getLocation());
+             getLocationDescription(this->getLocation());
     }();
     if (isValid(this->qspace)) {
       return d + " for specified quadrature space";

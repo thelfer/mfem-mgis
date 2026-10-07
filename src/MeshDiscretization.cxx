@@ -1184,18 +1184,14 @@ namespace mfem_mgis {
           return ctx.registerErrorMessage<std::optional<LocationIdentifier>>(
               "the given attribute does not exist");
         }
-        return LocationIdentifier{
-            .material_identifier = MaterialIdentifier{.id = id},
-            .boundary_identifier = {}};
+        return LocationIdentifier{MaterialIdentifier{.id = id}};
       }
       const auto& bids = getBoundariesAttributes(*this);
       if (bids.Find(id) == -1) {
         return ctx.registerErrorMessage<std::optional<LocationIdentifier>>(
             "the given attribute does not exist");
       }
-      return LocationIdentifier{
-          .material_identifier = {},
-          .boundary_identifier = BoundaryIdentifier{.id = id}};
+      return LocationIdentifier{BoundaryIdentifier{.id = id}};
     }  // end of getLocationIdentifier
 
     /*!
@@ -2153,9 +2149,9 @@ namespace mfem_mgis {
       mfem_mgis::abort("invalid location identifier");
     }
     if (isValid(l.material_identifier)) {
-      return "material '" + std::to_string(l.material_identifier->id) + "'";
+      return "material (" + std::to_string(l.material_identifier->id) + ")";
     }
-    return "boundary '" + std::to_string(l.boundary_identifier->id) + "'";
+    return "boundary (" + std::to_string(l.boundary_identifier->id) + ")";
   }  // end of getLocationDescription
 
   std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,

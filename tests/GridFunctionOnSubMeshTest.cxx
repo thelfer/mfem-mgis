@@ -85,8 +85,8 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto c = mfem::ConstantCoefficient(1);
     f.ProjectCoefficient(c);
     // a function defined on the first material only
-    auto qspace =
-        std::make_shared<PartialQuadratureSpace>(fed, 1, &getIntegrationRule);
+    auto qspace = std::make_shared<PartialQuadratureSpace>(
+        fed, MaterialIdentifier{.id = 1}, &getIntegrationRule);
     auto qf = PartialQuadratureFunction(qspace, 1);
     TFEL_TESTS_ASSERT(update(ctx, qf, f));
     // the whole mesh contains a material on which no function is defined
@@ -124,10 +124,7 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto fed = makeFiniteElementDiscretization(ctx);
     // a function defined on the second boundary
     auto qspace = std::make_shared<PartialQuadratureSpace>(
-        fed,
-        LocationIdentifier{.material_identifier = {},
-                           .boundary_identifier = BoundaryIdentifier{.id = 2}},
-        &getIntegrationRule);
+        fed, BoundaryIdentifier{.id = 2}, &getIntegrationRule);
     auto qf = PartialQuadratureFunction(qspace, 1);
     // the quadrature space is built on the submesh of the boundary
     const auto bsubmesh = fed.getSubMesh<parallel>(
@@ -161,8 +158,8 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(
         isInvalid(makeGridFunction<parallel>(ctx2, {qf}, *submesh)));
     // functions defined on materials and on boundaries can not be mixed
-    auto qspace2 =
-        std::make_shared<PartialQuadratureSpace>(fed, 2, &getIntegrationRule);
+    auto qspace2 = std::make_shared<PartialQuadratureSpace>(
+        fed, MaterialIdentifier{.id = 2}, &getIntegrationRule);
     auto qf2 = PartialQuadratureFunction(qspace2, 1);
     TFEL_TESTS_CHECK(
         isInvalid(makeGridFunction<parallel>(ctx2, {qf, qf2}, *bsubmesh)));

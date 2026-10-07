@@ -37,8 +37,8 @@ namespace mfem_mgis {
      * \param[in] l: location
      * \param[in] i: element number
      */
-    [[noreturn]] static void treatInvalidElementIndex(const LocationIdentifier l,
-                                                      const size_type i);
+    [[noreturn]] static void treatInvalidElementIndex(
+        const LocationIdentifier l, const size_type i);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
@@ -63,7 +63,7 @@ namespace mfem_mgis {
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &fed,
                            const FiniteElementSpace<true> &fespace,
-                           const size_type l,
+                           const LocationIdentifier l,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
                                const mfem::ElementTransformation &)> &irs);
@@ -78,7 +78,7 @@ namespace mfem_mgis {
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &fed,
                            const FiniteElementSpace<false> &fespace,
-                           const size_type l,
+                           const LocationIdentifier l,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
                                const mfem::ElementTransformation &)> &irs);
@@ -172,6 +172,7 @@ namespace mfem_mgis {
      * \param[in] throwing: dummy attribute to indicate that this function may
      * throw an exception
      */
+    template <bool parallel>
     void initialize(attributes::Throwing throwing);
     /*!
      * \return the underlying mesh

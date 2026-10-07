@@ -154,7 +154,9 @@ namespace mfem_mgis {
      * \return the partial quadrature space
      */
     static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
-        const FiniteElementDiscretization &fed, const size_type m);
+        attributes::Throwing throwing,
+        const FiniteElementDiscretization &fed,
+        const size_type m);
 
   };  // end of struct
       // IsotropicTridimensionalStandardFiniteStrainMechanicsBehaviourIntegrator

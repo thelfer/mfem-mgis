@@ -28,8 +28,8 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
-  bool NonLinearEvolutionProblemPostProcessingBase<
-      false>::hasExecuteInitialPostProcessingAlreadyBeenCalled() const noexcept {
+  bool NonLinearEvolutionProblemPostProcessingBase<false>::
+      hasExecuteInitialPostProcessingAlreadyBeenCalled() const noexcept {
     return this->executeInitialPostProcessingAlreadyCalled;
   }  // end of hasExecuteInitialPostProcessingAlreadyBeenCalled
 

@@ -34,10 +34,16 @@ namespace mfem_mgis {
     auto ctx = Context{};
     auto or_raise = ctx.getThrowingFailureHandler();
     const auto& fespace = s->getFiniteElementSpace<parallel>(ctx) | or_raise;
-    const auto m = s->getId();
+    const auto id = [&s] {
+      const auto l = s->getLocation();
+      if (isValid(l.boundary_identifier)) {
+        return l.boundary_identifier->id;
+      }
+      return l.material_identifier->id;
+    }();
     auto values = std::make_shared<PartialQuadratureFunction>(s, 1);
     for (size_type i = 0; i != fespace.GetNE(); ++i) {
-      if (fespace.GetAttribute(i) != m) {
+      if (fespace.GetAttribute(i) != id) {
         continue;
       }
       const auto& fe = *(fespace.GetFE(i));
@@ -53,20 +59,88 @@ namespace mfem_mgis {
     return values;
   }  // end of PartialQuadratureFunction_evaluate
 
+  template <bool parallel>
+  static std::shared_ptr<PartialQuadratureFunction>
+  PartialQuadratureFunction_evaluateOnBoundary(
+      std::shared_ptr<const PartialQuadratureSpace> s,
+      std::function<real(const mfem::FiniteElement&,
+                         mfem::ElementTransformation&)> f) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
+    const auto& fespace = s->getFiniteElementSpace<parallel>(ctx) | or_raise;
+    const auto l = s->getLocation();
+    const auto id = l.boundary_identifier->id;
+    auto values = std::make_shared<PartialQuadratureFunction>(s, 1);
+    for (size_type i = 0; i != fespace.GetNBE(); ++i) {
+      if (fespace.GetBdrAttribute(i) != id) {
+        continue;
+      }
+      const auto& fe = *(fespace.GetBE(i));
+      auto& tr = *(fespace.GetBdrElementTransformation(i));
+      const auto& ir = s->getIntegrationRule(fe, tr);
+      for (size_type g = 0; g != ir.GetNPoints(); ++g) {
+        // get the gradients of the shape functions
+        const auto& ip = ir.IntPoint(g);
+        tr.SetIntPoint(&ip);
+        values->getIntegrationPointValue(i, g) = f(fe, tr);
+      }
+    }
+    return values;
+  }  // end of PartialQuadratureFunction_evaluateOnBoundary
+
   std::shared_ptr<PartialQuadratureFunction>
   PartialQuadratureFunction::evaluate(
       std::shared_ptr<const PartialQuadratureSpace> s,
       std::function<real(const mfem::FiniteElement&,
                          mfem::ElementTransformation&)> f) {
+    auto ctx = Context{};
+    auto or_raise = ctx.getThrowingFailureHandler();
     const auto& fed = s->getFiniteElementDiscretization();
+    const auto l = s->getLocation();
+    if (isValid(l.material_identifier)) {
+      if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+        return PartialQuadratureFunction_evaluate<true>(s, f);
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      }
+      return PartialQuadratureFunction_evaluate<false>(s, f);
+    }
+    const auto is_mesh_defined_on_boundary = [&fed, &s, &ctx, &or_raise] {
+#ifdef MFEM_USE_MPI
+      if (fed.describesAParallelComputation()) {
+        const auto& mesh =
+            *((s->getFiniteElementSpace<true>(ctx) | or_raise).GetParMesh());
+        return fed.isDefinedOnBoundaries(ctx, mesh) | or_raise;
+      }
+      const auto& mesh =
+          *((s->getFiniteElementSpace<false>(ctx) | or_raise).GetMesh());
+      return fed.isDefinedOnBoundaries(ctx, mesh) | or_raise;
+#else  /* MFEM_USE_MPI */
+      const auto& mesh =
+          *((s->getFiniteElementSpace<false>(ctx) | or_raise).GetMesh());
+      return fed.isDefinedOnBoundaries(ctx, mesh) | or_raise;
+#endif /* MFEM_USE_MPI */
+    }();
+    if (is_mesh_defined_on_boundary) {
+      if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+        return PartialQuadratureFunction_evaluate<true>(s, f);
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      }
+      return PartialQuadratureFunction_evaluate<false>(s, f);
+    }
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      return PartialQuadratureFunction_evaluate<true>(s, f);
+      return PartialQuadratureFunction_evaluateOnBoundary<true>(s, f);
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     }
-    return PartialQuadratureFunction_evaluate<false>(s, f);
+    return PartialQuadratureFunction_evaluateOnBoundary<false>(s, f);
   }  // end of evaluate
 
   std::shared_ptr<PartialQuadratureFunction>
@@ -312,7 +386,7 @@ namespace mfem_mgis {
     //
     auto& qspace = f.getPartialQuadratureSpace();
     //
-    if (qspace.getId() != v.getPartialQuadratureSpace().getId()) {
+    if (qspace.getLocation() != v.getPartialQuadratureSpace().getLocation()) {
       return ctx.registerErrorMessage("unmatched material");
     }
     //
@@ -418,11 +492,24 @@ namespace mfem_mgis {
         raise("no functions defined");
       }
       const auto n = fcts.at(0).getNumberOfComponents();
+      const auto on_boundary = isValid(
+          fcts.at(0).getPartialQuadratureSpace().isDefinedOnABoundary());
       for (const auto& f : fcts) {
-        const auto mid = f.getPartialQuadratureSpace().getId();
-        if (!this->functions.insert({mid, f}).second) {
-          raise("multiple functions defined for material '" +
-                std::to_string(mid) + "'");
+        const auto& qspace = f.getPartialQuadratureSpace();
+        const auto l = qspace.getLocation();
+        if (on_boundary != qspace.isDefinedOnABoundary()) {
+          raise(
+              "mixing quadrature functions on material and on boundary is not "
+              "allowed");
+        }
+        const auto id = [l] {
+          if (isValid(l.boundary_identifier)) {
+            return l.boundary_identifier->id;
+          }
+          return l.material_identifier->id;
+        }();
+        if (!this->functions.insert({id, f}).second) {
+          raise("multiple functions defined for " + getLocationDescription(l));
         }
         if (n != f.getNumberOfComponents()) {
           raise("inconsistent number of components");
@@ -816,30 +903,25 @@ namespace mfem_mgis {
             "functions with different numbers of components given");
       }
       const auto& qspace = f.getPartialQuadratureSpace();
-      const auto& fed = qspace.getFiniteElementDiscretization();
       const auto omesh = qspace.template getMesh<parallel>(ctx);
       if (isInvalid(omesh)) {
         return false;
       }
-      const auto ol = fed.getLocationIdentifier(ctx, *omesh, qspace.getId());
-      if (isInvalid(ol)) {
-        return false;
-      }
-      if (isValid(ol->boundary_identifier) && (&(*omesh) != &mesh)) {
+      const auto ql = qspace.getLocation();
+      if (isValid(ql.boundary_identifier) && (&(*omesh) != &mesh)) {
         return ctx.registerErrorMessage(
             "the function defined on '" + qspace.getLocationName() +
             "' can only be projected on the submesh of this boundary");
       }
       if (!locations.empty()) {
         const auto& l = *(locations.begin());
-        if (isValid(l.material_identifier) !=
-            isValid(ol->material_identifier)) {
+        if (isValid(l.material_identifier) != isValid(ql.material_identifier)) {
           return ctx.registerErrorMessage(
               "functions defined on materials and on boundaries can not be "
               "mixed");
         }
       }
-      if (!locations.insert(*ol).second) {
+      if (!locations.insert(ql).second) {
         return ctx.registerErrorMessage("multiple functions defined on '" +
                                         qspace.getLocationName() + "'");
       }

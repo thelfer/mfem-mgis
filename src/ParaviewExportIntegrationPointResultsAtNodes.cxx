@@ -41,10 +41,15 @@ namespace mfem_mgis {
             if (f.getNumberOfComponents() != nc) {
               raise("inconsistent number of components");
             }
-            if (f.getPartialQuadratureSpace().isDefinedOnABoundary()) {
+            const auto& qspace = f.getPartialQuadratureSpace();
+            if (qspace.isDefinedOnABoundary()) {
               raise("functions defined on boundaries are not supported");
             }
-            const auto mid = f.getPartialQuadratureSpace().getId();
+            const auto l = qspace.getLocation();
+            if (isInvalid(l.material_identifier)) {
+              mfem_mgis::abort("internal error");
+            }
+            const auto mid = l.material_identifier->id;
             if (std::find(mids.begin(), mids.end(), mid) != mids.end()) {
               raise("multiple function defined on material '" +
                     std::to_string(mid) + "'");
@@ -88,9 +93,7 @@ namespace mfem_mgis {
     auto bis = std::vector<const AbstractBehaviourIntegrator*>{};
     bis.reserve(this->materials_identifiers.size());
     for (const auto& mid : this->materials_identifiers) {
-      const auto l = LocationIdentifier{
-          .material_identifier = MaterialIdentifier{.id = mid},
-          .boundary_identifier = {}};
+      const auto l = LocationIdentifier{MaterialIdentifier{.id = mid}};
       const auto results =
           std::array<std::pair<Category, MaterialQuantityProviderSearchResult>,
                      3u>{

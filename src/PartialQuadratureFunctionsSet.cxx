@@ -33,19 +33,18 @@ namespace mfem_mgis {
   PartialQuadratureFunctionsSet::PartialQuadratureFunctionsSet(
       const std::vector<std::shared_ptr<PartialQuadratureFunction>>& functions)
       : std::vector<std::shared_ptr<PartialQuadratureFunction>>(functions) {
-    auto mids = std::vector<mfem_mgis::size_type>{};
-    mids.reserve(this->size());
+    auto locations = std::vector<LocationIdentifier>{};
+    locations.reserve(this->size());
     for (const auto& fptr : *this) {
       if (fptr.get() == nullptr) {
         raise("invalid function");
       }
       const auto& qspace = fptr->getPartialQuadratureSpace();
-      const auto id = qspace.getId();
-      if (std::find(mids.begin(), mids.end(), id) != mids.end()) {
-        raise("multiple functions defined on material '" +
-              std::to_string(qspace.getId()) + "'");
+      const auto l = qspace.getLocation();
+      if (std::find(locations.begin(), locations.end(), l) != locations.end()) {
+        raise("multiple functions defined on " + getLocationDescription(l));
       }
-      mids.push_back(id);
+      locations.push_back(l);
     }
   }  // end of PartialQuadratureFunctionsSet
 
@@ -60,39 +59,39 @@ namespace mfem_mgis {
     return *this;
   }  // end of getFunctions
 
-  std::vector<size_type> PartialQuadratureFunctionsSet::getMaterialIdentifiers()
-      const {
-    auto mids = std::vector<mfem_mgis::size_type>{};
-    mids.reserve(this->size());
+  std::vector<LocationIdentifier> PartialQuadratureFunctionsSet::getLocations()
+      const noexcept {
+    auto locations = std::vector<LocationIdentifier>{};
+    locations.reserve(this->size());
     for (const auto& fptr : *this) {
-      mids.push_back(fptr->getPartialQuadratureSpace().getId());
+      locations.push_back(fptr->getPartialQuadratureSpace().getLocation());
     }
-    return mids;
+    return locations;
   }  // end of getMaterialIdentifiers
 
   std::shared_ptr<PartialQuadratureFunction> PartialQuadratureFunctionsSet::get(
-      Context& ctx, const mfem_mgis::size_type m) {
+      Context& ctx, const LocationIdentifier l) noexcept {
     for (const auto& fptr : *this) {
-      const auto mid = fptr->getPartialQuadratureSpace().getId();
-      if (m == mid) {
+      const auto fl = fptr->getPartialQuadratureSpace().getLocation();
+      if (fl == l) {
         return fptr;
       }
     }
-    return ctx.registerErrorMessage("no function associated with material '" +
-                                    std::to_string(m) + "' found");
+    return ctx.registerErrorMessage("no function associated with " +
+                                    getLocationDescription(l) + " found");
   }  // end of get
 
   std::shared_ptr<const PartialQuadratureFunction>
-  PartialQuadratureFunctionsSet::get(Context& ctx,
-                                     const mfem_mgis::size_type m) const {
+  PartialQuadratureFunctionsSet::get(
+      Context& ctx, const LocationIdentifier l) const noexcept {
     for (const auto& fptr : *this) {
-      const auto mid = fptr->getPartialQuadratureSpace().getId();
-      if (m == mid) {
+      const auto fl = fptr->getPartialQuadratureSpace().getLocation();
+      if (l == fl) {
         return fptr;
       }
     }
-    return ctx.registerErrorMessage("no function associated with material '" +
-                                    std::to_string(m) + "' found");
+    return ctx.registerErrorMessage("no function associated with " +
+                                    getLocationDescription(l) + " found");
   }  // end of get
 
   bool PartialQuadratureFunctionsSet::update(Context& ctx, UpdateFunction& f) {
