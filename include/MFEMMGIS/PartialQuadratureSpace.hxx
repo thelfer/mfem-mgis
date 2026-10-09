@@ -119,6 +119,25 @@ namespace mfem_mgis {
     [[nodiscard]] OptionalReference<const FiniteElementSpace<parallel>>
     getFiniteElementSpace(Context &ctx) const noexcept;
     /*!
+     * \return if one shall iterate on boundary elements
+     *
+     * The rationale behind this method is that partial quadrature spaces can be
+     * defined on the main mesh or on submeshes.
+     *
+     * If a partial quadrature space is defined on a boundary, two cases may
+     * happen:
+     *
+     * 1. it can be created on the main mesh or a submesh defined on elements.
+     *    In this case, one shall iterate over boundary elements and use
+     *    the MFEM API relative to boundary elements (`GetNBE`,
+     *    `GetBoundaryElement`, etc.)
+     * 2. if a submesh is defined on the boundaries of the main mesh,
+     *    however, one shall iterate over the elements  and use
+     *    the MFEM API relative to standard elements (`GetNE`,
+     *    `GetElement`, etc.)
+     */
+    [[nodiscard]] bool shallUseBoundaryElementsAPI() const noexcept;
+    /*!
      * \brief return the integration rule of an element
      * \return the integration rule associated with the given finite element and
      * element transformation

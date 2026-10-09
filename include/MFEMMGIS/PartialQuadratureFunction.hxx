@@ -649,60 +649,6 @@ namespace mfem_mgis {
       GridFunction<false>&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&);
 
-  /*!
-   * \brief update a grid function using the values of the given functions
-   * \param[out] f: grid function
-   * \param[in] fcts: functions
-   * \param[in] mesh: mesh on which the grid function is defined
-   * \note the grid function must have been created by `makeGridFunction`
-   */
-  template <bool parallel>
-  void updateGridFunction(
-      GridFunction<parallel>& f,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const Mesh<parallel>& mesh);
-
-  //! \brief parallel specialisation
-  template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<true>(
-      GridFunction<true>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const Mesh<true>&);
-
-  //! \brief sequential specialisation
-  template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<false>(
-      GridFunction<false>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const Mesh<false>&);
-
-  /*!
-   * \brief update a grid function using the values of the given functions
-   * \param[out] f: grid function
-   * \param[in] fcts: functions
-   * \param[in] mesh: submesh on which the grid function is defined
-   * \note the grid function must have been created by `makeGridFunction`
-   */
-  template <bool parallel>
-  void updateGridFunction(
-      GridFunction<parallel>& f,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const SubMesh<parallel>& mesh);
-
-  //! \brief parallel specialisation
-  template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<true>(
-      GridFunction<true>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const SubMesh<true>&);
-
-  //! \brief sequential specialisation
-  template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<false>(
-      GridFunction<false>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const SubMesh<false>&);
-
 }  // namespace mfem_mgis
 
 #ifdef MGIS_FUNCTION_SUPPORT

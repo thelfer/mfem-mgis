@@ -61,7 +61,6 @@ struct PartialQuadratureSpaceTest final : public tfel::tests::TestCase {
     const auto oqinfo = getInformation(ctx, qspace);
     TFEL_TESTS_ASSERT(isValid(oqinfo));
     if (parameters.parallel) {
-      std::cerr << "oqinfo->identifier: " << oqinfo->identifier << '\n';
       TFEL_TESTS_CHECK(oqinfo->identifier == 1);
       TFEL_TESTS_CHECK(oqinfo->number_of_cells == 8);
       TFEL_TESTS_CHECK(oqinfo->number_of_quadrature_points == 8 * 27);
@@ -80,7 +79,6 @@ struct PartialQuadratureSpaceTest final : public tfel::tests::TestCase {
           oqinfo->number_of_quadrature_points_by_geometric_type.begin()
               ->second == 27);
     } else {
-      std::cerr << "oqinfo->identifier: " << oqinfo->identifier << '\n';
       TFEL_TESTS_CHECK(oqinfo->identifier == 1);
       TFEL_TESTS_CHECK(oqinfo->number_of_cells == 1);
       TFEL_TESTS_CHECK(oqinfo->number_of_quadrature_points == 27);
@@ -126,7 +124,6 @@ struct PartialQuadratureSpaceTest final : public tfel::tests::TestCase {
     const auto oqinfo = getInformation(ctx, *oqspace);
     TFEL_TESTS_ASSERT(isValid(oqinfo));
     TFEL_TESTS_CHECK_EQUAL(oqinfo->identifier, 2);
-    std::cerr << "oqinfo->name: " << oqinfo->name << '\n';
     TFEL_TESTS_CHECK_EQUAL(oqinfo->name, "boundary (2)");
     if (parameters.parallel) {
       TFEL_TESTS_CHECK(oqinfo->number_of_cells == 4);

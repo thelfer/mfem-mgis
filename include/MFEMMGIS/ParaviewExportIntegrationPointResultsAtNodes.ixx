@@ -192,21 +192,11 @@ namespace mfem_mgis {
         if (isInvalid(ofcts)) {
           return false;
         }
-        if (this->submesh.get() == nullptr) {
-          updateGridFunction<parallel>(*(r.f), *(ofcts), p.getMesh());
-        } else {
-          updateGridFunction<parallel>(*(r.f), *(ofcts), *(this->submesh));
-        }
+        updateGridFunction<parallel>(*(r.f), *(ofcts));
       }
     } else {
       for (const auto& fcts : this->exported_functions) {
-        if (this->submesh.get() == nullptr) {
-          updateGridFunction<parallel>(*(fcts->grid_function), fcts->functions,
-                                       p.getMesh());
-        } else {
-          updateGridFunction<parallel>(*(fcts->grid_function), fcts->functions,
-                                       *(this->submesh));
-        }
+        updateGridFunction<parallel>(*(fcts->grid_function), fcts->functions);
       }
     }
     this->exporter.Save();

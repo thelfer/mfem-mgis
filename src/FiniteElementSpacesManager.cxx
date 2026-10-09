@@ -275,14 +275,14 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       const auto nc = s.GetVDim();
       const auto* const m = s.GetParMesh();
+      if (!this->mesh.manages(*m)) {
+        return false;
+      }
       if (m == &(this->mesh.getMesh<true>())) {
         const auto p = this->parallel_fespaces.find(nc);
         if (p != this->parallel_fespaces.end()) {
           return p->second.get() == &s;
         }
-        return false;
-      }
-      if (!this->mesh.manages(*m)) {
         return false;
       }
       const auto* const sm = dynamic_cast<const SubMesh<true>*>(m);
@@ -314,15 +314,15 @@ namespace mfem_mgis {
       }
       const auto nc = s.GetVDim();
       const auto* const m = s.GetMesh();
+      if (!this->mesh.manages(*m)) {
+        return false;
+      }
       if (m == &(this->mesh.getMesh<false>())) {
         const auto p = this->sequential_fespaces.find(nc);
         if (p == this->sequential_fespaces.end()) {
           return false;
         }
         return p->second.get() == &s;
-      }
-      if (!this->mesh.manages(*m)) {
-        return false;
       }
       const auto* const sm = dynamic_cast<const SubMesh<false>*>(m);
       if (sm == nullptr) {
