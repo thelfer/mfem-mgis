@@ -701,9 +701,11 @@ namespace mfem_mgis {
       }
       const auto& map = this->mappings.at(mid);
       const auto idx = map.to_indexes.Find(tr.ElementNo);
+#ifdef MFEM_MGIS_DEBUG
       if (idx == -1) {
         mfem_mgis::abort("invalid mapping");
       }
+#endif /* MFEM_MGIS_DEBUG */
       const auto n = map.from_indexes[idx];
       this->evaluate(this->value, p->second, tr, i, n);
       return this->value[0];
@@ -783,9 +785,11 @@ namespace mfem_mgis {
       }
       const auto& map = this->mappings.at(mid);
       const auto idx = map.to_indexes.Find(tr.ElementNo);
+#ifdef MFEM_MGIS_DEBUG
       if (idx == -1) {
         mfem_mgis::abort("invalid mapping");
       }
+#endif /* MFEM_MGIS_DEBUG */
       const auto n = map.from_indexes[idx];
       values.SetSize(this->GetVDim());
       this->evaluate(values, p->second, tr, ip, n);
@@ -1280,7 +1284,7 @@ namespace mfem_mgis {
     if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
       raise(ctx.getErrorMessage());
     }
-    auto requiresMapping = [&fespace, &fcts, &ctx, &or_abort] {
+    const auto requiresMapping = [&fespace, &fcts, &ctx, &or_abort] {
       for (const auto& qf : fcts) {
         const auto& s = qf.getPartialQuadratureSpace()
                             .template getFiniteElementSpace<parallel>(ctx) |

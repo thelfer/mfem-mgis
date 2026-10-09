@@ -22,6 +22,7 @@
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureFunction.hxx"
 #include "MFEMMGIS/LinearSolverFactory.hxx"
+#include "MFEMMGIS/GridFunctionUtilities.hxx"
 #include "MFEMMGIS/Utilities/SolverUtilities.hxx"
 #include "MFEMMGIS/L2Projection.hxx"
 
@@ -334,9 +335,9 @@ namespace mfem_mgis {
         public mfem::LinearFormIntegrator {
     //
     ScalarL2ProjectionRHSFormIntegratorII(
-        const mfem::Array<int>& m,
-        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts)
-        : L2ProjectionFormIntegratorBase(fcts), elts_mapping(m) {}
+        const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+        const std::unordered_map<size_type, ElementsMapping>& m)
+        : L2ProjectionFormIntegratorBase(fcts), mappings(m) {}
 
     //
     void AssembleRHSElementVect(const mfem::FiniteElement& e,
@@ -344,6 +345,7 @@ namespace mfem_mgis {
                                 mfem::Vector& elvect) override {
       const auto m = tr.Attribute;
       const auto& f = this->functions.at(m);
+      const auto& map = this->mappings.at(m);
       const int dof = e.GetDof();
       //
       shape.SetSize(dof);  // vector of size dof
@@ -355,7 +357,13 @@ namespace mfem_mgis {
       for (int i = 0; i < ir.GetNPoints(); i++) {
         const auto& ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
-        const auto n = elts_mapping[tr.ElementNo];
+        const auto idx = map.to_indexes.Find(tr.ElementNo);
+#ifdef MFEM_MGIS_DEBUG
+        if (idx == -1) {
+          mfem_mgis::abort("invalid mapping");
+        }
+#endif /* MFEM_MGIS_DEBUG */
+        const auto n = map.from_indexes[idx];
         const auto v = tr.Weight() * f.getIntegrationPointValue(n, i);
         e.CalcPhysShape(tr, shape);
         add(elvect, ip.weight * v, shape, elvect);
@@ -363,7 +371,11 @@ namespace mfem_mgis {
     }  // end of AssembleRHSElementVect
 
    private:
-    const mfem::Array<int> elts_mapping;
+    /*!
+     * \brief mapping between the numbering of the partial quadature spaces and
+     * the numbering in the targeted space
+     */
+    std::unordered_map<size_type, ElementsMapping> mappings;
   };
 
   struct ComponentL2ProjectionRHSFormIntegrator final
@@ -407,10 +419,10 @@ namespace mfem_mgis {
         public mfem::LinearFormIntegrator {
     //
     ComponentL2ProjectionRHSFormIntegratorII(
-        const mfem::Array<int>& m,
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
+        const std::unordered_map<size_type, ElementsMapping>& m,
         const size_type c)
-        : L2ProjectionFormIntegratorBase(fcts), elts_mapping(m), component(c) {}
+        : L2ProjectionFormIntegratorBase(fcts), mappings(m), component(c) {}
 
     //
     void AssembleRHSElementVect(const mfem::FiniteElement& e,
@@ -418,6 +430,7 @@ namespace mfem_mgis {
                                 mfem::Vector& elvect) override {
       const auto m = tr.Attribute;
       const auto& f = this->functions.at(m);
+      const auto& map = this->mappings.at(m);
       const int dof = e.GetDof();
       //
       shape.SetSize(dof);  // vector of size dof
@@ -429,7 +442,13 @@ namespace mfem_mgis {
       for (int i = 0; i < ir.GetNPoints(); i++) {
         const auto& ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
-        const auto n = elts_mapping[tr.ElementNo];
+        const auto idx = map.to_indexes.Find(tr.ElementNo);
+#ifdef MFEM_MGIS_DEBUG
+        if (idx == -1) {
+          mfem_mgis::abort("invalid mapping");
+        }
+#endif /* MFEM_MGIS_DEBUG */
+        const auto n = map.from_indexes[idx];
         const auto fv = f.getIntegrationPointValues(n, i)[this->component];
         const auto v = tr.Weight() * fv;
         e.CalcPhysShape(tr, shape);
@@ -438,7 +457,12 @@ namespace mfem_mgis {
     }  // end of AssembleRHSElementVect
 
    private:
-    const mfem::Array<int> elts_mapping;
+    /*!
+     * \brief mapping between the numbering of the partial quadature spaces and
+     * the numbering in the targeted space
+     */
+    std::unordered_map<size_type, ElementsMapping> mappings;
+    //
     const size_type component;
   };
 
@@ -464,10 +488,11 @@ namespace mfem_mgis {
     if (!checkConsistency<parallel>(ctx, fcts)) {
       return {};
     }
-    const auto& rfespace = *(
-        static_cast<const FiniteElementSpace<parallel>*>(r.result->FESpace()));
+    const auto& rfespace = getFiniteElementSpace(*(r.result));
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
+    const auto on_boundary =
+        fcts.at(0).getPartialQuadratureSpace().isDefinedOnABoundary();
     const auto fespaces_manager = fed.getFiniteElementSpacesManager();
     if (!fespaces_manager.manages(rfespace)) {
       return ctx.registerErrorMessage("inconsistent finite element spaces");
@@ -476,14 +501,16 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("inconsistent number of components");
     }
     //
-    const auto* const mesh = [&rfespace] {
-      if constexpr (parallel) {
-        return rfespace.GetParMesh();
-      } else {
-        return rfespace.GetMesh();
-      }
-    }();
-    const auto& elts_attributes = mesh->attributes;
+    const auto& mesh = getMesh(rfespace);
+    const auto ob = fed.isDefinedOnBoundaries(ctx, mesh);
+    if (isInvalid(ob)) {
+      return {};
+    }
+    if (*ob != on_boundary) {
+      return ctx.registerErrorMessage(
+          "result mesh is not consistent with the partial quadrature spaces");
+    }
+    const auto& elts_attributes = mesh.attributes;
     for (int i = 0; i != elts_attributes.Size(); ++i) {
       const auto id = elts_attributes[i];
       const auto found = [&id, &fcts] {
@@ -504,7 +531,8 @@ namespace mfem_mgis {
       }();
       if (!found) {
         return ctx.registerErrorMessage(
-            "no partial quadrature function defined on material or boundary '" +
+            "no partial quadrature function defined on material or "
+            "boundary '" +
             std::to_string(id) + "'");
       }
     }
@@ -519,6 +547,7 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       std::function<void(BilinearForm<parallel>&)>
           add_regularization_operator) {
+    auto or_abort = ctx.getFatalFailureHandler();
     if (!checkUpdateFunctionsArguments(ctx, r, l, fcts)) {
       return false;
     }
@@ -532,29 +561,32 @@ namespace mfem_mgis {
     //
     const auto fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
-    const auto& rfespace = *(
-        static_cast<const FiniteElementSpace<parallel>*>(r.result->FESpace()));
-    const auto* const mesh = [&rfespace] {
-      if constexpr (parallel) {
-        return rfespace.GetParMesh();
-      } else {
-        return rfespace.GetMesh();
-      }
-    }();
+    const auto& rfespace = getFiniteElementSpace(*(r.result));
+    const auto& mesh = getMesh(rfespace);
     auto fespaces_manager = fed.getFiniteElementSpacesManager();
     auto olocal_fespace =
-        fespaces_manager.template getFiniteElementSpace<parallel>(ctx, *mesh,
-                                                                  1);
+        fespaces_manager.template getFiniteElementSpace<parallel>(ctx, mesh, 1);
     if (isInvalid(olocal_fespace)) {
       return {};
     }
-    // partial quadrature spaces defined on boundaries are built on the submesh
-    const auto on_boundaries = fed.isDefinedOnBoundaries(ctx, *mesh);
-    if (isInvalid(on_boundaries)) {
+    // partial quadrature spaces defined on boundaries are built on the
+    // submesh
+    const auto oboundaries = fed.isDefinedOnBoundaries(ctx, mesh);
+    if (isInvalid(oboundaries)) {
       return {};
     }
-    const auto use_parent_elements =
-        (r.submesh != nullptr) && (!*on_boundaries);
+    const auto requiresMapping = [&rfespace, &fcts, &ctx, &or_abort] {
+      for (const auto& qf : fcts) {
+        const auto& s = qf.getPartialQuadratureSpace()
+                            .template getFiniteElementSpace<parallel>(ctx) |
+                        or_abort;
+        if (&rfespace != &s) {
+          return true;
+        }
+      }
+      return false;
+    }();
+
     // Here begin the tricky part. In order to reduce the
     // computational cost, we will make the projection component by
     // component. But of course, if the functions are scalar, we do
@@ -582,17 +614,30 @@ namespace mfem_mgis {
       }
       // right-hand side
       LinearForm<parallel> b(&(*olocal_fespace));
-      if (rfespace.GetVDim() == 1) {
-        if (use_parent_elements) {
-          b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegratorII(
-              r.submesh->GetParentElementIDMap(), fcts));
+      if (requiresMapping) {
+        auto mappings = std::unordered_map<size_type, ElementsMapping>{};
+        for (const auto& qf : fcts) {
+          const auto& qspace = qf.getPartialQuadratureSpace();
+          const auto ql = qspace.getLocation();
+          const auto id = isValid(ql.material_identifier)
+                              ? ql.material_identifier->id
+                              : ql.boundary_identifier->id;
+          const auto& s =
+              qspace.template getFiniteElementSpace<parallel>(ctx) | or_abort;
+          const auto m =
+              fed.getElementsMapping(ctx, getMesh(s), mesh, ql) | or_abort;
+          mappings.insert({id, std::move(m)});
+        }
+        if (rfespace.GetVDim() == 1) {
+          b.AddDomainIntegrator(
+              new ScalarL2ProjectionRHSFormIntegratorII(fcts, mappings));
         } else {
-          b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegrator(fcts));
+          b.AddDomainIntegrator(
+              new ComponentL2ProjectionRHSFormIntegratorII(fcts, mappings, c));
         }
       } else {
-        if (use_parent_elements) {
-          b.AddDomainIntegrator(new ComponentL2ProjectionRHSFormIntegratorII(
-              r.submesh->GetParentElementIDMap(), fcts, c));
+        if (rfespace.GetVDim() == 1) {
+          b.AddDomainIntegrator(new ScalarL2ProjectionRHSFormIntegrator(fcts));
         } else {
           b.AddDomainIntegrator(
               new ComponentL2ProjectionRHSFormIntegrator(fcts, c));
