@@ -575,12 +575,12 @@ namespace mfem_mgis {
     if (isInvalid(oboundaries)) {
       return {};
     }
-    const auto requiresMapping = [&rfespace, &fcts, &ctx, &or_abort] {
+    const auto requiresMapping = [&mesh, &fcts, &ctx, &or_abort] {
       for (const auto& qf : fcts) {
         const auto& s = qf.getPartialQuadratureSpace()
                             .template getFiniteElementSpace<parallel>(ctx) |
                         or_abort;
-        if (&rfespace != &s) {
+        if (&mesh != &getMesh(s)) {
           return true;
         }
       }

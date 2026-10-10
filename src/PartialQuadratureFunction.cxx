@@ -1284,6 +1284,9 @@ namespace mfem_mgis {
             ctx) |
         or_abort;
     const auto& fespace = getFiniteElementSpace(f);
+    if (!fed.template isSibling<parallel>(fespace)) {
+      raise("inconsistent finite element space");
+    }
     const auto& mesh = getMesh(fespace);
     if ((fespace.GetVDim() != n) ||  //
         (fes.FEColl() != fespace.FEColl()) ||
@@ -1293,12 +1296,12 @@ namespace mfem_mgis {
     if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
       raise(ctx.getErrorMessage());
     }
-    const auto requiresMapping = [&fespace, &fcts, &ctx, &or_abort] {
+    const auto requiresMapping = [&fed, &mesh, &fcts, &ctx, &or_abort] {
       for (const auto& qf : fcts) {
         const auto& s = qf.getPartialQuadratureSpace()
                             .template getFiniteElementSpace<parallel>(ctx) |
                         or_abort;
-        if (&fespace != &s) {
+        if (&mesh != &getMesh(s)) {
           return true;
         }
       }
