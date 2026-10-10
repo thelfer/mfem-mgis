@@ -28,15 +28,14 @@ namespace mfem_mgis {
       r += qspace->getLocationName() + " ";
       r += "for given quadrature ";
     } else {
-      const auto mid = d.getMaterialIdentifier();
-      r += "material '" + std::to_string(mid) + "' ";
+      //      r += qspace->getLocationName() + " ";
       r += "on unspecified quadrature ";
     }
     return r + "at the " + tss() + " of the time step";
   }  // end of getLocationDescription
 
   std::vector<QPDependency> &DependenciesManager::getLocalQPDependenciesManager(
-      const size_type m, const TimeStepStage s) noexcept {
+      const LocationIdentifier m, const TimeStepStage s) noexcept {
     if (s == bts) {
       return this->registeredQPDependencies[0][m];
     }
@@ -66,8 +65,7 @@ namespace mfem_mgis {
           " can't be registered as it is flagged as being a duplicate");
     }
     auto nd = d;
-    auto &ldm =
-        this->getLocalQPDependenciesManager(nd.getMaterialIdentifier(), s);
+    auto &ldm = this->getLocalQPDependenciesManager(nd.getLocation(), s);
     // we first make a check regardless of the quadrature id
     auto p = std::find_if(ldm.begin(), ldm.end(), [&nd](const auto &dep) {
       return nd.getName() == dep.getName();
@@ -129,7 +127,7 @@ namespace mfem_mgis {
     if (!d.matchesSpecifications(ctx, nc)) {
       return false;
     }
-    const auto &m = d.getMaterialIdentifier();
+    const auto &m = d.getLocation();
     const auto dqspace = d.getPartialQuadratureSpacePointer();
     if (isValid(dqspace)) {
       if (!this->qids.areEquivalent(dqspace, qspace)) {
@@ -138,7 +136,8 @@ namespace mfem_mgis {
       }
     }
     auto &dependencies_container =
-        [&ts, this]() -> std::map<size_type, std::vector<QPDependency>> & {
+        [&ts,
+         this]() -> std::map<LocationIdentifier, std::vector<QPDependency>> & {
       if (ts == bts) {
         return this->registeredQPDependencies[0];
       }
@@ -197,7 +196,7 @@ namespace mfem_mgis {
       // as duplicate if this case happens
       for (auto p = ldm.begin(); p != ldm.end(); ++p) {
         if ((p == pd) || (p->getName() != pd->getName()) ||
-            (p->getMaterialIdentifier() != pd->getMaterialIdentifier())) {
+            (p->getLocation() != pd->getLocation())) {
           continue;
         }
         ctx.assertOrTerminate(
@@ -222,7 +221,8 @@ namespace mfem_mgis {
       const AnalyseDependenciesFilter f) const noexcept {
     auto r = DependenciesAnalysisOutput{};
     auto exe = [&f]<typename DependencyType>(
-                   const std::map<size_type, std::vector<DependencyType>> &in) {
+                   const std::map<LocationIdentifier,
+                                  std::vector<DependencyType>> &in) {
       auto out = std::vector<DependencyType>{};
       for (const auto &[m, deps] : in) {
         static_cast<void>(m);
@@ -253,9 +253,10 @@ namespace mfem_mgis {
   bool DependenciesManager::resolveDependencies(
       Context &ctx, QPEvaluatorsFactory &f) const noexcept {
     auto r = DependenciesAnalysisOutput{};
-    auto exe = [&ctx, &f](
-                   const std::map<size_type, std::vector<QPDependency>> &in,
-                   const TimeStepStage ts) -> bool {
+    auto exe =
+        [&ctx, &f](
+            const std::map<LocationIdentifier, std::vector<QPDependency>> &in,
+            const TimeStepStage ts) -> bool {
       for (const auto &[m, deps] : in) {
         static_cast<void>(m);
         // At this stage, the list of dependencies on input can contain

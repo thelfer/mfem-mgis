@@ -150,7 +150,7 @@ namespace mfem_mgis {
      * \brief list of partial quadrature function managers, sorted by quadrature
      * space identifiers
      */
-    std::map<std::pair<size_type, size_type>,
+    std::map<std::pair<LocationIdentifier, size_type>,
              std::unique_ptr<PartialQuadratureFunctionManager>>
         qfunctions;
     //! \brief functions kept alive by the state manager

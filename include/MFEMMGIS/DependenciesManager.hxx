@@ -114,15 +114,15 @@ namespace mfem_mgis {
      * \return a local manager for dependencies at integration points for the
      * given time step stage
      *
-     * \param[in] m: material identifier
+     * \param[in] l: location
      * \param[in] s: time step stage
      */
     std::vector<QPDependency> &getLocalQPDependenciesManager(
-        const size_type m, const TimeStepStage s) noexcept;
+        const LocationIdentifier l, const TimeStepStage s) noexcept;
     //! \brief partial quadrature space identifiers
     const PartialQuadratureSpaceIdentifiersManager &qids;
     //! \brief list of registered dependencies at integration points
-    std::array<std::map<size_type, std::vector<QPDependency>>, 2u>
+    std::array<std::map<LocationIdentifier, std::vector<QPDependency>>, 2u>
         registeredQPDependencies;
   };  // end of DependenciesManager
 

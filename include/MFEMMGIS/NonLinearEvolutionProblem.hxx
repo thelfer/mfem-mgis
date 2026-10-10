@@ -381,8 +381,7 @@ namespace mfem_mgis {
       mfem::Vector &F,
       NonLinearEvolutionProblem &p,
       const std::vector<
-          std::pair<size_type, std::vector<std::vector<size_type>>>>
-          &elts_dofs,
+          std::pair<size_type, std::vector<std::vector<size_type>>>> &elts_dofs,
       const BehaviourIntegratorsSelection &selection = {}) noexcept;
 
 }  // end of namespace mfem_mgis

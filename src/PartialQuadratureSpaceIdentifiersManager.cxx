@@ -59,10 +59,10 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "partial quadrature space is not defined on the proper mesh");
     }
-    const auto mid = s->getId();
-    auto p = this->ids.find(mid);
-    if (p == this->ids.end()) {
-      p = this->ids.insert({mid, PerMaterialIdentifiersList{}}).first;
+    const auto l = s->getLocation();
+    auto p = this->locations.find(l);
+    if (p == this->locations.end()) {
+      p = this->locations.insert({l, PerMaterialIdentifiersList{}}).first;
     }
     return ::mfem_mgis::getIdentifier(p->second, s);
   }  // end of getIdendifier

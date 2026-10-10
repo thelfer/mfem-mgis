@@ -78,6 +78,18 @@ namespace mfem_mgis {
 
 #endif /* MFEM_USE_MPI */
 
+#ifdef MFEM_USE_MPI
+  /*!
+   * \brief a simple reduction for boolean values
+   *
+   * \param[in] c: communicator
+   * \param[in] b: boolean value in the current process
+   * \return true if the value is true on all processes
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isTrueOnAllProcesses(
+      const MPI_Comm& c, const bool b) noexcept;
+#endif /* MFEM_USE_MPI */
+
   /*!
    * \brief a simple reduction for boolean values
    *

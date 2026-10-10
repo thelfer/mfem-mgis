@@ -24,6 +24,17 @@ namespace mfem_mgis {
   struct Parameter;
   struct Parameters;
 
+  /*!
+   * \brief mapping between the index of the same location in two different
+   * meshes
+   */
+  struct ElementsMapping {
+    //! \brief elements indexes in the original mesh
+    mfem::Array<size_type> from_indexes;
+    //! \brief elements indexes in the targeted mesh
+    mfem::Array<size_type> to_indexes;
+  };
+
   //! \brief a simple class used to handle the life time of the mesh
   struct MFEM_MGIS_EXPORT [[nodiscard]] MeshDiscretization {
     //! \brief structure holding a list of attributes to be used as a key.
@@ -100,16 +111,38 @@ namespace mfem_mgis {
      * scheme.
      */
     struct LocationIdentifier {
-      //! \brief identifier associated with a material
-      std::optional<MaterialIdentifier> material_identifier;
-      //! \brief identifier associated with a boundary
-      std::optional<BoundaryIdentifier> boundary_identifier;
+      /*!
+       * \brief constructor from a material identifier
+       * \param[in] m: material identifier
+       */
+      LocationIdentifier(const MaterialIdentifier& m) noexcept
+          : material_identifier(m) {}  // end of LocationIdentifier
+      /*!
+       * \brief constructor from a boundary identifier
+       * \param[in] b: boundary identifier
+       */
+      LocationIdentifier(const BoundaryIdentifier& b) noexcept
+          : boundary_identifier(b) {}  // end of LocationIdentifier
+      //! \brief default constructor
+      LocationIdentifier() noexcept = default;
+      //! \brief move constructor
+      LocationIdentifier(LocationIdentifier&&) noexcept = default;
+      //! \brief copy constructor
+      LocationIdentifier(const LocationIdentifier&) noexcept = default;
+      LocationIdentifier& operator=(LocationIdentifier&&) noexcept = delete;
+      LocationIdentifier& operator=(const LocationIdentifier&) noexcept =
+          delete;
+      ~LocationIdentifier() = default;
       /*!
        * \brief comparison operator
        * \return the ordering of the two identifiers
        */
       constexpr auto operator<=>(const LocationIdentifier&) const noexcept =
           default;
+      //! \brief identifier associated with a material
+      const std::optional<MaterialIdentifier> material_identifier;
+      //! \brief identifier associated with a boundary
+      const std::optional<BoundaryIdentifier> boundary_identifier;
     };  // end of LocationIdentifier
     //! \brief string associated to the `Parallel` parameter
     static const char* const Parallel;
@@ -172,13 +205,33 @@ namespace mfem_mgis {
      * \return if the given mesh is managed by this mesh discretization
      * \param[in] m: parallel mesh
      */
-    bool manages(const Mesh<true>& m) const noexcept;
+    [[nodiscard]] bool manages(const Mesh<true>& m) const noexcept;
     /*!
      * \brief check if a mesh is managed by this mesh discretization
      * \return if the given mesh is managed by this mesh discretization
      * \param[in] m: sequential mesh
      */
-    bool manages(const Mesh<false>& m) const noexcept;
+    [[nodiscard]] bool manages(const Mesh<false>& m) const noexcept;
+    /*!
+     * \return if the given mesh contains the given location
+     * \param[in, out]  ctx: execution context
+     * \param[in]  mesh: mesh
+     * \param[in]  l: location
+     */
+    [[nodiscard]] std::optional<bool> contains(
+        Context& ctx,
+        const Mesh<true>& mesh,
+        const LocationIdentifier& l) const noexcept;
+    /*!
+     * \return if the given mesh contains the given location
+     * \param[in, out]  ctx: execution context
+     * \param[in]  mesh: mesh
+     * \param[in]  l: location
+     */
+    [[nodiscard]] std::optional<bool> contains(
+        Context& ctx,
+        const Mesh<false>& mesh,
+        const LocationIdentifier& l) const noexcept;
     /*!
      * \brief check if a mesh is defined on materials of the main mesh
      * \return if the given mesh is defined on (a subset of) the
@@ -223,6 +276,62 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::optional<bool> isDefinedOnBoundaries(
         Context& ctx, const Mesh<false>& m) const noexcept;
+    /*!
+     * \return if one shall use the boundary element API on the given mesh to
+     * iterate over the elements of the given location
+     *
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     * \param[in]  l: location
+     *
+     * The rationale behind this method is that the given mesh can be
+     * a submesh.
+     *
+     * If the location refers to on a boundary, two cases may happen:
+     *
+     * 1. The given mesh is the main mesh or a submesh defined on elements.
+     *    In this case, one shall iterate over boundary elements and use
+     *    the MFEM API relative to boundary elements (`GetNBE`,
+     *    `GetBoundaryElement`, etc.)
+     * 2. if a submesh is defined on the boundaries of the main mesh,
+     *    however, one shall iterate over the elements  and use
+     *    the MFEM API relative to standard elements (`GetNE`,
+     *    `GetElement`, etc.)
+     *
+     * \note this method fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> shallUseBoundaryElementsAPI(
+        Context& ctx,
+        const Mesh<true>& m,
+        const LocationIdentifier& l) const noexcept;
+    /*!
+     * \return if one shall use the boundary element API on the given mesh to
+     * iterate over the elements of the given location
+     *
+     * \param[in, out]  ctx: execution context
+     * \param[in]  m: mesh
+     * \param[in]  l: location
+     *
+     * The rationale behind this method is that the given mesh can be
+     * a submesh.
+     *
+     * If the location refers to on a boundary, two cases may happen:
+     *
+     * 1. The given mesh is the main mesh or a submesh defined on elements.
+     *    In this case, one shall iterate over boundary elements and use
+     *    the MFEM API relative to boundary elements (`GetNBE`,
+     *    `GetBoundaryElement`, etc.)
+     * 2. if a submesh is defined on the boundaries of the main mesh,
+     *    however, one shall iterate over the elements  and use
+     *    the MFEM API relative to standard elements (`GetNE`,
+     *    `GetElement`, etc.)
+     *
+     * \note this method fails if the given mesh is not managed
+     */
+    [[nodiscard]] std::optional<bool> shallUseBoundaryElementsAPI(
+        Context& ctx,
+        const Mesh<false>& m,
+        const LocationIdentifier& l) const noexcept;
     /*!
      * \brief get or create the sub mesh associated with the given ids
      * \return a pointer to the sub mesh associated with the given ids
@@ -380,6 +489,35 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::optional<LocationIdentifier> getLocationIdentifier(
         Context& ctx, const Mesh<false>& m, const size_type id) const noexcept;
+    /*!
+     * \return the mapping between the index of the same location in two
+     * different meshes
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] from: mesh
+     * \param[in] to: mesh
+     * \param[in] l: location
+     */
+    //    OptionalReference<const ElementsMapping>
+    [[nodiscard]] std::optional<ElementsMapping> getElementsMapping(
+        Context& ctx,
+        const Mesh<true>& from,
+        const Mesh<true>& to,
+        const LocationIdentifier& l) const noexcept;
+    /*!
+     * \return the mapping between the index of the same location in two
+     * different meshes
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] from: mesh
+     * \param[in] to: mesh
+     * \param[in] l: location
+     */
+    [[nodiscard]] std::optional<ElementsMapping> getElementsMapping(
+        Context& ctx,
+        const Mesh<false>& from,
+        const Mesh<false>& to,
+        const LocationIdentifier& l) const noexcept;
     /*!
      * \brief set material names
      * \return true on success
@@ -839,6 +977,30 @@ namespace mfem_mgis {
     const auto b2 = mok && bok;        // both are valid
     return b1 || b2;
   }  // end of isInvalid
+  /*!
+   * \return a description of the location
+   * \param[in] l: location identifier
+   *
+   * Examples of the return values are:
+   *
+   * - material (1)
+   * - bounadary (1)
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::string getLocationDescription(
+      const LocationIdentifier& l) noexcept;
+  /*!
+   * \return a description of the location
+   * \param[in] m: mesh
+   * \param[in] l: location identifier
+   *
+   * Examples of the return values are:
+   *
+   * - material 'beam' (1)
+   * - material (1) (material has no name)
+   * - bounadary (1) (boundary has no name)
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::string getLocationDescription(
+      const MeshDiscretization& m, const LocationIdentifier& l) noexcept;
   /*!
    * \brief compare two mesh discretisations to see if they point to the same
    * underlying implementation

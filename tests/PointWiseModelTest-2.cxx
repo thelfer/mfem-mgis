@@ -52,7 +52,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
                           {"Parallel", parallel}}) |
       or_die;
   auto qspace = make_shared<const PartialQuadratureSpace>(
-                    ctx, *fed, 5,
+                    ctx, *fed, MaterialIdentifier{.id = 5},
                     [](const mfem::FiniteElement& e,
                        const mfem::ElementTransformation&) noexcept
                     -> const mfem::IntegrationRule& {

@@ -57,32 +57,32 @@ namespace mfem_mgis {
     //! \return the functions of the set
     const std::vector<std::shared_ptr<PartialQuadratureFunction>>&
     getFunctions();
-    //! \return the list of material identifiers
-    std::vector<mfem_mgis::size_type> getMaterialIdentifiers() const;
+    //! \return the list of locations
+    std::vector<LocationIdentifier> getLocations() const noexcept;
     /*!
      * \brief return the partial quadrature function associated with the given
      * material identifier
      * \param[in, out] ctx: execution context
-     * \param[in] m: material identifier
+     * \param[in] l: location identifier
      * \return the partial quadrature function
      *
      * \note if no function associated with this identifier is found, a nullptr
      * is returned.
      */
     std::shared_ptr<PartialQuadratureFunction> get(
-        Context& ctx, const mfem_mgis::size_type m);
+        Context& ctx, const LocationIdentifier l) noexcept;
     /*!
      * \brief return the partial quadrature function associated with the given
      * material identifier
      * \param[in, out] ctx: execution context
-     * \param[in] m: material identifier
+     * \param[in] l: location identifier
      * \return the partial quadrature function
      *
      * \note if no function associated with this identifier is found, a nullptr
      * is returned.
      */
     std::shared_ptr<const PartialQuadratureFunction> get(
-        Context& ctx, const mfem_mgis::size_type m) const;
+        Context& ctx, const LocationIdentifier l) const noexcept;
     /*!
      * \brief update the set using an external function
      * \param[in, out] ctx: execution context

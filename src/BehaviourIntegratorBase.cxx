@@ -218,25 +218,10 @@ namespace mfem_mgis {
       const AbstractQPEvaluator& e) {
     const auto& bqspace = b.getPartialQuadratureSpace();
     const auto& eqspace = *(e.getPartialQuadratureSpacePointer());
-    const auto& bfed = bqspace.getFiniteElementDiscretization();
-    const auto& efed = eqspace.getFiniteElementDiscretization();
-    if (static_cast<const MeshDiscretization&>(bfed) !=
-        static_cast<const MeshDiscretization&>(efed)) {
+    if (!areEquivalent(bqspace, eqspace)) {
       return ctx.registerErrorMessage(
-          "partial quadrature function evaluator is not defined on the mesh of "
-          "the behaviour integrator");
-    }
-    if (bqspace.getId() != eqspace.getId()) {
-      return ctx.registerErrorMessage(
-          "partial quadrature function is not defined on the same material as "
-          "the behaviour integrator");
-    }
-    if (bqspace.getNumberOfIntegrationPoints() !=
-        eqspace.getNumberOfIntegrationPoints()) {
-      return ctx.registerErrorMessage(
-          "the partial quadrature space of the partial quadrature function "
-          "does not have the same number of quadrature points than the partial "
-          "quadrature space of the the behaviour integrator");
+          "partial quadrature evaluator is not defined on a space equivalent "
+          "to the one of the behaviour integrator");
     }
     return true;
   }  // end of checkQuadratureFunctionEvaluator

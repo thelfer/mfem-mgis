@@ -22,9 +22,9 @@ namespace mfem_mgis {
       const Parameters &params)
       : behaviour_integrators(
             getBehaviourIntegratorsSelection(throwing, params)) {
-    checkParameters(throwing, params,
-                    std::vector<std::string>{"OutputFileName",
-                                             "BehaviourIntegrator"});
+    checkParameters(
+        throwing, params,
+        std::vector<std::string>{"OutputFileName", "BehaviourIntegrator"});
     auto or_raise = ctx.getThrowingFailureHandler();
     if constexpr (parallel) {
 #ifdef MFEM_USE_MPI

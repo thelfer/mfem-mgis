@@ -34,31 +34,17 @@ namespace mfem_mgis {
   struct MFEM_MGIS_EXPORT PartialQuadratureSpace {
     /*!
      * \brief throw an exception in case of invalid element index
-     * \param[in] id: material identifier
+     * \param[in] l: location
      * \param[in] i: element number
      */
-    [[noreturn]] static void treatInvalidElementIndex(const size_type id,
-                                                      const size_type i);
-    /*!
-     * \brief constructor
-     * \param[in] fed: finite element discretization.
-     * \param[in] m: material attribute.
-     * \param[in] irs: function returning the integration rule for the
-     * considered finite element.
-     */
-    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
-                           const size_type m,
-                           const std::function<const mfem::IntegrationRule &(
-                               const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &irs);
+    [[noreturn]] static void treatInvalidElementIndex(
+        const LocationIdentifier l, const size_type i);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization.
      * \param[in] l: location identifier
      * \param[in] irs: function returning the integration rule for the
      * considered finite element.
-     *
-     * If the identifier is on the boundary a new submesh may be created.
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &fed,
                            const LocationIdentifier &l,
@@ -77,7 +63,7 @@ namespace mfem_mgis {
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &fed,
                            const FiniteElementSpace<true> &fespace,
-                           const size_type l,
+                           const LocationIdentifier l,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
                                const mfem::ElementTransformation &)> &irs);
@@ -92,7 +78,7 @@ namespace mfem_mgis {
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &fed,
                            const FiniteElementSpace<false> &fespace,
-                           const size_type l,
+                           const LocationIdentifier l,
                            const std::function<const mfem::IntegrationRule &(
                                const mfem::FiniteElement &,
                                const mfem::ElementTransformation &)> &irs);
@@ -132,6 +118,25 @@ namespace mfem_mgis {
     template <bool parallel>
     [[nodiscard]] OptionalReference<const FiniteElementSpace<parallel>>
     getFiniteElementSpace(Context &ctx) const noexcept;
+    /*!
+     * \return if one shall iterate on boundary elements
+     *
+     * The rationale behind this method is that partial quadrature spaces can be
+     * defined on the main mesh or on submeshes.
+     *
+     * If a partial quadrature space is defined on a boundary, two cases may
+     * happen:
+     *
+     * 1. it can be created on the main mesh or a submesh defined on elements.
+     *    In this case, one shall iterate over boundary elements and use
+     *    the MFEM API relative to boundary elements (`GetNBE`,
+     *    `GetBoundaryElement`, etc.)
+     * 2. if a submesh is defined on the boundaries of the main mesh,
+     *    however, one shall iterate over the elements  and use
+     *    the MFEM API relative to standard elements (`GetNE`,
+     *    `GetElement`, etc.)
+     */
+    [[nodiscard]] bool shallUseBoundaryElementsAPI() const noexcept;
     /*!
      * \brief return the integration rule of an element
      * \return the integration rule associated with the given finite element and
@@ -176,7 +181,7 @@ namespace mfem_mgis {
      */
     [[nodiscard]] size_type getOffset(const size_type i) const;
     //! \return the material or boundary identifier
-    [[nodiscard]] size_type getId() const noexcept;
+    [[nodiscard]] LocationIdentifier getLocation() const noexcept;
     //! \brief destructor
     ~PartialQuadratureSpace();
 
@@ -186,6 +191,7 @@ namespace mfem_mgis {
      * \param[in] throwing: dummy attribute to indicate that this function may
      * throw an exception
      */
+    template <bool parallel>
     void initialize(attributes::Throwing throwing);
     /*!
      * \return the underlying mesh
@@ -234,8 +240,8 @@ namespace mfem_mgis {
     std::unordered_map<size_type,  // element number (global numbering)
                        size_type>  // number of quadrature points
         number_of_quadrature_points;
-    //! \brief material or boundary identifier
-    size_type id;
+    //! \brief location in the main mesh
+    LocationIdentifier location;
     //! \brief number of integration points
     size_type ng;
   };  // end of struct PartialQuadratureSpace

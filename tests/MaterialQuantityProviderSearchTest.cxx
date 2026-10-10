@@ -86,9 +86,7 @@ struct MaterialQuantityProviderSearchTest final : public tfel::tests::TestCase {
     this->addBehaviourIntegrators(*oproblem);
     const auto& p = *oproblem;
     auto ctx = Context{};
-    const auto material =
-        LocationIdentifier{.material_identifier = MaterialIdentifier{.id = 1},
-                           .boundary_identifier = {}};
+    const auto material = LocationIdentifier{MaterialIdentifier{.id = 1}};
     // a unique provider
     const auto r1 = hasInternalStateVariableProvider(ctx, p, material,
                                                      "EquivalentPlasticStrain");
@@ -114,9 +112,7 @@ struct MaterialQuantityProviderSearchTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(r4->status == Status::NO_PROVIDER);
     TFEL_TESTS_CHECK(isInvalid(*r4));
     // behaviour integrators are not defined on boundaries
-    const auto boundary =
-        LocationIdentifier{.material_identifier = {},
-                           .boundary_identifier = BoundaryIdentifier{.id = 1}};
+    const auto boundary = LocationIdentifier{BoundaryIdentifier{.id = 1}};
     const auto r5 = hasInternalStateVariableProvider(ctx, p, boundary,
                                                      "EquivalentPlasticStrain");
     TFEL_TESTS_ASSERT(isValid(r5));
