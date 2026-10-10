@@ -1065,8 +1065,6 @@ namespace mfem_mgis {
    * the nodal averages with null values.
    * \note location identifiers are compared, rather than attributes, as the
    * attributes of a submesh defined on boundaries are boundary identifiers.
-   * \note a partial quadrature space defined on a boundary is built on the
-   * submesh of this boundary, which must be the mesh of the grid function.
    */
   template <bool parallel>
   [[nodiscard]] static bool checkGridFunctionMesh(
@@ -1087,8 +1085,14 @@ namespace mfem_mgis {
         return false;
       }
       const auto ql = qspace.getLocation();
-      if (!fed.contains(ctx, mesh, ql)) {
-        return {};
+      const auto oc = fed.contains(ctx, mesh, ql);
+      if (isInvalid(oc)) {
+        return false;
+      }
+      if (!*(oc)) {
+        return ctx.registerErrorMessage(
+            qspace.getLocationName() +
+            " is not part of the mesh of the grid function");
       }
       if (!locations.empty()) {
         const auto& l = *(locations.begin());
@@ -1103,24 +1107,29 @@ namespace mfem_mgis {
                                         qspace.getLocationName() + "'");
       }
     }
-    const auto on_boundaries = [&locations] {
+    const auto functions_on_boundaries = [&locations] {
       const auto& l = *(locations.begin());
       return isValid(l.boundary_identifier);
     }();
     // locations associated with the mesh of the grid function
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
-    const auto ob = fed.isDefinedOnBoundaries(ctx, mesh);
-    if (isInvalid(ob)) {
-      return {};
+    const auto omesh_on_boundaries = fed.isDefinedOnBoundaries(ctx, mesh);
+    if (isInvalid(omesh_on_boundaries)) {
+      return false;
+    }
+    if (*omesh_on_boundaries != functions_on_boundaries) {
+      return ctx.registerErrorMessage(
+          "can't update a grid function on materials with quadrature functions "
+          "on boundaries");
     }
     auto mesh_locations = std::set<LocationIdentifier>{};
-    if (*ob) {
+    if (*omesh_on_boundaries) {
       for (const auto a : mesh.attributes) {
         mesh_locations.insert(BoundaryIdentifier{.id = a});
       }
     } else {
-      if (on_boundaries) {
+      if (functions_on_boundaries) {
         for (const auto a : mesh.bdr_attributes) {
           mesh_locations.insert(BoundaryIdentifier{.id = a});
         }

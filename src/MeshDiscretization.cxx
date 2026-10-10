@@ -824,7 +824,7 @@ namespace mfem_mgis {
                                  const Mesh<parallel>& mesh,
                                  const LocationIdentifier& l) const noexcept {
       if (!this->manages(mesh)) {
-        return "given mesh is not managed";
+        return ctx.registerErrorMessage("given mesh is not managed");
       }
       const auto o_on_materials = this->isDefinedOnMaterials(ctx, mesh);
       if (isInvalid(o_on_materials)) {
@@ -915,19 +915,18 @@ namespace mfem_mgis {
         return tree;
       };
       // cut both trees to remove all common ancestors except the closest one
-      auto cut = [](std::vector<const Mesh<parallel>*>& tree1,
-                    std::vector<const Mesh<parallel>*>& tree2) {
+      auto cut = [&m1, &m2](std::vector<const Mesh<parallel>*>& tree1,
+                            std::vector<const Mesh<parallel>*>& tree2) {
         auto p1 = tree1.rbegin();
         auto p2 = tree2.rbegin();
-        while (*p1 == *p2) {
-          if ((std::next(p1) == tree1.rend()) ||
-              (std::next(p2) == tree2.rend())) {
-            break;
-          }
+        while ((*p1 == *p2) && (*p1 != &m1) && (*p2 != &m2)) {
           tree1.pop_back();
           tree2.pop_back();
           p1 = tree1.rbegin();
           p2 = tree2.rbegin();
+          if ((p1 == tree1.rend()) || (p2 == tree2.rend())) {
+            mfem_mgis::abort("internal error");
+          }
         }
       };
       //
@@ -945,6 +944,10 @@ namespace mfem_mgis {
       if (tree2.front() != &m2) {
         mfem_mgis::abort("internal error");
       }
+      // check that the common ancestor is kept
+      if (tree1.back() != tree2.back()) {
+        mfem_mgis::abort("internal error");
+      }
       // now we have to create the elements mapping from m1 to the top of its
       // tree
       const auto omapping1 =
@@ -956,7 +959,15 @@ namespace mfem_mgis {
       auto p1 = tree1.begin();
       while (std::next(p1) != tree1.end()) {
         const auto* const sm = dynamic_cast<const SubMesh<parallel>*>(*p1);
-        const auto& map = sm->GetParentElementIDMap();
+        const auto& map = [&l, &sm]() -> const mfem::Array<size_type>& {
+          if (sm->GetFrom() == SubMesh<parallel>::From::Boundary) {
+            return sm->GetParentElementIDMap();
+          }
+          if (isValid(l.boundary_identifier)) {
+            return sm->GetParentFaceIDMap();
+          }
+          return sm->GetParentElementIDMap();
+        }();
         for (size_type i = 0; i != mapping2.Size(); ++i) {
           mapping2[i] = map[mapping2[i]];
         }
@@ -968,7 +979,15 @@ namespace mfem_mgis {
       while (std::next(p2) != tree2.rend()) {
         const auto* const sm =
             dynamic_cast<const SubMesh<parallel>*>(*(std::next(p2)));
-        const auto& map = sm->GetParentElementIDMap();
+        const auto& map = [&l, &sm]() -> const mfem::Array<size_type>& {
+          if (sm->GetFrom() == SubMesh<parallel>::From::Boundary) {
+            return sm->GetParentElementIDMap();
+          }
+          if (isValid(l.boundary_identifier)) {
+            return sm->GetParentFaceIDMap();
+          }
+          return sm->GetParentElementIDMap();
+        }();
         for (size_type i = 0; i != mapping2.Size(); ++i) {
           const auto idx = map.Find(mapping2[i]);
           mapping2[i] = idx;
