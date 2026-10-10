@@ -29,7 +29,9 @@ namespace mfem_mgis {
    * meshes
    */
   struct ElementsMapping {
+    //! \brief elements indexes in the original mesh
     mfem::Array<size_type> from_indexes;
+    //! \brief elements indexes in the targeted mesh
     mfem::Array<size_type> to_indexes;
   };
 
@@ -109,12 +111,23 @@ namespace mfem_mgis {
      * scheme.
      */
     struct LocationIdentifier {
+      /*!
+       * \brief constructor from a material identifier
+       * \param[in] m: material identifier
+       */
       LocationIdentifier(const MaterialIdentifier& m) noexcept
           : material_identifier(m) {}  // end of LocationIdentifier
+      /*!
+       * \brief constructor from a boundary identifier
+       * \param[in] m: boundary identifier
+       */
       LocationIdentifier(const BoundaryIdentifier& b) noexcept
           : boundary_identifier(b) {}  // end of LocationIdentifier
+      //! \brief default constructor
       LocationIdentifier() noexcept = default;
+      //! \brief move constructor
       LocationIdentifier(LocationIdentifier&&) noexcept = default;
+      //! \brief copy constructor
       LocationIdentifier(const LocationIdentifier&) noexcept = default;
       LocationIdentifier& operator=(LocationIdentifier&&) noexcept = delete;
       LocationIdentifier& operator=(const LocationIdentifier&) noexcept =
@@ -212,7 +225,7 @@ namespace mfem_mgis {
     /*!
      * \return if the given mesh contains the given location
      * \param[in, out]  ctx: execution context
-     * \param[in]  m: mesh
+     * \param[in]  mesh: mesh
      * \param[in]  l: location
      */
     [[nodiscard]] std::optional<bool> contains(
@@ -974,7 +987,7 @@ namespace mfem_mgis {
    * - bounadary '1'
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::string getLocationDescription(
-      const LocationIdentifier&);
+      const LocationIdentifier& l);
   /*!
    * \brief compare two mesh discretisations to see if they point to the same
    * underlying implementation

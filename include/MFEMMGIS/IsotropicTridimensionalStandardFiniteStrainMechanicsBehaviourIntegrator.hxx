@@ -149,6 +149,7 @@ namespace mfem_mgis {
         const mfem::FiniteElement &e, const mfem::ElementTransformation &t);
     /*!
      * \brief build the quadrature space for the given material
+     * \param[in] throwing: throwing attribute.
      * \param[in] fed: finite element discretization.
      * \param[in] m: material attribute.
      * \return the partial quadrature space

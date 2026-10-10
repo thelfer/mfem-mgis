@@ -177,14 +177,14 @@ namespace mfem_mgis {
    * \param[in] s: finite element space
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const Mesh<true>& getMesh(
-      const FiniteElementSpace<true>&) noexcept;
+      const FiniteElementSpace<true>& s) noexcept;
 #endif /* MFEM_USE_MPI */
   /*!
    * \return the underlying mesh
    * \param[in] s: finite element space
    */
   MFEM_MGIS_EXPORT [[nodiscard]] const Mesh<false>& getMesh(
-      const FiniteElementSpace<false>&) noexcept;
+      const FiniteElementSpace<false>& s) noexcept;
   /*!
    * \brief return the number of components of the unknowns
    * \return the number of components (vectorial dimension) of the
