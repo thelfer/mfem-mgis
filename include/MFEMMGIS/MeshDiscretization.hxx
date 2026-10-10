@@ -119,7 +119,7 @@ namespace mfem_mgis {
           : material_identifier(m) {}  // end of LocationIdentifier
       /*!
        * \brief constructor from a boundary identifier
-       * \param[in] m: boundary identifier
+       * \param[in] b: boundary identifier
        */
       LocationIdentifier(const BoundaryIdentifier& b) noexcept
           : boundary_identifier(b) {}  // end of LocationIdentifier
@@ -215,7 +215,7 @@ namespace mfem_mgis {
     /*!
      * \return if the given mesh contains the given location
      * \param[in, out]  ctx: execution context
-     * \param[in]  m: mesh
+     * \param[in]  mesh: mesh
      * \param[in]  l: location
      */
     [[nodiscard]] std::optional<bool> contains(
