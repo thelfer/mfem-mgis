@@ -20,6 +20,7 @@
 #endif
 #include "MGIS/Raise.hxx"
 #include "MGIS/Profiling.hxx"
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/Profiler.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
@@ -882,13 +883,13 @@ namespace mfem_mgis {
       if (*oboundary_api) {
         for (size_type i = 0; i != mesh.GetNBE(); ++i) {
           if (mesh.GetBdrAttribute(i) == id) {
-            elts.push_back(i);
+            elts.Append(i);
           }
         }
       } else {
         for (size_type i = 0; i != mesh.GetNE(); ++i) {
           if (mesh.GetAttribute(i) == id) {
-            elts.push_back(i);
+            elts.Append(i);
           }
         }
       }
@@ -896,8 +897,40 @@ namespace mfem_mgis {
     }  // end of getElementsMapping
 
     template <bool parallel>
+    std::optional<size_type> countElements(
+        Context& ctx,
+        const Mesh<parallel>& mesh,
+        const LocationIdentifier& l) const noexcept {
+      const auto oboundary_api =
+          this->template shallUseBoundaryElementsAPI<parallel>(ctx, mesh, l);
+      if (isInvalid(oboundary_api)) {
+        return {};
+      }
+      const auto id = isValid(l.material_identifier)
+                          ? l.material_identifier->id
+                          : l.boundary_identifier->id;
+      auto n = size_type{};
+      if (*oboundary_api) {
+        for (size_type i = 0; i != mesh.GetNBE(); ++i) {
+          if (mesh.GetBdrAttribute(i) == id) {
+            ++n;
+          }
+        }
+      } else {
+        for (size_type i = 0; i != mesh.GetNE(); ++i) {
+          if (mesh.GetAttribute(i) == id) {
+            ++n;
+          }
+        }
+      }
+      return n;
+    }  // end of countElements
+
+    // internal method that build the mapping on the local process
+    // result shall be synchronized since errors may occur
+    template <bool parallel>
     //  OptionalReference<const ElementsMapping>
-    std::optional<ElementsMapping> getElementsMapping(
+    std::optional<ElementsMapping> getLocalElementsMapping(
         Context& ctx,
         const Mesh<parallel>& m1,
         const Mesh<parallel>& m2,
@@ -915,18 +948,12 @@ namespace mfem_mgis {
         return tree;
       };
       // cut both trees to remove all common ancestors except the closest one
-      auto cut = [&m1, &m2](std::vector<const Mesh<parallel>*>& tree1,
-                            std::vector<const Mesh<parallel>*>& tree2) {
-        auto p1 = tree1.rbegin();
-        auto p2 = tree2.rbegin();
-        while ((*p1 == *p2) && (*p1 != &m1) && (*p2 != &m2)) {
+      auto cut = [](std::vector<const Mesh<parallel>*>& tree1,
+                    std::vector<const Mesh<parallel>*>& tree2) {
+        while ((tree1.size() > 1) && (tree2.size() > 1) &&
+               (tree1[tree1.size() - 2] == tree2[tree2.size() - 2])) {
           tree1.pop_back();
           tree2.pop_back();
-          p1 = tree1.rbegin();
-          p2 = tree2.rbegin();
-          if ((p1 == tree1.rend()) || (p2 == tree2.rend())) {
-            mfem_mgis::abort("internal error");
-          }
         }
       };
       //
@@ -959,17 +986,47 @@ namespace mfem_mgis {
       auto p1 = tree1.begin();
       while (std::next(p1) != tree1.end()) {
         const auto* const sm = dynamic_cast<const SubMesh<parallel>*>(*p1);
-        const auto& map = [&l, &sm]() -> const mfem::Array<size_type>& {
+        const auto use_parent_id_map = [&l, &sm] {
           if (sm->GetFrom() == SubMesh<parallel>::From::Boundary) {
-            return sm->GetParentElementIDMap();
+            return true;
           }
-          if (isValid(l.boundary_identifier)) {
-            return sm->GetParentFaceIDMap();
-          }
-          return sm->GetParentElementIDMap();
+          return isValid(l.material_identifier);
         }();
-        for (size_type i = 0; i != mapping2.Size(); ++i) {
-          mapping2[i] = map[mapping2[i]];
+        if (use_parent_id_map) {
+          const auto& map = sm->GetParentElementIDMap();
+          for (size_type i = 0; i != mapping2.Size(); ++i) {
+            mapping2[i] = map[mapping2[i]];
+          }
+        } else {
+          // this is the tricky part. The submesh is build on materials, but we
+          // are treating a boundary. In this case, the boundary in the submesh
+          // can be smaller than the boundary in the parent
+          const auto& parent = *(sm->GetParent());
+          const auto on =
+              this->template countElements<parallel>(ctx, parent, l);
+          if (isInvalid(on)) {
+            return {};
+          }
+          if (*on != omapping1->Size()) {
+            return ctx.registerErrorMessage(
+                getLocationDescription(l) +
+                " has different sizes across parent submeshes");
+          }
+          const auto& faces_mapping = [&sm]() -> const mfem::Array<size_type>& {
+            if (sm->SpaceDimension() == 2) {
+              return sm->GetParentEdgeIDMap();
+            }
+            return sm->GetParentFaceIDMap();
+          }();
+          const auto& parent_boundary_elts_mapping = parent.GetFaceToBdrElMap();
+          for (size_type i = 0; i != mapping2.Size(); ++i) {
+            // face id in submesh
+            const auto f = sm->GetBdrElementFaceIndex(mapping2[i]);
+            // face id in parent
+            const auto f2 = faces_mapping[f];
+            // retrieve the boundary element number
+            mapping2[i] = parent_boundary_elts_mapping[f2];
+          }
         }
         ++p1;
       }
@@ -979,24 +1036,88 @@ namespace mfem_mgis {
       while (std::next(p2) != tree2.rend()) {
         const auto* const sm =
             dynamic_cast<const SubMesh<parallel>*>(*(std::next(p2)));
-        const auto& map = [&l, &sm]() -> const mfem::Array<size_type>& {
+        const auto use_parent_id_map = [&l, &sm] {
           if (sm->GetFrom() == SubMesh<parallel>::From::Boundary) {
-            return sm->GetParentElementIDMap();
+            return true;
           }
-          if (isValid(l.boundary_identifier)) {
-            return sm->GetParentFaceIDMap();
-          }
-          return sm->GetParentElementIDMap();
+          return isValid(l.material_identifier);
         }();
-        for (size_type i = 0; i != mapping2.Size(); ++i) {
-          const auto idx = map.Find(mapping2[i]);
-          mapping2[i] = idx;
+        if (use_parent_id_map) {
+          const auto& map = sm->GetParentElementIDMap();
+          for (size_type i = 0; i != mapping2.Size(); ++i) {
+            const auto idx = map.Find(mapping2[i]);
+            if (idx == -1) {  // don't think that this case is possible
+              return ctx.registerErrorMessage(
+                  "in the targeted mesh, " + getLocationDescription(l) +
+                  "only contains a subset of the elements of the original");
+            }
+            mapping2[i] = idx;
+          }
+        } else {
+          // this is the tricky part. The submesh is build on materials, but we
+          // are treating a boundary. In this case, the boundary in the submesh
+          // can be smaller than the boundary in the parent
+          const auto& parent = *(sm->GetParent());
+          const auto on = this->template countElements<parallel>(ctx, *sm, l);
+          if (isInvalid(on)) {
+            return {};
+          }
+          if (*on != omapping1->Size()) {
+            return ctx.registerErrorMessage(
+                getLocationDescription(l) +
+                " has different sizes across parent submeshes");
+          }
+          const auto& faces_mapping = [&sm]() -> const mfem::Array<size_type>& {
+            if (sm->SpaceDimension() == 2) {
+              return sm->GetParentEdgeIDMap();
+            }
+            return sm->GetParentFaceIDMap();
+          }();
+          const auto& parent_boundary_elts_mapping = parent.GetFaceToBdrElMap();
+          const auto& boundary_elts_mapping = sm->GetFaceToBdrElMap();
+          for (size_type i = 0; i != mapping2.Size(); ++i) {
+            // face id in the parent
+            const auto f = parent_boundary_elts_mapping.Find(mapping2[i]);
+            if (f == -1) {
+              // this means that the index in mapping2 is wrong
+              mfem_mgis::abort("internal error");
+            }
+            // face id in the child
+            const auto f2 = faces_mapping.Find(f);
+            if (f2 == -1) {
+              return ctx.registerErrorMessage(
+                  "error while computing mapping for " +
+                  getLocationDescription(l));
+            }
+            mapping2[i] = boundary_elts_mapping[f2];
+          }
         }
         ++p2;
       }
       return ElementsMapping{.from_indexes = std::move(*omapping1),
                              .to_indexes = std::move(mapping2)};
+    }  // end of getLocalElementsMapping
+
+    template <bool parallel>
+    //  OptionalReference<const ElementsMapping>
+    std::optional<ElementsMapping> getElementsMapping(
+        Context& ctx,
+        const Mesh<parallel>& m1,
+        const Mesh<parallel>& m2,
+        const LocationIdentifier& l) const noexcept {
+      if constexpr (parallel) {
+        const auto om =
+            this->template getLocalElementsMapping<parallel>(ctx, m1, m2, l);
+        const auto success = isTrueOnAllProcesses(m1.GetComm(), isValid(om));
+        if (!success) {
+          return {};
+        }
+        return om;
+      } else {
+        return this->template getLocalElementsMapping<parallel>(ctx, m1, m2, l);
+      }
     }  // end of getElementsMapping
+
     /*!
      * \return if the given mesh is defined on (a subset of) the
      * materials of the main mesh.
@@ -2379,14 +2500,42 @@ namespace mfem_mgis {
     return true;
   }  // end of check
 
-  std::string getLocationDescription(const LocationIdentifier& l) {
+  std::string getLocationDescription(const LocationIdentifier& l) noexcept {
     if (isInvalid(l)) {
-      mfem_mgis::abort("invalid location identifier");
+      return "invalid location identifier";
     }
     if (isValid(l.material_identifier)) {
       return "material (" + std::to_string(l.material_identifier->id) + ")";
     }
     return "boundary (" + std::to_string(l.boundary_identifier->id) + ")";
+  }  // end of getLocationDescription
+
+  std::string getLocationDescription(const MeshDiscretization& m,
+                                     const LocationIdentifier& l) noexcept {
+    if (isInvalid(l)) {
+      return "invalid location identifier";
+    }
+    auto ctx = Context{};
+    if (isValid(l.material_identifier)) {
+      const auto mid = l.material_identifier->id;
+      const auto oname = m.getMaterialName(ctx, mid);
+      if (isInvalid(oname)) {
+        return "unknown material";
+      }
+      if (!oname->empty()) {
+        return "material '" + *oname + "' (" + std::to_string(mid) + ")";
+      }
+      return "material (" + std::to_string(mid) + ")";
+    }
+    const auto bid = l.boundary_identifier->id;
+    const auto oname = m.getBoundaryName(ctx, bid);
+    if (isInvalid(oname)) {
+      return "unknown material";
+    }
+    if (!oname->empty()) {
+      return "boundary '" + *oname + "' (" + std::to_string(bid) + ")";
+    }
+    return "boundary (" + std::to_string(bid) + ")";
   }  // end of getLocationDescription
 
   std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,

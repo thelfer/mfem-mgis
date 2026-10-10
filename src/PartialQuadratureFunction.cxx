@@ -510,7 +510,7 @@ namespace mfem_mgis {
           return l.material_identifier->id;
         }();
         if (!this->functions.insert({id, f}).second) {
-          raise("multiple functions defined for " + getLocationDescription(l));
+          raise("multiple functions defined for " + qspace.getLocationName());
         }
         if (n != f.getNumberOfComponents()) {
           raise("inconsistent number of components");

@@ -983,11 +983,24 @@ namespace mfem_mgis {
    *
    * Examples of the return values are:
    *
-   * - material '1'
-   * - bounadary '1'
+   * - material (1)
+   * - bounadary (1)
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::string getLocationDescription(
-      const LocationIdentifier& l);
+      const LocationIdentifier& l) noexcept;
+  /*!
+   * \return a description of the location
+   * \param[in] m: mesh
+   * \param[in] l: location identifier
+   *
+   * Examples of the return values are:
+   *
+   * - material 'beam' (1)
+   * - material (1) (material has no name)
+   * - bounadary (1) (boundary has no name)
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::string getLocationDescription(
+      const MeshDiscretization& m, const LocationIdentifier& l) noexcept;
   /*!
    * \brief compare two mesh discretisations to see if they point to the same
    * underlying implementation

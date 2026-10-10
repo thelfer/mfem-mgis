@@ -220,8 +220,8 @@ namespace mfem_mgis {
     const auto& eqspace = *(e.getPartialQuadratureSpacePointer());
     if (!areEquivalent(bqspace, eqspace)) {
       return ctx.registerErrorMessage(
-          "partial quadrature function is not defined on the same material as "
-          "the behaviour integrator");
+          "partial quadrature evaluator is not defined on a space equivalent "
+          "to the one of the behaviour integrator");
     }
     return true;
   }  // end of checkQuadratureFunctionEvaluator

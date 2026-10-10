@@ -236,7 +236,8 @@ namespace mfem_mgis {
   }
 
   std::string PartialQuadratureSpace::getLocationName() const noexcept {
-    return getLocationDescription(this->location);
+    return getLocationDescription(this->getMeshDiscretization(),
+                                  this->location);
   }  // end of getLocationName
 
   const MeshDiscretization& PartialQuadratureSpace::getMeshDiscretization()

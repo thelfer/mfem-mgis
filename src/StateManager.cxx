@@ -121,9 +121,9 @@ namespace mfem_mgis {
     const auto id = std::make_pair(qspace->getLocation(), *oqid);
     auto p = this->qfunctions.find(id);
     if (p == this->qfunctions.end()) {
-      return ctx.registerErrorMessage(
-          "no partial function named '" + std::string{n} + "' on " +
-          getLocationDescription(qspace->getLocation()));
+      return ctx.registerErrorMessage("no partial function named '" +
+                                      std::string{n} + "' on " +
+                                      qspace->getLocationName());
     }
     return p->second->get(ctx, n, ts);
   }  // end of get
