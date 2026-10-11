@@ -197,9 +197,9 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     // submeshes and finite element spaces
     const auto bsubmesh = fed.getSubMesh<parallel>(
         ctx, 1, MeshDiscretization::Location::ON_BOUNDARIES);
-    const auto bsubmesh2 = fed.getSubMesh<parallel>(
-        ctx, Parameter{std::vector<Parameter>{1, 3}},
-        MeshDiscretization::Location::ON_BOUNDARIES);
+    const auto bsubmesh2 =
+        fed.getSubMesh<parallel>(ctx, Parameter{std::vector<Parameter>{1, 3}},
+                                 MeshDiscretization::Location::ON_BOUNDARIES);
     const auto msubmesh = fed.getSubMesh<parallel>(
         ctx, 1, MeshDiscretization::Location::ON_MATERIALS);
     TFEL_TESTS_ASSERT(isValid(bsubmesh));
