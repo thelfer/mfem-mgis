@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   different meshes (whole mesh, submeshes of materials or of boundaries),
   see `MeshDiscretization::getElementsMapping` and `getInverseMapping`
 - `PartialQuadratureSpace::getLocation`
+- `FiniteElementSpaceOrdering` parameter, to order the degrees of freedom by
+  vector dimension (`byVDIM`) instead of by nodes (`byNODES`, the default). The
+  `Elasticity` strategy of the `HypreBoomerAMG` preconditioner requires
+  `byVDIM`.
 
 ### Changed
 

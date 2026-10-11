@@ -61,6 +61,7 @@ In addition to the parameters supported by ``MeshDiscretization``, ``FiniteEleme
 
 - ``FiniteElementFamily`` (string): Name of the finite element family (e.g., ``H1``).
 - ``FiniteElementOrder`` (int): Order of the polynomial approximation.
+- ``FiniteElementSpaceOrdering`` (string): Ordering of the degrees of freedom, ``byNODES`` (all the values of the first component, then all the values of the second component, etc., default) or ``byVDIM`` (all the components of the first node, then all the components of the second node, etc.). The ``Elasticity`` strategy of the ``HypreBoomerAMG`` preconditioner requires ``byVDIM``.
 - ``UnknownsSize`` (int): Number of components of the unknowns.
 
 .. note::

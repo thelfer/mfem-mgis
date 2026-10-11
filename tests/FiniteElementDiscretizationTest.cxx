@@ -54,12 +54,14 @@ struct FiniteElementDiscretizationTest final : public tfel::tests::TestCase {
       this->test1<true>();
       this->test2<true>();
       this->test3<true>();
+      this->test4<true>();
     }
 #endif /* MFEM_USE_MPI */
     if (parameters.parallel == 0) {
       this->test1<false>();
       this->test2<false>();
       this->test3<false>();
+      this->test4<false>();
     }
     return this->result;
   }
@@ -152,6 +154,86 @@ struct FiniteElementDiscretizationTest final : public tfel::tests::TestCase {
     this->template common_tests_on_materials<parallel>(*om);
     this->template common_tests_on_boundaries<parallel>(*om);
   }
+  //! \brief tests of the `FiniteElementSpaceOrdering` parameter
+  template <bool parallel>
+  void test4() {
+    using namespace mfem_mgis;
+    const auto mesh_parameters =
+        dict{{"MeshFileName", parameters.mesh_file},
+             {"NumberOfUniformRefinements", parameters.parallel ? 1 : 0},
+             {"Materials", dict{{"Attr1", 1}, {"Attr2", 2}}},
+             {"Boundaries", dict{{"left", 1}, {"right", 2}}},
+             {"Parallel", bool(parameters.parallel)}};
+    // mesh parameters completed by the given parameters
+    auto merge = [&mesh_parameters](const Parameters& p) {
+      auto r = mesh_parameters;
+      r.insert(throwing, p);
+      return r;
+    };
+    // check the ordering of all the finite element spaces of a manager
+    auto check = [this](const FiniteElementSpacesManager& m,
+                        const mfem::Ordering::Type o) {
+      const auto ofes1 = m.template getFiniteElementSpace<parallel>(ctx, 3);
+      TFEL_TESTS_ASSERT(isValid(ofes1));
+      TFEL_TESTS_CHECK_EQUAL(ofes1->GetOrdering(), o);
+      const auto ofes2 = m.template getFiniteElementSpace<parallel>(
+          ctx, {.location = MeshDiscretization::Location::ON_MATERIALS,
+                .identifiers = list{"Attr1"},
+                .number_of_components = 3});
+      TFEL_TESTS_ASSERT(isValid(ofes2));
+      TFEL_TESTS_CHECK_EQUAL(ofes2->GetOrdering(), o);
+      const auto ofes3 = m.template getFiniteElementSpace<parallel>(
+          ctx, {.location = MeshDiscretization::Location::ON_BOUNDARIES,
+                .identifiers = list{"left"},
+                .number_of_components = 2});
+      TFEL_TESTS_ASSERT(isValid(ofes3));
+      TFEL_TESTS_CHECK_EQUAL(ofes3->GetOrdering(), o);
+    };
+    // default ordering
+    auto om1 = construct<FiniteElementSpacesManager>(
+        ctx, merge(dict{{"FiniteElementOrder", 1}}));
+    TFEL_TESTS_ASSERT(isValid(om1));
+    check(*om1, mfem::Ordering::byNODES);
+    // explicit orderings
+    for (const auto& [n, o] : {std::pair{"byNODES", mfem::Ordering::byNODES},
+                               std::pair{"byVDIM", mfem::Ordering::byVDIM}}) {
+      auto om2 = construct<FiniteElementSpacesManager>(
+          ctx, merge(dict{{"FiniteElementOrder", 1},
+                          {"FiniteElementSpaceOrdering", n}}));
+      TFEL_TESTS_ASSERT(isValid(om2));
+      check(*om2, o);
+    }
+    // finite element space manager built on an existing mesh
+    auto omesh = construct<MeshDiscretization>(ctx, mesh_parameters);
+    TFEL_TESTS_ASSERT(isValid(omesh));
+    auto om3 = construct<FiniteElementSpacesManager>(
+        ctx, *omesh,
+        dict{{"FiniteElementOrder", 1},
+             {"FiniteElementSpaceOrdering", "byVDIM"}});
+    TFEL_TESTS_ASSERT(isValid(om3));
+    check(*om3, mfem::Ordering::byVDIM);
+    // finite element discretization
+    auto ofed = construct<FiniteElementDiscretization>(
+        ctx, merge(dict{{"FiniteElementOrder", 1},
+                        {"FiniteElementSpaceOrdering", "byVDIM"},
+                        {"UnknownsSize", 3}}));
+    TFEL_TESTS_ASSERT(isValid(ofed));
+    TFEL_TESTS_CHECK_EQUAL(
+        ofed->template getFiniteElementSpace<parallel>().GetOrdering(),
+        mfem::Ordering::byVDIM);
+    check(ofed->getFiniteElementSpacesManager(), mfem::Ordering::byVDIM);
+    // invalid ordering
+    auto om4 = construct<FiniteElementSpacesManager>(
+        ctx, *omesh,
+        dict{{"FiniteElementOrder", 1},
+             {"FiniteElementSpaceOrdering", "byComponents"}});
+    TFEL_TESTS_CHECK(isInvalid(om4));
+    TFEL_TESTS_CHECK_EQUAL(
+        ctx.getRawErrorMessage(),
+        "FiniteElementSpacesManager::FiniteElementSpacesManager: invalid "
+        "finite element space ordering 'byComponents' (expected 'byNODES' or "
+        "'byVDIM')");
+  }  // end of test4
   //
   template <bool parallel>
   void common_tests_on_materials(

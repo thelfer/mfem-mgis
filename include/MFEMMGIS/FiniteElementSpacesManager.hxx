@@ -18,7 +18,8 @@ namespace mfem_mgis {
    * \brief This class manages similar finite element spaces, denoted as
    * siblings. They share the same finite element collection and are defined on
    * the same mesh or on one of its submeshes, but may have different vectorial
-   * dimensions.
+   * dimensions. The degrees of freedom of all those finite element spaces are
+   * ordered in the same way (see the `FiniteElementSpaceOrdering` parameter).
    *
    * This class is designed to be lightweight, movable and copyable
    */
@@ -28,8 +29,24 @@ namespace mfem_mgis {
     //! \brief string associated to the `FiniteElementOrder` parameter
     static const char* const FiniteElementOrder;
     /*!
+     * \brief string associated to the `FiniteElementSpaceOrdering` parameter
+     *
+     * This parameter selects the ordering of the degrees of freedom of the
+     * finite element spaces:
+     *
+     * - `byNODES` (default): all the values of the first component, then all
+     *   the values of the second component, etc. (`XX...YY...ZZ...`).
+     * - `byVDIM`: all the components of the first node, then all the
+     *   components of the second node, etc. (`XYZXYZ...`).
+     *
+     * \note the `Elasticity` strategy of the `HypreBoomerAMG` preconditioner
+     * requires the `byVDIM` ordering.
+     */
+    static const char* const FiniteElementSpaceOrdering;
+    /*!
      * \return the list of parameters allowing to build a finite
-     * element collection.
+     * element collection and to select the ordering of the degrees of freedom
+     * of the finite element spaces.
      *
      * Those parameters are used when the mesh discretization is already built.
      */
@@ -60,6 +77,8 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] m: mesh discretization
      * \param[in] c: finite element collection
+     *
+     * \note the degrees of freedom are ordered by nodes (`byNODES`)
      */
     FiniteElementSpacesManager(
         Context& ctx,
