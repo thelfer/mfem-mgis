@@ -547,6 +547,19 @@ namespace mfem_mgis {
     [[nodiscard]] std::optional<std::string> getLocationName(
         Context& ctx, const LocationIdentifier& id) const noexcept;
     /*!
+     * \return a description of the location
+     * \param[in] m: mesh
+     * \param[in] l: location identifier
+     *
+     * Examples of the return values are:
+     *
+     * - material 'beam' (1)
+     * - material (1) (material has no name)
+     * - boundary (1) (boundary has no name)
+     */
+    [[nodiscard]] std::string getLocationDescription(
+        const LocationIdentifier& l) const noexcept;
+    /*!
      * \brief get the name of a material
      * \return the material name associated with the given identifier, if it is
      * defined. If the identifier exists but has no name, an empty string is
@@ -984,7 +997,7 @@ namespace mfem_mgis {
    * Examples of the return values are:
    *
    * - material (1)
-   * - bounadary (1)
+   * - boundary (1)
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::string getLocationDescription(
       const LocationIdentifier& l) noexcept;
@@ -997,7 +1010,7 @@ namespace mfem_mgis {
    *
    * - material 'beam' (1)
    * - material (1) (material has no name)
-   * - bounadary (1) (boundary has no name)
+   * - boundary (1) (boundary has no name)
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::string getLocationDescription(
       const MeshDiscretization& m, const LocationIdentifier& l) noexcept;

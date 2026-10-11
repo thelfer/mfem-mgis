@@ -122,8 +122,8 @@ namespace mfem_mgis {
       }
       if (std::find(ids.begin(), ids.end(), id) != ids.end()) {
         return ctx.registerErrorMessage(
-            "several quadrature functions defined on '" +
-            qspace.getLocationName() + "' given");
+            "several quadrature functions defined on " +
+            qspace.getLocationName() + " given");
       }
       ids.push_back(id);
     }
@@ -219,12 +219,11 @@ namespace mfem_mgis {
       }();
       if (!ids.insert(id).second) {
         return ctx.registerErrorMessage(
-            "multiple quadrature functions defined on '" +
-            qspace.getLocationName() + "'");
+            "multiple quadrature functions defined on " +
+            qspace.getLocationName());
       }
     }
-    // partial quadrature spaces defined on boundaries are built on the submesh
-    // of the boundary
+    //
     const auto location =
         fcts.at(0).getPartialQuadratureSpace().isDefinedOnABoundary()
             ? MeshDiscretization::Location::ON_BOUNDARIES
@@ -547,7 +546,6 @@ namespace mfem_mgis {
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
       std::function<void(BilinearForm<parallel>&)>
           add_regularization_operator) {
-    auto or_abort = ctx.getFatalFailureHandler();
     if (!checkUpdateFunctionsArguments(ctx, r, l, fcts)) {
       return false;
     }
@@ -575,18 +573,23 @@ namespace mfem_mgis {
     if (isInvalid(oboundaries)) {
       return {};
     }
-    const auto requiresMapping = [&mesh, &fcts, &ctx, &or_abort] {
+    const auto orequiresMapping = [&mesh, &fcts,
+                                   &ctx]() -> std::optional<bool> {
       for (const auto& qf : fcts) {
-        const auto& s = qf.getPartialQuadratureSpace()
-                            .template getFiniteElementSpace<parallel>(ctx) |
-                        or_abort;
-        if (&mesh != &getMesh(s)) {
+        const auto& os = qf.getPartialQuadratureSpace()
+                             .template getFiniteElementSpace<parallel>(ctx);
+        if (isInvalid(os)) {
+          return {};
+        }
+        if (&mesh != &getMesh(*os)) {
           return true;
         }
       }
       return false;
     }();
-
+    if (isInvalid(orequiresMapping)) {
+      return false;
+    }
     // Here begin the tricky part. In order to reduce the
     // computational cost, we will make the projection component by
     // component. But of course, if the functions are scalar, we do
@@ -606,6 +609,26 @@ namespace mfem_mgis {
     BilinearForm<parallel> a(&(*olocal_fespace));
     add_regularization_operator(a);
     a.Assemble();
+    //
+    auto mappings = std::unordered_map<size_type, ElementsMapping>{};
+    if (*orequiresMapping) {
+      for (const auto& qf : fcts) {
+        const auto& qspace = qf.getPartialQuadratureSpace();
+        const auto ql = qspace.getLocation();
+        const auto id = isValid(ql.material_identifier)
+                            ? ql.material_identifier->id
+                            : ql.boundary_identifier->id;
+        const auto& os = qspace.template getFiniteElementSpace<parallel>(ctx);
+        if (isInvalid(os)) {
+          return false;
+        }
+        const auto om = fed.getElementsMapping(ctx, getMesh(*os), mesh, ql);
+        if (isInvalid(om)) {
+          return false;
+        }
+        mappings.insert({id, std::move(*om)});
+      }
+    }
     // resolution(s)
     for (size_type c = 0; c != rfespace.GetVDim(); ++c) {
       // initialize the solution, if needed
@@ -614,20 +637,7 @@ namespace mfem_mgis {
       }
       // right-hand side
       LinearForm<parallel> b(&(*olocal_fespace));
-      if (requiresMapping) {
-        auto mappings = std::unordered_map<size_type, ElementsMapping>{};
-        for (const auto& qf : fcts) {
-          const auto& qspace = qf.getPartialQuadratureSpace();
-          const auto ql = qspace.getLocation();
-          const auto id = isValid(ql.material_identifier)
-                              ? ql.material_identifier->id
-                              : ql.boundary_identifier->id;
-          const auto& s =
-              qspace.template getFiniteElementSpace<parallel>(ctx) | or_abort;
-          const auto m =
-              fed.getElementsMapping(ctx, getMesh(s), mesh, ql) | or_abort;
-          mappings.insert({id, std::move(m)});
-        }
+      if (*orequiresMapping) {
         if (rfespace.GetVDim() == 1) {
           b.AddDomainIntegrator(
               new ScalarL2ProjectionRHSFormIntegratorII(fcts, mappings));

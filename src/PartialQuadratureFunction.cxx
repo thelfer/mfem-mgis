@@ -994,13 +994,7 @@ namespace mfem_mgis {
       return false;
     }
     const auto& fespace = *ofespace;
-    const auto& grid_fespace = [&src]() -> const FiniteElementSpace<parallel>& {
-      if constexpr (parallel) {
-        return *(src.ParFESpace());
-      } else {
-        return *(src.FESpace());
-      }
-    }();
+    const auto& grid_fespace = getFiniteElementSpace(src);
     if (!fed.template isSibling<parallel>(grid_fespace)) {
       return ctx.registerErrorMessage("unmatched finite element space");
     }
@@ -1016,7 +1010,7 @@ namespace mfem_mgis {
     if (isInvalid(oboundary_api)) {
       return {};
     }
-    if (&fespace != &grid_fespace) {
+    if (&(getMesh(fespace)) != &(getMesh(grid_fespace))) {
       const auto omapping = fed.getElementsMapping(
           ctx, getMesh(fespace), getMesh(grid_fespace), qspace.getLocation());
       if (isInvalid(omapping)) {
@@ -1103,8 +1097,8 @@ namespace mfem_mgis {
         }
       }
       if (!locations.insert(ql).second) {
-        return ctx.registerErrorMessage("multiple functions defined on '" +
-                                        qspace.getLocationName() + "'");
+        return ctx.registerErrorMessage("multiple functions defined on " +
+                                        qspace.getLocationName());
       }
     }
     const auto functions_on_boundaries = [&locations] {
@@ -1129,14 +1123,8 @@ namespace mfem_mgis {
         mesh_locations.insert(BoundaryIdentifier{.id = a});
       }
     } else {
-      if (functions_on_boundaries) {
-        for (const auto a : mesh.bdr_attributes) {
-          mesh_locations.insert(BoundaryIdentifier{.id = a});
-        }
-      } else {
-        for (const auto a : mesh.attributes) {
-          mesh_locations.insert(MaterialIdentifier{.id = a});
-        }
+      for (const auto a : mesh.attributes) {
+        mesh_locations.insert(MaterialIdentifier{.id = a});
       }
     }
     if (locations != mesh_locations) {
@@ -1296,7 +1284,7 @@ namespace mfem_mgis {
     if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
       raise(ctx.getErrorMessage());
     }
-    const auto requiresMapping = [&fed, &mesh, &fcts, &ctx, &or_abort] {
+    const auto requiresMapping = [&mesh, &fcts, &ctx, &or_abort] {
       for (const auto& qf : fcts) {
         const auto& s = qf.getPartialQuadratureSpace()
                             .template getFiniteElementSpace<parallel>(ctx) |

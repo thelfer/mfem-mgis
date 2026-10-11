@@ -207,7 +207,7 @@ namespace mfem_mgis {
       return;
     }
     if (isInvalid(this->location.boundary_identifier)) {
-      mfem_mgis::abort("internal error");
+      raise("internal error");
     }
     const auto bid = this->location.boundary_identifier->id;
     if (is_mesh_defined_on_boundary) {
@@ -488,11 +488,10 @@ namespace mfem_mgis {
       std::ostream& os,
       const PartialQuadratureSpaceInformation& info) noexcept {
     auto success = true;
-    os << "- material or boundary identifier:";
+    os << "- location: ";
     if (!info.name.empty()) {
-      os << " '" << info.name << "' ";
+      os << "- location: " << info.name << "\n";
     }
-    os << " " << std::to_string(info.identifier) << '\n';
     os << "- number of elements: " << info.number_of_cells << '\n';
     os << "- number of quadrature points: " << info.number_of_quadrature_points
        << '\n';

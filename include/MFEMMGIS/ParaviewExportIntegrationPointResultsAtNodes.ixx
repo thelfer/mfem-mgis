@@ -159,7 +159,7 @@ namespace mfem_mgis {
       return false;
     }  // end of executeInitialPostProcessing
     if (this->shallExecuteInitialPostProcessing) {
-      if (!this->exportResults(ctx, p, t, bts)) {
+      if (!this->exportResults(ctx, t, bts)) {
         return false;
       }
     }
@@ -170,18 +170,17 @@ namespace mfem_mgis {
   bool
   ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::execute(
       Context& ctx,
-      NonLinearEvolutionProblemImplementation<parallel>& p,
+      NonLinearEvolutionProblemImplementation<parallel>&,
       const real t,
       const real dt) noexcept {
-    return this->exportResults(ctx, p, t + dt, ets);
+    return this->exportResults(ctx, t + dt, ets);
   }  // end of execute
 
   template <bool parallel>
-  bool ParaviewExportIntegrationPointResultsAtNodesImplementation<parallel>::
-      exportResults(Context& ctx,
-                    NonLinearEvolutionProblemImplementation<parallel>& p,
-                    const real t,
-                    const TimeStepStage s) noexcept {
+  bool ParaviewExportIntegrationPointResultsAtNodesImplementation<
+      parallel>::exportResults(Context& ctx,
+                               const real t,
+                               const TimeStepStage s) noexcept {
     this->exporter.SetCycle(this->cycle);
     this->exporter.SetTime(t);
 

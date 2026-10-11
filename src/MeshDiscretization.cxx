@@ -935,6 +935,9 @@ namespace mfem_mgis {
         const Mesh<parallel>& m1,
         const Mesh<parallel>& m2,
         const LocationIdentifier& l) const noexcept {
+      if ((!this->manages(m1)) || (!this->manages(m2))) {
+        return ctx.registerErrorMessage("unmanaged mesh");
+      }
       // return all the ancestors of the given mesh, including the given mesh
       auto getMeshFamilyTree = [](const Mesh<parallel>& m) {
         auto tree = std::vector<const Mesh<parallel>*>{};
@@ -955,6 +958,26 @@ namespace mfem_mgis {
           tree1.pop_back();
           tree2.pop_back();
         }
+      };
+      // return true if a boundary element of a submesh and a boundary element
+      // of its parent have the same vertices in the same order, i.e. if their
+      // integration points are the same physical points
+      auto have_same_vertices = [](const SubMesh<parallel>& s,
+                                   const size_type sbe, const Mesh<parallel>& p,
+                                   const size_type pbe) {
+        mfem::Array<int> sv, pv;
+        s.GetBdrElementVertices(sbe, sv);
+        p.GetBdrElementVertices(pbe, pv);
+        if (sv.Size() != pv.Size()) {
+          return false;
+        }
+        const auto& vmap = s.GetParentVertexIDMap();
+        for (int k = 0; k != sv.Size(); ++k) {
+          if (vmap[sv[k]] != pv[k]) {
+            return false;
+          }
+        }
+        return true;
       };
       //
       auto tree1 = getMeshFamilyTree(m1);
@@ -1009,11 +1032,11 @@ namespace mfem_mgis {
           }
           if (*on != omapping1->Size()) {
             return ctx.registerErrorMessage(
-                getLocationDescription(l) +
+                this->getLocationDescription(l) +
                 " has different sizes across parent submeshes");
           }
           const auto& faces_mapping = [&sm]() -> const mfem::Array<size_type>& {
-            if (sm->SpaceDimension() == 2) {
+            if (sm->Dimension() == 2) {
               return sm->GetParentEdgeIDMap();
             }
             return sm->GetParentFaceIDMap();
@@ -1025,7 +1048,15 @@ namespace mfem_mgis {
             // face id in parent
             const auto f2 = faces_mapping[f];
             // retrieve the boundary element number
-            mapping2[i] = parent_boundary_elts_mapping[f2];
+            const auto pbe = parent_boundary_elts_mapping[f2];
+            if ((pbe == -1) ||
+                (!have_same_vertices(*sm, mapping2[i], parent, pbe))) {
+              return ctx.registerErrorMessage(
+                  "the boundary elements of " +
+                  this->getLocationDescription(l) +
+                  " are not oriented as in the parent mesh");
+            }
+            mapping2[i] = pbe;
           }
         }
         ++p1;
@@ -1048,7 +1079,7 @@ namespace mfem_mgis {
             const auto idx = map.Find(mapping2[i]);
             if (idx == -1) {  // don't think that this case is possible
               return ctx.registerErrorMessage(
-                  "in the targeted mesh, " + getLocationDescription(l) +
+                  "in the targeted mesh, " + this->getLocationDescription(l) +
                   "only contains a subset of the elements of the original");
             }
             mapping2[i] = idx;
@@ -1064,11 +1095,11 @@ namespace mfem_mgis {
           }
           if (*on != omapping1->Size()) {
             return ctx.registerErrorMessage(
-                getLocationDescription(l) +
+                this->getLocationDescription(l) +
                 " has different sizes across parent submeshes");
           }
           const auto& faces_mapping = [&sm]() -> const mfem::Array<size_type>& {
-            if (sm->SpaceDimension() == 2) {
+            if (sm->Dimension() == 2) {
               return sm->GetParentEdgeIDMap();
             }
             return sm->GetParentFaceIDMap();
@@ -1087,9 +1118,17 @@ namespace mfem_mgis {
             if (f2 == -1) {
               return ctx.registerErrorMessage(
                   "error while computing mapping for " +
-                  getLocationDescription(l));
+                  this->getLocationDescription(l));
             }
-            mapping2[i] = boundary_elts_mapping[f2];
+            const auto sbe = boundary_elts_mapping[f2];
+            if ((sbe == -1) ||
+                (!have_same_vertices(*sm, sbe, parent, mapping2[i]))) {
+              return ctx.registerErrorMessage(
+                  "the boundary elements of " +
+                  this->getLocationDescription(l) +
+                  " are not oriented as in the parent mesh");
+            }
+            mapping2[i] = sbe;
           }
         }
         ++p2;
@@ -1552,7 +1591,7 @@ namespace mfem_mgis {
      * \note the method only fails if the boundary identifier is not defined in
      * the mesh
      */
-    std::optional<std::string> getBoundaryName(
+    [[nodiscard]] std::optional<std::string> getBoundaryName(
         Context& ctx, const size_type id) const noexcept {
       const auto& bids = getBoundariesAttributes(*this);
       if (bids.Find(id) == -1) {
@@ -1565,6 +1604,47 @@ namespace mfem_mgis {
       }
       return p->second;
     }  // end of getBoundaryName
+
+    [[nodiscard]] std::string getLocationDescription(
+        const LocationIdentifier& l) const noexcept {
+      if (isInvalid(l)) {
+        return "invalid location identifier";
+      }
+      if (isValid(l.material_identifier)) {
+        const auto mid = l.material_identifier->id;
+        const auto& mids = getMaterialsAttributes(*this);
+        if (mids.Find(mid) == -1) {
+          return "unknown material (" + std::to_string(mid) + ")";
+        }
+        const auto name = [this, mid] {
+          const auto p = this->materials_names.find(mid);
+          if (p == this->materials_names.end()) {
+            return std::string{};
+          }
+          return p->second;
+        }();
+        if (!name.empty()) {
+          return "material '" + name + "' (" + std::to_string(mid) + ")";
+        }
+        return "material (" + std::to_string(mid) + ")";
+      }
+      const auto bid = l.boundary_identifier->id;
+      const auto& bids = getBoundariesAttributes(*this);
+      if (bids.Find(bid) == -1) {
+        return "unknown boundary (" + std::to_string(bid) + ")";
+      }
+      const auto name = [this, bid] {
+        const auto p = this->boundaries_names.find(bid);
+        if (p == this->boundaries_names.end()) {
+          return std::string{};
+        }
+        return p->second;
+      }();
+      if (!name.empty()) {
+        return "boundary '" + name + "' (" + std::to_string(bid) + ")";
+      }
+      return "boundary (" + std::to_string(bid) + ")";
+    }  // end of getLocationDescription
 
     /*!
      * \brief return the list of materials identifiers described by the given
@@ -2250,6 +2330,11 @@ namespace mfem_mgis {
     return this->getBoundaryName(ctx, id.boundary_identifier->id);
   }  // end of getLocationName
 
+  std::string MeshDiscretization::getLocationDescription(
+      const LocationIdentifier& l) const noexcept {
+    return pimpl->getLocationDescription(l);
+  }  // end of getLocationDescription
+
   std::optional<std::vector<size_type>>
   MeshDiscretization::getMaterialsIdentifiers(
       Context& ctx, const Parameter& p) const noexcept {
@@ -2512,30 +2597,7 @@ namespace mfem_mgis {
 
   std::string getLocationDescription(const MeshDiscretization& m,
                                      const LocationIdentifier& l) noexcept {
-    if (isInvalid(l)) {
-      return "invalid location identifier";
-    }
-    auto ctx = Context{};
-    if (isValid(l.material_identifier)) {
-      const auto mid = l.material_identifier->id;
-      const auto oname = m.getMaterialName(ctx, mid);
-      if (isInvalid(oname)) {
-        return "unknown material";
-      }
-      if (!oname->empty()) {
-        return "material '" + *oname + "' (" + std::to_string(mid) + ")";
-      }
-      return "material (" + std::to_string(mid) + ")";
-    }
-    const auto bid = l.boundary_identifier->id;
-    const auto oname = m.getBoundaryName(ctx, bid);
-    if (isInvalid(oname)) {
-      return "unknown material";
-    }
-    if (!oname->empty()) {
-      return "boundary '" + *oname + "' (" + std::to_string(bid) + ")";
-    }
-    return "boundary (" + std::to_string(bid) + ")";
+    return m.getLocationDescription(l);
   }  // end of getLocationDescription
 
   std::vector<size_type> getMaterialsIdentifiers(attributes::Throwing,
