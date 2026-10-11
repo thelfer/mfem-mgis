@@ -2,7 +2,8 @@
  * \file   tests/GridFunctionOnSubMeshTest.cxx
  * \brief  This test checks that a grid function can only be built from partial
  * quadrature functions defined on all the materials or on all the boundaries
- * of its mesh.
+ * of its mesh, and that partial quadrature functions are correctly updated
+ * from a linear field defined on another mesh.
  * \date   18/09/2026
  */
 
@@ -10,9 +11,11 @@
 #undef NDEBUG
 #endif
 
+#include <cmath>
 #include <memory>
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 #include "TFEL/Tests/TestCase.hxx"
 #include "TFEL/Tests/TestProxy.hxx"
 #include "TFEL/Tests/TestManager.hxx"
@@ -49,12 +52,14 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
 #ifdef MFEM_USE_MPI
       this->test1<true>();
       this->test2<true>();
+      this->test3<true>();
 #else  /* MFEM_USE_MPI */
       mfem_mgis::reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
       this->test1<false>();
       this->test2<false>();
+      this->test3<false>();
     }
     return this->result;
   }  // end of execute
@@ -179,6 +184,158 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     *og -= 1;
     TFEL_TESTS_CHECK(og->Normlinf() < 1e-10);
   }  // end of test2
+  //! \brief update of functions from a linear field defined on another mesh
+  template <bool parallel>
+  void test3() {
+    using namespace mfem_mgis;
+    constexpr auto eps = real{1e-12};
+    auto ctx = Context{};
+    auto fed = makeFiniteElementDiscretization(ctx);
+    auto& fespace = fed.getFiniteElementSpace<parallel>();
+    // submeshes and finite element spaces
+    const auto bsubmesh = fed.getSubMesh<parallel>(
+        ctx, 1, MeshDiscretization::Location::ON_BOUNDARIES);
+    const auto bsubmesh2 = fed.getSubMesh<parallel>(
+        ctx, Parameter{std::vector<Parameter>{1, 3}},
+        MeshDiscretization::Location::ON_BOUNDARIES);
+    const auto msubmesh = fed.getSubMesh<parallel>(
+        ctx, 1, MeshDiscretization::Location::ON_MATERIALS);
+    TFEL_TESTS_ASSERT(isValid(bsubmesh));
+    TFEL_TESTS_ASSERT(isValid(bsubmesh2));
+    TFEL_TESTS_ASSERT(isValid(msubmesh));
+    auto manager = fed.getFiniteElementSpacesManager();
+    const auto bfespace =
+        manager.getFiniteElementSpace<parallel>(ctx, *bsubmesh, 1);
+    const auto bfespace2 =
+        manager.getFiniteElementSpace<parallel>(ctx, *bsubmesh2, 1);
+    const auto mfespace =
+        manager.getFiniteElementSpace<parallel>(ctx, *msubmesh, 1);
+    TFEL_TESTS_ASSERT(isValid(bfespace));
+    TFEL_TESTS_ASSERT(isValid(bfespace2));
+    TFEL_TESTS_ASSERT(isValid(mfespace));
+    // partial quadrature spaces
+    const auto b = BoundaryIdentifier{.id = 1};
+    const auto m = MaterialIdentifier{.id = 1};
+    const auto bqspace = std::make_shared<const PartialQuadratureSpace>(
+        fed, b, &getExactIntegrationRule);
+    const auto bqspace2 = std::make_shared<const PartialQuadratureSpace>(
+        fed, *bfespace, b, &getExactIntegrationRule);
+    const auto bqspace3 = std::make_shared<const PartialQuadratureSpace>(
+        fed, *mfespace, b, &getExactIntegrationRule);
+    const auto mqspace = std::make_shared<const PartialQuadratureSpace>(
+        fed, m, &getExactIntegrationRule);
+    const auto mqspace2 = std::make_shared<const PartialQuadratureSpace>(
+        fed, *mfespace, m, &getExactIntegrationRule);
+    // boundary space on the whole mesh, grid function on the submesh of the
+    // boundary, and conversely
+    checkUpdate<parallel>(ctx, bqspace, *bfespace, eps);
+    checkUpdate<parallel>(ctx, bqspace2, fespace, eps);
+    // material space on the whole mesh, grid function on the submesh of the
+    // material, and conversely
+    checkUpdate<parallel>(ctx, mqspace, *mfespace, eps);
+    checkUpdate<parallel>(ctx, mqspace2, fespace, eps);
+    // two different submeshes
+    checkUpdate<parallel>(ctx, bqspace2, *bfespace2, eps);
+    // boundary seen through the submesh of a material. Some boundary elements
+    // of this submesh are not oriented as in the whole mesh, so the update
+    // shall either fail or be exact.
+    const auto oe = getUpdateError<parallel>(ctx, bqspace, *mfespace);
+    TFEL_TESTS_CHECK(isInvalid(oe) || (*oe < eps));
+    const auto oe2 = getUpdateError<parallel>(ctx, bqspace3, fespace);
+    TFEL_TESTS_CHECK(isInvalid(oe2) || (*oe2 < eps));
+    // extrapolation at nodes on the submesh of the boundary
+    const auto f = evaluateLinearField(bqspace);
+    auto og = makeGridFunction<parallel>(ctx, {*f}, *bsubmesh);
+    TFEL_TESTS_ASSERT(isValid(og));
+    updateGridFunction<parallel>(*og, {*f});
+    auto c = mfem::FunctionCoefficient(getLinearField);
+    TFEL_TESTS_CHECK(og->ComputeMaxError(c) < eps);
+  }  // end of test3
+  /*!
+   * \return the value of a linear field
+   * \param[in] x: position
+   */
+  static mfem_mgis::real getLinearField(const mfem::Vector& x) noexcept {
+    return 1 + x[0] + 2 * x[1] + 3 * x[2];
+  }  // end of getLinearField
+  /*!
+   * \return an integration rule which integrates exactly the local
+   * projections of a linear field
+   * \param[in] e: finite element
+   * \param[in] tr: element transformation
+   */
+  static const mfem::IntegrationRule& getExactIntegrationRule(
+      const mfem::FiniteElement& e,
+      const mfem::ElementTransformation& tr) noexcept {
+    return mfem::IntRules.Get(e.GetGeomType(), 2 * tr.OrderGrad(&e) + 2);
+  }  // end of getExactIntegrationRule
+  /*!
+   * \return the values of the linear field at the integration points of a
+   * partial quadrature space
+   * \param[in] s: partial quadrature space
+   */
+  static std::shared_ptr<mfem_mgis::PartialQuadratureFunction>
+  evaluateLinearField(
+      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s) {
+    return mfem_mgis::PartialQuadratureFunction::evaluate(
+        s, [](const mfem::FiniteElement&, mfem::ElementTransformation& tr) {
+          auto x = mfem::Vector{};
+          tr.Transform(tr.GetIntPoint(), x);
+          return getLinearField(x);
+        });
+  }  // end of evaluateLinearField
+  /*!
+   * \return the maximum error of the update of a partial quadrature function
+   * from the interpolation of the linear field on the given finite element
+   * space, or nothing if the update fails
+   * \param[in, out] ctx: execution context
+   * \param[in] s: partial quadrature space
+   * \param[in] fespace: finite element space
+   */
+  template <bool parallel>
+  static std::optional<mfem_mgis::real> getUpdateError(
+      mfem_mgis::Context& ctx,
+      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s,
+      mfem_mgis::FiniteElementSpace<parallel>& fespace) {
+    using namespace mfem_mgis;
+    auto c = mfem::FunctionCoefficient(getLinearField);
+    auto f = GridFunction<parallel>{&fespace};
+    f.ProjectCoefficient(c);
+    auto qf = PartialQuadratureFunction(s, 1);
+    if (!update(ctx, qf, f)) {
+      return {};
+    }
+    const auto ref = evaluateLinearField(s);
+    auto e = real{};
+    for (const auto& [i, o] : s->getOffsets()) {
+      static_cast<void>(o);
+      for (size_type g = 0; g != s->getNumberOfQuadraturePoints(i); ++g) {
+        e = std::max(e, std::abs(qf.getIntegrationPointValue(i, g) -
+                                 ref->getIntegrationPointValue(i, g)));
+      }
+    }
+    return e;
+  }  // end of getUpdateError
+  /*!
+   * \brief check that the update of a partial quadrature function from the
+   * interpolation of the linear field on the given finite element space
+   * succeeds and is exact
+   * \param[in, out] ctx: execution context
+   * \param[in] s: partial quadrature space
+   * \param[in] fespace: finite element space
+   * \param[in] eps: tolerance
+   */
+  template <bool parallel>
+  void checkUpdate(
+      mfem_mgis::Context& ctx,
+      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s,
+      mfem_mgis::FiniteElementSpace<parallel>& fespace,
+      const mfem_mgis::real eps) {
+    using namespace mfem_mgis;
+    const auto oe = getUpdateError<parallel>(ctx, s, fespace);
+    TFEL_TESTS_ASSERT(isValid(oe));
+    TFEL_TESTS_CHECK(*oe < eps);
+  }  // end of checkUpdate
 };
 
 TFEL_TESTS_GENERATE_PROXY(GridFunctionOnSubMeshTest,
