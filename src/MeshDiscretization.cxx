@@ -1085,9 +1085,8 @@ namespace mfem_mgis {
           return isValid(l.material_identifier);
         }();
         if (use_parent_id_map) {
-          const auto& map = sm->GetParentElementIDMap();
           for (size_type i = 0; i != mapping2.Size(); ++i) {
-            const auto idx = map.Find(mapping2[i]);
+            const auto idx = sm->GetSubMeshElementFromParent(mapping2[i]);
             if (idx == -1) {
               return ctx.registerErrorMessage(
                   this->getLocationDescription(l) +
@@ -1110,23 +1109,18 @@ namespace mfem_mgis {
                 " is not entirely included in the submesh defined on "
                 "materials");
           }
-          const auto& faces_mapping = [&sm]() -> const mfem::Array<size_type>& {
+          const auto getSubMeshFaceFromParent = [&sm](const size_type f) {
             if (sm->Dimension() == 2) {
-              return sm->GetParentEdgeIDMap();
+              return sm->GetSubMeshEdgeFromParent(f);
             }
-            return sm->GetParentFaceIDMap();
-          }();
-          const auto& parent_boundary_elts_mapping = parent.GetFaceToBdrElMap();
+            return sm->GetSubMeshFaceFromParent(f);
+          };
           const auto& boundary_elts_mapping = sm->GetFaceToBdrElMap();
           for (size_type i = 0; i != mapping2.Size(); ++i) {
             // face id in the parent
-            const auto f = parent_boundary_elts_mapping.Find(mapping2[i]);
-            if (f == -1) {
-              // this means that the index in mapping2 is wrong
-              mfem_mgis::abort("internal error");
-            }
+            const auto f = parent.GetBdrElementFaceIndex(mapping2[i]);
             // face id in the child
-            const auto f2 = faces_mapping.Find(f);
+            const auto f2 = getSubMeshFaceFromParent(f);
             if (f2 == -1) {
               return ctx.registerErrorMessage(
                   "error while computing mapping for " +
