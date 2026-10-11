@@ -13,6 +13,8 @@
 
 #include <cmath>
 #include <memory>
+#include <optional>
+#include <filesystem>
 #include <cstdlib>
 #include <iostream>
 #include <algorithm>
@@ -236,13 +238,21 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     checkUpdate<parallel>(ctx, mqspace2, fespace, eps);
     // two different submeshes
     checkUpdate<parallel>(ctx, bqspace2, *bfespace2, eps);
-    // boundary seen through the submesh of a material. Some boundary elements
-    // of this submesh are not oriented as in the whole mesh, so the update
-    // shall either fail or be exact.
-    const auto oe = getUpdateError<parallel>(ctx, bqspace, *mfespace);
-    TFEL_TESTS_CHECK(isInvalid(oe) || (*oe < eps));
-    const auto oe2 = getUpdateError<parallel>(ctx, bqspace3, fespace);
-    TFEL_TESTS_CHECK(isInvalid(oe2) || (*oe2 < eps));
+    // boundary seen through the submesh of a material. In 3D, some boundary
+    // elements of this submesh are not oriented as in the whole mesh, so the
+    // update shall either fail or be exact. In 2D, the boundary elements of
+    // an exterior boundary are oriented as in the whole mesh. The boundary 1
+    // of the 2D test mesh is exterior and inside the material 1, so the
+    // update shall be exact.
+    const auto exact = fed.getMesh<parallel>().Dimension() == 2;
+    const auto check = [exact](const std::optional<real>& oe) {
+      if (isInvalid(oe)) {
+        return !exact;
+      }
+      return *oe < eps;
+    };
+    TFEL_TESTS_CHECK(check(getUpdateError<parallel>(ctx, bqspace, *mfespace)));
+    TFEL_TESTS_CHECK(check(getUpdateError<parallel>(ctx, bqspace3, fespace)));
     // extrapolation at nodes on the submesh of the boundary
     const auto f = evaluateLinearField(bqspace);
     auto og = makeGridFunction<parallel>(ctx, {*f}, *bsubmesh);
@@ -256,7 +266,7 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
    * \param[in] x: position
    */
   static mfem_mgis::real getLinearField(const mfem::Vector& x) noexcept {
-    return 1 + x[0] + 2 * x[1] + 3 * x[2];
+    return 1 + x[0] + 2 * x[1] + (x.Size() > 2 ? 3 * x[2] : mfem_mgis::real{0});
   }  // end of getLinearField
   /*!
    * \return an integration rule which integrates exactly the local
@@ -359,12 +369,13 @@ int main(int argc, char** argv) {
   //
   auto& m = tfel::tests::TestManager::getTestManager();
   m.addTestOutput(std::cout);
+  const auto mesh = std::filesystem::path(parameters.mesh_file).stem().string();
   if (parameters.parallel) {
-    m.addXMLTestOutput("ParallelGridFunctionOnSubMeshTest-" +
+    m.addXMLTestOutput("ParallelGridFunctionOnSubMeshTest-" + mesh + "-" +
                        std::to_string(mfem_mgis::getMPIsize()) + "-" +
                        std::to_string(mfem_mgis::getMPIrank()) + ".xml");
   } else {
-    m.addXMLTestOutput("GridFunctionOnSubMeshTest.xml");
+    m.addXMLTestOutput("GridFunctionOnSubMeshTest-" + mesh + ".xml");
   }
   return m.execute().success() ? EXIT_SUCCESS : EXIT_FAILURE;
 }  // end of main
