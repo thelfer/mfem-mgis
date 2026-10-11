@@ -127,12 +127,12 @@ namespace mfem_mgis {
      * If a partial quadrature space is defined on a boundary, two cases may
      * happen:
      *
-     * 1. it can be created on the main mesh or a submesh defined on elements.
+     * 1. it can be created on the main mesh or a submesh defined on materials.
      *    In this case, one shall iterate over boundary elements and use
      *    the MFEM API relative to boundary elements (`GetNBE`,
-     *    `GetBoundaryElement`, etc.)
+     *    `GetBdrElement`, etc.)
      * 2. if a submesh is defined on the boundaries of the main mesh,
-     *    however, one shall iterate over the elements  and use
+     *    however, one shall iterate over the elements and use
      *    the MFEM API relative to standard elements (`GetNE`,
      *    `GetElement`, etc.)
      */
@@ -169,14 +169,17 @@ namespace mfem_mgis {
     [[nodiscard]] std::optional<size_type> getNumberOfQuadraturePoints(
         Context &ctx, const size_type e) const noexcept;
     /*!
-     * \return the hash table associating global element numbers and
-     * local offsets.
+     * \return the hash table associating element numbers and local offsets.
+     *
+     * \note element numbers refer to the mesh of the partial quadrature space.
+     * They are boundary element numbers if `shallUseBoundaryElementsAPI`
+     * returns true.
      */
     [[nodiscard]] const std::unordered_map<size_type, size_type> &getOffsets()
         const noexcept;
     /*!
      * \brief return the offset associated with an element
-     * \param[in] i: element number (global numbering)
+     * \param[in] i: element number, see `getOffsets`
      * \return the offset
      */
     [[nodiscard]] size_type getOffset(const size_type i) const;
@@ -233,11 +236,11 @@ namespace mfem_mgis {
         const mfem::FiniteElement &, const mfem::ElementTransformation &)>
         integration_rule_selector;
     //! \brief offsets associated with elements
-    std::unordered_map<size_type,  // element number (global numbering)
+    std::unordered_map<size_type,  // element number, see `getOffsets`
                        size_type>  // offset
         offsets;
     //! \brief number of quadrature points associated with elements
-    std::unordered_map<size_type,  // element number (global numbering)
+    std::unordered_map<size_type,  // element number, see `getOffsets`
                        size_type>  // number of quadrature points
         number_of_quadrature_points;
     //! \brief location in the main mesh
@@ -359,7 +362,10 @@ namespace mfem_mgis {
   struct PartialQuadratureSpaceInformation {
     //! \brief identifier of the underlying material or boundary
     size_type identifier;
-    //! \brief name of the material or boundary
+    /*!
+     * \brief description of the material or boundary, including its name if
+     * defined, see `MeshDiscretization::getLocationDescription`
+     */
     std::string name;
     //! \brief number of cells (finite elements)
     size_type number_of_cells;

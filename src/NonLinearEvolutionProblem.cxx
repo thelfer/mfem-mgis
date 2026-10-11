@@ -839,6 +839,25 @@ namespace mfem_mgis {
             provider.getFiniteElementDiscretization())) {
       return ctx.registerErrorMessage("inconsistent meshes");
     }
+    // quadrature spaces can only be shared by finite element discretizations
+    // built on the same finite element spaces manager (see `areEquivalent`)
+    const auto shared_spaces_manager = [&fed, &provider] {
+      const auto& pfed = provider.getFiniteElementDiscretization();
+      const auto m = fed.getFiniteElementSpacesManager();
+      if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+        return m.manages(pfed.getFiniteElementSpace<true>());
+#else
+        reportUnsupportedParallelComputations();
+#endif
+      }
+      return m.manages(pfed.getFiniteElementSpace<false>());
+    }();
+    if (!shared_spaces_manager) {
+      return ctx.registerErrorMessage(
+          "the finite element discretizations of both problems shall share the "
+          "same finite element spaces manager");
+    }
     if (fed.describesAParallelComputation()) {
       // since meshes are the same, both problems describes a parallel
       // computation

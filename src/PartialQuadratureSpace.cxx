@@ -71,7 +71,7 @@ namespace mfem_mgis {
 
   void PartialQuadratureSpace::treatInvalidElementIndex(
       const LocationIdentifier l, const size_type i) {
-    mfem_mgis::abort(
+    raise(
         "PartialQuadratureSpace::getOffset: "
         "invalid element index '" +
         std::to_string(i) + "' for " + getLocationDescription(l));
@@ -153,7 +153,7 @@ namespace mfem_mgis {
   template <bool parallel>
   void PartialQuadratureSpace::initialize(attributes::Throwing) {
     auto ctx = Context{};
-    auto or_raise = ctx.getFatalFailureHandler();
+    auto or_raise = ctx.getThrowingFailureHandler();
     if (!(this->integration_rule_selector)) {
       raise("invalid quadrature rule selector");
     }
@@ -207,7 +207,7 @@ namespace mfem_mgis {
       return;
     }
     if (isInvalid(this->location.boundary_identifier)) {
-      raise("internal error");
+      raise("invalid location identifier");
     }
     const auto bid = this->location.boundary_identifier->id;
     if (is_mesh_defined_on_boundary) {
@@ -322,7 +322,7 @@ namespace mfem_mgis {
     }
     //
     auto ctx = Context{};
-    // the method belows can't fail, so abort will never be called
+    // the method below can't fail, so abort will never be called
     auto or_abort = ctx.getFatalFailureHandler();
 #ifdef MFEM_USE_MPI
     if (this->parallel_fespace != nullptr) {
@@ -490,7 +490,9 @@ namespace mfem_mgis {
     auto success = true;
     os << "- location: ";
     if (!info.name.empty()) {
-      os << "- location: " << info.name << "\n";
+      os << info.name << '\n';
+    } else {
+      os << info.identifier << '\n';
     }
     os << "- number of elements: " << info.number_of_cells << '\n';
     os << "- number of quadrature points: " << info.number_of_quadrature_points
@@ -604,6 +606,33 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
   }    // end of synchronize
 
+  /*!
+   * \return if two partial quadrature spaces are defined on the same mesh
+   * \param[in] s1: first quadrature space
+   * \param[in] s2: second quadrature space
+   *
+   * \note element indices of partial quadrature spaces defined on distinct
+   * meshes can not be compared, even if those spaces are defined on the same
+   * location, see `MeshDiscretization::getElementsMapping`.
+   */
+  [[nodiscard]] static bool areDefinedOnTheSameMesh(
+      const PartialQuadratureSpace& s1,
+      const PartialQuadratureSpace& s2) noexcept {
+    auto ctx = Context{};
+    if (s1.getFiniteElementDiscretization().describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto om1 = s1.getMesh<true>(ctx);
+      const auto om2 = s2.getMesh<true>(ctx);
+      return isValid(om1) && isValid(om2) && (&(*om1) == &(*om2));
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto om1 = s1.getMesh<false>(ctx);
+    const auto om2 = s2.getMesh<false>(ctx);
+    return isValid(om1) && isValid(om2) && (&(*om1) == &(*om2));
+  }  // end of areDefinedOnTheSameMesh
+
   bool areEquivalent(const PartialQuadratureSpace& s1,
                      const PartialQuadratureSpace& s2) noexcept {
     if (&s1 == &s2) {
@@ -631,6 +660,9 @@ namespace mfem_mgis {
       }
     }
     if (s1.getLocation() != s2.getLocation()) {
+      return false;
+    }
+    if (!areDefinedOnTheSameMesh(s1, s2)) {
       return false;
     }
     const auto success = [&s1, &s2] {

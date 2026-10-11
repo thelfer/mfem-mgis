@@ -388,7 +388,7 @@ namespace mfem_mgis {
     auto& qspace = f.getPartialQuadratureSpace();
     //
     if (qspace.getLocation() != v.getPartialQuadratureSpace().getLocation()) {
-      return ctx.registerErrorMessage("unmatched material");
+      return ctx.registerErrorMessage("unmatched location");
     }
     //
     const auto n = getSpaceSize(qspace);
@@ -493,8 +493,8 @@ namespace mfem_mgis {
         raise("no functions defined");
       }
       const auto n = fcts.at(0).getNumberOfComponents();
-      const auto on_boundary = isValid(
-          fcts.at(0).getPartialQuadratureSpace().isDefinedOnABoundary());
+      const auto on_boundary =
+          fcts.at(0).getPartialQuadratureSpace().isDefinedOnABoundary();
       for (const auto& f : fcts) {
         const auto& qspace = f.getPartialQuadratureSpace();
         const auto l = qspace.getLocation();
@@ -677,10 +677,11 @@ namespace mfem_mgis {
         const mfem::FiniteElementSpace& s,
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
         const std::unordered_map<size_type, ElementsMapping>& m)
-        : PartialQuadratureFunctionsCoefficientBase(s, fcts),
-          mappings(m),
-          value(1) {
+        : PartialQuadratureFunctionsCoefficientBase(s, fcts), value(1) {
       doScalarFunctionsChecks(throwing, this->functions);
+      for (const auto& [id, mapping] : m) {
+        this->inverse_mappings.insert({id, getInverseMapping(mapping)});
+      }
     }
     //
     PartialQuadratureFunctionsScalarCoefficientII(
@@ -699,23 +700,22 @@ namespace mfem_mgis {
       if (p == this->functions.end()) {
         return 0.;
       }
-      const auto& map = this->mappings.at(mid);
-      const auto idx = map.to_indexes.Find(tr.ElementNo);
+      const auto& map = this->inverse_mappings.at(mid);
+      const auto n = tr.ElementNo < map.Size() ? map[tr.ElementNo] : -1;
 #ifdef MFEM_MGIS_DEBUG
-      if (idx == -1) {
+      if (n == -1) {
         mfem_mgis::abort("invalid mapping");
       }
 #endif /* MFEM_MGIS_DEBUG */
-      const auto n = map.from_indexes[idx];
       this->evaluate(this->value, p->second, tr, i, n);
       return this->value[0];
     }  // end of Eval
    private:
     /*!
-     * \brief mapping between the numbering of the partial quadature spaces and
-     * the numbering in the targeted space
+     * \brief for each location, mapping between the numbering in the targeted
+     * space and the numbering of the partial quadrature space
      */
-    std::unordered_map<size_type, ElementsMapping> mappings;
+    std::unordered_map<size_type, mfem::Array<size_type>> inverse_mappings;
     //! \brief value of the local projection
     mfem::Vector value;
   };
@@ -762,8 +762,11 @@ namespace mfem_mgis {
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
         const std::unordered_map<size_type, ElementsMapping>& m)
         : PartialQuadratureFunctionsCoefficientBase(s, fcts),
-          mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()),
-          mappings(m) {}
+          mfem::VectorCoefficient(fcts.at(0).getNumberOfComponents()) {
+      for (const auto& [id, mapping] : m) {
+        this->inverse_mappings.insert({id, getInverseMapping(mapping)});
+      }
+    }
     //
     PartialQuadratureFunctionsVectorCoefficientII(
         PartialQuadratureFunctionsVectorCoefficientII&&) = delete;
@@ -783,24 +786,23 @@ namespace mfem_mgis {
         values = 0.;
         return;
       }
-      const auto& map = this->mappings.at(mid);
-      const auto idx = map.to_indexes.Find(tr.ElementNo);
+      const auto& map = this->inverse_mappings.at(mid);
+      const auto n = tr.ElementNo < map.Size() ? map[tr.ElementNo] : -1;
 #ifdef MFEM_MGIS_DEBUG
-      if (idx == -1) {
+      if (n == -1) {
         mfem_mgis::abort("invalid mapping");
       }
 #endif /* MFEM_MGIS_DEBUG */
-      const auto n = map.from_indexes[idx];
       values.SetSize(this->GetVDim());
       this->evaluate(values, p->second, tr, ip, n);
     }  // end of Eval
 
    private:
     /*!
-     * \brief mapping between the numbering of the partial quadature spaces and
-     * the numbering in the targeted space
+     * \brief for each location, mapping between the numbering in the targeted
+     * space and the numbering of the partial quadrature space
      */
-    std::unordered_map<size_type, ElementsMapping> mappings;
+    std::unordered_map<size_type, mfem::Array<size_type>> inverse_mappings;
   };
 
   template <bool parallel>
@@ -812,9 +814,9 @@ namespace mfem_mgis {
     const auto& qspace = dest.getPartialQuadratureSpace();
     if (dest.getNumberOfComponents() == 1) {
       // scalar case
-      for (const auto& [i, offset] : qspace.getOffsets()) {
-        static_cast<void>(offset);
-        const auto idx = mapping.to_indexes[mapping.from_indexes.Find(i)];
+      for (size_type k = 0; k != mapping.from_indexes.Size(); ++k) {
+        const auto i = mapping.from_indexes[k];
+        const auto idx = mapping.to_indexes[k];
         const auto& fe = *(grid_fespace.GetBE(idx));
         auto& tr = *(grid_fespace.GetBdrElementTransformation(idx));
         const auto& ir = qspace.getIntegrationRule(fe, tr);
@@ -828,9 +830,9 @@ namespace mfem_mgis {
     } else {
       // vectorial case
       const auto nc = dest.getNumberOfComponents();
-      for (const auto& [i, offset] : qspace.getOffsets()) {
-        static_cast<void>(offset);
-        const auto idx = mapping.to_indexes[mapping.from_indexes.Find(i)];
+      for (size_type k = 0; k != mapping.from_indexes.Size(); ++k) {
+        const auto i = mapping.from_indexes[k];
+        const auto idx = mapping.to_indexes[k];
         const auto& fe = *(grid_fespace.GetBE(idx));
         auto& tr = *(grid_fespace.GetBdrElementTransformation(idx));
         const auto& ir = qspace.getIntegrationRule(fe, tr);
@@ -855,9 +857,9 @@ namespace mfem_mgis {
     const auto& qspace = dest.getPartialQuadratureSpace();
     if (dest.getNumberOfComponents() == 1) {
       // scalar case
-      for (const auto& [i, offset] : qspace.getOffsets()) {
-        static_cast<void>(offset);
-        const auto idx = mapping.to_indexes[mapping.from_indexes.Find(i)];
+      for (size_type k = 0; k != mapping.from_indexes.Size(); ++k) {
+        const auto i = mapping.from_indexes[k];
+        const auto idx = mapping.to_indexes[k];
         const auto& fe = *(grid_fespace.GetFE(idx));
         auto& tr = *(grid_fespace.GetElementTransformation(idx));
         const auto& ir = qspace.getIntegrationRule(fe, tr);
@@ -871,9 +873,9 @@ namespace mfem_mgis {
     } else {
       // vectorial case
       const auto nc = dest.getNumberOfComponents();
-      for (const auto& [i, offset] : qspace.getOffsets()) {
-        static_cast<void>(offset);
-        const auto idx = mapping.to_indexes[mapping.from_indexes.Find(i)];
+      for (size_type k = 0; k != mapping.from_indexes.Size(); ++k) {
+        const auto i = mapping.from_indexes[k];
+        const auto idx = mapping.to_indexes[k];
         const auto& fe = *(grid_fespace.GetFE(idx));
         auto& tr = *(grid_fespace.GetElementTransformation(idx));
         const auto& ir = qspace.getIntegrationRule(fe, tr);
@@ -1305,10 +1307,11 @@ namespace mfem_mgis {
                             : l.boundary_identifier->id;
         const auto& s =
             qspace.template getFiniteElementSpace<parallel>(ctx) | or_abort;
-        const auto m =
-            fed.getElementsMapping(ctx, getMesh(s), getMesh(fespace), l) |
-            or_abort;
-        mappings.insert({id, std::move(m)});
+        auto om = fed.getElementsMapping(ctx, getMesh(s), getMesh(fespace), l);
+        if (isInvalid(om)) {
+          raise(ctx.getErrorMessage());
+        }
+        mappings.insert({id, std::move(*om)});
       }
       if (n == 1u) {
         auto c = PartialQuadratureFunctionsScalarCoefficientII(fespace, fcts,

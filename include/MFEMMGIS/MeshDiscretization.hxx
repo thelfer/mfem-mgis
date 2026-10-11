@@ -27,6 +27,10 @@ namespace mfem_mgis {
   /*!
    * \brief mapping between the index of the same location in two different
    * meshes
+   *
+   * \note for a boundary, the indices are boundary element indices in the
+   * meshes for which `MeshDiscretization::shallUseBoundaryElementsAPI`
+   * returns true, and element indices otherwise.
    */
   struct ElementsMapping {
     //! \brief elements indexes in the original mesh
@@ -34,6 +38,15 @@ namespace mfem_mgis {
     //! \brief elements indexes in the targeted mesh
     mfem::Array<size_type> to_indexes;
   };
+
+  /*!
+   * \return an array giving, for each element of the targeted mesh, the index
+   * of the same element in the original mesh, or -1 if this element is not
+   * part of the mapping
+   * \param[in] m: mapping
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] mfem::Array<size_type> getInverseMapping(
+      const ElementsMapping& m);
 
   //! \brief a simple class used to handle the life time of the mesh
   struct MFEM_MGIS_EXPORT [[nodiscard]] MeshDiscretization {
@@ -287,18 +300,19 @@ namespace mfem_mgis {
      * The rationale behind this method is that the given mesh can be
      * a submesh.
      *
-     * If the location refers to on a boundary, two cases may happen:
+     * If the location refers to a boundary, two cases may happen:
      *
-     * 1. The given mesh is the main mesh or a submesh defined on elements.
+     * 1. The given mesh is the main mesh or a submesh defined on materials.
      *    In this case, one shall iterate over boundary elements and use
      *    the MFEM API relative to boundary elements (`GetNBE`,
-     *    `GetBoundaryElement`, etc.)
+     *    `GetBdrElement`, etc.)
      * 2. if a submesh is defined on the boundaries of the main mesh,
-     *    however, one shall iterate over the elements  and use
+     *    however, one shall iterate over the elements and use
      *    the MFEM API relative to standard elements (`GetNE`,
      *    `GetElement`, etc.)
      *
-     * \note this method fails if the given mesh is not managed
+     * \note this method fails if the given mesh is not managed or does not
+     * contain the given location
      */
     [[nodiscard]] std::optional<bool> shallUseBoundaryElementsAPI(
         Context& ctx,
@@ -315,18 +329,19 @@ namespace mfem_mgis {
      * The rationale behind this method is that the given mesh can be
      * a submesh.
      *
-     * If the location refers to on a boundary, two cases may happen:
+     * If the location refers to a boundary, two cases may happen:
      *
-     * 1. The given mesh is the main mesh or a submesh defined on elements.
+     * 1. The given mesh is the main mesh or a submesh defined on materials.
      *    In this case, one shall iterate over boundary elements and use
      *    the MFEM API relative to boundary elements (`GetNBE`,
-     *    `GetBoundaryElement`, etc.)
+     *    `GetBdrElement`, etc.)
      * 2. if a submesh is defined on the boundaries of the main mesh,
-     *    however, one shall iterate over the elements  and use
+     *    however, one shall iterate over the elements and use
      *    the MFEM API relative to standard elements (`GetNE`,
      *    `GetElement`, etc.)
      *
-     * \note this method fails if the given mesh is not managed
+     * \note this method fails if the given mesh is not managed or does not
+     * contain the given location
      */
     [[nodiscard]] std::optional<bool> shallUseBoundaryElementsAPI(
         Context& ctx,
@@ -497,6 +512,13 @@ namespace mfem_mgis {
      * \param[in] from: mesh
      * \param[in] to: mesh
      * \param[in] l: location
+     *
+     * \note this method fails if one of the meshes is not managed, if the
+     * location is not entirely contained in the targeted mesh, or if the
+     * boundary elements of a submesh defined on materials are not oriented as
+     * in its parent mesh.
+     * \note this method is collective: its success is synchronized across all
+     * processes.
      */
     //    OptionalReference<const ElementsMapping>
     [[nodiscard]] std::optional<ElementsMapping> getElementsMapping(
@@ -512,6 +534,11 @@ namespace mfem_mgis {
      * \param[in] from: mesh
      * \param[in] to: mesh
      * \param[in] l: location
+     *
+     * \note this method fails if one of the meshes is not managed, if the
+     * location is not entirely contained in the targeted mesh, or if the
+     * boundary elements of a submesh defined on materials are not oriented as
+     * in its parent mesh.
      */
     [[nodiscard]] std::optional<ElementsMapping> getElementsMapping(
         Context& ctx,
@@ -548,7 +575,6 @@ namespace mfem_mgis {
         Context& ctx, const LocationIdentifier& id) const noexcept;
     /*!
      * \return a description of the location
-     * \param[in] m: mesh
      * \param[in] l: location identifier
      *
      * Examples of the return values are:

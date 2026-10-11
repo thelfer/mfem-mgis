@@ -187,9 +187,9 @@ namespace mfem_mgis {
       const FiniteElementSpace<false>& s) noexcept;
   /*!
    * \brief return the number of components of the unknowns
-   * \return the number of components (vectorial dimension) of the
-   * underlying finite element space. \param[in] fed: finite element
-   * discretization
+   * \return the number of components (vectorial dimension) of the underlying
+   * finite element space.
+   * \param[in] fed: finite element discretization
    */
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getNumberOfComponents(
       const FiniteElementDiscretization& fed) noexcept;

@@ -678,12 +678,14 @@ void generateHeaderFile(std::ostream &os,
      << "    const mfem::ElementTransformation &t);\n"
      << "/*!\n"
      << " * \\brief build the quadrature space for the given material\n"
+     << " * \\param[in] throwing: throwing attribute.\n"
      << " * \\param[in] fed: finite element discretization.\n"
      << " * \\param[in] m: material attribute.\n"
      << " * \\return the partial quadrature space\n"
      << " */\n"
      << "static std::shared_ptr<const PartialQuadratureSpace> "
-     << "buildQuadratureSpace(const FiniteElementDiscretization &fed,\n"
+     << "buildQuadratureSpace(attributes::Throwing throwing,\n"
+     << "                     const FiniteElementDiscretization &fed,\n"
      << "                     const size_type m);\n";
   if (!fs) {
     const auto heat = d.generator_name == "StationaryNonLinearHeatTransfer";
@@ -782,14 +784,15 @@ void generateSourceFile(std::ostream &os,
      << '\n'
      << "std::shared_ptr<const PartialQuadratureSpace>\n"
      << "" << d.name << "::buildQuadratureSpace(\n"
+     << "    attributes::Throwing,\n"
      << "    const FiniteElementDiscretization &fed, const size_type m) {\n"
      << "  auto selector = [](const mfem::FiniteElement &e,\n"
      << "                     const mfem::ElementTransformation &tr)\n"
      << "      -> const mfem::IntegrationRule & {\n"
      << "    return selectIntegrationRule(e, tr);\n"
      << "  };  // end of selector\n"
-     << "  return std::make_shared<PartialQuadratureSpace>(fed, m, "
-        "selector);\n"
+     << "  return std::make_shared<PartialQuadratureSpace>(\n"
+     << "      fed, LocationIdentifier{MaterialIdentifier{m}}, selector);\n"
      << "}  // end of buildQuadratureSpace\n"
      << '\n'
      << d.name << "::" << d.name << "(\n"
@@ -797,7 +800,8 @@ void generateSourceFile(std::ostream &os,
      << "        const size_type m,\n"
      << "        std::unique_ptr<const Behaviour> b_ptr)\n"
      << "    : StandardBehaviourIntegratorCRTPBase<" << d.name << ">(\n"
-     << "          buildQuadratureSpace(fed, m), std::move(b_ptr)) {\n";
+     << "          buildQuadratureSpace(throwing, fed, m), std::move(b_ptr)) "
+        "{\n";
   if (isFiniteStrainIntegrator(d)) {
     os << "this->checkIfAFiniteStrainBehaviourIsDeclared(throwing);\n";
   }

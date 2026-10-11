@@ -286,6 +286,11 @@ namespace mfem_mgis {
    * \param[in, out] p: problem to be treated
    * \param[in] provider: problem used to resolve the dependencies
    * \return true on success
+   *
+   * \note the finite element discretizations of both problems shall share the
+   * same finite element spaces manager, i.e. the finite element discretization
+   * of one problem shall be built from the finite element spaces manager of
+   * the other.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool resolveBehaviourIntegratorsDependencies(
       Context &ctx,

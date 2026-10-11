@@ -336,7 +336,11 @@ namespace mfem_mgis {
     ScalarL2ProjectionRHSFormIntegratorII(
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
         const std::unordered_map<size_type, ElementsMapping>& m)
-        : L2ProjectionFormIntegratorBase(fcts), mappings(m) {}
+        : L2ProjectionFormIntegratorBase(fcts) {
+      for (const auto& [id, mapping] : m) {
+        this->inverse_mappings.insert({id, getInverseMapping(mapping)});
+      }
+    }
 
     //
     void AssembleRHSElementVect(const mfem::FiniteElement& e,
@@ -344,7 +348,13 @@ namespace mfem_mgis {
                                 mfem::Vector& elvect) override {
       const auto m = tr.Attribute;
       const auto& f = this->functions.at(m);
-      const auto& map = this->mappings.at(m);
+      const auto& map = this->inverse_mappings.at(m);
+      const auto n = tr.ElementNo < map.Size() ? map[tr.ElementNo] : -1;
+#ifdef MFEM_MGIS_DEBUG
+      if (n == -1) {
+        mfem_mgis::abort("invalid mapping");
+      }
+#endif /* MFEM_MGIS_DEBUG */
       const int dof = e.GetDof();
       //
       shape.SetSize(dof);  // vector of size dof
@@ -356,13 +366,6 @@ namespace mfem_mgis {
       for (int i = 0; i < ir.GetNPoints(); i++) {
         const auto& ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
-        const auto idx = map.to_indexes.Find(tr.ElementNo);
-#ifdef MFEM_MGIS_DEBUG
-        if (idx == -1) {
-          mfem_mgis::abort("invalid mapping");
-        }
-#endif /* MFEM_MGIS_DEBUG */
-        const auto n = map.from_indexes[idx];
         const auto v = tr.Weight() * f.getIntegrationPointValue(n, i);
         e.CalcPhysShape(tr, shape);
         add(elvect, ip.weight * v, shape, elvect);
@@ -371,10 +374,10 @@ namespace mfem_mgis {
 
    private:
     /*!
-     * \brief mapping between the numbering of the partial quadature spaces and
-     * the numbering in the targeted space
+     * \brief for each location, mapping between the numbering in the targeted
+     * space and the numbering of the partial quadrature space
      */
-    std::unordered_map<size_type, ElementsMapping> mappings;
+    std::unordered_map<size_type, mfem::Array<size_type>> inverse_mappings;
   };
 
   struct ComponentL2ProjectionRHSFormIntegrator final
@@ -421,7 +424,11 @@ namespace mfem_mgis {
         const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
         const std::unordered_map<size_type, ElementsMapping>& m,
         const size_type c)
-        : L2ProjectionFormIntegratorBase(fcts), mappings(m), component(c) {}
+        : L2ProjectionFormIntegratorBase(fcts), component(c) {
+      for (const auto& [id, mapping] : m) {
+        this->inverse_mappings.insert({id, getInverseMapping(mapping)});
+      }
+    }
 
     //
     void AssembleRHSElementVect(const mfem::FiniteElement& e,
@@ -429,7 +436,13 @@ namespace mfem_mgis {
                                 mfem::Vector& elvect) override {
       const auto m = tr.Attribute;
       const auto& f = this->functions.at(m);
-      const auto& map = this->mappings.at(m);
+      const auto& map = this->inverse_mappings.at(m);
+      const auto n = tr.ElementNo < map.Size() ? map[tr.ElementNo] : -1;
+#ifdef MFEM_MGIS_DEBUG
+      if (n == -1) {
+        mfem_mgis::abort("invalid mapping");
+      }
+#endif /* MFEM_MGIS_DEBUG */
       const int dof = e.GetDof();
       //
       shape.SetSize(dof);  // vector of size dof
@@ -441,13 +454,6 @@ namespace mfem_mgis {
       for (int i = 0; i < ir.GetNPoints(); i++) {
         const auto& ip = ir.IntPoint(i);
         tr.SetIntPoint(&ip);
-        const auto idx = map.to_indexes.Find(tr.ElementNo);
-#ifdef MFEM_MGIS_DEBUG
-        if (idx == -1) {
-          mfem_mgis::abort("invalid mapping");
-        }
-#endif /* MFEM_MGIS_DEBUG */
-        const auto n = map.from_indexes[idx];
         const auto fv = f.getIntegrationPointValues(n, i)[this->component];
         const auto v = tr.Weight() * fv;
         e.CalcPhysShape(tr, shape);
@@ -457,10 +463,10 @@ namespace mfem_mgis {
 
    private:
     /*!
-     * \brief mapping between the numbering of the partial quadature spaces and
-     * the numbering in the targeted space
+     * \brief for each location, mapping between the numbering in the targeted
+     * space and the numbering of the partial quadrature space
      */
-    std::unordered_map<size_type, ElementsMapping> mappings;
+    std::unordered_map<size_type, mfem::Array<size_type>> inverse_mappings;
     //
     const size_type component;
   };
@@ -508,6 +514,18 @@ namespace mfem_mgis {
     if (*ob != on_boundary) {
       return ctx.registerErrorMessage(
           "result mesh is not consistent with the partial quadrature spaces");
+    }
+    for (const auto& f : fcts) {
+      const auto& qspace = f.getPartialQuadratureSpace();
+      const auto oc = fed.contains(ctx, mesh, qspace.getLocation());
+      if (isInvalid(oc)) {
+        return false;
+      }
+      if (!(*oc)) {
+        return ctx.registerErrorMessage(
+            qspace.getLocationName() +
+            " is not part of the mesh of the result");
+      }
     }
     const auto& elts_attributes = mesh.attributes;
     for (int i = 0; i != elts_attributes.Size(); ++i) {
@@ -567,12 +585,6 @@ namespace mfem_mgis {
     if (isInvalid(olocal_fespace)) {
       return {};
     }
-    // partial quadrature spaces defined on boundaries are built on the
-    // submesh
-    const auto oboundaries = fed.isDefinedOnBoundaries(ctx, mesh);
-    if (isInvalid(oboundaries)) {
-      return {};
-    }
     const auto orequiresMapping = [&mesh, &fcts,
                                    &ctx]() -> std::optional<bool> {
       for (const auto& qf : fcts) {
@@ -622,7 +634,7 @@ namespace mfem_mgis {
         if (isInvalid(os)) {
           return false;
         }
-        const auto om = fed.getElementsMapping(ctx, getMesh(*os), mesh, ql);
+        auto om = fed.getElementsMapping(ctx, getMesh(*os), mesh, ql);
         if (isInvalid(om)) {
           return false;
         }

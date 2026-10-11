@@ -126,12 +126,13 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto qspace = std::make_shared<PartialQuadratureSpace>(
         fed, BoundaryIdentifier{.id = 2}, &getIntegrationRule);
     auto qf = PartialQuadratureFunction(qspace, 1);
-    // the quadrature space is built on the submesh of the boundary
+    // the quadrature space is built on the boundary elements of the whole mesh
+    const auto omesh = qspace->getMesh<parallel>(ctx);
+    TFEL_TESTS_ASSERT(isValid(omesh));
+    TFEL_TESTS_CHECK(&(*omesh) == &(fed.getMesh<parallel>()));
     const auto bsubmesh = fed.getSubMesh<parallel>(
         ctx, 2, MeshDiscretization::Location::ON_BOUNDARIES);
     TFEL_TESTS_ASSERT(isValid(bsubmesh));
-    const auto omesh = qspace->getMesh<parallel>(ctx);
-    TFEL_TESTS_ASSERT(isValid(omesh));
     // a grid function on the whole mesh can be used to update the function
     auto c = mfem::ConstantCoefficient(1);
     auto ctx2 = Context{};
@@ -148,7 +149,13 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(isValid(fespace));
     auto f = GridFunction<parallel>{fespace.get()};
     f.ProjectCoefficient(c);
+    for (size_type i = 0; i != getSpaceSize(*qspace); ++i) {
+      *(qf.data(i)) = 0;
+    }
     TFEL_TESTS_ASSERT(update(ctx, qf, f));
+    for (size_type i = 0; i != getSpaceSize(*qspace); ++i) {
+      TFEL_TESTS_CHECK(std::abs(*(qf.data(i)) - 1) < 1e-14);
+    }
     // the function can only be projected on the submesh of the boundary
     TFEL_TESTS_CHECK(isInvalid(makeGridFunction<parallel>(ctx2, {qf})));
     TFEL_TESTS_CHECK(isInvalid(
@@ -163,8 +170,8 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto qspace2 = std::make_shared<PartialQuadratureSpace>(
         fed, MaterialIdentifier{.id = 2}, &getIntegrationRule);
     auto qf2 = PartialQuadratureFunction(qspace2, 1);
-    TFEL_TESTS_CHECK(
-        isInvalid(makeGridFunction<parallel>(ctx2, {qf, qf2}, *bsubmesh)));
+    TFEL_TESTS_CHECK(isInvalid(
+        makeGridFunction<parallel>(ctx2, {qf, qf2}, fed.getMesh<parallel>())));
     // submesh of the boundary
     auto og = makeGridFunction<parallel>(ctx, {qf}, *bsubmesh);
     TFEL_TESTS_ASSERT(isValid(og));

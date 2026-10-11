@@ -61,7 +61,7 @@ namespace mfem_mgis {
     std::vector<LocationIdentifier> getLocations() const noexcept;
     /*!
      * \brief return the partial quadrature function associated with the given
-     * material identifier
+     * location
      * \param[in, out] ctx: execution context
      * \param[in] l: location identifier
      * \return the partial quadrature function
@@ -73,7 +73,7 @@ namespace mfem_mgis {
         Context& ctx, const LocationIdentifier l) noexcept;
     /*!
      * \brief return the partial quadrature function associated with the given
-     * material identifier
+     * location
      * \param[in, out] ctx: execution context
      * \param[in] l: location identifier
      * \return the partial quadrature function

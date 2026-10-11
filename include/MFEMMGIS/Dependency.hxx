@@ -174,7 +174,7 @@ namespace mfem_mgis {
     QPDependency(const QPDependency &) noexcept;
     //! \brief move constructor
     QPDependency(QPDependency &&) noexcept;
-    //! \return the material identifier
+    //! \return the location
     [[nodiscard]] LocationIdentifier getLocation() const noexcept;
     //! \return the quadrature space
     [[nodiscard]] OptionalReference<const PartialQuadratureSpace>
@@ -226,7 +226,7 @@ namespace mfem_mgis {
     ~QPDependency() noexcept override;
 
    private:
-    //! \brief material identifier
+    //! \brief location
     const LocationIdentifier location;
     //! \brief partial quadrature space
     std::shared_ptr<const PartialQuadratureSpace> qspace;

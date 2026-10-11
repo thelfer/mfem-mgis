@@ -24,7 +24,7 @@ namespace mfem_mgis {
   inline LocationIdentifier PartialQuadratureSpace::getLocation()
       const noexcept {
     return this->location;
-  }  // end of getId
+  }  // end of getLocation
 
   template <bool parallel>
   OptionalReference<const Mesh<parallel>> PartialQuadratureSpace::getMesh(

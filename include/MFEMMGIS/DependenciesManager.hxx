@@ -14,6 +14,7 @@
 #include <utility>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/TimeStepStage.hxx"
+#include "MFEMMGIS/MeshDiscretization.hxx"
 
 namespace mfem_mgis {
 

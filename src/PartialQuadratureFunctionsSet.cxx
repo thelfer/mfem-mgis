@@ -67,7 +67,7 @@ namespace mfem_mgis {
       locations.push_back(fptr->getPartialQuadratureSpace().getLocation());
     }
     return locations;
-  }  // end of getMaterialIdentifiers
+  }  // end of getLocations
 
   std::shared_ptr<PartialQuadratureFunction> PartialQuadratureFunctionsSet::get(
       Context& ctx, const LocationIdentifier l) noexcept {

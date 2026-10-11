@@ -53,6 +53,33 @@ Known incompatibilites
   :cxx:`getThermodynamicForce` and :cxx:`getInternalStateVariable`
   which did not take a :cxx:`Context`. The overloads taking a
   :cxx:`Context` as first argument shall be used instead.
+- Partial quadrature spaces are now associated with a location, i.e. a
+  material or a boundary (see Issue 466):
+
+  - the :cxx:`getId` method of :cxx:`PartialQuadratureSpace` has been
+    removed, the :cxx:`getLocation` method shall be used instead.
+  - the constructors of :cxx:`PartialQuadratureSpace` taking a material
+    identifier have been removed. A :cxx:`LocationIdentifier`, built
+    from a :cxx:`MaterialIdentifier` or a :cxx:`BoundaryIdentifier`,
+    shall be given instead, e.g. :cxx:`MaterialIdentifier{.id = m}`.
+  - a partial quadrature space defined on a boundary using a finite
+    element discretization is now built on the boundary elements of the
+    mesh rather than on the submesh of the boundary.
+  - :cxx:`LocationIdentifier` is no longer an aggregate and can not be
+    assigned anymore.
+  - :cxx:`QPDependency::getMaterialIdentifier`,
+    :cxx:`PartialQuadratureFunctionsSet::getMaterialIdentifiers` and
+    the overload of :cxx:`PartialQuadratureFunctionsSet::get` taking a
+    material identifier have been replaced by :cxx:`getLocation`,
+    :cxx:`getLocations` and an overload taking a
+    :cxx:`LocationIdentifier`.
+  - the overloads of :cxx:`updateGridFunction` taking a mesh or a
+    submesh have been removed.
+  - the :cxx:`setMaterialProperty` and :cxx:`setExternalStateVariable`
+    methods of behaviour integrators, called with an evaluator, require
+    an evaluator defined on an equivalent partial quadrature space, i.e.
+    built on a finite element discretization sharing the same finite
+    element spaces manager. Those calls are now collective.
 
 New features
 ============
@@ -269,7 +296,8 @@ Retrieving information on a partial quadrature space
 The :cxx:`PartialQuadratureSpaceInformation` structure contains some
 relevant information about a partial quadrature space:
 
-- the identifier and the name of the underlying material,
+- the identifier and a description of the underlying material or
+  boundary, including its name, if defined,
 - the total number of elements,
 - the total number of integration points,
 - the number of elements points per geometric type.
@@ -304,8 +332,19 @@ The :cxx:`setMaterialProperty` and :cxx:`setExternalStateVariable` methods of be
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-Resolution of dependencies of a nonlinear evolution problemn using another
---------------------------------------------------------------------------
+Resolution of dependencies of a nonlinear evolution problem using another
+-------------------------------------------------------------------------
+
+The :cxx:`resolveBehaviourIntegratorsDependencies` function resolves the
+material properties and external state variables of the behaviour
+integrators of a nonlinear evolution problem using the gradients,
+thermodynamic forces and internal state variables of another one.
+
+Both problems must exchange data defined on equivalent partial
+quadrature spaces. Hence, the finite element discretizations of both
+problems must share the same finite element spaces manager, i.e. the
+finite element discretization of one problem must be built from the
+finite element spaces manager of the other.
 
 The :cxx:`Simulation` class
 ---------------------------
@@ -356,6 +395,8 @@ material carrying several behaviour integrators.
 Issues fixed
 ============
 
+- Issue 466: Refactor partial quadrature space to better support spaces
+  on boundaries
 - Issue 429: ex1 and ex3 sources shall only live in mm
 - Issue 427: satoh, rve and mox examples are duplicates from mm-examples
 - Issue 404: Remove deprecated methods of `AbstractNonLinearEvolutionProblem`

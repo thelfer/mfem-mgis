@@ -28,18 +28,18 @@ namespace mfem_mgis {
       r += qspace->getLocationName() + " ";
       r += "for given quadrature ";
     } else {
-      //      r += qspace->getLocationName() + " ";
+      r += ::mfem_mgis::getLocationDescription(d.getLocation()) + " ";
       r += "on unspecified quadrature ";
     }
     return r + "at the " + tss() + " of the time step";
   }  // end of getLocationDescription
 
   std::vector<QPDependency> &DependenciesManager::getLocalQPDependenciesManager(
-      const LocationIdentifier m, const TimeStepStage s) noexcept {
+      const LocationIdentifier l, const TimeStepStage s) noexcept {
     if (s == bts) {
-      return this->registeredQPDependencies[0][m];
+      return this->registeredQPDependencies[0][l];
     }
-    return this->registeredQPDependencies[1][m];
+    return this->registeredQPDependencies[1][l];
   }  // end of getLocalQPDependenciesManager
 
   DependenciesManager::DependenciesManager(

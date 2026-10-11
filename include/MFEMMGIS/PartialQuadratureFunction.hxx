@@ -511,8 +511,10 @@ namespace mfem_mgis {
    *
    * \pre both views must have the same number of components.
    * \note partial quadrature spaces of the views may be
-   * different, we only require them to have the same identifier and the same
-   * size.
+   * different, we only require them to have the same location and the same
+   * size. The elements of both spaces must however be numbered in the same
+   * way, which is not the case for a boundary seen from the whole mesh and
+   * from a submesh, see `MeshDiscretization::getElementsMapping`.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool assign_values(
       Context& ctx,

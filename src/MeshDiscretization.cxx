@@ -824,6 +824,9 @@ namespace mfem_mgis {
     std::optional<bool> contains(Context& ctx,
                                  const Mesh<parallel>& mesh,
                                  const LocationIdentifier& l) const noexcept {
+      if (isInvalid(l)) {
+        return ctx.registerErrorMessage("invalid location identifier");
+      }
       if (!this->manages(mesh)) {
         return ctx.registerErrorMessage("given mesh is not managed");
       }
@@ -938,6 +941,14 @@ namespace mfem_mgis {
       if ((!this->manages(m1)) || (!this->manages(m2))) {
         return ctx.registerErrorMessage("unmanaged mesh");
       }
+      const auto ocontains = this->template contains<parallel>(ctx, m2, l);
+      if (isInvalid(ocontains)) {
+        return {};
+      }
+      if (!(*ocontains)) {
+        return ctx.registerErrorMessage(this->getLocationDescription(l) +
+                                        " is not part of the targeted mesh");
+      }
       // return all the ancestors of the given mesh, including the given mesh
       auto getMeshFamilyTree = [](const Mesh<parallel>& m) {
         auto tree = std::vector<const Mesh<parallel>*>{};
@@ -1000,8 +1011,7 @@ namespace mfem_mgis {
       }
       // now we have to create the elements mapping from m1 to the top of its
       // tree
-      const auto omapping1 =
-          this->template getElementsMapping<parallel>(ctx, m1, l);
+      auto omapping1 = this->template getElementsMapping<parallel>(ctx, m1, l);
       if (isInvalid(omapping1)) {
         return {};
       }
@@ -1033,7 +1043,8 @@ namespace mfem_mgis {
           if (*on != omapping1->Size()) {
             return ctx.registerErrorMessage(
                 this->getLocationDescription(l) +
-                " has different sizes across parent submeshes");
+                " is not entirely included in the submesh defined on "
+                "materials");
           }
           const auto& faces_mapping = [&sm]() -> const mfem::Array<size_type>& {
             if (sm->Dimension() == 2) {
@@ -1077,10 +1088,10 @@ namespace mfem_mgis {
           const auto& map = sm->GetParentElementIDMap();
           for (size_type i = 0; i != mapping2.Size(); ++i) {
             const auto idx = map.Find(mapping2[i]);
-            if (idx == -1) {  // don't think that this case is possible
+            if (idx == -1) {
               return ctx.registerErrorMessage(
-                  "in the targeted mesh, " + this->getLocationDescription(l) +
-                  "only contains a subset of the elements of the original");
+                  this->getLocationDescription(l) +
+                  " is not entirely included in the targeted mesh");
             }
             mapping2[i] = idx;
           }
@@ -1096,7 +1107,8 @@ namespace mfem_mgis {
           if (*on != omapping1->Size()) {
             return ctx.registerErrorMessage(
                 this->getLocationDescription(l) +
-                " has different sizes across parent submeshes");
+                " is not entirely included in the submesh defined on "
+                "materials");
           }
           const auto& faces_mapping = [&sm]() -> const mfem::Array<size_type>& {
             if (sm->Dimension() == 2) {
@@ -1145,10 +1157,15 @@ namespace mfem_mgis {
         const Mesh<parallel>& m2,
         const LocationIdentifier& l) const noexcept {
       if constexpr (parallel) {
-        const auto om =
+        auto om =
             this->template getLocalElementsMapping<parallel>(ctx, m1, m2, l);
         const auto success = isTrueOnAllProcesses(m1.GetComm(), isValid(om));
         if (!success) {
+          if (isValid(om)) {
+            return ctx.registerErrorMessage("computing the mapping of " +
+                                            this->getLocationDescription(l) +
+                                            " failed on another process");
+          }
           return {};
         }
         return om;
@@ -2584,6 +2601,16 @@ namespace mfem_mgis {
     }
     return true;
   }  // end of check
+
+  mfem::Array<size_type> getInverseMapping(const ElementsMapping& m) {
+    auto r = mfem::Array<size_type>(
+        m.to_indexes.Size() == 0 ? 0 : m.to_indexes.Max() + 1);
+    r = -1;
+    for (size_type i = 0; i != m.to_indexes.Size(); ++i) {
+      r[m.to_indexes[i]] = m.from_indexes[i];
+    }
+    return r;
+  }  // end of getInverseMapping
 
   std::string getLocationDescription(const LocationIdentifier& l) noexcept {
     if (isInvalid(l)) {

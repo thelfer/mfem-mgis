@@ -218,6 +218,19 @@ namespace mfem_mgis {
       const AbstractQPEvaluator& e) {
     const auto& bqspace = b.getPartialQuadratureSpace();
     const auto& eqspace = *(e.getPartialQuadratureSpacePointer());
+    if (bqspace.getMeshDiscretization() != eqspace.getMeshDiscretization()) {
+      return ctx.registerErrorMessage(
+          "partial quadrature evaluator is not defined on the mesh of the "
+          "behaviour integrator");
+    }
+    if (bqspace.getLocation() != eqspace.getLocation()) {
+      return ctx.registerErrorMessage(
+          "partial quadrature evaluator is not defined on the location of the "
+          "behaviour integrator");
+    }
+    // this check notably fails if both partial quadrature spaces are not
+    // built on finite element discretizations sharing the same finite element
+    // spaces manager
     if (!areEquivalent(bqspace, eqspace)) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on a space equivalent "

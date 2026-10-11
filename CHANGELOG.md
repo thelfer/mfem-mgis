@@ -9,12 +9,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - use std::span instead of mgis::span
+- partial quadrature spaces are associated with a location (material or
+  boundary). Partial quadrature spaces defined on a boundary using a finite
+  element discretization are built on the boundary elements of the mesh
 
 ### Removed
 
 - deprecated methods of `AbstractNonLinearEvolutionProblem` and deprecated
   functions `getGradient`, `getThermodynamicForce` and
   `getInternalStateVariable` which did not take a `Context`
+- `PartialQuadratureSpace::getId` and the constructors of
+  `PartialQuadratureSpace` taking a material identifier
+- the overloads of `updateGridFunction` taking a mesh or a submesh
 
 ## [1.0.0] - 2024-08-02
 

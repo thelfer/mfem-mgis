@@ -174,7 +174,7 @@ namespace mfem_mgis {
 
   LocationIdentifier QPDependency::getLocation() const noexcept {
     return this->location;
-  }  // end of getLocationIdentifier
+  }  // end of getLocation
 
   OptionalReference<const PartialQuadratureSpace>
   QPDependency::getPartialQuadratureSpace() const noexcept {
@@ -192,7 +192,7 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("invalid partial quadrature space");
     }
     if (s->getLocation() != this->location) {
-      return ctx.registerErrorMessage("inconsistent material identifier");
+      return ctx.registerErrorMessage("inconsistent location");
     }
     if (isValid(this->qspace)) {
       return ctx.registerErrorMessage(
