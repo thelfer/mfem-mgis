@@ -60,6 +60,11 @@ namespace mfem_mgis {
      * \param[in] l: location identifier
      * \param[in] irs: function returning the integration rule for the
      * considered finite element.
+     *
+     * \note if the location is a boundary and if the mesh of the finite
+     * element space is defined on materials (whole mesh or submesh of
+     * materials), the partial quadrature space is built on the boundary
+     * elements of this mesh, see `shallUseBoundaryElementsAPI`.
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &fed,
                            const FiniteElementSpace<true> &fespace,
@@ -75,6 +80,11 @@ namespace mfem_mgis {
      * \param[in] l: location identifier
      * \param[in] irs: function returning the integration rule for the
      * considered finite element.
+     *
+     * \note if the location is a boundary and if the mesh of the finite
+     * element space is defined on materials (whole mesh or submesh of
+     * materials), the partial quadrature space is built on the boundary
+     * elements of this mesh, see `shallUseBoundaryElementsAPI`.
      */
     PartialQuadratureSpace(const FiniteElementDiscretization &fed,
                            const FiniteElementSpace<false> &fespace,
@@ -88,7 +98,10 @@ namespace mfem_mgis {
     PartialQuadratureSpace(const PartialQuadratureSpace &) = delete;
     PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
     PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
-    //! \return the material name or boundary name
+    /*!
+     * \return a description of the location, including the name of the
+     * material or of the boundary if defined, e.g. `material 'BEAM' (12)`
+     */
     [[nodiscard]] std::string getLocationName() const noexcept;
     //! \return if the partial quadrature space is defined on a material
     [[nodiscard]] bool isDefinedOnAMaterial() const;

@@ -44,6 +44,10 @@ namespace mfem_mgis {
    * of the same element in the original mesh, or -1 if this element is not
    * part of the mapping
    * \param[in] m: mapping
+   *
+   * \note the size of the returned array is the greatest index of the
+   * targeted mesh in the mapping plus one, not the number of elements of the
+   * targeted mesh. The callers must check the index before using it.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] mfem::Array<size_type> getInverseMapping(
       const ElementsMapping& m);

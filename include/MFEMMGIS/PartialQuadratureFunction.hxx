@@ -165,7 +165,7 @@ namespace mfem_mgis {
     const real* data(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return a pointer to the data
      */
@@ -181,7 +181,7 @@ namespace mfem_mgis {
     const real& getIntegrationPointValue(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the value
      * \note this method is only meaningful when the quadrature function is
@@ -204,7 +204,7 @@ namespace mfem_mgis {
     std::span<const real> getIntegrationPointValues(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the values
      */
@@ -218,7 +218,7 @@ namespace mfem_mgis {
     std::span<const real> operator()(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the values
      */
@@ -292,7 +292,7 @@ namespace mfem_mgis {
     real* data(const size_type o);
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return a pointer to the data
      */
@@ -307,7 +307,7 @@ namespace mfem_mgis {
     real& getIntegrationPointValue(const size_type o);
     /*!
      * \brief return the value associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the value
      * \note this method is only meaningful when the quadrature function is
@@ -329,7 +329,7 @@ namespace mfem_mgis {
     std::span<real> getIntegrationPointValues(const size_type o);
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the values
      */
@@ -343,7 +343,7 @@ namespace mfem_mgis {
     std::span<real> operator()(const size_type o);
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the values
      */

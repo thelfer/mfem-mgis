@@ -42,9 +42,12 @@ with a distinct boundary, can be extrapolated at nodes:
   the partial quadrature functions.
 
 The :cxx:`GridFunction` can be defined on the whole mesh or on a submesh.
-The partial quadrature functions must be defined on all the materials (or
-all the boundaries) of this mesh, and on those only. Functions defined on
-materials and on boundaries can not be mixed.
+Functions defined on materials require a mesh built on materials (the
+whole mesh or a submesh of materials), and functions defined on
+boundaries require a submesh built on boundaries. The partial quadrature
+functions must be defined on all the materials (or all the boundaries) of
+this mesh, and on those only. Functions defined on materials and on
+boundaries can not be mixed.
 
 A :cxx:`GridFunction` being an :cxx:`MFEM` object, the reader may refer
 to the :cxx:`MFEM` documentation for further details. In particular, a
