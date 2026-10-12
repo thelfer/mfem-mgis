@@ -9,8 +9,8 @@
 #ifndef LIB_MFEMMGIS_PARTIALQUADRATURESPACEIDENTIFIERSMANAGER_HXX
 #define LIB_MFEMMGIS_PARTIALQUADRATURESPACEIDENTIFIERSMANAGER_HXX
 
+#include <map>
 #include <memory>
-#include <unordered_map>
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
@@ -22,7 +22,7 @@ namespace mfem_mgis {
    * a set of equivalent partial quadrature spaces.
    *
    * In short, two partial quadrature spaces are equivalent if they define the
-   * same integration points on the same material id, see the `areEquivalent`
+   * same integration points on the same location, see the `areEquivalent`
    * function for details.
    */
   struct MFEM_MGIS_EXPORT PartialQuadratureSpaceIdentifiersManager {
@@ -50,7 +50,7 @@ namespace mfem_mgis {
      * \param[in, out] ctx: execution context
      * \param[in] s: partial quadrature space
      *
-     * \note This identifier may be used for distinct material identifiers.
+     * \note This identifier may be used for distinct locations.
      */
     [[nodiscard]] std::optional<size_type> getIdentifier(
         Context& ctx,
@@ -75,19 +75,16 @@ namespace mfem_mgis {
    private:
     //! \brief a simple alias
     using IdentifiersMap =
-        std::unordered_map<size_type,
-                           std::vector<std::vector<
-                               std::shared_ptr<const PartialQuadratureSpace>>>>;
-    //! \brief mesh discretization on which the partial quadrature spaces are
-    //! defined
-    const MeshDiscretization mesh;
+        std::map<LocationIdentifier,
+                 std::vector<std::vector<
+                     std::shared_ptr<const PartialQuadratureSpace>>>>;
     /*!
-     * \brief list of equivalent quadrature spaces, sorted by material
-     * identifier
-     *
-     *
+     * \brief mesh discretization on which the partial quadrature spaces are
+     * defined
      */
-    mutable IdentifiersMap ids;
+    const MeshDiscretization mesh;
+    //! \brief list of equivalent quadrature spaces, sorted by locations
+    mutable IdentifiersMap locations;
   };
 
 }  // end of namespace mfem_mgis

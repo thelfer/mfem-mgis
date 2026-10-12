@@ -4,13 +4,33 @@
 Partial quadrature spaces
 =========================
 
+Creating a partial quadrature space
+===================================
+
+A partial quadrature space is defined by a finite element
+discretization, a location, i.e. a material or a boundary, and a
+function selecting the integration rule of each element:
+
+.. code:: c++
+
+   auto qspace = std::make_shared<PartialQuadratureSpace>(
+       fed, BoundaryIdentifier{.id = 2}, selector);
+
+A partial quadrature space defined on a boundary is built on the
+boundary elements of the mesh of the finite element discretization.
+
+Another constructor takes a finite element space as second argument, for
+instance a finite element space defined on a submesh. This finite
+element space must be managed by the finite element discretization.
+
 Retrieving information on a partial quadrature space
 ====================================================
 
 The :cxx:`PartialQuadratureSpaceInformation` structure contains some
 relevant information about a partial quadrature space:
 
-- the identifier and the name of the underlying material,
+- the identifier and a description of the underlying material or
+  boundary, including its name, if defined,
 - the total number of elements,
 - the total number of integration points,
 - the number of quadrature points per geometric type.

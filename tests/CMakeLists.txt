@@ -574,9 +574,8 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_tfel_test_executable(GridFunctionOnSubMeshTest)
 
   # Helper function for GridFunctionOnSubMeshTest
-  function(add_grid_function_on_submesh_test)
-    set(test "GridFunctionOnSubMeshTest")
-    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/beam-tet.mesh")
+  function(add_grid_function_on_submesh_test test mesh)
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/${mesh}")
     add_test(NAME ${test} COMMAND ./GridFunctionOnSubMeshTest ${params}
                                   "--parallel" "0")
     if(MFEM_USE_MPI)
@@ -585,7 +584,9 @@ if(MFEM_MGIS_HAVE_TFEL)
     endif(MFEM_USE_MPI)
   endfunction()
 
-  add_grid_function_on_submesh_test()
+  add_grid_function_on_submesh_test(GridFunctionOnSubMeshTest beam-tet.mesh)
+  add_grid_function_on_submesh_test(GridFunctionOnSubMeshTest2D
+                                    quad-2-materials.mesh)
 
   # ImplicitGradientRegularizationTest executable
   add_test_executable(ImplicitGradientRegularizationTest)

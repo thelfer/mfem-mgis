@@ -95,7 +95,7 @@ struct PointsSetCurveTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(isValid(ofed));
     //
     auto ospace = make_shared<PartialQuadratureSpace>(
-        ctx, *ofed, 5,
+        ctx, *ofed, MaterialIdentifier{.id = 5},
         [](const mfem::FiniteElement& e,
            const mfem::ElementTransformation& tr) noexcept
         -> const mfem::IntegrationRule& {

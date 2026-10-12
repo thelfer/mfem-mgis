@@ -9,6 +9,7 @@
 #define LIB_MFEMMGIS_DEPENDENCY_HXX
 
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/MeshDiscretization.hxx"
 
 namespace mfem_mgis {
 
@@ -161,20 +162,20 @@ namespace mfem_mgis {
                  const DependencyStatus ds = DependencyStatus::REQUIRED);
     /*!
      * \brief constructor
-     * \param[in] m: material identifier
+     * \param[in] l: location identifier
      * \param[in] n: name of the dependency
      * \param[in] s: status
      */
     QPDependency(
-        const size_type m,
+        const LocationIdentifier l,
         std::string_view n,
         const DependencyStatus s = DependencyStatus::REQUIRED) noexcept;
     //! \brief copy constructor
     QPDependency(const QPDependency &) noexcept;
     //! \brief move constructor
     QPDependency(QPDependency &&) noexcept;
-    //! \return the material identifier
-    [[nodiscard]] size_type getMaterialIdentifier() const noexcept;
+    //! \return the location
+    [[nodiscard]] LocationIdentifier getLocation() const noexcept;
     //! \return the quadrature space
     [[nodiscard]] OptionalReference<const PartialQuadratureSpace>
     getPartialQuadratureSpace() const noexcept;
@@ -225,8 +226,8 @@ namespace mfem_mgis {
     ~QPDependency() noexcept override;
 
    private:
-    //! \brief material identifier
-    const size_type material_identifier;
+    //! \brief location
+    const LocationIdentifier location;
     //! \brief partial quadrature space
     std::shared_ptr<const PartialQuadratureSpace> qspace;
     /*!

@@ -21,9 +21,10 @@ namespace mfem_mgis {
     return this->ng;
   }  // end of getNumberOfIntegrationPoints
 
-  inline size_type PartialQuadratureSpace::getId() const noexcept {
-    return this->id;
-  }  // end of getId
+  inline LocationIdentifier PartialQuadratureSpace::getLocation()
+      const noexcept {
+    return this->location;
+  }  // end of getLocation
 
   template <bool parallel>
   OptionalReference<const Mesh<parallel>> PartialQuadratureSpace::getMesh(
@@ -53,7 +54,7 @@ namespace mfem_mgis {
   inline size_type PartialQuadratureSpace::getOffset(const size_type i) const {
     const auto p = this->offsets.find(i);
     if (p == this->offsets.end()) {
-      PartialQuadratureSpace::treatInvalidElementIndex(this->id, i);
+      PartialQuadratureSpace::treatInvalidElementIndex(this->location, i);
     }
     return p->second;
   }  // end of getOffset
@@ -62,7 +63,7 @@ namespace mfem_mgis {
       const size_type e) const {
     const auto p = this->number_of_quadrature_points.find(e);
     if (p == this->number_of_quadrature_points.end()) {
-      PartialQuadratureSpace::treatInvalidElementIndex(this->id, e);
+      PartialQuadratureSpace::treatInvalidElementIndex(this->location, e);
     }
     return p->second;
   }  // end of getNumberOfQuadraturePoints

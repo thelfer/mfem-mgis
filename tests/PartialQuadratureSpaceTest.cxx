@@ -113,9 +113,7 @@ struct PartialQuadratureSpaceTest final : public tfel::tests::TestCase {
                   {"Parallel", bool(parameters.parallel)}});
     TFEL_TESTS_ASSERT(isValid(ofed));
     auto oqspace = construct<PartialQuadratureSpace>(
-        ctx, *ofed,
-        LocationIdentifier{.material_identifier = {},
-                           .boundary_identifier = BoundaryIdentifier{.id = 2}},
+        ctx, *ofed, LocationIdentifier{BoundaryIdentifier{.id = 2}},
         [](const mfem::FiniteElement& e,
            const mfem::ElementTransformation&) -> const mfem::IntegrationRule& {
           return mfem::IntRules.Get(e.GetGeomType(), 4);

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- update of partial quadrature functions and grid functions defined on
+  different meshes (whole mesh, submeshes of materials or of boundaries),
+  see `MeshDiscretization::getElementsMapping` and `getInverseMapping`
+- `PartialQuadratureSpace::getLocation`
 - `FiniteElementSpaceOrdering` parameter, to order the degrees of freedom by
   vector dimension (`byVDIM`) instead of by nodes (`byNODES`, the default). The
   `Elasticity` strategy of the `HypreBoomerAMG` preconditioner requires
@@ -16,12 +20,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - use std::span instead of mgis::span
+- partial quadrature spaces are associated with a location (material or
+  boundary). Partial quadrature spaces defined on a boundary using a finite
+  element discretization are built on the boundary elements of the mesh
+- `QPDependency`, `PartialQuadratureFunctionsSet` and
+  `PartialQuadratureSpace::treatInvalidElementIndex` use locations instead
+  of material identifiers
+- `LocationIdentifier` is no longer an aggregate and can not be assigned
+- `PartialQuadratureSpace::getLocationName` returns a description of the
+  location, e.g. `material 'BEAM' (12)`
+- the static `buildQuadratureSpace` methods of the behaviour integrators take
+  `attributes::Throwing` as first argument
+- `setMaterialProperty` and `setExternalStateVariable` called with an
+  evaluator require an equivalent partial quadrature space and are collective
+- `updateL2Projection` reports an error for functions defined outside the
+  mesh of the result
+- `updateGridFunction` requires a grid function whose finite element space is
+  managed by the finite element spaces manager of the partial quadrature
+  functions
 
 ### Removed
 
 - deprecated methods of `AbstractNonLinearEvolutionProblem` and deprecated
   functions `getGradient`, `getThermodynamicForce` and
   `getInternalStateVariable` which did not take a `Context`
+- `PartialQuadratureSpace::getId` and the constructors of
+  `PartialQuadratureSpace` taking a material identifier
+- the overloads of `updateGridFunction` taking a mesh or a submesh
+- `QPDependency::getMaterialIdentifier`,
+  `PartialQuadratureFunctionsSet::getMaterialIdentifiers` and the overload of
+  `PartialQuadratureFunctionsSet::get` taking a material identifier
 
 ## [1.0.0] - 2024-08-02
 

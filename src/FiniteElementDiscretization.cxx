@@ -183,6 +183,16 @@ namespace mfem_mgis {
 
   FiniteElementDiscretization::~FiniteElementDiscretization() = default;
 
+#ifdef MFEM_USE_MPI
+  const Mesh<true>& getMesh(const FiniteElementSpace<true>& s) noexcept {
+    return *(s.GetParMesh());
+  }    // end of getMesh
+#endif /* MFEM_USE_MPI */
+
+  const Mesh<false>& getMesh(const FiniteElementSpace<false>& s) noexcept {
+    return *(s.GetMesh());
+  }  // end of getMesh
+
   size_type getNumberOfComponents(
       const FiniteElementDiscretization& fed) noexcept {
     if (fed.describesAParallelComputation()) {

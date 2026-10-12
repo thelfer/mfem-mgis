@@ -224,13 +224,11 @@ namespace mfem_mgis {
     /*!
      * \brief update the grid functions and export them
      * \param[in, out] ctx: execution context
-     * \param[in] p: non linear problem
      * \param[in] t: time
      * \param[in] s: time step stage
      * \return true on success
      */
     bool exportResults(Context &ctx,
-                       NonLinearEvolutionProblemImplementation<parallel> &p,
                        const real t,
                        const TimeStepStage s) noexcept;
     //! \brief submesh defined when exporting data

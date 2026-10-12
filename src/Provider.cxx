@@ -14,9 +14,9 @@ namespace mfem_mgis {
   bool Provider::reportInvalidResolveDependencyCall(
       Context &ctx, const QPDependency &d) noexcept {
     return ctx.registerErrorMessage("dependency at integration point '" +
-                                    d.getName() + "' on material '" +
-                                    std::to_string(d.getMaterialIdentifier()) +
-                                    "' is not handled by this provider");
+                                    d.getName() + "' on " +
+                                    getLocationDescription(d.getLocation()) +
+                                    " is not handled by this provider");
   }  // end of reportInvalidResolveDependencyCall
 
   Provider::~Provider() noexcept = default;

@@ -6,13 +6,21 @@ Partial quadrature functions
 
 Partial quadrature functions map quadrature points to values. A partial
 quadrature function is defined on the quadrature points associated with
-a unique material.
+a unique material or a unique boundary.
 
 Projection of a grid function to a partial quadrature function
 ==============================================================
 
 The :cxx:`update` function allows projecting a grid function to a
 partial quadrature function.
+
+The grid function may be defined on the mesh of the partial quadrature
+function or on another mesh containing its material or boundary, for
+instance a submesh. In this case, the mapping between the elements of
+both meshes is computed internally and, in parallel, the call is
+collective. A boundary can only be seen through a submesh defined on
+materials if the boundary elements of the submesh are oriented as in the
+parent mesh.
 
 Example of usage
 ----------------
@@ -25,13 +33,21 @@ Extrapolating quadrature functions at nodes
 ===========================================
 
 Using a so-called :cxx:`GridFunction`, a set of partial quadrature
-functions, each associated with a distinct material, can be extrapolated
-at nodes:
+functions, each associated with a distinct material or each associated
+with a distinct boundary, can be extrapolated at nodes:
 
 - the :cxx:`makeGridFunction` creates the :cxx:`GridFunction` and the associated
   finite element space.
 - the :cxx:`updateGridFunction` fills the :cxx:`GridFunction` with the values of
   the partial quadrature functions.
+
+The :cxx:`GridFunction` can be defined on the whole mesh or on a submesh.
+Functions defined on materials require a mesh built on materials (the
+whole mesh or a submesh of materials), and functions defined on
+boundaries require a submesh built on boundaries. The partial quadrature
+functions must be defined on all the materials (or all the boundaries) of
+this mesh, and on those only. Functions defined on materials and on
+boundaries can not be mixed.
 
 A :cxx:`GridFunction` being an :cxx:`MFEM` object, the reader may refer
 to the :cxx:`MFEM` documentation for further details. In particular, a
@@ -51,7 +67,9 @@ function :math:`f` is obtained by minimizing the following functional:
 where :math:`\Omega` is the domain on which `f` is defined.
 
 For a set of quadrature functions, the projection is computed on the
-union of the domains of the quadrature functions.
+union of the domains of the quadrature functions. For quadrature
+functions defined on boundaries, the integral is computed on those
+boundaries and the result is defined on the submesh of those boundaries.
 
 For vectorial functions, the projection is computed component-wise.
 

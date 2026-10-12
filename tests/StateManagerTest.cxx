@@ -56,7 +56,7 @@ struct StateManagerTest final : public tfel::tests::TestCase {
               {"UnknownsSize", 3}}});
     TFEL_TESTS_ASSERT(isValid(ofed1));
     auto qspace1 = make_shared<PartialQuadratureSpace>(
-        ctx, *ofed1, 1,
+        ctx, *ofed1, MaterialIdentifier{.id = 1},
         [](const mfem::FiniteElement& e,
            const mfem::ElementTransformation&) -> const mfem::IntegrationRule& {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
@@ -75,7 +75,7 @@ struct StateManagerTest final : public tfel::tests::TestCase {
         dict{{{"UnknownsSize", 2}}});
     TFEL_TESTS_ASSERT(isValid(ofed2));
     auto qspace2 = make_shared<PartialQuadratureSpace>(
-        ctx, *ofed2, 1,
+        ctx, *ofed2, MaterialIdentifier{.id = 1},
         [](const mfem::FiniteElement& e,
            const mfem::ElementTransformation&) -> const mfem::IntegrationRule& {
           return mfem::IntRules.Get(e.GetGeomType(), 2);

@@ -22,7 +22,27 @@ namespace mfem_mgis {
     return f.ParFESpace()->GetVDim();
   }  // end of getNumberOfComponents
 
+  FiniteElementSpace<true>& getFiniteElementSpace(
+      GridFunction<true>& f) noexcept {
+    return *(f.ParFESpace());
+  }  // end of getFiniteElementSpace
+
+  const FiniteElementSpace<true>& getFiniteElementSpace(
+      const GridFunction<true>& f) noexcept {
+    return *(f.ParFESpace());
+  }  // end of getFiniteElementSpace
+
 #endif /* MFEM_USE_MPI */
+
+  FiniteElementSpace<false>& getFiniteElementSpace(
+      GridFunction<false>& f) noexcept {
+    return *(f.FESpace());
+  }  // end of getFiniteElementSpace
+
+  const FiniteElementSpace<false>& getFiniteElementSpace(
+      const GridFunction<false>& f) noexcept {
+    return *(f.FESpace());
+  }  // end of getFiniteElementSpace
 
   size_type getNumberOfComponents(const GridFunction<false>& f) noexcept {
     return f.FESpace()->GetVDim();

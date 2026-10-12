@@ -292,6 +292,11 @@ namespace mfem_mgis {
    * \param[in, out] p: problem to be treated
    * \param[in] provider: problem used to resolve the dependencies
    * \return true on success
+   *
+   * \note the finite element discretizations of both problems shall share the
+   * same finite element spaces manager, i.e. the finite element discretization
+   * of one problem shall be built from the finite element spaces manager of
+   * the other.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool resolveBehaviourIntegratorsDependencies(
       Context &ctx,
@@ -381,8 +386,7 @@ namespace mfem_mgis {
       mfem::Vector &F,
       NonLinearEvolutionProblem &p,
       const std::vector<
-          std::pair<size_type, std::vector<std::vector<size_type>>>>
-          &elts_dofs,
+          std::pair<size_type, std::vector<std::vector<size_type>>>> &elts_dofs,
       const BehaviourIntegratorsSelection &selection = {}) noexcept;
 
 }  // end of namespace mfem_mgis

@@ -34,7 +34,33 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT [[nodiscard]] size_type getNumberOfComponents(
       const GridFunction<true>& f) noexcept;
 
+  /*!
+   * \brief return the underlying finite element space
+   * \param[in] f: grid function
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] FiniteElementSpace<true>&
+  getFiniteElementSpace(GridFunction<true>& f) noexcept;
+  /*!
+   * \brief return the underlying finite element space
+   * \param[in] f: grid function
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] const FiniteElementSpace<true>&
+  getFiniteElementSpace(const GridFunction<true>& f) noexcept;
+
 #endif /* MFEM_USE_MPI */
+
+  /*!
+   * \brief return the underlying finite element space
+   * \param[in] f: grid function
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] FiniteElementSpace<false>&
+  getFiniteElementSpace(GridFunction<false>& f) noexcept;
+  /*!
+   * \brief return the underlying finite element space
+   * \param[in] f: grid function
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] const FiniteElementSpace<false>&
+  getFiniteElementSpace(const GridFunction<false>& f) noexcept;
 
   /*!
    * \brief return the number of components of a sequential grid function

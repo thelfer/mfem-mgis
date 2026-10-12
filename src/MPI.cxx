@@ -13,14 +13,19 @@
 
 namespace mfem_mgis {
 
+#ifdef MFEM_USE_MPI
+  bool isTrueOnAllProcesses(const MPI_Comm& c, const bool b) noexcept {
+    auto r = b;
+    MPI_Allreduce(MPI_IN_PLACE, &r, 1, MPI_CXX_BOOL, MPI_LAND, c);
+    return r;
+  }
+#endif /* MFEM_USE_MPI */
+
   bool isTrueOnAllProcesses(const MeshDiscretization& m,
                             const bool b) noexcept {
     if (m.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      auto r = b;
-      MPI_Allreduce(MPI_IN_PLACE, &r, 1, MPI_CXX_BOOL, MPI_LAND,
-                    getMPICommunicator(m));
-      return r;
+      return isTrueOnAllProcesses(getMPICommunicator(m), b);
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */

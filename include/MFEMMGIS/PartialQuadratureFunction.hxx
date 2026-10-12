@@ -165,7 +165,7 @@ namespace mfem_mgis {
     const real* data(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return a pointer to the data
      */
@@ -181,7 +181,7 @@ namespace mfem_mgis {
     const real& getIntegrationPointValue(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the value
      * \note this method is only meaningful when the quadrature function is
@@ -204,7 +204,7 @@ namespace mfem_mgis {
     std::span<const real> getIntegrationPointValues(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the values
      */
@@ -218,7 +218,7 @@ namespace mfem_mgis {
     std::span<const real> operator()(const size_type o) const;
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the values
      */
@@ -292,7 +292,7 @@ namespace mfem_mgis {
     real* data(const size_type o);
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return a pointer to the data
      */
@@ -307,7 +307,7 @@ namespace mfem_mgis {
     real& getIntegrationPointValue(const size_type o);
     /*!
      * \brief return the value associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the value
      * \note this method is only meaningful when the quadrature function is
@@ -329,7 +329,7 @@ namespace mfem_mgis {
     std::span<real> getIntegrationPointValues(const size_type o);
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the values
      */
@@ -343,7 +343,7 @@ namespace mfem_mgis {
     std::span<real> operator()(const size_type o);
     /*!
      * \brief return the data associated with an integration point
-     * \param[in] e: global element number
+     * \param[in] e: element number, see `PartialQuadratureSpace::getOffsets`
      * \param[in] i: integration point number in the element
      * \return the values
      */
@@ -511,8 +511,10 @@ namespace mfem_mgis {
    *
    * \pre both views must have the same number of components.
    * \note partial quadrature spaces of the views may be
-   * different, we only require them to have the same identifier and the same
-   * size.
+   * different, we only require them to have the same location and the same
+   * size. The elements of both spaces must however be numbered in the same
+   * way, which is not the case for a boundary seen from the whole mesh and
+   * from a submesh, see `MeshDiscretization::getElementsMapping`.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool assign_values(
       Context& ctx,
@@ -648,60 +650,6 @@ namespace mfem_mgis {
   MFEM_MGIS_EXPORT void updateGridFunction<false>(
       GridFunction<false>&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&);
-
-  /*!
-   * \brief update a grid function using the values of the given functions
-   * \param[out] f: grid function
-   * \param[in] fcts: functions
-   * \param[in] mesh: mesh on which the grid function is defined
-   * \note the grid function must have been created by `makeGridFunction`
-   */
-  template <bool parallel>
-  void updateGridFunction(
-      GridFunction<parallel>& f,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const Mesh<parallel>& mesh);
-
-  //! \brief parallel specialisation
-  template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<true>(
-      GridFunction<true>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const Mesh<true>&);
-
-  //! \brief sequential specialisation
-  template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<false>(
-      GridFunction<false>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const Mesh<false>&);
-
-  /*!
-   * \brief update a grid function using the values of the given functions
-   * \param[out] f: grid function
-   * \param[in] fcts: functions
-   * \param[in] mesh: submesh on which the grid function is defined
-   * \note the grid function must have been created by `makeGridFunction`
-   */
-  template <bool parallel>
-  void updateGridFunction(
-      GridFunction<parallel>& f,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const SubMesh<parallel>& mesh);
-
-  //! \brief parallel specialisation
-  template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<true>(
-      GridFunction<true>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const SubMesh<true>&);
-
-  //! \brief sequential specialisation
-  template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<false>(
-      GridFunction<false>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const SubMesh<false>&);
 
 }  // namespace mfem_mgis
 

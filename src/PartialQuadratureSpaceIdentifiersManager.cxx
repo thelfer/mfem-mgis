@@ -50,7 +50,7 @@ namespace mfem_mgis {
   PartialQuadratureSpaceIdentifiersManager::getIdentifier(
       Context& ctx,
       const std::shared_ptr<const PartialQuadratureSpace>& s) const noexcept {
-    using PerMaterialIdentifiersList =
+    using PerLocationIdentifiersList =
         std::vector<std::vector<std::shared_ptr<const PartialQuadratureSpace>>>;
     if (s.get() == nullptr) {
       return ctx.registerErrorMessage("invalid partial quadrature space");
@@ -59,10 +59,10 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage(
           "partial quadrature space is not defined on the proper mesh");
     }
-    const auto mid = s->getId();
-    auto p = this->ids.find(mid);
-    if (p == this->ids.end()) {
-      p = this->ids.insert({mid, PerMaterialIdentifiersList{}}).first;
+    const auto l = s->getLocation();
+    auto p = this->locations.find(l);
+    if (p == this->locations.end()) {
+      p = this->locations.insert({l, PerLocationIdentifiersList{}}).first;
     }
     return ::mfem_mgis::getIdentifier(p->second, s);
   }  // end of getIdendifier

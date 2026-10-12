@@ -58,7 +58,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
        {"NumberOfUniformRefinements", parallel ? 1 : 0},
        {"Parallel", parallel}}};
   auto space = std::make_shared<PartialQuadratureSpace>(
-      fed, 5,
+      fed, MaterialIdentifier{.id = 5},
       [](const mfem::FiniteElement& e,
          const mfem::ElementTransformation& tr) noexcept
       -> const mfem::IntegrationRule& {

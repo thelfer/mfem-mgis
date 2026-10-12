@@ -357,7 +357,7 @@ int main(int argc, char** argv) {
       ctx, {{"Boundary", "Xmax"},
             {"Component", 0},
             {"LoadingEvolution",
-             [](const auto t) {
+             [](const auto t) noexcept {
                if (t < 0.3) {
                  return 3e-2 * t;
                } else if (t < 0.6) {
