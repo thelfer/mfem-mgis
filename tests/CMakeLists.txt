@@ -588,6 +588,23 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_grid_function_on_submesh_test(GridFunctionOnSubMeshTest2D
                                     quad-2-materials.mesh)
 
+  # AssignValuesTest executable
+  add_tfel_test_executable(AssignValuesTest)
+
+  # Helper function for AssignValuesTest
+  function(add_assign_values_test test mesh)
+    set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/${mesh}")
+    add_test(NAME ${test} COMMAND ./AssignValuesTest ${params} "--parallel"
+                                  "0")
+    if(MFEM_USE_MPI)
+      add_test(NAME ${test}P COMMAND mpirun -n 2 ./AssignValuesTest ${params}
+                                     "--parallel" "1")
+    endif(MFEM_USE_MPI)
+  endfunction()
+
+  add_assign_values_test(AssignValuesTest beam-tet.mesh)
+  add_assign_values_test(AssignValuesTest2D quad-2-materials.mesh)
+
   # ImplicitGradientRegularizationTest executable
   add_test_executable(ImplicitGradientRegularizationTest)
 

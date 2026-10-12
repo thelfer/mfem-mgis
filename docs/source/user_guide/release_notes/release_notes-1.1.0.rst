@@ -99,6 +99,11 @@ Known incompatibilites
     element spaces manager. Those calls are now collective.
 - :cxx:`updateGridFunction` now takes a :cxx:`Context` as first
   argument and returns a boolean (see Issue 475).
+- :cxx:`assign_values` now reports an error if both views are not
+  defined on the same mesh discretization, even if both discretizations
+  are built from the same mesh file (see Issue 476). Two problems
+  exchanging values must be built on the same mesh discretization, for
+  instance by sharing a finite element spaces manager.
 - the deprecated functions :cxx:`getMPIrank` and :cxx:`getMPIsize` have
   been removed. :cxx:`getMPIRankForDefaultCommunicator` and
   :cxx:`getMPISizeForDefaultCommunicator` shall be used instead (see
@@ -418,6 +423,11 @@ boundary elements of the whole mesh or of a submesh of materials.
 Boundary elements oriented differently in a submesh of materials and
 in the whole mesh are refused.
 
+The values of a partial quadrature function can be copied by
+:cxx:`assign_values` into a function defined on the same location of
+another mesh of the same discretization. The values are then copied
+element by element (see Issue 476).
+
 Search of the behaviour integrator providing a quantity
 -------------------------------------------------------
 
@@ -445,6 +455,7 @@ Issues fixed
 
 - Issue 482: MPI functions on a MeshDiscretization and
   updateGridFunction with no function
+- Issue 476: Fix :cxx:`assign_values`
 - Issue 475: Error handling in :cxx:`updateGridFunction`
 - Issue 474: Add function :cxx:`isMPIRootProcess` and remove tests
   :cxx:`getMPIrank() == 0`

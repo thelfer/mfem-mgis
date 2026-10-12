@@ -509,12 +509,20 @@ namespace mfem_mgis {
    * \param[in] v: immutable view
    * \return true on success, false on failure
    *
-   * \pre both views must have the same number of components.
-   * \note partial quadrature spaces of the views may be
-   * different, we only require them to have the same location and the same
-   * size. The elements of both spaces must however be numbered in the same
-   * way, which is not the case for a boundary seen from the whole mesh and
-   * from a submesh, see `MeshDiscretization::getElementsMapping`.
+   * Both views must be defined on the same mesh discretization and on the
+   * same location, and must have the same number of components. Their partial
+   * quadrature spaces may be different:
+   *
+   * - if both spaces are built on the same mesh, they must have the same
+   *   size, and the values are copied in the order of the integration points.
+   * - if the spaces are built on different meshes of the mesh discretization
+   *   (the whole mesh, a submesh of materials or a submesh of boundaries),
+   *   the values are copied element by element, using
+   *   `MeshDiscretization::getElementsMapping`. Matching elements must have
+   *   the same number of integration points. The copy fails if
+   *   `getElementsMapping` fails, e.g. for boundary elements of a submesh of
+   *   materials not oriented as in the whole mesh. In parallel, this case is
+   *   collective.
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool assign_values(
       Context& ctx,

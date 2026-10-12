@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - update of partial quadrature functions and grid functions defined on
   different meshes (whole mesh, submeshes of materials or of boundaries),
   see `MeshDiscretization::getElementsMapping` and `getInverseMapping`
+- copy by `assign_values` between partial quadrature functions defined on
+  the same location of different meshes
 - `PartialQuadratureSpace::getLocation`
 - `FiniteElementSpaceOrdering` parameter, to order the degrees of freedom by
   vector dimension (`byVDIM`) instead of by nodes (`byNODES`, the default). The
@@ -42,6 +44,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   functions
 - `updateGridFunction` takes a `Context` as first argument and returns a
   boolean
+- `assign_values` requires both views to be defined on the same mesh
+  discretization
 
 ### Removed
 

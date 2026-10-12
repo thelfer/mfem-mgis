@@ -50,6 +50,9 @@ Unit tests
   partial quadrature spaces.
 - `PartialQuadratureFunctionTest`: This test provides some tests on
   partial quadrature functions.
+- `AssignValuesTest`: test the `assign_values` function, which copies the
+  values of a partial quadrature function into another one, defined on
+  the same mesh or on the same location of another mesh.
 - `GridFunctionTest`: test the `update` function which projects a
   `GridFunction` on a partial quadrature function.
 - `L2ProjectionTest`: test the `computeL2Projection` function which
