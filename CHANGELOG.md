@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   vector dimension (`byVDIM`) instead of by nodes (`byNODES`, the default). The
   `Elasticity` strategy of the `HypreBoomerAMG` preconditioner requires
   `byVDIM`.
+- `isMPIMainProcess`, `getMPIRank` and `getMPISize` for a communicator or a
+  mesh discretization, and the same functions for the default communicator
 
 ### Changed
 
@@ -38,6 +40,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `updateGridFunction` requires a grid function whose finite element space is
   managed by the finite element spaces manager of the partial quadrature
   functions
+- `updateGridFunction` takes a `Context` as first argument and returns a
+  boolean
 
 ### Removed
 
@@ -50,6 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `QPDependency::getMaterialIdentifier`,
   `PartialQuadratureFunctionsSet::getMaterialIdentifiers` and the overload of
   `PartialQuadratureFunctionsSet::get` taking a material identifier
+- deprecated functions `getMPIrank` and `getMPIsize`
 
 ## [1.0.0] - 2024-08-02
 
