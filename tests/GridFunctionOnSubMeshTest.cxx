@@ -120,6 +120,8 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto og = makeGridFunction<parallel>(ctx, {qf}, *submesh);
     TFEL_TESTS_ASSERT(isValid(og));
     TFEL_TESTS_ASSERT(updateGridFunction<parallel>(ctx, *og, {qf}));
+    // no function given
+    TFEL_TESTS_CHECK(!updateGridFunction<parallel>(ctx2, *og, {}));
     *og -= 1;
     TFEL_TESTS_CHECK(og->Normlinf() < 1e-10);
   }  // end of test1
@@ -371,9 +373,10 @@ int main(int argc, char** argv) {
   m.addTestOutput(std::cout);
   const auto mesh = std::filesystem::path(parameters.mesh_file).stem().string();
   if (parameters.parallel) {
-    m.addXMLTestOutput("ParallelGridFunctionOnSubMeshTest-" + mesh + "-" +
-                       std::to_string(mfem_mgis::getMPIsize()) + "-" +
-                       std::to_string(mfem_mgis::getMPIrank()) + ".xml");
+    m.addXMLTestOutput(
+        "ParallelGridFunctionOnSubMeshTest-" + mesh + "-" +
+        std::to_string(mfem_mgis::getMPISizeForDefaultCommunicator()) + "-" +
+        std::to_string(mfem_mgis::getMPIRankForDefaultCommunicator()) + ".xml");
   } else {
     m.addXMLTestOutput("GridFunctionOnSubMeshTest-" + mesh + ".xml");
   }

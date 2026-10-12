@@ -173,9 +173,10 @@ int main(int argc, char** argv) {
   auto& m = tfel::tests::TestManager::getTestManager();
   m.addTestOutput(std::cout);  // mfem_mgis::getDefaultLogStream());
   if (parameters.parallel) {
-    m.addXMLTestOutput("ParallelPartialQuadratureSpaceTest-" +
-                       std::to_string(mfem_mgis::getMPIsize()) + "-" +
-                       std::to_string(mfem_mgis::getMPIrank()) + ".xml");
+    m.addXMLTestOutput(
+        "ParallelPartialQuadratureSpaceTest-" +
+        std::to_string(mfem_mgis::getMPISizeForDefaultCommunicator()) + "-" +
+        std::to_string(mfem_mgis::getMPIRankForDefaultCommunicator()) + ".xml");
   } else {
     m.addXMLTestOutput("PartialQuadratureSpaceTest.xml");
   }

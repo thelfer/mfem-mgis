@@ -1372,6 +1372,9 @@ namespace mfem_mgis {
       GridFunction<parallel>& f,
       const std::vector<ImmutablePartialQuadratureFunctionView>&
           fcts) noexcept {
+    if (fcts.empty()) {
+      return ctx.registerErrorMessage("no functions defined");
+    }
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();

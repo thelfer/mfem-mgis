@@ -134,11 +134,27 @@ namespace mfem_mgis {
    * This call is optional if the code exits normally.
    */
   MFEM_MGIS_EXPORT void finalize();
-  //! \return the MPI rank for the default communicator
-  MFEM_MGIS_EXPORT [[deprecated]] int getMPIrank();
-  //! \return the total number of MPI processes for the default communicator.
-  MFEM_MGIS_EXPORT [[deprecated]] int getMPIsize();
-
+  /*!
+   * \return if the current process is the main MPI process
+   *
+   * \note in sequential, this function always returns true
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool
+  isMPIMainProcessForDefaultCommunicator() noexcept;
+  /*!
+   * \return the MPI rank for the default communicator
+   *
+   * \note in sequential, this function always returns 0
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] int
+  getMPIRankForDefaultCommunicator() noexcept;
+  /*!
+   * \return the total number of MPI processes for the default communicator.
+   *
+   * \note in sequential, this function always returns 1
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] int
+  getMPISizeForDefaultCommunicator() noexcept;
   /*!
    * \brief a small wrapper used to build the exception outside the
    * `throw` statement. As most exception classes' constructors may

@@ -14,6 +14,7 @@
 #include "mfem/general/optparser.hpp"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
+#include "MFEMMGIS/MPI.hxx"
 
 struct TestParameters {
   const char* mesh_file = nullptr;
@@ -43,10 +44,12 @@ struct MeshDiscretizationTest final : public tfel::tests::TestCase {
 #ifdef MFEM_USE_MPI
     if (parameters.parallel == 1) {
       this->test1<true>();
+      this->test2<true>();
     }
 #endif /* MFEM_USE_MPI */
     if (parameters.parallel == 0) {
       this->test1<false>();
+      this->test2<false>();
     }
     return this->result;
   }
@@ -163,6 +166,21 @@ struct MeshDiscretizationTest final : public tfel::tests::TestCase {
         *(omesh->template getMutableMeshPointer<parallel>()), mids);
     TFEL_TESTS_CHECK(!omesh->manages(sm));
   }  // end of test1
+  //! \brief MPI functions on a mesh discretization
+  template <bool parallel>
+  void test2() {
+    using namespace mfem_mgis;
+    auto omesh = construct<MeshDiscretization>(
+        ctx, Parameters{{"MeshFileName", parameters.mesh_file},
+                        {"Parallel", bool(parameters.parallel)}});
+    TFEL_TESTS_ASSERT(isValid(omesh));
+    TFEL_TESTS_CHECK_EQUAL(isMPIMainProcess(*omesh),
+                           isMPIMainProcessForDefaultCommunicator());
+    TFEL_TESTS_CHECK_EQUAL(getMPIRank(*omesh),
+                           getMPIRankForDefaultCommunicator());
+    TFEL_TESTS_CHECK_EQUAL(getMPISize(*omesh),
+                           getMPISizeForDefaultCommunicator());
+  }  // end of test2
 };
 
 TFEL_TESTS_GENERATE_PROXY(MeshDiscretizationTest, "MeshDiscretizationTest");
@@ -175,9 +193,10 @@ int main(int argc, char** argv) {
   auto& m = tfel::tests::TestManager::getTestManager();
   m.addTestOutput(std::cout);
   if (parameters.parallel == 1) {
-    m.addXMLTestOutput("ParallelMeshDiscretizationTest-" +
-                       std::to_string(mfem_mgis::getMPIsize()) + "-" +
-                       std::to_string(mfem_mgis::getMPIrank()) + ".xml");
+    m.addXMLTestOutput(
+        "ParallelMeshDiscretizationTest-" +
+        std::to_string(mfem_mgis::getMPISizeForDefaultCommunicator()) + "-" +
+        std::to_string(mfem_mgis::getMPIRankForDefaultCommunicator()) + ".xml");
   } else {
     m.addXMLTestOutput("MeshDiscretizationTest.xml");
   }
