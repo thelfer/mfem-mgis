@@ -380,29 +380,13 @@ namespace mfem_mgis {
     assign_values(ctx, *this, v) | or_die;
   }  // end of copy
 
-  bool assign_values(Context& ctx,
-                     PartialQuadratureFunctionView f,
-                     const ImmutablePartialQuadratureFunctionView& v) noexcept {
-    //
-    auto& qspace = f.getPartialQuadratureSpace();
-    //
-    if (qspace.getLocation() != v.getPartialQuadratureSpace().getLocation()) {
-      return ctx.registerErrorMessage("unmatched location");
-    }
-    //
+  [[nodiscard]] static bool assign_values_impl(
+      Context& ctx,
+      PartialQuadratureFunctionView f,
+      const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    const auto& qspace = f.getPartialQuadratureSpace();
     const auto n = getSpaceSize(qspace);
-    if (n != getSpaceSize(v.getPartialQuadratureSpace())) {
-      return ctx.registerErrorMessage("unmatched space size");
-    }
     const auto nc = f.getNumberOfComponents();
-    if (nc != v.getNumberOfComponents()) {
-      return ctx.registerErrorMessage("unmatched number of components");
-    }
-    //
-    if (getSpaceSize(qspace) == 0) {
-      return true;
-    }
-    //
     auto* f_values = f.getValues().data() + f.getDataOffset();
     const auto* const v_values = v.getValues().data() + v.getDataOffset();
     const auto fs = f.getDataStride();
@@ -444,6 +428,124 @@ namespace mfem_mgis {
       }
     }
     return true;
+  }  // end of assign_values_impl
+
+  template <bool parallel>
+  [[nodiscard]] static bool assign_values_impl_with_elts_mapping(
+      Context& ctx,
+      PartialQuadratureFunctionView f,
+      const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    const auto& qspace = f.getPartialQuadratureSpace();
+    const auto& fed = qspace.getFiniteElementDiscretization();
+    const auto nc = f.getNumberOfComponents();
+    const auto& os = qspace.template getFiniteElementSpace<parallel>(ctx);
+    const auto& ovs =
+        v.getPartialQuadratureSpace().template getFiniteElementSpace<parallel>(
+            ctx);
+    if (!areValid(os, ovs)) {
+      return false;
+    }
+    const auto omapping = fed.getElementsMapping(
+        ctx, getMesh(*os), getMesh(*ovs), qspace.getLocation());
+    if (isInvalid(omapping)) {
+      return false;
+    }
+    if (qspace.shallUseBoundaryElementsAPI()) {
+      for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
+        const auto& fe = *(os->GetBE(omapping->from_indexes[i]));
+        const auto& tr =
+            *(os->GetBdrElementTransformation(omapping->from_indexes[i]));
+        const auto& ir = qspace.getIntegrationRule(fe, tr);
+        const auto size = nc * ir.GetNPoints();
+        //
+        real* const dest = f.data(omapping->from_indexes[i], 0);
+        const real* const src = v.data(omapping->to_indexes[i], 0);
+        std::copy(src, src + size, dest);
+      }
+    } else {
+      for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
+        const auto& fe = *(os->GetFE(omapping->from_indexes[i]));
+        const auto& tr =
+            *(os->GetElementTransformation(omapping->from_indexes[i]));
+        const auto& ir = qspace.getIntegrationRule(fe, tr);
+        const auto size = nc * ir.GetNPoints();
+        //
+        real* const dest = f.data(omapping->from_indexes[i], 0);
+        const real* const src = v.data(omapping->to_indexes[i], 0);
+        std::copy(src, src + size, dest);
+      }
+    }
+    return true;
+  }  // end of assign_values_impl_with_elts_mapping
+
+  bool assign_values(Context& ctx,
+                     PartialQuadratureFunctionView f,
+                     const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    //
+    const auto& qspace = f.getPartialQuadratureSpace();
+    const auto& mesh = qspace.getMeshDiscretization();
+    //
+    if (mesh != v.getPartialQuadratureSpace().getMeshDiscretization()) {
+      return ctx.registerErrorMessage("unmatched mesh discretization");
+    }
+    //
+    if (qspace.getLocation() != v.getPartialQuadratureSpace().getLocation()) {
+      return ctx.registerErrorMessage("unmatched location");
+    }
+    //
+    const auto n = getSpaceSize(qspace);
+    if (n != getSpaceSize(v.getPartialQuadratureSpace())) {
+      return ctx.registerErrorMessage("unmatched space size");
+    }
+    const auto nc = f.getNumberOfComponents();
+    if (nc != v.getNumberOfComponents()) {
+      return ctx.registerErrorMessage("unmatched number of components");
+    }
+    //
+    if (getSpaceSize(qspace) == 0) {
+      return true;
+    }
+    //
+    const auto orequiresMapping = [&ctx, &mesh, &qspace,
+                                   &v]() -> std::optional<bool> {
+      if (mesh.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+        const auto& os = qspace.template getFiniteElementSpace<true>(ctx);
+        const auto& ovs =
+            v.getPartialQuadratureSpace().template getFiniteElementSpace<true>(
+                ctx);
+        if (!areValid(os, ovs)) {
+          return {};
+        }
+        return &getMesh(*os) != &getMesh(*ovs);
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      }
+      const auto& os = qspace.template getFiniteElementSpace<false>(ctx);
+      const auto& ovs =
+          v.getPartialQuadratureSpace().template getFiniteElementSpace<false>(
+              ctx);
+      if (!areValid(os, ovs)) {
+        return {};
+      }
+      return &getMesh(*os) != &getMesh(*ovs);
+    }();
+    if (isInvalid(orequiresMapping)) {
+      return false;
+    }
+    if (!*orequiresMapping) {
+      return assign_values_impl(ctx, f, v);
+    }
+    const auto& fed = qspace.getMeshDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      return assign_values_impl_with_elts_mapping<true>(ctx, f, v);
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    return assign_values_impl_with_elts_mapping<false>(ctx, f, v);
   }  // end of assign_values
 
   real* PartialQuadratureFunctionView::data(const size_type e,
@@ -1294,7 +1396,7 @@ namespace mfem_mgis {
                                    &ctx]() -> std::optional<bool> {
       for (const auto& qf : fcts) {
         const auto& os = qf.getPartialQuadratureSpace()
-                            .template getFiniteElementSpace<parallel>(ctx);
+                             .template getFiniteElementSpace<parallel>(ctx);
         if (isInvalid(os)) {
           return {};
         }
@@ -1315,8 +1417,7 @@ namespace mfem_mgis {
         const auto id = isValid(l.material_identifier)
                             ? l.material_identifier->id
                             : l.boundary_identifier->id;
-        const auto& os =
-            qspace.template getFiniteElementSpace<parallel>(ctx) ;
+        const auto& os = qspace.template getFiniteElementSpace<parallel>(ctx);
         if (isInvalid(os)) {
           return false;
         }
