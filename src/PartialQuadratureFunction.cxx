@@ -436,43 +436,32 @@ namespace mfem_mgis {
       PartialQuadratureFunctionView f,
       const ImmutablePartialQuadratureFunctionView& v) noexcept {
     const auto& qspace = f.getPartialQuadratureSpace();
+    const auto& vqspace = v.getPartialQuadratureSpace();
     const auto& fed = qspace.getFiniteElementDiscretization();
     const auto nc = f.getNumberOfComponents();
     const auto& os = qspace.template getFiniteElementSpace<parallel>(ctx);
-    const auto& ovs =
-        v.getPartialQuadratureSpace().template getFiniteElementSpace<parallel>(
-            ctx);
+    const auto& ovs = vqspace.template getFiniteElementSpace<parallel>(ctx);
     if (!areValid(os, ovs)) {
       return false;
     }
+    // collective call
     const auto omapping = fed.getElementsMapping(
         ctx, getMesh(*os), getMesh(*ovs), qspace.getLocation());
     if (isInvalid(omapping)) {
       return false;
     }
-    if (qspace.shallUseBoundaryElementsAPI()) {
-      for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
-        const auto& fe = *(os->GetBE(omapping->from_indexes[i]));
-        const auto& tr =
-            *(os->GetBdrElementTransformation(omapping->from_indexes[i]));
-        const auto& ir = qspace.getIntegrationRule(fe, tr);
-        const auto size = nc * ir.GetNPoints();
-        //
-        real* const dest = f.data(omapping->from_indexes[i], 0);
-        const real* const src = v.data(omapping->to_indexes[i], 0);
-        std::copy(src, src + size, dest);
+    const auto& mapping = *omapping;
+    for (size_type k = 0; k != mapping.from_indexes.Size(); ++k) {
+      const auto e = mapping.from_indexes[k];
+      const auto ve = mapping.to_indexes[k];
+      const auto ng = qspace.getNumberOfQuadraturePoints(e);
+      if (ng != vqspace.getNumberOfQuadraturePoints(ve)) {
+        return ctx.registerErrorMessage(
+            "unmatched number of integration points");
       }
-    } else {
-      for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
-        const auto& fe = *(os->GetFE(omapping->from_indexes[i]));
-        const auto& tr =
-            *(os->GetElementTransformation(omapping->from_indexes[i]));
-        const auto& ir = qspace.getIntegrationRule(fe, tr);
-        const auto size = nc * ir.GetNPoints();
-        //
-        real* const dest = f.data(omapping->from_indexes[i], 0);
-        const real* const src = v.data(omapping->to_indexes[i], 0);
-        std::copy(src, src + size, dest);
+      for (size_type g = 0; g != ng; ++g) {
+        const auto* const src = v.data(ve, g);
+        std::copy(src, src + nc, f.data(e, g));
       }
     }
     return true;
@@ -492,18 +481,8 @@ namespace mfem_mgis {
     if (qspace.getLocation() != v.getPartialQuadratureSpace().getLocation()) {
       return ctx.registerErrorMessage("unmatched location");
     }
-    //
-    const auto n = getSpaceSize(qspace);
-    if (n != getSpaceSize(v.getPartialQuadratureSpace())) {
-      return ctx.registerErrorMessage("unmatched space size");
-    }
-    const auto nc = f.getNumberOfComponents();
-    if (nc != v.getNumberOfComponents()) {
+    if (f.getNumberOfComponents() != v.getNumberOfComponents()) {
       return ctx.registerErrorMessage("unmatched number of components");
-    }
-    //
-    if (getSpaceSize(qspace) == 0) {
-      return true;
     }
     //
     const auto orequiresMapping = [&ctx, &mesh, &qspace,
@@ -535,6 +514,14 @@ namespace mfem_mgis {
       return false;
     }
     if (!*orequiresMapping) {
+      // local checks: no collective call is made in this case
+      const auto n = getSpaceSize(qspace);
+      if (n != getSpaceSize(v.getPartialQuadratureSpace())) {
+        return ctx.registerErrorMessage("unmatched space size");
+      }
+      if (n == 0) {
+        return true;
+      }
       return assign_values_impl(ctx, f, v);
     }
     const auto& fed = qspace.getMeshDiscretization();
