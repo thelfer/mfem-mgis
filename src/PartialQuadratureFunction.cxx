@@ -539,8 +539,7 @@ namespace mfem_mgis {
       }
       return assign_values_impl(ctx, f, v);
     }
-    const auto& fed = qspace.getMeshDiscretization();
-    if (fed.describesAParallelComputation()) {
+    if (mesh.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       return assign_values_impl_with_elts_mapping<true>(ctx, f, v);
 #else  /* MFEM_USE_MPI */

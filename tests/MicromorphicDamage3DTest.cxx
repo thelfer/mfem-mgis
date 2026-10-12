@@ -57,7 +57,8 @@ buildMechanicalProblem(
   constexpr auto nu = mfem_mgis::real{0.};
   constexpr auto umax = mfem_mgis::real{0.2};
   auto fed = mfem_mgis::make_shared<mfem_mgis::FiniteElementDiscretization>(
-      ctx, fespace_manager, mfem_mgis::dict{{"UnknownsSize", 3}});
+                 ctx, fespace_manager, mfem_mgis::dict{{"UnknownsSize", 3}}) |
+             or_die;
   auto problem =
       make_shared<mfem_mgis::NonLinearEvolutionProblem>(
           ctx, fed, mfem_mgis::dict{{"Hypothesis", "Tridimensional"}}) |
@@ -162,7 +163,8 @@ buildMicromorphicProblem(
   constexpr auto l0 = mfem_mgis::real{0.1};
   constexpr auto beta = mfem_mgis::real{300};
   auto fed = mfem_mgis::make_shared<mfem_mgis::FiniteElementDiscretization>(
-      ctx, fespace_manager, mfem_mgis::dict{{"UnknownsSize", 1}});
+                 ctx, fespace_manager, mfem_mgis::dict{{"UnknownsSize", 1}}) |
+             or_die;
   auto problem =
       make_shared<mfem_mgis::NonLinearEvolutionProblem>(
           ctx, fed, mfem_mgis::dict{{"Hypothesis", "Tridimensional"}}) |

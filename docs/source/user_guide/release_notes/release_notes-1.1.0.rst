@@ -101,7 +101,7 @@ Known incompatibilites
   argument and returns a boolean (see Issue 475).
 - :cxx:`assign_values` now reports an error if both views are not
   defined on the same mesh discretization, even if both discretizations
-  are built from the same mesh file (see Issue 476). Two problems
+  are built from the same mesh (see Issue 476). Two problems
   exchanging values must be built on the same mesh discretization, for
   instance by sharing a finite element spaces manager.
 - the deprecated functions :cxx:`getMPIrank` and :cxx:`getMPIsize` have
@@ -426,7 +426,8 @@ in the whole mesh are refused.
 The values of a partial quadrature function can be copied by
 :cxx:`assign_values` into a function defined on the same location of
 another mesh of the same discretization. The values are then copied
-element by element (see Issue 476).
+element by element, and the call is collective in parallel (see Issue
+476).
 
 Search of the behaviour integrator providing a quantity
 -------------------------------------------------------
