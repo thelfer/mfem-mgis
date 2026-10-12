@@ -57,7 +57,7 @@ namespace mfem_mgis {
   bool isMPIMainProcess(const MeshDiscretization& m) noexcept {
     if (m.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      return isMPIMainProcess(getMPICommunicator(m)) == 0;
+      return isMPIMainProcess(getMPICommunicator(m));
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
@@ -68,7 +68,7 @@ namespace mfem_mgis {
   int getMPIRank(const MeshDiscretization& m) noexcept {
     if (m.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      return getMPIRank(getMPICommunicator(m)) == 0;
+      return getMPIRank(getMPICommunicator(m));
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
@@ -79,7 +79,7 @@ namespace mfem_mgis {
   int getMPISize(const MeshDiscretization& m) noexcept {
     if (m.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      return getMPISize(getMPICommunicator(m)) == 0;
+      return getMPISize(getMPICommunicator(m));
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
