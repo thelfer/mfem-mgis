@@ -451,17 +451,32 @@ namespace mfem_mgis {
       return false;
     }
     const auto& mapping = *omapping;
-    for (size_type k = 0; k != mapping.from_indexes.Size(); ++k) {
-      const auto e = mapping.from_indexes[k];
-      const auto ve = mapping.to_indexes[k];
-      const auto ng = qspace.getNumberOfQuadraturePoints(e);
-      if (ng != vqspace.getNumberOfQuadraturePoints(ve)) {
-        return ctx.registerErrorMessage(
-            "unmatched number of integration points");
+    if ((nc == f.getDataStride()) && (nc == v.getDataStride())) {
+      // data for one element are continuous, no loops over integration points
+      for (size_type k = 0; k != mapping.from_indexes.Size(); ++k) {
+        const auto e = mapping.from_indexes[k];
+        const auto ve = mapping.to_indexes[k];
+        const auto ng = qspace.getNumberOfQuadraturePoints(e);
+        if (ng != vqspace.getNumberOfQuadraturePoints(ve)) {
+          return ctx.registerErrorMessage(
+              "unmatched number of integration points");
+        }
+        const auto* const src = v.data(ve, 0);
+        std::copy(src, src + nc * ng, f.data(e, 0));
       }
-      for (size_type g = 0; g != ng; ++g) {
-        const auto* const src = v.data(ve, g);
-        std::copy(src, src + nc, f.data(e, g));
+    } else {
+      for (size_type k = 0; k != mapping.from_indexes.Size(); ++k) {
+        const auto e = mapping.from_indexes[k];
+        const auto ve = mapping.to_indexes[k];
+        const auto ng = qspace.getNumberOfQuadraturePoints(e);
+        if (ng != vqspace.getNumberOfQuadraturePoints(ve)) {
+          return ctx.registerErrorMessage(
+              "unmatched number of integration points");
+        }
+        for (size_type g = 0; g != ng; ++g) {
+          const auto* const src = v.data(ve, g);
+          std::copy(src, src + nc, f.data(e, g));
+        }
       }
     }
     return true;
