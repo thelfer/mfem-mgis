@@ -120,6 +120,8 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto og = makeGridFunction<parallel>(ctx, {qf}, *submesh);
     TFEL_TESTS_ASSERT(isValid(og));
     TFEL_TESTS_ASSERT(updateGridFunction<parallel>(ctx, *og, {qf}));
+    // no function given
+    TFEL_TESTS_CHECK(!updateGridFunction<parallel>(ctx2, *og, {}));
     *og -= 1;
     TFEL_TESTS_CHECK(og->Normlinf() < 1e-10);
   }  // end of test1
