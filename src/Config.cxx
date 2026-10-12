@@ -177,7 +177,7 @@ namespace mfem_mgis {
       mgis::setDefaultLogStream(mfem_mgis::getOutputStream());
       MPI_Init(&argc, &argv);
       mfem::Hypre::Init();
-      if (getMPIrank() != 0) {
+      if (getMPIRankForDefaultCommunicator() != 0) {
         mfem::out.Disable();
         mfem::err.Disable();
       }
@@ -227,20 +227,24 @@ namespace mfem_mgis {
     Finalizer::get().setPETSc(petscrc_file);
   }  // end of setPETSc
 
-  int getMPIrank() {
+  bool isMPIMainProcessForDefaultCommunicator() noexcept {
+    return getMPIRankForDefaultCommunicator() == 0;
+  }  // end of isMPIMainProcess
+
+  int getMPIRankForDefaultCommunicator() noexcept {
     int rank = 0;
 #ifdef MFEM_USE_MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #endif /* MFEM_USE_MPI */
     return rank;
-  }  // end of getMPIrank
+  }  // end of getMPIRankForDefaultCommunicator
 
-  int getMPIsize() {
+  int getMPISizeForDefaultCommunicator() noexcept {
     int size = 1;
 #ifdef MFEM_USE_MPI
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 #endif /* MFEM_USE_MPI */
     return size;
-  }  // end of getMPIsize
+  }  // end of getMPISizeForDefaultCommunicator
 
 }  // namespace mfem_mgis

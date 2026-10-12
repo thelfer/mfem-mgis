@@ -80,6 +80,27 @@ namespace mfem_mgis {
 
 #ifdef MFEM_USE_MPI
   /*!
+   * \return if the current process is the main MPI process
+   * \param[in] c: communicator
+   *
+   * \note in sequential, this function always returns true
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isMPIMainProcess(
+      const MPI_Comm& c) noexcept;
+  /*!
+   * \return the MPI rank for the given communicator
+   * \param[in] c: communicator
+   *
+   * \note in sequential, this function always returns 0
+   */
+  MFEM_MGIS_EXPORT
+  [[nodiscard]] int getMPIRank(const MPI_Comm& c) noexcept;
+  /*!
+   * \return the MPI rank for the given communicator
+   * \param[in] c: communicator
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] int getMPISize(const MPI_Comm& c) noexcept;
+  /*!
    * \brief a simple reduction for boolean values
    *
    * \param[in] c: communicator
@@ -90,6 +111,28 @@ namespace mfem_mgis {
       const MPI_Comm& c, const bool b) noexcept;
 #endif /* MFEM_USE_MPI */
 
+  /*!
+   * \return if the current process is the main MPI process
+   * \param[in] m: mesh discretization
+   *
+   * \note in sequential, this function always returns true
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] bool isMPIMainProcess(
+      const MeshDiscretization& m) noexcept;
+  /*!
+   * \return the MPI rank for the given communicator
+   * \param[in] m: mesh discretization
+   *
+   * \note in sequential, this function always returns 0
+   */
+  MFEM_MGIS_EXPORT
+  [[nodiscard]] int getMPIRank(const MeshDiscretization& m) noexcept;
+  /*!
+   * \return the MPI rank for the given communicator
+   * \param[in] m: mesh discretization
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] int getMPISize(
+      const MeshDiscretization& m) noexcept;
   /*!
    * \brief a simple reduction for boolean values
    *

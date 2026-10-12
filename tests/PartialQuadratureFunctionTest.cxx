@@ -161,9 +161,10 @@ int main(int argc, char** argv) {
   //
   auto& m = tfel::tests::TestManager::getTestManager();
   m.addTestOutput(std::cout);  // mfem_mgis::getDefaultLogStream());
-  m.addXMLTestOutput("PartialQuadratureFunctionTest-" +
-                     std::string(parameters.behaviour) + "-" +
-                     std::to_string(mfem_mgis::getMPIsize()) + "-" +
-                     std::to_string(mfem_mgis::getMPIrank()) + ".xml");
+  m.addXMLTestOutput(
+      "PartialQuadratureFunctionTest-" + std::string(parameters.behaviour) +
+      "-" + std::to_string(mfem_mgis::getMPISizeForDefaultCommunicator()) +
+      "-" + std::to_string(mfem_mgis::getMPIRankForDefaultCommunicator()) +
+      ".xml");
   return m.execute().success() ? EXIT_SUCCESS : EXIT_FAILURE;
 }  // end of main

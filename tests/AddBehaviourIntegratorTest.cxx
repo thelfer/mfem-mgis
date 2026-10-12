@@ -95,9 +95,10 @@ int main(int argc, char** argv) {
   auto& m = tfel::tests::TestManager::getTestManager();
   m.addTestOutput(std::cout);
   if (parameters.parallel) {
-    m.addXMLTestOutput("ParallelAddBehaviourIntegratorTest-" +
-                       std::to_string(mfem_mgis::getMPIsize()) + "-" +
-                       std::to_string(mfem_mgis::getMPIrank()) + ".xml");
+    m.addXMLTestOutput(
+        "ParallelAddBehaviourIntegratorTest-" +
+        std::to_string(mfem_mgis::getMPISizeForDefaultCommunicator()) + "-" +
+        std::to_string(mfem_mgis::getMPIRankForDefaultCommunicator()) + ".xml");
   } else {
     m.addXMLTestOutput("AddBehaviourIntegratorTest.xml");
   }
