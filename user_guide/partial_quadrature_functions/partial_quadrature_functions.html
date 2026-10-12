@@ -108,11 +108,18 @@
 <span id="mfem-mgis-partial-quadrature-functions"></span><h1>Partial quadrature functions<a class="headerlink" href="#partial-quadrature-functions" title="Link to this heading"></a></h1>
 <p>Partial quadrature functions map quadrature points to values. A partial
 quadrature function is defined on the quadrature points associated with
-a unique material.</p>
+a unique material or a unique boundary.</p>
 <section id="projection-of-a-grid-function-to-a-partial-quadrature-function">
 <h2>Projection of a grid function to a partial quadrature function<a class="headerlink" href="#projection-of-a-grid-function-to-a-partial-quadrature-function" title="Link to this heading"></a></h2>
 <p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">update</span></code> function allows projecting a grid function to a
 partial quadrature function.</p>
+<p>The grid function may be defined on the mesh of the partial quadrature
+function or on another mesh containing its material or boundary, for
+instance a submesh. In this case, the mapping between the elements of
+both meshes is computed internally and, in parallel, the call is
+collective. A boundary can only be seen through a submesh defined on
+materials if the boundary elements of the submesh are oriented as in the
+parent mesh.</p>
 <section id="example-of-usage">
 <h3>Example of usage<a class="headerlink" href="#example-of-usage" title="Link to this heading"></a></h3>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">update</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">);</span>
@@ -123,14 +130,21 @@ partial quadrature function.</p>
 <section id="extrapolating-quadrature-functions-at-nodes">
 <h2>Extrapolating quadrature functions at nodes<a class="headerlink" href="#extrapolating-quadrature-functions-at-nodes" title="Link to this heading"></a></h2>
 <p>Using a so-called <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code>, a set of partial quadrature
-functions, each associated with a distinct material, can be extrapolated
-at nodes:</p>
+functions, each associated with a distinct material or each associated
+with a distinct boundary, can be extrapolated at nodes:</p>
 <ul class="simple">
 <li><p>the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">makeGridFunction</span></code> creates the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> and the associated
 finite element space.</p></li>
 <li><p>the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code> fills the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> with the values of
 the partial quadrature functions.</p></li>
 </ul>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> can be defined on the whole mesh or on a submesh.
+Functions defined on materials require a mesh built on materials (the
+whole mesh or a submesh of materials), and functions defined on
+boundaries require a submesh built on boundaries. The partial quadrature
+functions must be defined on all the materials (or all the boundaries) of
+this mesh, and on those only. Functions defined on materials and on
+boundaries can not be mixed.</p>
 <p>A <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> being an <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MFEM</span></code> object, the reader may refer
 to the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MFEM</span></code> documentation for further details. In particular, a
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">GridFunction</span></code> can easily be exported to <cite>Paraview</cite> using
@@ -144,7 +158,9 @@ function <span class="math notranslate nohighlight">\(f\)</span> is obtained by 
 \[\int_{\Omega} \left(\bar{f}-f\right)^{2}\,\mathrm{d}\,V\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Omega\)</span> is the domain on which <cite>f</cite> is defined.</p>
 <p>For a set of quadrature functions, the projection is computed on the
-union of the domains of the quadrature functions.</p>
+union of the domains of the quadrature functions. For quadrature
+functions defined on boundaries, the integral is computed on those
+boundaries and the result is defined on the submesh of those boundaries.</p>
 <p>For vectorial functions, the projection is computed component-wise.</p>
 <section id="available-functions">
 <h3>Available functions<a class="headerlink" href="#available-functions" title="Link to this heading"></a></h3>

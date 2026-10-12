@@ -139,16 +139,17 @@
 <li><p><a class="reference internal" href="#the-setmaterialproperty-and-setexternalstatevariable-methods-of-behaviour-integrators" id="id17">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setMaterialProperty</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setExternalStateVariable</span></code> methods of behaviour integrators</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#resolution-of-dependencies-of-a-nonlinear-evolution-problemn-using-another" id="id18">Resolution of dependencies of a nonlinear evolution problemn using another</a></p></li>
+<li><p><a class="reference internal" href="#resolution-of-dependencies-of-a-nonlinear-evolution-problem-using-another" id="id18">Resolution of dependencies of a nonlinear evolution problem using another</a></p></li>
 <li><p><a class="reference internal" href="#the-simulation-class" id="id19">The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Simulation</span></code> class</a></p></li>
 <li><p><a class="reference internal" href="#physical-system-coupling-schemes-and-models" id="id20">Physical system, coupling schemes and models</a></p></li>
 <li><p><a class="reference internal" href="#line-search-like-handling-of-behaviour-integration-failures" id="id21">Line-search-like handling of behaviour integration failures</a></p></li>
 <li><p><a class="reference internal" href="#profiling-toolkit" id="id22">Profiling Toolkit</a></p></li>
 <li><p><a class="reference internal" href="#refactoring-of-submesh-and-finite-element-space-creation" id="id23">Refactoring of submesh and finite element space creation</a></p></li>
-<li><p><a class="reference internal" href="#search-of-the-behaviour-integrator-providing-a-quantity" id="id24">Search of the behaviour integrator providing a quantity</a></p></li>
+<li><p><a class="reference internal" href="#partial-quadrature-functions-defined-on-another-mesh" id="id24">Partial quadrature functions defined on another mesh</a></p></li>
+<li><p><a class="reference internal" href="#search-of-the-behaviour-integrator-providing-a-quantity" id="id25">Search of the behaviour integrator providing a quantity</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id25">Issues fixed</a></p></li>
+<li><p><a class="reference internal" href="#issues-fixed" id="id26">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="highlights">
@@ -189,6 +190,52 @@ been removed, as well as the deprecated functions <code class="code highlight c+
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getThermodynamicForce</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getInternalStateVariable</span></code>
 which did not take a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code>. The overloads taking a
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as first argument shall be used instead.</p></li>
+<li><p>Partial quadrature spaces are now associated with a location, i.e. a
+material or a boundary (see Issue 466):</p>
+<ul>
+<li><p>the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getId</span></code> method of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpace</span></code> has been
+removed, the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getLocation</span></code> method shall be used instead.</p></li>
+<li><p>the constructors of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpace</span></code> taking a material
+identifier have been removed. A <code class="code highlight c++ docutils literal highlight-c++"><span class="n">LocationIdentifier</span></code>, built
+from a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaterialIdentifier</span></code> or a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">BoundaryIdentifier</span></code>,
+shall be given instead, e.g. <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MaterialIdentifier</span><span class="p">{.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">}</span></code>.</p></li>
+<li><p>a partial quadrature space defined on a boundary using a finite
+element discretization is now built on the boundary elements of the
+mesh rather than on the submesh of the boundary.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">LocationIdentifier</span></code> is no longer an aggregate and can not be
+assigned anymore.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">QPDependency</span><span class="o">::</span><span class="n">getMaterialIdentifier</span></code>,
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureFunctionsSet</span><span class="o">::</span><span class="n">getMaterialIdentifiers</span></code> and
+the overload of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureFunctionsSet</span><span class="o">::</span><span class="n">get</span></code> taking a
+material identifier have been replaced by <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getLocation</span></code>,
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">getLocations</span></code> and an overload taking a
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">LocationIdentifier</span></code>.</p></li>
+<li><p>the constructor of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">QPDependency</span></code> taking a material identifier
+now takes a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">LocationIdentifier</span></code>.</p></li>
+<li><p>the static <code class="code highlight c++ docutils literal highlight-c++"><span class="n">buildQuadratureSpace</span></code> methods of the behaviour
+integrators now take <code class="code highlight c++ docutils literal highlight-c++"><span class="n">attributes</span><span class="o">::</span><span class="n">Throwing</span></code> as first argument.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpace</span><span class="o">::</span><span class="n">treatInvalidElementIndex</span></code> now takes a
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">LocationIdentifier</span></code> instead of a material identifier.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpace</span><span class="o">::</span><span class="n">getLocationName</span></code> now returns a
+description of the location, e.g. <code class="docutils literal notranslate"><span class="pre">material</span> <span class="pre">'BEAM'</span> <span class="pre">(12)</span></code>. It
+previously returned the name alone for named materials and
+boundaries. The output of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getInformation</span></code> has changed
+accordingly.</p></li>
+<li><p>the overloads of <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code> taking a mesh or a
+submesh have been removed. <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code> requires a grid
+function whose finite element space is managed by the finite element
+spaces manager of the partial quadrature functions, as the ones
+created by <code class="code highlight c++ docutils literal highlight-c++"><span class="n">makeGridFunction</span></code>.</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateL2Projection</span></code> now reports an error if a function is
+defined on a material or a boundary which is not part of the mesh of
+the result. Such functions were previously ignored.</p></li>
+<li><p>the <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setMaterialProperty</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setExternalStateVariable</span></code>
+methods of behaviour integrators, called with an evaluator, require
+an evaluator defined on an equivalent partial quadrature space, i.e.
+built on a finite element discretization sharing the same finite
+element spaces manager. Those calls are now collective.</p></li>
+</ul>
+</li>
 </ul>
 </section>
 <section id="new-features">
@@ -379,7 +426,8 @@ in an output stream.</p>
 <p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">PartialQuadratureSpaceInformation</span></code> structure contains some
 relevant information about a partial quadrature space:</p>
 <ul class="simple">
-<li><p>the identifier and the name of the underlying material,</p></li>
+<li><p>the identifier and a description of the underlying material or
+boundary, including its name, if defined,</p></li>
 <li><p>the total number of elements,</p></li>
 <li><p>the total number of integration points,</p></li>
 <li><p>the number of elements points per geometric type.</p></li>
@@ -413,8 +461,17 @@ an output stream using the <code class="code highlight c++ docutils literal high
 <h4>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setMaterialProperty</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">setExternalStateVariable</span></code> methods of behaviour integrators<a class="headerlink" href="#the-setmaterialproperty-and-setexternalstatevariable-methods-of-behaviour-integrators" title="Link to this heading"></a></h4>
 </section>
 </section>
-<section id="resolution-of-dependencies-of-a-nonlinear-evolution-problemn-using-another">
-<h3>Resolution of dependencies of a nonlinear evolution problemn using another<a class="headerlink" href="#resolution-of-dependencies-of-a-nonlinear-evolution-problemn-using-another" title="Link to this heading"></a></h3>
+<section id="resolution-of-dependencies-of-a-nonlinear-evolution-problem-using-another">
+<h3>Resolution of dependencies of a nonlinear evolution problem using another<a class="headerlink" href="#resolution-of-dependencies-of-a-nonlinear-evolution-problem-using-another" title="Link to this heading"></a></h3>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">resolveBehaviourIntegratorsDependencies</span></code> function resolves the
+material properties and external state variables of the behaviour
+integrators of a nonlinear evolution problem using the gradients,
+thermodynamic forces and internal state variables of another one.</p>
+<p>Both problems must exchange data defined on equivalent partial
+quadrature spaces. Hence, the finite element discretizations of both
+problems must share the same finite element spaces manager, i.e. the
+finite element discretization of one problem must be built from the
+finite element spaces manager of the other.</p>
 </section>
 <section id="the-simulation-class">
 <h3>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Simulation</span></code> class<a class="headerlink" href="#the-simulation-class" title="Link to this heading"></a></h3>
@@ -448,6 +505,18 @@ an output stream using the <code class="code highlight c++ docutils literal high
 </ul>
 <p>This refactoring improves code organization, reduces duplication, and provides a more consistent and flexible API for working with submeshes and finite element spaces.</p>
 </section>
+<section id="partial-quadrature-functions-defined-on-another-mesh">
+<h3>Partial quadrature functions defined on another mesh<a class="headerlink" href="#partial-quadrature-functions-defined-on-another-mesh" title="Link to this heading"></a></h3>
+<p>A partial quadrature function can be updated from a grid function
+defined on another mesh of the same discretization, i.e. the whole
+mesh, a submesh of materials or a submesh of boundaries (see Issue
+466). The correspondence between the elements of both meshes is given
+by <code class="code highlight c++ docutils literal highlight-c++"><span class="n">MeshDiscretization</span><span class="o">::</span><span class="n">getElementsMapping</span></code>.</p>
+<p>A partial quadrature space defined on a boundary can be built on the
+boundary elements of the whole mesh or of a submesh of materials.
+Boundary elements oriented differently in a submesh of materials and
+in the whole mesh are refused.</p>
+</section>
 <section id="search-of-the-behaviour-integrator-providing-a-quantity">
 <h3>Search of the behaviour integrator providing a quantity<a class="headerlink" href="#search-of-the-behaviour-integrator-providing-a-quantity" title="Link to this heading"></a></h3>
 <p>The functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">hasGradientProvider</span></code>,
@@ -462,6 +531,8 @@ material carrying several behaviour integrators.</p>
 <section id="issues-fixed">
 <h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p>Issue 466: Refactor partial quadrature space to better support spaces
+on boundaries</p></li>
 <li><p>Issue 429: ex1 and ex3 sources shall only live in mm</p></li>
 <li><p>Issue 427: satoh, rve and mox examples are duplicates from mm-examples</p></li>
 <li><p>Issue 404: Remove deprecated methods of <cite>AbstractNonLinearEvolutionProblem</cite></p></li>
