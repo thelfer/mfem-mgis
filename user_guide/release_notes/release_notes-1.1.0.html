@@ -147,9 +147,10 @@
 <li><p><a class="reference internal" href="#refactoring-of-submesh-and-finite-element-space-creation" id="id23">Refactoring of submesh and finite element space creation</a></p></li>
 <li><p><a class="reference internal" href="#partial-quadrature-functions-defined-on-another-mesh" id="id24">Partial quadrature functions defined on another mesh</a></p></li>
 <li><p><a class="reference internal" href="#search-of-the-behaviour-integrator-providing-a-quantity" id="id25">Search of the behaviour integrator providing a quantity</a></p></li>
+<li><p><a class="reference internal" href="#mpi-utilities" id="id26">MPI utilities</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#issues-fixed" id="id26">Issues fixed</a></p></li>
+<li><p><a class="reference internal" href="#issues-fixed" id="id27">Issues fixed</a></p></li>
 </ul>
 </nav>
 <section id="highlights">
@@ -236,6 +237,12 @@ built on a finite element discretization sharing the same finite
 element spaces manager. Those calls are now collective.</p></li>
 </ul>
 </li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code> now takes a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as first
+argument and returns a boolean (see Issue 475).</p></li>
+<li><p>the deprecated functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIrank</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIsize</span></code> have
+been removed. <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIRankForDefaultCommunicator</span></code> and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPISizeForDefaultCommunicator</span></code> shall be used instead (see
+Issue 474).</p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -527,10 +534,25 @@ quantity. The <code class="docutils literal notranslate"><span class="pre">Parav
 post-processing relies on them, so that a result can be exported on a
 material carrying several behaviour integrators.</p>
 </section>
+<section id="mpi-utilities">
+<h3>MPI utilities<a class="headerlink" href="#mpi-utilities" title="Link to this heading"></a></h3>
+<p>The <code class="code highlight c++ docutils literal highlight-c++"><span class="n">isMPIMainProcess</span></code>, <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIRank</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPISize</span></code>
+functions return the information for a given communicator or for the
+communicator of a mesh discretization. The
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">isMPIMainProcessForDefaultCommunicator</span></code>,
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIRankForDefaultCommunicator</span></code> and
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPISizeForDefaultCommunicator</span></code> functions use the default
+communicator.</p>
+</section>
 </section>
 <section id="issues-fixed">
 <h2>Issues fixed<a class="headerlink" href="#issues-fixed" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p>Issue 482: MPI functions on a MeshDiscretization and
+updateGridFunction with no function</p></li>
+<li><p>Issue 475: Error handling in <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code></p></li>
+<li><p>Issue 474: Add function <code class="code highlight c++ docutils literal highlight-c++"><span class="n">isMPIRootProcess</span></code> and remove tests
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIrank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span></code></p></li>
 <li><p>Issue 466: Refactor partial quadrature space to better support spaces
 on boundaries</p></li>
 <li><p>Issue 429: ex1 and ex3 sources shall only live in mm</p></li>

@@ -97,6 +97,12 @@ Known incompatibilites
     an evaluator defined on an equivalent partial quadrature space, i.e.
     built on a finite element discretization sharing the same finite
     element spaces manager. Those calls are now collective.
+- :cxx:`updateGridFunction` now takes a :cxx:`Context` as first
+  argument and returns a boolean (see Issue 475).
+- the deprecated functions :cxx:`getMPIrank` and :cxx:`getMPIsize` have
+  been removed. :cxx:`getMPIRankForDefaultCommunicator` and
+  :cxx:`getMPISizeForDefaultCommunicator` shall be used instead (see
+  Issue 474).
 
 New features
 ============
@@ -423,9 +429,25 @@ quantity. The ``ParaviewExportIntegrationPointResultsAtNodes``
 post-processing relies on them, so that a result can be exported on a
 material carrying several behaviour integrators.
 
+MPI utilities
+-------------
+
+The :cxx:`isMPIMainProcess`, :cxx:`getMPIRank` and :cxx:`getMPISize`
+functions return the information for a given communicator or for the
+communicator of a mesh discretization. The
+:cxx:`isMPIMainProcessForDefaultCommunicator`,
+:cxx:`getMPIRankForDefaultCommunicator` and
+:cxx:`getMPISizeForDefaultCommunicator` functions use the default
+communicator.
+
 Issues fixed
 ============
 
+- Issue 482: MPI functions on a MeshDiscretization and
+  updateGridFunction with no function
+- Issue 475: Error handling in :cxx:`updateGridFunction`
+- Issue 474: Add function :cxx:`isMPIRootProcess` and remove tests
+  :cxx:`getMPIrank() == 0`
 - Issue 466: Refactor partial quadrature space to better support spaces
   on boundaries
 - Issue 429: ex1 and ex3 sources shall only live in mm
