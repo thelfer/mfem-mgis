@@ -46,16 +46,18 @@ void common_parameters(mfem::OptionsParser& args, TestParameters& p) {
   args.Parse();
 
   if (!args.Good()) {
-    if (mfem_mgis::getMPIrank() == 0) args.PrintUsage(std::cout);
+    if (mfem_mgis::isMPIMainProcessForDefaultCommunicator())
+      args.PrintUsage(std::cout);
     mfem_mgis::finalize();
     exit(0);
   }
   if (p.mesh_file == nullptr) {
-    if (mfem_mgis::getMPIrank() == 0)
+    if (mfem_mgis::isMPIMainProcessForDefaultCommunicator())
       std::cout << "ERROR: Mesh file missing" << std::endl;
     args.PrintUsage(std::cout);
   }
-  if (mfem_mgis::getMPIrank() == 0) args.PrintOptions(std::cout);
+  if (mfem_mgis::isMPIMainProcessForDefaultCommunicator())
+    args.PrintOptions(std::cout);
 
   mfem_mgis::declareDefaultOptions(args);
 }

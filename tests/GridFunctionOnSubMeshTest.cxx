@@ -371,9 +371,10 @@ int main(int argc, char** argv) {
   m.addTestOutput(std::cout);
   const auto mesh = std::filesystem::path(parameters.mesh_file).stem().string();
   if (parameters.parallel) {
-    m.addXMLTestOutput("ParallelGridFunctionOnSubMeshTest-" + mesh + "-" +
-                       std::to_string(mfem_mgis::getMPIsize()) + "-" +
-                       std::to_string(mfem_mgis::getMPIrank()) + ".xml");
+    m.addXMLTestOutput(
+        "ParallelGridFunctionOnSubMeshTest-" + mesh + "-" +
+        std::to_string(mfem_mgis::getMPISizeForDefaultCommunicator()) + "-" +
+        std::to_string(mfem_mgis::getMPIRankForDefaultCommunicator()) + ".xml");
   } else {
     m.addXMLTestOutput("GridFunctionOnSubMeshTest-" + mesh + ".xml");
   }
