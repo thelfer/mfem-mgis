@@ -191,11 +191,15 @@ namespace mfem_mgis {
         if (isInvalid(ofcts)) {
           return false;
         }
-        updateGridFunction<parallel>(*(r.f), *(ofcts));
+        if(!updateGridFunction<parallel>(ctx, *(r.f), *(ofcts))){
+	  return false;
+	}
       }
     } else {
       for (const auto& fcts : this->exported_functions) {
-        updateGridFunction<parallel>(*(fcts->grid_function), fcts->functions);
+	if(!updateGridFunction<parallel>(ctx, *(fcts->grid_function), fcts->functions)){
+	  return false;
+	}
       }
     }
     this->exporter.Save();

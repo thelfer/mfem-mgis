@@ -380,10 +380,9 @@ namespace mfem_mgis {
     assign_values(ctx, *this, v) | or_die;
   }  // end of copy
 
-  MFEM_MGIS_EXPORT [[nodiscard]] bool assign_values(
-      Context& ctx,
-      PartialQuadratureFunctionView f,
-      const ImmutablePartialQuadratureFunctionView& v) noexcept {
+  bool assign_values(Context& ctx,
+                     PartialQuadratureFunctionView f,
+                     const ImmutablePartialQuadratureFunctionView& v) noexcept {
     //
     auto& qspace = f.getPartialQuadratureSpace();
     //
@@ -1140,7 +1139,8 @@ namespace mfem_mgis {
   template <bool parallel>
   static std::unique_ptr<GridFunction<parallel>> makeGridFunction_impl(
       Context& ctx,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+      const std::vector<ImmutablePartialQuadratureFunctionView>&
+          fcts) noexcept {
     if (fcts.empty()) {
       return ctx.registerErrorMessage("no functions defined");
     }
@@ -1161,7 +1161,8 @@ namespace mfem_mgis {
   template <>
   std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context& ctx,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+      const std::vector<ImmutablePartialQuadratureFunctionView>&
+          fcts) noexcept {
 #ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts);
 #else  /* MFEM_USE_MPI */
@@ -1172,7 +1173,8 @@ namespace mfem_mgis {
   template <>
   std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context& ctx,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+      const std::vector<ImmutablePartialQuadratureFunctionView>&
+          fcts) noexcept {
     return makeGridFunction_impl<false>(ctx, fcts);
   }
 
@@ -1180,7 +1182,7 @@ namespace mfem_mgis {
   static std::unique_ptr<GridFunction<parallel>> makeGridFunction_impl(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const Mesh<parallel>& mesh) {
+      const Mesh<parallel>& mesh) noexcept {
     if (fcts.empty()) {
       return ctx.registerErrorMessage("no functions defined");
     }
@@ -1202,7 +1204,7 @@ namespace mfem_mgis {
   std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const Mesh<true>& mesh) {
+      const Mesh<true>& mesh) noexcept {
 #ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts, mesh);
 #else  /* MFEM_USE_MPI */
@@ -1214,7 +1216,7 @@ namespace mfem_mgis {
   std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const Mesh<false>& mesh) {
+      const Mesh<false>& mesh) noexcept {
     return makeGridFunction_impl<false>(ctx, fcts, mesh);
   }
 
@@ -1222,7 +1224,7 @@ namespace mfem_mgis {
   static std::unique_ptr<GridFunction<parallel>> makeGridFunction_impl(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const SubMesh<parallel>& mesh) {
+      const SubMesh<parallel>& mesh) noexcept {
     if (fcts.empty()) {
       return ctx.registerErrorMessage("no functions defined");
     }
@@ -1244,7 +1246,7 @@ namespace mfem_mgis {
   std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const SubMesh<true>& mesh) {
+      const SubMesh<true>& mesh) noexcept {
 #ifdef MFEM_USE_MPI
     return makeGridFunction_impl<true>(ctx, fcts, mesh);
 #else  /* MFEM_USE_MPI */
@@ -1256,48 +1258,56 @@ namespace mfem_mgis {
   std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const SubMesh<false>& mesh) {
+      const SubMesh<false>& mesh) noexcept {
     return makeGridFunction_impl<false>(ctx, fcts, mesh);
   }
 
   template <bool parallel>
-  static void updateGridFunction_impl(
+  [[nodiscard]] static bool updateGridFunction_impl(
+      Context& ctx,
       GridFunction<parallel>& f,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
-    auto ctx = Context{};
-    auto or_abort = ctx.getFatalFailureHandler();
+      const std::vector<ImmutablePartialQuadratureFunctionView>&
+          fcts) noexcept {
     const auto n = fcts.at(0).getNumberOfComponents();
     const auto& fed =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementDiscretization();
-    const auto& fes =
+    const auto& ofes =
         fcts.at(0).getPartialQuadratureSpace().getFiniteElementSpace<parallel>(
-            ctx) |
-        or_abort;
+            ctx);
+    if (isInvalid(ofes)) {
+      return {};
+    }
     const auto& fespace = getFiniteElementSpace(f);
     if (!fed.template isSibling<parallel>(fespace)) {
-      raise("inconsistent finite element space");
+      return ctx.registerErrorMessage("inconsistent finite element space");
     }
     const auto& mesh = getMesh(fespace);
     if ((fespace.GetVDim() != n) ||  //
-        (fes.FEColl() != fespace.FEColl()) ||
-        (fes.GetOrdering() != fespace.GetOrdering())) {
-      raise("inconsistent grid function");
+        (ofes->FEColl() != fespace.FEColl()) ||
+        (ofes->GetOrdering() != fespace.GetOrdering())) {
+      return ctx.registerErrorMessage("inconsistent grid function");
     }
     if (!checkGridFunctionMesh<parallel>(ctx, fcts, mesh)) {
-      raise(ctx.getErrorMessage());
+      return false;
     }
-    const auto requiresMapping = [&mesh, &fcts, &ctx, &or_abort] {
+    const auto orequiresMapping = [&mesh, &fcts,
+                                   &ctx]() -> std::optional<bool> {
       for (const auto& qf : fcts) {
-        const auto& s = qf.getPartialQuadratureSpace()
-                            .template getFiniteElementSpace<parallel>(ctx) |
-                        or_abort;
-        if (&mesh != &getMesh(s)) {
+        const auto& os = qf.getPartialQuadratureSpace()
+                            .template getFiniteElementSpace<parallel>(ctx);
+        if (isInvalid(os)) {
+          return {};
+        }
+        if (&mesh != &getMesh(*os)) {
           return true;
         }
       }
       return false;
     }();
-    if (requiresMapping) {
+    if (isInvalid(orequiresMapping)) {
+      return {};
+    }
+    if (*orequiresMapping) {
       auto mappings = std::unordered_map<size_type, ElementsMapping>{};
       for (const auto& qf : fcts) {
         const auto& qspace = qf.getPartialQuadratureSpace();
@@ -1305,11 +1315,15 @@ namespace mfem_mgis {
         const auto id = isValid(l.material_identifier)
                             ? l.material_identifier->id
                             : l.boundary_identifier->id;
-        const auto& s =
-            qspace.template getFiniteElementSpace<parallel>(ctx) | or_abort;
-        auto om = fed.getElementsMapping(ctx, getMesh(s), getMesh(fespace), l);
+        const auto& os =
+            qspace.template getFiniteElementSpace<parallel>(ctx) ;
+        if (isInvalid(os)) {
+          return false;
+        }
+        auto om =
+            fed.getElementsMapping(ctx, getMesh(*os), getMesh(fespace), l);
         if (isInvalid(om)) {
-          raise(ctx.getErrorMessage());
+          return false;
         }
         mappings.insert({id, std::move(*om)});
       }
@@ -1331,24 +1345,29 @@ namespace mfem_mgis {
         f.ProjectDiscCoefficient(c, mfem::GridFunction::ARITHMETIC);
       }
     }
+    return true;
   }
 
   template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<true>(
+  bool updateGridFunction<true>(
+      Context& ctx,
       GridFunction<true>& f,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
+      const std::vector<ImmutablePartialQuadratureFunctionView>&
+          fcts) noexcept {
 #ifdef MFEM_USE_MPI
-    updateGridFunction_impl<true>(f, fcts);
+    return updateGridFunction_impl<true>(ctx, f, fcts);
 #else  /* MFEM_USE_MPI */
     reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
   }
 
   template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<false>(
+  bool updateGridFunction<false>(
+      Context& ctx,
       GridFunction<false>& f,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) {
-    updateGridFunction_impl<false>(f, fcts);
+      const std::vector<ImmutablePartialQuadratureFunctionView>&
+          fcts) noexcept {
+    return updateGridFunction_impl<false>(ctx, f, fcts);
   }
 
 }  // end of namespace mfem_mgis
