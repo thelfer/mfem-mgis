@@ -556,19 +556,21 @@ namespace mfem_mgis {
   template <bool parallel>
   [[nodiscard]] std::unique_ptr<GridFunction<parallel>> makeGridFunction(
       Context& ctx,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts);
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) noexcept;
 
   //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<GridFunction<true>>
   makeGridFunction<true>(
-      Context&, const std::vector<ImmutablePartialQuadratureFunctionView>&);
+      Context&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
 
   //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT [[nodiscard]] std::unique_ptr<GridFunction<false>>
   makeGridFunction<false>(
-      Context&, const std::vector<ImmutablePartialQuadratureFunctionView>&);
+      Context&,
+      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
 
   /*!
    * \brief create a grid function for the given functions on the given mesh
@@ -583,21 +585,21 @@ namespace mfem_mgis {
   std::unique_ptr<GridFunction<parallel>> makeGridFunction(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const Mesh<parallel>& mesh);
+      const Mesh<parallel>& mesh) noexcept;
 
   //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const Mesh<true>&);
+      const Mesh<true>&) noexcept;
 
   //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const Mesh<false>&);
+      const Mesh<false>&) noexcept;
 
   /*!
    * \brief create a grid function for the given functions on the given submesh
@@ -612,44 +614,48 @@ namespace mfem_mgis {
   std::unique_ptr<GridFunction<parallel>> makeGridFunction(
       Context& ctx,
       const std::vector<ImmutablePartialQuadratureFunctionView>& fcts,
-      const SubMesh<parallel>& mesh);
+      const SubMesh<parallel>& mesh) noexcept;
 
   //! \brief parallel specialisation
   template <>
   MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<true>> makeGridFunction<true>(
       Context&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const SubMesh<true>&);
+      const SubMesh<true>&) noexcept;
 
   //! \brief sequential specialisation
   template <>
   MFEM_MGIS_EXPORT std::unique_ptr<GridFunction<false>> makeGridFunction<false>(
       Context&,
       const std::vector<ImmutablePartialQuadratureFunctionView>&,
-      const SubMesh<false>&);
+      const SubMesh<false>&) noexcept;
 
   /*!
    * \brief update a grid function using the values of the given functions
+   * \param[in, out] ctx: execution context
    * \param[out] f: grid function
    * \param[in] fcts: functions
    * \note the grid function must have been created by `makeGridFunction`
    */
   template <bool parallel>
-  void updateGridFunction(
+  [[nodiscard]] bool updateGridFunction(
+      Context& ctx,
       GridFunction<parallel>& f,
-      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts);
+      const std::vector<ImmutablePartialQuadratureFunctionView>& fcts) noexcept;
 
   //! \brief parallel specialisation
   template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<true>(
+  MFEM_MGIS_EXPORT [[nodiscard]] bool updateGridFunction<true>(
+      Context&,
       GridFunction<true>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&);
+      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
 
   //! \brief sequential specialisation
   template <>
-  MFEM_MGIS_EXPORT void updateGridFunction<false>(
+  MFEM_MGIS_EXPORT [[nodiscard]] bool updateGridFunction<false>(
+      Context&,
       GridFunction<false>&,
-      const std::vector<ImmutablePartialQuadratureFunctionView>&);
+      const std::vector<ImmutablePartialQuadratureFunctionView>&) noexcept;
 
 }  // namespace mfem_mgis
 

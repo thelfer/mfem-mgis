@@ -241,7 +241,9 @@ bool test3(mfem_mgis::Context& ctx,
   if (isInvalid(og)) {
     return false;
   }
-  updateGridFunction<parallel>(*og, {qf});
+  if(!updateGridFunction<parallel>(ctx, *og, {qf})){
+    return false;
+  }
   *og -= f;
   const auto e = og->Normlinf();
   if (e > 1e-10) {

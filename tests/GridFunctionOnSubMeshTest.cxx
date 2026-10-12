@@ -119,7 +119,7 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(isValid(submesh));
     auto og = makeGridFunction<parallel>(ctx, {qf}, *submesh);
     TFEL_TESTS_ASSERT(isValid(og));
-    updateGridFunction<parallel>(*og, {qf});
+    TFEL_TESTS_ASSERT(updateGridFunction<parallel>(ctx, *og, {qf}));
     *og -= 1;
     TFEL_TESTS_CHECK(og->Normlinf() < 1e-10);
   }  // end of test1
@@ -182,7 +182,7 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     // submesh of the boundary
     auto og = makeGridFunction<parallel>(ctx, {qf}, *bsubmesh);
     TFEL_TESTS_ASSERT(isValid(og));
-    updateGridFunction<parallel>(*og, {qf});
+    TFEL_TESTS_ASSERT(updateGridFunction<parallel>(ctx, *og, {qf}));
     *og -= 1;
     TFEL_TESTS_CHECK(og->Normlinf() < 1e-10);
   }  // end of test2
@@ -257,7 +257,7 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     const auto f = evaluateLinearField(bqspace);
     auto og = makeGridFunction<parallel>(ctx, {*f}, *bsubmesh);
     TFEL_TESTS_ASSERT(isValid(og));
-    updateGridFunction<parallel>(*og, {*f});
+    TFEL_TESTS_ASSERT(updateGridFunction<parallel>(ctx, *og, {*f}));
     auto c = mfem::FunctionCoefficient(getLinearField);
     TFEL_TESTS_CHECK(og->ComputeMaxError(c) < eps);
   }  // end of test3
