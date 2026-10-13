@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   `byVDIM`.
 - `isMPIMainProcess`, `getMPIRank` and `getMPISize` for a communicator or a
   mesh discretization, and the same functions for the default communicator
+- `synchronize` gathers the error messages of a context on all the
+  processes of a communicator or of a mesh discretization
 
 ### Changed
 

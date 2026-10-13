@@ -5,8 +5,15 @@
  * \date   14/02/2021
  */
 
+#include <tuple>
+#include <string>
+#include <vector>
 #include <cstring>
+#include <numeric>
+#include <utility>
 #include <iostream>
+#include <algorithm>
+#include <string_view>
 #ifdef MFEM_USE_MPI
 #include "mpi.h"
 #include "mfem/linalg/hypre.hpp"
@@ -246,5 +253,65 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     return size;
   }  // end of getMPISizeForDefaultCommunicator
+
+#ifdef MFEM_USE_MPI
+
+  void synchronize(Context& ctx, const MPI_Comm c) noexcept {
+    int size = 1;
+    MPI_Comm_size(c, &size);
+    const auto msg = ctx.getErrorMessage(false);
+    const auto lsize = static_cast<int>(msg.size());
+    auto sizes = std::vector<int>(size);
+    MPI_Allgather(&lsize, 1, MPI_INT, sizes.data(), 1, MPI_INT, c);
+    auto offsets = std::vector<int>(size);
+    std::exclusive_scan(sizes.begin(), sizes.end(), offsets.begin(), 0);
+    const auto total = offsets.back() + sizes.back();
+    if (total == 0) {
+      return;
+    }
+    auto buffer = std::string(total, '\0');
+    MPI_Allgatherv(msg.data(), lsize, MPI_CHAR, buffer.data(), sizes.data(),
+                   offsets.data(), MPI_CHAR, c);
+    auto messages = std::vector<std::pair<int, std::string_view>>{};
+    for (int r = 0; r != size; ++r) {
+      if (sizes[r] != 0) {
+        messages.push_back(
+            {r, std::string_view{buffer}.substr(offsets[r], sizes[r])});
+      }
+    }
+    const auto same = std::all_of(
+        messages.begin(), messages.end(),
+        [&messages](const auto& m) { return m.second == messages[0].second; });
+    if (same) {
+      if (msg.empty()) {
+        std::ignore = ctx.registerErrorMessageWithoutSourceLocation(
+            std::string{messages[0].second});
+      }
+      return;
+    }
+    const auto multiline =
+        std::any_of(messages.begin(), messages.end(), [](const auto& m) {
+          return m.second.find('\n') != std::string_view::npos;
+        });
+    auto merged = std::string{};
+    for (const auto& [r, m] : messages) {
+      if (multiline) {
+        if (!merged.empty()) {
+          merged += "\n\n";
+        }
+        merged += "# Error on rank " + std::to_string(r) + "\n\n";
+      } else {
+        if (!merged.empty()) {
+          merged += '\n';
+        }
+        merged += "- Error on rank " + std::to_string(r) + ": ";
+      }
+      merged += m;
+    }
+    ctx.clearErrorMessages();
+    std::ignore = ctx.registerErrorMessageWithoutSourceLocation(merged);
+  }  // end of synchronize
+
+#endif /* MFEM_USE_MPI */
 
 }  // namespace mfem_mgis

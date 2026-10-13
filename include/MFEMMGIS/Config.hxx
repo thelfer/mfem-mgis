@@ -155,6 +155,28 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]] int
   getMPISizeForDefaultCommunicator() noexcept;
+#ifdef MFEM_USE_MPI
+  /*!
+   * \brief gather the error messages of all processes in the context
+   *
+   * After this call, the context holds the same error message on all
+   * processes:
+   *
+   * - if no process has an error message, the context is left unchanged.
+   * - if all the processes having an error message have the same one, this
+   *   message is kept unchanged.
+   * - otherwise, the error messages are merged and each one is preceded by
+   *   the rank of the process that registered it. Processes without error
+   *   message are not listed.
+   *
+   * \param[in, out] ctx: execution context
+   * \param[in] c: MPI communicator
+   *
+   * \note this function is collective: it must be called by all the
+   * processes of the communicator.
+   */
+  MFEM_MGIS_EXPORT void synchronize(Context& ctx, const MPI_Comm c) noexcept;
+#endif /* MFEM_USE_MPI */
   /*!
    * \brief a small wrapper used to build the exception outside the
    * `throw` statement. As most exception classes' constructors may

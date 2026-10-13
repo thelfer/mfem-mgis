@@ -2660,6 +2660,17 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
   }    // isMainProcess
 
+  void synchronize(Context& ctx, const MeshDiscretization& m) noexcept {
+    if (m.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      synchronize(ctx, getMPICommunicator(m));
+#else  /* MFEM_USE_MPI */
+      static_cast<void>(ctx);
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+  }  // end of synchronize
+
 #ifdef MGIS_HAVE_TFEL
 
   template <>

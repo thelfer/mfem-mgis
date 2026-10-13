@@ -5,7 +5,9 @@
  * \date   14/09/2026
  */
 
+#include <tuple>
 #include <memory>
+#include <string>
 #include <cstdlib>
 #include <iostream>
 #include "TFEL/Tests/TestCase.hxx"
@@ -45,11 +47,13 @@ struct MeshDiscretizationTest final : public tfel::tests::TestCase {
     if (parameters.parallel == 1) {
       this->test1<true>();
       this->test2<true>();
+      this->test3<true>();
     }
 #endif /* MFEM_USE_MPI */
     if (parameters.parallel == 0) {
       this->test1<false>();
       this->test2<false>();
+      this->test3<false>();
     }
     return this->result;
   }
@@ -181,6 +185,64 @@ struct MeshDiscretizationTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK_EQUAL(getMPISize(*omesh),
                            getMPISizeForDefaultCommunicator());
   }  // end of test2
+  //! \brief gathering the error messages of all processes
+  template <bool parallel>
+  void test3() {
+    using namespace mfem_mgis;
+    auto omesh = construct<MeshDiscretization>(
+        ctx, Parameters{{"MeshFileName", parameters.mesh_file},
+                        {"Parallel", bool(parameters.parallel)}});
+    TFEL_TESTS_ASSERT(isValid(omesh));
+    const auto rank = getMPIRank(*omesh);
+    const auto size = getMPISize(*omesh);
+    const auto report = [](const std::string& msg) {
+      std::ignore = ctx.registerErrorMessageWithoutSourceLocation(msg);
+    };
+    // no error message
+    synchronize(ctx, *omesh);
+    TFEL_TESTS_CHECK(ctx.empty());
+    // the same error message on all processes
+    report("error");
+    synchronize(ctx, *omesh);
+    TFEL_TESTS_CHECK_EQUAL(ctx.getErrorMessage(), "error");
+    // an error message on the last process only
+    if (rank == size - 1) {
+      report("error on the last process");
+    }
+    synchronize(ctx, *omesh);
+    TFEL_TESTS_CHECK_EQUAL(ctx.getErrorMessage(), "error on the last process");
+    // a different error message on each process
+    report("error " + std::to_string(rank));
+    synchronize(ctx, *omesh);
+    auto e1 = std::string{"error 0"};
+    if (size > 1) {
+      e1.clear();
+      for (int r = 0; r != size; ++r) {
+        if (r != 0) {
+          e1 += '\n';
+        }
+        e1 += "- Error on rank " + std::to_string(r) + ": error " +
+              std::to_string(r);
+      }
+    }
+    TFEL_TESTS_CHECK_EQUAL(ctx.getErrorMessage(), e1);
+    // a multiline error message on the first process
+    if (rank == 0) {
+      report("first line\nsecond line");
+    } else {
+      report("error " + std::to_string(rank));
+    }
+    synchronize(ctx, *omesh);
+    auto e2 = std::string{"first line\nsecond line"};
+    if (size > 1) {
+      e2 = "# Error on rank 0\n\nfirst line\nsecond line";
+      for (int r = 1; r != size; ++r) {
+        e2 += "\n\n# Error on rank " + std::to_string(r) + "\n\nerror " +
+              std::to_string(r);
+      }
+    }
+    TFEL_TESTS_CHECK_EQUAL(ctx.getErrorMessage(), e2);
+  }  // end of test3
 };
 
 TFEL_TESTS_GENERATE_PROXY(MeshDiscretizationTest, "MeshDiscretizationTest");
