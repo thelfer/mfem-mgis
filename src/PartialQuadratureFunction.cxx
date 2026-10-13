@@ -558,7 +558,7 @@ namespace mfem_mgis {
     const auto& mesh = qspace.getMeshDiscretization();
     const auto success = assign_values_on_current_process(ctx, f, v);
     return isTrueOnAllProcesses(mesh, success);
-  } // end of assign_values
+  }  // end of assign_values
 
   real* PartialQuadratureFunctionView::data(const size_type e,
                                             const size_type i) {

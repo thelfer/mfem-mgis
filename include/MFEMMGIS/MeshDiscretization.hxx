@@ -524,8 +524,7 @@ namespace mfem_mgis {
      * \note this method is collective: its success is synchronized across all
      * processes.
      */
-    //    OptionalReference<const ElementsMapping>
-    [[nodiscard]] std::optional<ElementsMapping> getElementsMapping(
+    OptionalReference<const ElementsMapping> getElementsMapping(
         Context& ctx,
         const Mesh<true>& from,
         const Mesh<true>& to,
@@ -544,7 +543,7 @@ namespace mfem_mgis {
      * boundary elements of a submesh defined on materials are not oriented as
      * in its parent mesh.
      */
-    [[nodiscard]] std::optional<ElementsMapping> getElementsMapping(
+    OptionalReference<const ElementsMapping> getElementsMapping(
         Context& ctx,
         const Mesh<false>& from,
         const Mesh<false>& to,

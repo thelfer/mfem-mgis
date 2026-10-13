@@ -932,8 +932,7 @@ namespace mfem_mgis {
     // internal method that build the mapping on the local process
     // result shall be synchronized since errors may occur
     template <bool parallel>
-    //  OptionalReference<const ElementsMapping>
-    std::optional<ElementsMapping> getLocalElementsMapping(
+    std::optional<ElementsMapping> buildLocalElementsMapping(
         Context& ctx,
         const Mesh<parallel>& m1,
         const Mesh<parallel>& m2,
@@ -1141,18 +1140,17 @@ namespace mfem_mgis {
       }
       return ElementsMapping{.from_indexes = std::move(*omapping1),
                              .to_indexes = std::move(mapping2)};
-    }  // end of getLocalElementsMapping
+    }  // end of buildLocalElementsMapping
 
     template <bool parallel>
-    //  OptionalReference<const ElementsMapping>
-    std::optional<ElementsMapping> getElementsMapping(
+    std::optional<ElementsMapping> buildElementsMapping(
         Context& ctx,
         const Mesh<parallel>& m1,
         const Mesh<parallel>& m2,
         const LocationIdentifier& l) const noexcept {
       if constexpr (parallel) {
         auto om =
-            this->template getLocalElementsMapping<parallel>(ctx, m1, m2, l);
+            this->template buildLocalElementsMapping<parallel>(ctx, m1, m2, l);
         const auto success = isTrueOnAllProcesses(m1.GetComm(), isValid(om));
         if (!success) {
           if (isValid(om)) {
@@ -1164,8 +1162,52 @@ namespace mfem_mgis {
         }
         return om;
       } else {
-        return this->template getLocalElementsMapping<parallel>(ctx, m1, m2, l);
+        return this->template buildLocalElementsMapping<parallel>(ctx, m1, m2,
+                                                                  l);
       }
+    }  // end of buildElementsMapping
+
+    template <bool parallel>
+    OptionalReference<const ElementsMapping> getElementsMapping(
+        Context& ctx,
+        const Mesh<parallel>& m1,
+        const Mesh<parallel>& m2,
+        const LocationIdentifier& l) noexcept {
+      using KeyType = ElementsMappingsKey<parallel>;
+      if (isInvalid(l)) {
+        return ctx.registerErrorMessage("invalid location identifier");
+      }
+      auto& elements_mappings =
+          this->template getMemoizedElementsMappings<parallel>();
+      const auto p = elements_mappings.find(l);
+      if (p != elements_mappings.end()) {
+        auto& m = p->second;
+        const auto k1 = KeyType{&m1, &m2};
+        const auto pm1 = m.find(k1);
+        if (pm1 != m.end()) {
+          return {&(pm1->second)};
+        }
+        // looking if the inverse mapping has already been built
+        const auto k2 = KeyType{&m2, &m1};
+        const auto pm2 = m.find(k2);
+        if (pm2 != m.end()) {
+          const auto pm =
+              m.insert(
+                   {k1,
+                    ElementsMapping{.from_indexes = pm2->second.to_indexes,
+                                    .to_indexes = pm2->second.from_indexes}})
+                  .first;
+          return {&(pm->second)};
+        }
+      }
+      auto om = this->template buildElementsMapping<parallel>(ctx, m1, m2, l);
+      if (isInvalid(om)) {
+        return {};
+      }
+      const auto pm = elements_mappings[l]
+                          .insert({KeyType{&m1, &m2}, std::move(*om)})
+                          .first;
+      return {&(pm->second)};
     }  // end of getElementsMapping
 
     /*!
@@ -2078,6 +2120,32 @@ namespace mfem_mgis {
     ~Implementation() = default;
 
    private:
+    //! \brief a simple alias used to index elements mappings
+    template <bool parallel>
+    using ElementsMappingsKey =
+        std::pair<const Mesh<parallel>*, const Mesh<parallel>*>;
+    /*!
+     * \brief an helper function returning the sequential or parallel
+     * storage of elements mappings that were previously built
+     *
+     * \tparam parallel: boolean stating whether the parallel or sequential
+     * mappings are requested.
+     */
+    template <bool parallel>
+    std::map<LocationIdentifier,
+             std::map<ElementsMappingsKey<parallel>, ElementsMapping>>&
+    getMemoizedElementsMappings() noexcept {
+      if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+        return this->parallel_elements_mappings;
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      } else {
+        return this->sequential_elements_mappings;
+      }
+    }  // end of getMemoizedElementsMappings
+
 #ifdef MFEM_USE_MPI
     //! \brief parallel mesh
     std::shared_ptr<Mesh<true>> parallel_mesh;
@@ -2086,6 +2154,13 @@ namespace mfem_mgis {
     //! \brief parallel submeshes on boundaries
     std::map<AttributesList, std::shared_ptr<SubMesh<true>>>
         parallel_submeshes_on_boundaries;
+    /*!
+     * \brief list of mappings between the elements associated with the same
+     * location in two distinct meshes
+     */
+    std::map<LocationIdentifier,
+             std::map<ElementsMappingsKey<true>, ElementsMapping>>
+        parallel_elements_mappings;
 #endif /* MFEM_USE_MPI */
     //! \brief sequential mesh
     std::shared_ptr<Mesh<false>> sequential_mesh;
@@ -2099,6 +2174,13 @@ namespace mfem_mgis {
     std::map<size_type, std::string> materials_names;
     //! \brief mapping between boundaries identifiers and names
     std::map<size_type, std::string> boundaries_names;
+    /*!
+     * \brief list of mappings between the elements associated with the same
+     * location in two distinct meshes
+     */
+    std::map<LocationIdentifier,
+             std::map<ElementsMappingsKey<false>, ElementsMapping>>
+        sequential_elements_mappings;
 #ifdef MGIS_HAVE_TFEL
     //! \brief points declared by the user, only valid for a 2D mesh
     std::map<std::string, Point<2>, std::less<>> points2D;
@@ -2206,8 +2288,8 @@ namespace mfem_mgis {
     return this->pimpl->contains<false>(ctx, mesh, l);
   }  // end of contains
 
-  //  OptionalReference<const ElementsMapping>
-  std::optional<ElementsMapping> MeshDiscretization::getElementsMapping(
+  OptionalReference<const ElementsMapping>
+  MeshDiscretization::getElementsMapping(
       Context& ctx,
       const Mesh<true>& from,
       const Mesh<true>& to,
@@ -2219,8 +2301,8 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
   }    // end of getElementsMapping
 
-  //  OptionalReference<const ElementsMapping>
-  std::optional<ElementsMapping> MeshDiscretization::getElementsMapping(
+  OptionalReference<const ElementsMapping>
+  MeshDiscretization::getElementsMapping(
       Context& ctx,
       const Mesh<false>& from,
       const Mesh<false>& to,
