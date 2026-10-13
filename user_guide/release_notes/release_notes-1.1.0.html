@@ -553,6 +553,16 @@ communicator of a mesh discretization. The
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIRankForDefaultCommunicator</span></code> and
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPISizeForDefaultCommunicator</span></code> functions use the default
 communicator.</p>
+<p>The collective <code class="code highlight c++ docutils literal highlight-c++"><span class="n">synchronize</span></code> function gathers the error messages of
+an execution context on all the processes of a communicator or of a mesh
+discretization. It does nothing for a sequential mesh discretization.
+A message shared by all the processes having one is kept unchanged.
+Otherwise, each message is preceded by the rank of its process:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>- Error on rank 1: &lt;error message&gt;
+- Error on rank 3: &lt;error message&gt;
+</pre></div>
+</div>
+<p>Messages with several lines are preceded by a <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">Error</span> <span class="pre">on</span> <span class="pre">rank</span> <span class="pre">r</span></code> title.</p>
 </section>
 </section>
 <section id="issues-fixed">
@@ -560,6 +570,8 @@ communicator.</p>
 <ul class="simple">
 <li><p>Issue 482: MPI functions on a MeshDiscretization and
 updateGridFunction with no function</p></li>
+<li><p>Issue 477: synchronize <cite>Context</cite> to merge error messages on MPI
+processes</p></li>
 <li><p>Issue 476: Fix <code class="code highlight c++ docutils literal highlight-c++"><span class="n">assign_values</span></code></p></li>
 <li><p>Issue 475: Error handling in <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code></p></li>
 <li><p>Issue 474: Add function <code class="code highlight c++ docutils literal highlight-c++"><span class="n">isMPIRootProcess</span></code> and remove tests
