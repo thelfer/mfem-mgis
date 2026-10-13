@@ -185,8 +185,8 @@ namespace mfem_mgis {
     /*!
      * \return if the two spaces are equivalent
      *
-     * \param[in] qspace1: first partial quadrature space
-     * \param[in] qspace2: second partial quadrature space
+     * \param[in] s1: first partial quadrature space
+     * \param[in] s2: second partial quadrature space
      *
      * \note if one of the quadrature spaces is defined on a finite element
      * spaces that is not managed , this method returns false

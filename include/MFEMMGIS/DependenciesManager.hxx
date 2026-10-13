@@ -26,10 +26,7 @@ namespace mfem_mgis {
    * \brief a class used to collect dependencies
    */
   struct MFEM_MGIS_EXPORT DependenciesManager {
-    /*!
-     * \brief constructor
-     * \param[in] m: partial quadrature space identifiers
-     */
+    //! \brief constructor
     DependenciesManager() noexcept;
     /*!
      * \brief enumeration of filters usable as argument of the
