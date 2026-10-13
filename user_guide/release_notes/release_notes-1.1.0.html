@@ -239,6 +239,11 @@ element spaces manager. Those calls are now collective.</p></li>
 </li>
 <li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code> now takes a <code class="code highlight c++ docutils literal highlight-c++"><span class="n">Context</span></code> as first
 argument and returns a boolean (see Issue 475).</p></li>
+<li><p><code class="code highlight c++ docutils literal highlight-c++"><span class="n">assign_values</span></code> now reports an error if both views are not
+defined on the same mesh discretization, even if both discretizations
+are built from the same mesh (see Issue 476). Two problems
+exchanging values must be built on the same mesh discretization, for
+instance by sharing a finite element spaces manager.</p></li>
 <li><p>the deprecated functions <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIrank</span></code> and <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIsize</span></code> have
 been removed. <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIRankForDefaultCommunicator</span></code> and
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPISizeForDefaultCommunicator</span></code> shall be used instead (see
@@ -523,6 +528,11 @@ by <code class="code highlight c++ docutils literal highlight-c++"><span class="
 boundary elements of the whole mesh or of a submesh of materials.
 Boundary elements oriented differently in a submesh of materials and
 in the whole mesh are refused.</p>
+<p>The values of a partial quadrature function can be copied by
+<code class="code highlight c++ docutils literal highlight-c++"><span class="n">assign_values</span></code> into a function defined on the same location of
+another mesh of the same discretization. The values are then copied
+element by element, and the call is collective in parallel (see Issue
+476).</p>
 </section>
 <section id="search-of-the-behaviour-integrator-providing-a-quantity">
 <h3>Search of the behaviour integrator providing a quantity<a class="headerlink" href="#search-of-the-behaviour-integrator-providing-a-quantity" title="Link to this heading"></a></h3>
@@ -550,6 +560,7 @@ communicator.</p>
 <ul class="simple">
 <li><p>Issue 482: MPI functions on a MeshDiscretization and
 updateGridFunction with no function</p></li>
+<li><p>Issue 476: Fix <code class="code highlight c++ docutils literal highlight-c++"><span class="n">assign_values</span></code></p></li>
 <li><p>Issue 475: Error handling in <code class="code highlight c++ docutils literal highlight-c++"><span class="n">updateGridFunction</span></code></p></li>
 <li><p>Issue 474: Add function <code class="code highlight c++ docutils literal highlight-c++"><span class="n">isMPIRootProcess</span></code> and remove tests
 <code class="code highlight c++ docutils literal highlight-c++"><span class="n">getMPIrank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span></code></p></li>
