@@ -1143,7 +1143,7 @@ namespace mfem_mgis {
     }  // end of buildLocalElementsMapping
 
     template <bool parallel>
-    std::optional<const ElementsMapping> buildElementsMapping(
+    std::optional<ElementsMapping> buildElementsMapping(
         Context& ctx,
         const Mesh<parallel>& m1,
         const Mesh<parallel>& m2,
@@ -1187,7 +1187,7 @@ namespace mfem_mgis {
         if (pm1 != m.end()) {
           return {&(pm1->second)};
         }
-        // looking of the inverse mapping has already been built
+        // looking if the inverse mapping has already been built
         const auto k2 = KeyType{&m2, &m1};
         const auto pm2 = m.find(k2);
         if (pm2 != m.end()) {
@@ -1200,8 +1200,7 @@ namespace mfem_mgis {
           return {&(pm->second)};
         }
       }
-      const auto om =
-          this->template buildElementsMapping<parallel>(ctx, m1, m2, l);
+      auto om = this->template buildElementsMapping<parallel>(ctx, m1, m2, l);
       if (isInvalid(om)) {
         return {};
       }
@@ -2130,7 +2129,7 @@ namespace mfem_mgis {
      * storage of elements mappings that were previously built
      *
      * \tparam parallel: boolean stating whether the parallel or sequential
-     * mappings is requested.
+     * mappings are requested.
      */
     template <bool parallel>
     std::map<LocationIdentifier,
@@ -2156,7 +2155,7 @@ namespace mfem_mgis {
     std::map<AttributesList, std::shared_ptr<SubMesh<true>>>
         parallel_submeshes_on_boundaries;
     /*!
-     * \brief list of mappings between the elements associated with the samle
+     * \brief list of mappings between the elements associated with the same
      * location in two distinct meshes
      */
     std::map<LocationIdentifier,
@@ -2176,7 +2175,7 @@ namespace mfem_mgis {
     //! \brief mapping between boundaries identifiers and names
     std::map<size_type, std::string> boundaries_names;
     /*!
-     * \brief list of mappings between the elements associated with the samle
+     * \brief list of mappings between the elements associated with the same
      * location in two distinct meshes
      */
     std::map<LocationIdentifier,
