@@ -451,11 +451,47 @@ communicator of a mesh discretization. The
 :cxx:`getMPISizeForDefaultCommunicator` functions use the default
 communicator.
 
+The :cxx:`synchronize` function gathers the error messages of an
+execution context on all the processes of a communicator or of a mesh
+discretization. It is collective:
+
+.. code-block:: c++
+
+   if (!isTrueOnAllProcesses(m, success)) {
+     synchronize(ctx, m);
+     // the error message is now the same on all processes
+   }
+
+If all the processes having an error message have the same one, this
+message is kept unchanged. Otherwise, the messages are merged and each
+one is preceded by the rank of the process that registered it:
+
+.. code-block:: text
+
+   - Error on rank 1: <error message>
+   - Error on rank 3: <error message>
+
+If one of the messages has several lines, a title is used instead:
+
+.. code-block:: text
+
+   # Error on rank 1
+
+   <error message>
+
+   # Error on rank 3
+
+   <error message>
+
+For a sequential mesh discretization, :cxx:`synchronize` does nothing.
+
 Issues fixed
 ============
 
 - Issue 482: MPI functions on a MeshDiscretization and
   updateGridFunction with no function
+- Issue 477: synchronize `Context` to merge error messages on MPI
+  processes
 - Issue 476: Fix :cxx:`assign_values`
 - Issue 475: Error handling in :cxx:`updateGridFunction`
 - Issue 474: Add function :cxx:`isMPIRootProcess` and remove tests
