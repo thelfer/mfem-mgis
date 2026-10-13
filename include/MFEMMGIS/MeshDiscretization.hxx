@@ -1173,6 +1173,18 @@ namespace mfem_mgis {
       const MeshDiscretization& m) noexcept;
 
   /*!
+   * \brief gather the error messages of all processes in the context
+   * \param[in, out] ctx: execution context
+   * \param[in] m: mesh discretization
+   *
+   * In parallel, this function calls `synchronize` with the communicator
+   * returned by `getMPICommunicator`. It is collective. In sequential, it
+   * does nothing.
+   */
+  MFEM_MGIS_EXPORT void synchronize(Context& ctx,
+                                    const MeshDiscretization& m) noexcept;
+
+  /*!
    * \brief check a location identifier against a mesh discretization
    * \return if the given location identifier is consistent with the mesh
    * discretization
