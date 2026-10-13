@@ -21,7 +21,6 @@ namespace mfem_mgis {
   struct QPDependency;
   struct Provider;
   struct QPEvaluatorsFactory;
-  struct PartialQuadratureSpaceIdentifiersManager;
 
   /*!
    * \brief a class used to collect dependencies
@@ -31,8 +30,7 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] m: partial quadrature space identifiers
      */
-    DependenciesManager(
-        const PartialQuadratureSpaceIdentifiersManager &m) noexcept;
+    DependenciesManager() noexcept;
     /*!
      * \brief enumeration of filters usable as argument of the
      * analyseDependencies method: only required dependencies, only optional
@@ -120,8 +118,6 @@ namespace mfem_mgis {
      */
     std::vector<QPDependency> &getLocalQPDependenciesManager(
         const LocationIdentifier l, const TimeStepStage s) noexcept;
-    //! \brief partial quadrature space identifiers
-    const PartialQuadratureSpaceIdentifiersManager &qids;
     //! \brief list of registered dependencies at integration points
     std::array<std::map<LocationIdentifier, std::vector<QPDependency>>, 2u>
         registeredQPDependencies;

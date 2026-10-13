@@ -53,8 +53,8 @@ namespace mfem_mgis {
     return m.find(n) != m.end();
   }  // end of get
 
-  StateManager::StateManager(const MeshDiscretization& m) noexcept
-      : PartialQuadratureSpaceIdentifiersManager(m) {}
+  StateManager::StateManager(const FiniteElementSpacesManager& m) noexcept
+      : fespaces_manager(m) {}
 
   bool StateManager::add(Context& ctx,
                          std::string_view n,
@@ -76,12 +76,12 @@ namespace mfem_mgis {
                          std::string_view n,
                          ImmutablePartialQuadratureFunctionView f,
                          const TimeStepStage ts) noexcept {
-    const auto qspace = f.getPartialQuadratureSpacePointer();
-    const auto oqid = this->getIdentifier(ctx, qspace);
+    const auto& qspace = f.getPartialQuadratureSpace();
+    const auto oqid = this->fespaces_manager.getIdentifier(ctx, qspace);
     if (isInvalid(oqid)) {
       return false;
     }
-    const auto l = std::make_pair(qspace->getLocation(), *oqid);
+    const auto l = std::make_pair(qspace.getLocation(), *oqid);
     auto p = this->qfunctions.find(l);
     if (p == this->qfunctions.end()) {
       auto ptr = std::make_unique<PartialQuadratureFunctionManager>();
@@ -92,15 +92,14 @@ namespace mfem_mgis {
 
   std::optional<bool> StateManager::contains(
       Context& ctx,
-      const std::shared_ptr<const PartialQuadratureSpace>& qspace,
+      const PartialQuadratureSpace& qspace,
       std::string_view n,
       const TimeStepStage ts) const noexcept {
-    const auto oqid =
-        static_cast<const StateManager&>(*this).getIdentifier(ctx, qspace);
+    const auto oqid = this->fespaces_manager.getIdentifier(ctx, qspace);
     if (isInvalid(oqid)) {
       return {};
     }
-    const auto id = std::make_pair(qspace->getLocation(), *oqid);
+    const auto id = std::make_pair(qspace.getLocation(), *oqid);
     auto p = this->qfunctions.find(id);
     if (p == this->qfunctions.end()) {
       return false;
@@ -110,20 +109,19 @@ namespace mfem_mgis {
 
   std::optional<ImmutablePartialQuadratureFunctionView> StateManager::get(
       Context& ctx,
-      const std::shared_ptr<const PartialQuadratureSpace>& qspace,
+      const PartialQuadratureSpace& qspace,
       std::string_view n,
       const TimeStepStage ts) const noexcept {
-    const auto oqid =
-        static_cast<const StateManager&>(*this).getIdentifier(ctx, qspace);
+    const auto oqid = this->fespaces_manager.getIdentifier(ctx, qspace);
     if (isInvalid(oqid)) {
       return {};
     }
-    const auto id = std::make_pair(qspace->getLocation(), *oqid);
+    const auto id = std::make_pair(qspace.getLocation(), *oqid);
     auto p = this->qfunctions.find(id);
     if (p == this->qfunctions.end()) {
       return ctx.registerErrorMessage("no partial function named '" +
                                       std::string{n} + "' on " +
-                                      qspace->getLocationName());
+                                      qspace.getLocationName());
     }
     return p->second->get(ctx, n, ts);
   }  // end of get

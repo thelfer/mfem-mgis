@@ -30,23 +30,42 @@ namespace mfem_mgis {
    * meshes can not be compared, even if those spaces are defined on the same
    * location, see `MeshDiscretization::getElementsMapping`.
    */
-  [[nodiscard]] static bool areDefinedOnTheSameMesh(
+  [[nodiscard]] static bool areQuadratureSpacesOnMappableMeshes(
       const PartialQuadratureSpace& s1,
       const PartialQuadratureSpace& s2) noexcept {
     auto ctx = Context{};
-    if (s1.getFiniteElementDiscretization().describesAParallelComputation()) {
+    const auto fed = s1.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       const auto om1 = s1.getMesh<true>(ctx);
       const auto om2 = s2.getMesh<true>(ctx);
-      return isValid(om1) && isValid(om2) && (&(*om1) == &(*om2));
+      if (!areValid(om1, om2)) {
+        return false;
+      }
+      if (&(*om1) == &(*om2)) {
+        return true;
+      }
+      // collective call
+      const auto omapping =
+          fed.getElementsMapping(ctx, *om1, *om2, s1.getLocation());
+      return isValid(omapping);
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     }
     const auto om1 = s1.getMesh<false>(ctx);
     const auto om2 = s2.getMesh<false>(ctx);
-    return isValid(om1) && isValid(om2) && (&(*om1) == &(*om2));
-  }  // end of areDefinedOnTheSameMesh
+    if (!areValid(om1, om2)) {
+      return false;
+    }
+    if (&(*om1) == &(*om2)) {
+      return true;
+    }
+    // collective call
+    const auto omapping =
+        fed.getElementsMapping(ctx, *om1, *om2, s1.getLocation());
+    return isValid(omapping);
+  }  // end of areQuadratureSpacesOnMappableMeshes
 
   const char* const FiniteElementSpacesManager::FiniteElementFamily =
       "FiniteElementFamily";
@@ -395,15 +414,88 @@ namespace mfem_mgis {
       return pfes->second.get() == &s;
     }  // end of manages
 
-    bool areEquivalent(const PartialQuadratureSpace& s1,
-                       const PartialQuadratureSpace& s2) noexcept {
+    /*!
+     * \return the identifier of a quadrature space in the list of
+     * quadrature spaces of a given location
+     *
+     * \param[in] s: quadrature space
+     */
+    [[nodiscard]] std::optional<size_type> getIdentifier(
+        Context& ctx, const PartialQuadratureSpace& s) noexcept {
+      using PerLocationIdentifiersList =
+          std::vector<std::vector<const PartialQuadratureSpace*>>;
+      if (s.getMeshDiscretization() != this->mesh) {
+        return ctx.registerErrorMessage(
+            "partial quadrature space is not defined on the proper mesh");
+      }
+      if (this->mesh.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+        const auto& ofes = s.getFiniteElementSpace<true>(ctx);
+        if (isInvalid(ofes)) {
+          return {};
+        }
+        if (!(this->manages(*ofes))) {
+          return ctx.registerErrorMessage(
+              "partial quadrature space is not defined on a finite element "
+              "space managed by this finite element spaces manager");
+        }
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      } else {
+        const auto& ofes = s.getFiniteElementSpace<false>(ctx);
+        if (isInvalid(ofes)) {
+          return {};
+        }
+        if (!(this->manages(*ofes))) {
+          return ctx.registerErrorMessage(
+              "partial quadrature space is not defined on a finite element "
+              "space managed by this finite element spaces manager");
+        }
+      }
+      const auto l = s.getLocation();
+      auto p = this->locations.find(l);
+      if (p == this->locations.end()) {
+        p = this->locations.insert({l, PerLocationIdentifiersList{}}).first;
+      }
+      return this->getIdentifier(p->second, s);
+    }  // end of getIdendifier
+
+    /*!
+     * \return if two quadrature space are equivalent
+     *
+     * \param[in] s1: first quadrature space
+     * \param[in] s2: second quadrature space
+     */
+    [[nodiscard]] bool areEquivalent(
+        const PartialQuadratureSpace& qspace1,
+        const PartialQuadratureSpace& qspace2) noexcept {
+      auto ctx = Context{};
+      const auto oid1 = this->getIdentifier(ctx, qspace1);
+      const auto oid2 = this->getIdentifier(ctx, qspace2);
+      if (!areValid(oid1, oid2)) {
+        return false;
+      }
+      return *oid1 == *oid2;
+    }  // end of areEquivalent
+
+   private:
+    /*!
+     * \return if two quadrature space are equivalent
+     *
+     * \param[in] s1: first quadrature space
+     * \param[in] s2: second quadrature space
+     */
+    [[nodiscard]] bool areQuadratureSpacesEquivalent(
+        const PartialQuadratureSpace& s1,
+        const PartialQuadratureSpace& s2) noexcept {
       if (&s1 == &s2) {
         return true;
       }
       if (s1.getLocation() != s2.getLocation()) {
         return false;
       }
-      if (!areDefinedOnTheSameMesh(s1, s2)) {
+      if (!areQuadratureSpacesOnMappableMeshes(s1, s2)) {
         return false;
       }
       const auto success = [&s1, &s2] {
@@ -425,9 +517,41 @@ namespace mfem_mgis {
         return true;
       }();
       return isTrueOnAllProcesses(this->mesh, success);
-    }  // end of areEquivalent
-
-   private:
+    }  // end of areQuadratureSpacesEquivalent
+    /*!
+     * \return the identifier of a quadrature space in the list of
+     * quadrature spaces of a given location
+     *
+     * \param[in, out] identifiers: list of quadrature spaces
+     * \param[in] s: quadrature space
+     */
+    [[nodiscard]] size_type getIdentifier(
+        std::vector<std::vector<const PartialQuadratureSpace*>>& identifiers,
+        const PartialQuadratureSpace& s) noexcept {
+      // check if the quadrature space has already been declared
+      for (size_type id = 0; const auto& spaces : identifiers) {
+        for (const auto& s2 : spaces) {
+          if (&s == s2) {
+            return id;
+          }
+        }
+        ++id;
+      }
+      // add the quadrature space
+      for (size_type id = 0; auto& spaces : identifiers) {
+        assert(!spaces.empty());  // by design, spaces can't be empty
+        if (this->areQuadratureSpacesEquivalent(s, *(spaces.at(0)))) {
+          spaces.push_back(&s);
+          return id;
+        }
+        ++id;
+      }
+      // the quadrature space is not equivalent to any of the previously
+      // registred space
+      const auto id = identifiers.size();
+      identifiers.push_back(std::vector<const PartialQuadratureSpace*>(1, &s));
+      return id;
+    }  // end of getIdentifier
     /*!
      * \return the manager associated with a given mesh
      * \param[in, out] ctx: execution context
@@ -496,6 +620,12 @@ namespace mfem_mgis {
     std::map<const SubMesh<false>*,
              std::map<size_type, std::shared_ptr<FiniteElementSpace<false>>>>
         sequential_fespaces_on_submeshes;
+    //! \brief a simple alias
+    using IdentifiersMap =
+        std::map<LocationIdentifier,
+                 std::vector<std::vector<const PartialQuadratureSpace*>>>;
+    //! \brief list of equivalent quadrature spaces, sorted by locations
+    IdentifiersMap locations;
   };
 
   FiniteElementSpacesManager::FiniteElementSpacesManager(
@@ -609,6 +739,11 @@ namespace mfem_mgis {
     }
     return this->pimpl->areEquivalent(s1, s2);
   }  // end of areEquivalent
+
+  std::optional<size_type> FiniteElementSpacesManager::getIdentifier(
+      Context& ctx, const PartialQuadratureSpace& s) const noexcept {
+    return this->pimpl->getIdentifier(ctx, s);
+  }  // end of getIdentifier
 
   bool FiniteElementSpacesManager::operator==(
       const FiniteElementSpacesManager& rhs) const noexcept {

@@ -10,7 +10,6 @@
 #include "MFEMMGIS/Dependency.hxx"
 #include "MFEMMGIS/DependenciesManager.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
-#include "MFEMMGIS/PartialQuadratureSpaceIdentifiersManager.hxx"
 
 namespace mfem_mgis {
 
@@ -42,9 +41,7 @@ namespace mfem_mgis {
     return this->registeredQPDependencies[1][l];
   }  // end of getLocalQPDependenciesManager
 
-  DependenciesManager::DependenciesManager(
-      const PartialQuadratureSpaceIdentifiersManager &m) noexcept
-      : qids(m) {}  // end of DependenciesManager
+  DependenciesManager::DependenciesManager() noexcept = default;
 
   //   //   bool DependenciesManager::declareDependency(
   //   //       Context &ctx,
@@ -94,7 +91,7 @@ namespace mfem_mgis {
                 return false;
               }
               return (nd.getName() == dep.getName()) &&
-                     (this->qids.areEquivalent(qspace, q));
+                     (areEquivalent(*qspace, *q));
             });
       } else {
         return std::find_if(ldm.begin(), ldm.end(), [&nd](const auto &dep) {  //
@@ -128,9 +125,9 @@ namespace mfem_mgis {
       return false;
     }
     const auto &m = d.getLocation();
-    const auto dqspace = d.getPartialQuadratureSpacePointer();
+    const auto dqspace = d.getPartialQuadratureSpace();
     if (isValid(dqspace)) {
-      if (!this->qids.areEquivalent(dqspace, qspace)) {
+      if (!areEquivalent(*dqspace, *qspace)) {
         return ctx.registerErrorMessage(
             "inconsistent partial quadrature spaces");
       }
@@ -160,9 +157,9 @@ namespace mfem_mgis {
         if (!ld.checkAndUpdate(ctx, nc)) {
           return false;
         }
-        const auto oldqspace = ld.getPartialQuadratureSpacePointer();
+        const auto oldqspace = ld.getPartialQuadratureSpace();
         if ((isValid(oldqspace)) && (isValid(dqspace))) {
-          if (this->qids.areEquivalent(oldqspace, qspace)) {
+          if (areEquivalent(*oldqspace, *qspace)) {
             ctx.assertOrTerminate(pd == ldm.end(),
                                   "internal error: " + d.getDescription() +
                                       " is registered twice");
@@ -204,8 +201,7 @@ namespace mfem_mgis {
             "internal error: " + pd->getDescription() + " declared twice");
         // we don't check if *p is a duplicate.
         // if it is, the following code will be executed by the original anyway
-        if (this->qids.areEquivalent(p->getPartialQuadratureSpacePointer(),
-                                     qspace)) {
+        if (areEquivalent(*(p->getPartialQuadratureSpace()), *qspace)) {
           if (!pd->setDuplicate(ctx)) {
             return false;
           }

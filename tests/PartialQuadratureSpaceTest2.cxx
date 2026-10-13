@@ -24,7 +24,6 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
-#include "MFEMMGIS/PartialQuadratureSpaceIdentifiersManager.hxx"
 
 struct {
   const char* mesh_file = nullptr;
@@ -84,18 +83,17 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(!areEquivalent(*qspace1, *qspace3));
     TFEL_TESTS_CHECK(!areEquivalent(*qspace2, *qspace3));
     //
-    auto oids = construct<PartialQuadratureSpaceIdentifiersManager>(ctx, *om);
-    TFEL_TESTS_ASSERT(isValid(oids));
-    const auto oi1 = oids->getIdentifier(ctx, qspace1);
+    const auto fespaces_manager = ofed1->getFiniteElementSpacesManager();
+    const auto oi1 = fespaces_manager.getIdentifier(ctx, *qspace1);
     TFEL_TESTS_ASSERT(isValid(oi1));
-    const auto oi1b = oids->getIdentifier(ctx, qspace1);
+    const auto oi1b = fespaces_manager.getIdentifier(ctx, *qspace1);
     TFEL_TESTS_ASSERT(isValid(oi1b));
-    const auto oi2 = oids->getIdentifier(ctx, qspace2);
+    const auto oi2 = fespaces_manager.getIdentifier(ctx, *qspace2);
     TFEL_TESTS_ASSERT(isValid(oi2));
-    const auto oi3 = oids->getIdentifier(ctx, qspace3);
+    const auto oi3 = fespaces_manager.getIdentifier(ctx, *qspace3);
     // retrive qspace3 again, see
     // https://github.com/thelfer/mfem-mgis/issues/339
-    const auto oi4 = oids->getIdentifier(ctx, qspace3);
+    const auto oi4 = fespaces_manager.getIdentifier(ctx, *qspace3);
     TFEL_TESTS_ASSERT(isValid(oi3));
     TFEL_TESTS_ASSERT(isValid(oi4));
     TFEL_TESTS_CHECK(*oi1 == 0);
