@@ -117,7 +117,6 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
     const auto m = MaterialIdentifier{.id = 1};
     const auto qspace = std::make_shared<const PartialQuadratureSpace>(
         fed, m, &getIntegrationRule);
-    const auto n = getSpaceSize(*qspace);
     auto f = PartialQuadratureFunction(qspace, 1);
     // the same material of another mesh discretization
     auto fed2 = makeFiniteElementDiscretization(ctx);
@@ -146,10 +145,7 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
         std::make_shared<const PartialQuadratureSpace>(
             fed, m, &getOtherIntegrationRule),
         1);
-    TFEL_TESTS_CHECK(assign_values(ctx, f, v4) == (n == 0));
-    if (n != 0) {
-      TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(), "unmatched space size");
-    }
+    TFEL_TESTS_CHECK(!assign_values(ctx, f, v4));
     // submesh of the material, other integration rule
     const auto submesh = fed.getSubMesh<parallel>(
         ctx, 1, MeshDiscretization::Location::ON_MATERIALS);
@@ -162,11 +158,7 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
         std::make_shared<const PartialQuadratureSpace>(
             fed, *fespace, m, &getOtherIntegrationRule),
         1);
-    TFEL_TESTS_CHECK(assign_values(ctx, f, v5) == (n == 0));
-    if (n != 0) {
-      TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
-                             "unmatched number of integration points");
-    }
+    TFEL_TESTS_CHECK(!assign_values(ctx, f, v5));
   }  // end of test1
   //! \brief copies between views defined on the same mesh
   void test2() {

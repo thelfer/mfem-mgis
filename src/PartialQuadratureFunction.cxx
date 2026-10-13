@@ -19,6 +19,7 @@
 #endif /* MFEM_USE_MPI */
 #include "MGIS/Raise.hxx"
 
+#include "MFEMMGIS/MPI.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/GridFunctionUtilities.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
@@ -482,9 +483,10 @@ namespace mfem_mgis {
     return true;
   }  // end of assign_values_impl_with_elts_mapping
 
-  bool assign_values(Context& ctx,
-                     PartialQuadratureFunctionView f,
-                     const ImmutablePartialQuadratureFunctionView& v) noexcept {
+  bool assign_values_on_current_process(
+      Context& ctx,
+      PartialQuadratureFunctionView f,
+      const ImmutablePartialQuadratureFunctionView& v) noexcept {
     //
     const auto& qspace = f.getPartialQuadratureSpace();
     const auto& mesh = qspace.getMeshDiscretization();
@@ -547,7 +549,16 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     }
     return assign_values_impl_with_elts_mapping<false>(ctx, f, v);
-  }  // end of assign_values
+  }  // end of assign_values_on_current_process
+
+  bool assign_values(Context& ctx,
+                     PartialQuadratureFunctionView f,
+                     const ImmutablePartialQuadratureFunctionView& v) noexcept {
+    const auto& qspace = f.getPartialQuadratureSpace();
+    const auto& mesh = qspace.getMeshDiscretization();
+    const auto success = assign_values_on_current_process(ctx, f, v);
+    return isTrueOnAllProcesses(mesh, success);
+  } // end of assign_values
 
   real* PartialQuadratureFunctionView::data(const size_type e,
                                             const size_type i) {
