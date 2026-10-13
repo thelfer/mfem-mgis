@@ -1168,35 +1168,6 @@ namespace mfem_mgis {
     }  // end of buildElementsMapping
 
     template <bool parallel>
-    using ElementsMappingsKey =
-        std::pair<const Mesh<parallel>*, const Mesh<parallel>*>;
-
-    std::map<LocationIdentifier,
-             std::map<ElementsMappingsKey<false>, ElementsMapping>>
-        sequential_elements_mappings;
-
-#ifdef MFEM_USE_MPI
-    std::map<LocationIdentifier,
-             std::map<ElementsMappingsKey<true>, ElementsMapping>>
-        parallel_elements_mappings;
-#endif /* MFEM_USE_MPI */
-
-    template <bool parallel>
-    std::map<LocationIdentifier,
-             std::map<ElementsMappingsKey<parallel>, ElementsMapping>>&
-    getMemoizedElementsMappings() noexcept {
-      if constexpr (parallel) {
-#ifdef MFEM_USE_MPI
-        return this->parallel_elements_mappings;
-#else  /* MFEM_USE_MPI */
-        reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-      } else {
-        return this->sequential_elements_mappings;
-      }
-    }  // end of getMemoizedElementsMappings
-
-    template <bool parallel>
     OptionalReference<const ElementsMapping> getElementsMapping(
         Context& ctx,
         const Mesh<parallel>& m1,
@@ -2150,6 +2121,32 @@ namespace mfem_mgis {
     ~Implementation() = default;
 
    private:
+    //! \brief a simple alias used to index elements mappings
+    template <bool parallel>
+    using ElementsMappingsKey =
+        std::pair<const Mesh<parallel>*, const Mesh<parallel>*>;
+    /*!
+     * \brief an helper function returning the sequential or parallel
+     * storage of elements mappings that were previously built
+     *
+     * \tparam parallel: boolean stating whether the parallel or sequential
+     * mappings is requested.
+     */
+    template <bool parallel>
+    std::map<LocationIdentifier,
+             std::map<ElementsMappingsKey<parallel>, ElementsMapping>>&
+    getMemoizedElementsMappings() noexcept {
+      if constexpr (parallel) {
+#ifdef MFEM_USE_MPI
+        return this->parallel_elements_mappings;
+#else  /* MFEM_USE_MPI */
+        reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+      } else {
+        return this->sequential_elements_mappings;
+      }
+    }  // end of getMemoizedElementsMappings
+
 #ifdef MFEM_USE_MPI
     //! \brief parallel mesh
     std::shared_ptr<Mesh<true>> parallel_mesh;
@@ -2158,6 +2155,13 @@ namespace mfem_mgis {
     //! \brief parallel submeshes on boundaries
     std::map<AttributesList, std::shared_ptr<SubMesh<true>>>
         parallel_submeshes_on_boundaries;
+    /*!
+     * \brief list of mappings between the elements associated with the samle
+     * location in two distinct meshes
+     */
+    std::map<LocationIdentifier,
+             std::map<ElementsMappingsKey<true>, ElementsMapping>>
+        parallel_elements_mappings;
 #endif /* MFEM_USE_MPI */
     //! \brief sequential mesh
     std::shared_ptr<Mesh<false>> sequential_mesh;
@@ -2171,6 +2175,13 @@ namespace mfem_mgis {
     std::map<size_type, std::string> materials_names;
     //! \brief mapping between boundaries identifiers and names
     std::map<size_type, std::string> boundaries_names;
+    /*!
+     * \brief list of mappings between the elements associated with the samle
+     * location in two distinct meshes
+     */
+    std::map<LocationIdentifier,
+             std::map<ElementsMappingsKey<false>, ElementsMapping>>
+        sequential_elements_mappings;
 #ifdef MGIS_HAVE_TFEL
     //! \brief points declared by the user, only valid for a 2D mesh
     std::map<std::string, Point<2>, std::less<>> points2D;
