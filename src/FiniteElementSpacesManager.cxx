@@ -14,9 +14,39 @@
 #include <mfem/fem/pfespace.hpp>
 #include "mfem/mesh/submesh/psubmesh.hpp"
 #endif
+#include "MFEMMGIS/MPI.hxx"
+#include "MFEMMGIS/PartialQuadratureSpace.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 
 namespace mfem_mgis {
+
+  /*!
+   * \return if two partial quadrature spaces are defined on the same mesh
+   * \param[in] s1: first quadrature space
+   * \param[in] s2: second quadrature space
+   *
+   * \note element indices of partial quadrature spaces defined on distinct
+   * meshes can not be compared, even if those spaces are defined on the same
+   * location, see `MeshDiscretization::getElementsMapping`.
+   */
+  [[nodiscard]] static bool areDefinedOnTheSameMesh(
+      const PartialQuadratureSpace& s1,
+      const PartialQuadratureSpace& s2) noexcept {
+    auto ctx = Context{};
+    if (s1.getFiniteElementDiscretization().describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto om1 = s1.getMesh<true>(ctx);
+      const auto om2 = s2.getMesh<true>(ctx);
+      return isValid(om1) && isValid(om2) && (&(*om1) == &(*om2));
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto om1 = s1.getMesh<false>(ctx);
+    const auto om2 = s2.getMesh<false>(ctx);
+    return isValid(om1) && isValid(om2) && (&(*om1) == &(*om2));
+  }  // end of areDefinedOnTheSameMesh
 
   const char* const FiniteElementSpacesManager::FiniteElementFamily =
       "FiniteElementFamily";
@@ -365,6 +395,38 @@ namespace mfem_mgis {
       return pfes->second.get() == &s;
     }  // end of manages
 
+    bool areEquivalent(const PartialQuadratureSpace& s1,
+                       const PartialQuadratureSpace& s2) noexcept {
+      if (&s1 == &s2) {
+        return true;
+      }
+      if (s1.getLocation() != s2.getLocation()) {
+        return false;
+      }
+      if (!areDefinedOnTheSameMesh(s1, s2)) {
+        return false;
+      }
+      const auto success = [&s1, &s2] {
+        if (getSpaceSize(s1) != getSpaceSize(s2)) {
+          return false;
+        }
+        const auto& offsets1 = s1.getOffsets();
+        const auto& offsets2 = s2.getOffsets();
+        if (offsets1.size() != offsets2.size()) {
+          return false;
+        }
+        auto p1 = offsets1.begin();
+        auto p2 = offsets2.begin();
+        for (; p1 != offsets1.end(); ++p1, ++p2) {
+          if ((p1->first != p2->first) || (p1->second != p2->second)) {
+            return false;
+          }
+        }
+        return true;
+      }();
+      return isTrueOnAllProcesses(this->mesh, success);
+    }  // end of areEquivalent
+
    private:
     /*!
      * \return the manager associated with a given mesh
@@ -534,5 +596,23 @@ namespace mfem_mgis {
       const FiniteElementSpace<false>& s) const noexcept {
     return this->pimpl->manages(s);
   }  // end of manages
+
+  bool FiniteElementSpacesManager::areEquivalent(
+      const PartialQuadratureSpace& s1,
+      const PartialQuadratureSpace& s2) const noexcept {
+    const auto& fed1 = s1.getFiniteElementDiscretization();
+    const auto& fed2 = s2.getFiniteElementDiscretization();
+    const auto& m1 = fed1.getFiniteElementSpacesManager();
+    const auto& m2 = fed2.getFiniteElementSpacesManager();
+    if ((*this != m1) || (*this != m2)) {
+      return false;
+    }
+    return this->pimpl->areEquivalent(s1, s2);
+  }  // end of areEquivalent
+
+  bool FiniteElementSpacesManager::operator==(
+      const FiniteElementSpacesManager& rhs) const noexcept {
+    return this->pimpl.get() == rhs.pimpl.get();
+  }  // end of operator==
 
 }  // end of namespace mfem_mgis

@@ -14,6 +14,9 @@
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct PartialQuadratureSpace;
+
   /*!
    * \brief This class manages similar finite element spaces, denoted as
    * siblings. They share the same finite element collection and are defined on
@@ -179,14 +182,30 @@ namespace mfem_mgis {
      */
     [[nodiscard]] bool manages(
         const FiniteElementSpace<false>& s) const noexcept;
+    /*!
+     * \brief check if two quadrature spaces are equivalent
+     * \param[in] s1: first quadrature space
+     * \param[in] s2: second quadrature space
+     * \return if two quadrature spaces are equivalent
+     */
+    [[nodiscard]] bool areEquivalent(
+        const PartialQuadratureSpace& s1,
+        const PartialQuadratureSpace& s2) const noexcept;
+    /*!
+     * \return if the given finite element spaces manager shares the same
+     * implementation
+     *
+     * \param[in] rhs: right hand side
+     */
+    [[nodiscard]] bool operator==(
+        const FiniteElementSpacesManager& rhs) const noexcept;
 
    private:
     /*!
-     * \brief create a new parallel finite element space or reuse an existing
-     * one
-     * \return the finite element space, a null pointer on failure
-     * \param[in, out] ctx: execution context
-     * \param[in] nc: vectorial dimension
+     * \brief create a new parallel finite element space or reuse an
+     * existing one \return the finite element space, a null pointer on
+     * failure \param[in, out] ctx: execution context \param[in] nc:
+     * vectorial dimension
      */
     std::shared_ptr<FiniteElementSpace<true>> getParallelFiniteElementSpace(
         Context& ctx, const size_type nc) const noexcept;

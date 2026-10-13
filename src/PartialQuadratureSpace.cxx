@@ -606,84 +606,10 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
   }    // end of synchronize
 
-  /*!
-   * \return if two partial quadrature spaces are defined on the same mesh
-   * \param[in] s1: first quadrature space
-   * \param[in] s2: second quadrature space
-   *
-   * \note element indices of partial quadrature spaces defined on distinct
-   * meshes can not be compared, even if those spaces are defined on the same
-   * location, see `MeshDiscretization::getElementsMapping`.
-   */
-  [[nodiscard]] static bool areDefinedOnTheSameMesh(
-      const PartialQuadratureSpace& s1,
-      const PartialQuadratureSpace& s2) noexcept {
-    auto ctx = Context{};
-    if (s1.getFiniteElementDiscretization().describesAParallelComputation()) {
-#ifdef MFEM_USE_MPI
-      const auto om1 = s1.getMesh<true>(ctx);
-      const auto om2 = s2.getMesh<true>(ctx);
-      return isValid(om1) && isValid(om2) && (&(*om1) == &(*om2));
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    }
-    const auto om1 = s1.getMesh<false>(ctx);
-    const auto om2 = s2.getMesh<false>(ctx);
-    return isValid(om1) && isValid(om2) && (&(*om1) == &(*om2));
-  }  // end of areDefinedOnTheSameMesh
-
   bool areEquivalent(const PartialQuadratureSpace& s1,
                      const PartialQuadratureSpace& s2) noexcept {
-    if (&s1 == &s2) {
-      return true;
-    }
-    const auto& fed1 = s1.getFiniteElementDiscretization();
-    const auto& fed2 = s2.getFiniteElementDiscretization();
-    if (fed1.describesAParallelComputation() !=
-        fed2.describesAParallelComputation()) {
-      return false;
-    }
-    if (fed1.describesAParallelComputation()) {
-      auto fes_manager = fed1.getFiniteElementSpacesManager();
-#ifdef MFEM_USE_MPI
-      if (!fes_manager.manages(fed2.getFiniteElementSpace<true>())) {
-        return false;
-      }
-#else  /* MFEM_USE_MPI */
-      reportUnsupportedParallelComputations();
-#endif /* MFEM_USE_MPI */
-    } else {
-      auto fes_manager = fed1.getFiniteElementSpacesManager();
-      if (!fes_manager.manages(fed2.getFiniteElementSpace<false>())) {
-        return false;
-      }
-    }
-    if (s1.getLocation() != s2.getLocation()) {
-      return false;
-    }
-    if (!areDefinedOnTheSameMesh(s1, s2)) {
-      return false;
-    }
-    const auto success = [&s1, &s2] {
-      if (getSpaceSize(s1) != getSpaceSize(s2)) {
-        return false;
-      }
-      const auto& offsets1 = s1.getOffsets();
-      const auto& offsets2 = s2.getOffsets();
-      if (offsets1.size() != offsets2.size()) {
-        return false;
-      }
-      auto p1 = offsets1.begin();
-      auto p2 = offsets2.begin();
-      for (; p1 != offsets1.end(); ++p1, ++p2) {
-        if ((p1->first != p2->first) || (p1->second != p2->second)) {
-          return false;
-        }
-      }
-      return true;
-    }();
-    return isTrueOnAllProcesses(fed1, success);
+    const auto& fed = s1.getFiniteElementDiscretization();
+    return fed.areEquivalent(s1, s2);
   }  // end of areEquivalent
 
 }  // end of namespace mfem_mgis

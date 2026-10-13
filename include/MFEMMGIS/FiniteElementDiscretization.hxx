@@ -22,6 +22,7 @@ namespace mfem_mgis {
   // forward declaration
   struct Parameter;
   struct Parameters;
+  struct PartialQuadratureSpace;
 
   /*!
    * \brief a simple class used to:
@@ -145,6 +146,15 @@ namespace mfem_mgis {
     //! \return the finite element collection
     [[nodiscard]] std::shared_ptr<const FiniteElementCollection>
     getFiniteElementCollectionPointer() const noexcept;
+    /*!
+     * \brief check if two quadrature spaces are equivalent
+     * \param[in] s1: first quadrature space
+     * \param[in] s2: second quadrature space
+     * \return if two quadrature spaces are equivalent
+     */
+    [[nodiscard]] bool areEquivalent(
+        const PartialQuadratureSpace& s1,
+        const PartialQuadratureSpace& s2) const noexcept;
     //
     // expose MeshDiscretization's methods, even deprecated ones for backward
     // compatibility
