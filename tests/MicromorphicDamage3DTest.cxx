@@ -49,17 +49,19 @@
 
 static std::shared_ptr<mfem_mgis::NonLinearEvolutionProblem>
 buildMechanicalProblem(
-    mgis::Context& ctx,
-    const mfem_mgis::unit_tests::TestParameters& test_parameters,
-    const mfem_mgis::Parameters& common_problem_parameters) {
+    mfem_mgis::Context& ctx,
+    const mfem_mgis::FiniteElementSpacesManager& fespace_manager,
+    const mfem_mgis::unit_tests::TestParameters& test_parameters) {
   auto or_die = ctx.getFatalFailureHandler();
   constexpr auto E = mfem_mgis::real{200};
   constexpr auto nu = mfem_mgis::real{0.};
   constexpr auto umax = mfem_mgis::real{0.2};
-  auto lparameters = common_problem_parameters;
-  lparameters.insert(mfem_mgis::throwing, {{"UnknownsSize", 3}});
+  auto fed = mfem_mgis::make_shared<mfem_mgis::FiniteElementDiscretization>(
+                 ctx, fespace_manager, mfem_mgis::dict{{"UnknownsSize", 3}}) |
+             or_die;
   auto problem =
-      make_shared<mfem_mgis::NonLinearEvolutionProblem>(ctx, lparameters) |
+      make_shared<mfem_mgis::NonLinearEvolutionProblem>(
+          ctx, fed, mfem_mgis::dict{{"Hypothesis", "Tridimensional"}}) |
       or_die;
   problem->addBehaviourIntegrator(ctx, "Mechanics", "beam",
                                   test_parameters.library,
@@ -153,17 +155,19 @@ buildMechanicalProblem(
 
 static std::shared_ptr<mfem_mgis::NonLinearEvolutionProblem>
 buildMicromorphicProblem(
-    mgis::Context& ctx,
-    const mfem_mgis::unit_tests::TestParameters& test_parameters,
-    const mfem_mgis::Parameters& common_problem_parameters) {
+    mfem_mgis::Context& ctx,
+    const mfem_mgis::FiniteElementSpacesManager& fespace_manager,
+    const mfem_mgis::unit_tests::TestParameters& test_parameters) {
   auto or_die = ctx.getFatalFailureHandler();
   constexpr auto Gc = mfem_mgis::real{1};
   constexpr auto l0 = mfem_mgis::real{0.1};
   constexpr auto beta = mfem_mgis::real{300};
-  auto lparameters = common_problem_parameters;
-  lparameters.insert(mfem_mgis::throwing, {{"UnknownsSize", 1}});
+  auto fed = mfem_mgis::make_shared<mfem_mgis::FiniteElementDiscretization>(
+                 ctx, fespace_manager, mfem_mgis::dict{{"UnknownsSize", 1}}) |
+             or_die;
   auto problem =
-      make_shared<mfem_mgis::NonLinearEvolutionProblem>(ctx, lparameters) |
+      make_shared<mfem_mgis::NonLinearEvolutionProblem>(
+          ctx, fed, mfem_mgis::dict{{"Hypothesis", "Tridimensional"}}) |
       or_die;
   problem->addBehaviourIntegrator(ctx, "MicromorphicDamage", "beam",
                                   test_parameters.library,
@@ -222,7 +226,7 @@ buildMicromorphicProblem(
 }
 
 int main(int argc, char** argv) {
-  auto ctx = mgis::Context{};
+  auto ctx = mfem_mgis::Context{};
   auto or_die = ctx.getFatalFailureHandler();
   constexpr auto iter_max = mfem_mgis::size_type{200};
   auto test_parameters = mfem_mgis::unit_tests::TestParameters{};
@@ -233,24 +237,26 @@ int main(int argc, char** argv) {
     mfem_mgis::abort("no internal state variable expected");
   }
   //
-  const auto common_problem_parameters =
-      mfem_mgis::Parameters{{"MeshFileName", test_parameters.mesh_file},
-                            {"FiniteElementFamily", "H1"},
-                            {"FiniteElementOrder", test_parameters.order},
-                            {"Hypothesis", "Tridimensional"},
-                            {"NumberOfUniformRefinements", 0},
-                            {"Materials", mfem_mgis::Parameters{{"beam", 12}}},
-                            {"Boundaries", mfem_mgis::Parameters{{"left", 9},
-                                                                 {"right", 7},
-                                                                 {"upper", 1},
-                                                                 {"lower", 13},
-                                                                 {"front", 5},
-                                                                 {"rear", 3}}},
-                            {"Parallel", bool(test_parameters.parallel)}};
+  const auto fespaces_manager =
+      mfem_mgis::construct<mfem_mgis::FiniteElementSpacesManager>(
+          ctx,
+          mfem_mgis::dict{{"MeshFileName", test_parameters.mesh_file},
+                          {"FiniteElementFamily", "H1"},
+                          {"FiniteElementOrder", test_parameters.order},
+                          {"NumberOfUniformRefinements", 0},
+                          {"Materials", mfem_mgis::Parameters{{"beam", 12}}},
+                          {"Boundaries", mfem_mgis::Parameters{{"left", 9},
+                                                               {"right", 7},
+                                                               {"upper", 1},
+                                                               {"lower", 13},
+                                                               {"front", 5},
+                                                               {"rear", 3}}},
+                          {"Parallel", bool(test_parameters.parallel)}}) |
+      or_die;
   auto mechanical_problem =
-      buildMechanicalProblem(ctx, test_parameters, common_problem_parameters);
+      buildMechanicalProblem(ctx, fespaces_manager, test_parameters);
   auto micromorphic_problem =
-      buildMicromorphicProblem(ctx, test_parameters, common_problem_parameters);
+      buildMicromorphicProblem(ctx, fespaces_manager, test_parameters);
   // solving the problem in 5 time steps -> put t1 to  1 and nsteps to 100.
   const auto t0 = mfem_mgis::real{0};
   const auto t1 = mfem_mgis::real{0.05};
