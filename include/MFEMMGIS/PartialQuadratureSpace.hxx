@@ -269,14 +269,24 @@ namespace mfem_mgis {
 namespace mfem_mgis {
 
   /*!
-   * \brief check if two quadrature spaces are equivalent
+   * \return if two quadrature spaces are equivalent
    * \param[in] s1: first quadrature space
    * \param[in] s2: second quadrature space
-   * \return if two quadrature spaces are equivalent
    */
   MFEM_MGIS_EXPORT [[nodiscard]] bool areEquivalent(
       const PartialQuadratureSpace &s1,
       const PartialQuadratureSpace &s2) noexcept;
+
+  /*!
+   * \return if two quadrature spaces are equivalent
+   * \param[in, out] ctx: execution context
+   * \param[in] s1: first quadrature space
+   * \param[in] s2: second quadrature space
+   */
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<bool> areEquivalent(
+      Context &ctx,
+      const std::shared_ptr<const PartialQuadratureSpace> &s1,
+      const std::shared_ptr<const PartialQuadratureSpace> &s2) noexcept;
 
   /*!
    * \brief return the number of integration points

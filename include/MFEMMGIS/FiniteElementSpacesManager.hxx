@@ -185,15 +185,17 @@ namespace mfem_mgis {
     /*!
      * \return if the two spaces are equivalent
      *
+     * \param[in, out] ctx: execution context
      * \param[in] s1: first partial quadrature space
      * \param[in] s2: second partial quadrature space
      *
      * \note if one of the quadrature spaces is defined on a finite element
      * spaces that is not managed , this method returns false
      */
-    [[nodiscard]] bool areEquivalent(
-        const PartialQuadratureSpace& s1,
-        const PartialQuadratureSpace& s2) const noexcept;
+    [[nodiscard]] std::optional<bool> areEquivalent(
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& s1,
+        const std::shared_ptr<const PartialQuadratureSpace>& s2) const noexcept;
     /*!
      * \brief return the identifier of a partial quadrature space
      * \return the identifier associated with the given partial quadrature
@@ -205,7 +207,8 @@ namespace mfem_mgis {
      * \note This identifier may be used for distinct locations.
      */
     [[nodiscard]] std::optional<size_type> getIdentifier(
-        Context& ctx, const PartialQuadratureSpace& s) const noexcept;
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& s) const noexcept;
     /*!
      * \return if the given finite element spaces manager shares the same
      * implementation

@@ -76,12 +76,12 @@ namespace mfem_mgis {
                          std::string_view n,
                          ImmutablePartialQuadratureFunctionView f,
                          const TimeStepStage ts) noexcept {
-    const auto& qspace = f.getPartialQuadratureSpace();
+    const auto& qspace = f.getPartialQuadratureSpacePointer();
     const auto oqid = this->fespaces_manager.getIdentifier(ctx, qspace);
     if (isInvalid(oqid)) {
       return false;
     }
-    const auto l = std::make_pair(qspace.getLocation(), *oqid);
+    const auto l = std::make_pair(qspace->getLocation(), *oqid);
     auto p = this->qfunctions.find(l);
     if (p == this->qfunctions.end()) {
       auto ptr = std::make_unique<PartialQuadratureFunctionManager>();
@@ -92,36 +92,38 @@ namespace mfem_mgis {
 
   std::optional<bool> StateManager::contains(
       Context& ctx,
-      const PartialQuadratureSpace& qspace,
+      const std::shared_ptr<const PartialQuadratureSpace>& qspace,
       std::string_view n,
       const TimeStepStage ts) const noexcept {
     const auto oqid = this->fespaces_manager.getIdentifier(ctx, qspace);
     if (isInvalid(oqid)) {
       return {};
     }
-    const auto id = std::make_pair(qspace.getLocation(), *oqid);
+    const auto id = std::make_pair(qspace->getLocation(), *oqid);
     auto p = this->qfunctions.find(id);
     if (p == this->qfunctions.end()) {
-      return false;
+      return ctx.registerErrorMessage("no partial function named '" +
+                                      std::string{n} + "' on " +
+                                      qspace->getLocationName());
     }
     return p->second->contains(n, ts);
   }  // end of get
 
   std::optional<ImmutablePartialQuadratureFunctionView> StateManager::get(
       Context& ctx,
-      const PartialQuadratureSpace& qspace,
+      const std::shared_ptr<const PartialQuadratureSpace>& qspace,
       std::string_view n,
       const TimeStepStage ts) const noexcept {
     const auto oqid = this->fespaces_manager.getIdentifier(ctx, qspace);
     if (isInvalid(oqid)) {
       return {};
     }
-    const auto id = std::make_pair(qspace.getLocation(), *oqid);
+    const auto id = std::make_pair(qspace->getLocation(), *oqid);
     auto p = this->qfunctions.find(id);
     if (p == this->qfunctions.end()) {
       return ctx.registerErrorMessage("no partial function named '" +
                                       std::string{n} + "' on " +
-                                      qspace.getLocationName());
+                                      qspace->getLocationName());
     }
     return p->second->get(ctx, n, ts);
   }  // end of get

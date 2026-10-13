@@ -72,7 +72,9 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
         });
     TFEL_TESTS_ASSERT(isValid(qspace2));
-    TFEL_TESTS_CHECK(areEquivalent(*qspace1, *qspace2));
+    const auto ook = areEquivalent(ctx, qspace1, qspace2);
+    TFEL_TESTS_ASSERT(isValid(ook));
+    TFEL_TESTS_CHECK(*ook);
     auto qspace3 = make_shared<PartialQuadratureSpace>(
         ctx, *ofed1, MaterialIdentifier{.id = 1},
         [](const mfem::FiniteElement& e,
@@ -80,20 +82,24 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 4);
         });
     TFEL_TESTS_ASSERT(isValid(qspace3));
-    TFEL_TESTS_CHECK(!areEquivalent(*qspace1, *qspace3));
-    TFEL_TESTS_CHECK(!areEquivalent(*qspace2, *qspace3));
+    const auto ook2 = areEquivalent(ctx, qspace1, qspace3);
+    TFEL_TESTS_ASSERT(isValid(ook2));
+    TFEL_TESTS_CHECK(!(*ook2));
+    const auto ook3 = areEquivalent(ctx, qspace2, qspace3);
+    TFEL_TESTS_ASSERT(isValid(ook3));
+    TFEL_TESTS_CHECK(!(*ook3));
     //
     const auto fespaces_manager = ofed1->getFiniteElementSpacesManager();
-    const auto oi1 = fespaces_manager.getIdentifier(ctx, *qspace1);
+    const auto oi1 = fespaces_manager.getIdentifier(ctx, qspace1);
     TFEL_TESTS_ASSERT(isValid(oi1));
-    const auto oi1b = fespaces_manager.getIdentifier(ctx, *qspace1);
+    const auto oi1b = fespaces_manager.getIdentifier(ctx, qspace1);
     TFEL_TESTS_ASSERT(isValid(oi1b));
-    const auto oi2 = fespaces_manager.getIdentifier(ctx, *qspace2);
+    const auto oi2 = fespaces_manager.getIdentifier(ctx, qspace2);
     TFEL_TESTS_ASSERT(isValid(oi2));
-    const auto oi3 = fespaces_manager.getIdentifier(ctx, *qspace3);
+    const auto oi3 = fespaces_manager.getIdentifier(ctx, qspace3);
     // retrive qspace3 again, see
     // https://github.com/thelfer/mfem-mgis/issues/339
-    const auto oi4 = fespaces_manager.getIdentifier(ctx, *qspace3);
+    const auto oi4 = fespaces_manager.getIdentifier(ctx, qspace3);
     TFEL_TESTS_ASSERT(isValid(oi3));
     TFEL_TESTS_ASSERT(isValid(oi4));
     TFEL_TESTS_CHECK(*oi1 == 0);

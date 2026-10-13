@@ -606,10 +606,93 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
   }    // end of synchronize
 
+  /*!
+   * \return if two partial quadrature spaces are defined on the same mesh
+   * \param[in] s1: first quadrature space
+   * \param[in] s2: second quadrature space
+   *
+   * \note element indices of partial quadrature spaces defined on distinct
+   * meshes can not be compared, even if those spaces are defined on the same
+   * location, see `MeshDiscretization::getElementsMapping`.
+   */
+  [[nodiscard]] static bool areQuadratureSpacesOnMappableMeshes(
+      const PartialQuadratureSpace& s1,
+      const PartialQuadratureSpace& s2) noexcept {
+    auto ctx = Context{};
+    const auto fed = s1.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto om1 = s1.getMesh<true>(ctx);
+      const auto om2 = s2.getMesh<true>(ctx);
+      if (!areValid(om1, om2)) {
+        return false;
+      }
+      if (&(*om1) == &(*om2)) {
+        return true;
+      }
+      // collective call
+      const auto omapping =
+          fed.getElementsMapping(ctx, *om1, *om2, s1.getLocation());
+      return isValid(omapping);
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto om1 = s1.getMesh<false>(ctx);
+    const auto om2 = s2.getMesh<false>(ctx);
+    if (!areValid(om1, om2)) {
+      return false;
+    }
+    if (&(*om1) == &(*om2)) {
+      return true;
+    }
+    // collective call
+    const auto omapping =
+        fed.getElementsMapping(ctx, *om1, *om2, s1.getLocation());
+    return isValid(omapping);
+  }  // end of areQuadratureSpacesOnMappableMeshes
+
   bool areEquivalent(const PartialQuadratureSpace& s1,
                      const PartialQuadratureSpace& s2) noexcept {
-    const auto& fed = s1.getFiniteElementDiscretization();
-    return fed.areEquivalent(s1, s2);
+    if (&s1 == &s2) {
+      return true;
+    }
+    if (s1.getLocation() != s2.getLocation()) {
+      return false;
+    }
+    if (!areQuadratureSpacesOnMappableMeshes(s1, s2)) {
+      return false;
+    }
+    const auto success = [&s1, &s2] {
+      if (getSpaceSize(s1) != getSpaceSize(s2)) {
+        return false;
+      }
+      const auto& offsets1 = s1.getOffsets();
+      const auto& offsets2 = s2.getOffsets();
+      if (offsets1.size() != offsets2.size()) {
+        return false;
+      }
+      auto p1 = offsets1.begin();
+      auto p2 = offsets2.begin();
+      for (; p1 != offsets1.end(); ++p1, ++p2) {
+        if ((p1->first != p2->first) || (p1->second != p2->second)) {
+          return false;
+        }
+      }
+      return true;
+    }();
+    return isTrueOnAllProcesses(s1.getMeshDiscretization(), success);
+  }  // end of areQuadratureSpacesEquivalent
+
+  std::optional<bool> areEquivalent(
+      Context& ctx,
+      const std::shared_ptr<const PartialQuadratureSpace>& s1,
+      const std::shared_ptr<const PartialQuadratureSpace>& s2) noexcept {
+    if (!areValid(s1, s2)) {
+      return ctx.registerErrorMessage("invalid quadrature spaces");
+    }
+    const auto& fed = s1->getFiniteElementDiscretization();
+    return fed.areEquivalent(ctx, s1, s2);
   }  // end of areEquivalent
 
 }  // end of namespace mfem_mgis

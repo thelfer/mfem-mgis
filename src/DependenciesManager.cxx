@@ -81,18 +81,22 @@ namespace mfem_mgis {
         return report_inconsistency_check();
       }
     }
-    const auto pd = [this, &nd, &ldm] {
+    const auto pd = [this, &ctx, &nd, &ldm] {
       const auto qspace = nd.getPartialQuadratureSpacePointer();
       if (isValid(qspace)) {
-        return std::find_if(
-            ldm.begin(), ldm.end(), [this, &nd, qspace](const auto &dep) {  //
-              const auto q = dep.getPartialQuadratureSpacePointer();
-              if (isInvalid(q)) {
-                return false;
-              }
-              return (nd.getName() == dep.getName()) &&
-                     (areEquivalent(*qspace, *q));
-            });
+        return std::find_if(ldm.begin(), ldm.end(),
+                            [this, &ctx, &nd, qspace](const auto &dep) {  //
+                              const auto q =
+                                  dep.getPartialQuadratureSpacePointer();
+                              if (isInvalid(q)) {
+                                return false;
+                              }
+                              const auto oeq = areEquivalent(ctx, qspace, q);
+                              if (isInvalid(oeq)) {
+                                return false;
+                              }
+                              return (nd.getName() == dep.getName()) && (*oeq);
+                            });
       } else {
         return std::find_if(ldm.begin(), ldm.end(), [&nd](const auto &dep) {  //
           const auto q = dep.getPartialQuadratureSpacePointer();
@@ -125,9 +129,13 @@ namespace mfem_mgis {
       return false;
     }
     const auto &m = d.getLocation();
-    const auto dqspace = d.getPartialQuadratureSpace();
+    const auto dqspace = d.getPartialQuadratureSpacePointer();
     if (isValid(dqspace)) {
-      if (!areEquivalent(*dqspace, *qspace)) {
+      const auto oeq = areEquivalent(ctx, dqspace, qspace);
+      if (isInvalid(oeq)) {
+        return false;
+      }
+      if (!(*oeq)) {
         return ctx.registerErrorMessage(
             "inconsistent partial quadrature spaces");
       }
@@ -157,9 +165,13 @@ namespace mfem_mgis {
         if (!ld.checkAndUpdate(ctx, nc)) {
           return false;
         }
-        const auto oldqspace = ld.getPartialQuadratureSpace();
+        const auto oldqspace = ld.getPartialQuadratureSpacePointer();
         if ((isValid(oldqspace)) && (isValid(dqspace))) {
-          if (areEquivalent(*oldqspace, *qspace)) {
+          const auto oeq = areEquivalent(ctx, oldqspace, qspace);
+          if (isInvalid(oeq)) {
+            return false;
+          }
+          if (*oeq) {
             ctx.assertOrTerminate(pd == ldm.end(),
                                   "internal error: " + d.getDescription() +
                                       " is registered twice");
@@ -201,7 +213,12 @@ namespace mfem_mgis {
             "internal error: " + pd->getDescription() + " declared twice");
         // we don't check if *p is a duplicate.
         // if it is, the following code will be executed by the original anyway
-        if (areEquivalent(*(p->getPartialQuadratureSpace()), *qspace)) {
+        const auto oeq =
+            areEquivalent(ctx, p->getPartialQuadratureSpacePointer(), qspace);
+        if (isInvalid(oeq)) {
+          return false;
+        }
+        if (*oeq) {
           if (!pd->setDuplicate(ctx)) {
             return false;
           }

@@ -44,6 +44,9 @@ namespace mfem_mgis {
     //! \return the partial quadrature space
     virtual const PartialQuadratureSpace &getPartialQuadratureSpace()
         const noexcept = 0;
+    //! \return the partial quadrature space
+    virtual std::shared_ptr<const PartialQuadratureSpace>
+    getPartialQuadratureSpacePointer() const noexcept = 0;
     /*!
      * \brief return the integration rule for the given element and element
      * transformation

@@ -216,14 +216,14 @@ namespace mfem_mgis {
       Context& ctx,
       const AbstractBehaviourIntegrator& b,
       const AbstractQPEvaluator& e) {
-    const auto& bqspace = b.getPartialQuadratureSpace();
-    const auto& eqspace = *(e.getPartialQuadratureSpacePointer());
-    if (bqspace.getMeshDiscretization() != eqspace.getMeshDiscretization()) {
+    const auto& bqspace = b.getPartialQuadratureSpacePointer();
+    const auto& eqspace = e.getPartialQuadratureSpacePointer();
+    if (bqspace->getMeshDiscretization() != eqspace->getMeshDiscretization()) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on the mesh of the "
           "behaviour integrator");
     }
-    if (bqspace.getLocation() != eqspace.getLocation()) {
+    if (bqspace->getLocation() != eqspace->getLocation()) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on the location of the "
           "behaviour integrator");
@@ -231,7 +231,11 @@ namespace mfem_mgis {
     // this check notably fails if both partial quadrature spaces are not
     // built on finite element discretizations sharing the same finite element
     // spaces manager
-    if (!areEquivalent(bqspace, eqspace)) {
+    const auto oeq = areEquivalent(ctx, bqspace, eqspace);
+    if (isInvalid(oeq)) {
+      return false;
+    }
+    if (!(*oeq)) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on a space equivalent "
           "to the one of the behaviour integrator");
@@ -333,6 +337,12 @@ namespace mfem_mgis {
   const PartialQuadratureSpace&
   BehaviourIntegratorBase::getPartialQuadratureSpace() const noexcept {
     return static_cast<const Material*>(this)->getPartialQuadratureSpace();
+  }  // end of getPartialQuadratureSpace
+
+  std::shared_ptr<const PartialQuadratureSpace>
+  BehaviourIntegratorBase::getPartialQuadratureSpacePointer() const noexcept {
+    return static_cast<const Material*>(this)
+        ->getPartialQuadratureSpacePointer();
   }  // end of getPartialQuadratureSpace
 
   real BehaviourIntegratorBase::getTimeIncrement() const noexcept {

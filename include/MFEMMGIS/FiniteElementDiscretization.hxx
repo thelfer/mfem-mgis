@@ -147,14 +147,15 @@ namespace mfem_mgis {
     [[nodiscard]] std::shared_ptr<const FiniteElementCollection>
     getFiniteElementCollectionPointer() const noexcept;
     /*!
-     * \brief check if two quadrature spaces are equivalent
+     * \return if two quadrature spaces are equivalent
+     * \param[in, out] ctx: execution context
      * \param[in] s1: first quadrature space
      * \param[in] s2: second quadrature space
-     * \return if two quadrature spaces are equivalent
      */
-    [[nodiscard]] bool areEquivalent(
-        const PartialQuadratureSpace& s1,
-        const PartialQuadratureSpace& s2) const noexcept;
+    [[nodiscard]] std::optional<bool> areEquivalent(
+        Context& ctx,
+        const std::shared_ptr<const PartialQuadratureSpace>& s1,
+        const std::shared_ptr<const PartialQuadratureSpace>& s2) const noexcept;
     //
     // expose MeshDiscretization's methods, even deprecated ones for backward
     // compatibility
