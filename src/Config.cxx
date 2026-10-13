@@ -259,28 +259,24 @@ namespace mfem_mgis {
   void synchronize(Context& ctx, const MPI_Comm c) noexcept {
     int size = 1;
     MPI_Comm_size(c, &size);
-    if (size == 1) {
-      return;
-    }
     const auto msg = ctx.getErrorMessage(false);
     const auto lsize = static_cast<int>(msg.size());
-    auto sizes = std::vector<int>(static_cast<std::size_t>(size));
+    auto sizes = std::vector<int>(size);
     MPI_Allgather(&lsize, 1, MPI_INT, sizes.data(), 1, MPI_INT, c);
-    auto offsets = std::vector<int>(static_cast<std::size_t>(size));
+    auto offsets = std::vector<int>(size);
     std::exclusive_scan(sizes.begin(), sizes.end(), offsets.begin(), 0);
     const auto total = offsets.back() + sizes.back();
     if (total == 0) {
       return;
     }
-    auto buffer = std::string(static_cast<std::size_t>(total), '\0');
+    auto buffer = std::string(total, '\0');
     MPI_Allgatherv(msg.data(), lsize, MPI_CHAR, buffer.data(), sizes.data(),
                    offsets.data(), MPI_CHAR, c);
     auto messages = std::vector<std::pair<int, std::string_view>>{};
     for (int r = 0; r != size; ++r) {
-      const auto n = sizes[static_cast<std::size_t>(r)];
-      if (n != 0) {
-        const auto o = offsets[static_cast<std::size_t>(r)];
-        messages.push_back({r, std::string_view{buffer}.substr(o, n)});
+      if (sizes[r] != 0) {
+        messages.push_back(
+            {r, std::string_view{buffer}.substr(offsets[r], sizes[r])});
       }
     }
     const auto same = std::all_of(
