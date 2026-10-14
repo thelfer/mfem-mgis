@@ -444,6 +444,12 @@ namespace mfem_mgis {
     std::shared_ptr<
         const ::mfem_mgis::internals::PartialQuadratureSpaceImplementation>
     getImplementation() const noexcept;
+    /*!
+     * \return if the given quadrature space shares the same implementation
+     * \param[in] rhs: right-hand side
+     */
+    [[nodiscard]] bool operator==(
+        const PartialQuadratureSpace &rhs) const noexcept;
     //! \brief destructor
     ~PartialQuadratureSpace();
 
@@ -461,7 +467,9 @@ namespace mfem_mgis {
 namespace mfem_mgis {
 
   /*!
-   * \return if two quadrature spaces are equivalent
+   * \return if two quadrature spaces are equivalent from the MGIS/Function's
+   * point of view.
+   *
    * \param[in] s1: first quadrature space
    * \param[in] s2: second quadrature space
    */
@@ -470,12 +478,15 @@ namespace mfem_mgis {
       const PartialQuadratureSpace &s2) noexcept;
 
   /*!
-   * \return if two quadrature spaces are equivalent
+   * \return if two quadrature spaces can be mapped, i.e. that we can find
+   * a path to transfer data between quadrature functions defined on those two
+   * spaces.
+   *
    * \param[in, out] ctx: execution context
    * \param[in] s1: first quadrature space
    * \param[in] s2: second quadrature space
    */
-  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<bool> areEquivalent(
+  MFEM_MGIS_EXPORT [[nodiscard]] std::optional<bool> areMappable(
       Context &ctx,
       const PartialQuadratureSpace &s1,
       const PartialQuadratureSpace &s2) noexcept;

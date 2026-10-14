@@ -231,16 +231,18 @@ namespace mfem_mgis {
     // this check notably fails if both partial quadrature spaces are not
     // built on finite element discretizations sharing the same finite element
     // spaces manager
-    const auto oeq = areEquivalent(ctx, bqspace, eqspace);
-    if (isInvalid(oeq)) {
-      return false;
-    }
-    if (!(*oeq)) {
-      return ctx.registerErrorMessage(
-          "partial quadrature evaluator is not defined on a space equivalent "
-          "to the one of the behaviour integrator");
-    }
-    return true;
+#pragma message("HERE: handle evaluators on a mappable space")
+    return bqspace == eqspace;
+    //     const auto oeq = areMappable(ctx, bqspace, eqspace);
+    //     if (isInvalid(oeq)) {
+    //       return false;
+    //     }
+    //     if (!(*oeq)) {
+    //       return ctx.registerErrorMessage(
+    //           "partial quadrature evaluator is not defined on a space
+    //           equivalent " "to the one of the behaviour integrator");
+    //     }
+    //    return true;
   }  // end of checkQuadratureFunctionEvaluator
 
   bool BehaviourIntegratorBase::setMaterialProperty(
@@ -258,6 +260,7 @@ namespace mfem_mgis {
           "property '" +
           omp->name + "'");
     }
+#pragma message("HERE: handle evaluators on a mappable space")
     if (!checkQuadratureFunctionEvaluator(ctx, *this, *e)) {
       return false;
     }

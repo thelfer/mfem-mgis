@@ -730,19 +730,14 @@ namespace mfem_mgis {
 
   bool areEquivalent(const PartialQuadratureSpace& s1,
                      const PartialQuadratureSpace& s2) noexcept {
-    auto ctx = Context{};
-    const auto oeq = areEquivalent(ctx, s1, s2);
-    if (isInvalid(oeq)) {
-      return false;
-    }
-    return *oeq;
+    return s1 == s2;
   }  // end of areEquivalent
 
-  std::optional<bool> areEquivalent(Context& ctx,
-                                    const PartialQuadratureSpace& s1,
-                                    const PartialQuadratureSpace& s2) noexcept {
+  std::optional<bool> areMappable(Context& ctx,
+                                  const PartialQuadratureSpace& s1,
+                                  const PartialQuadratureSpace& s2) noexcept {
     const auto& fed = s1.getFiniteElementDiscretization();
-    return fed.areEquivalent(ctx, s1, s2);
-  }  // end of areEquivalent
+    return fed.areMappable(ctx, s1, s2);
+  }  // end of areMappable
 
 }  // end of namespace mfem_mgis

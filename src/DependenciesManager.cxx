@@ -90,7 +90,7 @@ namespace mfem_mgis {
                               if (isInvalid(q)) {
                                 return false;
                               }
-                              const auto oeq = areEquivalent(ctx, *qspace, *q);
+                              const auto oeq = areMappable(ctx, *qspace, *q);
                               if (isInvalid(oeq)) {
                                 return false;
                               }
@@ -130,7 +130,7 @@ namespace mfem_mgis {
     const auto &m = d.getLocation();
     const auto dqspace = d.getPartialQuadratureSpacePointer();
     if (isValid(dqspace)) {
-      const auto oeq = areEquivalent(ctx, *dqspace, *qspace);
+      const auto oeq = areMappable(ctx, *dqspace, *qspace);
       if (isInvalid(oeq)) {
         return false;
       }
@@ -166,7 +166,7 @@ namespace mfem_mgis {
         }
         const auto oldqspace = ld.getPartialQuadratureSpacePointer();
         if ((isValid(oldqspace)) && (isValid(dqspace))) {
-          const auto oeq = areEquivalent(ctx, *oldqspace, *qspace);
+          const auto oeq = areMappable(ctx, *oldqspace, *qspace);
           if (isInvalid(oeq)) {
             return false;
           }
@@ -212,8 +212,8 @@ namespace mfem_mgis {
             "internal error: " + pd->getDescription() + " declared twice");
         // we don't check if *p is a duplicate.
         // if it is, the following code will be executed by the original anyway
-        const auto oeq = areEquivalent(
-            ctx, *(p->getPartialQuadratureSpacePointer()), *qspace);
+        const auto oeq =
+            areMappable(ctx, *(p->getPartialQuadratureSpacePointer()), *qspace);
         if (isInvalid(oeq)) {
           return false;
         }

@@ -183,7 +183,9 @@ namespace mfem_mgis {
     [[nodiscard]] bool manages(
         const FiniteElementSpace<false>& s) const noexcept;
     /*!
-     * \return if the two spaces are equivalent
+     * \return if two quadrature spaces can be mapped, i.e. that we can find
+     * a path to transfer data between quadrature functions defined on those two
+     * spaces.
      *
      * \param[in, out] ctx: execution context
      * \param[in] s1: first partial quadrature space
@@ -192,7 +194,7 @@ namespace mfem_mgis {
      * \note if one of the quadrature spaces is defined on a finite element
      * spaces that is not managed , this method returns false
      */
-    [[nodiscard]] std::optional<bool> areEquivalent(
+    [[nodiscard]] std::optional<bool> areMappable(
         Context& ctx,
         const PartialQuadratureSpace& s1,
         const PartialQuadratureSpace& s2) const noexcept;

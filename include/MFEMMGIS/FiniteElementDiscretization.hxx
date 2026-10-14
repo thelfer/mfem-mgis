@@ -147,12 +147,15 @@ namespace mfem_mgis {
     [[nodiscard]] std::shared_ptr<const FiniteElementCollection>
     getFiniteElementCollectionPointer() const noexcept;
     /*!
-     * \return if two quadrature spaces are equivalent
+     * \return if two quadrature spaces can be mapped, i.e. that we can find
+     * a path to transfer data between quadrature functions defined on those two
+     * spaces.
+     *
      * \param[in, out] ctx: execution context
      * \param[in] s1: first quadrature space
      * \param[in] s2: second quadrature space
      */
-    [[nodiscard]] std::optional<bool> areEquivalent(
+    [[nodiscard]] std::optional<bool> areMappable(
         Context& ctx,
         const PartialQuadratureSpace& s1,
         const PartialQuadratureSpace& s2) const noexcept;

@@ -67,7 +67,7 @@ namespace mfem_mgis::internals {
     return isValid(omapping);
   }  // end of areQuadratureSpacesOnMappableMeshes
 
-  static bool areEquivalent(
+  static bool areMappable(
       const PartialQuadratureSpaceImplementation& s1,
       const PartialQuadratureSpaceImplementation& s2) noexcept {
     if (&s1 == &s2) {
@@ -106,7 +106,7 @@ namespace mfem_mgis::internals {
     }
     // checked last since it may build the elements mapping
     return areQuadratureSpacesOnMappableMeshes(s1, s2);
-  }  // end of areEquivalent
+  }  // end of areMappable
 
 }  // end of namespace mfem_mgis::internals
 
@@ -522,7 +522,7 @@ namespace mfem_mgis {
      * \param[in] s1: first quadrature space
      * \param[in] s2: second quadrature space
      */
-    [[nodiscard]] std::optional<bool> areEquivalent(
+    [[nodiscard]] std::optional<bool> areMappable(
         Context& ctx,
         const std::shared_ptr<
             const ::mfem_mgis::internals::PartialQuadratureSpaceImplementation>&
@@ -542,7 +542,7 @@ namespace mfem_mgis {
         return {};
       }
       return *oid1 == *oid2;
-    }  // end of areEquivalent
+    }  // end of areMappable
 
    private:
     /*!
@@ -571,7 +571,7 @@ namespace mfem_mgis {
       // add the quadrature space
       for (size_type id = 0; auto& spaces : identifiers) {
         assert(!spaces.empty());  // by design, spaces can't be empty
-        if (::mfem_mgis::internals::areEquivalent(*s, *(spaces.at(0)))) {
+        if (::mfem_mgis::internals::areMappable(*s, *(spaces.at(0)))) {
           spaces.push_back(s);
           return id;
         }
@@ -763,7 +763,7 @@ namespace mfem_mgis {
     return this->pimpl->manages(s);
   }  // end of manages
 
-  std::optional<bool> FiniteElementSpacesManager::areEquivalent(
+  std::optional<bool> FiniteElementSpacesManager::areMappable(
       Context& ctx,
       const PartialQuadratureSpace& s1,
       const PartialQuadratureSpace& s2) const noexcept {
@@ -774,9 +774,9 @@ namespace mfem_mgis {
     if ((*this != m1) || (*this != m2)) {
       return false;
     }
-    return this->pimpl->areEquivalent(ctx, s1.getImplementation(),
-                                      s2.getImplementation());
-  }  // end of areEquivalent
+    return this->pimpl->areMappable(ctx, s1.getImplementation(),
+                                    s2.getImplementation());
+  }  // end of areMappable
 
   std::optional<size_type> FiniteElementSpacesManager::getIdentifier(
       Context& ctx, const PartialQuadratureSpace& s) const noexcept {

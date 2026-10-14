@@ -84,7 +84,7 @@ struct StateManagerTest final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
         });
     TFEL_TESTS_ASSERT(isValid(qspace2));
-    const auto ook2 = areEquivalent(ctx, *qspace1, *qspace2);
+    const auto ook2 = areMappable(ctx, *qspace1, *qspace2);
     TFEL_TESTS_ASSERT(isValid(ook2));
     TFEL_TESTS_CHECK(*ook2);
     // retrieving a view on the function
