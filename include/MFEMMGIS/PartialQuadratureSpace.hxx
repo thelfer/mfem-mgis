@@ -28,10 +28,14 @@ namespace mfem_mgis {
   // forward declaration
   struct FiniteElementDiscretization;
 
+}  // end of namespace mfem_mgis
+
+namespace mfem_mgis::internals {
+
   /*!
    * \brief a space on quadrature points defined on a material or a boundary
    */
-  struct MFEM_MGIS_EXPORT PartialQuadratureSpace {
+  struct MFEM_MGIS_EXPORT PartialQuadratureSpaceImplementation {
     /*!
      * \brief throw an exception in case of invalid element index
      * \param[in] l: location
@@ -46,11 +50,12 @@ namespace mfem_mgis {
      * \param[in] irs: function returning the integration rule for the
      * considered finite element.
      */
-    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
-                           const LocationIdentifier &l,
-                           const std::function<const mfem::IntegrationRule &(
-                               const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &irs);
+    PartialQuadratureSpaceImplementation(
+        const FiniteElementDiscretization &fed,
+        const LocationIdentifier &l,
+        const std::function<const mfem::IntegrationRule &(
+            const mfem::FiniteElement &, const mfem::ElementTransformation &)>
+            &irs);
 
 #ifdef MFEM_USE_MPI
     /*!
@@ -66,12 +71,13 @@ namespace mfem_mgis {
      * materials), the partial quadrature space is built on the boundary
      * elements of this mesh, see `shallUseBoundaryElementsAPI`.
      */
-    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
-                           const FiniteElementSpace<true> &fespace,
-                           const LocationIdentifier l,
-                           const std::function<const mfem::IntegrationRule &(
-                               const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &irs);
+    PartialQuadratureSpaceImplementation(
+        const FiniteElementDiscretization &fed,
+        const FiniteElementSpace<true> &fespace,
+        const LocationIdentifier l,
+        const std::function<const mfem::IntegrationRule &(
+            const mfem::FiniteElement &, const mfem::ElementTransformation &)>
+            &irs);
 #endif /* MFEM_USE_MPI */
     /*!
      * \brief constructor
@@ -86,27 +92,32 @@ namespace mfem_mgis {
      * materials), the partial quadrature space is built on the boundary
      * elements of this mesh, see `shallUseBoundaryElementsAPI`.
      */
-    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
-                           const FiniteElementSpace<false> &fespace,
-                           const LocationIdentifier l,
-                           const std::function<const mfem::IntegrationRule &(
-                               const mfem::FiniteElement &,
-                               const mfem::ElementTransformation &)> &irs);
+    PartialQuadratureSpaceImplementation(
+        const FiniteElementDiscretization &fed,
+        const FiniteElementSpace<false> &fespace,
+        const LocationIdentifier l,
+        const std::function<const mfem::IntegrationRule &(
+            const mfem::FiniteElement &, const mfem::ElementTransformation &)>
+            &irs);
 
     //! \brief move constructor
-    PartialQuadratureSpace(PartialQuadratureSpace &&) noexcept = default;
-    PartialQuadratureSpace(const PartialQuadratureSpace &) = delete;
-    PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
-    PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
+    PartialQuadratureSpaceImplementation(
+        PartialQuadratureSpaceImplementation &&) noexcept = delete;
+    PartialQuadratureSpaceImplementation(
+        const PartialQuadratureSpaceImplementation &) = delete;
+    PartialQuadratureSpaceImplementation &operator=(
+        PartialQuadratureSpaceImplementation &&) = delete;
+    PartialQuadratureSpaceImplementation &operator=(
+        const PartialQuadratureSpaceImplementation &) = delete;
     /*!
      * \return a description of the location, including the name of the
      * material or of the boundary if defined, e.g. `material 'BEAM' (12)`
      */
     [[nodiscard]] std::string getLocationName() const noexcept;
     //! \return if the partial quadrature space is defined on a material
-    [[nodiscard]] bool isDefinedOnAMaterial() const;
+    [[nodiscard]] bool isDefinedOnAMaterial() const noexcept;
     //! \return if the partial quadrature space is defined on a boundary
-    [[nodiscard]] bool isDefinedOnABoundary() const;
+    [[nodiscard]] bool isDefinedOnABoundary() const noexcept;
     //! \return the mesh discretization
     [[nodiscard]] const MeshDiscretization &getMeshDiscretization()
         const noexcept;
@@ -159,7 +170,7 @@ namespace mfem_mgis {
      */
     [[nodiscard]] const mfem::IntegrationRule &getIntegrationRule(
         const mfem::FiniteElement &e,
-        const mfem::ElementTransformation &tr) const;
+        const mfem::ElementTransformation &tr) const noexcept;
     //! \return the number of finite elements of the partial quadrature space
     [[nodiscard]] size_type getNumberOfElements() const noexcept;
     //! \return the number of integration points
@@ -199,7 +210,7 @@ namespace mfem_mgis {
     //! \return the material or boundary identifier
     [[nodiscard]] LocationIdentifier getLocation() const noexcept;
     //! \brief destructor
-    ~PartialQuadratureSpace();
+    ~PartialQuadratureSpaceImplementation();
 
    private:
     /*!
@@ -260,7 +271,188 @@ namespace mfem_mgis {
     LocationIdentifier location;
     //! \brief number of integration points
     size_type ng;
-  };  // end of struct PartialQuadratureSpace
+  };  // end of struct PartialQuadratureSpaceImplementation
+
+}  // end of namespace mfem_mgis::internals
+
+namespace mfem_mgis {
+
+  /*!
+   * \brief a space on quadrature points defined on a material or a boundary
+   */
+  struct MFEM_MGIS_EXPORT PartialQuadratureSpace {
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization.
+     * \param[in] l: location identifier
+     * \param[in] irs: function returning the integration rule for the
+     * considered finite element.
+     */
+    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
+                           const LocationIdentifier &l,
+                           const std::function<const mfem::IntegrationRule &(
+                               const mfem::FiniteElement &,
+                               const mfem::ElementTransformation &)> &irs);
+
+#ifdef MFEM_USE_MPI
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization.
+     * \param[in] fespace: finite element space
+     * \param[in] l: location identifier
+     * \param[in] irs: function returning the integration rule for the
+     * considered finite element.
+     *
+     * \note if the location is a boundary and if the mesh of the finite
+     * element space is defined on materials (whole mesh or submesh of
+     * materials), the partial quadrature space is built on the boundary
+     * elements of this mesh, see `shallUseBoundaryElementsAPI`.
+     */
+    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
+                           const FiniteElementSpace<true> &fespace,
+                           const LocationIdentifier l,
+                           const std::function<const mfem::IntegrationRule &(
+                               const mfem::FiniteElement &,
+                               const mfem::ElementTransformation &)> &irs);
+#endif /* MFEM_USE_MPI */
+    /*!
+     * \brief constructor
+     * \param[in] fed: finite element discretization.
+     * \param[in] fespace: finite element space
+     * \param[in] l: location identifier
+     * \param[in] irs: function returning the integration rule for the
+     * considered finite element.
+     *
+     * \note if the location is a boundary and if the mesh of the finite
+     * element space is defined on materials (whole mesh or submesh of
+     * materials), the partial quadrature space is built on the boundary
+     * elements of this mesh, see `shallUseBoundaryElementsAPI`.
+     */
+    PartialQuadratureSpace(const FiniteElementDiscretization &fed,
+                           const FiniteElementSpace<false> &fespace,
+                           const LocationIdentifier l,
+                           const std::function<const mfem::IntegrationRule &(
+                               const mfem::FiniteElement &,
+                               const mfem::ElementTransformation &)> &irs);
+
+    //! \brief move constructor
+    PartialQuadratureSpace(PartialQuadratureSpace &&) noexcept = default;
+    PartialQuadratureSpace(const PartialQuadratureSpace &) = default;
+    PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
+    PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
+    /*!
+     * \return a description of the location, including the name of the
+     * material or of the boundary if defined, e.g. `material 'BEAM' (12)`
+     */
+    [[nodiscard]] std::string getLocationName() const noexcept;
+    //! \return if the partial quadrature space is defined on a material
+    [[nodiscard]] bool isDefinedOnAMaterial() const noexcept;
+    //! \return if the partial quadrature space is defined on a boundary
+    [[nodiscard]] bool isDefinedOnABoundary() const noexcept;
+    //! \return the mesh discretization
+    [[nodiscard]] const MeshDiscretization &getMeshDiscretization()
+        const noexcept;
+    //! \return the finite element discretization
+    [[nodiscard]] const FiniteElementDiscretization &
+    getFiniteElementDiscretization() const noexcept;
+    /*!
+     * \brief return the underlying mesh
+     * \return the underlying mesh on which the partial quadrature space is
+     * built.
+     * \param[in, out] ctx: execution context
+     */
+    template <bool parallel>
+    [[nodiscard]] OptionalReference<const Mesh<parallel>> getMesh(
+        Context &ctx) const noexcept;
+    /*!
+     * \brief return the finite element space
+     * \return the finite element space on which the partial quadrature space is
+     * built.
+     * \param[in, out] ctx: execution context
+     */
+    template <bool parallel>
+    [[nodiscard]] OptionalReference<const FiniteElementSpace<parallel>>
+    getFiniteElementSpace(Context &ctx) const noexcept;
+    /*!
+     * \return if one shall iterate on boundary elements
+     *
+     * The rationale behind this method is that partial quadrature spaces can be
+     * defined on the main mesh or on submeshes.
+     *
+     * If a partial quadrature space is defined on a boundary, two cases may
+     * happen:
+     *
+     * 1. it can be created on the main mesh or a submesh defined on materials.
+     *    In this case, one shall iterate over boundary elements and use
+     *    the MFEM API relative to boundary elements (`GetNBE`,
+     *    `GetBdrElement`, etc.)
+     * 2. if a submesh is defined on the boundaries of the main mesh,
+     *    however, one shall iterate over the elements and use
+     *    the MFEM API relative to standard elements (`GetNE`,
+     *    `GetElement`, etc.)
+     */
+    [[nodiscard]] bool shallUseBoundaryElementsAPI() const noexcept;
+    /*!
+     * \brief return the integration rule of an element
+     * \return the integration rule associated with the given finite element and
+     * element transformation
+     * \param[in] e: finite element
+     * \param[in] tr: element transformation
+     */
+    [[nodiscard]] const mfem::IntegrationRule &getIntegrationRule(
+        const mfem::FiniteElement &e,
+        const mfem::ElementTransformation &tr) const noexcept;
+    //! \return the number of finite elements of the partial quadrature space
+    [[nodiscard]] size_type getNumberOfElements() const noexcept;
+    //! \return the number of integration points
+    [[nodiscard]] size_type getNumberOfIntegrationPoints() const noexcept;
+    /*!
+     * \brief return the number of quadrature points for the given finite
+     * element
+     * \param[in] e: index of the finite element
+     * \return the number of quadrature points
+     */
+    [[nodiscard]] size_type getNumberOfQuadraturePoints(
+        const size_type e) const;
+    /*!
+     * \brief return the number of quadrature points for the given finite
+     * element
+     * \param[in, out] ctx: execution context
+     * \param[in] e: index of the finite element
+     * \return the number of quadrature points
+     */
+    [[nodiscard]] std::optional<size_type> getNumberOfQuadraturePoints(
+        Context &ctx, const size_type e) const noexcept;
+    /*!
+     * \return the hash table associating element numbers and local offsets.
+     *
+     * \note element numbers refer to the mesh of the partial quadrature space.
+     * They are boundary element numbers if `shallUseBoundaryElementsAPI`
+     * returns true.
+     */
+    [[nodiscard]] const std::unordered_map<size_type, size_type> &getOffsets()
+        const noexcept;
+    /*!
+     * \brief return the offset associated with an element
+     * \param[in] i: element number, see `getOffsets`
+     * \return the offset
+     */
+    [[nodiscard]] size_type getOffset(const size_type i) const;
+    //! \return the material or boundary identifier
+    [[nodiscard]] LocationIdentifier getLocation() const noexcept;
+    //! \return the internal implementation
+    std::shared_ptr<
+        const ::mfem_mgis::internals::PartialQuadratureSpaceImplementation>
+    getImplementation() const noexcept;
+    //! \brief destructor
+    ~PartialQuadratureSpace();
+
+   private:
+    //! \brief underlying implementation
+    std::shared_ptr<
+        const ::mfem_mgis::internals::PartialQuadratureSpaceImplementation>
+        pimpl;
+  };
 
 }  // end of namespace mfem_mgis
 
@@ -285,8 +477,8 @@ namespace mfem_mgis {
    */
   MFEM_MGIS_EXPORT [[nodiscard]] std::optional<bool> areEquivalent(
       Context &ctx,
-      const std::shared_ptr<const PartialQuadratureSpace> &s1,
-      const std::shared_ptr<const PartialQuadratureSpace> &s2) noexcept;
+      const PartialQuadratureSpace &s1,
+      const PartialQuadratureSpace &s2) noexcept;
 
   /*!
    * \brief return the number of integration points

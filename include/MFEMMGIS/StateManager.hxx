@@ -74,7 +74,7 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::optional<bool> contains(
         Context& ctx,
-        const std::shared_ptr<const PartialQuadratureSpace>& qspace,
+        const PartialQuadratureSpace& qspace,
         std::string_view n,
         const TimeStepStage ts) const noexcept;
     /*!
@@ -87,7 +87,7 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::optional<ImmutablePartialQuadratureFunctionView> get(
         Context& ctx,
-        const std::shared_ptr<const PartialQuadratureSpace>& qspace,
+        const PartialQuadratureSpace& qspace,
         std::string_view n,
         const TimeStepStage ts) const noexcept;
 

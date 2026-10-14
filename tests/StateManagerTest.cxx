@@ -62,13 +62,13 @@ struct StateManagerTest final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
         });
     TFEL_TESTS_ASSERT(isValid(qspace1));
-    const auto ook0 = sm.contains(ctx, qspace1, "function1", ets);
+    const auto ook0 = sm.contains(ctx, *qspace1, "function1", ets);
     TFEL_TESTS_ASSERT(isValid(ook0));
     TFEL_TESTS_CHECK(!(*ook0));
     auto of = construct<PartialQuadratureFunction>(ctx, qspace1);
     TFEL_TESTS_ASSERT(isValid(of));
     TFEL_TESTS_CHECK(sm.add(ctx, "function1", *of, ets));
-    const auto ook = sm.contains(ctx, qspace1, "function1", ets);
+    const auto ook = sm.contains(ctx, *qspace1, "function1", ets);
     TFEL_TESTS_ASSERT(isValid(ook));
     TFEL_TESTS_CHECK(*ook);
     // creating a second finite element discretization and a second quadrature
@@ -84,11 +84,11 @@ struct StateManagerTest final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
         });
     TFEL_TESTS_ASSERT(isValid(qspace2));
-    const auto ook2 = areEquivalent(ctx, qspace1, qspace2);
+    const auto ook2 = areEquivalent(ctx, *qspace1, *qspace2);
     TFEL_TESTS_ASSERT(isValid(ook2));
     TFEL_TESTS_CHECK(*ook2);
     // retrieving a view on the function
-    const auto oview = sm.get(ctx, qspace2, "function1", ets);
+    const auto oview = sm.get(ctx, *qspace2, "function1", ets);
     TFEL_TESTS_ASSERT(isValid(oview));
     // we now check that f and the view points to the values
     TFEL_TESTS_CHECK(of->getValues().data() == oview->getValues().data());

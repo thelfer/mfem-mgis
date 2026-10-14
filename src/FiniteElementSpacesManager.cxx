@@ -19,6 +19,97 @@
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/FiniteElementSpacesManager.hxx"
 
+namespace mfem_mgis::internals {
+
+  /*!
+   * \return if two partial quadrature spaces are defined on the same mesh, or
+   * on two meshes for which the elements of the location of the first space
+   * can be mapped, see `MeshDiscretization::getElementsMapping`
+   * \param[in] s1: first quadrature space
+   * \param[in] s2: second quadrature space
+   *
+   * \note this call is collective when the meshes are distinct.
+   */
+  [[nodiscard]] static bool areQuadratureSpacesOnMappableMeshes(
+      const PartialQuadratureSpaceImplementation& s1,
+      const PartialQuadratureSpaceImplementation& s2) noexcept {
+    auto ctx = Context{};
+    const auto fed = s1.getFiniteElementDiscretization();
+    if (fed.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto om1 = s1.getMesh<true>(ctx);
+      const auto om2 = s2.getMesh<true>(ctx);
+      if (!areValid(om1, om2)) {
+        return false;
+      }
+      if (&(*om1) == &(*om2)) {
+        return true;
+      }
+      // collective call
+      const auto omapping =
+          fed.getElementsMapping(ctx, *om1, *om2, s1.getLocation());
+      return isValid(omapping);
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto om1 = s1.getMesh<false>(ctx);
+    const auto om2 = s2.getMesh<false>(ctx);
+    if (!areValid(om1, om2)) {
+      return false;
+    }
+    if (&(*om1) == &(*om2)) {
+      return true;
+    }
+    // collective call
+    const auto omapping =
+        fed.getElementsMapping(ctx, *om1, *om2, s1.getLocation());
+    return isValid(omapping);
+  }  // end of areQuadratureSpacesOnMappableMeshes
+
+  static bool areEquivalent(
+      const PartialQuadratureSpaceImplementation& s1,
+      const PartialQuadratureSpaceImplementation& s2) noexcept {
+    if (&s1 == &s2) {
+      return true;
+    }
+    const auto& fed1 = s1.getFiniteElementDiscretization();
+    const auto& fed2 = s2.getFiniteElementDiscretization();
+    if (fed1.getFiniteElementSpacesManager() !=
+        fed2.getFiniteElementSpacesManager()) {
+      return false;
+    }
+    if (s1.getLocation() != s2.getLocation()) {
+      return false;
+    }
+    const auto success = [&s1, &s2] {
+      if (s1.getNumberOfIntegrationPoints() !=
+          s2.getNumberOfIntegrationPoints()) {
+        return false;
+      }
+      const auto& offsets1 = s1.getOffsets();
+      const auto& offsets2 = s2.getOffsets();
+      if (offsets1.size() != offsets2.size()) {
+        return false;
+      }
+      auto p1 = offsets1.begin();
+      auto p2 = offsets2.begin();
+      for (; p1 != offsets1.end(); ++p1, ++p2) {
+        if ((p1->first != p2->first) || (p1->second != p2->second)) {
+          return false;
+        }
+      }
+      return true;
+    }();
+    if (!isTrueOnAllProcesses(s1.getMeshDiscretization(), success)) {
+      return false;
+    }
+    // checked last since it may build the elements mapping
+    return areQuadratureSpacesOnMappableMeshes(s1, s2);
+  }  // end of areEquivalent
+
+}  // end of namespace mfem_mgis::internals
+
 namespace mfem_mgis {
 
   const char* const FiniteElementSpacesManager::FiniteElementFamily =
@@ -376,9 +467,12 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::optional<size_type> getIdentifier(
         Context& ctx,
-        const std::shared_ptr<const PartialQuadratureSpace>& s) noexcept {
-      using PerLocationIdentifiersList = std::vector<
-          std::vector<std::shared_ptr<const PartialQuadratureSpace>>>;
+        const std::shared_ptr<
+            const ::mfem_mgis::internals::PartialQuadratureSpaceImplementation>&
+            s) noexcept {
+      using PerLocationIdentifiersList = std::vector<std::vector<
+          std::shared_ptr<const ::mfem_mgis::internals::
+                              PartialQuadratureSpaceImplementation>>>;
       if (isInvalid(s)) {
         return ctx.registerErrorMessage("invalid partial quadrature space");
       }
@@ -430,8 +524,12 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::optional<bool> areEquivalent(
         Context& ctx,
-        const std::shared_ptr<const PartialQuadratureSpace>& qspace1,
-        const std::shared_ptr<const PartialQuadratureSpace>& qspace2) noexcept {
+        const std::shared_ptr<
+            const ::mfem_mgis::internals::PartialQuadratureSpaceImplementation>&
+            qspace1,
+        const std::shared_ptr<
+            const ::mfem_mgis::internals::PartialQuadratureSpaceImplementation>&
+            qspace2) noexcept {
       if (!areValid(qspace1, qspace2)) {
         return ctx.registerErrorMessage("invalid quadrature spaces");
       }
@@ -455,9 +553,12 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space
      */
     [[nodiscard]] size_type getIdentifier(
-        std::vector<std::vector<std::shared_ptr<const PartialQuadratureSpace>>>&
-            identifiers,
-        const std::shared_ptr<const PartialQuadratureSpace>& s) noexcept {
+        std::vector<std::vector<std::shared_ptr<
+            const ::mfem_mgis::internals::
+                PartialQuadratureSpaceImplementation>>>& identifiers,
+        const std::shared_ptr<
+            const ::mfem_mgis::internals::PartialQuadratureSpaceImplementation>&
+            s) noexcept {
       // check if the quadrature space has already been declared
       for (size_type id = 0; const auto& spaces : identifiers) {
         for (const auto& s2 : spaces) {
@@ -470,7 +571,7 @@ namespace mfem_mgis {
       // add the quadrature space
       for (size_type id = 0; auto& spaces : identifiers) {
         assert(!spaces.empty());  // by design, spaces can't be empty
-        if (::mfem_mgis::areEquivalent(*s, *(spaces.at(0)))) {
+        if (::mfem_mgis::internals::areEquivalent(*s, *(spaces.at(0)))) {
           spaces.push_back(s);
           return id;
         }
@@ -480,7 +581,9 @@ namespace mfem_mgis {
       // registred space
       const auto id = identifiers.size();
       identifiers.push_back(
-          std::vector<std::shared_ptr<const PartialQuadratureSpace>>(1, s));
+          std::vector<
+              std::shared_ptr<const ::mfem_mgis::internals::
+                                  PartialQuadratureSpaceImplementation>>(1, s));
       return id;
     }  // end of getIdentifier
     /*!
@@ -554,8 +657,9 @@ namespace mfem_mgis {
     //! \brief a simple alias
     using IdentifiersMap =
         std::map<LocationIdentifier,
-                 std::vector<std::vector<
-                     std::shared_ptr<const PartialQuadratureSpace>>>>;
+                 std::vector<std::vector<std::shared_ptr<
+                     const ::mfem_mgis::internals::
+                         PartialQuadratureSpaceImplementation>>>>;
     //! \brief list of equivalent quadrature spaces, sorted by locations
     IdentifiersMap quadraturesSpaceIdentifiersStorage;
   };
@@ -661,25 +765,22 @@ namespace mfem_mgis {
 
   std::optional<bool> FiniteElementSpacesManager::areEquivalent(
       Context& ctx,
-      const std::shared_ptr<const PartialQuadratureSpace>& s1,
-      const std::shared_ptr<const PartialQuadratureSpace>& s2) const noexcept {
-    if (!areValid(s1, s2)) {
-      return ctx.registerErrorMessage("invalid partial quadrature spaces");
-    }
-    const auto& fed1 = s1->getFiniteElementDiscretization();
-    const auto& fed2 = s2->getFiniteElementDiscretization();
+      const PartialQuadratureSpace& s1,
+      const PartialQuadratureSpace& s2) const noexcept {
+    const auto& fed1 = s1.getFiniteElementDiscretization();
+    const auto& fed2 = s2.getFiniteElementDiscretization();
     const auto& m1 = fed1.getFiniteElementSpacesManager();
     const auto& m2 = fed2.getFiniteElementSpacesManager();
     if ((*this != m1) || (*this != m2)) {
       return false;
     }
-    return this->pimpl->areEquivalent(ctx, s1, s2);
+    return this->pimpl->areEquivalent(ctx, s1.getImplementation(),
+                                      s2.getImplementation());
   }  // end of areEquivalent
 
   std::optional<size_type> FiniteElementSpacesManager::getIdentifier(
-      Context& ctx,
-      const std::shared_ptr<const PartialQuadratureSpace>& s) const noexcept {
-    return this->pimpl->getIdentifier(ctx, s);
+      Context& ctx, const PartialQuadratureSpace& s) const noexcept {
+    return this->pimpl->getIdentifier(ctx, s.getImplementation());
   }  // end of getIdentifier
 
   bool FiniteElementSpacesManager::operator==(

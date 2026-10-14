@@ -216,14 +216,14 @@ namespace mfem_mgis {
       Context& ctx,
       const AbstractBehaviourIntegrator& b,
       const AbstractQPEvaluator& e) {
-    const auto& bqspace = b.getPartialQuadratureSpacePointer();
-    const auto& eqspace = e.getPartialQuadratureSpacePointer();
-    if (bqspace->getMeshDiscretization() != eqspace->getMeshDiscretization()) {
+    const auto& bqspace = b.getPartialQuadratureSpace();
+    const auto& eqspace = e.getPartialQuadratureSpace();
+    if (bqspace.getMeshDiscretization() != eqspace.getMeshDiscretization()) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on the mesh of the "
           "behaviour integrator");
     }
-    if (bqspace->getLocation() != eqspace->getLocation()) {
+    if (bqspace.getLocation() != eqspace.getLocation()) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on the location of the "
           "behaviour integrator");

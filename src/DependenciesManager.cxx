@@ -82,16 +82,15 @@ namespace mfem_mgis {
       }
     }
     const auto pd = [this, &ctx, &nd, &ldm] {
-      const auto qspace = nd.getPartialQuadratureSpacePointer();
+      const auto &qspace = nd.getPartialQuadratureSpace();
       if (isValid(qspace)) {
         return std::find_if(ldm.begin(), ldm.end(),
-                            [this, &ctx, &nd, qspace](const auto &dep) {  //
-                              const auto q =
-                                  dep.getPartialQuadratureSpacePointer();
+                            [this, &ctx, &nd, &qspace](const auto &dep) {  //
+                              const auto &q = dep.getPartialQuadratureSpace();
                               if (isInvalid(q)) {
                                 return false;
                               }
-                              const auto oeq = areEquivalent(ctx, qspace, q);
+                              const auto oeq = areEquivalent(ctx, *qspace, *q);
                               if (isInvalid(oeq)) {
                                 return false;
                               }
@@ -131,7 +130,7 @@ namespace mfem_mgis {
     const auto &m = d.getLocation();
     const auto dqspace = d.getPartialQuadratureSpacePointer();
     if (isValid(dqspace)) {
-      const auto oeq = areEquivalent(ctx, dqspace, qspace);
+      const auto oeq = areEquivalent(ctx, *dqspace, *qspace);
       if (isInvalid(oeq)) {
         return false;
       }
@@ -167,7 +166,7 @@ namespace mfem_mgis {
         }
         const auto oldqspace = ld.getPartialQuadratureSpacePointer();
         if ((isValid(oldqspace)) && (isValid(dqspace))) {
-          const auto oeq = areEquivalent(ctx, oldqspace, qspace);
+          const auto oeq = areEquivalent(ctx, *oldqspace, *qspace);
           if (isInvalid(oeq)) {
             return false;
           }
@@ -213,8 +212,8 @@ namespace mfem_mgis {
             "internal error: " + pd->getDescription() + " declared twice");
         // we don't check if *p is a duplicate.
         // if it is, the following code will be executed by the original anyway
-        const auto oeq =
-            areEquivalent(ctx, p->getPartialQuadratureSpacePointer(), qspace);
+        const auto oeq = areEquivalent(
+            ctx, *(p->getPartialQuadratureSpacePointer()), *qspace);
         if (isInvalid(oeq)) {
           return false;
         }

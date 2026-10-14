@@ -17,7 +17,7 @@ namespace mfem_mgis {
     }
   }  // end of QPEvaluatorBase
 
-  const PartialQuadratureSpace& QPEvaluatorBase::getQuadratureSpace()
+  const PartialQuadratureSpace& QPEvaluatorBase::getPartialQuadratureSpace()
       const noexcept {
     return *(this->qspace);
   }  // end of getQuadratureSpace

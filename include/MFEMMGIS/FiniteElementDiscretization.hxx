@@ -154,8 +154,8 @@ namespace mfem_mgis {
      */
     [[nodiscard]] std::optional<bool> areEquivalent(
         Context& ctx,
-        const std::shared_ptr<const PartialQuadratureSpace>& s1,
-        const std::shared_ptr<const PartialQuadratureSpace>& s2) const noexcept;
+        const PartialQuadratureSpace& s1,
+        const PartialQuadratureSpace& s2) const noexcept;
     //
     // expose MeshDiscretization's methods, even deprecated ones for backward
     // compatibility

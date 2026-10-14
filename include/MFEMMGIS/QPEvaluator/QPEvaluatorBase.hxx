@@ -27,7 +27,7 @@ namespace mfem_mgis {
      */
     QPEvaluatorBase(std::shared_ptr<const PartialQuadratureSpace> s);
     //
-    [[nodiscard]] const PartialQuadratureSpace& getQuadratureSpace()
+    [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const noexcept override;
     [[nodiscard]] std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const noexcept override;

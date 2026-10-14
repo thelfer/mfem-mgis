@@ -183,8 +183,8 @@ namespace mfem_mgis {
 
   std::optional<bool> FiniteElementDiscretization::areEquivalent(
       Context& ctx,
-      const std::shared_ptr<const PartialQuadratureSpace>& s1,
-      const std::shared_ptr<const PartialQuadratureSpace>& s2) const noexcept {
+      const PartialQuadratureSpace& s1,
+      const PartialQuadratureSpace& s2) const noexcept {
     return this->fespaces_manager.areEquivalent(ctx, s1, s2);
   }  // end of areEquivalent
 
