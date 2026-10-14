@@ -62,6 +62,9 @@ struct StateManagerTest final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
         });
     TFEL_TESTS_ASSERT(isValid(qspace1));
+    const auto ook0 = sm.contains(ctx, qspace1, "function1", ets);
+    TFEL_TESTS_ASSERT(isValid(ook0));
+    TFEL_TESTS_CHECK(!(*ook0));
     auto of = construct<PartialQuadratureFunction>(ctx, qspace1);
     TFEL_TESTS_ASSERT(isValid(of));
     TFEL_TESTS_CHECK(sm.add(ctx, "function1", *of, ets));

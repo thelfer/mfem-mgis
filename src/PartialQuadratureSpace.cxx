@@ -657,6 +657,12 @@ namespace mfem_mgis {
     if (&s1 == &s2) {
       return true;
     }
+    const auto& fed1 = s1.getFiniteElementDiscretization();
+    const auto& fed2 = s2.getFiniteElementDiscretization();
+    if (fed1.getFiniteElementSpacesManager() !=
+        fed2.getFiniteElementSpacesManager()) {
+      return false;
+    }
     if (s1.getLocation() != s2.getLocation()) {
       return false;
     }

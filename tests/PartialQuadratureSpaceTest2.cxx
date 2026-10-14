@@ -108,6 +108,24 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(*oi1 != *oi3);
     TFEL_TESTS_CHECK(*oi3 == 1);
     TFEL_TESTS_CHECK(*oi4 == 1);
+    // same quadrature space built on another finite element spaces manager
+    auto ofed3 = construct<FiniteElementDiscretization>(
+        ctx, *om,
+        dict{{{"FiniteElementFamily", "H1"},
+              {"FiniteElementOrder", parameters.order},
+              {"UnknownsSize", 3}}});
+    TFEL_TESTS_ASSERT(isValid(ofed3));
+    auto qspace4 = make_shared<PartialQuadratureSpace>(
+        ctx, *ofed3, MaterialIdentifier{.id = 1},
+        [](const mfem::FiniteElement& e,
+           const mfem::ElementTransformation&) -> const mfem::IntegrationRule& {
+          return mfem::IntRules.Get(e.GetGeomType(), 2);
+        });
+    TFEL_TESTS_ASSERT(isValid(qspace4));
+    TFEL_TESTS_CHECK(!areEquivalent(*qspace1, *qspace4));
+    const auto ook4 = areEquivalent(ctx, qspace1, qspace4);
+    TFEL_TESTS_ASSERT(isValid(ook4));
+    TFEL_TESTS_CHECK(!(*ook4));
   }
 };
 
