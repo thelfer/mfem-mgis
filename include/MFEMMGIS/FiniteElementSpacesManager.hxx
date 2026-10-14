@@ -220,10 +220,11 @@ namespace mfem_mgis {
 
    private:
     /*!
-     * \brief create a new parallel finite element space or reuse an
-     * existing one \return the finite element space, a null pointer on
-     * failure \param[in, out] ctx: execution context \param[in] nc:
-     * vectorial dimension
+     * \brief create a new parallel finite element space or reuse an existing
+     * one
+     * \return the finite element space, a null pointer on failure
+     * \param[in, out] ctx: execution context
+     * \param[in] nc: vectorial dimension
      */
     std::shared_ptr<FiniteElementSpace<true>> getParallelFiniteElementSpace(
         Context& ctx, const size_type nc) const noexcept;

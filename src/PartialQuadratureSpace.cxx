@@ -607,13 +607,13 @@ namespace mfem_mgis {
   }    // end of synchronize
 
   /*!
-   * \return if two partial quadrature spaces are defined on the same mesh
+   * \return if two partial quadrature spaces are defined on the same mesh, or
+   * on two meshes for which the elements of the location of the first space
+   * can be mapped, see `MeshDiscretization::getElementsMapping`
    * \param[in] s1: first quadrature space
    * \param[in] s2: second quadrature space
    *
-   * \note element indices of partial quadrature spaces defined on distinct
-   * meshes can not be compared, even if those spaces are defined on the same
-   * location, see `MeshDiscretization::getElementsMapping`.
+   * \note this call is collective when the meshes are distinct.
    */
   [[nodiscard]] static bool areQuadratureSpacesOnMappableMeshes(
       const PartialQuadratureSpace& s1,
@@ -666,9 +666,6 @@ namespace mfem_mgis {
     if (s1.getLocation() != s2.getLocation()) {
       return false;
     }
-    if (!areQuadratureSpacesOnMappableMeshes(s1, s2)) {
-      return false;
-    }
     const auto success = [&s1, &s2] {
       if (getSpaceSize(s1) != getSpaceSize(s2)) {
         return false;
@@ -687,8 +684,12 @@ namespace mfem_mgis {
       }
       return true;
     }();
-    return isTrueOnAllProcesses(s1.getMeshDiscretization(), success);
-  }  // end of areQuadratureSpacesEquivalent
+    if (!isTrueOnAllProcesses(s1.getMeshDiscretization(), success)) {
+      return false;
+    }
+    // checked last since it may build the elements mapping
+    return areQuadratureSpacesOnMappableMeshes(s1, s2);
+  }  // end of areEquivalent
 
   std::optional<bool> areEquivalent(
       Context& ctx,
