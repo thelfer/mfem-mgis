@@ -97,9 +97,6 @@ namespace mfem_mgis {
     return this->getIntegrationPointValues(e, i);
   }
 
-  inline PartialQuadratureFunctionView::PartialQuadratureFunctionView() =
-      default;
-
   inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
       std::shared_ptr<const PartialQuadratureSpace> s,
       const ViewSpecifications& specs)

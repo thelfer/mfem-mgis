@@ -11,6 +11,15 @@
 
 namespace mfem_mgis {
 
+  QPEvaluatorResultStorage::QPEvaluatorResultStorage() noexcept = default;
+
+  QPEvaluatorResultStorage::QPEvaluatorResultStorage(
+      QPEvaluatorResultStorage&&) noexcept = default;
+
+  QPEvaluatorResultStorage::QPEvaluatorResultStorage(
+      PartialQuadratureFunction&& v) noexcept
+      : f(std::move(v)) {}  // end of QPEvaluatorResultStorage
+
   QPEvaluatorResult QPEvaluatorResult::fromView(
       const ImmutablePartialQuadratureFunctionView& v) noexcept {
     return QPEvaluatorResult{v};
@@ -26,12 +35,8 @@ namespace mfem_mgis {
       : ImmutablePartialQuadratureFunctionView(v) {}
 
   QPEvaluatorResult::QPEvaluatorResult(PartialQuadratureFunction&& v) noexcept
-      : f(std::move(v)) {
-    this->qspace = this->f->getPartialQuadratureSpacePointer();
-    this->data_begin = this->f->getDataOffset();
-    this->data_size = this->f->getNumberOfComponents();
-    this->data_stride = this->f->getDataStride();
-    this->immutable_values = this->f->getValues();
+      : QPEvaluatorResultStorage(std::move(v)),
+        ImmutablePartialQuadratureFunctionView(*(this->f)) {
   }  // end of QPEvaluatorResult
 
   QPEvaluatorResult::QPEvaluatorResult(QPEvaluatorResult&&) noexcept = default;

@@ -38,7 +38,6 @@ namespace mfem_mgis {
    * - data_begin must be non-negative
    * - data_size and data_stride must be strictly positive
    * - data_begin + data_size <= data_stride
-   *
    */
   struct ViewSpecifications {
     /*!
@@ -238,8 +237,6 @@ namespace mfem_mgis {
     ~ImmutablePartialQuadratureFunctionView();
 
    protected:
-    //! \brief default constructor
-    ImmutablePartialQuadratureFunctionView();
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
@@ -352,8 +349,6 @@ namespace mfem_mgis {
     std::span<real> getValues();
 
    protected:
-    //! \brief default constructor
-    PartialQuadratureFunctionView();
     /*!
      * \brief constructor
      * \param[in] s: quadrature space.
@@ -366,6 +361,41 @@ namespace mfem_mgis {
     std::span<real> mutable_values;
   };  // end of PartialQuadratureFunctionView
 
+  //! \brief storage of the values of a partial quadrature function
+  struct MFEM_MGIS_EXPORT PartialQuadratureFunctionStorage {
+   protected:
+    //! \brief default constructor
+    PartialQuadratureFunctionStorage() noexcept;
+    /*!
+     * \brief constructor from size
+     * \param[in] s: size of the values (size of the quadrature space times the
+     * number of components)
+     */
+    PartialQuadratureFunctionStorage(const size_type) noexcept;
+    /*!
+     * \brief constructor from a range
+     * \param[in] v: values
+     */
+    PartialQuadratureFunctionStorage(std::span<const real>) noexcept;
+    //! \brief move constructor
+    PartialQuadratureFunctionStorage(
+        PartialQuadratureFunctionStorage&&) noexcept;
+    //
+    PartialQuadratureFunctionStorage(const PartialQuadratureFunctionStorage&) =
+        delete;
+    PartialQuadratureFunctionStorage& operator=(
+        const PartialQuadratureFunctionStorage&) = delete;
+    PartialQuadratureFunctionStorage& operator=(
+        PartialQuadratureFunctionStorage&&) = delete;
+    //! \brief destructor
+    ~PartialQuadratureFunctionStorage();
+    /*!
+     * \brief storage for the values when the partial function holds the
+     * values
+     */
+    std::vector<real> local_values_storage;
+  };  // end of struct PartialQuadratureFunctionStorage
+
   /*!
    * \brief quadrature function defined on a partial quadrature space.
    *
@@ -376,7 +406,8 @@ namespace mfem_mgis {
    * The main reason for this choice is to force usage of parallel algorithms.
    */
   struct MFEM_MGIS_EXPORT PartialQuadratureFunction
-      : PartialQuadratureFunctionView {
+      : PartialQuadratureFunctionStorage,
+        PartialQuadratureFunctionView {
     /*!
      * \brief evaluate a partial quadrature function at each integration point
      * \note if required, the current integration point can be retrieved using
@@ -482,22 +513,6 @@ namespace mfem_mgis {
                               const StorageMode sm,
                               std::span<real> v,
                               const ViewSpecifications& specs);
-    /*!
-     * \brief turns this function into a view to the given function
-     * \param[in] f: function
-     */
-    void makeView(PartialQuadratureFunction& f);
-    /*!
-     * \brief copy values from an immutable view
-     * \param[in] v: view
-     * \note the execution is aborted if the view is not compatible
-     */
-    void copyValues(const ImmutablePartialQuadratureFunctionView& v);
-    /*!
-     * \brief storage for the values when the partial function holds the
-     * values
-     */
-    std::vector<real> local_values_storage;
   };  // end of struct PartialQuadratureFunction
 
   /*!
