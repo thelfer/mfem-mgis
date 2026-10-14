@@ -115,22 +115,19 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
     auto ctx = Context{};
     auto fed = makeFiniteElementDiscretization(ctx);
     const auto m = MaterialIdentifier{.id = 1};
-    const auto qspace = std::make_shared<const PartialQuadratureSpace>(
-        fed, m, &getIntegrationRule);
+    const auto qspace = PartialQuadratureSpace(fed, m, &getIntegrationRule);
     auto f = PartialQuadratureFunction(qspace, 1);
     // the same material of another mesh discretization
     auto fed2 = makeFiniteElementDiscretization(ctx);
     auto v1 = PartialQuadratureFunction(
-        std::make_shared<const PartialQuadratureSpace>(fed2, m,
-                                                       &getIntegrationRule),
-        1);
+        PartialQuadratureSpace(fed2, m, &getIntegrationRule), 1);
     TFEL_TESTS_CHECK(!assign_values(ctx, f, v1));
     TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(),
                            "unmatched mesh discretization");
     // another material
     auto v2 = PartialQuadratureFunction(
-        std::make_shared<const PartialQuadratureSpace>(
-            fed, MaterialIdentifier{.id = 2}, &getIntegrationRule),
+        PartialQuadratureSpace(fed, MaterialIdentifier{.id = 2},
+                               &getIntegrationRule),
         1);
     TFEL_TESTS_CHECK(!assign_values(ctx, f, v2));
     TFEL_TESTS_CHECK_EQUAL(ctx.getRawErrorMessage(), "unmatched location");
@@ -142,9 +139,7 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
     // same mesh, other integration rule. In parallel, a process on which the
     // material is not defined has nothing to copy.
     auto v4 = PartialQuadratureFunction(
-        std::make_shared<const PartialQuadratureSpace>(
-            fed, m, &getOtherIntegrationRule),
-        1);
+        PartialQuadratureSpace(fed, m, &getOtherIntegrationRule), 1);
     TFEL_TESTS_CHECK(!assign_values(ctx, f, v4));
     // submesh of the material, other integration rule
     const auto submesh = fed.getSubMesh<parallel>(
@@ -155,9 +150,7 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
             ctx, *submesh, 1);
     TFEL_TESTS_ASSERT(isValid(fespace));
     auto v5 = PartialQuadratureFunction(
-        std::make_shared<const PartialQuadratureSpace>(
-            fed, *fespace, m, &getOtherIntegrationRule),
-        1);
+        PartialQuadratureSpace(fed, *fespace, m, &getOtherIntegrationRule), 1);
     TFEL_TESTS_CHECK(!assign_values(ctx, f, v5));
   }  // end of test1
   //! \brief copies between views defined on the same mesh
@@ -167,13 +160,10 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
     auto fed = makeFiniteElementDiscretization(ctx);
     const auto m = MaterialIdentifier{.id = 1};
     const auto b = BoundaryIdentifier{.id = 1};
-    const auto mqspace = std::make_shared<const PartialQuadratureSpace>(
-        fed, m, &getIntegrationRule);
+    const auto mqspace = PartialQuadratureSpace(fed, m, &getIntegrationRule);
     // another partial quadrature space on the same mesh
-    const auto mqspace2 = std::make_shared<const PartialQuadratureSpace>(
-        fed, m, &getIntegrationRule);
-    const auto bqspace = std::make_shared<const PartialQuadratureSpace>(
-        fed, b, &getIntegrationRule);
+    const auto mqspace2 = PartialQuadratureSpace(fed, m, &getIntegrationRule);
+    const auto bqspace = PartialQuadratureSpace(fed, b, &getIntegrationRule);
     this->checkAssignments(ctx, mqspace, mqspace, true);
     this->checkAssignments(ctx, mqspace, mqspace2, true);
     this->checkAssignments(ctx, bqspace, bqspace, true);
@@ -209,20 +199,18 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
     const auto m = MaterialIdentifier{.id = 1};
     const auto b = BoundaryIdentifier{.id = 1};
     // material on the whole mesh and on its submesh
-    const auto mqspace = std::make_shared<const PartialQuadratureSpace>(
-        fed, m, &getIntegrationRule);
-    const auto mqspace2 = std::make_shared<const PartialQuadratureSpace>(
-        fed, *mfespace, m, &getIntegrationRule);
+    const auto mqspace = PartialQuadratureSpace(fed, m, &getIntegrationRule);
+    const auto mqspace2 =
+        PartialQuadratureSpace(fed, *mfespace, m, &getIntegrationRule);
     // boundary on the whole mesh, on its submesh, on the submesh of the
     // material and on the submesh of the boundaries 1 and 3
-    const auto bqspace = std::make_shared<const PartialQuadratureSpace>(
-        fed, b, &getIntegrationRule);
-    const auto bqspace2 = std::make_shared<const PartialQuadratureSpace>(
-        fed, *bfespace, b, &getIntegrationRule);
-    const auto bqspace3 = std::make_shared<const PartialQuadratureSpace>(
-        fed, *mfespace, b, &getIntegrationRule);
-    const auto bqspace4 = std::make_shared<const PartialQuadratureSpace>(
-        fed, *bfespace2, b, &getIntegrationRule);
+    const auto bqspace = PartialQuadratureSpace(fed, b, &getIntegrationRule);
+    const auto bqspace2 =
+        PartialQuadratureSpace(fed, *bfespace, b, &getIntegrationRule);
+    const auto bqspace3 =
+        PartialQuadratureSpace(fed, *mfespace, b, &getIntegrationRule);
+    const auto bqspace4 =
+        PartialQuadratureSpace(fed, *bfespace2, b, &getIntegrationRule);
     this->checkAssignments(ctx, mqspace, mqspace2, true);
     this->checkAssignments(ctx, bqspace, bqspace2, true);
     this->checkAssignments(ctx, bqspace, bqspace4, true);
@@ -248,8 +236,7 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
    * \param[in] s: partial quadrature space
    */
   static std::shared_ptr<mfem_mgis::PartialQuadratureFunction>
-  evaluateLinearField(
-      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s) {
+  evaluateLinearField(const mfem_mgis::PartialQuadratureSpace& s) {
     return mfem_mgis::PartialQuadratureFunction::evaluate(
         s, [](const mfem::FiniteElement&, mfem::ElementTransformation& tr) {
           auto x = mfem::Vector{};
@@ -275,14 +262,14 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
    */
   static std::optional<mfem_mgis::real> getAssignmentError(
       mfem_mgis::Context& ctx,
-      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& fs,
+      const mfem_mgis::PartialQuadratureSpace& fs,
       const Layout& fl,
-      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& vs,
+      const mfem_mgis::PartialQuadratureSpace& vs,
       const Layout& vl,
       const mfem_mgis::size_type nc) {
     using namespace mfem_mgis;
-    auto fvalues = std::vector<real>(getSpaceSize(*fs) * fl.stride, sentinel);
-    auto vvalues = std::vector<real>(getSpaceSize(*vs) * vl.stride, sentinel);
+    auto fvalues = std::vector<real>(getSpaceSize(fs) * fl.stride, sentinel);
+    auto vvalues = std::vector<real>(getSpaceSize(vs) * vl.stride, sentinel);
     auto f = PartialQuadratureFunctionView(
         fs, fvalues,
         {.data_begin = fl.begin, .data_size = nc, .data_stride = fl.stride});
@@ -290,9 +277,9 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
         vs, vvalues,
         {.data_begin = vl.begin, .data_size = nc, .data_stride = vl.stride});
     const auto vref = evaluateLinearField(vs);
-    for (const auto& [i, o] : vs->getOffsets()) {
+    for (const auto& [i, o] : vs.getOffsets()) {
       static_cast<void>(o);
-      for (size_type g = 0; g != vs->getNumberOfQuadraturePoints(i); ++g) {
+      for (size_type g = 0; g != vs.getNumberOfQuadraturePoints(i); ++g) {
         auto* const values = v.data(i, g);
         for (size_type c = 0; c != nc; ++c) {
           values[c] = vref->getIntegrationPointValue(i, g) + 10 * c;
@@ -305,8 +292,8 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
     // the stored values are read directly to check the layout
     const auto fref = evaluateLinearField(fs);
     auto e = real{};
-    for (const auto& [i, o] : fs->getOffsets()) {
-      for (size_type g = 0; g != fs->getNumberOfQuadraturePoints(i); ++g) {
+    for (const auto& [i, o] : fs.getOffsets()) {
+      for (size_type g = 0; g != fs.getNumberOfQuadraturePoints(i); ++g) {
         const auto* const values = fvalues.data() + (o + g) * fl.stride;
         for (size_type c = 0; c != fl.stride; ++c) {
           if ((c < fl.begin) || (c >= fl.begin + nc)) {
@@ -331,11 +318,10 @@ struct AssignValuesTest final : public tfel::tests::TestCase {
    * \param[in] exact: if false, the copies may fail, but shall be exact if
    * they succeed
    */
-  void checkAssignments(
-      mfem_mgis::Context& ctx,
-      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s1,
-      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s2,
-      const bool exact) {
+  void checkAssignments(mfem_mgis::Context& ctx,
+                        const mfem_mgis::PartialQuadratureSpace& s1,
+                        const mfem_mgis::PartialQuadratureSpace& s2,
+                        const bool exact) {
     using namespace mfem_mgis;
     for (const size_type nc : {1, 2}) {
       const auto contiguous = Layout{.begin = 0, .stride = nc};

@@ -135,10 +135,9 @@ namespace mfem_mgis {
      * \param[in] v: values
      * \param[in] specs: specifications
      */
-    ImmutablePartialQuadratureFunctionView(
-        std::shared_ptr<const PartialQuadratureSpace> s,
-        std::span<const real> v,
-        const ViewSpecifications& specs);
+    ImmutablePartialQuadratureFunctionView(const PartialQuadratureSpace& s,
+                                           std::span<const real> v,
+                                           const ViewSpecifications& specs);
     //! \brief move constructor
     ImmutablePartialQuadratureFunctionView(
         ImmutablePartialQuadratureFunctionView&&) noexcept;
@@ -147,15 +146,12 @@ namespace mfem_mgis {
         const ImmutablePartialQuadratureFunctionView&) noexcept;
     //! \brief move assignment
     ImmutablePartialQuadratureFunctionView& operator=(
-        ImmutablePartialQuadratureFunctionView&&) noexcept;
+        ImmutablePartialQuadratureFunctionView&&) noexcept = delete;
     //! \brief copy assignment
     ImmutablePartialQuadratureFunctionView& operator=(
-        const ImmutablePartialQuadratureFunctionView&) noexcept;
+        const ImmutablePartialQuadratureFunctionView&) noexcept = delete;
     //! \return the underlying quadrature space
     const PartialQuadratureSpace& getPartialQuadratureSpace() const;
-    //! \return the underlying quadrature space
-    std::shared_ptr<const PartialQuadratureSpace>
-    getPartialQuadratureSpacePointer() const;
     /*!
      * \brief return the data associated with an integration point
      * \param[in] o: offset associated with the integration point
@@ -242,11 +238,10 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space.
      * \param[in] specs: specifications
      */
-    ImmutablePartialQuadratureFunctionView(
-        std::shared_ptr<const PartialQuadratureSpace> s,
-        const ViewSpecifications& specs);
+    ImmutablePartialQuadratureFunctionView(const PartialQuadratureSpace& s,
+                                           const ViewSpecifications& specs);
     //! \brief underlying partial quadrature space
-    std::shared_ptr<const PartialQuadratureSpace> qspace;
+    const PartialQuadratureSpace qspace;
     //! \brief underlying values
     std::span<const real> immutable_values;
   };  // end of ImmutablePartialQuadratureFunctionView
@@ -260,10 +255,9 @@ namespace mfem_mgis {
      * \param[in] v: values
      * \param[in] specs: specifications
      */
-    PartialQuadratureFunctionView(
-        std::shared_ptr<const PartialQuadratureSpace> s,
-        std::span<real> v,
-        const ViewSpecifications& specs);
+    PartialQuadratureFunctionView(const PartialQuadratureSpace& s,
+                                  std::span<real> v,
+                                  const ViewSpecifications& specs);
     //! \brief move constructor
     PartialQuadratureFunctionView(PartialQuadratureFunctionView&&) noexcept;
     //! \brief copy constructor
@@ -271,10 +265,10 @@ namespace mfem_mgis {
         const PartialQuadratureFunctionView&) noexcept;
     //! \brief move assignment
     PartialQuadratureFunctionView& operator=(
-        PartialQuadratureFunctionView&&) noexcept;
+        PartialQuadratureFunctionView&&) noexcept = delete;
     //! \brief copy assignment
     PartialQuadratureFunctionView& operator=(
-        const PartialQuadratureFunctionView&) noexcept;
+        const PartialQuadratureFunctionView&) noexcept = delete;
     //
     using ImmutablePartialQuadratureFunctionView::data;
     using ImmutablePartialQuadratureFunctionView::getIntegrationPointValue;
@@ -354,9 +348,8 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space.
      * \param[in] specs: specifications
      */
-    PartialQuadratureFunctionView(
-        std::shared_ptr<const PartialQuadratureSpace> s,
-        const ViewSpecifications& specs);
+    PartialQuadratureFunctionView(const PartialQuadratureSpace& s,
+                                  const ViewSpecifications& specs);
     //! \brief underlying values
     std::span<real> mutable_values;
   };  // end of PartialQuadratureFunctionView
@@ -417,7 +410,7 @@ namespace mfem_mgis {
      * \return the partial quadrature function
      */
     static std::shared_ptr<PartialQuadratureFunction> evaluate(
-        std::shared_ptr<const PartialQuadratureSpace> s,
+        const PartialQuadratureSpace& s,
         std::function<real(const mfem::FiniteElement&,
                            mfem::ElementTransformation&)> f);
     /*!
@@ -427,8 +420,7 @@ namespace mfem_mgis {
      * \return the partial quadrature function
      */
     static std::shared_ptr<PartialQuadratureFunction> evaluate(
-        std::shared_ptr<const PartialQuadratureSpace> s,
-        std::function<real(real, real)> f);
+        const PartialQuadratureSpace& s, std::function<real(real, real)> f);
     /*!
      * \brief evaluate a spatial function in 3D
      * \param[in] s: partial quadrature space
@@ -436,7 +428,7 @@ namespace mfem_mgis {
      * \return the partial quadrature function
      */
     static std::shared_ptr<PartialQuadratureFunction> evaluate(
-        std::shared_ptr<const PartialQuadratureSpace> s,
+        const PartialQuadratureSpace& s,
         std::function<real(real, real, real)> f);
     /*!
      * \brief copy a view
@@ -471,7 +463,7 @@ namespace mfem_mgis {
      */
     [[nodiscard]] static std::optional<PartialQuadratureFunction> borrow(
         Context& ctx,
-        std::shared_ptr<const PartialQuadratureSpace> s,
+        const PartialQuadratureSpace& s,
         std::span<real> v,
         const ViewSpecifications& specs) noexcept;
     /*!
@@ -479,7 +471,7 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space.
      * \param[in] nv: size of the data stored per integration point.
      */
-    PartialQuadratureFunction(std::shared_ptr<const PartialQuadratureSpace> s,
+    PartialQuadratureFunction(const PartialQuadratureSpace& s,
                               const size_type nv = 1);
     /*!
      * \brief move constructor
@@ -509,7 +501,7 @@ namespace mfem_mgis {
      * \param[in] v: values
      * \param[in] specs: specifications
      */
-    PartialQuadratureFunction(std::shared_ptr<const PartialQuadratureSpace> s,
+    PartialQuadratureFunction(const PartialQuadratureSpace& s,
                               const StorageMode sm,
                               std::span<real> v,
                               const ViewSpecifications& specs);

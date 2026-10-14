@@ -117,8 +117,8 @@ struct PartialQuadratureFunctionTest final : public tfel::tests::TestCase {
     auto& b = this->problem->getBehaviourIntegrator(ctx, 1, 0) | or_raise;
     const auto om = std::as_const(b).getMaterial(ctx);
     TFEL_TESTS_ASSERT(isValid(om));
-    const auto qspace = om->getPartialQuadratureSpacePointer();
-    const auto n = getSpaceSize(*qspace);
+    const auto qspace = om->getPartialQuadratureSpace();
+    const auto n = getSpaceSize(qspace);
     auto values = std::vector<real>(3 * n, real{0});
     for (size_type i = 0; i != n; ++i) {
       values[3 * i + 1] = static_cast<real>(i);

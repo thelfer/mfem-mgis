@@ -114,7 +114,8 @@ namespace mfem_mgis {
     for (const auto& d : ds) {
       auto fcts = std::make_unique<ExportedFunctions>();
       fcts->name = d.name;
-      fcts->functions = d.functions;
+      fcts->functions = std::vector<ImmutablePartialQuadratureFunctionView>(
+          d.functions.begin(), d.functions.end());
       if (this->submesh.get() == nullptr) {
         auto ores =
             makeGridFunction<parallel>(ctx, fcts->functions, p.getMesh());

@@ -362,7 +362,7 @@ namespace mfem_mgis {
       const NonLinearEvolutionProblemImplementationBase& p,
       const std::vector<size_type>& mids,
       const size_type nc) noexcept {
-    auto qspaces = std::vector<std::shared_ptr<const PartialQuadratureSpace>>{};
+    auto qspaces = std::vector<PartialQuadratureSpace>{};
     qspaces.reserve(mids.size());
     for (const auto m : mids) {
 #pragma message("FIXME: invalid if multiple behaviour integrators is defined")
@@ -370,7 +370,7 @@ namespace mfem_mgis {
       if (isInvalid(om)) {
         return {};
       }
-      qspaces.push_back(om->getPartialQuadratureSpacePointer());
+      qspaces.push_back(om->getPartialQuadratureSpace());
     }
     return PartialQuadratureFunctionsSet(qspaces, nc);
   }  // end of buildPartialQuadratureFunctionsSet

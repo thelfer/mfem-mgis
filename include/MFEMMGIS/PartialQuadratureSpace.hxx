@@ -337,7 +337,7 @@ namespace mfem_mgis {
 
     //! \brief move constructor
     PartialQuadratureSpace(PartialQuadratureSpace &&) noexcept = default;
-    PartialQuadratureSpace(const PartialQuadratureSpace &) = default;
+    PartialQuadratureSpace(const PartialQuadratureSpace &) noexcept = default;
     PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
     PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
     /*!
@@ -449,6 +449,13 @@ namespace mfem_mgis {
      * \param[in] rhs: right-hand side
      */
     [[nodiscard]] bool operator==(
+        const PartialQuadratureSpace &rhs) const noexcept;
+    /*!
+     * \return if the given quadrature space does not share the same
+     * implementation
+     * \param[in] rhs: right-hand side
+     */
+    [[nodiscard]] bool operator!=(
         const PartialQuadratureSpace &rhs) const noexcept;
     //! \brief destructor
     ~PartialQuadratureSpace();

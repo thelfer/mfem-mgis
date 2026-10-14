@@ -200,10 +200,10 @@ namespace mfem_mgis {
 
   Material::~Material() = default;
 
-  static std::optional<PartialQuadratureFunction>
+  [[nodiscard]] static std::optional<PartialQuadratureFunction>
   buildPartialQuadratureFunction(
       Context &ctx,
-      std::shared_ptr<const PartialQuadratureSpace> qs,
+      const PartialQuadratureSpace &qs,
       std::span<mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
       const std::string_view n,
@@ -240,10 +240,10 @@ namespace mfem_mgis {
   //                                      o, s);
   //   }  // end of buildPartialQuadratureFunction
 
-  static std::optional<ImmutablePartialQuadratureFunctionView>
+  [[nodiscard]] static std::optional<ImmutablePartialQuadratureFunctionView>
   buildImmutablePartialQuadratureFunctionView(
       Context &ctx,
-      std::shared_ptr<const PartialQuadratureSpace> qs,
+      const PartialQuadratureSpace &qs,
       std::span<const mgis::real> values,
       const std::vector<mgis::behaviour::Variable> &variables,
       const std::string_view n,
@@ -271,9 +271,9 @@ namespace mfem_mgis {
       Material &m,
       const std::string_view n,
       const Material::StateSelection s) noexcept {
-    return buildPartialQuadratureFunction(
-        ctx, m.getPartialQuadratureSpacePointer(),
-        getStateManager(m, s).gradients, m.b.gradients, n, m.b.hypothesis);
+    return buildPartialQuadratureFunction(ctx, m.getPartialQuadratureSpace(),
+                                          getStateManager(m, s).gradients,
+                                          m.b.gradients, n, m.b.hypothesis);
   }  // end of getGradient
 
   std::optional<ImmutablePartialQuadratureFunctionView> getGradient(
@@ -282,8 +282,8 @@ namespace mfem_mgis {
       const std::string_view n,
       const Material::StateSelection s) noexcept {
     return buildImmutablePartialQuadratureFunctionView(
-        ctx, m.getPartialQuadratureSpacePointer(),
-        getStateManager(m, s).gradients, m.b.gradients, n, m.b.hypothesis);
+        ctx, m.getPartialQuadratureSpace(), getStateManager(m, s).gradients,
+        m.b.gradients, n, m.b.hypothesis);
   }  // end of getGradient
 
   std::optional<PartialQuadratureFunction> getThermodynamicForce(
@@ -292,7 +292,7 @@ namespace mfem_mgis {
       const std::string_view n,
       const Material::StateSelection s) noexcept {
     return buildPartialQuadratureFunction(
-        ctx, m.getPartialQuadratureSpacePointer(),
+        ctx, m.getPartialQuadratureSpace(),
         getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
         m.b.hypothesis);
   }  // end of getThermodynamicForce
@@ -303,7 +303,7 @@ namespace mfem_mgis {
       const std::string_view n,
       const Material::StateSelection s) noexcept {
     return buildImmutablePartialQuadratureFunctionView(
-        ctx, m.getPartialQuadratureSpacePointer(),
+        ctx, m.getPartialQuadratureSpace(),
         getStateManager(m, s).thermodynamic_forces, m.b.thermodynamic_forces, n,
         m.b.hypothesis);
   }  // end of getThermodynamicForce
@@ -314,7 +314,7 @@ namespace mfem_mgis {
       const std::string_view n,
       const Material::StateSelection s) noexcept {
     return buildPartialQuadratureFunction(
-        ctx, m.getPartialQuadratureSpacePointer(),
+        ctx, m.getPartialQuadratureSpace(),
         getStateManager(m, s).internal_state_variables, m.b.isvs, n,
         m.b.hypothesis);
   }  // end of getInternalStateVariable
@@ -325,7 +325,7 @@ namespace mfem_mgis {
                            const std::string_view n,
                            const Material::StateSelection s) noexcept {
     return buildImmutablePartialQuadratureFunctionView(
-        ctx, m.getPartialQuadratureSpacePointer(),
+        ctx, m.getPartialQuadratureSpace(),
         getStateManager(m, s).internal_state_variables, m.b.isvs, n,
         m.b.hypothesis);
   }  // end of getInternalStateVariable
@@ -338,7 +338,7 @@ namespace mfem_mgis {
           "behaviour does not compute the stored energy");
     }
     return PartialQuadratureFunction::borrow(
-        ctx, m.getPartialQuadratureSpacePointer(), sm.stored_energies,
+        ctx, m.getPartialQuadratureSpace(), sm.stored_energies,
         {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getStoredEnergy
 
@@ -352,7 +352,7 @@ namespace mfem_mgis {
           "behaviour does not compute the stored energy");
     }
     return ImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), sm.stored_energies,
+        m.getPartialQuadratureSpace(), sm.stored_energies,
         {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getStoredEnergy
 
@@ -364,7 +364,7 @@ namespace mfem_mgis {
           "behaviour does not compute the dissipated energy");
     }
     return PartialQuadratureFunction::borrow(
-        ctx, m.getPartialQuadratureSpacePointer(), sm.dissipated_energies,
+        ctx, m.getPartialQuadratureSpace(), sm.dissipated_energies,
         {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getDissipatedEnergy
 
@@ -378,7 +378,7 @@ namespace mfem_mgis {
           "behaviour does not compute the dissipated energy");
     }
     return ImmutablePartialQuadratureFunctionView(
-        m.getPartialQuadratureSpacePointer(), sm.dissipated_energies,
+        m.getPartialQuadratureSpace(), sm.dissipated_energies,
         {.data_begin = 0, .data_size = 1, .data_stride = 1});
   }  // end of getDissipatedEnergy
 

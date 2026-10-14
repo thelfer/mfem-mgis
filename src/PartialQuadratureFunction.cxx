@@ -30,14 +30,14 @@ namespace mfem_mgis {
   template <bool parallel>
   static std::shared_ptr<PartialQuadratureFunction>
   PartialQuadratureFunction_evaluate(
-      std::shared_ptr<const PartialQuadratureSpace> s,
+      const PartialQuadratureSpace& s,
       std::function<real(const mfem::FiniteElement&,
                          mfem::ElementTransformation&)> f) {
     auto ctx = Context{};
     auto or_raise = ctx.getThrowingFailureHandler();
-    const auto& fespace = s->getFiniteElementSpace<parallel>(ctx) | or_raise;
+    const auto& fespace = s.getFiniteElementSpace<parallel>(ctx) | or_raise;
     const auto id = [&s] {
-      const auto l = s->getLocation();
+      const auto l = s.getLocation();
       if (isValid(l.boundary_identifier)) {
         return l.boundary_identifier->id;
       }
@@ -50,7 +50,7 @@ namespace mfem_mgis {
       }
       const auto& fe = *(fespace.GetFE(i));
       auto& tr = *(fespace.GetElementTransformation(i));
-      const auto& ir = s->getIntegrationRule(fe, tr);
+      const auto& ir = s.getIntegrationRule(fe, tr);
       for (size_type g = 0; g != ir.GetNPoints(); ++g) {
         // get the gradients of the shape functions
         const auto& ip = ir.IntPoint(g);
@@ -64,13 +64,13 @@ namespace mfem_mgis {
   template <bool parallel>
   static std::shared_ptr<PartialQuadratureFunction>
   PartialQuadratureFunction_evaluateOnBoundary(
-      std::shared_ptr<const PartialQuadratureSpace> s,
+      const PartialQuadratureSpace& s,
       std::function<real(const mfem::FiniteElement&,
                          mfem::ElementTransformation&)> f) {
     auto ctx = Context{};
     auto or_raise = ctx.getThrowingFailureHandler();
-    const auto& fespace = s->getFiniteElementSpace<parallel>(ctx) | or_raise;
-    const auto l = s->getLocation();
+    const auto& fespace = s.getFiniteElementSpace<parallel>(ctx) | or_raise;
+    const auto l = s.getLocation();
     const auto id = l.boundary_identifier->id;
     auto values = std::make_shared<PartialQuadratureFunction>(s, 1);
     for (size_type i = 0; i != fespace.GetNBE(); ++i) {
@@ -79,7 +79,7 @@ namespace mfem_mgis {
       }
       const auto& fe = *(fespace.GetBE(i));
       auto& tr = *(fespace.GetBdrElementTransformation(i));
-      const auto& ir = s->getIntegrationRule(fe, tr);
+      const auto& ir = s.getIntegrationRule(fe, tr);
       for (size_type g = 0; g != ir.GetNPoints(); ++g) {
         // get the gradients of the shape functions
         const auto& ip = ir.IntPoint(g);
@@ -92,13 +92,13 @@ namespace mfem_mgis {
 
   std::shared_ptr<PartialQuadratureFunction>
   PartialQuadratureFunction::evaluate(
-      std::shared_ptr<const PartialQuadratureSpace> s,
+      const PartialQuadratureSpace& s,
       std::function<real(const mfem::FiniteElement&,
                          mfem::ElementTransformation&)> f) {
     auto ctx = Context{};
     auto or_raise = ctx.getThrowingFailureHandler();
-    const auto& fed = s->getFiniteElementDiscretization();
-    const auto l = s->getLocation();
+    const auto& fed = s.getFiniteElementDiscretization();
+    const auto l = s.getLocation();
     if (isValid(l.material_identifier)) {
       if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
@@ -113,15 +113,15 @@ namespace mfem_mgis {
 #ifdef MFEM_USE_MPI
       if (fed.describesAParallelComputation()) {
         const auto& mesh =
-            *((s->getFiniteElementSpace<true>(ctx) | or_raise).GetParMesh());
+            *((s.getFiniteElementSpace<true>(ctx) | or_raise).GetParMesh());
         return fed.isDefinedOnBoundaries(ctx, mesh) | or_raise;
       }
       const auto& mesh =
-          *((s->getFiniteElementSpace<false>(ctx) | or_raise).GetMesh());
+          *((s.getFiniteElementSpace<false>(ctx) | or_raise).GetMesh());
       return fed.isDefinedOnBoundaries(ctx, mesh) | or_raise;
 #else  /* MFEM_USE_MPI */
       const auto& mesh =
-          *((s->getFiniteElementSpace<false>(ctx) | or_raise).GetMesh());
+          *((s.getFiniteElementSpace<false>(ctx) | or_raise).GetMesh());
       return fed.isDefinedOnBoundaries(ctx, mesh) | or_raise;
 #endif /* MFEM_USE_MPI */
     }();
@@ -146,10 +146,9 @@ namespace mfem_mgis {
   }  // end of evaluate
 
   std::shared_ptr<PartialQuadratureFunction>
-  PartialQuadratureFunction::evaluate(
-      std::shared_ptr<const PartialQuadratureSpace> s,
-      std::function<real(real, real)> f) {
-    const auto n = getSpaceDimension(s->getFiniteElementDiscretization());
+  PartialQuadratureFunction::evaluate(const PartialQuadratureSpace& s,
+                                      std::function<real(real, real)> f) {
+    const auto n = getSpaceDimension(s.getFiniteElementDiscretization());
     if (n != 2) {
       raise("PartialQuadratureFunction::evaluate: invalid space dimension");
     }
@@ -162,10 +161,9 @@ namespace mfem_mgis {
   }  // end of evaluate
 
   std::shared_ptr<PartialQuadratureFunction>
-  PartialQuadratureFunction::evaluate(
-      std::shared_ptr<const PartialQuadratureSpace> s,
-      std::function<real(real, real, real)> f) {
-    const auto n = getSpaceDimension(s->getFiniteElementDiscretization());
+  PartialQuadratureFunction::evaluate(const PartialQuadratureSpace& s,
+                                      std::function<real(real, real, real)> f) {
+    const auto n = getSpaceDimension(s.getFiniteElementDiscretization());
     if (n != 3) {
       raise("PartialQuadratureFunction::evaluate: invalid space dimension");
     }
@@ -194,13 +192,9 @@ namespace mfem_mgis {
   }  // end of checkViewSpecifications
 
   ImmutablePartialQuadratureFunctionView::
-      ImmutablePartialQuadratureFunctionView(
-          std::shared_ptr<const PartialQuadratureSpace> s,
-          const ViewSpecifications& specs)
+      ImmutablePartialQuadratureFunctionView(const PartialQuadratureSpace& s,
+                                             const ViewSpecifications& specs)
       : qspace(s) {
-    if (s.get() == nullptr) {
-      raise("invalid partial quadrature space pointer");
-    }
     checkViewSpecifications(throwing, specs);
     //
     this->data_begin = specs.data_begin;
@@ -209,13 +203,12 @@ namespace mfem_mgis {
   }  // end of ImmutablePartialQuadratureFunctionView
 
   ImmutablePartialQuadratureFunctionView::
-      ImmutablePartialQuadratureFunctionView(
-          std::shared_ptr<const PartialQuadratureSpace> s,
-          std::span<const real> v,
-          const ViewSpecifications& specs)
+      ImmutablePartialQuadratureFunctionView(const PartialQuadratureSpace& s,
+                                             std::span<const real> v,
+                                             const ViewSpecifications& specs)
       : ImmutablePartialQuadratureFunctionView(s, specs) {
     if (v.size() !=
-        this->qspace->getNumberOfIntegrationPoints() * specs.data_stride) {
+        this->qspace.getNumberOfIntegrationPoints() * specs.data_stride) {
       raise("invalid value size");
     }
     this->immutable_values = v;
@@ -229,34 +222,25 @@ namespace mfem_mgis {
       ImmutablePartialQuadratureFunctionView(
           const ImmutablePartialQuadratureFunctionView&) noexcept = default;
 
-  ImmutablePartialQuadratureFunctionView&
-  ImmutablePartialQuadratureFunctionView::operator=(
-      ImmutablePartialQuadratureFunctionView&&) noexcept = default;
-
-  ImmutablePartialQuadratureFunctionView&
-  ImmutablePartialQuadratureFunctionView::operator=(
-      const ImmutablePartialQuadratureFunctionView&) noexcept = default;
-
   const real* ImmutablePartialQuadratureFunctionView::data(
       const size_type e, const size_type i) const {
-    return this->data(this->qspace->getOffset(e) + i);
+    return this->data(this->qspace.getOffset(e) + i);
   }  // end of data
 
   const real& ImmutablePartialQuadratureFunctionView::getIntegrationPointValue(
       const size_type e, const size_type i) const {
-    return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
+    return this->getIntegrationPointValue(this->qspace.getOffset(e) + i);
   }  // end of getIntegrationPointValue
 
   std::span<const real>
   ImmutablePartialQuadratureFunctionView::getIntegrationPointValues(
       const size_type e, const size_type i) const {
-    return this->getIntegrationPointValues(this->qspace->getOffset(e) + i);
+    return this->getIntegrationPointValues(this->qspace.getOffset(e) + i);
   }  // end of getIntegrationPointValues
 
   bool ImmutablePartialQuadratureFunctionView::checkCompatibility(
       const ImmutablePartialQuadratureFunctionView& v) const {
-    if (this->getPartialQuadratureSpacePointer() !=
-        v.getPartialQuadratureSpacePointer()) {
+    if (this->getPartialQuadratureSpace() != v.getPartialQuadratureSpace()) {
       return false;
     }
     return this->data_size == v.getNumberOfComponents();
@@ -308,21 +292,17 @@ namespace mfem_mgis {
   }  // end of ImmutablePartialQuadratureFunctionView
 
   PartialQuadratureFunction::PartialQuadratureFunction(
-      std::shared_ptr<const PartialQuadratureSpace> s, const size_type nv)
-      : PartialQuadratureFunctionStorage(
-            s.get() == nullptr ? 0 : nv * s->getNumberOfIntegrationPoints()),
+      const PartialQuadratureSpace& s, const size_type nv)
+      : PartialQuadratureFunctionStorage(nv * s.getNumberOfIntegrationPoints()),
         PartialQuadratureFunctionView(
             s,
             std::span<real>{this->local_values_storage},
             {.data_begin = 0, .data_size = nv, .data_stride = nv}) {
-    if (s.get() == nullptr) {
-      raise("invalid partial quadrature space pointer");
-    }
   }  // end of PartialQuadratureFunction::PartialQuadratureFunction
 
   std::optional<PartialQuadratureFunction> PartialQuadratureFunction::borrow(
       Context& ctx,
-      std::shared_ptr<const PartialQuadratureSpace> s,
+      const PartialQuadratureSpace& s,
       std::span<real> v,
       const ViewSpecifications& specs) noexcept {
     try {
@@ -335,7 +315,7 @@ namespace mfem_mgis {
   }  // end of borrow
 
   PartialQuadratureFunction::PartialQuadratureFunction(
-      std::shared_ptr<const PartialQuadratureSpace> s,
+      const PartialQuadratureSpace& s,
       const StorageMode sm,
       std::span<real> v,
       const ViewSpecifications& specs)
@@ -347,10 +327,7 @@ namespace mfem_mgis {
                 ? v
                 : std::span<real>{this->local_values_storage},
             specs) {
-    if (s.get() == nullptr) {
-      raise("invalid partial quadrature space pointer");
-    }
-    if (v.size() != specs.data_stride * getSpaceSize(*s)) {
+    if (v.size() != specs.data_stride * getSpaceSize(s)) {
       raise("invalid values size");
     }
     checkViewSpecifications(throwing, specs);
@@ -358,7 +335,7 @@ namespace mfem_mgis {
 
   PartialQuadratureFunction::PartialQuadratureFunction(
       const ImmutablePartialQuadratureFunctionView& v)
-      : PartialQuadratureFunction(v.getPartialQuadratureSpacePointer(),
+      : PartialQuadratureFunction(v.getPartialQuadratureSpace(),
                                   v.getNumberOfComponents()) {
     auto ctx = Context{};
     auto or_raise = ctx.getThrowingFailureHandler();
@@ -546,17 +523,17 @@ namespace mfem_mgis {
 
   real* PartialQuadratureFunctionView::data(const size_type e,
                                             const size_type i) {
-    return this->data(this->qspace->getOffset(e) + i);
+    return this->data(this->qspace.getOffset(e) + i);
   }  // end of getIntegrationPointValues
 
   real& PartialQuadratureFunctionView::getIntegrationPointValue(
       const size_type e, const size_type i) {
-    return this->getIntegrationPointValue(this->qspace->getOffset(e) + i);
+    return this->getIntegrationPointValue(this->qspace.getOffset(e) + i);
   }  // end of getIntegrationPointValues
 
   std::span<real> PartialQuadratureFunctionView::getIntegrationPointValues(
       const size_type e, const size_type i) {
-    return this->getIntegrationPointValues(this->qspace->getOffset(e) + i);
+    return this->getIntegrationPointValues(this->qspace.getOffset(e) + i);
   }  // end of getIntegrationPointValues
 
   PartialQuadratureFunction::~PartialQuadratureFunction() = default;

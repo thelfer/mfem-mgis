@@ -39,8 +39,7 @@ namespace mfem_mgis {
      * \param[in] n: number of components
      */
     PartialQuadratureFunctionsSet(
-        const std::vector<std::shared_ptr<const PartialQuadratureSpace>>&
-            qspaces,
+        const std::vector<PartialQuadratureSpace>& qspaces,
         const mfem_mgis::size_type n = 1);
     /*!
      * \brief create the partial quadrature functions set using

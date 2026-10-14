@@ -92,8 +92,8 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto c = mfem::ConstantCoefficient(1);
     f.ProjectCoefficient(c);
     // a function defined on the first material only
-    auto qspace = std::make_shared<PartialQuadratureSpace>(
-        fed, MaterialIdentifier{.id = 1}, &getIntegrationRule);
+    auto qspace = PartialQuadratureSpace(fed, MaterialIdentifier{.id = 1},
+                                         &getIntegrationRule);
     auto qf = PartialQuadratureFunction(qspace, 1);
     TFEL_TESTS_ASSERT(update(ctx, qf, f));
     // the whole mesh contains a material on which no function is defined
@@ -132,11 +132,11 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto ctx = Context{};
     auto fed = makeFiniteElementDiscretization(ctx);
     // a function defined on the second boundary
-    auto qspace = std::make_shared<PartialQuadratureSpace>(
-        fed, BoundaryIdentifier{.id = 2}, &getIntegrationRule);
+    auto qspace = PartialQuadratureSpace(fed, BoundaryIdentifier{.id = 2},
+                                         &getIntegrationRule);
     auto qf = PartialQuadratureFunction(qspace, 1);
     // the quadrature space is built on the boundary elements of the whole mesh
-    const auto omesh = qspace->getMesh<parallel>(ctx);
+    const auto omesh = qspace.getMesh<parallel>(ctx);
     TFEL_TESTS_ASSERT(isValid(omesh));
     TFEL_TESTS_CHECK(&(*omesh) == &(fed.getMesh<parallel>()));
     const auto bsubmesh = fed.getSubMesh<parallel>(
@@ -148,7 +148,7 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     auto f0 = GridFunction<parallel>{&(fed.getFiniteElementSpace<parallel>())};
     f0.ProjectCoefficient(c);
     TFEL_TESTS_CHECK(update(ctx2, qf, f0));
-    for (size_type i = 0; i != getSpaceSize(*qspace); ++i) {
+    for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
       TFEL_TESTS_CHECK(std::abs(*(qf.data(i)) - 1) < 1e-14);
     }
     // grid function on the submesh of the boundary
@@ -158,11 +158,11 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     TFEL_TESTS_ASSERT(isValid(fespace));
     auto f = GridFunction<parallel>{fespace.get()};
     f.ProjectCoefficient(c);
-    for (size_type i = 0; i != getSpaceSize(*qspace); ++i) {
+    for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
       *(qf.data(i)) = 0;
     }
     TFEL_TESTS_ASSERT(update(ctx, qf, f));
-    for (size_type i = 0; i != getSpaceSize(*qspace); ++i) {
+    for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
       TFEL_TESTS_CHECK(std::abs(*(qf.data(i)) - 1) < 1e-14);
     }
     // the function can only be projected on the submesh of the boundary
@@ -176,8 +176,8 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(
         isInvalid(makeGridFunction<parallel>(ctx2, {qf}, *submesh)));
     // functions defined on materials and on boundaries can not be mixed
-    auto qspace2 = std::make_shared<PartialQuadratureSpace>(
-        fed, MaterialIdentifier{.id = 2}, &getIntegrationRule);
+    auto qspace2 = PartialQuadratureSpace(fed, MaterialIdentifier{.id = 2},
+                                          &getIntegrationRule);
     auto qf2 = PartialQuadratureFunction(qspace2, 1);
     TFEL_TESTS_CHECK(isInvalid(
         makeGridFunction<parallel>(ctx2, {qf, qf2}, fed.getMesh<parallel>())));
@@ -220,16 +220,16 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     // partial quadrature spaces
     const auto b = BoundaryIdentifier{.id = 1};
     const auto m = MaterialIdentifier{.id = 1};
-    const auto bqspace = std::make_shared<const PartialQuadratureSpace>(
-        fed, b, &getExactIntegrationRule);
-    const auto bqspace2 = std::make_shared<const PartialQuadratureSpace>(
-        fed, *bfespace, b, &getExactIntegrationRule);
-    const auto bqspace3 = std::make_shared<const PartialQuadratureSpace>(
-        fed, *mfespace, b, &getExactIntegrationRule);
-    const auto mqspace = std::make_shared<const PartialQuadratureSpace>(
-        fed, m, &getExactIntegrationRule);
-    const auto mqspace2 = std::make_shared<const PartialQuadratureSpace>(
-        fed, *mfespace, m, &getExactIntegrationRule);
+    const auto bqspace =
+        PartialQuadratureSpace(fed, b, &getExactIntegrationRule);
+    const auto bqspace2 =
+        PartialQuadratureSpace(fed, *bfespace, b, &getExactIntegrationRule);
+    const auto bqspace3 =
+        PartialQuadratureSpace(fed, *mfespace, b, &getExactIntegrationRule);
+    const auto mqspace =
+        PartialQuadratureSpace(fed, m, &getExactIntegrationRule);
+    const auto mqspace2 =
+        PartialQuadratureSpace(fed, *mfespace, m, &getExactIntegrationRule);
     // boundary space on the whole mesh, grid function on the submesh of the
     // boundary, and conversely
     checkUpdate<parallel>(ctx, bqspace, *bfespace, eps);
@@ -287,8 +287,7 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
    * \param[in] s: partial quadrature space
    */
   static std::shared_ptr<mfem_mgis::PartialQuadratureFunction>
-  evaluateLinearField(
-      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s) {
+  evaluateLinearField(const mfem_mgis::PartialQuadratureSpace& s) {
     return mfem_mgis::PartialQuadratureFunction::evaluate(
         s, [](const mfem::FiniteElement&, mfem::ElementTransformation& tr) {
           auto x = mfem::Vector{};
@@ -307,7 +306,7 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
   template <bool parallel>
   static std::optional<mfem_mgis::real> getUpdateError(
       mfem_mgis::Context& ctx,
-      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s,
+      const mfem_mgis::PartialQuadratureSpace& s,
       mfem_mgis::FiniteElementSpace<parallel>& fespace) {
     using namespace mfem_mgis;
     auto c = mfem::FunctionCoefficient(getLinearField);
@@ -319,9 +318,9 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
     }
     const auto ref = evaluateLinearField(s);
     auto e = real{};
-    for (const auto& [i, o] : s->getOffsets()) {
+    for (const auto& [i, o] : s.getOffsets()) {
       static_cast<void>(o);
-      for (size_type g = 0; g != s->getNumberOfQuadraturePoints(i); ++g) {
+      for (size_type g = 0; g != s.getNumberOfQuadraturePoints(i); ++g) {
         e = std::max(e, std::abs(qf.getIntegrationPointValue(i, g) -
                                  ref->getIntegrationPointValue(i, g)));
       }
@@ -338,11 +337,10 @@ struct GridFunctionOnSubMeshTest final : public tfel::tests::TestCase {
    * \param[in] eps: tolerance
    */
   template <bool parallel>
-  void checkUpdate(
-      mfem_mgis::Context& ctx,
-      const std::shared_ptr<const mfem_mgis::PartialQuadratureSpace>& s,
-      mfem_mgis::FiniteElementSpace<parallel>& fespace,
-      const mfem_mgis::real eps) {
+  void checkUpdate(mfem_mgis::Context& ctx,
+                   const mfem_mgis::PartialQuadratureSpace& s,
+                   mfem_mgis::FiniteElementSpace<parallel>& fespace,
+                   const mfem_mgis::real eps) {
     using namespace mfem_mgis;
     const auto oe = getUpdateError<parallel>(ctx, s, fespace);
     TFEL_TESTS_ASSERT(isValid(oe));
