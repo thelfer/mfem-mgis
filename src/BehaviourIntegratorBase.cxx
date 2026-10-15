@@ -47,8 +47,7 @@ namespace mfem_mgis {
   }  // end of convertSizesOfTangentOperatorBlocksToString
 
   BehaviourIntegratorBase::BehaviourIntegratorBase(
-      std::shared_ptr<const PartialQuadratureSpace> s,
-      std::unique_ptr<const Behaviour> b_ptr)
+      const PartialQuadratureSpace& s, std::unique_ptr<const Behaviour> b_ptr)
       : Material(s, std::move(b_ptr)) {
     // The following arrays are storing material properties and external
     // state variables. They can be allocated a single time
@@ -365,12 +364,6 @@ namespace mfem_mgis {
   const PartialQuadratureSpace&
   BehaviourIntegratorBase::getPartialQuadratureSpace() const noexcept {
     return static_cast<const Material*>(this)->getPartialQuadratureSpace();
-  }  // end of getPartialQuadratureSpace
-
-  std::shared_ptr<const PartialQuadratureSpace>
-  BehaviourIntegratorBase::getPartialQuadratureSpacePointer() const noexcept {
-    return static_cast<const Material*>(this)
-        ->getPartialQuadratureSpacePointer();
   }  // end of getPartialQuadratureSpace
 
   real BehaviourIntegratorBase::getTimeIncrement() const noexcept {

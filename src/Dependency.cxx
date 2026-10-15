@@ -148,24 +148,11 @@ namespace mfem_mgis {
                              const DependencyStatus s) noexcept
       : DependencyBase(n, s), location(l) {}  // end of QPDependency
 
-  /*!
-   * \return the given partial quadrature space
-   * \param[in] s: partial quadrature space
-   * \throws std::runtime_error if the partial quadrature space is null
-   */
-  static const PartialQuadratureSpace &checkPartialQuadratureSpace(
-      const std::shared_ptr<const PartialQuadratureSpace> &s) {
-    if (s.get() == nullptr) {
-      raise("invalid partial quadrature space");
-    }
-    return *s;
-  }  // end of checkPartialQuadratureSpace
-
-  QPDependency::QPDependency(std::shared_ptr<const PartialQuadratureSpace> s,
+  QPDependency::QPDependency(const PartialQuadratureSpace &s,
                              std::string_view n,
                              const DependencyStatus ds)
       : DependencyBase(n, ds),
-        location(checkPartialQuadratureSpace(s).getLocation()),
+        location(s.getLocation()),
         qspace(s) {}  // end of QPDependency
 
   QPDependency::QPDependency(const QPDependency &) noexcept = default;
@@ -178,27 +165,22 @@ namespace mfem_mgis {
 
   OptionalReference<const PartialQuadratureSpace>
   QPDependency::getPartialQuadratureSpace() const noexcept {
-    return {this->qspace.get()};
-  }  // end of getQuadratureId
-
-  std::shared_ptr<const PartialQuadratureSpace>
-  QPDependency::getPartialQuadratureSpacePointer() const noexcept {
-    return this->qspace;
+    if (isInvalid(this->qspace)) {
+      return {};
+    }
+    return {&(*(this->qspace))};
   }  // end of getQuadratureId
 
   bool QPDependency::setPartialQuadratureSpace(
-      Context &ctx, std::shared_ptr<const PartialQuadratureSpace> s) noexcept {
-    if (s.get() == nullptr) {
-      return ctx.registerErrorMessage("invalid partial quadrature space");
-    }
-    if (s->getLocation() != this->location) {
+      Context &ctx, const PartialQuadratureSpace &s) noexcept {
+    if (s.getLocation() != this->location) {
       return ctx.registerErrorMessage("inconsistent location");
     }
     if (isValid(this->qspace)) {
       return ctx.registerErrorMessage(
           "partial quadrature space already defined");
     }
-    this->qspace = s;
+    this->qspace.emplace(s);
     return true;
   }
 

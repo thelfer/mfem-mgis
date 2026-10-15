@@ -39,9 +39,8 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space
      * \param[in] b_ptr: behaviour
      */
-    StandardBehaviourIntegratorCRTPBase(
-        std::shared_ptr<const PartialQuadratureSpace> s,
-        std::unique_ptr<const Behaviour> b_ptr);
+    StandardBehaviourIntegratorCRTPBase(const PartialQuadratureSpace& s,
+                                        std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \brief integrate the behaviour over the time step
      *

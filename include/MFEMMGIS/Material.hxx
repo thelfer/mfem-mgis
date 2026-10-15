@@ -49,7 +49,7 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space
      * \param[in] b_ptr: behaviour
      */
-    Material(std::shared_ptr<const PartialQuadratureSpace> s,
+    Material(const PartialQuadratureSpace &s,
              std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \brief set the macroscopic gradients
@@ -71,9 +71,6 @@ namespace mfem_mgis {
     void setRotationMatrix(const RotationMatrix3D &r);
     //! \return the quadrature space
     const PartialQuadratureSpace &getPartialQuadratureSpace() const;
-    //! \return the quadrature space
-    std::shared_ptr<const PartialQuadratureSpace>
-    getPartialQuadratureSpacePointer() const;
     /*!
      * \brief compute the rotation matrix at an integration point
      * \return the rotation matrix for the given integration point
@@ -86,13 +83,9 @@ namespace mfem_mgis {
     ~Material();
 
    protected:
-    /*!
-     * \brief underlying quadrature space
-     */
-    const std::shared_ptr<const PartialQuadratureSpace> quadrature_space;
-    /*!
-     * \brief macroscopic gradients
-     */
+    //! \brief underlying quadrature space
+    const PartialQuadratureSpace quadrature_space;
+    //! \brief macroscopic gradients
     std::vector<real> macroscopic_gradients;
 
    protected:

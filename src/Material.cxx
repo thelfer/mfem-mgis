@@ -36,20 +36,10 @@ namespace mfem_mgis {
     return *b_ptr;
   }
 
-  [[nodiscard]] static const PartialQuadratureSpace &
-  Material_dereferenceQuadratureSpace(
-      std::shared_ptr<const PartialQuadratureSpace> s) {
-    if (isInvalid(s)) {
-      raise("invalid partial quadrature space");
-    }
-    return *s;
-  }
-
-  Material::Material(std::shared_ptr<const PartialQuadratureSpace> s,
+  Material::Material(const PartialQuadratureSpace &s,
                      std::unique_ptr<const Behaviour> b_ptr)
       : MaterialDataManager(Material_dereferenceBehaviour(b_ptr),
-                            Material_dereferenceQuadratureSpace(s)
-                                .getNumberOfIntegrationPoints()),
+                            s.getNumberOfIntegrationPoints()),
         quadrature_space(s),
         macroscopic_gradients(this->s1.gradients_stride, real(0)),
         get_rotation_fct_ptr(this->b.symmetry ==
@@ -61,13 +51,8 @@ namespace mfem_mgis {
   }  // end of Material::Material
 
   const PartialQuadratureSpace &Material::getPartialQuadratureSpace() const {
-    return *(this->quadrature_space);
-  }  // end of getPartialQuadratureSpace
-
-  std::shared_ptr<const PartialQuadratureSpace>
-  Material::getPartialQuadratureSpacePointer() const {
     return this->quadrature_space;
-  }  // end of getPartialQuadratureSpacePointer
+  }  // end of getPartialQuadratureSpace
 
   void Material::setMacroscopicGradients(std::span<const real> g) {
     if (g.size() != this->s1.gradients_stride) {

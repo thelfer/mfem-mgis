@@ -136,7 +136,6 @@ namespace mfem_mgis {
     if (isInvalid(om)) {
       return false;
     }
-    const auto qspace = om->getPartialQuadratureSpacePointer();
     const auto& b = om->b;  // underlying behaviour
     // declaring gradients
     for (const auto& g : b.gradients) {

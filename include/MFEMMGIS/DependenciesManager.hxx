@@ -81,13 +81,12 @@ namespace mfem_mgis {
      * \note the partial quadrature space must be passed to properly treat the
      * case when the dependency does not specify it.
      */
-    [[nodiscard]] bool setProvider(
-        Context &ctx,
-        const Provider &pr,
-        const QPDependency &d,
-        std::shared_ptr<const PartialQuadratureSpace> qspace,
-        const size_type nc,
-        const TimeStepStage ts) noexcept;
+    [[nodiscard]] bool setProvider(Context &ctx,
+                                   const Provider &pr,
+                                   const QPDependency &d,
+                                   const PartialQuadratureSpace &qspace,
+                                   const size_type nc,
+                                   const TimeStepStage ts) noexcept;
     /*!
      * \brief analyse dependencies
      * \param[in] f: filter
