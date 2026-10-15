@@ -218,7 +218,7 @@ namespace mfem_mgis {
       const AbstractQPEvaluator& e) {
     const auto& bqspace = b.getPartialQuadratureSpace();
     const auto& eqspace = e.getPartialQuadratureSpace();
-    const auto mesh = bqspace.getMeshDiscretization();
+    const auto& mesh = bqspace.getMeshDiscretization();
     if (mesh != eqspace.getMeshDiscretization()) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on the mesh of the "
@@ -232,15 +232,27 @@ namespace mfem_mgis {
     if (bqspace == eqspace) {
       return true;
     }
-    const auto fed = bqspace.getFiniteElementDiscretization();
-    const auto fespaces_manger = fed.getFiniteElementSpacesManager();
+    const auto& fed = bqspace.getFiniteElementDiscretization();
+    const auto& fespaces_manager = fed.getFiniteElementSpacesManager();
+    // the values of the evaluator are passed as is to the behaviour
+    // integrator, so both spaces must have the same quadrature points
+    const auto check_quadrature_points = [&ctx, &bqspace, &eqspace]() -> bool {
+      const auto oeq = areMappable(ctx, bqspace, eqspace);
+      if (isInvalid(oeq)) {
+        return false;
+      }
+      if (!(*oeq)) {
+        return ctx.registerErrorMessage("unmatched quadrature points");
+      }
+      return true;
+    };
     if (mesh.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       const auto ofes = eqspace.getFiniteElementSpace<true>(ctx);
       if (isInvalid(ofes)) {
         return false;
       }
-      if (!(fespaces_manger.manages(*ofes))) {
+      if (!(fespaces_manager.manages(*ofes))) {
         return ctx.registerErrorMessage("unmatched finite element spaces");
       }
       const auto omb = bqspace.getMesh<true>(ctx);
@@ -248,7 +260,10 @@ namespace mfem_mgis {
       if (!areValid(omb, ome)) {
         return false;
       }
-      return &(*omb) == &(*ome);
+      if (&(*omb) != &(*ome)) {
+        return ctx.registerErrorMessage("unmatched meshes");
+      }
+      return check_quadrature_points();
 #else  /* MFEM_USE_MPI */
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
@@ -257,7 +272,7 @@ namespace mfem_mgis {
     if (isInvalid(ofes)) {
       return false;
     }
-    if (!(fespaces_manger.manages(*ofes))) {
+    if (!(fespaces_manager.manages(*ofes))) {
       return ctx.registerErrorMessage("unmatched finite element spaces");
     }
     const auto omb = bqspace.getMesh<false>(ctx);
@@ -268,7 +283,7 @@ namespace mfem_mgis {
     if (&(*omb) != &(*ome)) {
       return ctx.registerErrorMessage("unmatched meshes");
     }
-    return true;
+    return check_quadrature_points();
   }  // end of checkQuadratureFunctionEvaluator
 
   bool BehaviourIntegratorBase::setMaterialProperty(
