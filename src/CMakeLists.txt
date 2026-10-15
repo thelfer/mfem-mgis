@@ -12,7 +12,6 @@ list(APPEND MFEMMGIS_SOURCES
   FiniteElementSpacesManager.cxx
   GridFunctionUtilities.cxx
   PartialQuadratureSpace.cxx
-  PartialQuadratureSpaceIdentifiersManager.cxx
   PartialQuadratureFunction.cxx
   PartialQuadratureFunctionUtilities.cxx
   AbstractQPEvaluator.cxx

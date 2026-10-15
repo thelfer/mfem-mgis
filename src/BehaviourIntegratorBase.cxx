@@ -217,8 +217,9 @@ namespace mfem_mgis {
       const AbstractBehaviourIntegrator& b,
       const AbstractQPEvaluator& e) {
     const auto& bqspace = b.getPartialQuadratureSpace();
-    const auto& eqspace = *(e.getPartialQuadratureSpacePointer());
-    if (bqspace.getMeshDiscretization() != eqspace.getMeshDiscretization()) {
+    const auto& eqspace = e.getPartialQuadratureSpace();
+    const auto& mesh = bqspace.getMeshDiscretization();
+    if (mesh != eqspace.getMeshDiscretization()) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on the mesh of the "
           "behaviour integrator");
@@ -228,15 +229,61 @@ namespace mfem_mgis {
           "partial quadrature evaluator is not defined on the location of the "
           "behaviour integrator");
     }
-    // this check notably fails if both partial quadrature spaces are not
-    // built on finite element discretizations sharing the same finite element
-    // spaces manager
-    if (!areEquivalent(bqspace, eqspace)) {
-      return ctx.registerErrorMessage(
-          "partial quadrature evaluator is not defined on a space equivalent "
-          "to the one of the behaviour integrator");
+    if (bqspace == eqspace) {
+      return true;
     }
-    return true;
+    const auto& fed = bqspace.getFiniteElementDiscretization();
+    const auto& fespaces_manager = fed.getFiniteElementSpacesManager();
+    // the values of the evaluator are passed as is to the behaviour
+    // integrator, so both spaces must have the same quadrature points
+    const auto check_quadrature_points = [&ctx, &bqspace, &eqspace]() -> bool {
+      const auto oeq = areMappable(ctx, bqspace, eqspace);
+      if (isInvalid(oeq)) {
+        return false;
+      }
+      if (!(*oeq)) {
+        return ctx.registerErrorMessage("unmatched quadrature points");
+      }
+      return true;
+    };
+    if (mesh.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto ofes = eqspace.getFiniteElementSpace<true>(ctx);
+      if (isInvalid(ofes)) {
+        return false;
+      }
+      if (!(fespaces_manager.manages(*ofes))) {
+        return ctx.registerErrorMessage("unmatched finite element spaces");
+      }
+      const auto omb = bqspace.getMesh<true>(ctx);
+      const auto ome = eqspace.getMesh<true>(ctx);
+      if (!areValid(omb, ome)) {
+        return false;
+      }
+      if (&(*omb) != &(*ome)) {
+        return ctx.registerErrorMessage("unmatched meshes");
+      }
+      return check_quadrature_points();
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto ofes = eqspace.getFiniteElementSpace<false>(ctx);
+    if (isInvalid(ofes)) {
+      return false;
+    }
+    if (!(fespaces_manager.manages(*ofes))) {
+      return ctx.registerErrorMessage("unmatched finite element spaces");
+    }
+    const auto omb = bqspace.getMesh<false>(ctx);
+    const auto ome = eqspace.getMesh<false>(ctx);
+    if (!areValid(omb, ome)) {
+      return false;
+    }
+    if (&(*omb) != &(*ome)) {
+      return ctx.registerErrorMessage("unmatched meshes");
+    }
+    return check_quadrature_points();
   }  // end of checkQuadratureFunctionEvaluator
 
   bool BehaviourIntegratorBase::setMaterialProperty(
@@ -333,6 +380,12 @@ namespace mfem_mgis {
   const PartialQuadratureSpace&
   BehaviourIntegratorBase::getPartialQuadratureSpace() const noexcept {
     return static_cast<const Material*>(this)->getPartialQuadratureSpace();
+  }  // end of getPartialQuadratureSpace
+
+  std::shared_ptr<const PartialQuadratureSpace>
+  BehaviourIntegratorBase::getPartialQuadratureSpacePointer() const noexcept {
+    return static_cast<const Material*>(this)
+        ->getPartialQuadratureSpacePointer();
   }  // end of getPartialQuadratureSpace
 
   real BehaviourIntegratorBase::getTimeIncrement() const noexcept {

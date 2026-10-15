@@ -46,7 +46,6 @@ struct StateManagerTest final : public tfel::tests::TestCase {
         ctx, dict{{"MeshFileName", parameters.mesh_file},
                   {"Parallel", bool(parameters.parallel)}});
     TFEL_TESTS_ASSERT(isValid(omesh));
-    auto sm = StateManager{*omesh};
     // creating a partial quadrature function for a given finite element
     // discretization and registring it to the state manager
     auto ofed1 = construct<FiniteElementDiscretization>(
@@ -55,6 +54,7 @@ struct StateManagerTest final : public tfel::tests::TestCase {
               {"FiniteElementOrder", parameters.order},
               {"UnknownsSize", 3}}});
     TFEL_TESTS_ASSERT(isValid(ofed1));
+    auto sm = StateManager{ofed1->getFiniteElementSpacesManager()};
     auto qspace1 = make_shared<PartialQuadratureSpace>(
         ctx, *ofed1, MaterialIdentifier{.id = 1},
         [](const mfem::FiniteElement& e,
@@ -62,10 +62,13 @@ struct StateManagerTest final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
         });
     TFEL_TESTS_ASSERT(isValid(qspace1));
+    const auto ook0 = sm.contains(ctx, *qspace1, "function1", ets);
+    TFEL_TESTS_ASSERT(isValid(ook0));
+    TFEL_TESTS_CHECK(!(*ook0));
     auto of = construct<PartialQuadratureFunction>(ctx, qspace1);
     TFEL_TESTS_ASSERT(isValid(of));
     TFEL_TESTS_CHECK(sm.add(ctx, "function1", *of, ets));
-    const auto ook = sm.contains(ctx, qspace1, "function1", ets);
+    const auto ook = sm.contains(ctx, *qspace1, "function1", ets);
     TFEL_TESTS_ASSERT(isValid(ook));
     TFEL_TESTS_CHECK(*ook);
     // creating a second finite element discretization and a second quadrature
@@ -81,9 +84,11 @@ struct StateManagerTest final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
         });
     TFEL_TESTS_ASSERT(isValid(qspace2));
-    TFEL_TESTS_CHECK(areEquivalent(*qspace1, *qspace2));
+    const auto ook2 = areMappable(ctx, *qspace1, *qspace2);
+    TFEL_TESTS_ASSERT(isValid(ook2));
+    TFEL_TESTS_CHECK(*ook2);
     // retrieving a view on the function
-    const auto oview = sm.get(ctx, qspace2, "function1", ets);
+    const auto oview = sm.get(ctx, *qspace2, "function1", ets);
     TFEL_TESTS_ASSERT(isValid(oview));
     // we now check that f and the view points to the values
     TFEL_TESTS_CHECK(of->getValues().data() == oview->getValues().data());

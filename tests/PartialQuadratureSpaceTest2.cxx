@@ -24,7 +24,6 @@
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
-#include "MFEMMGIS/PartialQuadratureSpaceIdentifiersManager.hxx"
 
 struct {
   const char* mesh_file = nullptr;
@@ -73,7 +72,9 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 2);
         });
     TFEL_TESTS_ASSERT(isValid(qspace2));
-    TFEL_TESTS_CHECK(areEquivalent(*qspace1, *qspace2));
+    const auto ook = areMappable(ctx, *qspace1, *qspace2);
+    TFEL_TESTS_ASSERT(isValid(ook));
+    TFEL_TESTS_CHECK(*ook);
     auto qspace3 = make_shared<PartialQuadratureSpace>(
         ctx, *ofed1, MaterialIdentifier{.id = 1},
         [](const mfem::FiniteElement& e,
@@ -81,21 +82,24 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
           return mfem::IntRules.Get(e.GetGeomType(), 4);
         });
     TFEL_TESTS_ASSERT(isValid(qspace3));
-    TFEL_TESTS_CHECK(!areEquivalent(*qspace1, *qspace3));
-    TFEL_TESTS_CHECK(!areEquivalent(*qspace2, *qspace3));
+    const auto ook2 = areMappable(ctx, *qspace1, *qspace3);
+    TFEL_TESTS_ASSERT(isValid(ook2));
+    TFEL_TESTS_CHECK(!(*ook2));
+    const auto ook3 = areMappable(ctx, *qspace2, *qspace3);
+    TFEL_TESTS_ASSERT(isValid(ook3));
+    TFEL_TESTS_CHECK(!(*ook3));
     //
-    auto oids = construct<PartialQuadratureSpaceIdentifiersManager>(ctx, *om);
-    TFEL_TESTS_ASSERT(isValid(oids));
-    const auto oi1 = oids->getIdentifier(ctx, qspace1);
+    const auto fespaces_manager = ofed1->getFiniteElementSpacesManager();
+    const auto oi1 = fespaces_manager.getIdentifier(ctx, *qspace1);
     TFEL_TESTS_ASSERT(isValid(oi1));
-    const auto oi1b = oids->getIdentifier(ctx, qspace1);
+    const auto oi1b = fespaces_manager.getIdentifier(ctx, *qspace1);
     TFEL_TESTS_ASSERT(isValid(oi1b));
-    const auto oi2 = oids->getIdentifier(ctx, qspace2);
+    const auto oi2 = fespaces_manager.getIdentifier(ctx, *qspace2);
     TFEL_TESTS_ASSERT(isValid(oi2));
-    const auto oi3 = oids->getIdentifier(ctx, qspace3);
+    const auto oi3 = fespaces_manager.getIdentifier(ctx, *qspace3);
     // retrive qspace3 again, see
     // https://github.com/thelfer/mfem-mgis/issues/339
-    const auto oi4 = oids->getIdentifier(ctx, qspace3);
+    const auto oi4 = fespaces_manager.getIdentifier(ctx, *qspace3);
     TFEL_TESTS_ASSERT(isValid(oi3));
     TFEL_TESTS_ASSERT(isValid(oi4));
     TFEL_TESTS_CHECK(*oi1 == 0);
@@ -104,6 +108,24 @@ struct PartialQuadratureSpaceTest2 final : public tfel::tests::TestCase {
     TFEL_TESTS_CHECK(*oi1 != *oi3);
     TFEL_TESTS_CHECK(*oi3 == 1);
     TFEL_TESTS_CHECK(*oi4 == 1);
+    // same quadrature space built on another finite element spaces manager
+    auto ofed3 = construct<FiniteElementDiscretization>(
+        ctx, *om,
+        dict{{{"FiniteElementFamily", "H1"},
+              {"FiniteElementOrder", parameters.order},
+              {"UnknownsSize", 3}}});
+    TFEL_TESTS_ASSERT(isValid(ofed3));
+    auto qspace4 = make_shared<PartialQuadratureSpace>(
+        ctx, *ofed3, MaterialIdentifier{.id = 1},
+        [](const mfem::FiniteElement& e,
+           const mfem::ElementTransformation&) -> const mfem::IntegrationRule& {
+          return mfem::IntRules.Get(e.GetGeomType(), 2);
+        });
+    TFEL_TESTS_ASSERT(isValid(qspace4));
+    TFEL_TESTS_CHECK(!areEquivalent(*qspace1, *qspace4));
+    const auto ook4 = areMappable(ctx, *qspace1, *qspace4);
+    TFEL_TESTS_ASSERT(isValid(ook4));
+    TFEL_TESTS_CHECK(!(*ook4));
   }
 };
 

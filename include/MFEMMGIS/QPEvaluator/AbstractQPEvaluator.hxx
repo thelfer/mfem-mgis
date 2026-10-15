@@ -71,8 +71,8 @@ namespace mfem_mgis {
    */
   struct MFEM_MGIS_EXPORT AbstractQPEvaluator {
     //! \return the partial quadrature space
-    [[nodiscard]] virtual const PartialQuadratureSpace& getQuadratureSpace()
-        const noexcept = 0;
+    [[nodiscard]] virtual const PartialQuadratureSpace&
+    getPartialQuadratureSpace() const noexcept = 0;
     //! \return a shared pointer to the partial quadrature space
     [[nodiscard]] virtual std::shared_ptr<const PartialQuadratureSpace>
     getPartialQuadratureSpacePointer() const noexcept = 0;

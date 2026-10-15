@@ -14,6 +14,9 @@
 
 namespace mfem_mgis {
 
+  // forward declaration
+  struct PartialQuadratureSpace;
+
   /*!
    * \brief This class manages similar finite element spaces, denoted as
    * siblings. They share the same finite element collection and are defined on
@@ -179,6 +182,42 @@ namespace mfem_mgis {
      */
     [[nodiscard]] bool manages(
         const FiniteElementSpace<false>& s) const noexcept;
+    /*!
+     * \return if two quadrature spaces can be mapped, i.e. that we can find
+     * a path to transfer data between quadrature functions defined on those two
+     * spaces.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] s1: first partial quadrature space
+     * \param[in] s2: second partial quadrature space
+     *
+     * \note if one of the quadrature spaces is defined on a finite element
+     * spaces that is not managed , this method returns false
+     */
+    [[nodiscard]] std::optional<bool> areMappable(
+        Context& ctx,
+        const PartialQuadratureSpace& s1,
+        const PartialQuadratureSpace& s2) const noexcept;
+    /*!
+     * \brief return the identifier of a partial quadrature space
+     * \return the identifier associated with the given partial quadrature
+     * space.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] s: partial quadrature space
+     *
+     * \note This identifier may be used for distinct locations.
+     */
+    [[nodiscard]] std::optional<size_type> getIdentifier(
+        Context& ctx, const PartialQuadratureSpace& s) const noexcept;
+    /*!
+     * \return if the given finite element spaces manager shares the same
+     * implementation
+     *
+     * \param[in] rhs: right hand side
+     */
+    [[nodiscard]] bool operator==(
+        const FiniteElementSpacesManager& rhs) const noexcept;
 
    private:
     /*!

@@ -10,7 +10,6 @@
 #include "MFEMMGIS/Dependency.hxx"
 #include "MFEMMGIS/DependenciesManager.hxx"
 #include "MFEMMGIS/PartialQuadratureSpace.hxx"
-#include "MFEMMGIS/PartialQuadratureSpaceIdentifiersManager.hxx"
 
 namespace mfem_mgis {
 
@@ -42,9 +41,7 @@ namespace mfem_mgis {
     return this->registeredQPDependencies[1][l];
   }  // end of getLocalQPDependenciesManager
 
-  DependenciesManager::DependenciesManager(
-      const PartialQuadratureSpaceIdentifiersManager &m) noexcept
-      : qids(m) {}  // end of DependenciesManager
+  DependenciesManager::DependenciesManager() noexcept = default;
 
   //   //   bool DependenciesManager::declareDependency(
   //   //       Context &ctx,
@@ -84,18 +81,21 @@ namespace mfem_mgis {
         return report_inconsistency_check();
       }
     }
-    const auto pd = [this, &nd, &ldm] {
-      const auto qspace = nd.getPartialQuadratureSpacePointer();
+    const auto pd = [this, &ctx, &nd, &ldm] {
+      const auto &qspace = nd.getPartialQuadratureSpace();
       if (isValid(qspace)) {
-        return std::find_if(
-            ldm.begin(), ldm.end(), [this, &nd, qspace](const auto &dep) {  //
-              const auto q = dep.getPartialQuadratureSpacePointer();
-              if (isInvalid(q)) {
-                return false;
-              }
-              return (nd.getName() == dep.getName()) &&
-                     (this->qids.areEquivalent(qspace, q));
-            });
+        return std::find_if(ldm.begin(), ldm.end(),
+                            [this, &ctx, &nd, &qspace](const auto &dep) {  //
+                              const auto &q = dep.getPartialQuadratureSpace();
+                              if (isInvalid(q)) {
+                                return false;
+                              }
+                              const auto oeq = areMappable(ctx, *qspace, *q);
+                              if (isInvalid(oeq)) {
+                                return false;
+                              }
+                              return (nd.getName() == dep.getName()) && (*oeq);
+                            });
       } else {
         return std::find_if(ldm.begin(), ldm.end(), [&nd](const auto &dep) {  //
           const auto q = dep.getPartialQuadratureSpacePointer();
@@ -130,7 +130,11 @@ namespace mfem_mgis {
     const auto &m = d.getLocation();
     const auto dqspace = d.getPartialQuadratureSpacePointer();
     if (isValid(dqspace)) {
-      if (!this->qids.areEquivalent(dqspace, qspace)) {
+      const auto oeq = areMappable(ctx, *dqspace, *qspace);
+      if (isInvalid(oeq)) {
+        return false;
+      }
+      if (!(*oeq)) {
         return ctx.registerErrorMessage(
             "inconsistent partial quadrature spaces");
       }
@@ -162,7 +166,11 @@ namespace mfem_mgis {
         }
         const auto oldqspace = ld.getPartialQuadratureSpacePointer();
         if ((isValid(oldqspace)) && (isValid(dqspace))) {
-          if (this->qids.areEquivalent(oldqspace, qspace)) {
+          const auto oeq = areMappable(ctx, *oldqspace, *qspace);
+          if (isInvalid(oeq)) {
+            return false;
+          }
+          if (*oeq) {
             ctx.assertOrTerminate(pd == ldm.end(),
                                   "internal error: " + d.getDescription() +
                                       " is registered twice");
@@ -204,8 +212,12 @@ namespace mfem_mgis {
             "internal error: " + pd->getDescription() + " declared twice");
         // we don't check if *p is a duplicate.
         // if it is, the following code will be executed by the original anyway
-        if (this->qids.areEquivalent(p->getPartialQuadratureSpacePointer(),
-                                     qspace)) {
+        const auto oeq =
+            areMappable(ctx, *(p->getPartialQuadratureSpacePointer()), *qspace);
+        if (isInvalid(oeq)) {
+          return false;
+        }
+        if (*oeq) {
           if (!pd->setDuplicate(ctx)) {
             return false;
           }

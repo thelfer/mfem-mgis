@@ -27,6 +27,8 @@ namespace mfem_mgis {
                                                     Material {
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const noexcept override;
+    [[nodiscard]] std::shared_ptr<const PartialQuadratureSpace>
+    getPartialQuadratureSpacePointer() const noexcept override;
     [[nodiscard]] real getTimeIncrement() const noexcept override;
     void setTimeIncrement(const real dt) override;
     [[nodiscard]] bool setup(Context& ctx,

@@ -22,6 +22,7 @@ namespace mfem_mgis {
   // forward declaration
   struct Parameter;
   struct Parameters;
+  struct PartialQuadratureSpace;
 
   /*!
    * \brief a simple class used to:
@@ -145,6 +146,19 @@ namespace mfem_mgis {
     //! \return the finite element collection
     [[nodiscard]] std::shared_ptr<const FiniteElementCollection>
     getFiniteElementCollectionPointer() const noexcept;
+    /*!
+     * \return if two quadrature spaces can be mapped, i.e. that we can find
+     * a path to transfer data between quadrature functions defined on those two
+     * spaces.
+     *
+     * \param[in, out] ctx: execution context
+     * \param[in] s1: first quadrature space
+     * \param[in] s2: second quadrature space
+     */
+    [[nodiscard]] std::optional<bool> areMappable(
+        Context& ctx,
+        const PartialQuadratureSpace& s1,
+        const PartialQuadratureSpace& s2) const noexcept;
     //
     // expose MeshDiscretization's methods, even deprecated ones for backward
     // compatibility
