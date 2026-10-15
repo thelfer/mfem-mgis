@@ -218,7 +218,8 @@ namespace mfem_mgis {
       const AbstractQPEvaluator& e) {
     const auto& bqspace = b.getPartialQuadratureSpace();
     const auto& eqspace = e.getPartialQuadratureSpace();
-    if (bqspace.getMeshDiscretization() != eqspace.getMeshDiscretization()) {
+    const auto mesh = bqspace.getMeshDiscretization();
+    if (mesh != eqspace.getMeshDiscretization()) {
       return ctx.registerErrorMessage(
           "partial quadrature evaluator is not defined on the mesh of the "
           "behaviour integrator");
@@ -228,21 +229,46 @@ namespace mfem_mgis {
           "partial quadrature evaluator is not defined on the location of the "
           "behaviour integrator");
     }
-    // this check notably fails if both partial quadrature spaces are not
-    // built on finite element discretizations sharing the same finite element
-    // spaces manager
-#pragma message("HERE: handle evaluators on a mappable space")
-    return bqspace == eqspace;
-    //     const auto oeq = areMappable(ctx, bqspace, eqspace);
-    //     if (isInvalid(oeq)) {
-    //       return false;
-    //     }
-    //     if (!(*oeq)) {
-    //       return ctx.registerErrorMessage(
-    //           "partial quadrature evaluator is not defined on a space
-    //           equivalent " "to the one of the behaviour integrator");
-    //     }
-    //    return true;
+    if (bqspace == eqspace) {
+      return true;
+    }
+    const auto fed = bqspace.getFiniteElementDiscretization();
+    const auto fespaces_manger = fed.getFiniteElementSpacesManager();
+    if (mesh.describesAParallelComputation()) {
+#ifdef MFEM_USE_MPI
+      const auto ofes = eqspace.getFiniteElementSpace<true>(ctx);
+      if (isInvalid(ofes)) {
+        return false;
+      }
+      if (!(fespaces_manger.manages(*ofes))) {
+        return ctx.registerErrorMessage("unmatched finite element spaces");
+      }
+      const auto omb = bqspace.getMesh<true>(ctx);
+      const auto ome = eqspace.getMesh<true>(ctx);
+      if (!areValid(omb, ome)) {
+        return false;
+      }
+      return &(*omb) == &(*ome);
+#else  /* MFEM_USE_MPI */
+      reportUnsupportedParallelComputations();
+#endif /* MFEM_USE_MPI */
+    }
+    const auto ofes = eqspace.getFiniteElementSpace<false>(ctx);
+    if (isInvalid(ofes)) {
+      return false;
+    }
+    if (!(fespaces_manger.manages(*ofes))) {
+      return ctx.registerErrorMessage("unmatched finite element spaces");
+    }
+    const auto omb = bqspace.getMesh<false>(ctx);
+    const auto ome = eqspace.getMesh<false>(ctx);
+    if (!areValid(omb, ome)) {
+      return false;
+    }
+    if (&(*omb) != &(*ome)) {
+      return ctx.registerErrorMessage("unmatched meshes");
+    }
+    return true;
   }  // end of checkQuadratureFunctionEvaluator
 
   bool BehaviourIntegratorBase::setMaterialProperty(
@@ -260,7 +286,6 @@ namespace mfem_mgis {
           "property '" +
           omp->name + "'");
     }
-#pragma message("HERE: handle evaluators on a mappable space")
     if (!checkQuadratureFunctionEvaluator(ctx, *this, *e)) {
       return false;
     }

@@ -20,7 +20,7 @@ namespace mfem_mgis {
   const PartialQuadratureSpace& QPEvaluatorBase::getPartialQuadratureSpace()
       const noexcept {
     return *(this->qspace);
-  }  // end of getQuadratureSpace
+  }  // end of getPartialQuadratureSpace
 
   std::shared_ptr<const PartialQuadratureSpace>
   QPEvaluatorBase::getPartialQuadratureSpacePointer() const noexcept {
