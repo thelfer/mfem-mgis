@@ -37,7 +37,9 @@ namespace mfem_mgis::internals {
    */
   struct MFEM_MGIS_EXPORT PartialQuadratureSpaceImplementation {
     /*!
-     * \brief throw an exception in case of invalid element index
+     * \brief function aborting the execution in case of
+     * invalid element index
+     *
      * \param[in] l: location
      * \param[in] i: element number
      */
