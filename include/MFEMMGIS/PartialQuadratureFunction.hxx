@@ -364,12 +364,12 @@ namespace mfem_mgis {
      * \param[in] s: size of the values (size of the quadrature space times the
      * number of components)
      */
-    PartialQuadratureFunctionStorage(const size_type) noexcept;
+    PartialQuadratureFunctionStorage(const size_type s) noexcept;
     /*!
      * \brief constructor from a range
      * \param[in] v: values
      */
-    PartialQuadratureFunctionStorage(std::span<const real>) noexcept;
+    PartialQuadratureFunctionStorage(std::span<const real> v) noexcept;
     //! \brief move constructor
     PartialQuadratureFunctionStorage(
         PartialQuadratureFunctionStorage&&) noexcept;
