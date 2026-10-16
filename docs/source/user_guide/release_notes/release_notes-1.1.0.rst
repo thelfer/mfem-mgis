@@ -467,6 +467,8 @@ Messages with several lines are preceded by a ``# Error on rank r`` title.
 Issues fixed
 ============
 
+- Issue 491: Simulation: the message of a failed time step describes
+  its first sub-step
 - Issue 482: MPI functions on a MeshDiscretization and
   updateGridFunction with no function
 - Issue 477: synchronize `Context` to merge error messages on MPI
