@@ -106,7 +106,7 @@
 <p>A partial quadrature space is defined by a finite element
 discretization, a location, i.e. a material or a boundary, and a
 function selecting the integration rule of each element:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">qspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">PartialQuadratureSpace</span><span class="o">&gt;</span><span class="p">(</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">qspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">construct</span><span class="o">&lt;</span><span class="n">PartialQuadratureSpace</span><span class="o">&gt;</span><span class="p">(</span>
 <span class="w">    </span><span class="n">fed</span><span class="p">,</span><span class="w"> </span><span class="n">BoundaryIdentifier</span><span class="p">{.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="n">selector</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -115,6 +115,11 @@ boundary elements of the mesh of the finite element discretization.</p>
 <p>Another constructor takes a finite element space as second argument, for
 instance a finite element space defined on a submesh. This finite
 element space must be managed by the finite element discretization.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A partial quadrature space is handled by value:
+its copies share the same data and compare equal.</p>
+</div>
 </section>
 <section id="retrieving-information-on-a-partial-quadrature-space">
 <h2>Retrieving information on a partial quadrature space<a class="headerlink" href="#retrieving-information-on-a-partial-quadrature-space" title="Link to this heading"></a></h2>
