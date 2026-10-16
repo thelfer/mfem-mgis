@@ -42,9 +42,8 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space
      * \param[in] b_ptr: behaviour
      */
-    FBarBehaviourIntegratorCRTPBase(
-        std::shared_ptr<const PartialQuadratureSpace> s,
-        std::unique_ptr<const Behaviour> b_ptr);
+    FBarBehaviourIntegratorCRTPBase(const PartialQuadratureSpace& s,
+                                    std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \brief integrate the mechanical behaviour over the time step
      *

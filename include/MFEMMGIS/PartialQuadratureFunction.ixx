@@ -37,14 +37,8 @@ namespace mfem_mgis {
 
   inline const PartialQuadratureSpace&
   ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpace() const {
-    return *(this->qspace);
-  }  // end of getPartialQuadratureSpace
-
-  inline std::shared_ptr<const PartialQuadratureSpace>
-  ImmutablePartialQuadratureFunctionView::getPartialQuadratureSpacePointer()
-      const {
     return this->qspace;
-  }  // end of getPartialQuadratureSpacePointer
+  }  // end of getPartialQuadratureSpace
 
   inline std::span<const real>
   ImmutablePartialQuadratureFunctionView::getValues() const {
@@ -97,12 +91,8 @@ namespace mfem_mgis {
     return this->getIntegrationPointValues(e, i);
   }
 
-  inline PartialQuadratureFunctionView::PartialQuadratureFunctionView() =
-      default;
-
   inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
-      std::shared_ptr<const PartialQuadratureSpace> s,
-      const ViewSpecifications& specs)
+      const PartialQuadratureSpace& s, const ViewSpecifications& specs)
       : ImmutablePartialQuadratureFunctionView(s, specs) {
   }  // end of PartialQuadratureFunctionView
 
@@ -112,16 +102,8 @@ namespace mfem_mgis {
   inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
       const PartialQuadratureFunctionView&) noexcept = default;
 
-  inline PartialQuadratureFunctionView&
-  PartialQuadratureFunctionView::operator=(
-      PartialQuadratureFunctionView&&) noexcept = default;
-
-  inline PartialQuadratureFunctionView&
-  PartialQuadratureFunctionView::operator=(
-      const PartialQuadratureFunctionView&) noexcept = default;
-
   inline PartialQuadratureFunctionView::PartialQuadratureFunctionView(
-      std::shared_ptr<const PartialQuadratureSpace> s,
+      const PartialQuadratureSpace& s,
       std::span<real> v,
       const ViewSpecifications& specs)
       : ImmutablePartialQuadratureFunctionView(s, v, specs),

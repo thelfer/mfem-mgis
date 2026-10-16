@@ -64,7 +64,6 @@ namespace mfem_mgis {
       return ctx.registerErrorMessage("invalid partial quadrature function '" +
                                       std::string{n} + "'");
     }
-    const auto qspace = f->getPartialQuadratureSpacePointer();
     const auto success = this->add(ctx, n, *f, ts);
     if (success) {
       this->qfunctions_pointers.push_back(f);
@@ -137,7 +136,6 @@ namespace mfem_mgis {
     if (isInvalid(om)) {
       return false;
     }
-    const auto qspace = om->getPartialQuadratureSpacePointer();
     const auto& b = om->b;  // underlying behaviour
     // declaring gradients
     for (const auto& g : b.gradients) {

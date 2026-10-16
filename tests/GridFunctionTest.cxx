@@ -58,7 +58,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
       [](const mfem::Vector& x) { return cos(x[0]) * exp(-2 * x[1]); });
   f.ProjectCoefficient(c);
   //
-  auto qspace = std::make_shared<PartialQuadratureSpace>(
+  auto qspace = PartialQuadratureSpace(
       fed, MaterialIdentifier{.id = 5},
       [](const mfem::FiniteElement& e,
          const mfem::ElementTransformation& tr) noexcept
@@ -74,7 +74,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   auto qf2 = PartialQuadratureFunction::evaluate(
       qspace,
       [](const real x, const real y) noexcept { return cos(x) * exp(-2 * y); });
-  for (size_type i = 0; i != getSpaceSize(*qspace); ++i) {
+  for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
     const auto v1 = qf.getIntegrationPointValue(i);
     const auto v2 = qf2->getIntegrationPointValue(i);
     if (std::abs(v1 - v2) > 2e-2) {
@@ -136,7 +136,7 @@ bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
       });
   f.ProjectCoefficient(c);
   //
-  auto qspace = std::make_shared<PartialQuadratureSpace>(
+  auto qspace = PartialQuadratureSpace(
       fed, MaterialIdentifier{.id = 5},
       [](const mfem::FiniteElement& e,
          const mfem::ElementTransformation& tr) noexcept
@@ -157,7 +157,7 @@ bool test2(mfem_mgis::Context& ctx, const TestParameters& params) {
       qspace, [](const real x, const real y) noexcept {
         return std::exp(x * x) * std::exp(y);
       });
-  for (size_type i = 0; i != getSpaceSize(*qspace); ++i) {
+  for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
     const auto v1 = qf.getIntegrationPointValues(i);
     const auto v2 = qf2->getIntegrationPointValue(i);
     const auto v3 = qf3->getIntegrationPointValue(i);
@@ -224,7 +224,7 @@ bool test3(mfem_mgis::Context& ctx,
       });
   f.ProjectCoefficient(c);
   //
-  auto qspace = std::make_shared<PartialQuadratureSpace>(
+  auto qspace = PartialQuadratureSpace(
       fed, MaterialIdentifier{.id = 5},
       [](const mfem::FiniteElement& e,
          const mfem::ElementTransformation& tr) noexcept

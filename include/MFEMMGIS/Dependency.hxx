@@ -10,11 +10,9 @@
 
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/MeshDiscretization.hxx"
+#include "MFEMMGIS/PartialQuadratureSpace.hxx"
 
 namespace mfem_mgis {
-
-  // forward declaration
-  struct PartialQuadratureSpace;
 
   //! \brief a base class describing a dependency
   struct MFEM_MGIS_EXPORT DependencyBase {
@@ -157,7 +155,7 @@ namespace mfem_mgis {
      * \param[in] ds: status
      * \throws std::runtime_error if the partial quadrature space is null
      */
-    QPDependency(std::shared_ptr<const PartialQuadratureSpace> s,
+    QPDependency(const PartialQuadratureSpace &s,
                  std::string_view n,
                  const DependencyStatus ds = DependencyStatus::REQUIRED);
     /*!
@@ -179,9 +177,6 @@ namespace mfem_mgis {
     //! \return the quadrature space
     [[nodiscard]] OptionalReference<const PartialQuadratureSpace>
     getPartialQuadratureSpace() const noexcept;
-    //! \return the quadrature space
-    [[nodiscard]] std::shared_ptr<const PartialQuadratureSpace>
-    getPartialQuadratureSpacePointer() const noexcept;
     /*!
      * \brief set the partial quadrature space
      * \param[in, out] ctx: execution context
@@ -189,7 +184,7 @@ namespace mfem_mgis {
      * \return true on success
      */
     [[nodiscard]] bool setPartialQuadratureSpace(
-        Context &ctx, std::shared_ptr<const PartialQuadratureSpace> s) noexcept;
+        Context &ctx, const PartialQuadratureSpace &s) noexcept;
     /*!
      * \brief set this dependency as duplicate
      * \param[in, out] ctx: execution context
@@ -229,7 +224,7 @@ namespace mfem_mgis {
     //! \brief location
     const LocationIdentifier location;
     //! \brief partial quadrature space
-    std::shared_ptr<const PartialQuadratureSpace> qspace;
+    std::optional<PartialQuadratureSpace> qspace;
     /*!
      * \brief boolean stating if this dependency is the duplicate of another
      * dependency. This may happen if this dependency did not have

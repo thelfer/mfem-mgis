@@ -104,7 +104,7 @@ namespace mfem_mgis {
   real computeIntegral(const AbstractBehaviourIntegrator& bi,
                        const ImmutablePartialQuadratureFunctionView& f) {
     const auto& qspace = f.getPartialQuadratureSpace();
-    if (&qspace != &(bi.getPartialQuadratureSpace())) {
+    if (qspace != bi.getPartialQuadratureSpace()) {
       raise(
           "computeIntegral: the partial quadrature space of the behaviour "
           "integrator don't match the one of the partial quadrature function");

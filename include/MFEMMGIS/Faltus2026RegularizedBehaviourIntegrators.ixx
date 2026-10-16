@@ -74,7 +74,7 @@ namespace mfem_mgis {
     // Faltus2026RegularizedIsotropicBehaviourIntegratorBase<H>
 #endif
     const auto nnodes = e.GetDof();
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    const auto eoffset = this->quadrature_space.getOffset(tr.ElementNo);
     auto F0 = std::array<real, gsize>{};
     std::copy(this->macroscopic_gradients.begin(),
               this->macroscopic_gradients.end(), F0.begin());

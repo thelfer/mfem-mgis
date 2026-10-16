@@ -149,7 +149,7 @@ namespace mfem_mgis {
      * \param[in] m: material attribute.
      * \return the partial quadrature space
      */
-    static std::shared_ptr<const PartialQuadratureSpace> buildQuadratureSpace(
+    static PartialQuadratureSpace buildQuadratureSpace(
         attributes::Throwing throwing,
         const FiniteElementDiscretization &fed,
         const size_type m);

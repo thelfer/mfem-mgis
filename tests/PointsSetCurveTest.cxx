@@ -94,15 +94,14 @@ struct PointsSetCurveTest final : public tfel::tests::TestCase {
                                       {"lCB", lCB}}}});
     TFEL_TESTS_ASSERT(isValid(ofed));
     //
-    auto ospace = make_shared<PartialQuadratureSpace>(
-        ctx, *ofed, MaterialIdentifier{.id = 5},
+    auto ospace = PartialQuadratureSpace(
+        *ofed, MaterialIdentifier{.id = 5},
         [](const mfem::FiniteElement& e,
            const mfem::ElementTransformation& tr) noexcept
         -> const mfem::IntegrationRule& {
           const auto order = 2 * tr.OrderGrad(&e);
           return mfem::IntRules.Get(e.GetGeomType(), order);
         });
-    TFEL_TESTS_ASSERT(isValid(ospace));
     auto fct = PartialQuadratureFunction::evaluate(
         ospace, [](const real x, const real y) noexcept { return cos(x) * y; });
     auto s = mfem_mgis::unit_tests::getLinearSolver<parallel>(

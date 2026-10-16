@@ -20,6 +20,32 @@ namespace mfem_mgis {
   struct PartialQuadratureSpace;
 
   /*!
+   * \brief structure storing a partial quadrature function, if needed
+   */
+  struct MFEM_MGIS_EXPORT QPEvaluatorResultStorage {
+   protected:
+    //! \brief default constructor
+    QPEvaluatorResultStorage() noexcept;
+    /*!
+     * \brief move constructor
+     * \param[in] src: source
+     */
+    QPEvaluatorResultStorage(QPEvaluatorResultStorage&& src) noexcept;
+    /*!
+     * \brief constructor from a partial quadrature function
+     * \param[in] f: partial quadrature function
+     */
+    QPEvaluatorResultStorage(PartialQuadratureFunction&& f) noexcept;
+    //
+    QPEvaluatorResultStorage(const QPEvaluatorResultStorage&) = delete;
+    QPEvaluatorResultStorage& operator=(QPEvaluatorResultStorage&&) = delete;
+    QPEvaluatorResultStorage& operator=(const QPEvaluatorResultStorage&) =
+        delete;
+    //! \brief internal storage for memory management, if required
+    std::optional<PartialQuadratureFunction> f;
+  };
+
+  /*!
    * \brief structure describing the result of a partial quadrature function
    * evaluator
    *
@@ -33,7 +59,8 @@ namespace mfem_mgis {
    * details
    */
   struct MFEM_MGIS_EXPORT QPEvaluatorResult
-      : ImmutablePartialQuadratureFunctionView {
+      : QPEvaluatorResultStorage,
+        ImmutablePartialQuadratureFunctionView {
     /*!
      * \brief build from a function
      * \param[in, out] v: function, moved into the result
@@ -62,8 +89,6 @@ namespace mfem_mgis {
         const ImmutablePartialQuadratureFunctionView&) noexcept;
     //! \brief constructor from a r-value to a partial quadrature function
     explicit QPEvaluatorResult(PartialQuadratureFunction&&) noexcept;
-    //! \brief internal storage for memory management, if required
-    std::optional<PartialQuadratureFunction> f;
   };
 
   /*!
@@ -73,9 +98,6 @@ namespace mfem_mgis {
     //! \return the partial quadrature space
     [[nodiscard]] virtual const PartialQuadratureSpace&
     getPartialQuadratureSpace() const noexcept = 0;
-    //! \return a shared pointer to the partial quadrature space
-    [[nodiscard]] virtual std::shared_ptr<const PartialQuadratureSpace>
-    getPartialQuadratureSpacePointer() const noexcept = 0;
     //! \return the number of components
     [[nodiscard]] virtual size_type getNumberOfComponents() const noexcept = 0;
     //! \return if the evaluator is spatially uniform

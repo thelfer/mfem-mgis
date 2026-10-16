@@ -25,12 +25,10 @@ namespace mfem_mgis {
      * \brief constructor
      * \param[in] s: partial quadrature space
      */
-    QPEvaluatorBase(std::shared_ptr<const PartialQuadratureSpace> s);
+    QPEvaluatorBase(const PartialQuadratureSpace& s) noexcept;
     //
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const noexcept override;
-    [[nodiscard]] std::shared_ptr<const PartialQuadratureSpace>
-    getPartialQuadratureSpacePointer() const noexcept override;
     //! \return if the evaluator is spatially uniform, always false
     [[nodiscard]] bool isUniform() const noexcept override;
     /*!
@@ -49,7 +47,7 @@ namespace mfem_mgis {
 
    protected:
     //! \brief partial quadrature space
-    std::shared_ptr<const PartialQuadratureSpace> qspace;
+    const PartialQuadratureSpace qspace;
   };  // end of struct QPEvaluatorBase
 
   //! \brief base class for evaluators returning uniform scalar values

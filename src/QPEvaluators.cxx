@@ -13,7 +13,7 @@
 namespace mfem_mgis {
 
   UniformConstantScalarQPEvaluator::UniformConstantScalarQPEvaluator(
-      std::shared_ptr<const PartialQuadratureSpace> s, const real v)
+      const PartialQuadratureSpace& s, const real v)
       : UniformScalarQPEvaluatorBase(s),
         value(v) {}  // end of UniformConstantScalarQPEvaluator
 
@@ -84,7 +84,7 @@ namespace mfem_mgis {
   }  // end of buildFunction
 
   UniformScalarQPEvaluator::UniformScalarQPEvaluator(
-      std::shared_ptr<const PartialQuadratureSpace> s,
+      const PartialQuadratureSpace& s,
       std::function<real(const real)> f,
       const TimeStepStage ts)
       : UniformScalarQPEvaluatorBase(s),
@@ -92,7 +92,7 @@ namespace mfem_mgis {
   }  // end of UniformScalarQPEvaluator
 
   UniformScalarQPEvaluator::UniformScalarQPEvaluator(
-      std::shared_ptr<const PartialQuadratureSpace> s,
+      const PartialQuadratureSpace& s,
       std::function<std::optional<real>(Context&, const real)> f,
       const TimeStepStage ts)
       : UniformScalarQPEvaluatorBase(s),
@@ -106,20 +106,18 @@ namespace mfem_mgis {
 
   UniformScalarQPEvaluator::~UniformScalarQPEvaluator() noexcept = default;
 
-  StandardQPEvaluator::StandardQPEvaluator(
-      std::shared_ptr<const PartialQuadratureSpace> s,
-      size_type nc,
-      FirstFunctionType f)
+  StandardQPEvaluator::StandardQPEvaluator(const PartialQuadratureSpace& s,
+                                           size_type nc,
+                                           FirstFunctionType f)
       : QPEvaluatorBase(s), n(nc), fct(f) {
     if (!f) {
       raise("invalid function");
     }
   }  // end of StandardQPEvaluator
 
-  StandardQPEvaluator::StandardQPEvaluator(
-      std::shared_ptr<const PartialQuadratureSpace> s,
-      size_type nc,
-      SecondFunctionType f)
+  StandardQPEvaluator::StandardQPEvaluator(const PartialQuadratureSpace& s,
+                                           size_type nc,
+                                           SecondFunctionType f)
       : QPEvaluatorBase(s), n(nc), fct(f) {
     if (!f) {
       raise("invalid function");
@@ -192,7 +190,7 @@ namespace mfem_mgis {
       std::string_view n,
       const TimeStepStage ts) noexcept {
     using namespace mgis::behaviour;
-    const auto qspace = m.getPartialQuadratureSpacePointer();
+    const auto qspace = m.getPartialQuadratureSpace();
     const auto os = getVariableSize(ctx, m.b.gradients, n, m.b.hypothesis);
     if (isInvalid(os)) {
       return {};
@@ -212,7 +210,7 @@ namespace mfem_mgis {
       std::string_view n,
       const TimeStepStage ts) noexcept {
     using namespace mgis::behaviour;
-    const auto qspace = m.getPartialQuadratureSpacePointer();
+    const auto qspace = m.getPartialQuadratureSpace();
     const auto os =
         getVariableSize(ctx, m.b.thermodynamic_forces, n, m.b.hypothesis);
     if (isInvalid(os)) {
@@ -233,7 +231,7 @@ namespace mfem_mgis {
       std::string_view n,
       const TimeStepStage ts) noexcept {
     using namespace mgis::behaviour;
-    const auto qspace = m.getPartialQuadratureSpacePointer();
+    const auto qspace = m.getPartialQuadratureSpace();
     const auto os = getVariableSize(ctx, m.b.isvs, n, m.b.hypothesis);
     if (isInvalid(os)) {
       return {};

@@ -28,8 +28,8 @@ namespace mfem_mgis {
      * \param[in] s: partial quadrature space
      * \param[in] v: value
      */
-    UniformConstantScalarQPEvaluator(
-        std::shared_ptr<const PartialQuadratureSpace> s, const real v);
+    UniformConstantScalarQPEvaluator(const PartialQuadratureSpace& s,
+                                     const real v);
     //! \brief destructor
     ~UniformConstantScalarQPEvaluator() noexcept override;
 
@@ -58,7 +58,7 @@ namespace mfem_mgis {
      * \param[in] f: function of time
      * \param[in] ts: time step stage
      */
-    UniformScalarQPEvaluator(std::shared_ptr<const PartialQuadratureSpace> s,
+    UniformScalarQPEvaluator(const PartialQuadratureSpace& s,
                              std::function<real(const real)> f,
                              const TimeStepStage ts);
     /*!
@@ -68,7 +68,7 @@ namespace mfem_mgis {
      * \param[in] ts: time step stage
      */
     UniformScalarQPEvaluator(
-        std::shared_ptr<const PartialQuadratureSpace> s,
+        const PartialQuadratureSpace& s,
         std::function<std::optional<real>(Context&, const real)> f,
         const TimeStepStage ts);
     //! \brief destructor
@@ -99,7 +99,7 @@ namespace mfem_mgis {
      * \param[in] nc: number of components
      * \param[in] f: function
      */
-    StandardQPEvaluator(std::shared_ptr<const PartialQuadratureSpace> s,
+    StandardQPEvaluator(const PartialQuadratureSpace& s,
                         size_type nc,
                         FirstFunctionType f);
     /*!
@@ -108,7 +108,7 @@ namespace mfem_mgis {
      * \param[in] nc: number of components
      * \param[in] f: function
      */
-    StandardQPEvaluator(std::shared_ptr<const PartialQuadratureSpace> s,
+    StandardQPEvaluator(const PartialQuadratureSpace& s,
                         size_type nc,
                         SecondFunctionType f);
     //

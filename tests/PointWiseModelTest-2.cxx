@@ -51,7 +51,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
                           {"NumberOfUniformRefinements", parallel ? 1 : 0},
                           {"Parallel", parallel}}) |
       or_die;
-  auto qspace = make_shared<const PartialQuadratureSpace>(
+  auto qspace = construct<PartialQuadratureSpace>(
                     ctx, *fed, MaterialIdentifier{.id = 5},
                     [](const mfem::FiniteElement& e,
                        const mfem::ElementTransformation&) noexcept
@@ -90,7 +90,7 @@ bool test(mfem_mgis::Context& ctx, const TestParameters& params) {
   const auto expTm = real{1} + exp(-Ta / Tm);
   const auto BUp = real{5};
   const auto s_ref = A * (exp(-3.e-2 * BUp * expTm) - 1);
-  for (size_type i = 0; i != getSpaceSize(*qspace); ++i) {
+  for (size_type i = 0; i != getSpaceSize(qspace); ++i) {
     const auto value = s.getIntegrationPointValue(i);
     if (std::abs(value - s_ref) > 1e-8) {
       return ctx.registerErrorMessage("invalid shrinkage value (" +

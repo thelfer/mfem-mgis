@@ -9,23 +9,13 @@
 
 namespace mfem_mgis {
 
-  QPEvaluatorBase::QPEvaluatorBase(
-      std::shared_ptr<const PartialQuadratureSpace> s)
-      : qspace(std::move(s)) {
-    if (this->qspace.get() == nullptr) {
-      raise("invalid partial quadrature space");
-    }
-  }  // end of QPEvaluatorBase
+  QPEvaluatorBase::QPEvaluatorBase(const PartialQuadratureSpace& s) noexcept
+      : qspace(s) {}  // end of QPEvaluatorBase
 
   const PartialQuadratureSpace& QPEvaluatorBase::getPartialQuadratureSpace()
       const noexcept {
-    return *(this->qspace);
-  }  // end of getPartialQuadratureSpace
-
-  std::shared_ptr<const PartialQuadratureSpace>
-  QPEvaluatorBase::getPartialQuadratureSpacePointer() const noexcept {
     return this->qspace;
-  }  // end of getPartialQuadratureSpacePointer
+  }  // end of getQuadratureSpace
 
   bool QPEvaluatorBase::isUniform() const noexcept {
     return false;

@@ -21,7 +21,7 @@ namespace mfem_mgis {
     return mfem::IntRules.Get(e.GetGeomType(), order);
   }
 
-  std::shared_ptr<const PartialQuadratureSpace>
+  PartialQuadratureSpace
   TridimensionalMicromorphicDamageBehaviourIntegrator::buildQuadratureSpace(
       attributes::Throwing,
       const FiniteElementDiscretization &fed,
@@ -31,8 +31,7 @@ namespace mfem_mgis {
         -> const mfem::IntegrationRule & {
       return selectIntegrationRule(e, tr);
     };  // end of selector
-    return std::make_shared<PartialQuadratureSpace>(
-        fed, LocationIdentifier{MaterialIdentifier{m}}, selector);
+    return {fed, LocationIdentifier{MaterialIdentifier{m}}, selector};
   }  // end of buildQuadratureSpace
 
   TridimensionalMicromorphicDamageBehaviourIntegrator::
@@ -71,7 +70,7 @@ namespace mfem_mgis {
       const mfem::Vector &d_chi,
       const IntegrationType it) {
     // element offset
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    const auto eoffset = this->quadrature_space.getOffset(tr.ElementNo);
     // integration rule
     const auto &ir = this->getIntegrationRule(e, tr);
 #ifdef MFEM_THREAD_SAFE
@@ -129,7 +128,7 @@ namespace mfem_mgis {
     const auto nnodes = e.GetDof();
     const auto thsize = this->s1.thermodynamic_forces_stride;
     // element offset
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    const auto eoffset = this->quadrature_space.getOffset(tr.ElementNo);
     Fe.SetSize(e.GetDof());
     Fe = 0.;
     const auto &ir = this->getIntegrationRule(e, tr);
@@ -173,7 +172,7 @@ namespace mfem_mgis {
 #endif
     const auto &ir = this->getIntegrationRule(e, tr);
     const auto nnodes = e.GetDof();
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    const auto eoffset = this->quadrature_space.getOffset(tr.ElementNo);
     Ke.SetSize(e.GetDof(), e.GetDof());
     Ke = 0.;
     for (size_type i = 0; i != ir.GetNPoints(); ++i) {
@@ -228,7 +227,7 @@ namespace mfem_mgis {
     const auto nnodes = e.GetDof();
     const auto thsize = this->s1.thermodynamic_forces_stride;
     // element offset
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    const auto eoffset = this->quadrature_space.getOffset(tr.ElementNo);
     Fe.SetSize(e.GetDof());
     Fe = 0.;
     const auto &ir = this->getIntegrationRule(e, tr);

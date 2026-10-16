@@ -65,7 +65,7 @@ struct StateManagerTest final : public tfel::tests::TestCase {
     const auto ook0 = sm.contains(ctx, *qspace1, "function1", ets);
     TFEL_TESTS_ASSERT(isValid(ook0));
     TFEL_TESTS_CHECK(!(*ook0));
-    auto of = construct<PartialQuadratureFunction>(ctx, qspace1);
+    auto of = construct<PartialQuadratureFunction>(ctx, *qspace1);
     TFEL_TESTS_ASSERT(isValid(of));
     TFEL_TESTS_CHECK(sm.add(ctx, "function1", *of, ets));
     const auto ook = sm.contains(ctx, *qspace1, "function1", ets);

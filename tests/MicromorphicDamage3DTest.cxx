@@ -267,10 +267,8 @@ int main(int argc, char** argv) {
   // other
   auto& m1 = micromorphic_problem->getMaterial(ctx, "beam", 0) | or_die;
 
-  mfem_mgis::PartialQuadratureFunction Y(m1.getPartialQuadratureSpacePointer(),
-                                         1u);
-  mfem_mgis::PartialQuadratureFunction d(m1.getPartialQuadratureSpacePointer(),
-                                         1u);
+  mfem_mgis::PartialQuadratureFunction Y(m1.getPartialQuadratureSpace(), 1u);
+  mfem_mgis::PartialQuadratureFunction d(m1.getPartialQuadratureSpace(), 1u);
   // using external storage allows to directly modify the values of the
   // quadrature functions Y and d
   auto& m2 = mechanical_problem->getMaterial(ctx, "beam", 0) | or_die;

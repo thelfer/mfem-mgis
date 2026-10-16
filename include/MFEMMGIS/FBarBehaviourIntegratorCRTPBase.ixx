@@ -24,12 +24,11 @@ namespace mfem_mgis {
 
   template <typename Child, Hypothesis H>
   FBarBehaviourIntegratorCRTPBase<Child, H>::FBarBehaviourIntegratorCRTPBase(
-      std::shared_ptr<const PartialQuadratureSpace> s,
-      std::unique_ptr<const Behaviour> b_ptr)
+      const PartialQuadratureSpace &s, std::unique_ptr<const Behaviour> b_ptr)
       : BehaviourIntegratorBase(s, std::move(b_ptr)) {
     using Traits = BehaviourIntegratorTraits<Child>;
     constexpr auto usize = static_cast<size_type>(Traits::unknownsSize);
-    const auto &fed = s->getFiniteElementDiscretization();
+    const auto &fed = s.getFiniteElementDiscretization();
     const auto nc = getNumberOfComponents(fed);
     if (nc != usize) {
       raise("the number of components of the finite element space (" +
@@ -74,7 +73,7 @@ namespace mfem_mgis {
     //
     auto &child = static_cast<Child &>(*this);
     // element offset
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    const auto eoffset = this->quadrature_space.getOffset(tr.ElementNo);
     const auto &ir = child.getIntegrationRule(e, tr);
     if ((it == IntegrationType::PREDICTION_TANGENT_OPERATOR) ||
         (it == IntegrationType::PREDICTION_SECANT_OPERATOR) ||
@@ -226,7 +225,7 @@ namespace mfem_mgis {
     const auto nnodes = e.GetDof();
     const auto thsize = this->s1.thermodynamic_forces_stride;
     // element offset
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    const auto eoffset = this->quadrature_space.getOffset(tr.ElementNo);
     Fe.SetSize(e.GetDof() * Traits::unknownsSize);
     Fe = 0.;
     const auto &ir = child.getIntegrationRule(e, tr);
@@ -328,7 +327,7 @@ namespace mfem_mgis {
     }
     const auto J0 = tfel::math::det(F0);
     // element offset
-    const auto eoffset = this->quadrature_space->getOffset(tr.ElementNo);
+    const auto eoffset = this->quadrature_space.getOffset(tr.ElementNo);
     Ke.SetSize(e.GetDof() * Traits::unknownsSize,
                e.GetDof() * Traits::unknownsSize);
     Ke = 0.;

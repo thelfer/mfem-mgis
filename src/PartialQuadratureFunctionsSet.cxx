@@ -13,7 +13,7 @@ namespace mfem_mgis {
   static std::vector<std::shared_ptr<PartialQuadratureFunction>>
   buildPartialQuadratureFunctionsSet(
       attributes::Throwing,
-      const std::vector<std::shared_ptr<const PartialQuadratureSpace>>& qspaces,
+      const std::vector<PartialQuadratureSpace>& qspaces,
       const mfem_mgis::size_type n) {
     auto functions = std::vector<std::shared_ptr<PartialQuadratureFunction>>{};
     functions.reserve(qspaces.size());
@@ -25,7 +25,7 @@ namespace mfem_mgis {
   }  // end of functions
 
   PartialQuadratureFunctionsSet::PartialQuadratureFunctionsSet(
-      const std::vector<std::shared_ptr<const PartialQuadratureSpace>>& qspaces,
+      const std::vector<PartialQuadratureSpace>& qspaces,
       const mfem_mgis::size_type n)
       : PartialQuadratureFunctionsSet(
             buildPartialQuadratureFunctionsSet(throwing, qspaces, n)) {}

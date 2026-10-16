@@ -27,8 +27,6 @@ namespace mfem_mgis {
                                                     Material {
     [[nodiscard]] const PartialQuadratureSpace& getPartialQuadratureSpace()
         const noexcept override;
-    [[nodiscard]] std::shared_ptr<const PartialQuadratureSpace>
-    getPartialQuadratureSpacePointer() const noexcept override;
     [[nodiscard]] real getTimeIncrement() const noexcept override;
     void setTimeIncrement(const real dt) override;
     [[nodiscard]] bool setup(Context& ctx,
@@ -65,7 +63,7 @@ namespace mfem_mgis {
      * \param[in] s: quadrature space
      * \param[in] b_ptr: behaviour
      */
-    BehaviourIntegratorBase(std::shared_ptr<const PartialQuadratureSpace> s,
+    BehaviourIntegratorBase(const PartialQuadratureSpace& s,
                             std::unique_ptr<const Behaviour> b_ptr);
     /*!
      * \brief check that the behaviour is a standard finite strain behaviour

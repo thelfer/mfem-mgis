@@ -95,6 +95,11 @@ namespace mfem_mgis {
     return this->pimpl.get() == rhs.pimpl.get();
   }  // end of operator==
 
+  inline bool PartialQuadratureSpace::operator!=(
+      const PartialQuadratureSpace& rhs) const noexcept {
+    return this->pimpl.get() != rhs.pimpl.get();
+  }  // end of operator!=
+
   inline size_type getSpaceSize(const PartialQuadratureSpace& s) {
     return s.getNumberOfIntegrationPoints();
   }  // end of getSpaceSize

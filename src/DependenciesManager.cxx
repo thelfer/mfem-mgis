@@ -98,7 +98,7 @@ namespace mfem_mgis {
                             });
       } else {
         return std::find_if(ldm.begin(), ldm.end(), [&nd](const auto &dep) {  //
-          const auto q = dep.getPartialQuadratureSpacePointer();
+          const auto q = dep.getPartialQuadratureSpace();
           if (isValid(q)) {
             return false;
           }
@@ -114,23 +114,19 @@ namespace mfem_mgis {
     return true;
   }  // end of declareDependency
 
-  bool DependenciesManager::setProvider(
-      Context &ctx,
-      const Provider &pr,
-      const QPDependency &d,
-      std::shared_ptr<const PartialQuadratureSpace> qspace,
-      const size_type nc,
-      const TimeStepStage ts) noexcept {
-    if (isInvalid(qspace)) {
-      return ctx.registerErrorMessage("invalid partial quadrature space");
-    }
+  bool DependenciesManager::setProvider(Context &ctx,
+                                        const Provider &pr,
+                                        const QPDependency &d,
+                                        const PartialQuadratureSpace &qspace,
+                                        const size_type nc,
+                                        const TimeStepStage ts) noexcept {
     if (!d.matchesSpecifications(ctx, nc)) {
       return false;
     }
     const auto &m = d.getLocation();
-    const auto dqspace = d.getPartialQuadratureSpacePointer();
+    const auto dqspace = d.getPartialQuadratureSpace();
     if (isValid(dqspace)) {
-      const auto oeq = areMappable(ctx, *dqspace, *qspace);
+      const auto oeq = areMappable(ctx, *dqspace, qspace);
       if (isInvalid(oeq)) {
         return false;
       }
@@ -164,9 +160,9 @@ namespace mfem_mgis {
         if (!ld.checkAndUpdate(ctx, nc)) {
           return false;
         }
-        const auto oldqspace = ld.getPartialQuadratureSpacePointer();
+        const auto oldqspace = ld.getPartialQuadratureSpace();
         if ((isValid(oldqspace)) && (isValid(dqspace))) {
-          const auto oeq = areMappable(ctx, *oldqspace, *qspace);
+          const auto oeq = areMappable(ctx, *oldqspace, qspace);
           if (isInvalid(oeq)) {
             return false;
           }
@@ -213,7 +209,7 @@ namespace mfem_mgis {
         // we don't check if *p is a duplicate.
         // if it is, the following code will be executed by the original anyway
         const auto oeq =
-            areMappable(ctx, *(p->getPartialQuadratureSpacePointer()), *qspace);
+            areMappable(ctx, *(p->getPartialQuadratureSpace()), qspace);
         if (isInvalid(oeq)) {
           return false;
         }
