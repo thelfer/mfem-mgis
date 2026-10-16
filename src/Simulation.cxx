@@ -901,6 +901,9 @@ namespace mfem_mgis {
           reportMaximumFailureReached();
           return;
         }
+        // description of the failed time step, before the sub stepping
+        // changes its end
+        const auto failed_time_step = getTimeStepDescription();
         auto odt =
             this->convergenceFailureHandler->getNewTimeIncrement(ctx, *ote - t);
         if (isInvalid(odt)) {
@@ -916,8 +919,7 @@ namespace mfem_mgis {
         }
         // flushing the error message
         std::ignore = ctx.registerErrorMessage(
-            "The coupling scheme did not converge for the " +
-            getTimeStepDescription());
+            "The coupling scheme did not converge for the " + failed_time_step);
         const auto msg = ctx.getErrorMessage();
         if (ctx.getVerbosityLevel() >= VerbosityLevel::verboseLevel1) {
           ctx.log() << msg << std::endl;

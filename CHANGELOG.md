@@ -49,6 +49,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `assign_values` requires both views to be defined on the same mesh
   discretization
 
+### Fixed
+
+- the message of a failed time step described its first sub-step instead
+  of the failed time step
+
 ### Removed
 
 - deprecated methods of `AbstractNonLinearEvolutionProblem` and deprecated
