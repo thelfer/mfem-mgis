@@ -48,6 +48,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   boolean
 - `assign_values` requires both views to be defined on the same mesh
   discretization
+- partial quadrature spaces are handled by value: copies share the same
+  data and compare equal. Constructors and functions taking a
+  `std::shared_ptr<const PartialQuadratureSpace>` take a `const
+  PartialQuadratureSpace&`, and the `buildQuadratureSpace` methods of
+  the behaviour integrators return a `PartialQuadratureSpace`
+- partial quadrature function views can no longer be default constructed nor
+  assigned
+- `getPartialQuadratureSpacePointer`, replaced by `getPartialQuadratureSpace`
 
 ### Removed
 

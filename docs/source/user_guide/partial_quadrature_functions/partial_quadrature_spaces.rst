@@ -13,7 +13,7 @@ function selecting the integration rule of each element:
 
 .. code:: c++
 
-   auto qspace = std::make_shared<PartialQuadratureSpace>(
+   auto qspace = construct<PartialQuadratureSpace>(
        fed, BoundaryIdentifier{.id = 2}, selector);
 
 A partial quadrature space defined on a boundary is built on the
@@ -22,6 +22,11 @@ boundary elements of the mesh of the finite element discretization.
 Another constructor takes a finite element space as second argument, for
 instance a finite element space defined on a submesh. This finite
 element space must be managed by the finite element discretization.
+
+.. note::
+
+   A partial quadrature space is handled by value:
+   its copies share the same data and compare equal.
 
 Retrieving information on a partial quadrature space
 ====================================================
