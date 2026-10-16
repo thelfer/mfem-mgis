@@ -256,11 +256,11 @@ namespace mfem_mgis {
       PartialQuadratureFunctionStorage&&) noexcept = default;
 
   PartialQuadratureFunctionStorage::PartialQuadratureFunctionStorage(
-      const size_type s) noexcept
+      const size_type s)
       : local_values_storage(s) {}  // end of PartialQuadratureFunctionStorage
 
   PartialQuadratureFunctionStorage::PartialQuadratureFunctionStorage(
-      std::span<const real> v) noexcept
+      std::span<const real> v)
       : local_values_storage(v.begin(), v.end()) {
   }  // end of PartialQuadratureFunctionStorage
 

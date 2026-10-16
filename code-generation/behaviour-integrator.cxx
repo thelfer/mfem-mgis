@@ -683,7 +683,7 @@ void generateHeaderFile(std::ostream &os,
      << " * \\param[in] m: material attribute.\n"
      << " * \\return the partial quadrature space\n"
      << " */\n"
-     << "static std::shared_ptr<const PartialQuadratureSpace> "
+     << "static PartialQuadratureSpace"
      << "buildQuadratureSpace(attributes::Throwing throwing,\n"
      << "                     const FiniteElementDiscretization &fed,\n"
      << "                     const size_type m);\n";
@@ -780,9 +780,8 @@ void generateSourceFile(std::ostream &os,
   } else {
     os << "  return mfem::IntRules.Get(e.GetGeomType(), order);\n";
   }
-  os << "}\n"
-     << '\n'
-     << "std::shared_ptr<const PartialQuadratureSpace>\n"
+  os << "}\n\n"
+     << "PartialQuadratureSpace\n"
      << "" << d.name << "::buildQuadratureSpace(\n"
      << "    attributes::Throwing,\n"
      << "    const FiniteElementDiscretization &fed, const size_type m) {\n"
@@ -791,7 +790,7 @@ void generateSourceFile(std::ostream &os,
      << "      -> const mfem::IntegrationRule & {\n"
      << "    return selectIntegrationRule(e, tr);\n"
      << "  };  // end of selector\n"
-     << "  return std::make_shared<PartialQuadratureSpace>(\n"
+     << "  return PartialQuadratureSpace(\n"
      << "      fed, LocationIdentifier{MaterialIdentifier{m}}, selector);\n"
      << "}  // end of buildQuadratureSpace\n"
      << '\n'
