@@ -19,7 +19,7 @@ namespace mfem_mgis {
 
   template <bool parallel>
   static std::vector<size_type> buildDegreesOfFreedomList(
-      FiniteElementDiscretization& fed,
+      const FiniteElementDiscretization& fed,
       const std::vector<size_type>& bids,
       const size_type c) {
     auto& m = fed.getMesh<parallel>();
@@ -36,7 +36,7 @@ namespace mfem_mgis {
   }  // end of buildDegreesOfFreedomList
 
   static std::vector<size_type> buildDegreesOfFreedomListDispatch(
-      FiniteElementDiscretization& fed,
+      const FiniteElementDiscretization& fed,
       const std::vector<size_type>& bids,
       const size_type c) {
     if (fed.describesAParallelComputation()) {
@@ -52,7 +52,7 @@ namespace mfem_mgis {
   }  // end of buildDegreesOfFreedomListDispatch
 
   DirichletBoundaryConditionBase::DirichletBoundaryConditionBase(
-      FiniteElementDiscretization& fed,
+      const FiniteElementDiscretization& fed,
       const std::vector<size_type>& bid,
       const size_type c)
       : dofs(buildDegreesOfFreedomListDispatch(fed, bid, c)) {

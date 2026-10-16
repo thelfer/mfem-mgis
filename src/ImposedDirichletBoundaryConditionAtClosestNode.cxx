@@ -156,8 +156,8 @@ namespace mfem_mgis {
 
   template <std::size_t space_dimension>
   static std::optional<size_type> getDegreeOfFreedomForClosestNode(
-      FiniteElementDiscretization& fed,
-      std::array<real, space_dimension> pt,
+      FiniteElementDiscretization fed,  // take by copy
+      const std::array<real, space_dimension> pt,
       const size_type c) {
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
@@ -179,40 +179,40 @@ namespace mfem_mgis {
 
   ImposedDirichletBoundaryConditionAtClosestNode::
       ImposedDirichletBoundaryConditionAtClosestNode(
-          const std::shared_ptr<FiniteElementDiscretization> fed,
+          const FiniteElementDiscretization& fed,
           const std::array<real, 2u> pt,
           const size_type c)
       : ufct([](const real) noexcept { return 0; }),
-        dof(getDegreeOfFreedomForClosestNode<2u>(*fed, pt, c)) {
+        dof(getDegreeOfFreedomForClosestNode<2u>(fed, pt, c)) {
   }  // end of  ImposedDirichletBoundaryConditionAtClosestNode
 
   ImposedDirichletBoundaryConditionAtClosestNode::
       ImposedDirichletBoundaryConditionAtClosestNode(
-          const std::shared_ptr<FiniteElementDiscretization> fed,
+          const FiniteElementDiscretization& fed,
           const std::array<real, 2u> pt,
           const size_type c,
           std::function<real(const real)> uvalues)
       : ufct(uvalues),
-        dof(getDegreeOfFreedomForClosestNode<2u>(*fed, pt, c)) {
+        dof(getDegreeOfFreedomForClosestNode<2u>(fed, pt, c)) {
   }  // end of  ImposedDirichletBoundaryConditionAtClosestNode
 
   ImposedDirichletBoundaryConditionAtClosestNode::
       ImposedDirichletBoundaryConditionAtClosestNode(
-          const std::shared_ptr<FiniteElementDiscretization> fed,
+          const FiniteElementDiscretization& fed,
           const std::array<real, 3u> pt,
           const size_type c)
       : ufct([](const real) noexcept { return 0; }),
-        dof(getDegreeOfFreedomForClosestNode<3u>(*fed, pt, c)) {
+        dof(getDegreeOfFreedomForClosestNode<3u>(fed, pt, c)) {
   }  // end of  ImposedDirichletBoundaryConditionAtClosestNode
 
   ImposedDirichletBoundaryConditionAtClosestNode::
       ImposedDirichletBoundaryConditionAtClosestNode(
-          const std::shared_ptr<FiniteElementDiscretization> fed,
+          const FiniteElementDiscretization& fed,
           const std::array<real, 3u> pt,
           const size_type c,
           std::function<real(const real)> uvalues)
       : ufct(uvalues),
-        dof(getDegreeOfFreedomForClosestNode<3u>(*fed, pt, c)) {
+        dof(getDegreeOfFreedomForClosestNode<3u>(fed, pt, c)) {
   }  // end of  ImposedDirichletBoundaryConditionAtClosestNode
 
   std::vector<size_type>

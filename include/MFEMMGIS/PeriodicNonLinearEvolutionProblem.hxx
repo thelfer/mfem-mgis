@@ -114,11 +114,10 @@ namespace mfem_mgis {
      * \param[in] corner1: one corner of the computation domain
      * \param[in] corner2: second corner of the computation domain
      */
-    PeriodicNonLinearEvolutionProblem(
-        mgis::Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization> fed,
-        const std::span<const real>& corner1,
-        const std::span<const real>& corner2);
+    PeriodicNonLinearEvolutionProblem(mgis::Context& ctx,
+                                      const FiniteElementDiscretization& fed,
+                                      const std::span<const real>& corner1,
+                                      const std::span<const real>& corner2);
 
     /*!
      * \brief constructor with profiling support
@@ -129,7 +128,7 @@ namespace mfem_mgis {
      */
     PeriodicNonLinearEvolutionProblem(
         mgis::Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const mfem_mgis::BoundaryConditionType bct = mfem_mgis::FIX_XMIN);
     //! \brief move constructor
     PeriodicNonLinearEvolutionProblem(

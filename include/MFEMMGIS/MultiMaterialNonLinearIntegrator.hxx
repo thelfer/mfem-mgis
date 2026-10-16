@@ -40,9 +40,8 @@ namespace mfem_mgis {
      * \param[in] fed: finite element discretisation
      * \param[in] h: modelling hypothesis
      */
-    MultiMaterialNonLinearIntegrator(
-        std::shared_ptr<const FiniteElementDiscretization> fed,
-        const Hypothesis h);
+    MultiMaterialNonLinearIntegrator(const FiniteElementDiscretization& fed,
+                                     const Hypothesis h);
     // MFEM API
     /*!
      * \brief compute the contribution of the given element to the residual
@@ -208,7 +207,7 @@ namespace mfem_mgis {
 
    protected:
     //! \brief underlying finite element discretization
-    const std::shared_ptr<const FiniteElementDiscretization> fe_discretization;
+    const FiniteElementDiscretization fe_discretization;
     //! \brief modelling hypothesis
     const Hypothesis hypothesis;
     /*!

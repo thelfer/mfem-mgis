@@ -13,6 +13,7 @@
 #include <vector>
 #include <mfem/linalg/densemat.hpp>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 
 namespace mfem_mgis {
@@ -43,7 +44,7 @@ namespace mfem_mgis {
      * \param[in] prvalues: function returning the imposed values
      */
     UniformImposedPressureBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const size_type bid,
         std::function<real(const real)> prvalues);
     /*!
@@ -53,7 +54,7 @@ namespace mfem_mgis {
      * \param[in] prvalues: function returning the imposed values
      */
     UniformImposedPressureBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const std::string_view bid,
         std::function<real(const real)> prvalues);
 #ifdef MFEM_USE_MPI
@@ -147,7 +148,7 @@ namespace mfem_mgis {
     //! \brief nonlinear form integrator imposing the pressure
     struct UniformImposedPressureNonlinearFormIntegrator;
     //! \brief finite element discretization
-    std::shared_ptr<FiniteElementDiscretization> finiteElementDiscretization;
+    const FiniteElementDiscretization finiteElementDiscretization;
     //! \brief list of boundary identifiers
     std::vector<size_type> bids;
     //! \brief markers of the boundaries

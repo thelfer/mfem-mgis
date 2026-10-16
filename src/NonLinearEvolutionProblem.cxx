@@ -47,13 +47,11 @@ namespace mfem_mgis {
     //
     const auto h = mgis::behaviour::fromString(get<std::string>(
         throwing, p, NonLinearEvolutionProblem::HypothesisParameter));
-    const auto fed =
-        make_shared<FiniteElementDiscretization>(
-            ctx, extract(throwing, p,
-                         FiniteElementDiscretization::getParametersList())) |
-        or_raise;
+    auto fed = FiniteElementDiscretization(
+        ctx,
+        extract(throwing, p, FiniteElementDiscretization::getParametersList()));
     //
-    if (fed->describesAParallelComputation()) {
+    if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
           NonLinearEvolutionProblemImplementation<true>;
@@ -83,7 +81,7 @@ namespace mfem_mgis {
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
             ctx,
-            std::make_shared<FiniteElementDiscretization>(
+            FiniteElementDiscretization(
                 ctx,
                 m,
                 extract(throwing,
@@ -98,7 +96,7 @@ namespace mfem_mgis {
                                                        const Parameters& p)
       : NonLinearEvolutionProblem(
             ctx,
-            std::make_shared<FiniteElementDiscretization>(
+            FiniteElementDiscretization(
                 ctx,
                 m,
                 extract(throwing,
@@ -111,9 +109,7 @@ namespace mfem_mgis {
   }  // end of NonLinearEvolutionProblem
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
-      Context& ctx,
-      std::shared_ptr<FiniteElementDiscretization> fed,
-      const Parameters& p)
+      Context& ctx, const FiniteElementDiscretization& fed, const Parameters& p)
       : NonLinearEvolutionProblem(
             ctx,
             fed,
@@ -124,7 +120,7 @@ namespace mfem_mgis {
 
   NonLinearEvolutionProblem::NonLinearEvolutionProblem(
       Context& ctx,
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization& fed,
       const Hypothesis h,
       const Parameters& p) {
     checkParameters(throwing, p,
@@ -136,7 +132,7 @@ namespace mfem_mgis {
     }
     using SequentialImplementation =
         NonLinearEvolutionProblemImplementation<false>;
-    if (fed->describesAParallelComputation()) {
+    if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       using ParallelImplementation =
           NonLinearEvolutionProblemImplementation<true>;
@@ -151,20 +147,10 @@ namespace mfem_mgis {
     }
   }  // end of NonLinearEvolutionProblem
 
-  FiniteElementDiscretization&
-  NonLinearEvolutionProblem::getFiniteElementDiscretization() noexcept {
-    return this->pimpl->getFiniteElementDiscretization();
-  }  // end of getFiniteElementDiscretization
-
-  const FiniteElementDiscretization&
+  FiniteElementDiscretization
   NonLinearEvolutionProblem::getFiniteElementDiscretization() const noexcept {
     return this->pimpl->getFiniteElementDiscretization();
   }  // end of getFiniteElementDiscretization
-
-  std::shared_ptr<FiniteElementDiscretization>
-  NonLinearEvolutionProblem::getFiniteElementDiscretizationPointer() noexcept {
-    return this->pimpl->getFiniteElementDiscretizationPointer();
-  }  // end of getFiniteElementDiscretizationPointer
 
   mfem::Vector& NonLinearEvolutionProblem::getUnknowns(
       const TimeStepStage ts) noexcept {
@@ -458,7 +444,7 @@ namespace mfem_mgis {
 
   std::vector<std::pair<size_type, size_type>> buildFacesDescription(
       NonLinearEvolutionProblem& p, const size_type bid) {
-    auto& fed = p.getFiniteElementDiscretization();
+    auto fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       return buildFacesDescription(p.getImplementation<true>(), bid);
@@ -472,7 +458,7 @@ namespace mfem_mgis {
   std::vector<std::pair<size_type, std::vector<std::vector<size_type>>>>
   getElementsDegreesOfFreedomOnBoundary(NonLinearEvolutionProblem& p,
                                         const size_type bid) {
-    auto& fed = p.getFiniteElementDiscretization();
+    auto fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       return getElementsDegreesOfFreedomOnBoundary(p.getImplementation<true>(),
@@ -492,7 +478,7 @@ namespace mfem_mgis {
       const std::vector<
           std::pair<size_type, std::vector<std::vector<size_type>>>>& elts_dofs,
       const BehaviourIntegratorsSelection& selection) noexcept {
-    auto& fed = p.getFiniteElementDiscretization();
+    auto fed = p.getFiniteElementDiscretization();
     if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       return computeResultantForceOnBoundary(

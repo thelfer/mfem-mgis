@@ -12,6 +12,7 @@
 #include <vector>
 #include <mfem/linalg/densemat.hpp>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractBoundaryCondition.hxx"
 
 namespace mfem_mgis {
@@ -42,7 +43,7 @@ namespace mfem_mgis {
      * \param[in] prvalues: function returning the imposed values
      */
     UniformHeatSourceBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const size_type mid,
         std::function<real(const real)> prvalues);
     /*!
@@ -52,7 +53,7 @@ namespace mfem_mgis {
      * \param[in] prvalues: function returning the imposed values
      */
     UniformHeatSourceBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const std::string_view mid,
         std::function<real(const real)> prvalues);
 #ifdef MFEM_USE_MPI
@@ -144,7 +145,7 @@ namespace mfem_mgis {
     //! \brief internal structure
     struct UniformHeatSourceNonlinearFormIntegrator;
     //! \brief finite element discretization
-    std::shared_ptr<FiniteElementDiscretization> finiteElementDiscretization;
+    const FiniteElementDiscretization finiteElementDiscretization;
     //! \brief list of material identifiers
     std::vector<size_type> mids;
     //! \brief markers of the materials

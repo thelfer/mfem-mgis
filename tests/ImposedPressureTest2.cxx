@@ -65,22 +65,22 @@ int main(int argc, char** argv) {
   // Only the index is used in this C++ code for manipulating related dof.
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 1) |
+               ctx, problem.getFiniteElementDiscretization(), 1, 1) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 2) |
+               ctx, problem.getFiniteElementDiscretization(), 2, 2) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 5, 0) |
+               ctx, problem.getFiniteElementDiscretization(), 5, 0) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformImposedPressureBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 3,
+               ctx, problem.getFiniteElementDiscretization(), 3,
                [](const mfem_mgis::real t) noexcept { return 150e6 * t; }) |
                or_die) |
       or_die;

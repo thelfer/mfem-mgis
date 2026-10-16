@@ -27,7 +27,7 @@ namespace mfem_mgis {
      * \param[in] c: component of the unknowns treated by this boundary
      * condition.
      */
-    DirichletBoundaryConditionBase(FiniteElementDiscretization& fed,
+    DirichletBoundaryConditionBase(const FiniteElementDiscretization& fed,
                                    const std::vector<size_type>& bid,
                                    const size_type c);
     //

@@ -66,9 +66,8 @@ namespace mfem_mgis {
       if (!this->out) {
         raise("can't open file '" + f + "'");
       }
-      auto& fed = p.getFiniteElementDiscretization();
-      auto& fes = fed.template getFiniteElementSpace<true>();
-      writeOuputFileHeader(this->out, this->bid, fes.GetVDim());
+      const auto fed = p.getFiniteElementDiscretization();
+      writeOuputFileHeader(this->out, this->bid, getNumberOfComponents(fed));
     }
   }  // end of ComputeResultantForceOnBoundary
 
@@ -123,9 +122,8 @@ namespace mfem_mgis {
     if (!this->out) {
       raise("can't open file '" + f + "'");
     }
-    auto& fed = p.getFiniteElementDiscretization();
-    auto& fes = fed.template getFiniteElementSpace<false>();
-    writeOuputFileHeader(this->out, this->bid, fes.GetVDim());
+    const auto fed = p.getFiniteElementDiscretization();
+    writeOuputFileHeader(this->out, this->bid, getNumberOfComponents(fed));
   }  // end of ComputeResultantForceOnBoundary
 
   bool ComputeResultantForceOnBoundary<false>::executeInitialPostProcessing(

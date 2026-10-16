@@ -124,7 +124,7 @@ static Results solve(mfem_mgis::Context& ctx,
   }
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformImposedPressureBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), "Xmax",
+               ctx, problem.getFiniteElementDiscretization(), "Xmax",
                [](const mfem_mgis::real t) noexcept { return pressure * t; }) |
                or_die) |
       or_die;

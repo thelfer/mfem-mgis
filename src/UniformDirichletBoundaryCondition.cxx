@@ -28,37 +28,37 @@ namespace mfem_mgis {
   }  // end of UniformDirichletBoundaryCondition
 
   UniformDirichletBoundaryCondition::UniformDirichletBoundaryCondition(
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization& fed,
       const size_type bid,
       const size_type c)
-      : DirichletBoundaryConditionBase(*fed, {bid}, c),
+      : DirichletBoundaryConditionBase(fed, {bid}, c),
         ufct([](const real) noexcept { return real(0); }) {
   }  // end of UniformDirichletBoundaryCondition
 
   UniformDirichletBoundaryCondition::UniformDirichletBoundaryCondition(
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization& fed,
       const std::string_view bid,
       const size_type c)
       : DirichletBoundaryConditionBase(
-            *fed, getBoundariesIdentifiers(throwing, *fed, bid), c),
+            fed, getBoundariesIdentifiers(throwing, fed, bid), c),
         ufct([](const real) noexcept { return real(0); }) {
   }  // end of UniformDirichletBoundaryCondition
 
   UniformDirichletBoundaryCondition::UniformDirichletBoundaryCondition(
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization& fed,
       const size_type bid,
       const size_type c,
       std::function<real(const real)> uvalues)
-      : DirichletBoundaryConditionBase(*fed, {bid}, c),
+      : DirichletBoundaryConditionBase(fed, {bid}, c),
         ufct(uvalues) {}  // end of UniformDirichletBoundaryCondition
 
   UniformDirichletBoundaryCondition::UniformDirichletBoundaryCondition(
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization& fed,
       const std::string_view bid,
       const size_type c,
       std::function<real(const real)> uvalues)
       : DirichletBoundaryConditionBase(
-            *fed, getBoundariesIdentifiers(throwing, *fed, bid), c),
+            fed, getBoundariesIdentifiers(throwing, fed, bid), c),
         ufct(uvalues) {}  // end of UniformDirichletBoundaryCondition
 
   void UniformDirichletBoundaryCondition::updateImposedValues(

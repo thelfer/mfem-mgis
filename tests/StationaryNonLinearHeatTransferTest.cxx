@@ -82,13 +82,13 @@ int main(int argc, char** argv) {
     // Only the index is used in this C++ code for manipulating related dof.
     problem.addBoundaryCondition(
         ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-                 ctx, problem.getFiniteElementDiscretizationPointer(), 5, 0,
+                 ctx, problem.getFiniteElementDiscretization(), 5, 0,
                  [](const auto) noexcept { return 293.15; }) |
                  or_die) |
         or_die;
     problem.addBoundaryCondition(
         ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-                 ctx, problem.getFiniteElementDiscretizationPointer(), 3, 0,
+                 ctx, problem.getFiniteElementDiscretization(), 3, 0,
                  [](const auto t) noexcept {
                    return 293.15 + (893.15 - 293.15) * t;
                  }) |

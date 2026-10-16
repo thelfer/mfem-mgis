@@ -42,10 +42,9 @@ namespace mfem_mgis {
      *
      * \note the degrees of freedom are set to zero
      */
-    UniformDirichletBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization> fed,
-        const size_type bid,
-        const size_type c);
+    UniformDirichletBoundaryCondition(const FiniteElementDiscretization& fed,
+                                      const size_type bid,
+                                      const size_type c);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
@@ -54,11 +53,10 @@ namespace mfem_mgis {
      * condition.
      * \param[in] uvalues: function returning the imposed values
      */
-    UniformDirichletBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization> fed,
-        const size_type bid,
-        const size_type c,
-        std::function<real(const real)> uvalues);
+    UniformDirichletBoundaryCondition(const FiniteElementDiscretization& fed,
+                                      const size_type bid,
+                                      const size_type c,
+                                      std::function<real(const real)> uvalues);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
@@ -68,10 +66,9 @@ namespace mfem_mgis {
      *
      * \note the degrees of freedom are set to zero
      */
-    UniformDirichletBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization> fed,
-        const std::string_view bid,
-        const size_type c);
+    UniformDirichletBoundaryCondition(const FiniteElementDiscretization& fed,
+                                      const std::string_view bid,
+                                      const size_type c);
     /*!
      * \brief constructor
      * \param[in] fed: finite element discretization
@@ -80,11 +77,10 @@ namespace mfem_mgis {
      * condition.
      * \param[in] uvalues: function returning the imposed values
      */
-    UniformDirichletBoundaryCondition(
-        std::shared_ptr<FiniteElementDiscretization> fed,
-        const std::string_view bid,
-        const size_type c,
-        std::function<real(const real)> uvalues);
+    UniformDirichletBoundaryCondition(const FiniteElementDiscretization& fed,
+                                      const std::string_view bid,
+                                      const size_type c,
+                                      std::function<real(const real)> uvalues);
     /*!
      * \brief update the values of the imposed degrees of freedom
      * \param[in, out] u: unknown vector
