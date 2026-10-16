@@ -242,14 +242,8 @@ namespace mfem_mgis {
     [[nodiscard]] virtual bool setBoundariesNames(
         Context &ctx, const std::map<size_type, std::string> &ids) noexcept = 0;
     //! \return the underlying finite element discretization
-    [[nodiscard]] virtual FiniteElementDiscretization &
-    getFiniteElementDiscretization() noexcept = 0;
-    //! \return the underlying finite element discretization
-    [[nodiscard]] virtual const FiniteElementDiscretization &
+    [[nodiscard]] virtual FiniteElementDiscretization
     getFiniteElementDiscretization() const noexcept = 0;
-    //! \return the underlying finite element discretization
-    [[nodiscard]] virtual std::shared_ptr<FiniteElementDiscretization>
-    getFiniteElementDiscretizationPointer() noexcept = 0;
     /*!
      * \brief return the unknowns at the given time step stage
      * \param[in] ts: time step stage

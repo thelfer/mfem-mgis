@@ -246,7 +246,7 @@ int executeMFEMMGISTest(mfem_mgis::Context& ctx, const TestParameters& p) {
   // creating the finite element workspace
 
   auto fed =
-      mfem_mgis::make_shared<mfem_mgis::FiniteElementDiscretization>(
+      mfem_mgis::construct<mfem_mgis::FiniteElementDiscretization>(
           ctx,
           mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
                                 {"FiniteElementFamily", "H1"},

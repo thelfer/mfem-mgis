@@ -34,7 +34,7 @@ namespace mfem_mgis {
      * \param[in] c: component blocked
      */
     ImposedDirichletBoundaryConditionAtClosestNode(
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const std::array<real, 2u> pt,
         const size_type c);
     /*!
@@ -45,7 +45,7 @@ namespace mfem_mgis {
      * \param[in] uvalues: function returning the imposed values
      */
     ImposedDirichletBoundaryConditionAtClosestNode(
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const std::array<real, 2u> pt,
         const size_type c,
         std::function<real(const real)> uvalues);
@@ -56,7 +56,7 @@ namespace mfem_mgis {
      * \param[in] c: component blocked
      */
     ImposedDirichletBoundaryConditionAtClosestNode(
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const std::array<real, 3u> pt,
         const size_type c);
     /*!
@@ -67,7 +67,7 @@ namespace mfem_mgis {
      * \param[in] uvalues: function returning the imposed values
      */
     ImposedDirichletBoundaryConditionAtClosestNode(
-        std::shared_ptr<FiniteElementDiscretization> fed,
+        const FiniteElementDiscretization& fed,
         const std::array<real, 3u> pt,
         const size_type c,
         std::function<real(const real)> uvalues);

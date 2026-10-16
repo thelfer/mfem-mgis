@@ -214,7 +214,7 @@ void executeMFEMMGISTest(mgis::Context& ctx, const TestParameters& p) {
   constexpr const auto dim = mfem_mgis::size_type{3};
   // creating the finite element workspace
 
-  auto fed = make_shared<mfem_mgis::FiniteElementDiscretization>(
+  auto fed = construct<mfem_mgis::FiniteElementDiscretization>(
                  ctx, mfem_mgis::Parameters{{"MeshFileName", p.mesh_file},
                                             {"MeshReadMode", p.mesh_mode},
                                             {"FiniteElementFamily", "H1"},

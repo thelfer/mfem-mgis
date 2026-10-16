@@ -56,7 +56,7 @@ buildMechanicalProblem(
   constexpr auto E = mfem_mgis::real{200};
   constexpr auto nu = mfem_mgis::real{0.};
   constexpr auto umax = mfem_mgis::real{0.2};
-  auto fed = mfem_mgis::make_shared<mfem_mgis::FiniteElementDiscretization>(
+  auto fed = mfem_mgis::construct<mfem_mgis::FiniteElementDiscretization>(
                  ctx, fespace_manager, mfem_mgis::dict{{"UnknownsSize", 3}}) |
              or_die;
   auto problem =
@@ -86,39 +86,34 @@ buildMechanicalProblem(
   }
   // boundary conditions
   problem->addBoundaryCondition(
-      ctx,
-      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          ctx, problem->getFiniteElementDiscretizationPointer(), "left", 0) |
-          or_die) |
-      or_die;
-  problem->addBoundaryCondition(
-      ctx,
-      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          ctx, problem->getFiniteElementDiscretizationPointer(), "front", 1) |
-          or_die) |
-      or_die;
-  problem->addBoundaryCondition(
-      ctx,
-      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          ctx, problem->getFiniteElementDiscretizationPointer(), "rear", 1) |
-          or_die) |
-      or_die;
-  problem->addBoundaryCondition(
-      ctx,
-      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          ctx, problem->getFiniteElementDiscretizationPointer(), "upper", 2) |
-          or_die) |
-      or_die;
-  problem->addBoundaryCondition(
-      ctx,
-      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          ctx, problem->getFiniteElementDiscretizationPointer(), "lower", 2) |
-          or_die) |
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem->getFiniteElementDiscretization(), "left", 0) |
+               or_die) |
       or_die;
   problem->addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem->getFiniteElementDiscretizationPointer(), "right",
-               0, [](const mfem_mgis::real t) noexcept { return umax * t; }) |
+               ctx, problem->getFiniteElementDiscretization(), "front", 1) |
+               or_die) |
+      or_die;
+  problem->addBoundaryCondition(
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem->getFiniteElementDiscretization(), "rear", 1) |
+               or_die) |
+      or_die;
+  problem->addBoundaryCondition(
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem->getFiniteElementDiscretization(), "upper", 2) |
+               or_die) |
+      or_die;
+  problem->addBoundaryCondition(
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem->getFiniteElementDiscretization(), "lower", 2) |
+               or_die) |
+      or_die;
+  problem->addBoundaryCondition(
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem->getFiniteElementDiscretization(), "right", 0,
+               [](const mfem_mgis::real t) noexcept { return umax * t; }) |
                or_die) |
       or_die;
   // linear solver, convergence critera
@@ -162,7 +157,7 @@ buildMicromorphicProblem(
   constexpr auto Gc = mfem_mgis::real{1};
   constexpr auto l0 = mfem_mgis::real{0.1};
   constexpr auto beta = mfem_mgis::real{300};
-  auto fed = mfem_mgis::make_shared<mfem_mgis::FiniteElementDiscretization>(
+  auto fed = mfem_mgis::construct<mfem_mgis::FiniteElementDiscretization>(
                  ctx, fespace_manager, mfem_mgis::dict{{"UnknownsSize", 1}}) |
              or_die;
   auto problem =
@@ -201,16 +196,14 @@ buildMicromorphicProblem(
       or_die;
   // boundary conditions
   problem->addBoundaryCondition(
-      ctx,
-      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          ctx, problem->getFiniteElementDiscretizationPointer(), "left", 0) |
-          or_die) |
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem->getFiniteElementDiscretization(), "left", 0) |
+               or_die) |
       or_die;
   problem->addBoundaryCondition(
-      ctx,
-      make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-          ctx, problem->getFiniteElementDiscretizationPointer(), "right", 0) |
-          or_die) |
+      ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
+               ctx, problem->getFiniteElementDiscretization(), "right", 0) |
+               or_die) |
       or_die;
   // post-processings
   problem->addPostProcessing(

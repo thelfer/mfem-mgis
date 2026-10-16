@@ -32,7 +32,7 @@ struct LocalNonLinearEvolutionProblem : mfem_mgis::NonLinearEvolutionProblem {
 template <bool parallel>
 void export_prediction(mfem_mgis::NonLinearEvolutionProblem &p,
                        mfem_mgis::GridFunction<parallel> &mdu) {
-  auto &fed = p.getFiniteElementDiscretization();
+  auto fed = p.getFiniteElementDiscretization();
   auto exporter = mfem::ParaViewDataCollection{
       parallel ? "result-prediction-test-parallel" : "result-prediction-test"};
   exporter.SetMesh(&(fed.getMesh<parallel>()));
@@ -46,7 +46,7 @@ void export_prediction(mfem_mgis::NonLinearEvolutionProblem &p,
 template <bool parallel>
 [[nodiscard]] mfem_mgis::GridFunction<parallel> computePrediction(
     mfem_mgis::Context &ctx, LocalNonLinearEvolutionProblem &p) {
-  auto &fed = p.getFiniteElementDiscretization();
+  auto fed = p.getFiniteElementDiscretization();
   auto &fespace = fed.getFiniteElementSpace<parallel>();
   const auto &u0 = p.getUnknowns(mfem_mgis::bts);
   if (!p.setup(ctx, 0, 1)) {
@@ -203,22 +203,22 @@ int main(int argc, char *argv[]) {
   }
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 1) |
+               ctx, problem.getFiniteElementDiscretization(), 1, 1) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 2) |
+               ctx, problem.getFiniteElementDiscretization(), 2, 2) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 5, 0) |
+               ctx, problem.getFiniteElementDiscretization(), 5, 0) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 3, 0,
+               ctx, problem.getFiniteElementDiscretization(), 3, 0,
                [](const auto t) noexcept { return 3e-2 * t; }) |
                or_die) |
       or_die;

@@ -48,8 +48,8 @@ namespace mfem_mgis {
       const std::vector<
           std::pair<size_type, std::vector<std::vector<size_type>>>>& elements,
       const BehaviourIntegratorsSelection& selection) noexcept {
-    auto& fed = p.getFiniteElementDiscretization();
-    auto& fes = fed.template getFiniteElementSpace<parallel>();
+    auto fed = p.getFiniteElementDiscretization();
+    const auto& fes = fed.template getFiniteElementSpace<parallel>();
     const auto nc = fes.GetVDim();
     mfem::Vector elt_forces;
     F.SetSize(nc);

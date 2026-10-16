@@ -87,22 +87,22 @@ int main(int argc, char *argv[]) {
   }
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 1) |
+               ctx, problem.getFiniteElementDiscretization(), 1, 1) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 2) |
+               ctx, problem.getFiniteElementDiscretization(), 2, 2) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 5, 0) |
+               ctx, problem.getFiniteElementDiscretization(), 5, 0) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 3, 0,
+               ctx, problem.getFiniteElementDiscretization(), 3, 0,
                [](const auto t) noexcept { return 3e-2 * t; }) |
                or_die) |
       or_die;

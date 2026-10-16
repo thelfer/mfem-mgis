@@ -127,33 +127,33 @@ int main(int argc, char* argv[]) {
   /** Setting Boundaries Conditions */
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 0) |
+               ctx, problem.getFiniteElementDiscretization(), 1, 0) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 1) |
+               ctx, problem.getFiniteElementDiscretization(), 1, 1) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 2) |
+               ctx, problem.getFiniteElementDiscretization(), 1, 2) |
                or_die) |
       or_die;
 
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 0) |
+               ctx, problem.getFiniteElementDiscretization(), 2, 0) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 1) |
+               ctx, problem.getFiniteElementDiscretization(), 2, 1) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 2, 2,
+               ctx, problem.getFiniteElementDiscretization(), 2, 2,
                []([[maybe_unused]] const auto t) noexcept { return -1; }) |
                or_die) |
       or_die;

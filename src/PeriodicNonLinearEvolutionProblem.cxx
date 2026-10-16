@@ -293,13 +293,13 @@ namespace mfem_mgis {
 
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
       mgis::Context& ctx,
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization& fed,
       const std::span<const real>& corner1,
       const std::span<const real>& corner2)
       : NonLinearEvolutionProblem(
             ctx, fed, mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
     CatchTimeSection(ctx, "PeriodicNonLinEvPB::constructor_with_corners");
-    if (fed->describesAParallelComputation()) {
+    if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       setPeriodicBoundaryConditions(ctx, this->getImplementation<true>(),
                                     corner1, corner2);
@@ -316,12 +316,12 @@ namespace mfem_mgis {
 
   PeriodicNonLinearEvolutionProblem::PeriodicNonLinearEvolutionProblem(
       mgis::Context& ctx,
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization& fed,
       const mfem_mgis::BoundaryConditionType bct)
       : NonLinearEvolutionProblem(
             ctx, fed, mgis::behaviour::Hypothesis::TRIDIMENSIONAL) {
     CatchTimeSection(ctx, "PeriodicNonLinEvPB::constructor_with_bct");
-    if (fed->describesAParallelComputation()) {
+    if (fed.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       setPeriodicBoundaryConditions(ctx, this->getImplementation<true>(), bct);
 #else

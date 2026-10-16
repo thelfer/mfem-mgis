@@ -50,18 +50,17 @@ int main(int argc, char** argv) {
     }
   }
   // clamped on the first boundary, traction along x on the second one
-  auto pfed = problem.getFiniteElementDiscretizationPointer();
+  auto fed = problem.getFiniteElementDiscretization();
   for (size_type c = 0; c != 3; ++c) {
     problem.addBoundaryCondition(
-        ctx, make_unique<UniformDirichletBoundaryCondition>(ctx, pfed, 1, c) |
+        ctx, make_unique<UniformDirichletBoundaryCondition>(ctx, fed, 1, c) |
                  or_die) |
         or_die;
   }
   problem.addBoundaryCondition(
-      ctx,
-      make_unique<UniformDirichletBoundaryCondition>(
-          ctx, pfed, 2, 0, [](const real t) noexcept { return 1e-3 * t; }) |
-          or_die) |
+      ctx, make_unique<UniformDirichletBoundaryCondition>(
+               ctx, fed, 2, 0, [](const real t) noexcept { return 1e-3 * t; }) |
+               or_die) |
       or_die;
   unit_tests::setLinearSolver(may_abort, ctx, problem, params);
   problem.setSolverParameters(ctx, {{"VerbosityLevel", 0},

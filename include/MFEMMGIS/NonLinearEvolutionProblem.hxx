@@ -108,7 +108,7 @@ namespace mfem_mgis {
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblem(Context &ctx,
-                              std::shared_ptr<FiniteElementDiscretization> fed,
+                              const FiniteElementDiscretization &fed,
                               const Parameters &p);
     /*!
      * \brief constructor
@@ -118,7 +118,7 @@ namespace mfem_mgis {
      * \param[in] p: parameters
      */
     NonLinearEvolutionProblem(Context &ctx,
-                              std::shared_ptr<FiniteElementDiscretization> fed,
+                              const FiniteElementDiscretization &fed,
                               const Hypothesis h,
                               const Parameters &p = Parameters());
     //! \brief move constructor
@@ -145,12 +145,8 @@ namespace mfem_mgis {
     [[nodiscard]] const NonLinearEvolutionProblemImplementation<parallel>
         &getImplementation() const noexcept;
     //
-    [[nodiscard]] FiniteElementDiscretization &
-    getFiniteElementDiscretization() noexcept override;
-    [[nodiscard]] const FiniteElementDiscretization &
-    getFiniteElementDiscretization() const noexcept override;
-    [[nodiscard]] std::shared_ptr<FiniteElementDiscretization>
-    getFiniteElementDiscretizationPointer() noexcept override;
+    [[nodiscard]] FiniteElementDiscretization getFiniteElementDiscretization()
+        const noexcept override;
     [[nodiscard]] bool setMaterialsNames(
         Context &ctx,
         const std::map<size_type, std::string> &ids) noexcept override;

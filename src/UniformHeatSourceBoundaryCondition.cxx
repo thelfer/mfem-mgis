@@ -146,7 +146,7 @@ namespace mfem_mgis {
 
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
       AbstractNonLinearEvolutionProblem &p, const Parameters &params)
-      : finiteElementDiscretization(p.getFiniteElementDiscretizationPointer()),
+      : finiteElementDiscretization(p.getFiniteElementDiscretization()),
         mids(getMaterialsIdentifiers(throwing, p, params, false)),
         qfct(get<std::function<real(const real)>>(
             throwing, params, "LoadingEvolution")),
@@ -157,7 +157,7 @@ namespace mfem_mgis {
   }
 
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization &fed,
       const size_type mid,
       std::function<real(const real)> prvalues)
       : finiteElementDiscretization(fed),
@@ -170,11 +170,11 @@ namespace mfem_mgis {
   }
 
   UniformHeatSourceBoundaryCondition::UniformHeatSourceBoundaryCondition(
-      std::shared_ptr<FiniteElementDiscretization> fed,
+      const FiniteElementDiscretization &fed,
       const std::string_view mid,
       std::function<real(const real)> prvalues)
       : finiteElementDiscretization(fed),
-        mids(getMaterialsIdentifiers(throwing, *fed, mid)),
+        mids(getMaterialsIdentifiers(throwing, fed, mid)),
         qfct(prvalues),
         nfi(new UniformHeatSourceNonlinearFormIntegrator) {
     if (!qfct) {
@@ -192,13 +192,13 @@ namespace mfem_mgis {
       std::ignore = registerExceptionInErrorBacktrace(ctx);
       success = false;
     }
-    return isTrueOnAllProcesses(*(this->finiteElementDiscretization), success);
+    return isTrueOnAllProcesses(this->finiteElementDiscretization, success);
   }  // end of setup
 
 #ifdef MFEM_USE_MPI
   bool UniformHeatSourceBoundaryCondition::addNonlinearFormIntegrator(
       Context &, NonlinearForm<true> &f, const mfem::Vector &) noexcept {
-    auto &m = this->finiteElementDiscretization->getMesh<true>();
+    auto &m = this->finiteElementDiscretization.getMesh<true>();
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
     this->materials_markers = 0;
@@ -213,7 +213,7 @@ namespace mfem_mgis {
 
   bool UniformHeatSourceBoundaryCondition::addNonlinearFormIntegrator(
       Context &, NonlinearForm<false> &f, const mfem::Vector &) noexcept {
-    auto &m = this->finiteElementDiscretization->getMesh<false>();
+    auto &m = this->finiteElementDiscretization.getMesh<false>();
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
     this->materials_markers = 0;
@@ -233,7 +233,7 @@ namespace mfem_mgis {
       const mfem::Vector &,
       const real t,
       const real dt) noexcept {
-    auto &m = this->finiteElementDiscretization->getMesh<true>();
+    auto &m = this->finiteElementDiscretization.getMesh<true>();
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
     this->materials_markers = 0;
@@ -254,7 +254,7 @@ namespace mfem_mgis {
       const mfem::Vector &,
       const real t,
       const real dt) noexcept {
-    auto &m = this->finiteElementDiscretization->getMesh<false>();
+    auto &m = this->finiteElementDiscretization.getMesh<false>();
     this->materials_markers =
         mfem::Array<mfem_mgis::size_type>(m.attributes.Max());
     this->materials_markers = 0;

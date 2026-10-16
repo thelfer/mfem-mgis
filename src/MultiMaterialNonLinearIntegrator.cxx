@@ -239,12 +239,11 @@ namespace mfem_mgis {
   };  // end of StiffnessMatrixIntegrator
 
   MultiMaterialNonLinearIntegrator::MultiMaterialNonLinearIntegrator(
-      std::shared_ptr<const FiniteElementDiscretization> fed,
-      const Hypothesis h)
+      const FiniteElementDiscretization& fed, const Hypothesis h)
       : fe_discretization(fed), hypothesis(h) {
-    if (this->fe_discretization->describesAParallelComputation()) {
+    if (this->fe_discretization.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
-      const auto& mesh = this->fe_discretization->getMesh<true>();
+      const auto& mesh = this->fe_discretization.getMesh<true>();
       // shifting by one allows to directly use the material id to get
       // the behaviour integrators in all the other methods.
       // However, behaviour_integrators[0] will always be null.
@@ -253,7 +252,7 @@ namespace mfem_mgis {
       reportUnsupportedParallelComputations();
 #endif /* MFEM_USE_MPI */
     } else {
-      const auto& mesh = this->fe_discretization->getMesh<false>();
+      const auto& mesh = this->fe_discretization.getMesh<false>();
       // shifting by one allows to directly use the material id to get
       // the behaviour integrators in all the other methods.
       // However, behaviour_integrators[0] will always be empty.
@@ -299,7 +298,7 @@ namespace mfem_mgis {
       return;
     }
     const auto ndofs =
-        e.GetDof() * getNumberOfComponents(*(this->fe_discretization));
+        e.GetDof() * getNumberOfComponents(this->fe_discretization);
     auto F_tmp = mfem::Vector{};
     F.SetSize(ndofs);
     // although not required as F_tmp will be resized and initialized by all
@@ -334,7 +333,7 @@ namespace mfem_mgis {
       return;
     }
     const auto ndofs =
-        e.GetDof() * getNumberOfComponents(*(this->fe_discretization));
+        e.GetDof() * getNumberOfComponents(this->fe_discretization);
     auto K_tmp = mfem::DenseMatrix{};
     K.SetSize(ndofs, ndofs);
     // although not required as K_tmp will be resized and initialized by all
@@ -369,8 +368,8 @@ namespace mfem_mgis {
     if (isInvalid(bptr)) {
       return {};
     }
-    auto bi = of->generate(ctx, n, *(this->fe_discretization), m,
-                           std::move(bptr), params);
+    auto bi = of->generate(ctx, n, this->fe_discretization, m, std::move(bptr),
+                           params);
     if (isInvalid(bi)) {
       return {};
     }
@@ -520,10 +519,10 @@ namespace mfem_mgis {
 
   LinearizedOperators MultiMaterialNonLinearIntegrator::getLinearizedOperators(
       const mfem::Vector& u) {
-    if (this->fe_discretization->describesAParallelComputation()) {
+    if (this->fe_discretization.describesAParallelComputation()) {
 #ifdef MFEM_USE_MPI
       const auto& fespace =
-          this->fe_discretization->getFiniteElementSpace<true>();
+          this->fe_discretization.getFiniteElementSpace<true>();
       return LinearizedOperators{
           .K = std::make_unique<StiffnessMatrixIntegrator>(
               fespace, u, this->behaviour_integrators),
@@ -534,7 +533,7 @@ namespace mfem_mgis {
 #endif /* MFEM_USE_MPI */
     }
     const auto& fespace =
-        this->fe_discretization->getFiniteElementSpace<false>();
+        this->fe_discretization.getFiniteElementSpace<false>();
     return LinearizedOperators{
         .K = std::make_unique<StiffnessMatrixIntegrator>(
             fespace, u, this->behaviour_integrators),

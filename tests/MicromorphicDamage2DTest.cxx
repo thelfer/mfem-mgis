@@ -88,12 +88,12 @@ int main(int argc, char** argv) {
   //    $EndPhysicalNames
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 3, 0) |
+               ctx, problem.getFiniteElementDiscretization(), 3, 0) |
                or_die) |
       or_die;
   problem.addBoundaryCondition(
       ctx, make_unique<mfem_mgis::UniformDirichletBoundaryCondition>(
-               ctx, problem.getFiniteElementDiscretizationPointer(), 1, 0) |
+               ctx, problem.getFiniteElementDiscretization(), 1, 0) |
                or_die) |
       or_die;
   // set the solver parameters

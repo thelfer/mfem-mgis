@@ -47,11 +47,10 @@ namespace mfem_mgis {
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
-    NonLinearEvolutionProblemImplementation(
-        Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization> fed,
-        const Hypothesis h,
-        const Parameters& p);
+    NonLinearEvolutionProblemImplementation(Context& ctx,
+                                            FiniteElementDiscretization fed,
+                                            const Hypothesis h,
+                                            const Parameters& p);
     //! \return the mesh
     [[nodiscard]] Mesh<true>& getMesh();
     //! \return the mesh
@@ -136,11 +135,10 @@ namespace mfem_mgis {
      * \param[in] h: modelling hypothesis
      * \param[in] p: parameters
      */
-    NonLinearEvolutionProblemImplementation(
-        Context& ctx,
-        std::shared_ptr<FiniteElementDiscretization> fed,
-        const Hypothesis h,
-        const Parameters& p);
+    NonLinearEvolutionProblemImplementation(Context& ctx,
+                                            FiniteElementDiscretization fed,
+                                            const Hypothesis h,
+                                            const Parameters& p);
     //! \return the mesh
     [[nodiscard]] Mesh<false>& getMesh() noexcept;
     //! \return the mesh

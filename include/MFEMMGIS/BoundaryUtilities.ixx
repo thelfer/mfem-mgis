@@ -18,7 +18,7 @@ namespace mfem_mgis {
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const size_type bid) {
     std::vector<std::pair<size_type, size_type>> faces;
-    auto& fed = p.getFiniteElementDiscretization();
+    auto fed = p.getFiniteElementDiscretization();
     auto& m = fed.template getMesh<parallel>();
     auto& fes = fed.template getFiniteElementSpace<parallel>();
     for (size_type i = 0; i < fes.GetNBE(); i++) {
@@ -39,7 +39,7 @@ namespace mfem_mgis {
   getElementsDegreesOfFreedomOnBoundary(
       NonLinearEvolutionProblemImplementation<parallel>& p,
       const size_type bid) {
-    auto& fed = p.getFiniteElementDiscretization();
+    auto fed = p.getFiniteElementDiscretization();
     auto& m = fed.template getMesh<parallel>();
     auto& fes = fed.template getFiniteElementSpace<parallel>();
     const auto nc = fes.GetVDim();
