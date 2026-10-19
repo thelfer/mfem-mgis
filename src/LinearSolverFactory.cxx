@@ -73,7 +73,7 @@ namespace mfem_mgis {
     auto amg = std::make_unique<mfem::HypreBoomerAMG>();
     if (!checkParameters(ctx, opts,
                          std::vector<std::string>{
-                             "Strategy", Problem::SolverVerbosityLevel})) {
+                             "Strategy","StrongThreshold", Problem::SolverVerbosityLevel})) {
       return {};
     }
     if (contains(opts, "Strategy")) {
@@ -110,6 +110,19 @@ namespace mfem_mgis {
       if (fespace.GetVDim() > 1) {
         amg = std::make_unique<internals::SystemHypreBoomerAMG>(fespace);
       }
+    }
+    if (contains(opts,"StrongThreshold")){
+      const auto osth = get<double>(ctx, opts, "StrongThreshold");
+      if (isInvalid(osth)) {
+        return {};
+      }
+      if (*osth < 0 || *osth > 1){
+        return ctx.registerErrorMessage(
+            "setLinearSolverParameters: "
+            "invalid value of \"StrongThreshold\" ()" +
+            std::to_string(*osth) + ") for preconditioner HypreBoomerAMG. Should be between 0 (included) and 1 (included)");
+      }
+      amg->SetStrengthThresh(*osth);
     }
     if (contains(opts, Problem::SolverVerbosityLevel)) {
       const auto olvl = get<int>(ctx, opts, Problem::SolverVerbosityLevel);
