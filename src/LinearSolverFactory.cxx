@@ -112,15 +112,15 @@ namespace mfem_mgis {
       }
     }
     if (contains(opts,"StrongThreshold")){
-      const auto osth = get<double>(ctx, opts, Problem::SolverVerbosityLevel);
+      const auto osth = get<double>(ctx, opts, "StrongThreshold");
       if (isInvalid(osth)) {
         return {};
       }
       if (*osth < 0 || *osth > 1){
         return ctx.registerErrorMessage(
             "setLinearSolverParameters: "
-            "invalid value of \"StrongThreshold\"" +
-            std::to_string(*osth) + " for preconditioner HypreBoomerAMG. Should be between 0 (included) and 1 (included)");
+            "invalid value of \"StrongThreshold\" ()" +
+            std::to_string(*osth) + ") for preconditioner HypreBoomerAMG. Should be between 0 (included) and 1 (included)");
       }
       amg->SetStrengthThresh(*osth);
     }
