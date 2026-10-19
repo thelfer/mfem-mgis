@@ -674,12 +674,8 @@ namespace mfem_mgis {
       l.linear_solver->SetOperator(A);
       l.linear_solver->Mult(B, X);
       clearHypreErrors();
-      auto* const isolver =
-          dynamic_cast<IterativeSolver*>(l.linear_solver.get());
-      if (isolver != nullptr) {
-        if (!isolver->GetConverged()) {
-          return ctx.registerErrorMessage("linear solver failed");
-        }
+      if (!hasConverged(*(l.linear_solver))) {
+        return ctx.registerErrorMessage("linear solver failed");
       }
       a.RecoverFEMSolution(X, b, *x);
       // copy solution to r.result, if needed
