@@ -627,11 +627,29 @@ version.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Strategy</span></code></p></td>
-<td><p>Propose strategies that can lead to improve convergence and scalability, [Elasticity, System, None]. [string]
-<code class="docutils literal notranslate"><span class="pre">Elasticity</span></code> requires the <code class="docutils literal notranslate"><span class="pre">FiniteElementSpaceOrdering</span></code> parameter set to <code class="docutils literal notranslate"><span class="pre">byVDIM</span></code>.</p></td>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">Strategy</span></code></div>
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Propose strategies that can lead to improve convergence and scalability, [Elasticity, System, None]. [string]</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">Elasticity</span></code> requires the <code class="docutils literal notranslate"><span class="pre">FiniteElementSpaceOrdering</span></code> parameter set to <code class="docutils literal notranslate"><span class="pre">byVDIM</span></code>.</div>
+</div>
+</td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">StrongThreshold</span></code></div>
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">The default is 0.25. For 2D Laplace operators, 0.25 is a good value, for 3D Laplace operators, 0.5 or 0.6 is a better value.</div>
+<div class="line">For elasticity problems, a large strength threshold, such as 0.9, is often better. [double] 0 &lt;= StrongThreshold &lt;= 1</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VerbosityLevel</span></code></p></td>
 <td><p>Define the verbosity of the solver. [int: 0,1]</p></td>
 </tr>
 </tbody>
