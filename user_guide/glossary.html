@@ -641,11 +641,15 @@ version.</p>
 <tr class="row-odd"><td><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">StrongThreshold</span></code></div>
 <div class="line"><br /></div>
+<div class="line"><br /></div>
+<div class="line"><br /></div>
 </div>
 </td>
 <td><div class="line-block">
+<div class="line">Controls how much of the matrix is ignored. Higher means more values ignored, ie. faster but less powerful preconditioning.</div>
 <div class="line">The default is 0.25. For 2D Laplace operators, 0.25 is a good value, for 3D Laplace operators, 0.5 or 0.6 is a better value.</div>
 <div class="line">For elasticity problems, a large strength threshold, such as 0.9, is often better. [double] 0 &lt;= StrongThreshold &lt;= 1</div>
+<div class="line">For more details this the “Strong Threshold” section on <a class="reference external" href="https://mooseframework.inl.gov/application_usage/hypre.html">this page</a>.</div>
 </div>
 </td>
 </tr>
