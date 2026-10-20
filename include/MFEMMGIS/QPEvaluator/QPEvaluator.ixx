@@ -253,7 +253,7 @@ namespace mfem_mgis {
                                      const EvaluatorType2& e2) noexcept {
     const auto& qspace1 = getSpace(e1);
     const auto& qspace2 = getSpace(e2);
-    if (&qspace1 != &qspace2) {
+    if (qspace1 != qspace2) {
       return ctx.registerErrorMessage("unmatched quadrature spaces");
     }
     return true;
