@@ -825,7 +825,7 @@ namespace mfem_mgis {
   }  // end of revert
 
   void BehaviourIntegratorBase::update() {
-    mgis::behaviour::update(*this);
+    mgis::behaviour::update(*this, {.zero_tangent_operator_blocks = false});
   }  // end of update
 
   void BehaviourIntegratorBase::setMacroscopicGradients(

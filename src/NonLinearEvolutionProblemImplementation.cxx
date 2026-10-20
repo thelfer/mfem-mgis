@@ -111,6 +111,9 @@ namespace mfem_mgis {
           PredictionStrategy::BEGINNING_OF_TIME_STEP_PREDICTION) {
         if (policy.prediction_operator ==
             PredictionOperator::LAST_ITERATE_OPERATOR) {
+          if (p.areStiffnessOperatorsFromLastIterationAvailable()) {
+            return true;
+          }
           return p.integrate(
               u0, convertToIntegrationType(PredictionOperator::ELASTIC), {});
         } else {
