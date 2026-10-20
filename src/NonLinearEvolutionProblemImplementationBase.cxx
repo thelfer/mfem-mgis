@@ -91,6 +91,7 @@ namespace mfem_mgis {
 
   bool NonLinearEvolutionProblemImplementationBase::revert(Context&) noexcept {
     this->u1 = this->u0;
+    this->hasStiffnessOperatorsBeenComputed = false;
     if (this->mgis_integrator != nullptr) {
       this->mgis_integrator->revert();
     }
