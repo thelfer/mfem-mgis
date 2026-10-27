@@ -5,6 +5,7 @@
  * \date   24/03/2021
  */
 
+#include <MGIS/InvalidResult.hxx>
 #include <utility>
 #include<optional>
 #include "mfem/linalg/solvers.hpp"
@@ -84,11 +85,10 @@ namespace mfem_mgis::internals {
     //! \brief set the operator and restore the options
     void SetOperator(const mfem::Operator& op) override {
       mfem::HypreILU::SetOperator(op);
-      if (this->print_level.has_value()) {
+      if (isValid(this->print_level)) {
         this->SetPrintLevel(*(this->print_level));
       }
-      if (this->level_of_fill.has_value()) {
-        std::cout << "Setting level of fill again to : " << (*this->level_of_fill) << "\n";
+      if (isValid(this->level_of_fill)) {
         this->SetLevelOfFill(*(this->level_of_fill));
       }
     }
