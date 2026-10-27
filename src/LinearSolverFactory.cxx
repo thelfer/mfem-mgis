@@ -6,6 +6,7 @@
  */
 
 #include <utility>
+#include<optional>
 #include "mfem/linalg/solvers.hpp"
 #include "mfem/linalg/petsc.hpp"
 #include "mfem/config/config.hpp"
@@ -56,6 +57,48 @@ namespace mfem_mgis::internals {
     //! \brief if the unknowns are ordered by nodes
     const bool ordered_by_nodes;
   };  // end of struct SystemHypreBoomerAMG
+
+  #if MFEM_HYPRE_VERSION >= 21900
+
+  /*!
+   * \brief HypreILU preconditioner which keeps its options
+   *
+   * `HypreILU::SetOperator` destroys and recreates the underlying hypre
+   * object (`ResetILUPrecond`) and restores the default options, so the
+   * options (print level, level of fill) are lost whenever a new operator
+   * is set. They are applied again after each call to `SetOperator`.
+   */
+  struct ConfiguredHypreILU final : public mfem::HypreILU {
+    //! \brief default constructor
+    ConfiguredHypreILU() = default;
+    //! \brief set the print level (kept for every new operator)
+    void setPrintLevel(const int l) {
+      this->print_level = l;
+      this->SetPrintLevel(l);
+    }
+    //! \brief set the level of fill (kept for every new operator)
+    void setLevelOfFill(const int l) {
+      this->level_of_fill = l;
+      this->SetLevelOfFill(l);
+    }
+    //! \brief set the operator and restore the options
+    void SetOperator(const mfem::Operator& op) override {
+      mfem::HypreILU::SetOperator(op);
+      if (this->print_level.has_value()) {
+        this->SetPrintLevel(*(this->print_level));
+      }
+      if (this->level_of_fill.has_value()) {
+        std::cout << "Setting level of fill again to : " << (*this->level_of_fill) << "\n";
+        this->SetLevelOfFill(*(this->level_of_fill));
+      }
+    }
+
+   private:
+    std::optional<int> print_level;
+    std::optional<int> level_of_fill;
+  };  // end of struct ConfiguredHypreILU
+
+#endif /* MFEM_HYPRE_VERSION >= 21900 */
 
 }  // end of namespace mfem_mgis::internals
 
@@ -159,21 +202,22 @@ namespace mfem_mgis {
     }
     const auto verbose = contains(opts, Problem::SolverVerbosityLevel);
     const auto levelOfFill = contains(opts, "HypreILULevelOfFill");
-    auto ilu = std::make_unique<mfem::HypreILU>();
+    auto ilu = std::make_unique<internals::ConfiguredHypreILU>();
     if (verbose) {
       const auto olvl = get<int>(ctx, opts, Problem::SolverVerbosityLevel);
       if (isInvalid(olvl)) {
         return {};
       }
-      ilu->SetPrintLevel(*olvl);
+      ilu->setPrintLevel(*olvl);
     }
     if (levelOfFill) {
       const auto olvl = get<int>(ctx, opts, "HypreILULevelOfFill");
       if (isInvalid(olvl)) {
         return {};
       }
-      HYPRE_ILUSetLevelOfFill(*ilu, *olvl);
+      ilu->setLevelOfFill(*olvl);
     }
+    return ilu;
     return ilu;
 #else  /*  HYPRE_OLD_VERSION */
     return ctx.registerErrorMessage(
