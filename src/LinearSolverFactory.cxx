@@ -5,7 +5,6 @@
  * \date   24/03/2021
  */
 
-#include <MGIS/InvalidResult.hxx>
 #include <utility>
 #include<optional>
 #include "mfem/linalg/solvers.hpp"
@@ -60,7 +59,6 @@ namespace mfem_mgis::internals {
   };  // end of struct SystemHypreBoomerAMG
 
   #if MFEM_HYPRE_VERSION >= 21900
-
   /*!
    * \brief HypreILU preconditioner which keeps its options
    *
@@ -70,21 +68,23 @@ namespace mfem_mgis::internals {
    * is set. They are applied again after each call to `SetOperator`.
    */
   struct ConfiguredHypreILU final : public mfem::HypreILU {
-    //! \brief default constructor
-    ConfiguredHypreILU() = default;
-    //! \brief set the print level (kept for every new operator)
-    void setPrintLevel(const int l) {
-      this->print_level = l;
-      this->SetPrintLevel(l);
-    }
-    //! \brief set the level of fill (kept for every new operator)
-    void setLevelOfFill(const int l) {
-      this->level_of_fill = l;
-      this->SetLevelOfFill(l);
+    /*!
+     * \brief constructor
+     * \param[in] l: print level, if any
+     * \param[in] f: level of fill, if any
+     */
+    ConfiguredHypreILU(const std::optional<int> l, const std::optional<int> f)
+        : print_level(l), level_of_fill(f) {
+      this->applyOptions();
     }
     //! \brief set the operator and restore the options
     void SetOperator(const mfem::Operator& op) override {
       mfem::HypreILU::SetOperator(op);
+      this->applyOptions();
+    }
+   private:
+    //! \brief apply the options to the underlying hypre object
+    void applyOptions() {
       if (isValid(this->print_level)) {
         this->SetPrintLevel(*(this->print_level));
       }
@@ -92,10 +92,10 @@ namespace mfem_mgis::internals {
         this->SetLevelOfFill(*(this->level_of_fill));
       }
     }
-
-   private:
-    std::optional<int> print_level;
-    std::optional<int> level_of_fill;
+    //! \brief print level
+    const std::optional<int> print_level;
+    //! \brief level of fill
+    const std::optional<int> level_of_fill;
   };  // end of struct ConfiguredHypreILU
 
 #endif /* MFEM_HYPRE_VERSION >= 21900 */
@@ -200,25 +200,24 @@ namespace mfem_mgis {
                                                   "HypreILULevelOfFill"})) {
       return {};
     }
-    const auto verbose = contains(opts, Problem::SolverVerbosityLevel);
-    const auto levelOfFill = contains(opts, "HypreILULevelOfFill");
-    auto ilu = std::make_unique<internals::ConfiguredHypreILU>();
-    if (verbose) {
+    auto print_level = std::optional<int>{};
+    if (contains(opts, Problem::SolverVerbosityLevel)) {
       const auto olvl = get<int>(ctx, opts, Problem::SolverVerbosityLevel);
       if (isInvalid(olvl)) {
         return {};
       }
-      ilu->setPrintLevel(*olvl);
+      print_level = *olvl;
     }
-    if (levelOfFill) {
+    auto level_of_fill = std::optional<int>{};
+    if (contains(opts, "HypreILULevelOfFill")) {
       const auto olvl = get<int>(ctx, opts, "HypreILULevelOfFill");
       if (isInvalid(olvl)) {
         return {};
       }
-      ilu->setLevelOfFill(*olvl);
+      level_of_fill = *olvl;
     }
-    return ilu;
-    return ilu;
+    return std::make_unique<internals::ConfiguredHypreILU>(print_level,
+                                                           level_of_fill);
 #else  /*  HYPRE_OLD_VERSION */
     return ctx.registerErrorMessage(
         "Support for HypreILU is not available with this version of MFEM");
