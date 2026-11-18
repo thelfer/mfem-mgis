@@ -38,10 +38,11 @@ jobs:
       fail-fast: false
       matrix:
         spack:
-          - {version: v1.1.0, packages: releases/v2025.11}
-          - {version: v1.2.2, packages: develop}
+          # the m4 of the releases/v2025.11 packages does not build with the glibc of Ubuntu 26.04
+          - {version: v1.1.0, packages: releases/v2025.11, os: ubuntu-24.04}
+          - {version: v1.2.2, packages: develop, os: ubuntu-latest}
         mpi: ["+mpi", "~mpi"]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.spack.os }}
     permissions:
       contents: read
       packages: write

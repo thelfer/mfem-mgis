@@ -21,7 +21,7 @@ env:
 
 jobs:
   run_tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # provides GCC 12, required below
     permissions:
       contents: read
       packages: write
