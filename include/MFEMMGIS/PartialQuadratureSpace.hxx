@@ -339,6 +339,7 @@ namespace mfem_mgis {
 
     //! \brief move constructor
     PartialQuadratureSpace(PartialQuadratureSpace &&) noexcept = default;
+    //! \brief copy constructor
     PartialQuadratureSpace(const PartialQuadratureSpace &) noexcept = default;
     PartialQuadratureSpace &operator=(PartialQuadratureSpace &&) = delete;
     PartialQuadratureSpace &operator=(const PartialQuadratureSpace &) = delete;
