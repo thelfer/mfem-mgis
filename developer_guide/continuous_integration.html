@@ -192,10 +192,11 @@ README. Cancelled runs are ignored.</p></td>
 </table>
 <section id="cmake-yml">
 <h3><a class="toc-backref" href="#id3" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">cmake.yml</span></code></a><a class="headerlink" href="#cmake-yml" title="Link to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">run_tests</span></code> job runs once per build type. It uses Spack 1.2.2 and the
-<code class="docutils literal notranslate"><span class="pre">develop</span></code> branch of the Spack packages. The compilers are restricted to
-GCC 12.4. TFEL and MGIS are built from their <code class="docutils literal notranslate"><span class="pre">master</span></code> branches, without
-Python. The <code class="docutils literal notranslate"><span class="pre">Debug</span></code> job also uses a debug build of MFEM.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">run_tests</span></code> job runs once per build type, on Ubuntu 24.04, which
+provides GCC 12. It uses Spack 1.2.2 and the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch of the Spack
+packages. The compilers are restricted to GCC 12.4. TFEL and MGIS are built
+from their <code class="docutils literal notranslate"><span class="pre">master</span></code> branches, without Python. The <code class="docutils literal notranslate"><span class="pre">Debug</span></code> job also uses a
+debug build of MFEM.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">Coverage</span></code> job uploads its report as the <code class="docutils literal notranslate"><span class="pre">code-coverage-report</span></code>
 artifact.</p>
 </section>
@@ -203,10 +204,12 @@ artifact.</p>
 <h3><a class="toc-backref" href="#id4" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">spack.yml</span></code></a><a class="headerlink" href="#spack-yml" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">build</span></code> job covers two versions of Spack, with and without MPI:</p>
 <ul class="simple">
-<li><p>Spack 1.1.0 with the <code class="docutils literal notranslate"><span class="pre">releases/v2025.11</span></code> packages. They do not provide
-mfem-mgis, which comes from the
-<a class="reference external" href="https://github.com/rprat-pro/spack-repo-mfem-mgis">mfem-mgis Spack repository</a>.</p></li>
-<li><p>Spack 1.2.2 with the <code class="docutils literal notranslate"><span class="pre">develop</span></code> packages, which provide mfem-mgis.</p></li>
+<li><p>Spack 1.1.0 with the <code class="docutils literal notranslate"><span class="pre">releases/v2025.11</span></code> packages, on Ubuntu 24.04. They
+do not provide mfem-mgis, which comes from the
+<a class="reference external" href="https://github.com/rprat-pro/spack-repo-mfem-mgis">mfem-mgis Spack repository</a>.
+Their m4 does not build with the glibc of Ubuntu 26.04.</p></li>
+<li><p>Spack 1.2.2 with the <code class="docutils literal notranslate"><span class="pre">develop</span></code> packages, which provide mfem-mgis, on the
+latest Ubuntu.</p></li>
 </ul>
 <p>The job first creates a Spack environment, where <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">develop</span></code> points
 mfem-mgis to the checked out sources. It installs the dependencies and, on

@@ -66,10 +66,11 @@ Workflows
 ``cmake.yml``
 -------------
 
-The ``run_tests`` job runs once per build type. It uses Spack 1.2.2 and the
-``develop`` branch of the Spack packages. The compilers are restricted to
-GCC 12.4. TFEL and MGIS are built from their ``master`` branches, without
-Python. The ``Debug`` job also uses a debug build of MFEM.
+The ``run_tests`` job runs once per build type, on Ubuntu 24.04, which
+provides GCC 12. It uses Spack 1.2.2 and the ``develop`` branch of the Spack
+packages. The compilers are restricted to GCC 12.4. TFEL and MGIS are built
+from their ``master`` branches, without Python. The ``Debug`` job also uses a
+debug build of MFEM.
 
 The ``Coverage`` job uploads its report as the ``code-coverage-report``
 artifact.
@@ -79,10 +80,12 @@ artifact.
 
 The ``build`` job covers two versions of Spack, with and without MPI:
 
-- Spack 1.1.0 with the ``releases/v2025.11`` packages. They do not provide
-  mfem-mgis, which comes from the
+- Spack 1.1.0 with the ``releases/v2025.11`` packages, on Ubuntu 24.04. They
+  do not provide mfem-mgis, which comes from the
   `mfem-mgis Spack repository <https://github.com/rprat-pro/spack-repo-mfem-mgis>`_.
-- Spack 1.2.2 with the ``develop`` packages, which provide mfem-mgis.
+  Their m4 does not build with the glibc of Ubuntu 26.04.
+- Spack 1.2.2 with the ``develop`` packages, which provide mfem-mgis, on the
+  latest Ubuntu.
 
 The job first creates a Spack environment, where ``spack develop`` points
 mfem-mgis to the checked out sources. It installs the dependencies and, on
