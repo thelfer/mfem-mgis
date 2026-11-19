@@ -16,9 +16,11 @@
 #include <optional>
 #include <functional>
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/NonLinearSolvers/AbstractNonLinearSolver.hxx"
 #include "MFEMMGIS/TimeStepStage.hxx"
 #include "MFEMMGIS/LinearSolverHandler.hxx"
 #include "MFEMMGIS/NonLinearResolutionOutput.hxx"
+
 
 namespace mfem_mgis {
 
@@ -31,7 +33,6 @@ namespace mfem_mgis {
   struct Material;
   struct AbstractBoundaryCondition;
   enum struct IntegrationType;
-
   /*!
    * \brief strategy used to make a prediction of the solution at the end of the
    * time step
@@ -266,6 +267,10 @@ namespace mfem_mgis {
      */
     [[nodiscard]] virtual bool setSolverParameters(
         Context &ctx, const Parameters &params) noexcept = 0;
+    /*!
+     * \brief get the non-linear solver
+     */
+    [[nodiscard]] virtual AbstractNonLinearSolver& getSolver() noexcept = 0;
     /*!
      * \brief set the linear solver
      * \param[in, out] ctx: execution context

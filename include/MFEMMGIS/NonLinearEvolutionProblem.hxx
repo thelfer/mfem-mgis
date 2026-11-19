@@ -12,9 +12,11 @@
 #include <utility>
 
 #include "MFEMMGIS/Config.hxx"
+#include "MFEMMGIS/NonLinearSolvers/AbstractNonLinearSolver.hxx"
 #include "MFEMMGIS/Parameters.hxx"
 #include "MFEMMGIS/FiniteElementDiscretization.hxx"
 #include "MFEMMGIS/AbstractNonLinearEvolutionProblem.hxx"
+//#include "MFEMMGIS/NonLinearSolvers/AbstractNonLinearSolver.hxx"
 
 namespace mfem_mgis {
 
@@ -159,6 +161,7 @@ namespace mfem_mgis {
         const TimeStepStage ts) const noexcept override;
     [[nodiscard]] bool setSolverParameters(
         Context &ctx, const Parameters &params) noexcept override;
+    [[nodiscard]] AbstractNonLinearSolver& getSolver() noexcept override;
     [[nodiscard]] bool setLinearSolver(Context &ctx,
                                        LinearSolverHandler s) noexcept override;
     [[nodiscard]] bool setLinearSolver(

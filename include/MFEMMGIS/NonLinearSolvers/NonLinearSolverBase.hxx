@@ -32,6 +32,9 @@ namespace mfem_mgis {
     void addNewUnknownsEstimateActions(
         std::function<bool(const mfem::Vector &)> a) noexcept override final;
     //
+    void addAdditionalConvergenceCriterion(
+        std::shared_ptr<AbstractAdditionalConvergenceCriterion> ) override final;
+    //
     [[nodiscard]] bool setSolverParameters(
         Context &ctx, const Parameters &params) noexcept override;
     [[nodiscard]] bool isLinearSolverFailureDiscarded() const noexcept override;
@@ -87,6 +90,15 @@ namespace mfem_mgis {
      * available
      */
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
+
+    std::optional<bool> processAdditionalConvergenceCriterionCheck(
+        Context&, const AbstractAdditionalConvergenceCriterion::CheckArguments&) const override final; 
+
+    void processAdditionalConvergenceCriterionReset() override final;
+
+    void processAdditionalConvergenceCriterionHelper() override final;
+
+    std::vector<std::shared_ptr<AbstractAdditionalConvergenceCriterion> > acc_actions;
     /*!
      * \brief information collected during the iterations
      * This vector is meant to be cleared at the beginning of the Mult method

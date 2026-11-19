@@ -184,6 +184,7 @@ namespace mfem_mgis {
         Context& ctx, const Parameters& params) noexcept override;
     [[nodiscard]] PredictionPolicy getPredictionPolicy()
         const noexcept override;
+    [[nodiscard]] AbstractNonLinearSolver& getSolver() noexcept override;
     /*!
      * \brief solve the non linear problem over the given time step
      * \param[in, out] ctx: execution context
