@@ -60,6 +60,10 @@ Unit tests
 - `ImplicitGradientRegularizationTest`: test the
   `computeImplicitGradientRegularization` which computes the implicit
   gradient regularization of a partial quadrature function.
+- `AdditionalConvergenceCriterionTest`: test the
+  `AbstractAdditionalConvergenceCriterion` hooks (`helper`, `reset`, `check`),
+  dynamic parameter/linear-solver continuation, multiple criteria evaluation,
+  error reporting, and interaction with `Simulation` sub-stepping.
 
 <!--
 ## Benchmark

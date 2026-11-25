@@ -725,6 +725,30 @@ if(MFEM_MGIS_HAVE_TFEL)
   add_prediction_test(PredictionTest)
   add_prediction_test(PredictionTest2)
 
+  # AdditionalConvergenceCriterionTest executable
+  if(MFEM_MGIS_ENABLE_TFEL_TESTS)
+    add_tfel_test_executable(AdditionalConvergenceCriterionTest)
+
+    # Helper function for AdditionalConvergenceCriterionTest cases
+    function(add_additional_convergence_criterion_test)
+      set(test "AdditionalConvergenceCriterionTest")
+      set(params "--mesh" "${CMAKE_CURRENT_SOURCE_DIR}/cube.mesh"
+                 "--library" "$<TARGET_FILE:BehaviourTest>")
+      add_test(NAME ${test}
+               COMMAND ./AdditionalConvergenceCriterionTest ${params}
+                       "--parallel" "0")
+      set_property(TEST ${test} PROPERTY DEPENDS BehaviourTest)
+      if(MFEM_USE_MPI)
+        add_test(NAME Parallel${test}
+                 COMMAND mpirun -n 2 ./AdditionalConvergenceCriterionTest
+                         ${params} "--parallel" "1")
+        set_property(TEST Parallel${test} PROPERTY DEPENDS BehaviourTest)
+      endif(MFEM_USE_MPI)
+    endfunction()
+
+    add_additional_convergence_criterion_test()
+  endif(MFEM_MGIS_ENABLE_TFEL_TESTS)
+
   if(MGIS_HAVE_TFEL)
     add_tfel_test_executable(GeometryTest)
     add_test(NAME GeometryTest COMMAND ./GeometryTest)
