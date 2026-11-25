@@ -146,22 +146,23 @@ namespace mfem_mgis {
       }
       this->Monitor(it, norm, r, x);
       //
-      auto result = this->processAdditionalConvergenceCriterionCheck(*this->ctx_ptr, {
-          .residual_norm = norm,
-          .reference_residual_norm = this->reference_residual_norm.value(),
-          .iter = it ,
-          .max_iter = this->max_iter,
-          .converged = norm <= norm_goal,
-          .u = x
-          }
-          );     
-      if (isInvalid(result)){
-        this->converged=false;
+      auto fallback_ctx = Context{};
+      auto &ctx =
+          (this->ctx_ptr != nullptr) ? *(this->ctx_ptr) : fallback_ctx;
+      auto result = this->processAdditionalConvergenceCriterionCheck(
+          ctx, {.residual_norm = norm,
+                .reference_residual_norm = *(this->reference_residual_norm),
+                .iter = it,
+                .max_iter = this->max_iter,
+                .converged = norm <= norm_goal,
+                .u = x});
+      if (isInvalid(result)) {
+        this->converged = 0;
         break;
       }
-      this->converged = *result;
-      if (this->converged){
-          break;
+      this->converged = *result ? 1 : 0;
+      if (this->converged != 0) {
+        break;
       }
       //
       if (it >= this->max_iter) {

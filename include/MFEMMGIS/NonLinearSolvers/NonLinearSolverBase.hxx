@@ -33,7 +33,8 @@ namespace mfem_mgis {
         std::function<bool(const mfem::Vector &)> a) noexcept override final;
     //
     void addAdditionalConvergenceCriterion(
-        std::shared_ptr<AbstractAdditionalConvergenceCriterion> ) override final;
+        std::shared_ptr<AbstractAdditionalConvergenceCriterion> a) override
+        final;
     //
     [[nodiscard]] bool setSolverParameters(
         Context &ctx, const Parameters &params) noexcept override;
@@ -92,13 +93,17 @@ namespace mfem_mgis {
     std::vector<std::function<bool(const mfem::Vector &)>> nue_actions;
 
     std::optional<bool> processAdditionalConvergenceCriterionCheck(
-        Context&, const AbstractAdditionalConvergenceCriterion::CheckArguments&) const override final; 
+        Context &ctx,
+        const AbstractAdditionalConvergenceCriterion::CheckArguments &s)
+        const override final;
 
     void processAdditionalConvergenceCriterionReset() override final;
 
     void processAdditionalConvergenceCriterionHelper() override final;
 
-    std::vector<std::shared_ptr<AbstractAdditionalConvergenceCriterion> > acc_actions;
+    //! \brief registered additional convergence criteria
+    std::vector<std::shared_ptr<AbstractAdditionalConvergenceCriterion>>
+        acc_actions;
     /*!
      * \brief information collected during the iterations
      * This vector is meant to be cleared at the beginning of the Mult method

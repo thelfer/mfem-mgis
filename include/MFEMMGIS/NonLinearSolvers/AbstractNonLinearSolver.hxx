@@ -8,6 +8,9 @@
 #ifndef LIB_MFEMMGIS_NONLINEARSOLVERS_ABSTRACTNONLINEARSOLVER_HXX
 #define LIB_MFEMMGIS_NONLINEARSOLVERS_ABSTRACTNONLINEARSOLVER_HXX
 
+#include <memory>
+#include <vector>
+#include <optional>
 #include "mfem/linalg/solvers.hpp"
 #include "MFEMMGIS/Config.hxx"
 #include "MFEMMGIS/NonLinearSolvers/AbstractAdditionalConvergenceCriterion.hxx"
@@ -58,30 +61,35 @@ namespace mfem_mgis {
      * \param[in] a: action
      */
     virtual void addNewUnknownsEstimateActions(
-        std::function<bool(const mfem::Vector &)>) noexcept = 0;
+        std::function<bool(const mfem::Vector &)> a) noexcept = 0;
     /*!
-     * \brief add an additional function to be called after the non-linear solver converges. 
-     * \param[in] a: action
+     * \brief register an additional convergence criterion
+     * \param[in] a: additional convergence criterion
      */
-    virtual void addAdditionalConvergenceCriterion(std::shared_ptr<AbstractAdditionalConvergenceCriterion> ) = 0; 
+    virtual void addAdditionalConvergenceCriterion(
+        std::shared_ptr<AbstractAdditionalConvergenceCriterion> a) = 0;
     /*!
-     * \brief method called when the non-linear solver has converged 
-     * \param[in] ctx: execution context
-     * \param[in] s: parameters passed to the `nonlinear_solver::AbstractAdditionalConvergenceCriterion::check` function
+     * \brief evaluate all registered additional convergence criteria
+     * \param[in, out] ctx: execution context
+     * \param[in] s: arguments passed to
+     * `AbstractAdditionalConvergenceCriterion::check`
+     * \return the combined convergence status, or `std::nullopt` if a criterion
+     * reported an error
      */
-    virtual std::optional<bool> processAdditionalConvergenceCriterionCheck(Context&, const AbstractAdditionalConvergenceCriterion::CheckArguments&) const = 0; 
+    virtual std::optional<bool> processAdditionalConvergenceCriterionCheck(
+        Context &ctx,
+        const AbstractAdditionalConvergenceCriterion::CheckArguments &s)
+        const = 0;
     /*!
-     * \brief method called after the non-linear solver has computed a prediction, see `NonLinearEvolutionProblemImplementationBase::solve` 
+     * \brief method called after the prediction step and before the nonlinear
+     * resolution, see `NonLinearEvolutionProblemImplementationBase::solve`
      */
     virtual void processAdditionalConvergenceCriterionReset() = 0;
     /*!
-     * \brief method called when the non-linear solver is setting up, see `NonLinearEvolutionProblemImplementationBase::setup`
+     * \brief method called during problem setup before the prediction step,
+     * see `NonLinearEvolutionProblemImplementationBase::setup`
      */
     virtual void processAdditionalConvergenceCriterionHelper() = 0;
-    /*!
-     * \brief additional actions performed when checking the non-linear solver convergence, as well as the setup.
-     */
-    std::vector<std::shared_ptr<AbstractAdditionalConvergenceCriterion> > acc_actions;
     /*!
      * \brief set the reference value for the norm of the residual.
      * \param[in, out] ctx: execution context

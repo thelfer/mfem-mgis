@@ -357,8 +357,9 @@ namespace mfem_mgis {
       }
       return true;
     }();
-    AbstractNonLinearSolver& s = this->getSolver();
-    s.processAdditionalConvergenceCriterionHelper();
+    if (this->solver != nullptr) {
+      this->solver->processAdditionalConvergenceCriterionHelper();
+    }
     
     return isTrueOnAllProcesses(this->fe_discretization, success);
   }  // end of setup
@@ -459,8 +460,9 @@ namespace mfem_mgis {
         }
       }
     }
-    AbstractNonLinearSolver& newton = this->getSolver();
-    newton.processAdditionalConvergenceCriterionReset();
+    if (this->solver != nullptr) {
+      this->solver->processAdditionalConvergenceCriterionReset();
+    }
     
     auto fill_output = [&output](auto& s) {
       output.status = s.GetConverged();
