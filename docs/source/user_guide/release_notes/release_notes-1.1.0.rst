@@ -37,6 +37,9 @@ Highlights
   see the known incompatibilities below.
 - The name of the materials and boundaries are automatically retrieved
   from |MFEM|'s mesh.
+- Support for custom additional convergence criteria has been added to
+  nonlinear solvers through :cxx:`AbstractAdditionalConvergenceCriterion`
+  and :cxx:`NonLinearEvolutionProblem::getSolver`.
 
 Known incompatibilites
 ======================
@@ -382,6 +385,18 @@ Physical system, coupling schemes and models
 
 Line-search-like handling of behaviour integration failures
 -----------------------------------------------------------
+
+Additional convergence criteria for nonlinear solvers
+-----------------------------------------------------
+
+Custom convergence criteria and dynamic parameter control during nonlinear
+resolution are now supported via :cxx:`AbstractAdditionalConvergenceCriterion`
+and :cxx:`AbstractNonLinearSolver::addAdditionalConvergenceCriterion`
+(accessible through :cxx:`NonLinearEvolutionProblem::getSolver`).
+
+See :ref:`mfem_mgis_additional_convergence_criteria` in the user guide and
+:ref:`mfem_mgis_developer_guide_nonlinear_solvers` in the developer guide for
+usage examples and architectural details.
 
 Profiling Toolkit
 -----------------

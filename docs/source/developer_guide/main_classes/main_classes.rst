@@ -14,3 +14,9 @@ The `doxygen` documentation is available on `this page <https://thelfer.github.i
    FiniteElementDiscretization.rst
    FiniteElementSpaces.rst
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Nonlinear solvers
+
+   NonLinearSolvers.rst
+
